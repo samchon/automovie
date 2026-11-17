@@ -1,8 +1,8 @@
-import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
-import { AutoMovieSubjectKind } from "./AutoMovieSubjectKind";
-import { IAutoMovieSubjectBounds } from "./IAutoMovieSubjectBounds";
-import { IAutoMovieSubjectMaterial } from "./IAutoMovieSubjectMaterial";
-import { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary";
+import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { AutoMovieSubjectKind } from "./AutoMovieSubjectKind";
+import type { IAutoMovieSubjectBounds } from "./IAutoMovieSubjectBounds";
+import type { IAutoMovieSubjectMaterial } from "./IAutoMovieSubjectMaterial";
+import type { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary";
 
 /**
  * Renderer-independent structural description of one stable compiled subject.

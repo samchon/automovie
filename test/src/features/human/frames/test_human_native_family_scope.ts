@@ -1,17 +1,19 @@
-import {
-  type AutoMovieViewAxis,
-  AutoMovieViewOutline,
-  type IAutoMovieLoftRelief,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import {
-  AutoMovieHumanNativeFeatureLaw,
-  AutoMovieHumanConicLoft as H,
-  AutoMovieHumanNativeFamily as Native,
-  AutoMovieHumanConicSection as S,
-} from "@automovie/human";
-
 import { nclose } from "../../internal/predicates";
+import { AutoMovieViewOutline } from "@automovie/engine";
+import {
+  AutoMovieHumanConicLoft as H,
+  AutoMovieHumanConicSection as S,
+  AutoMovieHumanNativeFamily as Native,
+  AutoMovieHumanNativeFeatureLaw,
+} from "@automovie/human";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicSection,
+  IAutoMovieLoftRelief,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * Native source generation resolves material controls, placed directions and caller scope once.
@@ -43,7 +45,7 @@ export function test_human_native_family_scope(): void {
     axis: [1, 0, 0],
     shift,
   };
-  const prior: H.IFamily = {
+  const prior: IAutoMovieHumanConicLoft.IFamily = {
     name: "made",
     centres: [
       [0, 0, 0],
@@ -67,33 +69,33 @@ export function test_human_native_family_scope(): void {
     tips: [null, { from: 4, tip: 6 }],
     reliefs: [net],
   };
-  const source = (family: H.IFamily): IAutoMovieViewPart =>
+  const source = (family: IAutoMovieHumanConicLoft.IFamily): IAutoMovieViewPart =>
     H.part(family, [0, 2, 4]);
   const originals: Map<string, IAutoMovieViewPart> = new Map([
     [prior.name, source(prior)],
     ["made.mirror", source(H.mirror(prior, "made.mirror"))],
   ]);
-  const axis: AutoMovieViewAxis.IAxis = H.axis(prior);
+  const axis: IAutoMovieViewAxis.IAxis = H.axis(prior);
   const spec = (
     radial: number,
     along: number,
-    bone: H.IFamily = prior,
+    bone: IAutoMovieHumanConicLoft.IFamily = prior,
   ): Native.ISpec => ({
     original: prior,
     bone,
     originals,
     axis,
-    scale: (): S.P => [radial, radial],
+    scale: (): AutoMovieVector2Tuple => [radial, radial],
     station: (s: number): number => s * along,
     features: AutoMovieHumanNativeFeatureLaw(
       prior.reliefs ?? [],
       bone.reliefs ?? [],
-      (): S.P => [radial, radial],
+      (): AutoMovieVector2Tuple => [radial, radial],
       (s: number): number => s * along,
     ),
     protection: [],
   });
-  const radial: H.IFamily = Native.create(spec(2, 1));
+  const radial: IAutoMovieHumanConicLoft.IFamily = Native.create(spec(2, 1));
   for (const family of [radial, H.mirror(radial, "made.mirror")]) {
     const part: IAutoMovieViewPart = H.part(family, [0, 2, 4]);
     if (!nclose(part.reliefs?.[0]?.heights[24] ?? NaN, 2, 1e-12))
@@ -103,11 +105,11 @@ export function test_human_native_family_scope(): void {
         "radial scale changed longitudinal shift on " + family.name,
       );
   }
-  const placed: H.IFamily = {
+  const placed: IAutoMovieHumanConicLoft.IFamily = {
     ...prior,
     reliefs: [{ ...net, stations: [2, 4] }],
   };
-  const along: H.IFamily = Native.create(spec(1, 2, placed));
+  const along: IAutoMovieHumanConicLoft.IFamily = Native.create(spec(1, 2, placed));
   for (const family of [along, H.mirror(along, "made.mirror")]) {
     const part: IAutoMovieViewPart = H.part(family, [0, 4, 8]);
     const feature: IAutoMovieLoftRelief | undefined = part.reliefs?.[0];
@@ -122,8 +124,8 @@ export function test_human_native_family_scope(): void {
         "along2 did not scale its longitudinal shift once on " + family.name,
       );
   }
-  const unchanged: H.IFamily = Native.create(spec(1, 1));
-  const cap: H.ITip = prior.tips![1]!;
+  const unchanged: IAutoMovieHumanConicLoft.IFamily = Native.create(spec(1, 1));
+  const cap: IAutoMovieHumanConicLoft.ITip = prior.tips![1]!;
   const read = (part: IAutoMovieViewPart): number => {
     const curve = AutoMovieViewOutline.create(part.front.positive, {
       top: part.stations.at(-1)!,
@@ -139,7 +141,7 @@ export function test_human_native_family_scope(): void {
     { ...cap, covered: true },
     { ...cap, own: true },
   ]) {
-    const requested: H.IFamily = { ...unchanged, tips: [null, tip] };
+    const requested: IAutoMovieHumanConicLoft.IFamily = { ...unchanged, tips: [null, tip] };
     const actual: IAutoMovieViewPart = H.part(requested, [0, 2, 4]);
     const expected: IAutoMovieViewPart = H.part(
       { ...requested, native: undefined },
@@ -149,7 +151,7 @@ export function test_human_native_family_scope(): void {
       failures.push("caller cap request was discarded: " + JSON.stringify(tip));
   }
   for (const sampling of [{ phase: Math.PI / 64 }, { pitch: 0.05 }]) {
-    const requested: H.IFamily = { ...unchanged, ...sampling };
+    const requested: IAutoMovieHumanConicLoft.IFamily = { ...unchanged, ...sampling };
     const actual: IAutoMovieViewPart = H.part(requested, [0, 2, 4]);
     const expected: IAutoMovieViewPart = H.part(
       { ...requested, native: undefined },
@@ -172,7 +174,7 @@ export function test_human_native_family_scope(): void {
   if ((bare.reliefs?.length ?? 0) !== 0)
     failures.push("bare caller scope regained a feature");
   const ellipse: number = Math.SQRT2 - 1;
-  const groove: H.IFamily = {
+  const groove: IAutoMovieHumanConicLoft.IFamily = {
     ...prior,
     name: "groove",
     tips: undefined,
@@ -196,7 +198,7 @@ export function test_human_native_family_scope(): void {
     ],
   };
   const groovePart: IAutoMovieViewPart = source(groove);
-  const mapped: H.IFamily = Native.create({
+  const mapped: IAutoMovieHumanConicLoft.IFamily = Native.create({
     ...spec(2, 1),
     original: groove,
     bone: groove,
@@ -205,10 +207,10 @@ export function test_human_native_family_scope(): void {
     features: [],
   });
   for (const s of [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]) {
-    const a: S.IChain = S.resolve(H.reader(groove)(s), groove.layout);
-    const b: S.IChain = S.resolve(H.reader(mapped)(s), mapped.layout);
-    const oldT: S.P = a.input.tangents[1]!;
-    const newT: S.P = b.input.tangents[1]!;
+    const a: IAutoMovieHumanConicSection.IChain = S.resolve(H.reader(groove)(s), groove.layout);
+    const b: IAutoMovieHumanConicSection.IChain = S.resolve(H.reader(mapped)(s), mapped.layout);
+    const oldT: AutoMovieVector2Tuple = a.input.tangents[1]!;
+    const newT: AutoMovieVector2Tuple = b.input.tangents[1]!;
     if (
       Math.abs(oldT[0] * newT[1] - oldT[1] * newT[0]) > 1e-10 ||
       oldT[0] * newT[0] + oldT[1] * newT[1] <= 0

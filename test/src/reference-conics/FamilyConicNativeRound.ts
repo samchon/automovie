@@ -1,30 +1,36 @@
-import {
-  AutoMovieConstructionAdmission,
-  AutoMovieSolidChain,
-  AutoMovieViewLoft,
-  type IAutoMovieLoftChain,
-  type IAutoMovieSolidSurface,
-  type IAutoMovieViewPart,
-  bracketedRoot,
-  pointInPlanarRing,
-} from "@automovie/engine";
-import {
-  AutoMovieHumanF1NativeTape,
-  AutoMovieHumanNativeCalipers,
-  AutoMovieHumanF1Engineering as Engineering,
-  AutoMovieHumanF1 as Figure,
-  AutoMovieHumanSegmentFrame as Frame,
-  AutoMovieHumanF1NativeLaw as Law,
-  AutoMovieHumanConicLoft as Loft,
-} from "@automovie/human";
-import fs from "node:fs/promises";
-import path from "node:path";
-
 import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
 import { FamilyConicCaseSelection as Selection } from "./FamilyConicCaseSelection";
 import { FamilyConicNativeControls as Control } from "./FamilyConicNativeControls";
 import { FamilyConicNativePremises } from "./FamilyConicNativePremises";
-import { FamilyConicNativeRootObservations as Observation } from "./FamilyConicNativeRootObservations";
+import {
+  FamilyConicNativeRootObservations as Observation,
+} from "./FamilyConicNativeRootObservations";
+import {
+  AutoMovieConstructionAdmission,
+  AutoMovieSolidChain,
+  AutoMovieViewLoft,
+  bracketedRoot,
+  pointInPlanarRing,
+} from "@automovie/engine";
+import {
+  AutoMovieHumanConicLoft as Loft,
+  AutoMovieHumanF1 as Figure,
+  AutoMovieHumanF1Engineering as Engineering,
+  AutoMovieHumanF1NativeLaw as Law,
+  AutoMovieHumanF1NativeTape,
+  AutoMovieHumanNativeCalipers,
+  AutoMovieHumanSegmentFrame as Frame,
+} from "@automovie/human";
+import type {
+  IAutoMovieHumanF1,
+  IAutoMovieHumanF1Engineering,
+  IAutoMovieHumanF1NativeLaw,
+  IAutoMovieLoftChain,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /**
  * One authored-F1 engineering inspection round, without whole-skin realization.
@@ -109,8 +115,8 @@ namespace FamilyConicNativeRound {
   }
   /** Every requested caliper uses its actual retained logical source and exact material proxy site. */
   function sites(
-    fields: Law.IFields,
-    assembly: Figure.IAssembly,
+    fields: IAutoMovieHumanF1NativeLaw.IFields,
+    assembly: IAutoMovieHumanF1.IAssembly,
     parts: ReadonlyMap<string, IAutoMovieViewPart>,
     kept: Record<string, readonly [number, number]>,
   ): Record<string, unknown>[] {
@@ -118,7 +124,7 @@ namespace FamilyConicNativeRound {
       field: string;
       name: string;
       station: number;
-      target: Law.ISize;
+      target: IAutoMovieHumanF1NativeLaw.ISize;
     }[] = [];
     for (const [field, station] of [
       ["hipSkin", 104],
@@ -308,7 +314,7 @@ namespace FamilyConicNativeRound {
     return rows;
   }
   /** Finite full-skin parent-plane containment, explicitly distinct from a whole-volume certificate. */
-  function support(assembly: Figure.IAssembly, source: Source): unknown {
+  function support(assembly: IAutoMovieHumanF1.IAssembly, source: Source): unknown {
     const joint = assembly.frames.get("femur");
     if (joint === undefined)
       return { unavailable: "support proxy frame absent" };
@@ -509,7 +515,7 @@ namespace FamilyConicNativeRound {
       calibrationMs: number = preparation.calibration.milliseconds;
     const measurements: unknown[] = [],
       baseHash = Identity.dataHash(base);
-    const measure = (fields: Law.IFields): Engineering.IReading => {
+    const measure = (fields: IAutoMovieHumanF1NativeLaw.IFields): IAutoMovieHumanF1Engineering.IReading => {
       const began: number = performance.now(),
         identity: boolean = Identity.dataHash(fields) === baseHash;
       const families = identity
@@ -554,7 +560,7 @@ namespace FamilyConicNativeRound {
       });
       return result;
     };
-    let baseline: Engineering.IReading | null = null,
+    let baseline: IAutoMovieHumanF1Engineering.IReading | null = null,
       baselineFailure: string | null = null;
     try {
       baseline = measure(base);
@@ -618,7 +624,7 @@ namespace FamilyConicNativeRound {
         const start: number = performance.now(),
           failures: { owner: string; detail: string }[] = [];
         // The production owner composes the person's skeleton from every field it reads (lengths, hip support).
-        const assembly: Figure.IAssembly = Figure.nativeFrom(plan.fields, preparation);
+        const assembly: IAutoMovieHumanF1.IAssembly = Figure.nativeFrom(plan.fields, preparation);
         const made: number = performance.now(),
           declared = Figure.constructionFrom(assembly),
           constructed: number = performance.now();

@@ -1,22 +1,26 @@
 import {
   AutoMovieConstructionContinuation,
   AutoMovieConstructionPortCurve,
-  type AutoMovieConstructionSeedTrace,
   AutoMovieConstructionSeeds,
-  type AutoMovieConstructionSplitBandTrace,
+  AutoMovieConstructionSplitBand as Band,
+  AutoMovieConstructionSplitSeam as Seam,
   AutoMovieNaturalSpline,
   AutoMovieSolidChain,
   AutoMovieSolidRibbon,
-  AutoMovieConstructionSplitBand as Band,
-  type IAutoMovieLoftChain,
-  type IAutoMovieSolidSurface,
-  AutoMovieConstructionSplitSeam as Seam,
   AutoMovieSolidVector as V,
 } from "@automovie/engine";
 import { AutoMovieHumanPeriodicRailRange } from "@automovie/human";
 import type {
-  AutoMovieConstructionNode,
+  AutoMovieVector3Tuple,
+  IAutoMovieBlendCrossJet,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionSeedTrace,
   IAutoMovieConstructionSplit,
+  IAutoMovieConstructionSplitBand,
+  IAutoMovieConstructionSplitBandTrace,
+  IAutoMovieConstructionSplitSeam,
+  IAutoMovieLoftChain,
+  IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
 /** One prepared actual relieved source; no bare adapter stands in for it. */
@@ -37,12 +41,12 @@ interface Source {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Invocation-local source and kept-domain maps live only for this inspection; the return contains plain evidence rather than executable readers.
  */
 export function FamilyConicNativePremises(
-  root: AutoMovieConstructionNode,
+  root: IAutoMovieConstructionNode,
   input: ReadonlyMap<string, Source>,
   observe?: {
     band?: (
       name: string,
-      event: AutoMovieConstructionSplitBandTrace.Event,
+      event: IAutoMovieConstructionSplitBandTrace.Event,
     ) => void;
     seam?: (
       name: string,
@@ -50,9 +54,9 @@ export function FamilyConicNativePremises(
       definition: IAutoMovieConstructionSplit.ISeam,
       host: IAutoMovieSolidSurface,
       station: number,
-      normal: V.Vec3,
+      normal: AutoMovieVector3Tuple,
     ) => void;
-    seed?: (name: string, event: AutoMovieConstructionSeedTrace.IEvent) => void;
+    seed?: (name: string, event: IAutoMovieConstructionSeedTrace.IEvent) => void;
     seedSurface?: (
       name: string,
       role: "part" | "host",
@@ -104,7 +108,7 @@ export function FamilyConicNativePremises(
       };
     }
   };
-  const normal = (source: Source, side: "bottom" | "top"): V.Vec3 => {
+  const normal = (source: Source, side: "bottom" | "top"): AutoMovieVector3Tuple => {
     const frame =
       source.chain.layers[
         side === "bottom" ? 0 : source.chain.layers.length - 1
@@ -120,7 +124,7 @@ export function FamilyConicNativePremises(
     name: string,
     side: "bottom" | "top",
     distance: number,
-  ): Band.ISide => {
+  ): IAutoMovieConstructionSplitBand.ISide => {
     const source = take(name),
       into: 1 | -1 = side === "bottom" ? 1 : -1;
     const station: number = end(source, side) + into * distance * 1000,
@@ -141,9 +145,9 @@ export function FamilyConicNativePremises(
   };
   const publish = (
     name: string,
-    made: Band.IStrip | string,
+    made: IAutoMovieConstructionSplitBand.IStrip | string,
     host: (column: number) => unknown,
-    rail: Band.ISide,
+    rail: IAutoMovieConstructionSplitBand.ISide,
   ): void => {
     if (typeof made === "string") throw new Error(made);
     sources.set(name, { chain: made.chain, surface: made.surface });
@@ -174,12 +178,12 @@ export function FamilyConicNativePremises(
   };
   const trace: (
     name: string,
-  ) => AutoMovieConstructionSplitBandTrace.Sink | undefined = (
+  ) => IAutoMovieConstructionSplitBandTrace.Sink | undefined = (
     name: string,
-  ): AutoMovieConstructionSplitBandTrace.Sink | undefined =>
+  ): IAutoMovieConstructionSplitBandTrace.Sink | undefined =>
     observe?.band === undefined
       ? undefined
-      : (event: AutoMovieConstructionSplitBandTrace.Event): void => {
+      : (event: IAutoMovieConstructionSplitBandTrace.Event): void => {
           observe.band!(name, event);
         };
   const createSeam = (
@@ -187,7 +191,7 @@ export function FamilyConicNativePremises(
     node: IAutoMovieConstructionSplit,
     seam: IAutoMovieConstructionSplit.ISeam,
     index: number,
-  ): Seam.ISeam => {
+  ): IAutoMovieConstructionSplitSeam.ISeam => {
     const host = {
       host: source.surface,
       station: end(source, node.hostEnd),
@@ -202,7 +206,7 @@ export function FamilyConicNativePremises(
       host.station,
       host.normal,
     );
-    const made: Seam.ISeam | string =
+    const made: IAutoMovieConstructionSplitSeam.ISeam | string =
       seam.profile === undefined
         ? Seam.straight(host)
         : Seam.create({
@@ -219,7 +223,7 @@ export function FamilyConicNativePremises(
     if (typeof made === "string") throw new Error(made);
     return made;
   };
-  const walk = (node: AutoMovieConstructionNode): void => {
+  const walk = (node: IAutoMovieConstructionNode): void => {
     if ("host" in node) walk(node.host);
     if ("part" in node) walk(node.part);
     if (node.type === "split") for (const c of node.children) walk(c.part);
@@ -257,7 +261,7 @@ export function FamilyConicNativePremises(
         }: ReturnType<typeof AutoMovieConstructionPortCurve.chart> =
           AutoMovieConstructionPortCurve.chart(node.loop, n);
         const jets = charts.map(([s, t]) => host.surface.jet(s, t));
-        const loop = jets.map((jet): V.Vec3 => [...jet.p]);
+        const loop = jets.map((jet): AutoMovieVector3Tuple => [...jet.p]);
         const outward = V.unit(
           V.scale(V.cross(jets[0]!.u, jets[0]!.v), host.surface.orientation),
         );
@@ -266,7 +270,7 @@ export function FamilyConicNativePremises(
         const near = (
           k: number,
           length: number,
-        ): AutoMovieSolidRibbon.IRibbon | string => {
+        ): IAutoMovieBlendCrossJet | string => {
           const [du, dv]: [number, number] = inward[k]!,
             jet: IAutoMovieSolidSurface.IJet = jets[k]!;
           const speed: number = V.norm(
@@ -326,7 +330,7 @@ export function FamilyConicNativePremises(
           },
           ...(node.outer ?? []),
         ];
-        const curves = seams.map((s, index: number): Seam.ISeam | null => {
+        const curves = seams.map((s, index: number): IAutoMovieConstructionSplitSeam.ISeam | null => {
           try {
             return createSeam(source, node, s, index);
           } catch (error: unknown) {
@@ -431,8 +435,8 @@ export function FamilyConicNativePremises(
                 from: number,
                 to: number,
                 columns: number,
-              ): Band.IStretch => ({ kind: "arc", from, to, columns });
-              const seam = (j: number, forward: boolean): Band.IStretch => {
+              ): IAutoMovieConstructionSplitBand.IStretch => ({ kind: "arc", from, to, columns });
+              const seam = (j: number, forward: boolean): IAutoMovieConstructionSplitBand.IStretch => {
                 const curve = curves[j];
                 if (curve === null || curve === undefined)
                   throw new Error(
@@ -442,7 +446,7 @@ export function FamilyConicNativePremises(
                   );
                 return { kind: "seam", curve, forward, columns: q };
               };
-              const stretches: Band.IStretch[] =
+              const stretches: IAutoMovieConstructionSplitBand.IStretch[] =
                 index === 0
                   ? [arc(a(0), b(0), 3 * q), seam(0, false)]
                   : index === count

@@ -1,4 +1,4 @@
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
 /**
  * A strike's trunk turn laid on the trunk it enters with: the spine and the
@@ -31,9 +31,9 @@ export namespace StrikingTwist {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function trunk(
-    joints: IHumanPosture["joints"],
+    joints: IAutoMovieMotionHumanPosture["joints"],
     degrees: number,
-  ): Pick<IHumanPosture["joints"], "spine" | "chest"> {
+  ): Pick<IAutoMovieMotionHumanPosture["joints"], "spine" | "chest"> {
     const twisted = (
       angles: readonly [number, number, number] | undefined,
     ): [number, number, number] => [

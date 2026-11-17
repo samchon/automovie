@@ -1,10 +1,14 @@
+import type {
+  IAutoMovieConstructionBandEdge,
+  IAutoMovieConstructionSkinCut,
+  IAutoMovieLoftChain,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import {
   AutoMovieConstructionSkinCut,
   AutoMovieConstructionSplitEdge,
   AutoMovieSolidBlendChain,
   AutoMovieSolidChain,
-  type IAutoMovieLoftChain,
-  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
 
 type V3 = [number, number, number];
@@ -48,16 +52,16 @@ export function test_construction_skin_cut(): void {
   };
   const stations: number[] = Array.from({ length: 9 }, (_: unknown, i: number): number => -10 + (70 * i) / 8);
   const phases: number[] = Array.from({ length: 97 }, (_: unknown, i: number): number => 0.013 + (turn * i) / 97);
-  const cut = (planes: AutoMovieConstructionSkinCut.IPlane[], round?: number): AutoMovieConstructionSkinCut.ICut | string =>
+  const cut = (planes: IAutoMovieConstructionSkinCut.IPlane[], round?: number): IAutoMovieConstructionSkinCut.ICut | string =>
     AutoMovieConstructionSkinCut.create({ surface: cylinder, planes, ...(round === undefined ? {} : { round }), into: 1, stations, samples: 32 });
 
   // 1. One tilted plane.
   const t: number = 0.4;
-  const tilted = (shift: number): AutoMovieConstructionSkinCut.IPlane => ({
+  const tilted = (shift: number): IAutoMovieConstructionSkinCut.IPlane => ({
     point: [shift * Math.sin(t), 0, 12 + shift * Math.cos(t)],
     normal: [Math.sin(t), 0, Math.cos(t)],
   });
-  const one: AutoMovieConstructionSkinCut.ICut | string = cut([tilted(0)]);
+  const one: IAutoMovieConstructionSkinCut.ICut | string = cut([tilted(0)]);
   if (typeof one === "string") failures.push(`one plane: ${one}`);
   else {
     let [e0, e1, e2]: [number, number, number] = [0, 0, 0];
@@ -70,7 +74,7 @@ export function test_construction_skin_cut(): void {
     if (!(e0 <= 1e-10 && e1 <= 1e-8 && e2 <= 1e-8)) failures.push(`one plane: station off ${e0} mm, first derivative ${e1}, second ${e2}`);
 
     // 2. Offsets of one curve, against the station ring.
-    const moved: AutoMovieConstructionSkinCut.ICut | string = cut([tilted(3)]);
+    const moved: IAutoMovieConstructionSkinCut.ICut | string = cut([tilted(3)]);
     if (typeof moved === "string") failures.push(`moved plane: ${moved}`);
     else {
       const widths: number[] = phases.map((v: number): number => moved.at(v)[0] - one.at(v)[0]);
@@ -84,12 +88,12 @@ export function test_construction_skin_cut(): void {
 
   // 3-4. A wedge, sharp and rounded.
   const a: number = 0.2;
-  const wedge: AutoMovieConstructionSkinCut.IPlane[] = [
+  const wedge: IAutoMovieConstructionSkinCut.IPlane[] = [
     { point: [0, 0, 5], normal: [0, 0, 1] },
     { point: [7, 0, 0], normal: [-Math.cos(a), 0, Math.sin(a)] },
   ];
-  const sharp: AutoMovieConstructionSkinCut.ICut | string = cut(wedge);
-  const round: AutoMovieConstructionSkinCut.ICut | string = cut(wedge, 1);
+  const sharp: IAutoMovieConstructionSkinCut.ICut | string = cut(wedge);
+  const round: IAutoMovieConstructionSkinCut.ICut | string = cut(wedge, 1);
   const closed = (v: number): number => Math.max(5, (r * Math.cos(v) - 7) / Math.tan(a));
   const edge: number = Math.acos((7 + 5 * Math.tan(a)) / r);
   if (typeof sharp === "string" || typeof round === "string") failures.push(`wedge: ${String(sharp)} / ${String(round)}`);
@@ -111,17 +115,17 @@ export function test_construction_skin_cut(): void {
     if (!(above <= Math.log(2) + 1e-9)) failures.push(`round: the rail stands ${above} mm inside the wedge, more than ln 2`);
     if (!(Math.abs(round.at(Math.PI)[0] - 5) <= 1e-6)) failures.push(`round: opposite the edge the rail stands ${round.at(Math.PI)[0] - 5} mm off the end plane`);
     const h: number = 1e-4;
-    const kink = (c: AutoMovieConstructionSkinCut.ICut): number =>
+    const kink = (c: IAutoMovieConstructionSkinCut.ICut): number =>
       Math.abs(c.at(edge)[1] - (c.at(edge + h)[0] - c.at(edge - h)[0]) / (2 * h));
     if (!(kink(round) <= 1e-4 && kink(sharp) > 5)) failures.push(`round: across the edge the derivative misses the stations' difference by ${kink(round)} rounded and ${kink(sharp)} sharp`);
   }
 
   // 5. Refusals by name.
-  const never: AutoMovieConstructionSkinCut.ICut | string = cut([wedge[0]!, { point: [7, 0, 0], normal: [-1, 0, 0] }]);
+  const never: IAutoMovieConstructionSkinCut.ICut | string = cut([wedge[0]!, { point: [7, 0, 0], normal: [-1, 0, 0] }]);
   if (typeof never !== "string" || !never.includes("never enters")) failures.push(`a plane along the axis was not refused as never entered: ${String(never)}`);
-  const before: AutoMovieConstructionSkinCut.ICut | string = cut([{ point: [0, 0, -20], normal: [0, 0, 1] }]);
+  const before: IAutoMovieConstructionSkinCut.ICut | string = cut([{ point: [0, 0, -20], normal: [0, 0, 1] }]);
   if (typeof before !== "string" || !before.includes("already inside")) failures.push(`a plane before the facing end was not refused: ${String(before)}`);
-  const none: AutoMovieConstructionSkinCut.ICut | string = cut([]);
+  const none: IAutoMovieConstructionSkinCut.ICut | string = cut([]);
   if (typeof none !== "string") failures.push("a cut without a plane was admitted");
 
   // 6. A band carried onto the rail.
@@ -142,7 +146,7 @@ export function test_construction_skin_cut(): void {
     const strip: IAutoMovieSolidSurface | null = made === null ? null : AutoMovieSolidChain.surface(made.chain);
     if (made === null || strip === null) failures.push("carried: no strip");
     else {
-      const carried: AutoMovieConstructionSplitEdge.IEdge | string = AutoMovieConstructionSplitEdge.carried(strip, made.length, cylinder, one.at, childPhases);
+      const carried: IAutoMovieConstructionBandEdge | string = AutoMovieConstructionSplitEdge.carried(strip, made.length, cylinder, one.at, childPhases);
       if (typeof carried === "string") failures.push(`carried: ${carried}`);
       else {
         const L: number = made.length;

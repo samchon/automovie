@@ -1,4 +1,9 @@
-import { IAutoMovieSweep } from "./IAutoMovieSweep";
+import type {
+  IAutoMovieCompileSweepFeature,
+  IAutoMovieCompileSweepFeatureOutput,
+  IAutoMovieSweep,
+} from "@automovie/interface";
+
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 
 /** Dense samples per curve segment that seed the nearest-point search. */
@@ -48,11 +53,11 @@ const NEWTON: number = 4;
  */
 export const compileAutoMovieSweepFeature: (
   feature: IAutoMovieSweep.IFeature,
-  scale: { length: number; radius: number },
-) => IOutput = (
+  scale: IAutoMovieCompileSweepFeature.IScale,
+) => IAutoMovieCompileSweepFeatureOutput = (
   feature: IAutoMovieSweep.IFeature,
-  scale: { length: number; radius: number },
-): IOutput => {
+  scale: IAutoMovieCompileSweepFeature.IScale,
+): IAutoMovieCompileSweepFeatureOutput => {
   // unwrap the angles so consecutive points take the shorter way round, and drop repeats
   const relative: boolean = feature.points[0]!.offset !== undefined;
   const points: Array<{ at: number; angle: number; value: number }> = [];
@@ -265,18 +270,3 @@ export const compileAutoMovieSweepFeature: (
     },
   };
 };
-
-/** The shared domain course and field, retaining the producer's compiled coefficients. */
-interface IOutput {
-  /** Displacement in metres at a domain point, given local radius, spine length and the pre-feature radius evaluator. */
-  displacement: (
-    u: number,
-    angle: number,
-    local: number,
-    length: number,
-    guided: (u: number, angle: number) => number,
-  ) => number;
-
-  /** Domain point at a clamped share of the centripetal knot span; v is in unwrapped turns and a collapsed course is constant. */
-  point: (t: number) => { u: number; v: number };
-}

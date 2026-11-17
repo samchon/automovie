@@ -1,11 +1,15 @@
+import type {
+  IAutoMovieBlendColumn,
+  IAutoMovieConstructionSearchSeed,
+  IAutoMovieConstructionSeedTrace,
+  IAutoMovieConstructionSplitBand,
+  IAutoMovieConstructionSplitBandTrace,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import {
   AutoMovieConstructionSplitBand as Band,
-  type AutoMovieConstructionSplitBandTrace as BandTrace,
-  type IAutoMovieSolidSurface,
-  type AutoMovieConstructionSeedTrace as SeedTrace,
   AutoMovieConstructionSeeds as Seeds,
 } from "@automovie/engine";
-import type { IAutoMovieConstructionSearchSeed } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -60,16 +64,16 @@ export function test_construction_operator_trace(): void {
       Math.sin((k * Math.PI) / 2),
     ],
   );
-  const near: (k: number, length: number) => Band.IColumn["start"] = (
+  const near: (k: number, length: number) => IAutoMovieBlendColumn["start"] = (
     k: number,
     length: number,
-  ): Band.IColumn["start"] => ({
+  ): IAutoMovieBlendColumn["start"] => ({
     point: loop[k]!,
     first: [0, length, 0],
     second: [...zero],
   });
-  const events: BandTrace.Event[] = [];
-  const plain: Band.IStrip | string = Band.strip(
+  const events: IAutoMovieConstructionSplitBandTrace.Event[] = [];
+  const plain: IAutoMovieConstructionSplitBand.IStrip | string = Band.strip(
     "parallel",
     loop,
     near,
@@ -79,7 +83,7 @@ export function test_construction_operator_trace(): void {
     "angle",
     "column",
   );
-  const observed: Band.IStrip | string = Band.strip(
+  const observed: IAutoMovieConstructionSplitBand.IStrip | string = Band.strip(
     "parallel",
     loop,
     near,
@@ -89,7 +93,7 @@ export function test_construction_operator_trace(): void {
     "angle",
     "column",
     [],
-    (event: BandTrace.Event): void => {
+    (event: IAutoMovieConstructionSplitBandTrace.Event): void => {
       events.push(event);
     },
   );
@@ -127,18 +131,18 @@ export function test_construction_operator_trace(): void {
             failures.push("trace changed actual surface " + key);
       }
   }
-  const prepared: Extract<BandTrace.Event, { kind: "prepared" }> | undefined =
+  const prepared: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "prepared" }> | undefined =
     events.find(
       (
-        event: BandTrace.Event,
-      ): event is Extract<BandTrace.Event, { kind: "prepared" }> =>
+        event: IAutoMovieConstructionSplitBandTrace.Event,
+      ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "prepared" }> =>
         event.kind === "prepared",
     );
-  const pass: Extract<BandTrace.Event, { kind: "local-pass" }> | undefined =
+  const pass: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> | undefined =
     events.find(
       (
-        event: BandTrace.Event,
-      ): event is Extract<BandTrace.Event, { kind: "local-pass" }> =>
+        event: IAutoMovieConstructionSplitBandTrace.Event,
+      ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> =>
         event.kind === "local-pass",
     );
   if (prepared === undefined)
@@ -213,7 +217,7 @@ export function test_construction_operator_trace(): void {
       from: 0.25,
       to: 0.75,
     };
-    const trace: SeedTrace.IEvent[] = [];
+    const trace: IAutoMovieConstructionSeedTrace.IEvent[] = [];
     const a: ReturnType<typeof Seeds.create> = Seeds.create(
       seed,
       part,
@@ -229,17 +233,17 @@ export function test_construction_operator_trace(): void {
       host,
       7,
       1e-10,
-      (event: SeedTrace.IEvent): void => {
+      (event: IAutoMovieConstructionSeedTrace.IEvent): void => {
         trace.push(event);
       },
     );
     if (
       !trace.some(
-        (event: SeedTrace.IEvent): boolean =>
+        (event: IAutoMovieConstructionSeedTrace.IEvent): boolean =>
           event.kind === "candidate" && event.reason !== "start",
       ) ||
       trace.some(
-        (event: SeedTrace.IEvent): boolean =>
+        (event: IAutoMovieConstructionSeedTrace.IEvent): boolean =>
           event.kind === "candidate" &&
           event.reason !== "start" &&
           event.iteration !== null,
@@ -248,7 +252,7 @@ export function test_construction_operator_trace(): void {
       failures.push("candidate completion invented a Newton update count");
     if (
       trace.some(
-        (event: SeedTrace.IEvent): boolean =>
+        (event: IAutoMovieConstructionSeedTrace.IEvent): boolean =>
           event.kind === "meet-end" &&
           (event.iteration === null ||
             !Number.isInteger(event.iteration) ||
@@ -261,7 +265,7 @@ export function test_construction_operator_trace(): void {
         failures.push("parallel planes lost the identical bounded refusal");
       if (
         !trace.some(
-          (event: SeedTrace.IEvent): boolean =>
+          (event: IAutoMovieConstructionSeedTrace.IEvent): boolean =>
             event.kind === "meet-end" &&
             event.reason === "singular-step" &&
             event.gap !== null &&
@@ -281,7 +285,7 @@ export function test_construction_operator_trace(): void {
         failures.push("transverse planes changed their exact meeting");
       if (
         !trace.some(
-          (event: SeedTrace.IEvent): boolean =>
+          (event: IAutoMovieConstructionSeedTrace.IEvent): boolean =>
             event.kind === "meet-end" &&
             event.reason === "converged" &&
             event.gap !== null &&

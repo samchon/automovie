@@ -1,11 +1,14 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanHandToFaceRows,
+  IAutoMovieMotionHumanPerformance,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../../compose/AutoMovieMotionHumanTouchForm";
@@ -55,14 +58,17 @@ export function handToFaceCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = createHumanBody(
       man.body.skeleton,
       man.body.profile,
     );
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
-    for (const task of Object.keys(handToFace.ROWS) as handToFace.Task[]) {
-      const row: handToFace.IRow = handToFace.ROWS[task];
-      let performance: HumanPerformance;
+    for (const task of Object.keys(
+      handToFace.ROWS,
+    ) as IAutoMovieMotionHumanHandToFaceRows.Task[]) {
+      const row: IAutoMovieMotionHumanHandToFaceRows.IRow =
+        handToFace.ROWS[task];
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = perform(
           body,
@@ -238,7 +244,10 @@ export function handToFaceCases(
 }
 
 /** A performance of one polygon man standing at the origin heading +Z. */
-function perform(body: IHumanBody, chain: HumanChain): HumanPerformance {
+function perform(
+  body: IAutoMovieMotionHumanBody,
+  chain: IAutoMovieMotionHumanChain,
+): IAutoMovieMotionHumanPerformance {
   return new HumanPerformance({
     seed: "hand-face",
     performers: [

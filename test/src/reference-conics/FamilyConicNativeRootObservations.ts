@@ -1,12 +1,12 @@
-import {
-  type AutoMovieConstructionSplitBandTrace as BandTrace,
-  type IAutoMovieSolidSurface,
-  type AutoMovieConstructionSeedTrace as SeedTrace,
-  AutoMovieSolidVector as V,
-} from "@automovie/engine";
-import type { IAutoMovieConstructionSplit } from "@automovie/interface";
-
 import type { FamilyConicNativePremises } from "./FamilyConicNativePremises";
+import { AutoMovieSolidVector as V } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionSeedTrace,
+  IAutoMovieConstructionSplit,
+  IAutoMovieConstructionSplitBandTrace,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 /** Existing actual trace collectors shared by one full native inspection round. */
 export namespace FamilyConicNativeRootObservations {
@@ -35,11 +35,11 @@ export namespace FamilyConicNativeRootObservations {
 
   /** Existing column inputs, with independently read physical chords/dots. */
   function columns(
-    event: Extract<BandTrace.Event, { kind: "prepared" }>,
+    event: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "prepared" }>,
   ): unknown[] {
     return event.columns.map(
       (column: (typeof event.columns)[number], index: number): unknown => {
-        const chord: V.Vec3 = V.sub(column.end.point, column.start.point);
+        const chord: AutoMovieVector3Tuple = V.sub(column.end.point, column.start.point);
         const length: number = V.norm(chord),
           a: number = V.norm(column.start.first),
           b: number = V.norm(column.end.first);
@@ -68,13 +68,13 @@ export namespace FamilyConicNativeRootObservations {
     /** Actual prepared/local/refusal events; prepared columns retain normalized-cross units. */
     actualBands: {
       owner: string;
-      event: BandTrace.Event;
+      event: IAutoMovieConstructionSplitBandTrace.Event;
       columns?: unknown[];
     }[];
     /** Actual full-host seam endpoints and profile/chord values. */
     actualSeams: unknown[];
     /** Actual bounded axilla seed termination events. */
-    actualAxillaSeedEvents: { owner: string; event: SeedTrace.IEvent }[];
+    actualAxillaSeedEvents: { owner: string; event: IAutoMovieConstructionSeedTrace.IEvent }[];
     /** Actual pass-through source queries; unavailable physical2 remains explicit. */
     actualAxillaQueries: Query[];
     /** Same single operator walk's optional read-only hooks. */
@@ -98,7 +98,7 @@ export namespace FamilyConicNativeRootObservations {
       queries: Query[] = [],
       seams: unknown[] = [];
     const hooks: IObservation["hooks"] = {
-      band(owner: string, event: BandTrace.Event): void {
+      band(owner: string, event: IAutoMovieConstructionSplitBandTrace.Event): void {
         events.push({
           owner,
           event,
@@ -111,7 +111,7 @@ export namespace FamilyConicNativeRootObservations {
         definition: IAutoMovieConstructionSplit.ISeam,
         host: IAutoMovieSolidSurface,
         station: number,
-        normal: V.Vec3,
+        normal: AutoMovieVector3Tuple,
       ): void {
         try {
           const first: IAutoMovieSolidSurface.IJet = host.jet(
@@ -122,11 +122,11 @@ export namespace FamilyConicNativeRootObservations {
               station,
               definition.seam[1],
             );
-          const chord: V.Vec3 = V.sub(second.p, first.p),
+          const chord: AutoMovieVector3Tuple = V.sub(second.p, first.p),
             length: number = V.norm(chord),
-            e1: V.Vec3 | null = V.unit(chord),
-            heading: V.Vec3 = definition.profile?.heading ?? normal;
-          const e2: V.Vec3 | null =
+            e1: AutoMovieVector3Tuple | null = V.unit(chord),
+            heading: AutoMovieVector3Tuple = definition.profile?.heading ?? normal;
+          const e2: AutoMovieVector3Tuple | null =
             e1 === null
               ? null
               : V.unit(V.sub(heading, V.scale(e1, V.dot(heading, e1))));
@@ -164,7 +164,7 @@ export namespace FamilyConicNativeRootObservations {
           });
         }
       },
-      seed(owner: string, event: SeedTrace.IEvent): void {
+      seed(owner: string, event: IAutoMovieConstructionSeedTrace.IEvent): void {
         if (owner.startsWith("cut.axilla")) seeds.push({ owner, event });
       },
       seedSurface(
@@ -196,7 +196,7 @@ export namespace FamilyConicNativeRootObservations {
                   actual.uu,
                   actual.uv,
                   actual.vv,
-                ].every((vector: V.Vec3): boolean =>
+                ].every((vector: AutoMovieVector3Tuple): boolean =>
                   vector.every(Number.isFinite),
                 )
               )

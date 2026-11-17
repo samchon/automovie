@@ -1,7 +1,9 @@
-import type { IAutoMovieLoftRelief } from "@automovie/engine";
-
-import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanNail,
+} from "@automovie/interface";
 
 /**
  * A nail on a digit's distal segment: one law for every finger and toe.
@@ -34,175 +36,6 @@ import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection"
  *    down to the skin inside the outline, as a slope in the bed and as a step one thickness long in the strip.
  */
 export namespace AutoMovieHumanNail {
-  /** A point or direction in the figure's frame, mm. */
-  export type V3 = [number, number, number];
-
-  /** The distal segment's frame as the nail reads it. */
-  export interface IFrame {
-    /** The last joint's centre, mm. */
-    origin: V3;
-
-    /** Unit direction from the joint toward the tip. */
-    distal: V3;
-
-    /** Unit direction out of the back of the digit, square to `distal`. */
-    dorsal: V3;
-  }
-
-  /** The digit's own skin: its family's surface before the bed is added. */
-  export interface ISkin {
-    /** The skin's point at a station and a phase of the digit's chart, mm in the figure's frame. */
-    point: (station: number, phase: number) => readonly number[];
-
-    /** The first station the nail may read, mm. */
-    first: number;
-
-    /** The station of the digit's tip, where its skin closes, mm. */
-    tip: number;
-  }
-
-  /**
-   * A digit's nail proportions, each a published relation or a declared estimate (`AutoMovieHumanF1Nails` holds the rows and their
-   * sources).
-   */
-  export interface IProportions {
-    /** The plate's width between the lateral folds over the digit's breadth across its last joint. */
-    width: number;
-
-    /** The plate's width over its length from the proximal fold to the digit's tip. */
-    aspect: number;
-
-    /** The plate's thickness, mm: how far its free edge stands over the skin. */
-    thickness: number;
-
-    /** How far the plate lies under the proximal fold's skin where it leaves the fold, mm. */
-    fold: number;
-
-    /**
-     * The radius of the plate's upper face at its crown over the plate's width, as a gauge laid across the plate's open middle reads
-     * it: it holds midway between the fold and the free edge. `null` where none is published for the digit, and the plate is then its
-     * bed's own arc all along.
-     */
-    radius: number | null;
-
-    /** The radius the proximal fold turns on at its apex, in the plate's plane, over the plate's width. */
-    lunula: number;
-
-    /** The farthest the plate's edges stand under its crown midway along it, over the digit's height there. */
-    wrap: number;
-  }
-
-  /** What the law measured and derived, for the round's table and the pre-checks. */
-  export interface IReadings {
-    /** The digit's breadth across the last joint, mm. */
-    breadth: number;
-
-    /** The distance from the last joint to the tip along the segment's distal direction, mm. */
-    tip: number;
-
-    /** The plate's width, mm, after `narrowed`. */
-    width: number;
-
-    /** The share of the asked width the plate keeps where its edges would wrap past `IProportions.wrap`; 1 where they do not. */
-    narrowed: number;
-
-    /** The roll of the nail's frame about the distal direction from the segment's dorsal, radians. */
-    roll: number;
-
-    /** The pitch of the nail's frame from the segment's distal direction, radians, positive toward the dorsal side. */
-    pitch: number;
-
-    /** Where the proximal fold and the free edge stand along the nail's distal axis from the joint, mm. */
-    span: [number, number];
-
-    /** The radius of the plate's upper face at its crown, least and greatest over the visible plate, mm. */
-    radius: [number, number];
-
-    /** How far the plate's edges lie under the skin's, least and greatest over the visible plate, mm; negative where an edge stands over the skin. */
-    under: [number, number];
-
-    /** The plate's sagitta over the chord between its edges, least and greatest over the visible plate, mm. */
-    sagitta: [number, number];
-
-    /** The greatest height the bed's net was asked to hold in its three outer rings, where the engine needs zero, mm. */
-    clipped: number;
-
-    /** Where `clipped` stands in the nail's frame: `[along the distal axis from the joint, aside]`, mm. */
-    clippedAt: [number, number];
-
-    /** The control `clipped` was asked of: `[0 the bed or 1 the strip, its row, its column, the net's rows, the net's columns]`. */
-    clippedIn: [number, number, number, number, number];
-
-    /** How many passes the frame's fit took to its fixed point, each of which reads the bed's stations anew. */
-    passes: number;
-
-    /** What each pass of the frame's fit still moved: `[the roll's turn, rad; the axis's slope; the axis's shift, mm]` by pass. */
-    residuals: [number, number, number][];
-
-    /** The mean levelling turn left at the roll chosen, rad: nothing where the skin's two edges stand level there on the mean. */
-    misfit: number;
-
-    /** The roll's objective at the roll chosen: the squared misfit over the skin's error and the squared roll over the prior's spread. */
-    objective: number;
-
-    /** The share of an applied roll that the levelling reading registers at the roll chosen: 1 on a flat back, 0 on a round one. */
-    conditioning: number;
-
-    /** The mean levelling turn against the roll from the segment's frame, on the last pass's rings: `[roll, turn]`, rad, at 25 rolls across half a turn. */
-    levelling: [number, number][];
-  }
-
-  /** One digit's nail. */
-  export interface INail {
-    /** The plate, a family in the figure's frame. */
-    plate: AutoMovieHumanConicLoft.IFamily;
-
-    /** The bed, a relief of the digit's family. */
-    bed: IAutoMovieLoftRelief;
-
-    /** The free edge's strip, a second relief of the digit's family, fine along the digit, that adds the edge's step to the bed's slope. */
-    strip: IAutoMovieLoftRelief;
-
-    /** The nail's own frame. */
-    frame: IFrame;
-
-    /**
-     * The outline's middle on the digit's chart, `[station, phase]`, mm and radians, and its half extents there along the station and
-     * the phase: the ellipse a declared loop is written about.
-     */
-    outline: { centre: [number, number]; semi: [number, number] };
-
-    /** The plate's outline in the nail's frame, which `owns` reads. */
-    plan: IPlan;
-
-    /** The readings. */
-    readings: IReadings;
-
-    /**
-     * The digit's dorsal skin as the nail sees it, at each of the plate's stations in the nail's frame: the distance along, the middle of
-     * the skin's breadth, the skin's height there, the plate's half width, and the turn about the long axis that would level the skin's
-     * two edges at that station alone, radians.
-     */
-    profile: { along: number; middle: number; height: number; edge: number; turn: number }[];
-  }
-
-  /** The plate's outline in the nail's frame: distances along the distal axis from the joint and aside from the long axis, mm. */
-  export interface IPlan {
-    /** Where the proximal fold's apex and the free edge's stand along. */
-    span: [number, number];
-
-    /** The proximal half ellipse: where its centre stands along, its half axis along and its half axis across. */
-    bend: [number, number, number];
-
-    /** The free edge across the plate: `[aside, along]` at offsets from one edge to the other, between which it runs straight. */
-    front: [number, number][];
-
-    /** The plate's stations along and its half width at each, between which the half width runs straight. */
-    edges: [number, number][];
-
-    /** The dorsal height of the plate's back, under which a point is not the nail's. */
-    floor: number;
-  }
 
   /**
    * Whether a point of the digit's skin belongs to the nail: inside the plate's outline in the nail's plan and on the plate's side of
@@ -214,9 +47,9 @@ export namespace AutoMovieHumanNail {
    * @param nail The nail.
    * @param point A point in the figure's frame, mm.
    */
-  export function owns(nail: INail, point: readonly number[]): boolean {
-    const { frame, plan }: INail = nail;
-    const d: V3 = sub(point, frame.origin);
+  export function owns(nail: IAutoMovieHumanNail.INail, point: readonly number[]): boolean {
+    const { frame, plan }: IAutoMovieHumanNail.INail = nail;
+    const d: AutoMovieVector3Tuple = sub(point, frame.origin);
     const [x, y, z]: [number, number, number] = [dot(d, frame.distal), dot(d, frame.dorsal), dot(d, cross(frame.distal, frame.dorsal))];
     if (!(x >= plan.span[0] && x <= tabled(plan.front, z) && y >= plan.floor)) return false;
     const [centre, deep, wide]: [number, number, number] = plan.bend;
@@ -247,11 +80,11 @@ export namespace AutoMovieHumanNail {
   /** The ellipse's shoulder: `sqrt(2) - 1`, the conic through the middle of a quarter ellipse. */
   const ELLIPSE: number = Math.SQRT2 - 1;
 
-  const sub = (a: readonly number[], b: readonly number[]): V3 => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
+  const sub = (a: readonly number[], b: readonly number[]): AutoMovieVector3Tuple => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
   const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
-  const cross = (a: V3, b: V3): V3 => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-  const mix = (a: V3, p: number, b: V3, q: number): V3 => [a[0] * p + b[0] * q, a[1] * p + b[1] * q, a[2] * p + b[2] * q];
-  const unit = (a: V3): V3 => {
+  const cross = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const mix = (a: AutoMovieVector3Tuple, p: number, b: AutoMovieVector3Tuple, q: number): AutoMovieVector3Tuple => [a[0] * p + b[0] * q, a[1] * p + b[1] * q, a[2] * p + b[2] * q];
+  const unit = (a: AutoMovieVector3Tuple): AutoMovieVector3Tuple => {
     const n: number = Math.hypot(a[0], a[1], a[2]);
     return [a[0] / n, a[1] / n, a[2] / n];
   };
@@ -346,10 +179,10 @@ export namespace AutoMovieHumanNail {
   /** A skin read in a frame: `[along the distal axis, dorsal height, lateral]` from the frame's origin. */
   interface IReader {
     /** The frame's lateral direction, `distal x dorsal`. */
-    lateral: V3;
+    lateral: AutoMovieVector3Tuple;
 
     /** The chart point's frame coordinates. */
-    at: (station: number, phase: number) => V3;
+    at: (station: number, phase: number) => AutoMovieVector3Tuple;
 
     /** The station whose point at a phase stands a distance along the distal axis. */
     station: (x: number, phase: number) => number;
@@ -358,17 +191,17 @@ export namespace AutoMovieHumanNail {
     find: (x: number, z: number) => { station: number; phase: number; height: number };
 
     /** The skin's ring a distance along, at `RING` equal steps of phase from 0. */
-    ring: (x: number) => V3[];
+    ring: (x: number) => AutoMovieVector3Tuple[];
 
     /** The skin's lateral extent at a distance along: `[least, greatest]`. */
     extent: (x: number) => [number, number];
   }
 
   /** Read a skin in a frame. */
-  function reader(skin: ISkin, frame: IFrame): IReader {
-    const lateral: V3 = cross(frame.distal, frame.dorsal);
-    const at = (station: number, phase: number): V3 => {
-      const d: V3 = sub(skin.point(station, phase), frame.origin);
+  function reader(skin: IAutoMovieHumanNail.ISkin, frame: IAutoMovieHumanNail.IFrame): IReader {
+    const lateral: AutoMovieVector3Tuple = cross(frame.distal, frame.dorsal);
+    const at = (station: number, phase: number): AutoMovieVector3Tuple => {
+      const d: AutoMovieVector3Tuple = sub(skin.point(station, phase), frame.origin);
       return [dot(d, frame.distal), dot(d, frame.dorsal), dot(d, lateral)];
     };
     // The distance along grows with the station on the distal segment, so a bisection finds the station. Twenty-four halvings take a
@@ -382,12 +215,12 @@ export namespace AutoMovieHumanNail {
       }
       return (low + high) / 2;
     };
-    const lateralAt = (x: number, phase: number): V3 => at(station(x, phase), phase);
+    const lateralAt = (x: number, phase: number): AutoMovieVector3Tuple => at(station(x, phase), phase);
     // The skin's ring a distance along, read once at `RING` phases: every question about that distance starts from it.
-    const rings: Map<number, V3[]> = new Map();
-    const ring = (x: number): V3[] => {
-      let made: V3[] | undefined = rings.get(x);
-      if (made === undefined) rings.set(x, (made = Array.from({ length: RING }, (_: unknown, k: number): V3 => lateralAt(x, (2 * Math.PI * k) / RING))));
+    const rings: Map<number, AutoMovieVector3Tuple[]> = new Map();
+    const ring = (x: number): AutoMovieVector3Tuple[] => {
+      let made: AutoMovieVector3Tuple[] | undefined = rings.get(x);
+      if (made === undefined) rings.set(x, (made = Array.from({ length: RING }, (_: unknown, k: number): AutoMovieVector3Tuple => lateralAt(x, (2 * Math.PI * k) / RING))));
       return made;
     };
     // The dorsal phase: where the skin crosses the median plane on the dorsal side, found once on a scan and refined by bisection.
@@ -403,18 +236,18 @@ export namespace AutoMovieHumanNail {
     };
     const find = (x: number, z: number): { station: number; phase: number; height: number } => {
       const count: number = RING;
-      const around: V3[] = ring(x);
+      const around: AutoMovieVector3Tuple[] = ring(x);
       let best: { phase: number; height: number } | null = null;
       for (let k: number = 0; k < count; ++k) {
         const [a, b]: [number, number] = [(2 * Math.PI * k) / count, (2 * Math.PI * (k + 1)) / count];
-        const [p, q]: [V3, V3] = [around[k]!, around[(k + 1) % count]!];
+        const [p, q]: [AutoMovieVector3Tuple, AutoMovieVector3Tuple] = [around[k]!, around[(k + 1) % count]!];
         if (p[2] - z === 0 || (p[2] - z) * (q[2] - z) < 0) {
           const phase: number = crossing(x, z, a, b);
           const height: number = lateralAt(x, phase)[1];
           if (best === null || height > best.height) best = { phase, height };
         }
       }
-      if (best === null) throw new Error("nail: the skin has no dorsal point " + x.toFixed(2) + " mm along and " + z.toFixed(2) + " mm aside; it spans " + Math.min(...around.map((p: V3): number => p[2])).toFixed(2) + " to " + Math.max(...around.map((p: V3): number => p[2])).toFixed(2) + " mm there");
+      if (best === null) throw new Error("nail: the skin has no dorsal point " + x.toFixed(2) + " mm along and " + z.toFixed(2) + " mm aside; it spans " + Math.min(...around.map((p: AutoMovieVector3Tuple): number => p[2])).toFixed(2) + " to " + Math.max(...around.map((p: AutoMovieVector3Tuple): number => p[2])).toFixed(2) + " mm there");
       return { station: station(x, best.phase), phase: best.phase, height: best.height };
     };
     const extent = (x: number): [number, number] => {
@@ -440,7 +273,7 @@ export namespace AutoMovieHumanNail {
    * @param spread How far a digit's nail may turn about its long axis from its segment's frame, rad: the spread of the prior the
    *   skin's levelling is weighed against.
    */
-  export function create(name: string, bed: string, segment: IFrame, skin: ISkin, proportions: IProportions, margin: number, spread: number): INail {
+  export function create(name: string, bed: string, segment: IAutoMovieHumanNail.IFrame, skin: IAutoMovieHumanNail.ISkin, proportions: IAutoMovieHumanNail.IProportions, margin: number, spread: number): IAutoMovieHumanNail.INail {
     // 1. Breadth across the joint and length to the tip, in the segment's frame.
     const first: IReader = reader(skin, segment);
     const across: [number, number] = first.extent(0);
@@ -460,7 +293,7 @@ export namespace AutoMovieHumanNail {
     // no one station sets its frame: at `BED` stations from the fold nine tenths of the way to the tip, the long axis is the straight
     // line fitted by least squares to the middles of the skin's breadth (the segment's axis runs to the pad's far point and stands off
     // them), and the roll is the one at which the turns that would level the skin's two edges at each station have a mean of zero.
-    let frame: IFrame = segment;
+    let frame: IAutoMovieHumanNail.IFrame = segment;
     let roll: number = 0;
     const midway0: number = (fold0 + tip0) / 2;
     const bed0: number[] = Array.from({ length: BED }, (_: unknown, k: number): number => fold0 + (0.9 * (tip0 - fold0) * k) / (BED - 1));
@@ -510,12 +343,12 @@ export namespace AutoMovieHumanNail {
     for (let i: number = 0, last: number = Infinity; i < 24 && Math.abs(last) > 1e-7; ++i) {
       passes = i + 1;
       const cut: IReader = reader(skin, frame);
-      const rings: V3[][] = bed0.map((x: number): V3[] => cut.ring(x));
+      const rings: AutoMovieVector3Tuple[][] = bed0.map((x: number): AutoMovieVector3Tuple[] => cut.ring(x));
       // The frame rolled by an angle: `dorsal cos + lateral sin`, so a point `[height, aside]` reads `[y cos + z sin, z cos - y sin]`.
       // A skin that stands higher on the `+lateral` side faces away from it, so the levelling turn leans the dorsal to the lower side.
       const levelled = (by: number): { turn: number; slope: number; shift: number } => {
         const [c, s]: [number, number] = [Math.cos(by), Math.sin(by)];
-        const turned: [number, number][][] = rings.map((ring: V3[]): [number, number][] => ring.map((p: V3): [number, number] => [p[1] * c + p[2] * s, p[2] * c - p[1] * s]));
+        const turned: [number, number][][] = rings.map((ring: AutoMovieVector3Tuple[]): [number, number][] => ring.map((p: AutoMovieVector3Tuple): [number, number] => [p[1] * c + p[2] * s, p[2] * c - p[1] * s]));
         const spans: [number, number][] = turned.map((ring: [number, number][]): [number, number] => [-peak(ring.map((p: [number, number]): number => -p[1])), peak(ring.map((p: [number, number]): number => p[1]))]);
         const middles: number[] = spans.map((d: [number, number]): number => (d[0] + d[1]) / 2);
         const lean: number = bed0.reduce((sum: number, x: number, k: number): number => sum + (x - mean(bed0)) * (middles[k]! - mean(middles)), 0) / bed0.reduce((sum: number, x: number): number => sum + (x - mean(bed0)) ** 2, 0);
@@ -580,9 +413,9 @@ export namespace AutoMovieHumanNail {
       }
       taken = { wanted, move };
       roll += move[0]!;
-      const levelDorsal: V3 = unit(mix(frame.dorsal, Math.cos(move[0]!), cut.lateral, Math.sin(move[0]!)));
-      const sideways: V3 = cross(frame.distal, levelDorsal);
-      frame = { origin: [0, 1, 2].map((k: number): number => frame.origin[k]! + sideways[k]! * move[2]! * bedLength) as V3, distal: unit(mix(frame.distal, 1, sideways, move[1]!)), dorsal: levelDorsal };
+      const levelDorsal: AutoMovieVector3Tuple = unit(mix(frame.dorsal, Math.cos(move[0]!), cut.lateral, Math.sin(move[0]!)));
+      const sideways: AutoMovieVector3Tuple = cross(frame.distal, levelDorsal);
+      frame = { origin: [0, 1, 2].map((k: number): number => frame.origin[k]! + sideways[k]! * move[2]! * bedLength) as AutoMovieVector3Tuple, distal: unit(mix(frame.distal, 1, sideways, move[1]!)), dorsal: levelDorsal };
       // The cap bounds the work, not the answer: where it ends the fit first, what was still asked at the last pass stays in
       // `residuals` and is the frame's remaining uncertainty.
     }
@@ -595,7 +428,7 @@ export namespace AutoMovieHumanNail {
     // 2, bounded. The plate's edges stay on the digit's back: midway along the plate they stand no farther under the crown than `wrap`
     // of the digit's height there. Where the asked width would wrap farther, the plate is narrowed, and shortened with it, to that.
     const [atFold, atMiddle]: [[number, number], [number, number]] = [rolled.extent(fold0), rolled.extent(midway0)];
-    const tall: number = Math.max(...rolled.ring(midway0).map((p: V3): number => p[1])) - Math.min(...rolled.ring(midway0).map((p: V3): number => p[1]));
+    const tall: number = Math.max(...rolled.ring(midway0).map((p: AutoMovieVector3Tuple): number => p[1])) - Math.min(...rolled.ring(midway0).map((p: AutoMovieVector3Tuple): number => p[1]));
     const centre: number = (atMiddle[0] + atMiddle[1]) / 2;
     const fall = (e: number): number => rolled.find(midway0, centre).height - (rolled.find(midway0, centre + e).height + rolled.find(midway0, centre - e).height) / 2;
     const asked: number = Math.min(half * Math.min(1, (atMiddle[1] - atMiddle[0]) / (atFold[1] - atFold[0])), 0.49 * (atMiddle[1] - atMiddle[0]));
@@ -620,14 +453,14 @@ export namespace AutoMovieHumanNail {
     const last: number = end - 3 * NET * RAMP * proportions.fold;
     if (last > fold0 + 1) rise = Math.max(rise, (rolled.find(last, mid(rolled, last)).height + UNDER * proportions.fold - (foldHeight - proportions.fold)) / (last - fold0));
     const pitch: number = Math.atan(rise);
-    const lateral: V3 = rolled.lateral;
-    const distal: V3 = unit(mix(frame.distal, Math.cos(pitch), frame.dorsal, Math.sin(pitch)));
+    const lateral: AutoMovieVector3Tuple = rolled.lateral;
+    const distal: AutoMovieVector3Tuple = unit(mix(frame.distal, Math.cos(pitch), frame.dorsal, Math.sin(pitch)));
     frame = { origin: frame.origin, distal, dorsal: cross(lateral, distal) };
     const read: IReader = reader(skin, frame);
 
     // 2 and 3 in the nail's frame: the fold's point is the skin's point found above, the crown line one fold under it.
     const foldPoint: { station: number; phase: number } = rolled.find(fold0, mid(rolled, fold0));
-    const at: V3 = sub(skin.point(foldPoint.station, foldPoint.phase), frame.origin);
+    const at: AutoMovieVector3Tuple = sub(skin.point(foldPoint.station, foldPoint.phase), frame.origin);
     const fold: number = dot(at, frame.distal);
     const crown: number = dot(at, frame.dorsal) - proportions.fold;
     const tip: number = read.at(skin.tip, 0)[0];
@@ -736,8 +569,8 @@ export namespace AutoMovieHumanNail {
     let cap: number = proportions.thickness;
     while (!(pole(cap) < 0) && cap > proportions.thickness / 64) cap /= 2;
     if (!(pole(cap) < 0)) throw new Error("nail: " + name + "'s plate would end " + pole(cap).toFixed(2) + " mm out of the skin");
-    const world = (x: number, y: number): V3 => [0, 1, 2].map((k: number): number => frame.origin[k]! + frame.distal[k]! * x + frame.dorsal[k]! * y) as V3;
-    const plate: AutoMovieHumanConicLoft.IFamily = {
+    const world = (x: number, y: number): AutoMovieVector3Tuple => [0, 1, 2].map((k: number): number => frame.origin[k]! + frame.distal[k]! * x + frame.dorsal[k]! * y) as AutoMovieVector3Tuple;
+    const plate: IAutoMovieHumanConicLoft.IFamily = {
       name,
       centres: [world(root, crown - below), world(edge, crown - below)],
       halves: [],
@@ -861,15 +694,15 @@ export namespace AutoMovieHumanNail {
     // end, or to the skin's side where it turns under before that, and three cells on, which the net's zero rings take.
     const midway: number = (fold + edge) / 2;
     const walled: number = between(midway).edge + room(between(midway));
-    const around: V3[] = read.ring(midway);
+    const around: AutoMovieVector3Tuple[] = read.ring(midway);
     const around0: number = read.find(midway, mid(read, midway)).phase;
     const start: number = Math.round((around0 / (2 * Math.PI)) * RING) % RING;
     const walk = (direction: 1 | -1): { steps: number; length: number } => {
       let [length, extra, steps]: [number, number, number] = [0, 0, 0];
       let reached: boolean = false;
       while (extra < 3 * cell && steps < RING / 2) {
-        const p: V3 = around[(((start + direction * steps) % RING) + RING) % RING]!;
-        const q: V3 = around[(((start + direction * (steps + 1)) % RING) + RING) % RING]!;
+        const p: AutoMovieVector3Tuple = around[(((start + direction * steps) % RING) + RING) % RING]!;
+        const q: AutoMovieVector3Tuple = around[(((start + direction * (steps + 1)) % RING) + RING) % RING]!;
         const piece: number = Math.hypot(q[1] - p[1], q[2] - p[2]);
         if (Math.abs(q[2]) >= walled || (Math.abs(p[2]) > half / 2 && Math.abs(q[2]) < Math.abs(p[2]))) reached = true;
         length += piece;
@@ -909,14 +742,14 @@ export namespace AutoMovieHumanNail {
       const out: number[] = [];
       for (let i: number = 0; i < count; ++i) {
         const s: number = Math.max(skin.first, Math.min(skin.tip, from + ((to - from) * (i - 1)) / (count - 3)));
-        const points: V3[] = Array.from({ length: columns }, (_: unknown, j: number): V3 => read.at(s, net.phases[0] + (span * (j - 1)) / (columns - 3)));
+        const points: AutoMovieVector3Tuple[] = Array.from({ length: columns }, (_: unknown, j: number): AutoMovieVector3Tuple => read.at(s, net.phases[0] + (span * (j - 1)) / (columns - 3)));
         let [least, greatest]: [number, number] = [0, 0];
         for (let j: number = 1; j < columns; ++j) {
           if (points[j]![2] < points[least]![2]) least = j;
           if (points[j]![2] > points[greatest]![2]) greatest = j;
         }
         for (let j: number = 0; j < columns; ++j) {
-          const p: V3 = points[j]!;
+          const p: AutoMovieVector3Tuple = points[j]!;
           const d: number = j < Math.min(least, greatest) || j > Math.max(least, greatest) ? 0 : lowering(p[0], p[1], p[2], sharp);
           const outer: boolean = i < 3 || j < 3 || i >= count - 3 || j >= columns - 3;
           if (outer && Math.abs(d) > clipped) {

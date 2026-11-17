@@ -1,5 +1,14 @@
-import { AutoMovieLoftViewFullSource, type IAutoMovieViewPart } from "@automovie/engine";
-import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection, AutoMovieHumanF1Armscye } from "@automovie/human";
+import { AutoMovieLoftViewFullSource } from "@automovie/engine";
+import {
+  AutoMovieHumanConicLoft,
+  AutoMovieHumanConicSection,
+  AutoMovieHumanF1Armscye,
+} from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * The loop of a part on a host by the `surface` rule is both skins cut by the dividing surface: the part's at every phase of its chart,
@@ -30,7 +39,7 @@ import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection, AutoMovieHumanF1Ar
 export function test_human_f1_armscye_surface(): void {
   const failures: string[] = [];
   const full: number = Math.SQRT2 - 1;
-  const cylinder = (name: string, from: [number, number, number], to: [number, number, number], up: [number, number, number], length: number, radius: number): AutoMovieHumanConicLoft.IFamily => ({
+  const cylinder = (name: string, from: [number, number, number], to: [number, number, number], up: [number, number, number], length: number, radius: number): IAutoMovieHumanConicLoft.IFamily => ({
     name,
     centres: [from, to],
     halves: [],
@@ -42,7 +51,7 @@ export function test_human_f1_armscye_surface(): void {
   const every = (length: number): number[] => Array.from({ length: length / 10 + 1 }, (_: unknown, i: number): number => 10 * i);
   const host: IAutoMovieViewPart = AutoMovieHumanConicLoft.part(cylinder("host", [0, 0, 0], [0, 400, 0], [1, 0, 0], 400, 100), every(400));
   const part: IAutoMovieViewPart = AutoMovieHumanConicLoft.part(cylinder("part", [0, 200, 0], [0, 200, 300], [0, 1, 0], 300, 20), every(300));
-  const reader: AutoMovieLoftViewFullSource.IReader = AutoMovieLoftViewFullSource.create(part);
+  const reader: IAutoMovieLoftViewFullSource.IReader = AutoMovieLoftViewFullSource.create(part);
   const near = (label: string, value: number, expected: number, limit: number): void => {
     if (!(Math.abs(value - expected) <= limit)) failures.push(`${label}: ${value}, expected ${expected} within ${limit}`);
   };

@@ -19,6 +19,7 @@ import {
   IAutoMovieSkeleton,
   IAutoMovieTransform,
   IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -213,7 +214,7 @@ export function test_film_camera_clearance(): void {
   ) => IFilmCameraClearanceAdapterResult = (
     over: IFilmCameraClearanceAdapterOverrides = {},
   ): IFilmCameraClearanceAdapterResult => {
-    const out: ViolationCollector = new ViolationCollector();
+    const out: IAutoMovieViolationCollector = new ViolationCollector();
     const reports: ReturnType<typeof compileCameraClearanceReports> =
       compileCameraClearanceReports({
         ...baseAdapterProps,

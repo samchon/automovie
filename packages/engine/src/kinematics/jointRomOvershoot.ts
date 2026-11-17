@@ -1,10 +1,11 @@
 import {
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  type IAutoMovieJointRotationFrame,
+  type IAutoMovieScanJointRom,
 } from "@automovie/interface";
 
 import { scanJointRom } from "../rom/scanJointRom";
-import type { swingTwistRange } from "./swingTwistRange";
 
 /**
  * The total range-of-motion overshoot of one joint's clinical angles, in
@@ -33,11 +34,11 @@ import type { swingTwistRange } from "./swingTwistRange";
 export const jointRomOvershoot: (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint | null,
-  rig?: swingTwistRange.IJoint,
+  rig?: IAutoMovieJointRotationFrame,
 ) => number = (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint | null,
-  rig?: swingTwistRange.IJoint,
+  rig?: IAutoMovieJointRotationFrame,
 ): number => {
   if (constraint === null) return 0;
   let total: number = 0;
@@ -50,7 +51,7 @@ export const jointRomOvershoot: (
     // rank a malformed candidate as perfectly legal and let it win the
     // selection outright, so it is scored as unusable instead.
     (
-      _part: scanJointRom.Part,
+      _part: IAutoMovieScanJointRom.Part,
       _actual: number,
       overshoot: number | undefined,
     ): void => {

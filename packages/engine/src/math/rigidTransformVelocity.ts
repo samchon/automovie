@@ -1,7 +1,9 @@
 import type {
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransformVelocity,
   IAutoMovieTransform,
   IAutoMovieVector3,
+  IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
@@ -25,17 +27,11 @@ export function rigidTransformVelocity(
   previous: Readonly<Pick<IAutoMovieTransform, "translation" | "rotation">>,
   current: Readonly<Pick<IAutoMovieTransform, "translation" | "rotation">>,
   elapsedSeconds: number,
-): {
-  /** WORLD translation secant, metres per second. */
-  linear: IAutoMovieVector3;
-
-  /** Principal WORLD rotation increment divided by time, radians per second. */
-  angular: IAutoMovieVector3;
-} {
+): IAutoMovieRigidTransformVelocity.IResult {
   if (!Number.isFinite(elapsedSeconds) || elapsedSeconds <= 0)
     throw new RangeError("Rigid velocity requires positive finite seconds");
 
-  const admission: ViolationCollector = new ViolationCollector();
+  const admission: IAutoMovieViolationCollector = new ViolationCollector();
   for (const frame of [previous, current]) {
     admission.finiteVector(
       "translation",

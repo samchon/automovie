@@ -4,17 +4,27 @@ import type {
   IAutoMovieMaterial,
   IAutoMovieModel,
   IAutoMovieModelPart,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeArticulation } from "./ArchetypeArticulation";
+import type { ArchetypeArticulation } from "./ArchetypeArticulation";
+import { ArchetypeBody } from "./ArchetypeBody";
+import type { ArchetypeConvexCell } from "./ArchetypeConvexCell";
+import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
+import { ArchetypeFracture } from "./ArchetypeFracture";
 import { ArchetypeFrame } from "./ArchetypeFrame";
+import { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
+import type { ArchetypeMaterial } from "./ArchetypeMaterial";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeShapes } from "./ArchetypeShapes";
 import { ArchetypeSite } from "./ArchetypeSite";
+import { ArchetypeSpan } from "./ArchetypeSpan";
+import type { IArchetypeProps } from "./IArchetypeProps";
+import { poseArchetype } from "./poseArchetype";
+import { reposeArchetype } from "./reposeArchetype";
 
 /**
  * What a producer returns: a model of one thing people hold, use, sit on, ride or fight with, with typed access to what a person's act reads from it.
@@ -22,9 +32,10 @@ import { ArchetypeSite } from "./ArchetypeSite";
  * An archetype is an `IAutoMovieModel`: its own enumerable members are exactly a rigid generated model's (`id`, `name`, `origin`, `parts`, `skeleton`, `body`, `affordances`, `materials`, `asset`), so it goes wherever a model goes, serialises as one, and two archetypes from the same parameters and seed serialise to the same text. Everything else is reached through accessors that a copy or a serialisation leaves behind:
  *
  * - `affordance(id)` and `site(id, u, v)` give a contact and a place on it, with `id` checked against the producer's closed id type at compile time and refused at run time with the ids that exist;
- * - `articulate(state)` gives the archetype with its articulations at the stated travels, parts and carried affordances moved with them. The travels live on the instance only: a serialised posed archetype is a picture of that pose and carries no state, so articulate from the archetype a producer returned, never from a copy read back;
- * - `dimensions` gives the value drawn for each free dimension, and `properties` the mass, centre of mass and inertia;
- * - `shapes()` gives colliders for a hand to close on, and `placed(id, placement)` a contact's frame in the world.
+ * - `articulate(state)` gives the archetype with its articulations at the stated travels, parts and carried affordances moved with them, followers set by their leaders and spans laid again between their ends; `travel(id)` gives any articulation's travel, a follower's included, and `span(id)` a span's ends and slack. The travels live on the instance only: a serialised posed archetype is a picture of that pose and carries no state, so articulate from the archetype a producer returned, never from a copy read back;
+ * - `dimensions` gives the value drawn for each free dimension, `provenance` the band each was drawn in and the model picked on each axis, and `properties` the mass, centre of mass and inertia;
+ * - `shapes()` gives colliders for a hand to close on, and `placed(id, placement)` a contact's frame in the world;
+ * - `surface(part)` gives what a part's surface is made of and `friction(part, against)` its measured friction against another material, while `body` carries the static and kinetic friction of what the model rests on against its ground ({@link ArchetypeFriction}).
  *
  * Lengths are metres, masses kilograms and angles degrees. The model's space has `+Y` up and `+Z` to the front of a thing that has one; an archetype that stands on the floor has its origin on the floor.
  *
@@ -33,7 +44,7 @@ import { ArchetypeSite } from "./ArchetypeSite";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States that the instance is a model, which members serialise, each accessor's purpose, the units and the model's axes.
  * @evidence contracts/development/design.md#principled-representation A model plus read-only derived views of it; the state that distinguishes an articulated copy lives in private fields, so the serialised model stays the single truth of what is drawn and what is touched.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The accessors are those the motion grammar's prop axis reads (#3358): contacts, sites, articulation, mass properties and colliders. The type parameters carry each producer's closed ids, the agent surface #3368 asks for.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Contacts, sites, articulation, mass properties and colliders serve the prop axis (#3358); convexCells additionally preserves actual wall correspondence in placed assemblies. Type parameters carry the producer's closed contact ids.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No registry and no string-keyed parameter: an archetype is made only by its typed producer, and an unknown id is a refusal, never undefined.
  */
 export class Archetype<
@@ -49,7 +60,7 @@ export class Archetype<
   /** Always generated: the geometry is fully described by `parts`. */
   public readonly origin: "generated" = "generated" as const;
 
-  /** The primitive parts at the current articulation state. */
+  /** The actual primitive or convex-cell parts at the current articulation state. */
   public readonly parts: IAutoMovieModelPart[];
 
   /** Always null: an archetype is a rigid or articulated object, never a humanoid rig. */
@@ -73,38 +84,32 @@ export class Archetype<
   /** The travel of each articulation that is away from rest. */
   readonly #state: Partial<Record<Id, number>>;
 
+  /** Every articulation's travel at this state, set or followed. */
+  readonly #travels: ReadonlyMap<string, number>;
+
   /**
    * An archetype from what a producer built, at an articulation state.
    *
    * @param props The archetype at rest; the records are kept, not copied, so a producer hands over ownership.
    * @param state The travel of each articulation; at rest when absent.
-   * @throws {ArchetypeRefusal} As {@link ArchetypeArticulation.pose} does for a state the model does not admit.
+   * @throws {ArchetypeRefusal} Through the articulation and {@link ArchetypeSpan.pose} owners for unsupported travels, invalid line geometry or incompatible held contacts.
    */
   public constructor(
     props: Archetype.IProps<Id, Dimension>,
     state: Partial<Record<Id, number>> = {},
   ) {
-    // The travels that were set, as the pose reads them.
     const travels: Map<string, number> = new Map();
     for (const id of Object.keys(state) as Id[]) {
       const travel: number | undefined = state[id];
       if (travel !== undefined) travels.set(id, travel);
     }
 
-    const posed: ArchetypeArticulation.IPosed = ArchetypeArticulation.pose(
-      props.archetype,
-      { parts: props.parts, affordances: props.affordances },
-      travels,
-    );
+    const posed: ArchetypeArticulation.IResult = poseArchetype(props, travels);
     this.id = props.id;
     this.name = props.name;
     this.parts = posed.parts;
-    this.body = {
-      mass: props.properties.mass,
-      centerOfMass: { ...props.properties.centerOfMass },
-      friction: props.friction,
-      restitution: props.restitution,
-    };
+    this.#travels = posed.travels;
+    this.body = ArchetypeBody(props);
     this.affordances = posed.affordances;
     this.materials = props.materials;
     this.#rest = props;
@@ -121,14 +126,105 @@ export class Archetype<
     return this.#rest.dimensions;
   }
 
+  /** Where the dimensions came from: the band each drawn dimension was drawn in, and the model picked on each axis, by axis. A figure a model gives has no band; its model's name is the record. */
+  public get provenance(): ArchetypeDrawSession.IProvenance<Dimension> {
+    return this.#rest.provenance;
+  }
+
   /** Mass, centre of mass and inertia about it, at rest. */
   public get properties(): ArchetypeMass.IProperties {
     return this.#rest.properties;
   }
 
-  /** The travel of each articulation that was set, by id. */
+  /** Producer-owned actual convex wall cells, shared with placed assemblies. */
+  public get convexCells(): ArchetypeConvexCell.Table {
+    return this.#rest.cells ?? new Map();
+  }
+
+  /** The physical reference material declared by the producer; null for a mixed assembly, independently of optical colours or per-part friction surfaces. */
+  public get physicalMaterial(): ArchetypeMaterial.Kind | null {
+    return this.#rest.material;
+  }
+
+  /** The travel of each articulation that was set, by id; a follower's is read through `travel`. */
   public get state(): Partial<Record<Id, number>> {
     return this.#state;
+  }
+
+  /** The spans this archetype lays between moving frames, at rest. */
+  public get spans(): readonly ArchetypeSpan.ISpan[] {
+    return this.#rest.spans;
+  }
+
+  /**
+   * An articulation's travel at this state: the travel set for a leader, 0 for one not set, and the travel its leader gives a follower.
+   *
+   * @param id The articulation's id.
+   * @returns The travel, degrees for the turning kinds and metres for the others.
+   * @throws {ArchetypeRefusal} When the id is no articulation of the archetype, listing those it has.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the units, what a follower reads and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A lookup in the travels the pose resolved.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find, or refuse with the alternatives.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An id that is no articulation is refused, never read as 0.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the travels the constructor's pose resolved.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  public travel(id: Id): number {
+    const travel: number | undefined = this.#travels.get(id);
+    if (travel !== undefined) return travel;
+    throw new ArchetypeRefusal({
+      kind: "articulation",
+      archetype: this.#rest.archetype,
+      axis: "articulation",
+      value: id,
+      feasible: { kind: "alternatives", values: [...this.#travels.keys()] },
+      reason: `"${id}" is not an articulation of this model`,
+      fix: "name one of the model's articulations",
+    });
+  }
+
+  /**
+   * One of the archetype's spans at the current articulation state: where its ends are and whether it is slack.
+   *
+   * @param id The span's part id.
+   * @returns Its state, in the model's space.
+   * @throws {ArchetypeRefusal} When the archetype has no such span, listing those it has.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the space and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation `ArchetypeSpan.state` over the posed parts and affordances, the same ends the parts were laid between.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find, then one call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown span is refused, never undefined.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the spans and of the parts.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ArchetypeSpan.state`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  public span(id: string): ArchetypeSpan.IState {
+    const found: ArchetypeSpan.ISpan | undefined = this.#rest.spans.find(
+      (s: ArchetypeSpan.ISpan): boolean => s.id === id,
+    );
+    if (found === undefined)
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: this.#rest.archetype,
+        axis: "span",
+        value: id,
+        feasible: {
+          kind: "alternatives",
+          values: this.#rest.spans.map(
+            (s: ArchetypeSpan.ISpan): string => s.id,
+          ),
+        },
+        reason: `${this.name ?? this.id} has no span "${id}"`,
+        fix: "name one of the spans this archetype declares",
+      });
+    return ArchetypeSpan.state(
+      this.#rest.archetype,
+      found,
+      this.parts,
+      this.affordances,
+    );
   }
 
   /**
@@ -209,9 +305,9 @@ export class Archetype<
   /**
    * This archetype with its articulations at stated travels.
    *
-   * @param state The travel of each articulation by id, degrees for a `hinge`, `knob`, `crank` and `wheel` and metres for a `slider`, `button`, `pedal` and `trigger`; an articulation not listed is at rest, whatever this archetype's own state.
+   * @param state One input per coupled degree of freedom, by its leader or an explicitly reversible follower, degrees for turning kinds and metres for translating kinds. An independent articulation not listed is at rest, whatever this archetype's own state.
    * @returns A new archetype; this one is unchanged.
-   * @throws {ArchetypeRefusal} When an id is no articulation of the archetype, or a travel lies outside its range.
+   * @throws {ArchetypeRefusal} For an unknown articulation, a travel outside its range or its reversible coupling's image, an unmarked follower, or duplicate inputs for one coupled degree of freedom.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the units, that the state is absolute and that the receiver is unchanged.
    * @evidence contracts/development/implementation.md#principled-implementation Poses the rest model again at the new state, so travel never accumulates error over successive calls.
@@ -228,21 +324,82 @@ export class Archetype<
   }
 
   /**
-   * This archetype with its rest parts replaced, keeping its identity, affordances, materials, dimensions and mass properties: how a rig that is not an articulation, such as an animal's skeleton, poses it.
+   * This archetype with its rest parts replaced, keeping identity, materials, dimensions and rest mass properties. A rig may supply current contact frames; omitted frames retain rest contact origins. Declared spans are rebuilt and explicitly held line axes follow their current geometry.
    *
    * @param parts The parts in the new pose, in the model's space; the same ids as this archetype's.
+   * @param frames Complete carrier contact frames, or omitted to retain rest origins; explicit held-span tangents are derived afterward.
    * @returns A new archetype at rest in that pose; this one is unchanged.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is kept, what is replaced and who calls it.
-   * @evidence contracts/development/implementation.md#principled-implementation A copy of the rest record with the part list swapped; the affordances stay where the rest model has them, and mass properties stay the rest pose's, as `body` documents.
+   * @evidence contracts/development/implementation.md#principled-implementation The repose owner preserves each producer's contact identities and physical semantics, placing their carriers from supplied frames or rest. The constructor then resolves spans and their explicitly constrained held axes from that same pose; mass properties stay the rest pose's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One construction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The caller owns the pose's correctness; ids are not re-checked here because `validateModel` admits the result like any model.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work beyond the constructor's pass.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A supplied frame map must bind every original contact exactly once; arbitrary replacement contacts cannot erase or widen the producer's Id contract. The caller owns geometric correctness, which validateModel admits.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The shared repose owner performs O(A) lookups for A supplied contact frames, beyond the constructor's pass.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Materials and mass properties are shared with the new archetype.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The new archetype holds its own rest record; nothing else is retained.
    */
-  public reposed(parts: IAutoMovieModelPart[]): Archetype<Id, Dimension> {
-    return new Archetype<Id, Dimension>({ ...this.#rest, parts });
+  public reposed(
+    parts: IAutoMovieModelPart[],
+    frames?: ReadonlyMap<string, IAutoMovieTransform>,
+  ): Archetype<Id, Dimension> {
+    return new Archetype<Id, Dimension>(
+      reposeArchetype(this.#rest, parts, frames),
+    );
+  }
+
+  /**
+   * What a part's surface is made of.
+   *
+   * @param part The part's id.
+   * @returns The material its producer declared, or null when it declared none.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what null means.
+   * @evidence contracts/development/implementation.md#principled-implementation A lookup in the producer's declarations, which posing never changes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An undeclared surface is null, never a default material.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A lookup with nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  public surface(part: string): ArchetypeFriction.Material | null {
+    return this.#rest.surfaces[part] ?? null;
+  }
+
+  /**
+   * The friction between a part and a material, as a measured pair gives it.
+   *
+   * @param part The part's id.
+   * @param against The other surface's material: a hand's, a floor's, another part's.
+   * @returns The pair's static and kinetic coefficients and their source.
+   * @throws {ArchetypeRefusal} When the part declares no surface, listing the parts that do, or no source measured the pair.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result and both refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation The part's declared material and `ArchetypeFriction.pair`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup, one pair.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An undeclared surface or an unmeasured pair is refused, never given a default coefficient.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ArchetypeFriction.pair`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  public friction(
+    part: string,
+    against: ArchetypeFriction.Material,
+  ): ArchetypeFriction.ICoefficients {
+    const material: ArchetypeFriction.Material | null = this.surface(part);
+    if (material === null)
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: this.#rest.archetype,
+        axis: "surface",
+        value: part,
+        feasible: {
+          kind: "alternatives",
+          values: Object.keys(this.#rest.surfaces),
+        },
+        reason: `${this.name ?? this.id} declares no surface for its part "${part}"`,
+        fix: "name a part whose surface the producer declares",
+      });
+    return ArchetypeFriction.pair(material, against, this.#rest.archetype);
   }
 
   /**
@@ -251,15 +408,15 @@ export class Archetype<
    * @returns One solid per part, as {@link ArchetypeShapes} maps them.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the state and the space.
-   * @evidence contracts/development/implementation.md#principled-implementation The parts' own solids, so the contact matches the picture.
+   * @evidence contracts/development/implementation.md#principled-implementation The parts' own primitive or explicitly declared convex-cell solids, under current part transforms; the shared owner states primitive approximation bounds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the owner it calls.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in parts; computed on request because most archetypes are never grasped.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Not cached; a caller that needs them repeatedly keeps the result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in parts plus declared cell corners; computed on request because most archetypes are never grasped.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual cells reuse their generating boundary. Collider outputs are independent; callers needing repeated contact queries can retain that result.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  public shapes(): IAutoMoviePhysicalProfile.IShape[] {
-    return ArchetypeShapes.of(this.parts);
+  public shapes(): IAutoMoviePhysicalShape[] {
+    return ArchetypeShapes.of(this.parts, this.#rest.cells);
   }
 
   /**
@@ -283,6 +440,43 @@ export class Archetype<
   ): number {
     return ArchetypeMass.about(this.#rest.properties, through, direction);
   }
+
+  /**
+   * What a hit leaves of this archetype at rest: its remainder and its fragments, each an archetype, or null when it does not break.
+   *
+   * @param hit The hit's energy and momentum.
+   * @returns The remainder, null when every part breaks off, and each fragment with its velocity; null when no fracture sets or no calibrated `contact.fracture` threshold are declared, or the hit is below that threshold.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and when nothing breaks.
+   * @evidence contracts/development/implementation.md#principled-implementation `ArchetypeFracture.split` over the rest record, each record made an archetype at rest.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One split, then one construction per record.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the owner it calls.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, through `split`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ArchetypeFracture.split`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  public broken(
+    hit: ArchetypeFracture.IHit,
+  ): ArchetypeFracture.IPieces<Id, Dimension> | null {
+    const split: ArchetypeFracture.IBroken<Id, Dimension> | null =
+      ArchetypeFracture.split(this.#rest, hit);
+    if (split === null) return null;
+    return {
+      remainder:
+        split.remainder === null
+          ? null
+          : new Archetype<Id, Dimension>(split.remainder),
+      fragments: split.fragments.map(
+        (
+          f: ArchetypeFracture.IFragment<Dimension, Id>,
+        ): ArchetypeFracture.IPiece<Dimension, Id> => ({
+          id: f.id,
+          archetype: new Archetype<Id, Dimension>(f.props),
+          velocity: f.velocity,
+        }),
+      ),
+    };
+  }
 }
 
 /**
@@ -290,42 +484,15 @@ export class Archetype<
  */
 export namespace Archetype {
   /**
-   * What a producer built: the archetype at rest.
+   * What a producer built: the archetype at rest, as {@link IArchetypeProps} records it.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation The rest model with its derived facts as one record: parts and affordances in the model's space in metres, mass properties in kilograms and kg m squared, coefficients from 0 to 1. Ids are narrowed to the producer's union by the type; their uniqueness is left to `validateModel`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `Archetype`; written by `ArchetypeBuilder.build` and read by the constructor, with no member either does not use.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The dimension record is keyed by the producer's closed union, not by free strings, and no member is optional.
+   * @evidence contracts/development/common.md#meaningful-documentation States what it is and where its members are documented.
+   * @evidence contracts/development/design.md#principled-representation The record `IArchetypeProps` defines, under the name every producer and reader already uses.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `Archetype`; written by `ArchetypeBuilder.build` and read by the constructor.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An alias, not a second record.
    */
-  export interface IProps<Id extends string, Dimension extends string> {
-    /** The producer's name, such as `chair`. */
-    archetype: string;
-
-    /** Model id. */
-    id: string;
-
-    /** Readable name. */
-    name: string;
-
-    /** The parts at rest, with unit scale. */
-    parts: IAutoMovieModelPart[];
-
-    /** The affordances at rest, each id one of `Id`. */
-    affordances: (IAutoMovieAffordance & { id: Id })[];
-
-    /** The materials the parts cite. */
-    materials: IAutoMovieMaterial[];
-
-    /** Mass, centre of mass and inertia. */
-    properties: ArchetypeMass.IProperties;
-
-    /** Coulomb friction coefficient, 0 to 1. */
-    friction: number;
-
-    /** Coefficient of restitution, 0 to 1. */
-    restitution: number;
-
-    /** The value of each free dimension the variant has. */
-    dimensions: Readonly<Partial<Record<Dimension, number>>>;
-  }
+  export type IProps<
+    Id extends string,
+    Dimension extends string,
+  > = IArchetypeProps<Id, Dimension>;
 }

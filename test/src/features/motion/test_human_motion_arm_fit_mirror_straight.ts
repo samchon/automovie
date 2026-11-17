@@ -1,7 +1,10 @@
-import type { IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanArm,
-  type IHumanPosture,
   resolveHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -48,7 +51,7 @@ export function test_human_motion_arm_fit_mirror_straight(): void {
     side: "left" | "right",
     lean: number,
     out: number,
-  ): IHumanPosture => {
+  ): IAutoMovieMotionHumanPosture => {
     const s: number = side === "right" ? 1 : -1;
     return {
       root: { x: 0, y: 0.16163033154866546, z: -0.5261963588588866 },
@@ -95,12 +98,12 @@ export function test_human_motion_arm_fit_mirror_straight(): void {
   // The leans around the slap's own, 32.3061155207404 degrees.
   for (const lean of [30, 31, 32.3061155207404, 33, 34])
     for (const out of [0, 0.01, 0.02]) {
-      const right: AutoMovieMotionHumanArm.IAngles =
+      const right: IAutoMovieMotionHumanArmAngles.IAngles =
         AutoMovieMotionHumanArm.angles(
           resolveHumanPosture(body, request("right", lean, out)),
           "right",
         );
-      const left: AutoMovieMotionHumanArm.IAngles =
+      const left: IAutoMovieMotionHumanArmAngles.IAngles =
         AutoMovieMotionHumanArm.angles(
           resolveHumanPosture(body, request("left", lean, out)),
           "left",

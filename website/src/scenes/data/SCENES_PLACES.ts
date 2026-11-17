@@ -4,19 +4,13 @@ import { SceneBuild } from "./SceneBuild";
 const { act, object, person, scene, to }: typeof SceneBuild = SceneBuild;
 
 /**
- * The kerb stepped over on the stairs-and-ladder scene: a Euro crate lying
- * across the walker's way, its length along `+X` and its footprint centred
- * on (`x`, `z`). The crate is placed with these dimensions and the step over
- * is given its near side, height and depth from the same numbers, so the law
- * crosses exactly the solid the visitor sees.
+ * The kerb stepped over on the stairs-and-ladder scene, across the walker's
+ * way: `createKerb` stands with its back face at its origin and its front
+ * edge toward `+Z`, so it is turned half round to face the walker coming up
+ * `+Z`, its origin (`x`, `z`) its back. The step over reads the edge, the
+ * height and the depth from the kerb itself.
  */
-const KERB: {
-  x: number;
-  z: number;
-  length: number;
-  depth: number;
-  height: number;
-} = { x: 2, z: 0.38, length: 0.6, depth: 0.4, height: 0.2 };
+const KERB: { x: number; z: number } = { x: 2, z: 0.31 };
 
 /** How far a standing person's toes lie ahead of their floor point, metres (an estimate across the site's bodies), from which a climb measures where its stairs or ladder begin. */
 const TOE: number = 0.2;
@@ -37,9 +31,9 @@ const STAIRS: { count: number; riser: number; tread: number; start: number } = {
 /**
  * The fixed ladder climbed on the same scene: placed with `placed` rungs at
  * this spacing, its rungs `start` ahead of the toes and turned to be climbed
- * facing +Z, and the climb is given the same spacing and start for its
- * `rungs`. The hands reach about four rungs above the feet, so the ladder
- * stands twice as tall as the feet climb.
+ * facing +Z, and the climb reads its rungs from the ladder itself, the feet
+ * climbing `rungs` of them. The hands reach about four rungs above the
+ * feet, so the ladder stands twice as tall as the feet climb.
  */
 const LADDER: {
   rungs: number;
@@ -112,7 +106,7 @@ export const SCENES_PLACES: readonly IScene[] = [
       id: "dressing-room",
       title: "Dressing room",
       summary:
-        "Someone bends to a bag, puts on a hat, takes a knee and rises, and rolls the shoulders.",
+        "Someone bends to a bag, takes a hat up from the counter and puts it on, takes a knee and rises, and rolls the shoulders.",
       setting: "everyday",
       roles: { cyd: "actor" },
       needs: [],
@@ -124,19 +118,45 @@ export const SCENES_PLACES: readonly IScene[] = [
           toward: { kind: "prop", subject: "bag", point: "handle" },
           strategy: "squat",
         }),
-        act("dress", { item: "hat" }),
+        act("pickUp", {
+          prop: "hat",
+          handle: "hold",
+          hand: "left",
+          use: {
+            tip: "wear",
+            line: "worn",
+            at: { region: "crown" },
+            round: true,
+          },
+        }),
+        act("dress", { item: "hat", prop: "hat" }),
         act("kneel", { kind: "one", hold: 0.6 }),
         act("selfAction", { kind: "shoulderRoll" }),
       ]),
     ],
-    [object("bag", "createBag", "tote", -0.3, 0.55)],
+    [
+      object("bag", "createBag", "tote", -0.3, 0.55),
+      // A counter to the left of the bag and the hat near its front edge in
+      // line with the left shoulder, the mirror of `SceneBuild.counter`'s
+      // place for the right hand, so the left hand takes it standing.
+      object("counter", "createTable", "counter", 0.6, 0.53, 180),
+      object(
+        "hat",
+        "createWearable",
+        "hat",
+        0.18,
+        0.3,
+        0,
+        SceneBuild.COUNTER_TOP,
+      ),
+    ],
   ),
   scene(
     {
       id: "stairs-and-ladder",
       title: "Stairs and ladder",
       summary:
-        "One person climbs a flight of six stairs, another climbs six rungs of a fixed ladder, and a third steps over a crate lying in the way and braces.",
+        "One person climbs a flight of six stairs, another climbs six rungs of a fixed ladder, and a third steps over a kerb in the way and braces.",
       setting: "everyday",
       roles: { dot: "climber", eve: "climber", fin: "walker" },
       needs: [],
@@ -153,21 +173,11 @@ export const SCENES_PLACES: readonly IScene[] = [
         }),
       ]),
       person("eve", "m1", 0.5, 0, 0, [
-        act("climbLadder", {
-          rungs: LADDER.rungs,
-          spacing: LADDER.spacing,
-          start: LADDER.start,
-        }),
+        act("climbLadder", { ladder: "ladder", rungs: LADDER.rungs }),
       ]),
       person("fin", "m2", 2, -1, 0, [
         act("walk", { to: to(2, 0) }),
-        act("stepOver", {
-          obstacle: {
-            at: { x: KERB.x, y: 0, z: KERB.z - KERB.depth / 2 },
-            height: KERB.height,
-            depth: KERB.depth,
-          },
-        }),
+        act("stepOver", { obstacle: "kerb" }),
         act("brace", { kind: "push", seconds: 1 }),
       ]),
     ],
@@ -186,24 +196,24 @@ export const SCENES_PLACES: readonly IScene[] = [
           tread: STAIRS.tread,
         },
       ),
-      object(
-        "ladder",
-        "createLadder",
-        "fixed",
-        0.5,
-        TOE + LADDER.start,
-        180,
-        0,
-        {
-          rungs: LADDER.placed,
-          spacing: LADDER.spacing,
-        },
-      ),
-      object("kerb", "createLoad", "crate", KERB.x, KERB.z, 0, 0, {
-        length: KERB.length,
-        depth: KERB.depth,
-        height: KERB.height,
-      }),
+      // A fixture, so the hands that grip its rungs bear on it.
+      {
+        ...object(
+          "ladder",
+          "createLadder",
+          "fixed",
+          0.5,
+          TOE + LADDER.start,
+          180,
+          0,
+          {
+            rungs: LADDER.placed,
+            spacing: LADDER.spacing,
+          },
+        ),
+        fixed: true,
+      },
+      object("kerb", "createKerb", "kerb", KERB.x, KERB.z, 180),
     ],
   ),
 ];

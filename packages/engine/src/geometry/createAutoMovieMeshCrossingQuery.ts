@@ -1,10 +1,13 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshCrossing,
+  IAutoMovieMeshCrossingGeometry,
+  IAutoMovieMeshCrossingOptions,
+  IAutoMovieMeshCrossingQuery,
+  IAutoMovieMeshQueryHierarchy,
+} from "@automovie/interface";
 
 import { AutoMovieMeshCrossingGeometry as Geometry } from "./AutoMovieMeshCrossingGeometry";
-import type { IAutoMovieMeshCrossing } from "./IAutoMovieMeshCrossing";
-import type { IAutoMovieMeshCrossingOptions } from "./IAutoMovieMeshCrossingOptions";
-import type { IAutoMovieMeshCrossingQuery } from "./IAutoMovieMeshCrossingQuery";
-import type { IAutoMovieMeshQueryHierarchy } from "./IAutoMovieMeshQueryHierarchy";
 import { collectAutoMovieSpatialQueryCandidates } from "./collectAutoMovieSpatialQueryCandidates";
 
 /**
@@ -52,11 +55,11 @@ export function createAutoMovieMeshCrossingQuery(
 }
 
 /** A copied triangle in the shared internal geometry owner. */
-type IIndexed = Geometry.ITriangle;
+type IIndexed = IAutoMovieMeshCrossingGeometry.ITriangle;
 
 /** Bind the one existing narrow phase to one independent current-geometry snapshot. */
 function createQuery(
-  snapshot: Geometry.ISnapshot,
+  snapshot: IAutoMovieMeshCrossingGeometry.ISnapshot,
 ): IAutoMovieMeshCrossingQuery {
   const theirs: IIndexed[] = snapshot.triangles;
   const hierarchy: IAutoMovieMeshQueryHierarchy<IIndexed> | undefined =

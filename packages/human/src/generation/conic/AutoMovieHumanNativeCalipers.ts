@@ -1,8 +1,5 @@
-import {
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import { AutoMovieLoftViewRead, AutoMovieLoftViewSource } from "@automovie/engine";
+import type { IAutoMovieViewPart } from "@automovie/interface";
 
 /**
  * Read a declared caliper on its actual native source and owned domain.

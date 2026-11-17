@@ -1,0 +1,148 @@
+import type {
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanPerformanceState,
+} from "@automovie/interface";
+
+import { HumanRefusal } from "../law/HumanRefusal";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanPerformanceAim } from "./HumanPerformanceAim";
+import { HumanPerformanceParams } from "./HumanPerformanceParams";
+
+/**
+ * What a performer's next action on a prop demands of a grip an earlier
+ * action of theirs is still choosing (`IHumanActionContext.demands`): the
+ * goal poses that action will hold the prop in, asked of it before it is
+ * planned (`IHumanActionLaw.demands`), so the grip is chosen for them
+ * (goal postures planned first, Rosenbaum, Meulenbroek, Vaughan and Jansen
+ * 2001).
+ *
+ * The action asked is the first of the performer's later ones, in the
+ * composition's walk order, that names the prop: one of its parameters is
+ * the prop's subject id. An action between them that names it not (a walk
+ * with the prop in hand) leaves the grip as it is; the first one that names
+ * it decides, and one that asks nothing (a put down) ends the question.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States which action is asked, from which posture and at which second.
+ * @evidence contracts/development/design.md#principled-representation The composition's own order of a performer's actions and the parameters their laws resolve, read as data.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One reader, the context's `demands`, built by `HumanPerformancePlace`.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No action or prop is named: the action asked is found by the prop's id among its parameters.
+ */
+export namespace HumanPerformanceAhead {
+  /**
+   * The demands reader of an action, the one at `ordinal` in its
+   * performer's chain.
+   *
+   * Each grip is asked of the action found for its prop with what is known
+   * before that action is planned (`IHumanActionLaw.IAhead`): its resolved
+   * parameters, the performer's body and skill, the props, and its aiming
+   * from the posture the grip leaves the body in, read at the earlier
+   * action's start. An action whose parameters its schema refuses asks
+   * nothing here; it is refused where it is placed.
+   *
+   * @param self The performance being placed.
+   * @param context The earlier action's context.
+   * @param ordinal Its place among its performer's actions that carry the body.
+   * @returns The reader.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what each grip is asked with and the refused case.
+   * @evidence contracts/development/implementation.md#principled-implementation The action asked reads its own resolved parameters, and aims from the posture the grip leaves, so a target placed by the performer's frame is placed where they will stand.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The action found once per prop, then asked per grip.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a `HumanRefusal` of the parameters is taken as asking nothing; any other error propagates.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the performer's later actions, once per prop.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each prop's action is kept for every grip of it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The kept actions, one per prop asked, live as long as the context.
+   */
+  export function reader(
+    self: IAutoMovieMotionHumanPerformanceState,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "subject" | "body" | "skill" | "prop" | "start"
+    >,
+    ordinal: number,
+  ): (
+    grip: IAutoMovieMotionHumanActionLaw.IGrip,
+  ) => readonly IAutoMovieMotionHumanActionLaw.IDemand[] {
+    const found: Map<string, INext | null> = new Map();
+    const next = (prop: string): INext | null => {
+      if (!found.has(prop))
+        found.set(prop, find(self, context.subject, ordinal, prop));
+      return found.get(prop)!;
+    };
+    return (
+      grip: IAutoMovieMotionHumanActionLaw.IGrip,
+    ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] => {
+      const asked: INext | null = next(grip.prop);
+      if (asked === null || asked.law.demands === undefined) return [];
+      return asked.law.demands({
+        subject: context.subject,
+        body: context.body,
+        params: asked.params as never,
+        skill: context.skill,
+        prop: context.prop,
+        aim: (target, seconds) =>
+          HumanPerformanceAim.aim(
+            self,
+            target,
+            seconds,
+            HumanPerformanceAim.frame(
+              context.body,
+              grip.posture,
+              () =>
+                poseBones(
+                  context.body,
+                  resolveHumanPosture(context.body, grip.posture),
+                ),
+              context.subject,
+            ),
+          ),
+        start: context.start,
+        grip,
+      });
+    };
+  }
+
+  /** An action asked for its demands: its law and its resolved parameters. */
+  interface INext {
+    /** Its law. */
+    law: IAutoMovieMotionHumanActionLaw<never>;
+
+    /** Its parameters, as its law resolves them. */
+    params: object;
+  }
+
+  /** The first of a performer's actions after `ordinal` that names a prop, or null. */
+  function find(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    ordinal: number,
+    prop: string,
+  ): INext | null {
+    for (const intent of (self.intended.get(subject) ?? []).slice(
+      ordinal + 1,
+    )) {
+      const law: IAutoMovieMotionHumanActionLaw<never> | undefined =
+        self.laws.get(intent.capability);
+      // An action the vocabulary lacks is refused where it is placed.
+      if (law === undefined) return null;
+      const given: object = params(intent);
+      try {
+        HumanPerformanceParams.check(intent.capability, given);
+      } catch (error) {
+        if (error instanceof HumanRefusal) return null;
+        throw error;
+      }
+      const resolved: object = law.resolve?.(given) ?? given;
+      if (Object.values(resolved).includes(prop))
+        return { law, params: resolved };
+    }
+    return null;
+  }
+
+  /** The parameters an intent gives its action. */
+  function params(intent: IAutoMovieIntent): object {
+    return (intent.parameters?.params as object | undefined) ?? {};
+  }
+}

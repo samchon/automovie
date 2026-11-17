@@ -1,11 +1,14 @@
+import { nclose } from "../../internal/predicates";
 import {
+  AutoMovieHumanConicSection as S,
   AutoMovieHumanNativeGirthClosure as Closure,
   AutoMovieHumanNativeSiteReaches as Reaches,
   AutoMovieHumanNativeSiteSection as Site,
-  AutoMovieHumanConicSection as S,
 } from "@automovie/human";
-
-import { nclose } from "../../internal/predicates";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieHumanConicSection,
+} from "@automovie/interface";
 
 /**
  * A section solved at its site: a girth changes its fullness and no reach, a breadth or a depth changes its reaches and no share,
@@ -49,9 +52,9 @@ export function test_human_native_site_section(): void {
     if (!thrown) failures.push(what + " was accepted");
   };
   const quarter: number = Math.SQRT2 - 1;
-  const limb: S.ILayout = S.limb(0);
+  const limb: IAutoMovieHumanConicSection.ILayout = S.limb(0);
   const circle: number[] = [60, 0, 10, 50, -40, 0, 10, -50, quarter, quarter, quarter, quarter];
-  const centre: S.P = [10, 0];
+  const centre: AutoMovieVector2Tuple = [10, 0];
   const round: Reaches.IReaches = { front: 50, back: 50, lateral: 50, medial: 50 };
 
   // 1. The identity.
@@ -74,9 +77,9 @@ export function test_human_native_site_section(): void {
   if (tissued.fullness !== 0) failures.push("tissue with no girth gave a fullness");
 
   // 4 and 5. The reflected trunk section: front, median, side u, side v, median, back, four shoulders.
-  const half: S.ILayout = S.bilateral(1);
+  const half: IAutoMovieHumanConicSection.ILayout = S.bilateral(1);
   const trunk: number[] = [120, 0.5, 20, 180, 0.5, -90, 0.45, 0.45, 0.45, 0.45];
-  const middle: S.P = [15, 0];
+  const middle: AutoMovieVector2Tuple = [15, 0];
   const laid: Reaches.IReaches = { front: 105, back: 105, lateral: 180, medial: 180 };
   const broader: readonly number[] = Site.solve(trunk, half, { centre: middle, from: laid, to: { ...laid, lateral: 192.6, medial: 192.6 } }).values;
   [120, 0.5, 20, 192.6, 0.5, -90, 0.45, 0.45, 0.45, 0.45].forEach((x: number, k: number): void => close("the broader trunk's field " + k, broader[k]!, x));

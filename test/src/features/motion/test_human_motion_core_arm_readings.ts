@@ -1,7 +1,6 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   Quaternion,
   getConstraint,
   jointToQuaternion,
@@ -11,13 +10,15 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieJointRotationFrame,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanTrunk,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -55,8 +56,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, where the angles come from and the 3 scenarios with their bounds.
  */
 export function test_human_motion_core_arm_readings(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const base: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const base: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const frames: readonly (readonly [
     readonly [number, number, number],
     readonly [number, number, number],
@@ -74,7 +79,7 @@ export function test_human_motion_core_arm_readings(): void {
     ],
   ];
   const bone: AutoMovieHumanoidBone = "rightUpperArm";
-  const joint: swingTwistRange.IJoint = {
+  const joint: IAutoMovieJointRotationFrame = {
     axes: skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES)[bone]!,
     frame: HUMANOID_REST_FRAME[bone],
   };
@@ -85,7 +90,9 @@ export function test_human_motion_core_arm_readings(): void {
         ?.constraint ?? null,
     )!;
   const complaints: string[] = [];
-  const posture = (frame: (typeof frames)[number]): IHumanPosture => {
+  const posture = (
+    frame: (typeof frames)[number],
+  ): IAutoMovieMotionHumanPosture => {
     const { rightArm: _, ...limbs } = base.limbs;
     void _;
     return {

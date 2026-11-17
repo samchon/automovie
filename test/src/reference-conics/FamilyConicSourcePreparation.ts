@@ -1,12 +1,12 @@
-import type { IAutoMovieViewPart } from "@automovie/engine";
-import {
-  AutoMovieHumanF1 as F1,
-  AutoMovieHumanConicLoft as H,
-} from "@automovie/human";
-
 import type { FamilyConicCaptureInput as Input } from "./FamilyConicCaptureInput";
 import { FamilyConicOriginalCatalog as Original } from "./FamilyConicOriginalCatalog";
 import type { FamilyConicSourceCapture as Source } from "./FamilyConicSourceCapture";
+import { AutoMovieHumanConicLoft as H, AutoMovieHumanF1 as F1 } from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /** Original source discovery and preparation for one admitted capture invocation. */
 export namespace FamilyConicSourcePreparation {
@@ -32,17 +32,17 @@ export namespace FamilyConicSourcePreparation {
 
   /** Clone the requested actual factory relief scope, preserving every global and original family. */
   function bare(
-    assembly: F1.IAssembly,
+    assembly: IAutoMovieHumanF1.IAssembly,
     names: readonly string[],
-  ): F1.IAssembly {
+  ): IAutoMovieHumanF1.IAssembly {
     if (names.length === 0) return assembly;
     const found: Set<string> = new Set();
-    const family: (source: H.IFamily) => H.IFamily = (
-      source: H.IFamily,
-    ): H.IFamily => {
+    const family: (source: IAutoMovieHumanConicLoft.IFamily) => IAutoMovieHumanConicLoft.IFamily = (
+      source: IAutoMovieHumanConicLoft.IFamily,
+    ): IAutoMovieHumanConicLoft.IFamily => {
       if (source.reliefs === undefined) return source;
-      const reliefs: NonNullable<H.IFamily["reliefs"]> = source.reliefs.filter(
-        (feature: NonNullable<H.IFamily["reliefs"]>[number]): boolean => {
+      const reliefs: NonNullable<IAutoMovieHumanConicLoft.IFamily["reliefs"]> = source.reliefs.filter(
+        (feature: NonNullable<IAutoMovieHumanConicLoft.IFamily["reliefs"]>[number]): boolean => {
           if (!names.includes(feature.name)) return true;
           found.add(feature.name);
           return false;
@@ -61,17 +61,17 @@ export namespace FamilyConicSourcePreparation {
       nose: family(assembly.body.nose),
       breast: family(assembly.body.breast),
     };
-    const digits: F1.IDigit[] = assembly.digits.map(
-      (digit: F1.IDigit): F1.IDigit => ({
+    const digits: IAutoMovieHumanF1.IDigit[] = assembly.digits.map(
+      (digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanF1.IDigit => ({
         ...digit,
         family: family(digit.family),
       }),
     );
-    const helix: H.IFamily = family(assembly.helix);
-    const antihelix: H.IFamily = family(assembly.antihelix);
-    const axilla: H.IFamily = family(assembly.axilla);
-    const concha: H.IFamily = family(assembly.concha);
-    const nostril: H.IFamily = family(assembly.nostril);
+    const helix: IAutoMovieHumanConicLoft.IFamily = family(assembly.helix);
+    const antihelix: IAutoMovieHumanConicLoft.IFamily = family(assembly.antihelix);
+    const axilla: IAutoMovieHumanConicLoft.IFamily = family(assembly.axilla);
+    const concha: IAutoMovieHumanConicLoft.IFamily = family(assembly.concha);
+    const nostril: IAutoMovieHumanConicLoft.IFamily = family(assembly.nostril);
     const missing: string[] = names.filter(
       (name: string): boolean => !found.has(name),
     );
@@ -92,7 +92,7 @@ export namespace FamilyConicSourcePreparation {
         ...Object.values(body),
         helix,
         antihelix,
-        ...digits.map((digit: F1.IDigit): H.IFamily => digit.family),
+        ...digits.map((digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanConicLoft.IFamily => digit.family),
         axilla,
         concha,
         nostril,
@@ -117,7 +117,7 @@ export namespace FamilyConicSourcePreparation {
     const before: NodeJS.MemoryUsage = process.memoryUsage();
     const started: number = performance.now();
     const round: string = new Date().toISOString().replaceAll(":", "-");
-    const assembly: F1.IAssembly = bare(
+    const assembly: IAutoMovieHumanF1.IAssembly = bare(
       F1.assembleNative(input.selected.fields),
       input.bare,
     );
@@ -143,10 +143,10 @@ export namespace FamilyConicSourcePreparation {
       });
     const sourceScopes: IState["sourceScopes"] = [];
     const preparationUnavailable: { id: string; cause: string }[] = [];
-    const bodyKeys: Map<string, keyof F1.IAssembly["body"]> = new Map();
+    const bodyKeys: Map<string, keyof IAutoMovieHumanF1.IAssembly["body"]> = new Map();
     for (const key of Object.keys(
       assembly.body,
-    ) as (keyof F1.IAssembly["body"])[])
+    ) as (keyof IAutoMovieHumanF1.IAssembly["body"])[])
       bodyKeys.set(assembly.body[key].name, key);
     for (const family of assembly.families) {
       const descriptor: { mirrored: boolean; cutter: boolean } | undefined =
@@ -155,14 +155,14 @@ export namespace FamilyConicSourcePreparation {
         throw new Error(
           "Actual original has no production member descriptor: " + family.name,
         );
-      const bodyKey: keyof F1.IAssembly["body"] | undefined = bodyKeys.get(
+      const bodyKey: keyof IAutoMovieHumanF1.IAssembly["body"] | undefined = bodyKeys.get(
         family.name,
       );
       const role: Original.IEntry["role"] = descriptor.cutter
         ? "cutter-family-original"
         : "family-original";
       let scope: ReturnType<typeof F1.sourceScope> | null | undefined;
-      const active: () => H.IFamily = (): H.IFamily => {
+      const active: () => IAutoMovieHumanConicLoft.IFamily = (): IAutoMovieHumanConicLoft.IFamily => {
         if (scope === undefined)
           scope =
             bodyKey === undefined ? null : F1.sourceScope(assembly, bodyKey);
@@ -172,7 +172,7 @@ export namespace FamilyConicSourcePreparation {
         name?: string,
       ): IAutoMovieViewPart => {
         reads.authoredFamilyFactory++;
-        const reference: H.IFamily = assembly.reference(family.name);
+        const reference: IAutoMovieHumanConicLoft.IFamily = assembly.reference(family.name);
         return H.source(
           name === undefined ? reference : H.mirror(reference, name),
         );
@@ -181,7 +181,7 @@ export namespace FamilyConicSourcePreparation {
         name?: string,
       ): IAutoMovieViewPart => {
         reads.actualFamilyFactory++;
-        const member: H.IFamily =
+        const member: IAutoMovieHumanConicLoft.IFamily =
           name === undefined ? active() : H.mirror(active(), name);
         sourceScopes.push({
           id: member.name,
@@ -209,7 +209,7 @@ export namespace FamilyConicSourcePreparation {
       });
       if (descriptor.mirrored) {
         const name: string = family.name + ".mirror";
-        let raw: H.IFamily | undefined;
+        let raw: IAutoMovieHumanConicLoft.IFamily | undefined;
         try {
           raw = H.mirror(family, name);
         } catch (error: unknown) {

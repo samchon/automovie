@@ -1,5 +1,5 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
 
 /**
  * One world-axis-aligned placement box with the basis that produced it.

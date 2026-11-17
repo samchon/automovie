@@ -1,7 +1,8 @@
-import {
-  AutoMovieMotionHumanChannel,
-  type IHumanBody,
-} from "@automovie/motions";
+import type {
+  AutoMovieMotionHumanChannel as AutoMovieMotionHumanChannelType,
+  IAutoMovieMotionHumanBody,
+} from "@automovie/interface";
+import { AutoMovieMotionHumanChannel } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -36,20 +37,20 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_compose_channel_order(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
-  const order: readonly AutoMovieMotionHumanChannel[] =
+  const order: readonly AutoMovieMotionHumanChannelType[] =
     AutoMovieMotionHumanChannel.ORDER;
-  const at = (channel: AutoMovieMotionHumanChannel): number =>
+  const at = (channel: AutoMovieMotionHumanChannelType): number =>
     order.indexOf(channel);
-  const body: AutoMovieMotionHumanChannel[] = [
+  const body: AutoMovieMotionHumanChannelType[] = [
     "root",
     "trunk",
     "head",
     "leftLeg",
     "rightLeg",
   ];
-  const hands: AutoMovieMotionHumanChannel[] = ["leftHand", "rightHand"];
-  const arms: AutoMovieMotionHumanChannel[] = ["leftArm", "rightArm"];
-  const all: AutoMovieMotionHumanChannel[] = [...body, ...hands, ...arms];
+  const hands: AutoMovieMotionHumanChannelType[] = ["leftHand", "rightHand"];
+  const arms: AutoMovieMotionHumanChannelType[] = ["leftArm", "rightArm"];
+  const all: AutoMovieMotionHumanChannelType[] = [...body, ...hands, ...arms];
   complaints.check(
     "every channel once, root first",
     order.length === all.length &&
@@ -65,7 +66,7 @@ export function test_human_motion_compose_channel_order(): void {
     hands.every((h) => arms.every((a) => at(h) < at(a))) &&
       arms.every((a) => at(a) >= order.length - arms.length),
   );
-  const person: IHumanBody = motionHumanBody("m-average");
+  const person: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const misplaced: string[] = [];
   for (const { bone } of person.skeleton.bones) {
     const side: "left" | "right" | undefined = bone.startsWith("left")
@@ -75,7 +76,7 @@ export function test_human_motion_compose_channel_order(): void {
         : undefined;
     if (side === undefined) continue;
     const finger: boolean = /(Thumb|Index|Middle|Ring|Little)/.test(bone);
-    const expected: AutoMovieMotionHumanChannel | undefined = finger
+    const expected: AutoMovieMotionHumanChannelType | undefined = finger
       ? `${side}Hand`
       : bone === `${side}Hand`
         ? `${side}Arm`

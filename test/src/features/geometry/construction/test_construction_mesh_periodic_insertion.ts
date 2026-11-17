@@ -1,5 +1,8 @@
+import type {
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
 import {
-  type AutoMovieSolidMeshConstraints,
   AutoMovieSolidMeshPlan,
   insertAutoMovieSolidMeshPoints,
   orientAutoMovieSolidChart as orient,
@@ -17,9 +20,9 @@ interface Case {
 
   /** Original IDs and exact stored chart numbers; the last entry is the inserted point. */ points: ReadonlyMap<number, Point>;
 
-  /** Existing triangle population before insertion, each in its own cover. */ triangles: readonly AutoMovieSolidMeshPlan.ITriangle[];
+  /** Existing triangle population before insertion, each in its own cover. */ triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[];
 
-  /** Directed region boundary with the relative turn of each edge. */ boundary: readonly AutoMovieSolidMeshConstraints.ISegment[];
+  /** Directed region boundary with the relative turn of each edge. */ boundary: readonly IAutoMovieSolidMeshConstraints.ISegment[];
 
   /** The vertex whose stored occurrence anchors the one cover every exact sign is read in. */ anchor: number;
 
@@ -58,7 +61,7 @@ export function test_construction_mesh_periodic_insertion(): void {
       input.points, input.boundary, input.triangles, keeps, input.period, true,
     ), failures);
     if (input.plan) {
-      const plan: AutoMovieSolidMeshPlan.IPlan | string = AutoMovieSolidMeshPlan.triangulate(
+      const plan: IAutoMovieSolidMeshPlan.IPlan | string = AutoMovieSolidMeshPlan.triangulate(
         input.points, input.boundary, keeps, input.period, true,
       );
       inspect(input, "region", typeof plan === "string" ? plan : plan.triangles, failures);
@@ -94,11 +97,11 @@ function premise(failures: string[]): void {
 function cases(): Case[] {
   const { period, low, high, station }: typeof RECORDED = RECORDED;
   const square: [number, Point][] = [[0, [0, 7]], [1, [4, 7]], [2, [4, 1]], [3, [0, 1]]];
-  const halves: AutoMovieSolidMeshPlan.ITriangle[] = [
+  const halves: IAutoMovieSolidMeshPlan.ITriangle[] = [
     { vertices: [0, 1, 2], lifts: [0, 0, 1] },
     { vertices: [0, 2, 3], lifts: [0, 1, 1] },
   ];
-  const ring: AutoMovieSolidMeshConstraints.ISegment[] = [
+  const ring: IAutoMovieSolidMeshConstraints.ISegment[] = [
     { a: 0, b: 1, turn: 0 }, { a: 1, b: 2, turn: 1 }, { a: 2, b: 3, turn: 0 }, { a: 3, b: 0, turn: -1 },
   ];
   return [
@@ -125,7 +128,7 @@ function cases(): Case[] {
  * that two triangles place in different sheets, or that no triangle reaches, is a finding and the cover is absent.
  */
 function cover(
-  input: Case, triangles: readonly AutoMovieSolidMeshPlan.ITriangle[], label: string, failures: string[],
+  input: Case, triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[], label: string, failures: string[],
 ): Map<number, Point> | null {
   const lifts: Map<number, number> = new Map([[input.anchor, 0]]);
   for (let changed: boolean = true; changed; ) {
@@ -156,7 +159,7 @@ function membership(input: Case, failures: string[]): (s: number, t: number) => 
   const chart: Map<number, Point> = cover(input, input.triangles, input.name + " input", failures) ?? new Map();
   return (s: number, t: number): boolean =>
     [-1, 0, 1].some((turn: number): boolean =>
-      input.triangles.some((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean =>
+      input.triangles.some((triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean =>
         triangle.vertices.every((id: number, k: number): boolean =>
           chart.has(id) && orient(chart.get(id)!, chart.get(triangle.vertices[(k + 1) % 3]!)!, [s, t + turn * input.period]) >= 0),
       ),
@@ -164,7 +167,7 @@ function membership(input: Case, failures: string[]): (s: number, t: number) => 
 }
 
 /** A valid triangulation of the periodic disk: Euler's count, every ID, one sheet per vertex, exact positive and empty triangles, each boundary edge once and no half-period span. */
-function inspect(input: Case, stage: string, made: readonly AutoMovieSolidMeshPlan.ITriangle[] | string, failures: string[]): void {
+function inspect(input: Case, stage: string, made: readonly IAutoMovieSolidMeshPlan.ITriangle[] | string, failures: string[]): void {
   const label: string = `${input.name} ${stage}`;
   if (typeof made === "string") {
     failures.push(`${label}: refused: ${made.split("; diagnostic=")[0]}`);
@@ -173,7 +176,7 @@ function inspect(input: Case, stage: string, made: readonly AutoMovieSolidMeshPl
   const expected: number = 2 * input.points.size - input.boundary.length - 2;
   if (made.length !== expected) failures.push(`${label}: ${made.length} triangles, Euler requires ${expected}`);
   for (const id of input.points.keys())
-    if (!made.some((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(id)))
+    if (!made.some((triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(id)))
       failures.push(`${label}: original point ${id} lost`);
   const chart: Map<number, Point> | null = cover(input, made, label, failures);
   if (chart === null) return;
@@ -214,15 +217,15 @@ function inspect(input: Case, stage: string, made: readonly AutoMovieSolidMeshPl
 /** A point exactly on a seam-crossing source constraint has no authoritative subdivision; the same partition without that constraint splits. */
 function constrained(failures: string[]): void {
   const input: Case = cases()[1]!;
-  const refused: AutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(
+  const refused: IAutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(
     input.points, [...input.boundary, { a: 0, b: 2, turn: 1 }], input.triangles, (): boolean => true, input.period, true,
   );
   if (typeof refused !== "string" || !refused.includes("authoritative source-edge subdivision"))
     failures.push(`point on a seam-crossing source constraint was not refused by name: ${JSON.stringify(refused)}`);
-  const free: AutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(
+  const free: IAutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(
     input.points, input.boundary, input.triangles, (): boolean => true, input.period, true,
   );
   if (typeof free === "string" || free.length !== 4 ||
-    !free.every((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(4)))
+    !free.every((triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(4)))
     failures.push(`point on a free seam-crossing diagonal did not split both triangles: ${JSON.stringify(free)}`);
 }

@@ -1,7 +1,12 @@
 import { createCar, createDrinkware, createSeat } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -11,9 +16,6 @@ import {
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
-  type seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,8 +40,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    chair's heading.
  * 3. A glass standing 0.9 m high within reach, given to the performance as
  *    a prop: its contacts are named points of the prop, and picking it up
- *    by its `body` grip raises it between 80 and 120 mm (the lift is the
- *    pick-up's 100 mm default).
+ *    by its `body` grip raises it between 80 and 120 mm by the pick up's
+ *    `lifted` event, where the lift is defined (the lift is the pick-up's
+ *    100 mm default; a pick up that lowered the body then straightens, and
+ *    the glass rides with the shoulder). From `lifted` to the end, read 120
+ *    times a second, the glass keeps its place in the hand within 1 mm (the
+ *    campaign's grip bound), stays upright within 1 degree (it was taken
+ *    upright, as the hand keeps the attitude it took it in) and never moves
+ *    faster than 1.92 m/s between readings (the shipped audit's speed bound):
+ *    it is carried, not jumped.
  * 4. Refused, each listing what the object has: sitting on a mug, which
  *    declares no seat; a car with no seat named, which has three; a seat
  *    id the car lacks.
@@ -57,14 +66,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 5 scenarios with their bounds.
  */
 export function test_human_motion_object_affordances(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   const perform = (
-    composition: HumanChain,
+    composition: IAutoMovieMotionHumanChain,
     at: { x: number; y: number; z: number },
     yaw: number,
-    props: HumanPerformance.IInput["props"] = [],
-  ): HumanPerformance =>
+    props: IAutoMovieMotionHumanPerformance.IInput["props"] = [],
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "object",
       props,
@@ -90,7 +99,10 @@ export function test_human_motion_object_affordances(): void {
     at: { x: 0.3, y: 0, z: -0.45 },
     yaw: 30,
   };
-  const seat: seated.ISeat = HumanObject.seat(chair, where);
+  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    chair,
+    where,
+  );
   const placed: IAutoMovieTransform = chair.placed("seat", {
     translation: where.at,
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, where.yaw),
@@ -113,7 +125,7 @@ export function test_human_motion_object_affordances(): void {
 
   // 2. The body ends on it, facing its way. It starts with the ankles 0.2 m ahead of the front edge.
   const radians: number = (where.yaw * Math.PI) / 180;
-  const sat: HumanPerformance = perform(
+  const sat: IAutoMovieMotionHumanPerformance = perform(
     HumanChain.subject("a").sit({ seat }),
     {
       x: seat.at.x + 0.2 * Math.sin(radians),
@@ -144,7 +156,7 @@ export function test_human_motion_object_affordances(): void {
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
   });
-  const prop: IHumanProp = HumanObject.prop("glass", glass, {
+  const prop: IAutoMovieMotionHumanProp = HumanObject.prop("glass", glass, {
     at: { x: 0.15, y: 0.9, z: 0.4 },
     yaw: 0,
   });
@@ -153,18 +165,68 @@ export function test_human_motion_object_affordances(): void {
     sorted(Object.keys(prop.points)),
     sorted((glass.affordances ?? []).map((a): string => a.id)),
   );
-  const taken: HumanPerformance = perform(
+  const taken: IAutoMovieMotionHumanPerformance = perform(
     HumanChain.subject("a").pickUp({ prop: "glass", handle: "body" }),
     { x: 0, y: 0, z: 0 },
     0,
     [prop],
   );
+  const pick = taken.segments("a")[0]!;
+  const lifted: number =
+    pick.start +
+    (pick.plan.events.find((e): boolean => e.name === "lifted")?.share ??
+      Number.NaN) *
+      pick.plan.duration;
   const raised: number =
-    taken.prop("glass", taken.duration).position.y -
-    taken.prop("glass", 0).position.y;
+    taken.prop("glass", lifted).position.y - taken.prop("glass", 0).position.y;
+  // The carry after the lift: held, upright and continuous.
+  const inHand = (t: number): IAutoMovieVector3 => {
+    const hand = taken.bones("a", t).get("rightHand")!;
+    return Quaternion.rotateVector(
+      Quaternion.inverse(hand.worldRotation),
+      Vector3.subtract(taken.prop("glass", t).position, hand.worldPosition),
+    );
+  };
+  let slip: number = 0;
+  let tilt: number = 0;
+  let speed: number = 0;
+  let prior: IAutoMovieVector3 = taken.prop("glass", lifted).position;
+  for (
+    let t: number = lifted + 1 / 120;
+    t <= taken.duration + 1e-9;
+    t += 1 / 120
+  ) {
+    slip = Math.max(
+      slip,
+      Vector3.length(Vector3.subtract(inHand(t), inHand(lifted))),
+    );
+    const up: IAutoMovieVector3 = Quaternion.rotateVector(
+      taken.prop("glass", t).rotation,
+      { x: 0, y: 1, z: 0 },
+    );
+    tilt = Math.max(
+      tilt,
+      (Math.acos(Math.max(-1, Math.min(1, up.y))) * 180) / Math.PI,
+    );
+    const at: IAutoMovieVector3 = taken.prop("glass", t).position;
+    speed = Math.max(speed, Vector3.length(Vector3.subtract(at, prior)) * 120);
+    prior = at;
+  }
+  if (!(slip <= 0.001))
+    complaints.push(
+      `after the lift the glass moves ${(slip * 1000).toFixed(2)} mm in the hand, 1 mm at most expected`,
+    );
+  if (!(tilt <= 1))
+    complaints.push(
+      `after the lift the glass tilts ${tilt.toFixed(2)} degrees from upright, 1 at most expected`,
+    );
+  if (!(speed <= 1.92))
+    complaints.push(
+      `after the lift the glass moves at up to ${speed.toFixed(2)} m/s between readings, 1.92 at most expected`,
+    );
   if (!(raised >= 0.08 && raised <= 0.12))
     complaints.push(
-      `picked up by its body grip the glass rises ${(raised * 1000).toFixed(0)} mm, 80 to 120 mm expected`,
+      `picked up by its body grip the glass rises ${(raised * 1000).toFixed(0)} mm by lifted, 80 to 120 mm expected`,
     );
 
   // 4. What an object does not offer.
@@ -228,7 +290,7 @@ export function test_human_motion_object_affordances(): void {
     got !== undefined &&
     Math.hypot(got.x - expected.x, got.y - expected.y, got.z - expected.z) <=
       1e-9;
-  const saddle: seated.ISeat = HumanObject.seat(
+  const saddle: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
     {
       affordances: [
         contact("saddle", "seat", { x: 0, y: 0.9, z: 0 }, { astride: true }),
@@ -250,7 +312,7 @@ export function test_human_motion_object_affordances(): void {
     complaints.push(
       `a saddle with three stirrups turned 90 degrees reads astride ${saddle.astride} and rests ${JSON.stringify(saddle.footrests)}; astride with the nearest stirrup of each side at (1.1, 0.4, 1.7) on the left and (1.1, 0.4, 2.3) on the right expected`,
     );
-  const stool: seated.ISeat = HumanObject.seat(
+  const stool: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
     {
       affordances: [
         contact("top", "seat", { x: 0, y: 0.75, z: 0 }),

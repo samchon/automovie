@@ -1,5 +1,5 @@
-import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
-import { IAutoMoviePose } from "../pose/IAutoMoviePose";
+import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
 
 /**
  * Placement of one model in a scene, plus what it is doing there.

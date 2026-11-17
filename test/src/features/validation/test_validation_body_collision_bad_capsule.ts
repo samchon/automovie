@@ -1,8 +1,8 @@
-import {
+import { detectBodyCollision } from "@automovie/engine";
+import type {
   IAutoMovieBodyCollisionResult,
   IAutoMovieCollisionActor,
-  detectBodyCollision,
-} from "@automovie/engine";
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { staticActor } from "../internal/collision";
@@ -18,12 +18,14 @@ const overlapping: () => {
     a: { x: 0, y: 0, z: 0 },
     b: { x: 1, y: 0, z: 0 },
     radius: 0.5,
+    body: { mass: 1, centerOfMass: null, restitution: 0 },
   }),
   b: staticActor({
     node: "B",
     a: { x: 0, y: 0, z: 0 },
     b: { x: 1, y: 0, z: 0 },
     radius: 0.5,
+    body: { mass: 1, centerOfMass: null, restitution: 0 },
   }),
 });
 
@@ -57,7 +59,7 @@ const withCapsule: (
  * 5. Both actors malformed: violations name each actor's capsule and the response is null.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises capsule admission through detectBodyCollision, checking a valid overlap's success and events, located structural failures for absent endpoints, repeated endpoints and bad radius, no events for the absent-bone run, and both actors' findings with a null response.
- * @evidence contracts/development/testing.md#independent-expectations Identical unit centerlines with positive radii must intersect; an absent head cannot resolve on the two-bone fixture, hips-to-hips lacks distinct endpoints, and radius -1 is outside the finite positive domain. Explicit kind/path checks distinguish structural refusal from generic failure; the sanity case does not itself assert warning severity.
+ * @evidence contracts/development/testing.md#independent-expectations Identical unit centerlines with positive radii must intersect; explicit unit masses and zero restitution keep the positive control independent of missing physical data. An absent head cannot resolve on the two-bone fixture, hips-to-hips lacks distinct endpoints, and radius -1 is outside the finite positive domain. Explicit kind/path checks distinguish structural refusal from generic failure; the sanity case does not itself assert warning severity.
  * @evidence contracts/development/testing.md#distinguishing-cases A valid control, three independent malformed capsule fields, and faults on both actors guard against silent overlap loss and first-actor-only admission. Detached endpoints have a separate totality test; zero/non-finite radii and multiple capsules are outside this case.
  * @evidence contracts/development/testing.md#execution-ownership The named test_validation_body_collision_bad_capsule entry uses portable admission and sampled collision arithmetic with shared staticActor fixtures, without a host or dynamically registered cases.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Well-formed overlap succeeds and emits contact events.).

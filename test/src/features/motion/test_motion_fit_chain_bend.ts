@@ -1,5 +1,5 @@
 import {
-  type IAutoMovieResolvedBone,
+  Quaternion,
   fitChainToTarget,
   indexSkeletonTopology,
   resolvePose,
@@ -10,6 +10,7 @@ import type {
   IAutoMovieJointConstraint,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -32,12 +33,18 @@ import { TestValidator } from "@nestia/e2e";
  * 3. An effector rotation of 30° about +Y is met by the end bone's world
  *    rotation within 1e-6.
  * 4. Without a hint the existing bend search still reaches the target.
+ * 5. With the middle joint a hinge (flexion only), so the swivel sweep fits
+ *    the chain, and a strain whose least lies toward +X (1 less the +X share of the
+ *    first segment's direction), the middle joint is displaced toward +X
+ *    though `bend` lies at -X, and mirrored toward -X: the sweep's legal
+ *    candidate of least strain is the hint, and `bend` serves only when no
+ *    candidate is legal.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public fit and reads joint positions by forward kinematics; a hint ignored, turned into the wrong side, or an effector rotation not applied fails.
  * @evidence contracts/development/testing.md#independent-expectations Reach is a distance below 1 mm; the side is the sign of the middle joint's offset from the root-to-target line along the hint, the meaning of a pole vector in two-bone IK; mirroring is a metamorphic relation of the geometry.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers three hint directions, a mirrored case, an effector rotation and the hint-free path.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers three hint directions, a mirrored case, an effector rotation, the hint-free path and a strain on either side against a `bend` on the other.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit on plain chain geometry; it runs in CI. Human limbs (knees forward, elbows back within their range of motion) are covered locally by test_human_motion_measure_surfaces.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 scenarios and what each pins.
  */
 export function test_motion_fit_chain_bend(): void {
   const free: IAutoMovieJointConstraint = {
@@ -168,4 +175,60 @@ export function test_motion_fit_chain_bend(): void {
     "hint-free search reaches",
     dist(fit(target).get("leftFoot")!.worldPosition, target) < 1e-3,
   );
+
+  // 5. A strain makes the sweep's least-strain candidate the hint, on the
+  // chain with a hinged middle joint the swivel sweep fits.
+  const hinged: IAutoMovieSkeleton = {
+    ...skeleton,
+    bones: skeleton.bones.map(
+      (b: IAutoMovieBone): IAutoMovieBone =>
+        b.bone === "leftLowerLeg"
+          ? {
+              ...b,
+              constraint: {
+                flexion: { min: -180, max: 180 },
+                abduction: null,
+                twist: null,
+              },
+            }
+          : b,
+    ),
+  };
+  for (const [label, sign] of [
+    ["+X", 1],
+    ["-X", -1],
+  ] as const) {
+    const bones = new Map(
+      resolvePose(
+        fitChainToTarget({
+          skeleton: hinged,
+          pose,
+          chain: {
+            upper: "leftUpperLeg",
+            lower: "leftLowerLeg",
+            effector: "leftFoot",
+          },
+          target,
+          topology,
+          jointAxes: {},
+          restFrames: {},
+          // The opposite side as `bend`, which serves only with no legal candidate.
+          bend: { x: 0.1 - sign, y: 0.75, z: 0.2 },
+          strain: (upper: IAutoMovieQuaternion): number =>
+            1 - sign * Quaternion.rotateVector(upper, { x: 0, y: -1, z: 0 }).x,
+        }),
+        hinged,
+        {},
+        {},
+      ).map((r: IAutoMovieResolvedBone) => [r.bone, r]),
+    );
+    TestValidator.predicate(
+      `a strain least toward ${label} reaches`,
+      dist(bones.get("leftFoot")!.worldPosition, target) < 1e-3,
+    );
+    TestValidator.predicate(
+      `a strain least toward ${label} decides the side over the bend`,
+      sign * side(bones, target).x > 0.05,
+    );
+  }
 }

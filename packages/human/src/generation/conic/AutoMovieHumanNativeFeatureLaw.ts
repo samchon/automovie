@@ -1,6 +1,4 @@
-import type { IAutoMovieLoftRelief } from "@automovie/engine";
-
-import type { AutoMovieHumanConicSection as S } from "./AutoMovieHumanConicSection";
+import type { AutoMovieVector2Tuple, IAutoMovieLoftRelief } from "@automovie/interface";
 
 /**
  * Resolve original material features once, taking only their directions from placement.
@@ -19,7 +17,7 @@ import type { AutoMovieHumanConicSection as S } from "./AutoMovieHumanConicSecti
 export function AutoMovieHumanNativeFeatureLaw(
   original: readonly IAutoMovieLoftRelief[],
   placed: readonly IAutoMovieLoftRelief[],
-  scale: (feature: IAutoMovieLoftRelief) => S.P,
+  scale: (feature: IAutoMovieLoftRelief) => AutoMovieVector2Tuple,
   station: (s: number) => number,
 ): IAutoMovieLoftRelief[] {
   const directions: Map<string, IAutoMovieLoftRelief> = new Map(
@@ -32,7 +30,7 @@ export function AutoMovieHumanNativeFeatureLaw(
     const frame: IAutoMovieLoftRelief | undefined = directions.get(net.name);
     if (frame === undefined)
       throw new Error("native placed feature directions absent: " + net.name);
-    const [a, b]: S.P = scale(net);
+    const [a, b]: AutoMovieVector2Tuple = scale(net);
     const window: [number, number] = [
       station(net.stations[0]),
       station(net.stations[1]),

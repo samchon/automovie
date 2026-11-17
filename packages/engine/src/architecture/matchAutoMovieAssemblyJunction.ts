@@ -1,7 +1,10 @@
-import { IAutoMovieAssemblyBreak } from "./IAutoMovieAssemblyBreak";
-import { IAutoMovieAssemblyContinuity } from "./IAutoMovieAssemblyContinuity";
-import { IAutoMovieAssemblyJunction } from "./IAutoMovieAssemblyJunction";
-import { IAutoMovieResolvedAssembly } from "./IAutoMovieResolvedAssembly";
+import type {
+  IAutoMovieAssemblyBreak,
+  IAutoMovieAssemblyContinuity,
+  IAutoMovieAssemblyJunction,
+  IAutoMovieMatchAssemblyJunction,
+  IAutoMovieResolvedAssembly,
+} from "@automovie/interface";
 
 /**
  * The hull and summed thickness of layers sharing one role.
@@ -53,20 +56,11 @@ interface IRoleSpan {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure comparison of two resolved values that coordinates no work across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the two role maps only for the call; the caller owns the returned junction.
  */
-export const matchAutoMovieAssemblyJunction: (props: {
-  left: IAutoMovieResolvedAssembly;
-  right: IAutoMovieResolvedAssembly;
-  tolerance: number;
-}) => IAutoMovieAssemblyJunction = (props: {
-  /** Build-up on one side of the junction, resolved on the shared line. */
-  left: IAutoMovieResolvedAssembly;
-
-  /** Build-up on the other side, resolved on the same line as `left`. */
-  right: IAutoMovieResolvedAssembly;
-
-  /** Greatest metre gap between two spans still counted as aligned. */
-  tolerance: number;
-}): IAutoMovieAssemblyJunction => {
+export const matchAutoMovieAssemblyJunction: (
+  props: IAutoMovieMatchAssemblyJunction.IProps,
+) => IAutoMovieAssemblyJunction = (
+  props: IAutoMovieMatchAssemblyJunction.IProps,
+): IAutoMovieAssemblyJunction => {
   if (!Number.isFinite(props.tolerance) || props.tolerance < 0)
     throw new Error("junction tolerance must be a finite number >= 0");
   const left: Map<string, IRoleSpan> = rolesOf(props.left);

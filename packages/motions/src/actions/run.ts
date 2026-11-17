@@ -1,9 +1,12 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanRun,
+  IAutoMovieMotionHumanWalkGait,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { walk } from "./walk";
 
 /**
@@ -39,10 +42,10 @@ import { walk } from "./walk";
  */
 export namespace run {
   /** The action's name. */
-  export const name: HumanActionName = "run";
+  export const name: AutoMovieMotionHumanActionName = "run";
 
   /** Cancel table: as a walk's, any step may be cut into another locomotion, and a stand once both feet are down. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
         window: ["lastFootfall", 1],
@@ -57,7 +60,7 @@ export namespace run {
   };
 
   /** What a gait lets an overlay take: the arms it would swing, the hands and the head. */
-  export const yields: IHumanActionLaw["yields"] = [
+  export const yields: IAutoMovieMotionHumanActionLaw["yields"] = [
     "head",
     "leftHand",
     "rightHand",
@@ -65,36 +68,15 @@ export namespace run {
     "rightArm",
   ];
 
-  /** Parameters. */
-  export interface IParams {
-    /** The floor point to stop at, world metres. */
-    to: IAutoMovieVector3;
-
-    /** The pace; `run` when absent. */
-    pace?: "jog" | "run" | "sprint";
-
-    /** Floor points passed in order before `to`, world metres. */
-    via?: IAutoMovieVector3[];
-
-    /** The heading at arrival, degrees about +Y. */
-    face?: number;
-
-    /** Step-length scale in [0.6, 1.3]; 1 when absent. */
-    stride?: number;
-
-    /** Arm-swing scale in [0, 2]; 1 when absent. */
-    armSwing?: number;
-
-    /** Elbows held out, degrees in [0, 30]; 0 when absent. */
-    elbows?: number;
-  }
-
   /** The heel's height over the ball at contact and through stance, degrees about the toes' joint (provisional). */
   export const FOREFOOT: number = 20;
 
   /** Each pace's running gait. */
   export const GAITS: Readonly<
-    Record<NonNullable<IParams["pace"]>, walk.IGait>
+    Record<
+      NonNullable<IAutoMovieMotionHumanRun.IParams["pace"]>,
+      IAutoMovieMotionHumanWalkGait
+    >
   > = {
     jog: gait(0.6, 0.4, 0.15, 25, 5),
     run: gait(1.3, 0.35, 0.25, 35, 8),
@@ -108,8 +90,8 @@ export namespace run {
    * @returns The plan.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRun.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
     return walk.locomote(context, GAITS[context.params.pace ?? "run"]);
   }
 
@@ -120,7 +102,7 @@ export namespace run {
     lift: number,
     shoulder: number,
     lean: number,
-  ): walk.IGait {
+  ): IAutoMovieMotionHumanWalkGait {
     return {
       froude,
       step: (fr: number): number => Math.sqrt(fr) / (0.8 + 0.08 * fr),

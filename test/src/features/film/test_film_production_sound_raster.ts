@@ -1,6 +1,4 @@
 import {
-  IAutoMovieProductionSoundRaster,
-  IAutoMovieRenderedProductionSound,
   deriveProductionSoundPlan,
   productionSoundSpectrogram,
   productionSoundWaveform,
@@ -9,6 +7,8 @@ import {
 import type {
   IAutoMovieCompiledShotSource,
   IAutoMovieProductionSoundPlan,
+  IAutoMovieProductionSoundRaster,
+  IAutoMovieRenderedProductionSound,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

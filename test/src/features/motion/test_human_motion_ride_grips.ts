@@ -6,6 +6,13 @@ import {
 } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanRide,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -16,9 +23,6 @@ import {
   HumanPerformance,
   HumanRide,
   HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
-  type seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -90,12 +94,12 @@ export function test_human_motion_ride_grips(): void {
   const rides: readonly {
     label: string;
     name: "m-average" | "f-small";
-    model: HumanObject.IModel;
+    model: IAutoMovieMotionHumanObject.IModel;
     duration: number;
     at: (seconds: number) => IAutoMovieTransform;
     part: (id: string, seconds: number) => IAutoMovieTransform;
     holds: Record<"left" | "right", string>;
-    ride: Pick<HumanRide.IParams, "feet" | "seat">;
+    ride: Pick<IAutoMovieMotionHumanRide.IParams, "feet" | "seat">;
   }[] = [
     {
       label: "the bicycle's grips",
@@ -126,15 +130,15 @@ export function test_human_motion_ride_grips(): void {
     },
   ];
   for (const mount of rides) {
-    const body: IHumanBody = motionHumanBody(mount.name);
-    const known: Map<number, IHumanProp.IFrame> = new Map();
-    const placed = (seconds: number): IHumanProp.IFrame => {
-      const kept: IHumanProp.IFrame | undefined = known.get(seconds);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(mount.name);
+    const known: Map<number, IAutoMovieRigidTransform> = new Map();
+    const placed = (seconds: number): IAutoMovieRigidTransform => {
+      const kept: IAutoMovieRigidTransform | undefined = known.get(seconds);
       if (kept !== undefined) return kept;
       const placement: IAutoMovieTransform = mount.at(
         Math.max(0, seconds - WAIT),
       );
-      const frame: IHumanProp.IFrame = {
+      const frame: IAutoMovieRigidTransform = {
         position: placement.translation,
         rotation: placement.rotation,
       };
@@ -143,9 +147,12 @@ export function test_human_motion_ride_grips(): void {
     };
     const part = (id: string, seconds: number): IAutoMovieTransform =>
       mount.part(id, Math.max(0, seconds - WAIT));
-    const seat: seated.ISeat = HumanObject.seat(mount.model, placed(0));
+    const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+      mount.model,
+      placed(0),
+    );
     const seconds: number = WAIT + mount.duration;
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "grips",
@@ -180,7 +187,7 @@ export function test_human_motion_ride_grips(): void {
       );
       continue;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,

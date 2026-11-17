@@ -1,20 +1,22 @@
-import type {
-  AutoMovieHumanF1 as F1,
-  AutoMovieHumanConicLoft as H,
-} from "@automovie/human";
-import fs from "node:fs/promises";
-import path from "node:path";
-
 import type { FamilyConicCaptureFraming as Framing } from "./FamilyConicCaptureFraming";
 import { FamilyConicCaptureInput as Input } from "./FamilyConicCaptureInput";
-import { FamilyConicCaptureTransportFiles as TransportFiles } from "./FamilyConicCaptureTransportFiles";
+import {
+  FamilyConicCaptureTransportFiles as TransportFiles,
+} from "./FamilyConicCaptureTransportFiles";
 import { FamilyConicCaptureViews as Views } from "./FamilyConicCaptureViews";
-import type { FamilyConicOriginalCatalog as Original } from "./FamilyConicOriginalCatalog";
+import type {
+  FamilyConicOriginalCatalog as Original,
+} from "./FamilyConicOriginalCatalog";
 import { FamilyConicSourceDrawing as Drawing } from "./FamilyConicSourceDrawing";
 import { FamilyConicSourceEvidence as Evidence } from "./FamilyConicSourceEvidence";
-import { FamilyConicSourcePreparation as Preparation } from "./FamilyConicSourcePreparation";
+import {
+  FamilyConicSourcePreparation as Preparation,
+} from "./FamilyConicSourcePreparation";
 import { FamilyConicSourceSelection as Selection } from "./FamilyConicSourceSelection";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import type { IAutoMovieHumanConicLoft, IAutoMovieHumanF1 } from "@automovie/interface";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /** Same-invocation original observations before whole-tree realization; no realization is imported. */
 export namespace FamilyConicSourceCapture {
@@ -34,7 +36,7 @@ export namespace FamilyConicSourceCapture {
     round: string;
 
     /** One actual production assembly, with invocation-scoped diagnostic relief selection. */
-    assembly: F1.IAssembly;
+    assembly: IAutoMovieHumanF1.IAssembly;
 
     /** Original definitions, actual axes/guides and explicit unavailable evidence. */
     originals: Original.IResult;
@@ -53,7 +55,7 @@ export namespace FamilyConicSourceCapture {
       id: string;
       owner: string;
       wallDomain: readonly [number, number] | null;
-      tips: H.IFamily["tips"];
+      tips: IAutoMovieHumanConicLoft.IFamily["tips"];
       phase: number | undefined;
       turn: number | undefined;
     }[];

@@ -1,5 +1,12 @@
-import { type AutoMovieConstructionRealization, type AutoMovieSolidIntersection, realizeAutoMovieConstruction } from "@automovie/engine";
-import type { AutoMovieConstructionNode, AutoMovieConstructionWidth, IAutoMovieConstructionJoin, IAutoMovieConstructionPort } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionJoin,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionPortLoop,
+  IAutoMovieConstructionRealization,
+  IAutoMovieConstructionWidth,
+  IAutoMovieSolidIntersection,
+} from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
@@ -48,16 +55,16 @@ export function test_construction_mixed_join(): void {
     }
     return (lo + hi) / 2;
   };
-  const loop = (centre: number): IAutoMovieConstructionPort.ILoop => ({
+  const loop = (centre: number): IAutoMovieConstructionPortLoop => ({
     centre: [centre, 0],
     semi,
     sense: 1,
     shape: Array.from({ length: count }, (_: unknown, k: number): number => share((2 * Math.PI * k) / count)),
   });
-  const fold = (reach: number): AutoMovieConstructionWidth => ({ type: "fold", radius: 0.004, cap: 0.006, reach });
-  const tree = (declared: IAutoMovieConstructionPort.ILoop, part: AutoMovieConstructionWidth, host: AutoMovieConstructionWidth): IAutoMovieConstructionJoin => {
-    const beam: AutoMovieConstructionNode = ConstructionShapes.cylinder("beam", { origin: { x: -0.1, y: 0, z: 0 }, u: { x: 0, y: 0, z: 1 }, v: { x: 0, y: 1, z: 0 } }, R, 0.2);
-    const post: AutoMovieConstructionNode = ConstructionShapes.cylinder("post", { origin: { x: 0, y: 0, z: 0 }, u: { x: 0, y: 1, z: 0 }, v: { x: 1, y: 0, z: 0 } }, r, 0.08);
+  const fold = (reach: number): IAutoMovieConstructionWidth => ({ type: "fold", radius: 0.004, cap: 0.006, reach });
+  const tree = (declared: IAutoMovieConstructionPortLoop, part: IAutoMovieConstructionWidth, host: IAutoMovieConstructionWidth): IAutoMovieConstructionJoin => {
+    const beam: IAutoMovieConstructionNode = ConstructionShapes.cylinder("beam", { origin: { x: -0.1, y: 0, z: 0 }, u: { x: 0, y: 0, z: 1 }, v: { x: 0, y: 1, z: 0 } }, R, 0.2);
+    const post: IAutoMovieConstructionNode = ConstructionShapes.cylinder("post", { origin: { x: 0, y: 0, z: 0 }, u: { x: 0, y: 1, z: 0 }, v: { x: 1, y: 0, z: 0 } }, r, 0.08);
     return {
       type: "join",
       kind: "merge",
@@ -76,10 +83,10 @@ export function test_construction_mixed_join(): void {
       loop: declared,
     };
   };
-  const realize = (root: IAutoMovieConstructionJoin): AutoMovieConstructionRealization.IRealization => realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
+  const realize = (root: IAutoMovieConstructionJoin): IAutoMovieConstructionRealization.IRealization => realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
 
   /** The drawn mesh as a two-manifold whose free edges lie on the beam's two ends or the post's top. */
-  const skin = (label: string, real: AutoMovieConstructionRealization.IRealization): void => {
+  const skin = (label: string, real: IAutoMovieConstructionRealization.IRealization): void => {
     const p: number[] = real.mesh.positions;
     let far: number = 0;
     let top: number = 0;
@@ -107,14 +114,14 @@ export function test_construction_mixed_join(): void {
   };
 
   // 1. The declared Steinmetz loop.
-  const real: AutoMovieConstructionRealization.IRealization = realize(tree(loop(0.1), fold(0.001), fold(0.001)));
+  const real: IAutoMovieConstructionRealization.IRealization = realize(tree(loop(0.1), fold(0.001), fold(0.001)));
   if (real.diagnostics.length !== 0) failures.push(`declared loop: diagnostics: ${ConstructionRead.diagnostics(real)}`);
   if (real.joins.length !== 1) failures.push(`declared loop: ${real.joins.length} joins published, expected one`);
   else {
-    const joined: AutoMovieConstructionRealization.IJoin = real.joins[0]!;
+    const joined: IAutoMovieConstructionRealization.IJoin = real.joins[0]!;
     const bound: number = ConstructionChecks.sectionSpline(R, 16);
     if (joined.join.curve.points.length !== count) failures.push(`declared loop: ${joined.join.curve.points.length} points, expected ${count}`);
-    for (const q of joined.join.curve.points as AutoMovieSolidIntersection.IPoint[]) {
+    for (const q of joined.join.curve.points as IAutoMovieSolidIntersection.IPoint[]) {
       const [x, y, z]: number[] = q.point.map((v: number): number => v / 1000);
       const post: number = Math.abs(Math.hypot(x!, y!) - r);
       const beam: number = Math.abs(Math.hypot(y!, z!) - R);
@@ -147,7 +154,7 @@ export function test_construction_mixed_join(): void {
     ["moved loop", "shared loop", tree(loop(0.101), fold(0.001), fold(0.001))],
     ["station width", "width", tree(loop(0.1), { type: "station", value: 0.04 }, fold(0.001))],
   ] as [string, string, IAutoMovieConstructionJoin][]) {
-    const refused: AutoMovieConstructionRealization.IRealization = realize(root);
+    const refused: IAutoMovieConstructionRealization.IRealization = realize(root);
     if (refused.joins.length !== 0) failures.push(`${label}: a join was published`);
     if (!(refused.diagnostics.length === 1 && refused.diagnostics[0]!.node === "blend.post" && refused.diagnostics[0]!.contract === contract))
       failures.push(`${label}: expected one ${contract} diagnostic of blend.post, got ${ConstructionRead.diagnostics(refused) || "none"}`);

@@ -1,6 +1,6 @@
-import { IAutoMovieClearanceBox } from "./IAutoMovieClearanceBox";
-import { IAutoMoviePropBox } from "./IAutoMoviePropBox";
-import { IAutoMoviePropRelation } from "./IAutoMoviePropRelation";
+import type { IAutoMovieClearanceBox } from "./IAutoMovieClearanceBox";
+import type { IAutoMoviePropBox } from "./IAutoMoviePropBox";
+import type { IAutoMoviePropRelation } from "./IAutoMoviePropRelation";
 
 /**
  * The building relations and model-local volumes one prop claims, judged by

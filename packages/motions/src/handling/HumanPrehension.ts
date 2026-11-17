@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieRandom,
   Quaternion,
   Vector3,
   minimumJerk,
@@ -7,7 +6,11 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPrehension,
+  IAutoMovieMotionHumanSkill,
   IAutoMovieQuaternion,
+  IAutoMovieRandom,
+  IAutoMovieSuperposeMinimumJerk,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -104,7 +107,7 @@ export namespace HumanPrehension {
    * @returns Seconds; positive.
    */
   export function duration(
-    skill: HumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     random: IAutoMovieRandom,
     distance: number,
     width: number,
@@ -156,18 +159,6 @@ export namespace HumanPrehension {
     return 0.6 + 0.1 * random.float(0);
   }
 
-  /** A planned transport of the wrist and the hand's turn. */
-  export interface ITransport {
-    /** Seconds the transport lasts. */
-    duration: number;
-
-    /** The wrist at a second of the transport (clamped to its span), metres. */
-    wrist(seconds: number): IAutoMovieVector3;
-
-    /** The hand's world rotation at a second of the transport. */
-    turn(seconds: number): IAutoMovieQuaternion;
-  }
-
   /**
    * Plan a transport.
    *
@@ -184,9 +175,9 @@ export namespace HumanPrehension {
     to: IAutoMovieVector3,
     approach: IAutoMovieVector3,
     setback: number,
-    rotation: { from: IAutoMovieQuaternion; to: IAutoMovieQuaternion },
+    rotation: IAutoMovieMotionHumanPrehension.ITransportRotation,
     seconds: number,
-  ): ITransport {
+  ): IAutoMovieMotionHumanPrehension.ITransport {
     if (!(seconds > 0)) throw new Error("A transport lasts a positive time");
     const via: IAutoMovieVector3 = Vector3.subtract(
       to,
@@ -195,7 +186,7 @@ export namespace HumanPrehension {
     // A direct reach has no approach stretch: one unit spans the whole time,
     // so its peak speed is the minimum-jerk 1.875 times the mean and not the
     // first unit's share squeezed into three quarters of it.
-    const units: superposeMinimumJerk.IUnit[] =
+    const units: IAutoMovieSuperposeMinimumJerk.IUnit[] =
       setback === 0
         ? [
             {

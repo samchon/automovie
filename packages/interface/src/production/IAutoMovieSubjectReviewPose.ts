@@ -1,4 +1,4 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * Exact inspection camera state that produced one subject observation.

@@ -1,21 +1,22 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handGoals } from "./handGoals";
@@ -39,8 +40,10 @@ import { handGoals } from "./handGoals";
  * than the buttock-to-popliteal length); a shallower seat moves the socket
  * forward to 2 cm inside its depth.
  *
- * A seat is sat on with both feet on the floor when its height lies within
- * 0.8 to 1.2 of the popliteal height, the ratio the campaign sets: a lower
+ * A seat is sat on with both feet on the floor when its height above the
+ * floor under the feet (the ground, or the floor of a prop they stand on,
+ * as a boat's) lies within 0.8 to 1.2 of the popliteal height, the ratio
+ * the campaign sets (#3363): a lower
  * seat needs more trunk flexion and a longer rise (Janssen, Bussmann and
  * Stam 2002, Phys Ther 82:866) and is refused. A higher one is a high seat:
  * a bar stool, a saddle, a wall. The feet leave the floor for its rests or
@@ -52,42 +55,6 @@ import { handGoals } from "./handGoals";
  * @evidence contracts/development/implementation.md#principled-implementation The seat socket is an effector placed by solving the root for a pitch; the legs and arms are inverse-kinematics goals.
  */
 export namespace seated {
-  /** A seat in the world. */
-  export interface ISeat {
-    /** The middle of the sitting surface's front edge, world metres; its height is the seat height. */
-    at: IAutoMovieVector3;
-
-    /** The heading a sitter faces, degrees about +Y. */
-    yaw: number;
-
-    /** Depth back from the front edge, metres; deep enough for the thigh when absent. */
-    depth?: number;
-
-    /** Backrest height above the surface, metres; backless when absent. */
-    back?: number;
-
-    /** Whether the seat is sat astride, a leg on either side, as a saddle is; both legs ahead when absent. */
-    astride?: boolean;
-
-    /**
-     * Where a palm rests on each armrest, world metres: the top of the
-     * armrest beside the sitter. A hand with one goes to it while sitting
-     * down and bears on it; a hand with none rests on its thigh.
-     */
-    armrests?: Partial<Record<"left" | "right", IAutoMovieVector3>>;
-
-    /** The side a seat sat astride is got onto and off from, as a horse is mounted from its left; either side when absent or `either`. */
-    mount?: "left" | "right" | "either";
-
-    /**
-     * Where a foot rests while seated, world metres: the tread a foot's ball
-     * bears on (a stool's bar, a pedal, a peg, a stirrup). Read only on a
-     * seat higher than the band, where the feet leave the floor; a foot with
-     * no rest, or whose rest the leg cannot reach, hangs.
-     */
-    footrests?: Partial<Record<"left" | "right", IAutoMovieVector3>>;
-  }
-
   /**
    * Seat heights as shares of the popliteal height that are sat on with both
    * feet on the floor. Below the band a seat is refused; above it the seat
@@ -103,6 +70,7 @@ export namespace seated {
    *
    * @param body The body.
    * @param seat The seat.
+   * @param under The floor's height under the feet, world metres; the ground's 0 when absent.
    * @returns Whether the seat is above the band.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what a high seat is and what follows from it for the feet.
@@ -113,19 +81,48 @@ export namespace seated {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function high(body: IHumanBody, seat: ISeat): boolean {
-    return ratio(body, seat) > RATIO[1];
+  export function high(
+    body: IAutoMovieMotionHumanBody,
+    seat: IAutoMovieMotionHumanSeated.ISeat,
+    under: number = 0,
+  ): boolean {
+    return ratio(body, seat, under) > RATIO[1];
   }
 
   /**
-   * The seat height's share of the popliteal height.
+   * The seat height's share of the popliteal height, the height measured
+   * from the floor the feet stand on ({@link floor}).
    *
    * @param body The body.
    * @param seat The seat.
+   * @param under The floor's height under the feet, world metres; the ground's 0 when absent.
    * @returns The ratio.
    */
-  export function ratio(body: IHumanBody, seat: ISeat): number {
-    return seat.at.y / popliteal(body);
+  export function ratio(
+    body: IAutoMovieMotionHumanBody,
+    seat: IAutoMovieMotionHumanSeated.ISeat,
+    under: number = 0,
+  ): number {
+    return (seat.at.y - under) / popliteal(body);
+  }
+
+  /**
+   * The height of the floor the feet stand on at an entry, world metres: a
+   * seat's height is measured from it, since the legs reach from the seat
+   * down to it. On the ground it is the ground's 0; a foot planted on a
+   * prop (a boat's floor, a stage, a deck) stands on that prop's floor,
+   * which is read on its displayed bearing sockets, even with its heel raised.
+   * The lowest such sole is the floor, as the lower foot reaches farthest.
+   *
+   * @param body The body.
+   * @param entry The entry state.
+   * @returns The floor's height, world metres.
+   */
+  export function floor(
+    body: IAutoMovieMotionHumanBody,
+    entry: IAutoMovieMotionHumanEntryState,
+  ): number {
+    return HumanSupportFrame.floor(body, entry);
   }
 
   /**
@@ -134,10 +131,16 @@ export namespace seated {
    *
    * @param body The body.
    * @param seat The seat.
+   * @param under The floor's height under the feet, world metres; the ground's 0 when absent.
    * @throws {HumanRefusal} When the seat height lies below the band.
    */
-  export function check(body: IHumanBody, seat: ISeat): void {
-    const r: number = ratio(body, seat);
+  export function check(
+    body: IAutoMovieMotionHumanBody,
+    seat: IAutoMovieMotionHumanSeated.ISeat,
+    under: number = 0,
+  ): void {
+    const r: number = ratio(body, seat, under);
+    const least: number = under + RATIO[0] * popliteal(body);
     if (r < RATIO[0])
       throw new HumanRefusal({
         kind: "reach",
@@ -145,11 +148,11 @@ export namespace seated {
         value: seat.at.y,
         feasible: {
           kind: "range",
-          minimum: RATIO[0] * popliteal(body),
+          minimum: least,
           maximum: null,
           unit: "m",
         },
-        reason: `A seat ${seat.at.y.toFixed(3)} m high is ${r.toFixed(2)} of this body's popliteal height; seats from ${(RATIO[0] * popliteal(body)).toFixed(3)} m up suit it`,
+        reason: `A seat ${(seat.at.y - under).toFixed(3)} m high is ${r.toFixed(2)} of this body's popliteal height; seats from ${(RATIO[0] * popliteal(body)).toFixed(3)} m up suit it`,
         fix: "use a seat whose height suits this body",
       });
   }
@@ -165,7 +168,10 @@ export namespace seated {
    * @param seat The seat.
    * @returns The socket's seated point.
    */
-  export function point(body: IHumanBody, seat: ISeat): IAutoMovieVector3 {
+  export function point(
+    body: IAutoMovieMotionHumanBody,
+    seat: IAutoMovieMotionHumanSeated.ISeat,
+  ): IAutoMovieVector3 {
     const socket: IAutoMovieVector3 = offset(body);
     const hipJoint: IAutoMovieVector3 = body.rest.get("leftUpperLeg")!;
     let back: number = body.measure.thigh - 0.05 + hipJoint.z - socket.z;
@@ -186,7 +192,7 @@ export namespace seated {
    * @param body The body.
    * @returns The offset.
    */
-  export function offset(body: IHumanBody): IAutoMovieVector3 {
+  export function offset(body: IAutoMovieMotionHumanBody): IAutoMovieVector3 {
     return Vector3.add(
       body.rest.get("hips")!,
       body.surfaces.sockets.seat.point,
@@ -202,9 +208,9 @@ export namespace seated {
    * @returns The root.
    */
   export function root(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     at: IAutoMovieVector3,
-    heading: Pick<IHumanPosture, "yaw" | "pitch" | "roll">,
+    heading: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">,
   ): IAutoMovieVector3 {
     return Vector3.subtract(
       at,
@@ -223,8 +229,8 @@ export namespace seated {
    * @returns World metres.
    */
   export function socket(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 {
     return Vector3.add(
       posture.root,
@@ -236,24 +242,24 @@ export namespace seated {
   }
 
   /**
-   * Goals that lay each palm on the front of the same thigh, fingers toward
-   * the knee, on a posture whose legs are solved first.
+   * Goals that lay each palm flat on the front of the same thigh, fingers
+   * toward the knee, on a posture whose legs are solved first.
    *
    * @param body The body.
    * @param posture The posture with its leg goals.
    * @returns Arm goals.
    */
   export function hands(
-    body: IHumanBody,
-    posture: IHumanPosture,
-  ): IHumanPosture["limbs"] {
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture["limbs"] {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       resolveHumanPosture(body, posture),
     );
-    const requests: AutoMovieMotionHumanArm.ISided[] = [];
+    const requests: IAutoMovieMotionHumanArmTarget.ISided[] = [];
     for (const side of ["left", "right"] as const) {
-      const frame: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+      const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
         body.surfaces.regions[
           `thighFront${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
         ];
@@ -270,10 +276,12 @@ export namespace seated {
         bones.get(`${side}LowerLeg`)!.worldPosition,
         thigh.worldPosition,
       );
+      // The hand lies flat along the thigh, its palm on the surface: a
+      // relaxed curl would close the fingers into the thigh they lie on.
       requests.push({
         side,
         surface: "palm",
-        shape: "relaxed",
+        shape: "flat",
         point,
         rotation: HumanHand.rotation(side, {
           fingers: along,
@@ -282,7 +290,11 @@ export namespace seated {
         bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
       });
     }
-    const placed: IHumanPosture = handGoals(body, posture, requests);
+    const placed: IAutoMovieMotionHumanPosture = handGoals(
+      body,
+      posture,
+      requests,
+    );
     return { leftArm: placed.limbs.leftArm!, rightArm: placed.limbs.rightArm! };
   }
 
@@ -299,23 +311,26 @@ export namespace seated {
    * @returns The posture with arm goals, or unchanged at 0.
    */
   export function arms(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     share: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     if (share <= 0) return posture;
-    const onThighs: IHumanPosture["limbs"] = hands(body, posture);
+    const onThighs: IAutoMovieMotionHumanPosture["limbs"] = hands(
+      body,
+      posture,
+    );
     if (share >= 1)
       return { ...posture, limbs: { ...posture.limbs, ...onThighs } };
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       resolveHumanPosture(body, posture),
     );
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const side of ["left", "right"] as const) {
       const limb: "leftArm" | "rightArm" =
         side === "left" ? "leftArm" : "rightArm";
-      const goal: IHumanPosture.IGoal = onThighs[limb]!;
+      const goal: IAutoMovieHumanLimbGoal = onThighs[limb]!;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
       limbs[limb] = {
         point: Vector3.lerp(hand.worldPosition, goal.point, share),
@@ -348,12 +363,12 @@ export namespace seated {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rested(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     rests: Partial<Record<"left" | "right", IAutoMovieVector3>> | undefined,
     yaw: number,
     share: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     return rests === undefined
       ? arms(body, posture, share)
       : onArmrests(body, arms(body, posture, share), rests, yaw, share);
@@ -382,49 +397,77 @@ export namespace seated {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function onArmrests(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     rests: Partial<Record<"left" | "right", IAutoMovieVector3>>,
     yaw: number,
     share: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     if (share <= 0) return posture;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       resolveHumanPosture(body, { ...posture, limbs: legsOnly(posture) }),
     );
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     const s: number = Math.min(1, share);
     for (const side of ["left", "right"] as const) {
       const rest: IAutoMovieVector3 | undefined = rests[side];
       if (rest === undefined) continue;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+      const goal: IAutoMovieHumanLimbGoal = armrest(
+        body,
+        posture,
+        side,
+        rest,
+        yaw,
+      );
       limbs[`${side}Arm`] = {
-        point: Vector3.lerp(
-          hand.worldPosition,
-          { ...rest, y: rest.y + 0.2 * body.measure.hand },
-          s,
-        ),
-        rotation: Quaternion.slerp(
-          hand.worldRotation,
-          HumanHand.rotation(side, {
-            fingers: HumanFrame.point(
-              { origin: { x: 0, y: 0, z: 0 }, yaw },
-              { x: 0, y: 0, z: 1 },
-            ),
-            palm: { x: 0, y: -1, z: 0 },
-          }),
-          s,
-        ),
-        bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
+        point: Vector3.lerp(hand.worldPosition, goal.point, s),
+        rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, s),
+        bend: goal.bend,
         planted: s >= 1,
       };
     }
     return { ...posture, limbs };
   }
 
+  /**
+   * The goal that rests a hand on its armrest: the wrist a fifth of a hand's
+   * length above the rest, the palm down and the fingers ahead along the
+   * seat's heading, the hand bearing.
+   *
+   * @param body The body.
+   * @param posture The posture with its legs placed.
+   * @param side The hand.
+   * @param rest The armrest's point, world metres.
+   * @param yaw The seat's heading, degrees.
+   * @returns The arm's goal.
+   */
+  export function armrest(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: "left" | "right",
+    rest: IAutoMovieVector3,
+    yaw: number,
+  ): IAutoMovieHumanLimbGoal {
+    return {
+      point: { ...rest, y: rest.y + 0.2 * body.measure.hand },
+      rotation: HumanHand.rotation(side, {
+        fingers: HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw },
+          { x: 0, y: 0, z: 1 },
+        ),
+        palm: { x: 0, y: -1, z: 0 },
+      }),
+      bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
+      planted: true,
+    };
+  }
+
   /** A posture's leg goals alone, so its hands are read where its own joints hold them. */
-  function legsOnly(posture: IHumanPosture): IHumanPosture["limbs"] {
+  function legsOnly(
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture["limbs"] {
     return {
       ...(posture.limbs.leftLeg === undefined
         ? {}
@@ -444,7 +487,7 @@ export namespace seated {
    * @param body The body.
    * @returns Metres.
    */
-  export function popliteal(body: IHumanBody): number {
+  export function popliteal(body: IAutoMovieMotionHumanBody): number {
     return (
       body.measure.ankleHeight + body.measure.shank - body.measure.thighRadius
     );

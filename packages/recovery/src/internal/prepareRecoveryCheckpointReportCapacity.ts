@@ -1,9 +1,11 @@
-import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryCameraSceneBudget,
+  IAutoMovieRecoveryCheckpointReporting,
+  IAutoMovieRecoveryFeasibleJointOptions,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoverySceneWork,
+} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
-import type { IAutoMovieRecoverySceneWork } from "../structures/image/IAutoMovieRecoverySceneWork";
-import type { IAutoMovieRecoveryCheckpointReporting } from "../structures/internal/IAutoMovieRecoveryCheckpointReporting";
-import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
 import { isRecoveryMapIdentityGauge } from "./isRecoveryMapIdentityGauge";
 import { prepareRecoveryFeasibleReportCapacity } from "./prepareRecoveryFeasibleReportCapacity";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";

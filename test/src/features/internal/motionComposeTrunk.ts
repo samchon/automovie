@@ -1,15 +1,18 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanTrunk,
+  GymnasticsFlight,
   HumanBalance,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -67,8 +70,8 @@ export namespace motionComposeTrunk {
    */
   export function turnAndSink(name: motionHumanBody.Name): void {
     const all: motionComplaints.IGatherer = motionComplaints();
-    const body: IHumanBody = motionHumanBody(name);
-    const bones = (posture: IHumanPosture): Bones =>
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const bones = (posture: IAutoMovieMotionHumanPosture): Bones =>
       poseBones(body, resolveHumanPosture(body, posture));
     // Degrees a bone's forward axis points to the left of world +Z.
     const facing = (pose: Bones, bone: AutoMovieHumanoidBone): number => {
@@ -84,7 +87,11 @@ export namespace motionComposeTrunk {
       const u: IAutoMovieVector3 = axis(pose, bone, { x: 0, y: 1, z: 0 });
       return Math.atan2(yaw === 90 ? u.x : u.z, u.y) * DEG;
     };
-    const standing: IHumanPosture = stand.posture(body, ORIGIN, 0);
+    const standing: IAutoMovieMotionHumanPosture = stand.posture(
+      body,
+      ORIGIN,
+      0,
+    );
     const upright: Bones = bones(standing);
     const hips: IAutoMovieVector3 = upright.get("hips")!.worldPosition;
     const hipHeight: number = body.measure.hipHeight;
@@ -125,7 +132,11 @@ export namespace motionComposeTrunk {
 
     // 2. A posture sunk into its knees.
     for (const yaw of [0, 90] as const) {
-      const turned: IHumanPosture = stand.posture(body, ORIGIN, yaw);
+      const turned: IAutoMovieMotionHumanPosture = stand.posture(
+        body,
+        ORIGIN,
+        yaw,
+      );
       const base: Bones = bones(turned);
       const was: IAutoMovieVector3 = base.get("hips")!.worldPosition;
       for (const share of [0.1, 0.3] as const)
@@ -168,33 +179,42 @@ export namespace motionComposeTrunk {
   /**
    * The trunk's crouch on one body: the hips sink and the trunk inclines
    * over them, the body stands again, and the feet and the balance hold all
-   * the way. The balance is the centre of mass against the soles: not ahead
-   * of their middle (`HumanBalance.offset`, within 2 mm) and inside the base
-   * of support (`HumanBalance.margin` positive).
+   * the way. The balance is the centre of mass against the feet where they
+   * bear, the forefoot alone once the ankle's range lifts the heel: not
+   * ahead of their middle (`HumanBalance.offset`, within 2 mm) and inside
+   * the base of support (`HumanBalance.margin` positive).
    *
    * Scenarios:
    * 1. `crouch` refuses a negative or non-numeric depth or pitch.
    * 2. For depths of 0, 0.15 and 0.3 hip heights and pitches of 0 and 30
-   *    degrees it claims the root and the trunk from its first to its last
-   *    instant, leaves the standing body at both ends, is at its depth and
-   *    its pitch between `ready` and `relax`, and sinks only part of the way
-   *    at the middle of its rise.
+   *    degrees it claims the root, the trunk and both legs from its first to
+   *    its last instant, leaves the standing body at both ends, is at its
+   *    depth and its pitch between `ready` and `relax`, and sinks only part
+   *    of the way at the middle of its rise.
    * 3. At every sampled second both feet keep their plants within 1 mm and
    *    the body keeps its balance.
+   * 4. Given the standing posture written by joint angles alone, with no
+   *    leg goal (as an exercise of keyed angles leaves it), a crouch of 0.3
+   *    hip heights and 30 degrees keeps both feet on their plants within
+   *    1 mm at every sampled second: the crouch plants the legs itself.
    *
    * @param name The body.
    */
   export function crouch(name: motionHumanBody.Name): void {
     const all: motionComplaints.IGatherer = motionComplaints();
-    const body: IHumanBody = motionHumanBody(name);
-    const bones = (posture: IHumanPosture): Bones =>
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const bones = (posture: IAutoMovieMotionHumanPosture): Bones =>
       poseBones(body, resolveHumanPosture(body, posture));
     // Degrees the chest's long axis tips ahead of world +Y.
     const tipped = (pose: Bones): number => {
       const u: IAutoMovieVector3 = axis(pose, "chest", { x: 0, y: 1, z: 0 });
       return Math.atan2(u.z, u.y) * DEG;
     };
-    const standing: IHumanPosture = stand.posture(body, ORIGIN, 0);
+    const standing: IAutoMovieMotionHumanPosture = stand.posture(
+      body,
+      ORIGIN,
+      0,
+    );
     const upright: Bones = bones(standing);
     const hips: IAutoMovieVector3 = upright.get("hips")!.worldPosition;
     const hipHeight: number = body.measure.hipHeight;
@@ -235,10 +255,13 @@ export namespace motionComposeTrunk {
         all.equals(
           `${cell} claims the root and the trunk over its instants`,
           [phrase.channels, phrase.from, phrase.to],
-          [["root", "trunk"], 0, 1.25],
+          [["root", "trunk", "leftLeg", "rightLeg"], 0, 1.25],
         );
         for (const seconds of [0, 0.125, 0.25, 0.625, 1, 1.125, 1.25]) {
-          const written: IHumanPosture = phrase.write(standing, seconds);
+          const written: IAutoMovieMotionHumanPosture = phrase.write(
+            standing,
+            seconds,
+          );
           const pose: Bones = bones(written);
           const sunk: number = hips.y - pose.get("hips")!.worldPosition.y;
           const inclined: number = tipped(pose) - tipped(upright);
@@ -274,6 +297,29 @@ export namespace motionComposeTrunk {
           );
         }
       }
+
+    // 4. A standing posture of joint angles alone.
+    const angles: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(
+      body,
+      standing,
+    );
+    const bare: IAutoMovieMotionHumanPrimitive =
+      AutoMovieMotionHumanTrunk.crouch({
+        body,
+        standing: angles,
+        clock: CLOCK,
+        rise: RISE,
+        fall: FALL,
+        depth: 0.3 * hipHeight,
+        pitch: 30,
+      });
+    for (const seconds of [0, 0.125, 0.25, 0.625, 1, 1.125, 1.25]) {
+      const pose: Bones = bones(bare.write(angles, seconds));
+      all.check(
+        `${name}: a crouch from joint angles alone at ${seconds} s keeps both feet on their plants, the farther ball off by ${mm(slip(pose, upright))} mm`,
+        slip(pose, upright) <= 0.001,
+      );
+    }
     all.assert(`the trunk's crouch holds (${name})`);
   }
 
@@ -281,7 +327,7 @@ export namespace motionComposeTrunk {
   const DEG: number = 180 / Math.PI;
 
   /** The phrases' clock: `ready` at 0.25 s, `relax` at 1 s and `end` at 1.25 s. */
-  export const CLOCK: AutoMovieMotionClock.IClock =AutoMovieMotionClock.phrase({
+  export const CLOCK: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: 0.25,
     wait: 0.125,
     attack: 0.25,

@@ -1,16 +1,17 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanArmPhrase,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmMove } from "./AutoMovieMotionHumanArmMove";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
-import type { AutoMovieMotionManner } from "./AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * The arm's phrases on a clock's standard instants: a visit, a stroke, a
@@ -26,53 +27,15 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  */
 export namespace AutoMovieMotionHumanArmPhrase {
   /**
-   * What every arm phrase takes: the arm, the clock whose standard instants
-   * (`AutoMovieMotionClock.PHRASE`) it moves on, and where the hand leaves
-   * from and returns to.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its meaning, and the optional two what their absence means.
-   * @evidence contracts/development/design.md#principled-representation A phrase is one arm moving on one clock from and back to one origin; the contact states that the place is solid by naming what the hand bears on, so a place in the air cannot carry a contact window.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members shared by `visit`, `stroke`, `strike` and `oscillate`; the clock, the origin, the contact window and the modifiers are their owners' types. No law reads the arm phrases yet: the reactions move no arm to a place, and the laws rebuilt for #3286 are the consumers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact is one optional record instead of a solid flag beside optional contact fields; the manner is picked from the manner's own modifiers.
-   */
-  export interface IPhrase {
-    /** The body. */
-    body: IHumanBody;
-
-    /** A clock with the standard instants of a phrase. */
-    clock: AutoMovieMotionClock.IClock;
-
-    /** The arm. */
-    side: HumanHand.Side;
-
-    /** Where the hand is before and after the phrase. */
-    origin: AutoMovieMotionHumanArmTarget.IOrigin;
-
-    /**
-     * What the hand bears on while it is on its place, when the place is
-     * solid; absent for a place in the air, which gives no contact window.
-     */
-    contact?: Pick<IHumanContactWindow, "kind" | "support">;
-
-    /**
-     * The manner's sizes: the extent scales a place in the air and a
-     * free-space amplitude, and the curvature bows the hand's way out and
-     * back. A phrase that states a contact keeps its place whatever the
-     * extent. Neutral when absent.
-     */
-    manner?: Pick<AutoMovieMotionManner.IModifiers, "extent" | "curvature">;
-  }
-
-  /**
    * A target with its point scaled about another point by the phrase's
    * extent; unchanged when the phrase states a contact, since a manner never
    * moves a goal on a solid place.
    */
   const extended = (
-    props: Pick<IPhrase, "contact" | "manner">,
+    props: Pick<IAutoMovieMotionHumanArmPhrase.IPhrase, "contact" | "manner">,
     about: IAutoMovieVector3,
-    target: AutoMovieMotionHumanArmTarget.ITarget,
-  ): AutoMovieMotionHumanArmTarget.ITarget => {
+    target: IAutoMovieMotionHumanArmTarget.ITarget,
+  ): IAutoMovieMotionHumanArmTarget.ITarget => {
     const extent: number = props.manner?.extent ?? 1;
     return props.contact !== undefined || extent === 1
       ? target
@@ -102,10 +65,13 @@ export namespace AutoMovieMotionHumanArmPhrase {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function bearing(
-    props: Pick<IPhrase, "clock" | "side" | "contact">,
+    props: Pick<
+      IAutoMovieMotionHumanArmPhrase.IPhrase,
+      "clock" | "side" | "contact"
+    >,
     from: string,
     to: string,
-  ): IHumanContactWindow[] {
+  ): IAutoMovieMotionHumanContactWindow[] {
     return props.contact === undefined
       ? []
       : [
@@ -136,7 +102,7 @@ export namespace AutoMovieMotionHumanArmPhrase {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function visit(
-    props: IPhrase & { target: AutoMovieMotionHumanArmTarget.Frame },
+    props: IAutoMovieMotionHumanArmPhrase.IVisitProps,
   ): IAutoMovieMotionHumanPrimitive {
     return {
       ...AutoMovieMotionHumanArmMove.move({
@@ -146,9 +112,9 @@ export namespace AutoMovieMotionHumanArmPhrase {
         to: props.clock.duration,
         origin: props.origin,
         target: (
-          posture: IHumanPosture,
+          posture: IAutoMovieMotionHumanPosture,
           seconds: number,
-        ): AutoMovieMotionHumanArmTarget.ITarget =>
+        ): IAutoMovieMotionHumanArmTarget.ITarget =>
           extended(
             props,
             AutoMovieMotionHumanArmTarget.point(posture, props.origin),
@@ -175,17 +141,11 @@ export namespace AutoMovieMotionHumanArmPhrase {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One `move` over the whole clock; the path decides the shape and this function only the progress it is read at.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the path and the timing are the caller's.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `move`, the clock and `bearing`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second beyond `move`'s fit and the caller's path, which is read twice when the extent scales it.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second beyond `move`'s fit and the caller's path, which is read at both current and zero progress whenever progress is positive, regardless of contact or extent.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function stroke(
-    props: IPhrase & {
-      path: (
-        posture: IHumanPosture,
-        seconds: number,
-        progress: number,
-      ) => AutoMovieMotionHumanArmTarget.ITarget;
-    },
+    props: IAutoMovieMotionHumanArmPhrase.IStrokeProps,
   ): IAutoMovieMotionHumanPrimitive {
     return {
       ...AutoMovieMotionHumanArmMove.move({
@@ -195,15 +155,15 @@ export namespace AutoMovieMotionHumanArmPhrase {
         to: props.clock.duration,
         origin: props.origin,
         target: (
-          posture: IHumanPosture,
+          posture: IAutoMovieMotionHumanPosture,
           seconds: number,
-        ): AutoMovieMotionHumanArmTarget.ITarget => {
+        ): IAutoMovieMotionHumanArmTarget.ITarget => {
           const progress: number = props.clock.progress(
             "strokeStart",
             "strokeEnd",
             seconds,
           );
-          const at: AutoMovieMotionHumanArmTarget.ITarget = props.path(
+          const at: IAutoMovieMotionHumanArmTarget.ITarget = props.path(
             posture,
             seconds,
             progress,
@@ -239,11 +199,7 @@ export namespace AutoMovieMotionHumanArmPhrase {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function strike(
-    props: IPhrase & {
-      chamber: AutoMovieMotionHumanArmTarget.Frame;
-      target: AutoMovieMotionHumanArmTarget.Frame;
-      weapons?: readonly IHumanActionPlan.IWeapon[];
-    },
+    props: IAutoMovieMotionHumanArmPhrase.IStrikeProps,
   ): IAutoMovieMotionHumanPrimitive {
     return {
       ...AutoMovieMotionHumanArmMove.move({
@@ -253,10 +209,10 @@ export namespace AutoMovieMotionHumanArmPhrase {
         to: props.clock.duration,
         origin: props.origin,
         target: (
-          posture: IHumanPosture,
+          posture: IAutoMovieMotionHumanPosture,
           seconds: number,
-        ): AutoMovieMotionHumanArmTarget.ITarget => {
-          const chamber: AutoMovieMotionHumanArmTarget.ITarget = props.chamber(
+        ): IAutoMovieMotionHumanArmTarget.ITarget => {
+          const chamber: IAutoMovieMotionHumanArmTarget.ITarget = props.chamber(
             posture,
             seconds,
           );
@@ -266,7 +222,7 @@ export namespace AutoMovieMotionHumanArmPhrase {
             seconds,
           );
           if (p <= 0) return chamber;
-          const target: AutoMovieMotionHumanArmTarget.ITarget = extended(
+          const target: IAutoMovieMotionHumanArmTarget.ITarget = extended(
             props,
             chamber.point,
             props.target(posture, seconds),
@@ -311,14 +267,7 @@ export namespace AutoMovieMotionHumanArmPhrase {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function oscillate(
-    props: IPhrase & {
-      cycles: number;
-      pose: (
-        posture: IHumanPosture,
-        seconds: number,
-        swing: number,
-      ) => AutoMovieMotionHumanArmTarget.ITarget;
-    },
+    props: IAutoMovieMotionHumanArmPhrase.IOscillateProps,
   ): IAutoMovieMotionHumanPrimitive {
     return {
       ...AutoMovieMotionHumanArmMove.move({
@@ -328,9 +277,9 @@ export namespace AutoMovieMotionHumanArmPhrase {
         to: props.clock.duration,
         origin: props.origin,
         target: (
-          posture: IHumanPosture,
+          posture: IAutoMovieMotionHumanPosture,
           seconds: number,
-        ): AutoMovieMotionHumanArmTarget.ITarget =>
+        ): IAutoMovieMotionHumanArmTarget.ITarget =>
           props.pose(
             posture,
             seconds,
@@ -348,22 +297,6 @@ export namespace AutoMovieMotionHumanArmPhrase {
       }),
       contacts: bearing(props, "strokeStart", "strokeEnd"),
     };
-  }
-
-  /**
-   * An arm's joint angles in a swing: clinical degrees of the shoulder and the elbow.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its axes and unit.
-   * @evidence contracts/development/design.md#principled-representation A pendular arm is described by its joint angles, not by a hand goal: the shoulder's three clinical angles and the elbow's one, in the degrees a posture's joints are written in.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read only by `swing`; the swim law's arm strokes (`sport/swim.ts`) are its consumer so far, and the gaits rebuilt for #3286 are the next.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both members are required; the elbow is one number because a hinge has one angle.
-   */
-  export interface ISwing {
-    /** The upper arm's `[flexion, abduction, twist]`, degrees. */
-    upper: readonly [number, number, number];
-
-    /** The elbow's flexion, degrees. */
-    elbow: number;
   }
 
   /**
@@ -386,19 +319,30 @@ export namespace AutoMovieMotionHumanArmPhrase {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function swing(
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
     from: number,
     to: number,
-    angles: (posture: IHumanPosture, seconds: number) => ISwing,
+    angles: (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ) => IAutoMovieMotionHumanArmPhrase.ISwing,
   ): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
     return {
       channels: [limb],
       from,
       to,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const swung: ISwing = angles(posture, seconds);
-        const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
+        const swung: IAutoMovieMotionHumanArmPhrase.ISwing = angles(
+          posture,
+          seconds,
+        );
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+          ...posture.limbs,
+        };
         delete limbs[limb];
         return {
           ...posture,

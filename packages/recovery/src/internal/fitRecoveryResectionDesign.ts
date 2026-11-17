@@ -5,10 +5,9 @@ import {
 import type {
   IAutoMovieRecoveryCameraMapBudget,
   IAutoMovieRecoveryCameraMapPolicy,
+  IAutoMovieRecoveryResectionDesign,
+  IAutoMovieRecoveryResectionDesignTrace,
 } from "@automovie/interface";
-
-import type { IAutoMovieRecoveryResectionDesign } from "../structures/internal/IAutoMovieRecoveryResectionDesign";
-import type { IAutoMovieRecoveryResectionDesignTrace } from "../structures/internal/IAutoMovieRecoveryResectionDesignTrace";
 
 /**
  * Initialize a calibrated nonplanar resection from at least six 3D/pixel pairs.

@@ -1,5 +1,7 @@
-import type { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 /**
  * Bounded observations of already executed trace guards, with no geometry queries.
@@ -101,10 +103,10 @@ export namespace AutoMovieSolidTraceObservation {
     /** World chords already accumulated before this terminal first-walk state, mm. */
     length: number;
     /** Last accepted native meeting and its world point, distinct from the attempted prediction. */
-    last: { chart: readonly number[]; point: AutoMovieSolidVector.Vec3; face: number };
+    last: { chart: readonly number[]; point: AutoMovieVector3Tuple; face: number };
     /** Last attempted chord in mm and its actual prediction, or null when no step was attempted. */
-    step: { h: number; predicted: AutoMovieSolidVector.Vec3;
-      tangent: AutoMovieSolidVector.Vec3; guess: readonly number[]; halving: number;
+    step: { h: number; predicted: AutoMovieVector3Tuple;
+      tangent: AutoMovieVector3Tuple; guess: readonly number[]; halving: number;
       /** Actual world correction distance and guard allowance; null before a corrected point exists. */
       distance: number | null; allowance: number | null } | null;
     /** Actual terminal solver snapshot, or null when rejection occurred outside that solver. */

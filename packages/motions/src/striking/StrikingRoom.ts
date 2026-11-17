@@ -1,12 +1,16 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanObstacle } from "../perform/HumanObstacle";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -56,13 +60,13 @@ export namespace StrikingRoom {
    */
   export interface IProps {
     /** The striker's body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The striker's posed bones, world frame. */
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
     /** The other person's body. */
-    other: IHumanBody;
+    other: IAutoMovieMotionHumanBody;
 
     /** The other person's posed bones, world frame. */
     others: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
@@ -138,14 +142,14 @@ export namespace StrikingRoom {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function ahead(
-    context: Pick<IHumanActionContext, "body" | "performer">,
-    target: AutoMovieMotionTarget,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "performer">,
+    target: IAutoMovieMotionTarget,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     line: IAutoMovieVector3,
     launch: number,
   ): number {
     if (target.kind !== "person") return Infinity;
-    const other: IHumanActionContext.IPerformer = context.performer(
+    const other: IAutoMovieMotionHumanPerformerReader = context.performer(
       target.subject,
     );
     return along({
@@ -177,8 +181,10 @@ export namespace StrikingRoom {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function behind(
-    context: Pick<IHumanActionContext, "body" | "obstacles">,
-    feet: Readonly<Record<"left" | "right", HumanFoot.IPlacement>>,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "obstacles">,
+    feet: Readonly<
+      Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>
+    >,
     line: IAutoMovieVector3,
   ): number {
     const limit: number = StrikingStance.length(context.body);
@@ -190,15 +196,16 @@ export namespace StrikingRoom {
         "heel",
         feet[side],
       );
-      const block: HumanObstacle.IBlock | null = HumanObstacle.blocking(
-        context.obstacles(),
-        heel,
-        Vector3.subtract(heel, Vector3.scale(line, limit)),
-        {
-          breadth: context.body.measure.chestBreadth,
-          height: context.body.measure.stature,
-        },
-      );
+      const block: IAutoMovieMotionHumanObstacle.IBlock | null =
+        HumanObstacle.blocking(
+          context.obstacles(),
+          heel,
+          Vector3.subtract(heel, Vector3.scale(line, limit)),
+          {
+            breadth: context.body.measure.chestBreadth,
+            height: context.body.measure.stature,
+          },
+        );
       if (block !== null) room = Math.min(room, block.distance);
     }
     return room;
@@ -259,12 +266,12 @@ export namespace StrikingRoom {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function feint(
-    context: Pick<IHumanActionContext, "body" | "performer">,
-    target: AutoMovieMotionTarget,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "performer">,
+    target: IAutoMovieMotionTarget,
     feint: IFeint,
   ): number {
     if (target.kind !== "person") return feint.declared;
-    const other: IHumanActionContext.IPerformer = context.performer(
+    const other: IAutoMovieMotionHumanPerformerReader = context.performer(
       target.subject,
     );
     const theirs: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -296,7 +303,7 @@ export namespace StrikingRoom {
 
   /** The arms' capsule points with their radii: each capsule's ends and middle. */
   function swept(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): { point: IAutoMovieVector3; radius: number }[] {
     const radii: readonly (number | readonly [number, number])[] =

@@ -1,7 +1,9 @@
 import type {
-  IAutoMoviePhysicalPointBound as Bound,
+  IAutoMoviePhysicalPointBound,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { isPhysicalActuatorChain } from "./isPhysicalActuatorChain";
@@ -19,21 +21,24 @@ import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function admitPhysicalPointBounds(
-  profiles: Readonly<Record<string, P>>,
+  profiles: Readonly<Record<string, IAutoMoviePhysicalProfile>>,
   body: string,
-  bounds: readonly Bound[],
+  bounds: readonly IAutoMoviePhysicalPointBound[],
   ids: Set<string>,
 ): void {
   if (!Array.isArray(bounds) || bounds.length > 256)
     throw new Error("Invalid point relationship budget");
-  const profile: P | undefined = Object.hasOwn(profiles, body)
+  const profile: IAutoMoviePhysicalProfile | undefined = Object.hasOwn(
+    profiles,
+    body,
+  )
     ? profiles[body]
     : undefined;
   const point: (value: IAutoMovieVector3) => boolean = (
     value: IAutoMovieVector3,
   ): boolean => !!value && [value.x, value.y, value.z].every(scalar);
   for (const bound of bounds) {
-    const reference: P | undefined =
+    const reference: IAutoMoviePhysicalProfile | undefined =
       bound?.reference &&
       typeof bound.reference.body === "string" &&
       Object.hasOwn(profiles, bound.reference.body)
@@ -57,15 +62,16 @@ export function admitPhysicalPointBounds(
       (bound.reference.shape !== undefined &&
         (typeof bound.reference.shape !== "string" ||
           !reference?.segments.some(
-            (segment: P.ISegment): boolean =>
+            (segment: IAutoMoviePhysicalSegment): boolean =>
               segment.bone === bound.reference.bone &&
               segment.shapes.some(
-                (shape: P.IShape): boolean =>
+                (shape: IAutoMoviePhysicalShape): boolean =>
                   shape.id === bound.reference.shape,
               ),
           ))) ||
       !reference?.segments.some(
-        (segment: P.ISegment): boolean => segment.bone === bound.reference.bone,
+        (segment: IAutoMoviePhysicalSegment): boolean =>
+          segment.bone === bound.reference.bone,
       ) ||
       !isPhysicalActuatorChain(profile, bound.chain, bound.source.bone) ||
       !point(bound.axis) ||

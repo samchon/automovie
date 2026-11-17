@@ -1,14 +1,15 @@
-import {
-  AutoMovieViewAxis,
-  AutoMovieViewOutline,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import {
-  AutoMovieHumanNativeControlLaw as N,
-  AutoMovieHumanConicSection as S,
-} from "@automovie/human";
-
 import { nclose } from "../../internal/predicates";
+import { AutoMovieViewAxis, AutoMovieViewOutline } from "@automovie/engine";
+import {
+  AutoMovieHumanConicSection as S,
+  AutoMovieHumanNativeControlLaw as N,
+} from "@automovie/human";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieHumanConicSection,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * Complete conic controls, independent skin/bone roots and protected native scalar functions.
@@ -34,30 +35,30 @@ import { nclose } from "../../internal/predicates";
  */
 export function test_human_native_control_law(): void {
   const failures: string[] = [];
-  const circle: S.IChain = S.resolve(
+  const circle: IAutoMovieHumanConicSection.IChain = S.resolve(
     [2, 0, 0, 3, -2, 0, 0, -3, 0.4, 0.4, 0.4, 0.4],
     S.limb(0),
   );
-  const unchanged: S.IChain = N.section(circle, [1e20, 1e20], [0, 0], [1, 1]);
-  const originalPoints: S.P[] = [
+  const unchanged: IAutoMovieHumanConicSection.IChain = N.section(circle, [1e20, 1e20], [0, 0], [1, 1]);
+  const originalPoints: AutoMovieVector2Tuple[] = [
     [2, 0],
     [0, 3],
     [-2, 0],
     [0, -3],
   ];
-  const ellipsePoints: S.P[] = [
+  const ellipsePoints: AutoMovieVector2Tuple[] = [
     [5, 2],
     [1, 11],
     [-3, 2],
     [1, -7],
   ];
-  const ellipseTangents: S.P[] = [
+  const ellipseTangents: AutoMovieVector2Tuple[] = [
     [0, 3],
     [-2, 0],
     [0, -3],
     [2, 0],
   ];
-  const ellipse: S.IChain = N.section(circle, [0, 0], [1, 2], [2, 3]);
+  const ellipse: IAutoMovieHumanConicSection.IChain = N.section(circle, [0, 0], [1, 2], [2, 3]);
   for (let k: number = 0; k < 4; k++)
     for (let c: number = 0; c < 2; c++) {
       if (
@@ -77,7 +78,7 @@ export function test_human_native_control_law(): void {
     ellipse.input.shoulders !== circle.input.shoulders
   )
     failures.push("affine map changed guide or shoulder owners");
-  const fixed = (z: number): AutoMovieViewAxis.IAxis => ({
+  const fixed = (z: number): IAutoMovieViewAxis.IAxis => ({
     at: (station: number) => ({
       origin: [0, station, z],
       u: [1, 0, 0],
@@ -89,9 +90,9 @@ export function test_human_native_control_law(): void {
       second: { origin: [0, 0, 0], u: [0, 0, 0], v: [0, 0, 0] },
     }),
   });
-  const skin: AutoMovieViewAxis.IAxis = fixed(5);
-  const bone: AutoMovieViewAxis.IAxis = fixed(9);
-  const axis: AutoMovieViewAxis.IAxis = N.root(skin, bone, 2, 6);
+  const skin: IAutoMovieViewAxis.IAxis = fixed(5);
+  const bone: IAutoMovieViewAxis.IAxis = fixed(9);
+  const axis: IAutoMovieViewAxis.IAxis = N.root(skin, bone, 2, 6);
   for (const [station, z] of [
     [0, 5],
     [2, 5],
@@ -106,7 +107,7 @@ export function test_human_native_control_law(): void {
 
   // Past the release the course is the bone's alone: a bone whose planes turn there (a knee at another arclength than the
   // skin course's) is read without the skin, while the same turn inside the handoff is still refused.
-  const turned = (from: number): AutoMovieViewAxis.IAxis => ({
+  const turned = (from: number): IAutoMovieViewAxis.IAxis => ({
     at: (station: number) => ({ ...bone.at(station), ...(station >= from ? { u: [0, 0, 1], v: [-1, 0, 0] } : {}) }),
   });
   try {
@@ -342,12 +343,12 @@ export function test_human_native_control_law(): void {
     failures.push(
       "nonlinear root-to-station parameter was accepted as exact preservation",
     );
-  const movedSkin: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
+  const movedSkin: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
     [3, 0, 9],
     [1, 0, 0],
     [0, 0, 1],
   );
-  const mound: AutoMovieViewAxis.IAxis = N.skinCourse(movedSkin);
+  const mound: IAutoMovieViewAxis.IAxis = N.skinCourse(movedSkin);
   if (
     !nclose(mound.at(2).origin[0], 3, 1e-12) ||
     !nclose(mound.at(6).origin[0], 3, 1e-12) ||

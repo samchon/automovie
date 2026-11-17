@@ -1,15 +1,16 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchUpright,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
-import type { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
-import type { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 
 /**
@@ -41,25 +42,6 @@ export namespace AutoMovieMotionHumanTouchUpright {
   export const STEP: number = 15;
 
   /**
-   * A vessel's facing and lean at a region and the tilt the arm leaves there.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The chosen level direction and lean with the residual it was chosen by.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members: the stroke reads the facing and the lean, a choice among several effectors the tilt.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The tilt is the reached one, never the asked one.
-   */
-  export interface IFacing {
-    /** The level world direction the effector faces against; the region's normal when it has no level part. */
-    facing: IAutoMovieVector3;
-
-    /** How far the vessel's axis is asked to lean from the world's up toward the region, degrees (`AutoMovieMotionHumanTouchDrink`); 0 from `solve`. */
-    lean: number;
-
-    /** How far the reached hand carries the vessel's axis off the asked one, degrees; 0 when the region's normal has no level part. */
-    tilt: number;
-  }
-
-  /**
    * The facing an upright vessel's arm reaches best, with its tilt: of the
    * candidate facings, the one whose reached hand keeps the vessel's axis
    * nearest the world's up, the nearest to head on on a tie. A vessel at
@@ -82,13 +64,13 @@ export namespace AutoMovieMotionHumanTouchUpright {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function solve(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
-  ): IFacing {
+  ): IAutoMovieMotionHumanTouchUpright.IFacing {
     const level: number = Math.hypot(place.normal.x, place.normal.z);
     if (!(level > 1e-6)) return { facing: place.normal, lean: 0, tilt: 0 };
     let best: IAutoMovieVector3 = place.normal;
@@ -169,11 +151,11 @@ export namespace AutoMovieMotionHumanTouchUpright {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function tilt(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
     facing: IAutoMovieVector3,
   ): number {

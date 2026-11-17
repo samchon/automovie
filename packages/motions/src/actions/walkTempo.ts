@@ -1,8 +1,9 @@
-import type { IAutoMovieMotionEvent } from "@automovie/interface";
-
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 /**
  * A stepping plan with its steps taken a little unevenly in time, as a
@@ -34,26 +35,11 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the plan and the step table for as long as the returned plan is held.
  */
 export function walkTempo(
-  plan: IHumanActionPlan,
+  plan: IAutoMovieMotionHumanActionPlan,
   stretch: (index: number) => number,
   limp?: { side: "left" | "right"; share: number },
-): IHumanActionPlan {
-  const struck: { seconds: number; side: "left" | "right" }[] = plan.events
-    .filter((e: IAutoMovieMotionEvent): boolean =>
-      /HeelStrike\d+$/.test(e.name),
-    )
-    .map(
-      (
-        e: IAutoMovieMotionEvent,
-      ): { seconds: number; side: "left" | "right" } => ({
-        seconds: e.share * plan.duration,
-        side: e.name.startsWith("left") ? "left" : "right",
-      }),
-    )
-    .sort(
-      (a: { seconds: number }, b: { seconds: number }): number =>
-        a.seconds - b.seconds,
-    );
+): IAutoMovieMotionHumanActionPlan {
+  const struck: walkTempo.IStrike[] = walkTempo.strikes(plan);
   const strikes: number[] = struck.map(
     (s: { seconds: number }): number => s.seconds,
   );
@@ -140,14 +126,79 @@ export function walkTempo(
       }),
     ),
     contacts: plan.contacts.map(
-      (c: IHumanContactWindow): IHumanContactWindow => ({
+      (
+        c: IAutoMovieMotionHumanContactWindow,
+      ): IAutoMovieMotionHumanContactWindow => ({
         ...c,
         from: share(c.from),
         to: share(c.to),
       }),
     ),
     ...(plan.contact === undefined ? {} : { contact: toFilm(plan.contact) }),
-    posture: (seconds: number): IHumanPosture =>
+    posture: (seconds: number): IAutoMovieMotionHumanPosture =>
       plan.posture(toPlan(Math.min(duration, Math.max(0, seconds)))),
   };
+}
+
+/**
+ * The heel strikes a stepping plan names and the time warp that sends them
+ * to given seconds, companions of {@link walkTempo}.
+ */
+export namespace walkTempo {
+  /** A heel strike of a plan. */
+  export interface IStrike {
+    /** Seconds of the plan. */
+    seconds: number;
+
+    /** The striking foot. */
+    side: "left" | "right";
+  }
+
+  /**
+   * The heel strikes a plan names (`leftHeelStrike<n>`, `rightHeelStrike<n>`), in time order.
+   *
+   * @param plan The stepping plan.
+   * @returns Its strikes.
+   */
+  export function strikes(plan: IAutoMovieMotionHumanActionPlan): IStrike[] {
+    return plan.events
+      .filter((e: IAutoMovieMotionEvent): boolean =>
+        /HeelStrike\d+$/.test(e.name),
+      )
+      .map(
+        (e: IAutoMovieMotionEvent): IStrike => ({
+          seconds: e.share * plan.duration,
+          side: e.name.startsWith("left") ? "left" : "right",
+        }),
+      )
+      .sort((a: IStrike, b: IStrike): number => a.seconds - b.seconds);
+  }
+
+  /**
+   * A stepping plan with each heel strike sent to a given second instead of
+   * a drawn stretch: the same warp, each step lasting the time between its
+   * strike's second and the next's (held within a fifth of its plan, the
+   * warp's guard), so velocity stays continuous across strikes and the
+   * footprints and path stay the plan's own. The first strike keeps its
+   * second, as the warp keeps it.
+   *
+   * @param plan The stepping plan.
+   * @param seconds Each strike's second, measured as the plan's from its time zero, one per strike in order.
+   * @returns The plan on the entrained clock.
+   */
+  export function entrained(
+    plan: IAutoMovieMotionHumanActionPlan,
+    seconds: readonly number[],
+  ): IAutoMovieMotionHumanActionPlan {
+    const planned: IStrike[] = strikes(plan);
+    return walkTempo(plan, (index: number): number => {
+      const span: number =
+        planned[index + 1]!.seconds - planned[index]!.seconds;
+      const given: number | undefined = seconds[index + 1];
+      const before: number | undefined = seconds[index];
+      return given === undefined || before === undefined || span <= 0
+        ? 0
+        : (given - before) / span - 1;
+    });
+  }
 }

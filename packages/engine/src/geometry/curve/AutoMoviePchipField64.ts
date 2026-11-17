@@ -1,3 +1,5 @@
+import type { IAutoMoviePchipField64 } from "@automovie/interface";
+
 import { AutoMoviePchip64 } from "./AutoMoviePchip64";
 
 /**
@@ -22,12 +24,7 @@ export class AutoMoviePchipField64 {
     /** Finite component rows in fixed corresponding order. */
     public readonly y: readonly (readonly number[])[],
     /** Component values per coordinate unit, either all station rows or selected endpoint rows; omitted entries keep their original Fritsch–Butland seeds. No spatial normalization or unit conversion occurs. */
-    derivatives?:
-      | readonly (readonly number[])[]
-      | {
-          start?: readonly number[];
-          end?: readonly number[];
-        },
+    derivatives?: IAutoMoviePchipField64.Derivatives,
   ) {
     if (
       x.length < 2 ||
@@ -93,11 +90,8 @@ export class AutoMoviePchipField64 {
         throw new Error(
           "PCHIP endpoint derivatives need start/end component rows",
         );
-      const ends: { start?: readonly number[]; end?: readonly number[] } =
-        derivatives as {
-          start?: readonly number[];
-          end?: readonly number[];
-        };
+      const ends: IAutoMoviePchipField64.IEndpointDerivatives =
+        derivatives as IAutoMoviePchipField64.IEndpointDerivatives;
       if (ends.start !== undefined) replace(0, ends.start);
       if (ends.end !== undefined) replace(x.length - 1, ends.end);
     }

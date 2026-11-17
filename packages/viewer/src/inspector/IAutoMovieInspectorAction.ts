@@ -1,7 +1,7 @@
 import type {
+  AutoMovieInspectionShade,
   IAutoMovieCapturePlanRequest,
-  IAutoMovieInspectionRequest,
-} from "@automovie/render";
+} from "@automovie/interface";
 
 /**
  * One edit of the inspector's request, as a control dispatches it to `reduceAutoMovieInspectorState`.
@@ -90,7 +90,7 @@ export namespace IAutoMovieInspectorAction {
     type: "shade";
 
     /** The shade drawn. */
-    shade: IAutoMovieInspectionRequest.Shade;
+    shade: AutoMovieInspectionShade;
   }
 
   /**

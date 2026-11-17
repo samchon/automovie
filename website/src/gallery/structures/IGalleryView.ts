@@ -9,7 +9,7 @@ export interface IGalleryView {
   /** Side in metres of one cell of the floor grid it is drawn on, which gives the picture its scale. */
   grid: number;
 
-  /** The dimensions the seed drew, each with its band; empty for a producer that carries no bands. */
+  /** The dimensions, each a drawn one with its band or a picked model's figure as a fixed value; empty for an archetype that records neither. */
   dimensions: IGalleryView.IDimension[];
 
   /** The affordances, in the package's order; empty for an archetype that declares none. */
@@ -21,19 +21,19 @@ export namespace IGalleryView {
     /** The dimension's name. */
     name: string;
 
-    /** The value the seed drew, in `unit`. */
+    /** The value the seed drew, or the model's figure, in `unit`. */
     value: number;
 
-    /** The band's least value. */
+    /** The band's least value; a figure's own value. */
     minimum: number;
 
-    /** The band's greatest value. */
+    /** The band's greatest value; a figure's own value. */
     maximum: number;
 
-    /** The unit: `m`, `kg`, `degrees`, `N`, or empty for a ratio or a count. */
+    /** The unit: `m`, `kg`, `degrees`, `N`, or empty for a ratio or a count; a model's figure carries its dimension's. */
     unit: string;
 
-    /** Where the band comes from. */
+    /** Where the band comes from, or the axis and model a figure belongs to, such as `size 175cm`. */
     source: string;
 
     /** Whether the band could not be read at its primary source. */

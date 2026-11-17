@@ -1,4 +1,4 @@
-import { V2 } from "./V2";
+import type { AutoMovieVector2Tuple } from "@automovie/interface";
 
 /**
  * Shoelace signed area in squared input units; translation reduces cancellation for tiny distant contours.
@@ -11,13 +11,13 @@ import { V2 } from "./V2";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call depends directly on its arguments; no retained cache or effectful shared work exists.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a scalar accumulator and an input-origin reference live during the call.
  */
-export function signedArea(points: V2[]): number {
+export function signedArea(points: AutoMovieVector2Tuple[]): number {
   if (points.length < 3) return 0;
-  const origin: V2 = points[0];
+  const origin: AutoMovieVector2Tuple = points[0];
   let area: number = 0;
   for (let i: number = 0; i < points.length; i++) {
-    const a: V2 = points[i],
-      b: V2 = points[(i + 1) % points.length];
+    const a: AutoMovieVector2Tuple = points[i],
+      b: AutoMovieVector2Tuple = points[(i + 1) % points.length];
     area +=
       (a[0] - origin[0]) * (b[1] - origin[1]) -
       (b[0] - origin[0]) * (a[1] - origin[1]);

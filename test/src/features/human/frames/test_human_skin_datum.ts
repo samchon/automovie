@@ -5,6 +5,11 @@ import {
   AutoMovieHumanSegmentFrame as F,
   AutoMovieHumanSkinDatum as Skin,
 } from "@automovie/human";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
+} from "@automovie/interface";
 
 /**
  * A skin datum moves with its wall at its own station; a bone datum moves only with the chain; a rigid child hangs on its skin datum.
@@ -27,42 +32,42 @@ import {
  */
 export function test_human_skin_datum(): void {
   const failures: string[] = [];
-  const at = (what: string, got: F.V3, want: F.V3): void => {
+  const at = (what: string, got: AutoMovieVector3Tuple, want: AutoMovieVector3Tuple): void => {
     if (!(Math.hypot(got[0] - want[0], got[1] - want[1], got[2] - want[2]) <= 1e-12)) failures.push(`${what}: [${got.join(", ")}] instead of [${want.join(", ")}]`);
   };
   const wall = (side: 1 | -1): Skin.IWall => ({
     at: (s: number): Skin.IFrame => ({ origin: [0, s, 0], u: [1, 0, 0], v: [0, 0, side] }),
-    station: (p: F.V3): number => p[1],
+    station: (p: AutoMovieVector3Tuple): number => p[1],
     ratio: (s: number): readonly [number, number] => (s < 50 ? [1.2, 0.8] : [1, 1]),
   });
 
   // 1 and 2.
   at("scaled skin datum", Skin.skin([10, 20, 5], wall(1)), [12, 20, 4]);
-  const high: F.V3 = [10, 60, 5];
+  const high: AutoMovieVector3Tuple = [10, 60, 5];
   if (Skin.skin(high, wall(1)) !== high) failures.push("a datum at a unit ratio moved");
   at("reflected skin datum", Skin.skin([10, 20, -5], wall(-1)), [12, 20, -4]);
 
   // 3. Re-attachment.
-  const chain: F.IJoint[] = [
+  const chain: IAutoMovieHumanSegmentJoint[] = [
     { name: "head", parent: null, offset: [0, 100, 0], rotation: F.IDENTITY },
     { name: "ear", parent: "head", offset: [0, 0, 70], rotation: F.IDENTITY },
     { name: "helix", parent: "ear", offset: [1, 2, 3], rotation: F.IDENTITY },
   ];
   const none = (): undefined => undefined;
-  const frames: Map<string, F.IFrame> = F.world(chain, none);
-  const moved: readonly F.IJoint[] = Skin.attach(chain, frames, "ear", [0, 100, 56]);
+  const frames: Map<string, IAutoMovieHumanSegmentFrame> = F.world(chain, none);
+  const moved: readonly IAutoMovieHumanSegmentJoint[] = Skin.attach(chain, frames, "ear", [0, 100, 56]);
   at("ear offset", moved[1]!.offset, [0, 0, 56]);
   at("helix follows", F.world(moved, none).get("helix")!.origin, [1, 102, 59]);
   if (Skin.attach(chain, frames, "ear", frames.get("ear")!.origin) !== chain) failures.push("re-attaching at its own origin changed the chain");
 
   // 4. f1.
   if (Datums.legOrigin(P.REFERENCE) !== P.REFERENCE.get("femur")!.origin) failures.push("f1's leg origin is not the femur's origin");
-  const unit: Skin.IWall = { at: (s: number): Skin.IFrame => ({ origin: [0, s, 0], u: [1, 0, 0], v: [0, 0, 1] }), station: (p: F.V3): number => p[1], ratio: (): readonly [number, number] => [1, 1] };
+  const unit: Skin.IWall = { at: (s: number): Skin.IFrame => ({ origin: [0, s, 0], u: [1, 0, 0], v: [0, 0, 1] }), station: (p: AutoMovieVector3Tuple): number => p[1], ratio: (): readonly [number, number] => [1, 1] };
   if (Datums.ear(T.CHAIN, P.REFERENCE, unit) !== T.CHAIN) failures.push("the ear's attachment at a unit ratio changed f1's chain");
 
   // 5. Declared skin datums move with the wall; a bone datum keeps its place whatever the wall does.
   at("declared skin datum", Datums.point("breastFan", [10, 20, 5], wall(1)), [12, 20, 4]);
-  const centre: F.V3 = [10, 20, 5];
+  const centre: AutoMovieVector3Tuple = [10, 20, 5];
   if (Datums.point("calf", centre, wall(1)) !== centre) failures.push("a bone datum moved with the wall's tissue ratio");
   if (failures.length !== 0) throw new Error(failures.join("\n"));
 }

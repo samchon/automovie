@@ -1,5 +1,7 @@
-import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
-import type { IAutoMovieDrawResult } from "./IAutoMovieDrawResult.js";
+import type {
+  IAutoMovieDrawResult,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
 
 /**
  * Turn a draw page's picture back into the raster the capture core reads: the base64 RGBA bytes of an `IAutoMovieDrawResult`, rows from the top, at the size it states.
@@ -16,7 +18,7 @@ import type { IAutoMovieDrawResult } from "./IAutoMovieDrawResult.js";
  */
 export function decodeAutoMovieDrawPixels(
   result: Pick<IAutoMovieDrawResult, "pixels" | "width" | "height">,
-  expected: { width: number; height: number },
+  expected: Pick<IAutoMovieRasterImage, "width" | "height">,
 ): IAutoMovieRasterImage {
   if (result.width !== expected.width || result.height !== expected.height)
     throw new Error(

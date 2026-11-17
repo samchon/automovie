@@ -1,11 +1,22 @@
-import {
-  IAutoMovieCurve64 as C,
-  IAutoMovieContourLoft64 as L,
-} from "@automovie/engine";
-import type { IAutoMovieRecoveryInput } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoft64,
+  IAutoMovieCubicBezierCurve64,
+  IAutoMovieMeshCriticalPoints,
+  IAutoMovieMeshPlaneCut,
+  IAutoMovieMeshSectionOrientation,
+  IAutoMoviePlaneFrameConstruction,
+  IAutoMoviePolylineFit,
+  IAutoMovieRecoveryCriticalBracketsPreparationOperation,
+  IAutoMovieRecoveryInput,
+  IAutoMovieRecoveryMeshIncidencePreparationOperation,
+  IAutoMovieRecoveryMeshSections,
+  IAutoMovieRecoveryScalarIndex,
+  IAutoMovieRecoverySlabConnectivityGroup,
+  IAutoMovieRecoverySlabGraph,
+  IAutoMovieRecoverySourceLineage,
+} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
-import type { IAutoMovieRecoverySourceLineage } from "../structures/observation/IAutoMovieRecoverySourceLineage";
 import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
 import { RecoveryScalarIndex as S } from "./RecoveryScalarIndex";
 import { RecoverySlabGraph as G } from "./RecoverySlabGraph";
@@ -53,16 +64,14 @@ export function extractRecoveryMeshSections(
     (input.sourceOrientationSign !== 1 && input.sourceOrientationSign !== -1)
   )
     throw new Error("Invalid automatic section policy");
-  const frame: ReturnType<typeof planeFrame> = planeFrame(
-    [0, 0, 0],
-    input.axis,
-    input.reference,
-  );
+  const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> =
+    planeFrame([0, 0, 0], input.axis, input.reference);
   const vertices: typeof input.verticesMm = input.verticesMm;
   if (
     !vertices.length ||
     vertices.some(
-      (p: C.Vector): boolean => p.length !== 3 || !p.every(Number.isFinite),
+      (p: Readonly<AutoMovieVector3Tuple>): boolean =>
+        p.length !== 3 || !p.every(Number.isFinite),
     )
   )
     throw new Error("Finite physical mesh positions required");
@@ -85,20 +94,19 @@ export function extractRecoveryMeshSections(
     faceEdges,
     vertexFaces,
     edgeKey,
-  }: ReturnType<typeof prepareRecoveryMeshIncidence> =
+  }: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation> =
     prepareRecoveryMeshIncidence(input, vertices);
-  const project: (p: C.Vector) => number = (p: C.Vector): number =>
-    p[0] * frame.n[0] + p[1] * frame.n[1] + p[2] * frame.n[2];
+  const project: (p: Readonly<AutoMovieVector3Tuple>) => number = (
+    p: Readonly<AutoMovieVector3Tuple>,
+  ): number => p[0] * frame.n[0] + p[1] * frame.n[1] + p[2] * frame.n[2];
   const scalarHeights: number[] = vertices.map(project);
-  const scalarIndex: ReturnType<typeof S.create> = S.create(
-    mesh.triangles,
-    scalarHeights,
-  );
-  const slice: ReturnType<typeof cutExact.prepare> = cutExact.prepare(
+  const scalarIndex: ReturnType<IAutoMovieRecoveryScalarIndex.Create> =
+    S.create(mesh.triangles, scalarHeights);
+  const slice: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = cutExact.prepare(
     mesh,
     scalarHeights,
   );
-  const observe: ReturnType<typeof G.prepare> = G.prepare({
+  const observe: ReturnType<IAutoMovieRecoverySlabGraph.Prepare> = G.prepare({
     triangles: mesh.triangles,
     canon,
     heights: scalarHeights,
@@ -128,16 +136,12 @@ export function extractRecoveryMeshSections(
     "Within-section estimates do not bound between-section surfaces or certify source embedding.",
   ];
   const topologyGaps: IAutoMovieRecoveryMeshSections["topologyGaps"] = [];
-  const criticals: ReturnType<typeof critical> = critical(
-    mesh,
-    frame.n,
-    scalarHeights,
-    input.criticalPolicy,
-  );
+  const criticals: ReturnType<IAutoMovieMeshCriticalPoints.Operation> =
+    critical(mesh, frame.n, scalarHeights, input.criticalPolicy);
   const {
     unsupportedVertices,
     bracketed,
-  }: ReturnType<typeof prepareRecoveryCriticalBrackets> =
+  }: ReturnType<IAutoMovieRecoveryCriticalBracketsPreparationOperation.Operation> =
     prepareRecoveryCriticalBrackets(
       criticals,
       heights,
@@ -148,14 +152,12 @@ export function extractRecoveryMeshSections(
     );
   if (levels.size > input.maxSections)
     throw new Error("Critical section budget exhausted");
-  const orientation: ReturnType<typeof sourceOrientation> = sourceOrientation(
-    mesh,
-    input.sourceOrientationSign,
-  );
+  const orientation: ReturnType<IAutoMovieMeshSectionOrientation.Operation> =
+    sourceOrientation(mesh, input.sourceOrientationSign);
   const cache: Map<
     number,
     {
-      section: L.ISection;
+      section: IAutoMovieContourLoft64.ISection;
       report: IAutoMovieRecoveryMeshSections["reports"][number];
       supports: Set<number>[];
       faces: Set<number>[];
@@ -173,7 +175,7 @@ export function extractRecoveryMeshSections(
       : plannedLevels.slice(0, sectionLimit);
   progress?.("sections", 0, retainedLevels.length);
   for (const coordinateMm of retainedLevels) {
-    const plane: ReturnType<typeof planeFrame> = {
+    const plane: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = {
       ...frame,
       origin: frame.n.map((x: number): number => x * coordinateMm) as [
         number,
@@ -186,7 +188,10 @@ export function extractRecoveryMeshSections(
       coordinateMm,
       scalarIndex.cut(coordinateMm),
     );
-    const section: L.ISection = { coordinateMm, loops: [] };
+    const section: IAutoMovieContourLoft64.ISection = {
+      coordinateMm,
+      loops: [],
+    };
     const report: IAutoMovieRecoveryMeshSections["reports"][number] = {
       coordinateMm,
       fits: [],
@@ -226,14 +231,16 @@ export function extractRecoveryMeshSections(
         if (contour.closed) {
           winding = orientation(plane, contour) as 1 | -1;
           const area: number = signedArea(
-            points.map((p: C.Vector): [number, number] => [
-              (p[0] - plane.origin[0]) * plane.u[0] +
-                (p[1] - plane.origin[1]) * plane.u[1] +
-                (p[2] - plane.origin[2]) * plane.u[2],
-              (p[0] - plane.origin[0]) * plane.v[0] +
-                (p[1] - plane.origin[1]) * plane.v[1] +
-                (p[2] - plane.origin[2]) * plane.v[2],
-            ]),
+            points.map(
+              (p: Readonly<AutoMovieVector3Tuple>): [number, number] => [
+                (p[0] - plane.origin[0]) * plane.u[0] +
+                  (p[1] - plane.origin[1]) * plane.u[1] +
+                  (p[2] - plane.origin[2]) * plane.u[2],
+                (p[0] - plane.origin[0]) * plane.v[0] +
+                  (p[1] - plane.origin[1]) * plane.v[1] +
+                  (p[2] - plane.origin[2]) * plane.v[2],
+              ],
+            ),
           );
           if (area < 0) points = points.reverse();
         }
@@ -243,9 +250,11 @@ export function extractRecoveryMeshSections(
           i < points.length - (contour.closed ? 0 : 1);
           i++
         ) {
-          const a: C.Vector = points[(i + points.length - 1) % points.length]!,
-            b: C.Vector = points[i]!,
-            c: C.Vector = points[(i + 1) % points.length]!;
+          const a: Readonly<AutoMovieVector3Tuple> =
+              points[(i + points.length - 1) % points.length]!,
+            b: Readonly<AutoMovieVector3Tuple> = points[i]!,
+            c: Readonly<AutoMovieVector3Tuple> =
+              points[(i + 1) % points.length]!;
           const u: number[] = b.map(
               (x: number, k: number): number => x - a[k]!,
             ),
@@ -262,7 +271,7 @@ export function extractRecoveryMeshSections(
           )
             corners.push(i);
         }
-        const fit: F.Result = F.fit({
+        const fit: IAutoMoviePolylineFit = F.fit({
           name: `section.${coordinateMm}.contour.${ci}`,
           pointsMm: points,
           closed: contour.closed,
@@ -280,11 +289,16 @@ export function extractRecoveryMeshSections(
               loopIndex: section.loops.length,
               curveName: fit.curve.name,
             };
-          (section.loops as { curve: C.Cubic; winding: 1 | -1 }[]).push({
+          (
+            section.loops as {
+              curve: IAutoMovieCubicBezierCurve64;
+              winding: 1 | -1;
+            }[]
+          ).push({
             curve: fit.curve,
             winding,
           });
-          const { curve: _curve, ...quality }: F.Result = fit;
+          const { curve: _curve, ...quality }: IAutoMoviePolylineFit = fit;
           report.fits.push(quality);
           supports.push(
             new Set(
@@ -335,11 +349,11 @@ export function extractRecoveryMeshSections(
     if (cache.size % 64 === 0 || cache.size === retainedLevels.length)
       progress?.("sections", cache.size, retainedLevels.length);
   }
-  const events: L.IEvent[] = bracketed.map(
+  const events: IAutoMovieContourLoft64.IEvent[] = bracketed.map(
     (
       { event, before, after }: (typeof bracketed)[number],
       i: number,
-    ): L.IEvent => ({
+    ): IAutoMovieContourLoft64.IEvent => ({
       name: `critical.${i}`,
       coordinateMm: event.level,
       beforeMm: before,
@@ -371,7 +385,7 @@ export function extractRecoveryMeshSections(
       terminal: event.lower === 0 || event.upper === 0 ? event.p : null,
     }),
   );
-  const declaredEvents: L.IEvent[] = [];
+  const declaredEvents: IAutoMovieContourLoft64.IEvent[] = [];
   const unconsumedEvents: IAutoMovieRecoveryMeshSections["unconsumedEvents"] =
     [];
   for (const event of events) {
@@ -393,7 +407,8 @@ export function extractRecoveryMeshSections(
   const entries: (typeof cache extends Map<number, infer T> ? T : never)[] = [
     ...cache.values(),
   ];
-  const intervals: NonNullable<L["intervals"]>[number][] = [];
+  const intervals: NonNullable<IAutoMovieContourLoft64["intervals"]>[number][] =
+    [];
   progress?.("slabs", 0, entries.length - 1);
   for (let i: number = 1; i < entries.length; i++) {
     const before: (typeof entries)[number] = entries[i - 1]!,
@@ -406,7 +421,7 @@ export function extractRecoveryMeshSections(
         event.level <= after.section.coordinateMm
       )
         defects.push(vertexFaces.get(event.vertex) ?? new Set());
-    const groups: G.Group[] = observe({
+    const groups: IAutoMovieRecoverySlabConnectivityGroup[] = observe({
       beforeMm: before.section.coordinateMm,
       afterMm: after.section.coordinateMm,
       before: before.faces,
@@ -461,7 +476,8 @@ export function extractRecoveryMeshSections(
   return {
     loft: {
       sections: entries.map(
-        (s: (typeof entries)[number]): L.ISection => s.section,
+        (s: (typeof entries)[number]): IAutoMovieContourLoft64.ISection =>
+          s.section,
       ),
       events: declaredEvents,
       intervals,

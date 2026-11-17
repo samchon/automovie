@@ -25,7 +25,7 @@ Surface defect detectors find an error in any sculpted surface: open or non-mani
 
 ## Levels
 
-Test the mechanism once where it lives, as 3D modeling's [Crafting](../3d-modeling/crafting.md#tests) describes, so a defect of shared mathematics is found once and a part's change rewrites no test.
+Test the mechanism once where it lives, as 3D modeling's [construction](../3d-modeling/crafting/construction.md#tests) describes, so a defect of shared mathematics is found once and a part's change rewrites no test.
 
 | Level | Reads | Expectation from |
 | --- | --- | --- |
@@ -42,7 +42,7 @@ Give an anatomy row only a relation the laws could get wrong. A value the constr
 
 The active task sets person coverage; select f1 explicitly for an f1-only campaign and leave population acceptance unclaimed. A person-level audit uses whole, consistent people: the references, the population ends of each length, breadth and sex, and each input at both declared ends. Derive every limit from the person's inputs, a published source or geometry, never from closeness to a reference body.
 
-## Writing One
+## Writing one
 
 - Read the stage under test through its public seams: original functions and jets for source ownership, chains for raw lofts, finished skin for anatomical and input measurements.
 - Read a border, fold or profile across the feature, in the plane normal to its own tangent, because a world plane misreads a slanted feature.

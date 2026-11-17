@@ -1,4 +1,8 @@
-import type { IAutoMovieRenderSpec } from "@automovie/interface";
+import type {
+  IAutoMoviePlanVideoEncodingProps,
+  IAutoMoviePlanVideoEncodingResult,
+  IAutoMovieRenderSpec,
+} from "@automovie/interface";
 
 import { ffmpegArgs } from "../ffmpegArgs.js";
 import { framePattern } from "../framePattern.js";
@@ -21,28 +25,9 @@ const MAXIMUM_FRAMES: number = 1_000_000;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure plan of one request.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a count and strings and keeps nothing.
  */
-export function planAutoMovieVideoEncoding(props: {
-  /** The output raster, rate and encoding. */
-  spec: IAutoMovieRenderSpec;
-
-  /** Running time in seconds. */
-  durationSeconds: number;
-
-  /** Folder of the frame files, named by `frameName`. */
-  frameDir: string;
-
-  /** The video file FFmpeg writes. */
-  outputPath: string;
-
-  /** A complete soundtrack to mux, or null for none. */
-  audio: string | null;
-}): {
-  /** Frames the clock holds. */
-  frameCount: number;
-
-  /** FFmpeg's arguments. */
-  args: string[];
-} {
+export function planAutoMovieVideoEncoding(
+  props: IAutoMoviePlanVideoEncodingProps,
+): IAutoMoviePlanVideoEncodingResult {
   const { fps, width, height }: IAutoMovieRenderSpec["frameFormat"] =
     props.spec.frameFormat;
   const frameCount: number = props.durationSeconds * fps;

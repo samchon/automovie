@@ -1,5 +1,13 @@
-import { type AutoMovieLoftFrame, AutoMovieViewAxis, type AutoMovieViewAxisJet } from "@automovie/engine";
-import { AutoMovieHumanCourseRuns as Runs, AutoMovieHumanMaterialCourse as Material } from "@automovie/human";
+import { AutoMovieViewAxis } from "@automovie/engine";
+import {
+  AutoMovieHumanCourseRuns as Runs,
+  AutoMovieHumanMaterialCourse as Material,
+} from "@automovie/human";
+import type {
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+} from "@automovie/interface";
 
 /**
  * A person's course read in the reference's material stations (`AutoMovieHumanMaterialCourse`).
@@ -31,16 +39,16 @@ export function test_human_material_course(): void {
   const map: Runs.IMap = Runs.smooth([0, 100, 150], [0, 120, 170], [10]);
 
   // 1. A straight course along +X.
-  const zero: AutoMovieLoftFrame.IFrame = { origin: [0, 0, 0], u: [0, 0, 0], v: [0, 0, 0] };
-  const line: AutoMovieViewAxis.IAxis = {
-    at: (s: number): AutoMovieLoftFrame.IFrame => ({ origin: [s, 0, 0], u: [0, 0, 1], v: [0, 1, 0] }),
-    jet: (s: number): AutoMovieViewAxisJet.IJet => ({
+  const zero: IAutoMovieLoftSectionFrame = { origin: [0, 0, 0], u: [0, 0, 0], v: [0, 0, 0] };
+  const line: IAutoMovieViewAxis.IAxis = {
+    at: (s: number): IAutoMovieLoftSectionFrame => ({ origin: [s, 0, 0], u: [0, 0, 1], v: [0, 1, 0] }),
+    jet: (s: number): IAutoMovieViewAxisJet.IJet => ({
       value: { origin: [s, 0, 0], u: [0, 0, 1], v: [0, 1, 0] },
       first: { ...zero, origin: [1, 0, 0] },
       second: zero,
     }),
   };
-  const straight: AutoMovieViewAxis.IAxis = Material.create(line, map);
+  const straight: IAutoMovieViewAxis.IAxis = Material.create(line, map);
   for (const [s, x] of [
     [0, 0],
     [100, 120],
@@ -49,7 +57,7 @@ export function test_human_material_course(): void {
     near("straight course at " + s, straight.at(s).origin[0], x, 1e-9);
   for (const s of [40, 95, 100, 107, 140]) {
     const [, slope, bend]: [number, number, number] = map.jet(s);
-    const jet: AutoMovieViewAxisJet.IJet | null = straight.jet!(s);
+    const jet: IAutoMovieViewAxisJet.IJet | null = straight.jet!(s);
     if (jet === null) failures.push("straight course has no jet at " + s);
     else {
       near("straight first derivative at " + s, jet.first.origin[0], slope, 1e-12);
@@ -59,9 +67,9 @@ export function test_human_material_course(): void {
 
   // 2. A circle of radius R in the XY plane, u radial and v along +Z.
   const R: number = 80;
-  const circle: AutoMovieViewAxis.IAxis = {
-    at: (s: number): AutoMovieLoftFrame.IFrame => ({ origin: [R * Math.cos(s / R), R * Math.sin(s / R), 0], u: [Math.cos(s / R), Math.sin(s / R), 0], v: [0, 0, 1] }),
-    jet: (s: number): AutoMovieViewAxisJet.IJet => {
+  const circle: IAutoMovieViewAxis.IAxis = {
+    at: (s: number): IAutoMovieLoftSectionFrame => ({ origin: [R * Math.cos(s / R), R * Math.sin(s / R), 0], u: [Math.cos(s / R), Math.sin(s / R), 0], v: [0, 0, 1] }),
+    jet: (s: number): IAutoMovieViewAxisJet.IJet => {
       const [c, n]: [number, number] = [Math.cos(s / R), Math.sin(s / R)];
       return {
         value: { origin: [R * c, R * n, 0], u: [c, n, 0], v: [0, 0, 1] },
@@ -70,11 +78,11 @@ export function test_human_material_course(): void {
       };
     },
   };
-  const round: AutoMovieViewAxis.IAxis = Material.create(circle, map);
+  const round: IAutoMovieViewAxis.IAxis = Material.create(circle, map);
   for (const s of [40, 96, 104]) {
     const [to, slope, bend]: [number, number, number] = map.jet(s);
     const [c, n]: [number, number] = [Math.cos(to / R), Math.sin(to / R)];
-    const jet: AutoMovieViewAxisJet.IJet | null = round.jet!(s);
+    const jet: IAutoMovieViewAxisJet.IJet | null = round.jet!(s);
     if (jet === null) {
       failures.push("circular course has no jet at " + s);
       continue;
@@ -95,13 +103,13 @@ export function test_human_material_course(): void {
   // 5. A right-angle jointed course whose first run is lengthened.
   const reference: { centres: [number, number, number][]; halves: number[] } = { centres: [[0, 0, 0], [100, 0, 0], [100, 50, 0]], halves: [10] };
   const person: { centres: [number, number, number][]; halves: number[] } = { centres: [[0, 0, 0], [120, 0, 0], [120, 50, 0]], halves: [10] };
-  const jointed: AutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(person.centres, person.halves, [0, 0, 1]);
+  const jointed: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(person.centres, person.halves, [0, 0, 1]);
   if (typeof jointed === "string") failures.push("the made jointed course is refused: " + jointed);
   else {
     const carried: Runs.IMap = Material.map(reference, person);
     const [from, to]: number[][] = [Runs.joints(reference.centres, reference.halves), Runs.joints(person.centres, person.halves)];
     from!.forEach((s: number, k: number): void => near("joint " + k + " mapped", carried(s), to![k]!, 1e-9));
-    const course: AutoMovieViewAxis.IAxis = Material.create(jointed, carried);
+    const course: IAutoMovieViewAxis.IAxis = Material.create(jointed, carried);
     const end: readonly number[] = course.at(from![2]!).origin;
     near("material course start x", course.at(0).origin[0], 0, 1e-9);
     near("material course end x", end[0]!, 120, 1e-9);

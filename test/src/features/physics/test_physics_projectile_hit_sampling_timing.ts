@@ -1,8 +1,8 @@
-import {
+import { projectileSphereHit } from "@automovie/engine";
+import type {
   IAutoMovieProjectile,
   IAutoMovieSphere,
-  projectileSphereHit,
-} from "@automovie/engine";
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 const PROJECTILE: IAutoMovieProjectile = {

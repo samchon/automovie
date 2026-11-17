@@ -1,5 +1,5 @@
-import { AutoMovieSoftFurnishingKind } from "./AutoMovieSoftFurnishingKind";
-import { AutoMovieSoftFurnishingMode } from "./AutoMovieSoftFurnishingMode";
+import type { AutoMovieSoftFurnishingKind } from "./AutoMovieSoftFurnishingKind";
+import type { AutoMovieSoftFurnishingMode } from "./AutoMovieSoftFurnishingMode";
 
 /**
  * The binding that makes an independent soft-body domain a building's furnishing.

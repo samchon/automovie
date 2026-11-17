@@ -1,16 +1,24 @@
 import {
+  AutoMovieHumanNativeScaleCentre as Centre,
+} from "./AutoMovieHumanNativeScaleCentre";
+import {
+  AutoMovieHumanNativeScaleProfile as Profile,
+} from "./AutoMovieHumanNativeScaleProfile";
+import {
+  AutoMovieHumanNativeSourceAuthority as A,
+} from "./AutoMovieHumanNativeSourceAuthority";
+import {
   AutoMovieLoftContract,
-  type AutoMovieViewAxis,
   AutoMovieViewOutline,
   AutoMovieViewParameter,
-  type IAutoMovieLoftRelief,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
-
-import type { AutoMovieHumanConicSection as S } from "./AutoMovieHumanConicSection";
-import { AutoMovieHumanNativeScaleCentre as Centre } from "./AutoMovieHumanNativeScaleCentre";
-import { AutoMovieHumanNativeScaleProfile as Profile } from "./AutoMovieHumanNativeScaleProfile";
-import { AutoMovieHumanNativeSourceAuthority as A } from "./AutoMovieHumanNativeSourceAuthority";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieLoftRelief,
+  IAutoMovieViewAxis,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * One directional native source definition from complete native source controls, under a constant scale or a station-varying one.
@@ -44,14 +52,14 @@ import { AutoMovieHumanNativeSourceAuthority as A } from "./AutoMovieHumanNative
  */
 export function AutoMovieHumanNativeSourceLaw(
   original: IAutoMovieViewPart,
-  axis: AutoMovieViewAxis.IAxis,
-  scale: S.P | Profile.IScale,
+  axis: IAutoMovieViewAxis.IAxis,
+  scale: AutoMovieVector2Tuple | Profile.IScale,
   features: IAutoMovieLoftRelief[],
   centre?: Profile.ICentre,
 ): IAutoMovieViewPart {
   if (!Array.isArray(scale) && scale.constant === null)
     return varying(original, axis, scale, features, centre);
-  const [a, b]: S.P = Array.isArray(scale) ? scale : scale.constant!;
+  const [a, b]: AutoMovieVector2Tuple = Array.isArray(scale) ? scale : scale.constant!;
 
   // A constant ratio about a centre line is still a station function, e(s)·(1 - c) + c·f(s), unless the ratio is exactly 1.
   if (centre !== undefined && !(a === 1 && b === 1))
@@ -207,9 +215,9 @@ type IJet3 = [number, number, number];
 
 /** The scale's value and its first two derivatives in an outline's own parameter, per direction (depth, breadth). */
 interface IScaleJet {
-  value: S.P;
-  first: S.P;
-  second: S.P;
+  value: AutoMovieVector2Tuple;
+  first: AutoMovieVector2Tuple;
+  second: AutoMovieVector2Tuple;
 }
 
 /**
@@ -218,7 +226,7 @@ interface IScaleJet {
  */
 function varying(
   original: IAutoMovieViewPart,
-  axis: AutoMovieViewAxis.IAxis,
+  axis: IAutoMovieViewAxis.IAxis,
   scale: Profile.IScale,
   features: IAutoMovieLoftRelief[],
   centre?: Profile.ICentre,
@@ -235,7 +243,7 @@ function varying(
 
   // A radial outline closes at the part's poles, and the engine reads it in the pole's root or angle parameter; the scaled knots are
   // read and written in that same parameter. Angles and shoulders are not radial and stay open.
-  const radial: AutoMovieViewOutline.IEnds = A.ends(original);
+  const radial: IAutoMovieViewOutline.IEnds = A.ends(original);
 
   // Without a centre the coordinate is c·f about the course point. With one it is e + c·(f - e), e the centre's coordinate along the
   // same chart direction with its jet in the same parameter (AutoMovieHumanNativeScaleCentre.apply).
@@ -259,9 +267,9 @@ function varying(
   // T = atan2(v, u) with u = a cos θ and v = b sin θ; T' = (u v' - v u') / r² and
   // T'' = (u v'' - v u'') / r² - 2 (u u' + v v')(u v' - v u') / r⁴, r² = u² + v².
   const angle = ([t, tx, txx]: IJet3, c: IScaleJet): IJet3 => {
-    const [a, b]: S.P = c.value;
-    const [ax, bx]: S.P = c.first;
-    const [axx, bxx]: S.P = c.second;
+    const [a, b]: AutoMovieVector2Tuple = c.value;
+    const [ax, bx]: AutoMovieVector2Tuple = c.first;
+    const [axx, bxx]: AutoMovieVector2Tuple = c.second;
     const cos: number = Math.cos(t);
     const sin: number = Math.sin(t);
     const u: number = a * cos;
@@ -287,7 +295,7 @@ function varying(
   ];
   const rebuild = (
     source: IAutoMovieViewPart.IOutline,
-    ends: AutoMovieViewOutline.IEnds,
+    ends: IAutoMovieViewOutline.IEnds,
     law: (f: IJet3, c: IScaleJet, e: IScaleJet | null) => IJet3,
   ): IAutoMovieViewPart.IOutline => {
     if (source.range !== undefined)
@@ -295,8 +303,8 @@ function varying(
         "a requested scalar range has no proven bound under a station-varying native scale",
       );
     const prepared:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
       source,
       ends,
     );
@@ -325,7 +333,7 @@ function varying(
           x.station - y.station,
       )
       .map((knot: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => {
-        const read: AutoMovieViewOutline.IReading | string =
+        const read: IAutoMovieViewOutline.IReading | string =
           AutoMovieViewOutline.at(prepared, knot.station);
         const inverse: [number, number] | null =
           AutoMovieViewParameter.inverseJet(prepared.parameter, knot.station);

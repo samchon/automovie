@@ -1,17 +1,22 @@
-import {
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  type AutoMovieViewAxis,
-  type IAutoMovieLoftRelief,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-
 import { AutoMovieHumanConicLoft as H } from "./AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection as S } from "./AutoMovieHumanConicSection";
 import { AutoMovieHumanNativeControlLaw as N } from "./AutoMovieHumanNativeControlLaw";
-import { AutoMovieHumanNativeScaleProfile as Profile } from "./AutoMovieHumanNativeScaleProfile";
-import { AutoMovieHumanNativeSourceAuthority as A } from "./AutoMovieHumanNativeSourceAuthority";
+import {
+  AutoMovieHumanNativeScaleProfile as Profile,
+} from "./AutoMovieHumanNativeScaleProfile";
+import {
+  AutoMovieHumanNativeSourceAuthority as A,
+} from "./AutoMovieHumanNativeSourceAuthority";
 import { AutoMovieHumanNativeSourceLaw } from "./AutoMovieHumanNativeSourceLaw";
+import { AutoMovieLoftViewRead, AutoMovieLoftViewSource } from "@automovie/engine";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicSection,
+  IAutoMovieLoftRelief,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /** A full native source generated from qualified F1 controls, independently of any loft. */
 export namespace AutoMovieHumanNativeFamily {
@@ -19,7 +24,7 @@ export namespace AutoMovieHumanNativeFamily {
   interface IPreparedSource {
     values: number[][];
     knots: number[];
-    layout: S.ILayout;
+    layout: IAutoMovieHumanConicSection.ILayout;
     caps: string;
     source: IAutoMovieViewPart;
     /** Selected name/source identity participates in this local cache. */
@@ -39,20 +44,20 @@ export namespace AutoMovieHumanNativeFamily {
    */
   export interface ISpec {
     /** Accepted normalized family controls, before the new skeleton placement. */
-    original: H.IFamily;
+    original: IAutoMovieHumanConicLoft.IFamily;
     /** The same family's skeleton-placed local inputs, before native skin-root generation. */
-    bone: H.IFamily;
+    bone: IAutoMovieHumanConicLoft.IFamily;
     /** Actual original native controls for this invocation, with both reflected clocks. */
     originals: ReadonlyMap<string, IAutoMovieViewPart>;
     /** Explicit complete source/cap binding; absence retains the existing family producer. */
     authority?: A.ISpec;
     /** New original course and complete section planes. */
-    axis: AutoMovieViewAxis.IAxis;
+    axis: IAutoMovieViewAxis.IAxis;
     /**
      * Positive directional chart scales in original material station, +u/-u and +v/-v. A scale from AutoMovieHumanNativeScaleProfile
      * carries its station 2-jet and is applied to the source function, a(s)·f(s); a plain function scales the family's knot controls only.
      */
-    scale: (station: number) => S.P;
+    scale: (station: number) => AutoMovieVector2Tuple;
     /**
      * The line the scale holds still, in each section's chart: every coordinate becomes c(s) + a(s)·(f(s) - c(s)). Absent, the scale
      * acts about the course point. The consumer chooses the line; it needs a jet-carrying scale and stands on the course at a closing
@@ -76,9 +81,9 @@ export namespace AutoMovieHumanNativeFamily {
    */
   function vector(
     values: readonly number[],
-    layout: S.ILayout,
-    scale: S.P,
-    centre: S.P = [0, 0],
+    layout: IAutoMovieHumanConicSection.ILayout,
+    scale: AutoMovieVector2Tuple,
+    centre: AutoMovieVector2Tuple = [0, 0],
   ): number[] {
     if (scale[0] === 1 && scale[1] === 1) return [...values];
     const moved: boolean = centre[0] !== 0 || centre[1] !== 0;
@@ -90,12 +95,12 @@ export namespace AutoMovieHumanNativeFamily {
       centre[1] !== 0 &&
       scale[1] !== 1 &&
       (layout.mirror ||
-        layout.anchors.some((anchor: S.IAnchor): boolean => anchor.mid === true))
+        layout.anchors.some((anchor: IAutoMovieHumanConicSection.IAnchor): boolean => anchor.mid === true))
     )
       throw new Error(
         "a section on its median line scales about a centre on that line: the centre's v must be 0",
       );
-    const chain: S.IChain = N.section(
+    const chain: IAutoMovieHumanConicSection.IChain = N.section(
       S.resolve(values, layout),
       centre,
       [0, 0],
@@ -103,12 +108,12 @@ export namespace AutoMovieHumanNativeFamily {
     );
     const result: number[] = [...values];
     const offsets = S.offsets(layout);
-    const done: (S.P | null)[] = layout.anchors.map((): null => null);
+    const done: (AutoMovieVector2Tuple | null)[] = layout.anchors.map((): null => null);
     let previous: number = 0;
-    layout.anchors.forEach((anchor: S.IAnchor, k: number): void => {
+    layout.anchors.forEach((anchor: IAutoMovieHumanConicSection.IAnchor, k: number): void => {
       const f: number = offsets.at[k]!;
-      const p: S.P = chain.input.points[k]!;
-      const t: S.P = chain.input.tangents[k]!;
+      const p: AutoMovieVector2Tuple = chain.input.points[k]!;
+      const t: AutoMovieVector2Tuple = chain.input.tangents[k]!;
       if (anchor.kind === "u" || anchor.kind === "v") {
         result[f] = p[0];
         if (anchor.mid !== true) result[f + 1] = p[1];
@@ -135,12 +140,12 @@ export namespace AutoMovieHumanNativeFamily {
       }
     });
     for (const k of S.dependents(layout)) {
-      const anchor: S.IAnchor = layout.anchors[k]!;
+      const anchor: IAutoMovieHumanConicSection.IAnchor = layout.anchors[k]!;
       if (anchor.kind === "i") {
         const [before, after]: [number, number] = S.neighbours(k, done);
-        const a: S.P = chain.input.points[before]!;
-        const b: S.P = chain.input.points[after]!;
-        const t: S.P = chain.input.tangents[k]!;
+        const a: AutoMovieVector2Tuple = chain.input.points[before]!;
+        const b: AutoMovieVector2Tuple = chain.input.points[after]!;
+        const t: AutoMovieVector2Tuple = chain.input.tangents[k]!;
         const raw: number =
           Math.atan2(t[1], t[0]) - Math.atan2(b[1] - a[1], b[0] - a[0]);
         result[offsets.at[k]! + 1] =
@@ -165,9 +170,9 @@ export namespace AutoMovieHumanNativeFamily {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual accepted source controls/clocks are shared by every native consumer in the invocation; identical directional controls keep their exact scalar owners.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned family retains one spec and its borrowed immutable original bank for reader lifetime, with no global cache or process.
    */
-  export function create(spec: ISpec): H.IFamily {
-    const prior: H.IFamily = spec.original;
-    const centreAt = (s: number): S.P =>
+  export function create(spec: ISpec): IAutoMovieHumanConicLoft.IFamily {
+    const prior: IAutoMovieHumanConicLoft.IFamily = spec.original;
+    const centreAt = (s: number): AutoMovieVector2Tuple =>
       spec.centre === undefined ? [0, 0] : spec.centre.jet(s).value;
     const columns: number[][] = prior.knots.map(
       (s: number, k: number): number[] =>
@@ -182,7 +187,7 @@ export namespace AutoMovieHumanNativeFamily {
       (_: number[], f: number): number[] =>
         columns.map((column: number[]): number => column[f]!),
     );
-    const tip = (end: H.ITip | null): H.ITip | null =>
+    const tip = (end: IAutoMovieHumanConicLoft.ITip | null): IAutoMovieHumanConicLoft.ITip | null =>
       end === null
         ? null
         : {
@@ -202,7 +207,7 @@ export namespace AutoMovieHumanNativeFamily {
                   ) as [number, number],
                 }),
           };
-    const made: H.IFamily = {
+    const made: IAutoMovieHumanConicLoft.IFamily = {
       ...spec.bone,
       knots: prior.knots.map(spec.station),
       values,
@@ -220,7 +225,7 @@ export namespace AutoMovieHumanNativeFamily {
     // family's own material stations; knot-sampled controls would leave the wall between knots off the law. Such a scale is uniform
     // only when it is constant by construction: equal samples at the family's knots do not show what it does between them.
     const profile: Profile.IScale | null = Profile.of(spec.scale);
-    const firstScale: S.P = spec.scale(prior.knots[0]!);
+    const firstScale: AutoMovieVector2Tuple = spec.scale(prior.knots[0]!);
     const uniform: boolean =
       (profile === null || profile.constant !== null) &&
       firstScale[0] === firstScale[1] &&
@@ -235,7 +240,7 @@ export namespace AutoMovieHumanNativeFamily {
       original.stations.every((s: number): boolean => spec.station(s) === s);
     let prepared: IPreparedSource | undefined;
     /** The caller cap/scalar scope is prepared once, independently of tessellation. */
-    const prepareSource = (family: H.IFamily): IPreparedSource => {
+    const prepareSource = (family: IAutoMovieHumanConicLoft.IFamily): IPreparedSource => {
       const caps: string = JSON.stringify(family.tips ?? null);
       const selected: IAutoMovieViewPart | undefined = spec.authority === undefined ? undefined :
         A.select(spec.authority, family, made, spec.originals);
@@ -260,7 +265,7 @@ export namespace AutoMovieHumanNativeFamily {
         // A request whose caps differ from the generated family's (production drops a limb's distal cap, as its original source does)
         // has its own source function: the original controls under the requested caps, unscaled. A jet-carrying scale applies to that
         // function as it does to the stored original; scaling its knot controls instead would miss the law between the family's knots.
-        const uncap = (end: H.ITip | null): H.ITip | null =>
+        const uncap = (end: IAutoMovieHumanConicLoft.ITip | null): IAutoMovieHumanConicLoft.ITip | null =>
           end === null || end.centre === undefined
             ? end
             : {
@@ -488,14 +493,14 @@ export namespace AutoMovieHumanNativeFamily {
     };
     made.native = {
       axis: spec.authority === undefined ? spec.axis : A.named(spec.authority, made.name).axis,
-      source: (family: H.IFamily): IAutoMovieViewPart => ({
+      source: (family: IAutoMovieHumanConicLoft.IFamily): IAutoMovieViewPart => ({
         ...prepareSource(family).source,
         name: family.name,
         ...(family.reliefs === undefined || family.reliefs.length === 0
           ? { reliefs: undefined }
           : { reliefs: family.reliefs }),
       }),
-      part: (family: H.IFamily, requested: number[]): IAutoMovieViewPart => {
+      part: (family: IAutoMovieHumanConicLoft.IFamily, requested: number[]): IAutoMovieViewPart => {
         const prepared: IPreparedSource = prepareSource(family);
         // Layer/refinement requests cannot select another scalar function.
         if (
@@ -542,15 +547,15 @@ export namespace AutoMovieHumanNativeFamily {
         );
         return H.sampled(family, actual, wall);
       },
-      mirror: (family: H.IFamily, name: string): H.IFamily => {
+      mirror: (family: IAutoMovieHumanConicLoft.IFamily, name: string): IAutoMovieHumanConicLoft.IFamily => {
         if (spec.authority !== undefined) A.select(spec.authority, family, made, spec.originals);
-        const mirrored: H.IFamily = H.mirror(
+        const mirrored: IAutoMovieHumanConicLoft.IFamily = H.mirror(
           { ...family, native: undefined },
           name,
         );
         // The twin's chart has its v negated (H.mirror), so its scaling centre is the same line with v and its derivatives negated.
         const line: Profile.ICentre | undefined = spec.centre;
-        const reflectedFamily: H.IFamily = create({
+        const reflectedFamily: IAutoMovieHumanConicLoft.IFamily = create({
           ...spec,
           ...(line === undefined
             ? {}

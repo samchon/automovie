@@ -1,3 +1,4 @@
+import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -51,7 +52,7 @@ export function test_ingest_external_model_hierarchy_compatibility(): void {
     TestValidator.predicate(
       "motion retains its explicit transform restriction",
       throwsError(
-        (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
+        (): IAutoMovieExternalModelInspection =>
           inspectExternalModelHierarchyFixture(fixture, "gltf-motion-v1"),
         transform.message,
       ),
@@ -72,7 +73,7 @@ export function test_ingest_external_model_hierarchy_compatibility(): void {
   TestValidator.predicate(
     "single node self-cycle",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
+      (): IAutoMovieExternalModelInspection =>
         inspectExternalModelHierarchyFixture(single, "gltf-static-v1"),
       "nodes[0] belongs to a parent cycle.",
     ),

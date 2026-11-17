@@ -1,7 +1,9 @@
 import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryMapLandmark,
+  IAutoMovieRecoveryMapPose,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryMapLandmark,
-  type IAutoMovieRecoveryMapPose,
   createRecoveryCameraChart,
   createRecoveryMapTangent,
   refineRecoveryCameraMap,

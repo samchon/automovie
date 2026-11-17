@@ -1,4 +1,4 @@
-import { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
+import type { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
 
 /**
  * One authored output obligation the production renders and verifies.

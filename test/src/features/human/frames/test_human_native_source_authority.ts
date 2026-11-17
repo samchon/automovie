@@ -1,8 +1,7 @@
+import { nclose } from "../../internal/nclose";
 import {
   AutoMovieLoftViewFullSource as Full,
   AutoMovieViewAxis,
-  type IAutoMovieSolidSurface,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
@@ -10,9 +9,15 @@ import {
   AutoMovieHumanNativeFamily as Native,
   AutoMovieHumanNativeSourceLaw,
 } from "@automovie/human";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { nclose } from "../../internal/nclose";
 
 /**
  * A complete selected native source survives directional scaling and sampling.
@@ -48,10 +53,10 @@ export function test_human_native_source_authority(): void {
     name: string,
     value: boolean,
   ): void => { if (!value) failures.push(name); };
-  const axis: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
+  const axis: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
     [10, 0, 5], [1, 0, 0], [0, 0, 1],
   );
-  const mirrorAxis: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
+  const mirrorAxis: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
     [10, 0, -5], [1, 0, 0], [0, 0, 1],
   );
   const original: IAutoMovieViewPart = circle("made", axis);
@@ -65,21 +70,21 @@ export function test_human_native_source_authority(): void {
     ["made", source], ["made.mirror", mirror],
   ]);
   const radii: number[] = [2, Math.SQRT2, 1];
-  const prior: H.IFamily = {
+  const prior: IAutoMovieHumanConicLoft.IFamily = {
     name: "made", centres: [[10, 0, 5], [10, 4, 5]], halves: [], up: [1, 0, 0],
     layout: S.limb(0), knots: [0, 2, 3],
     values: [radii, [0, 0, 0], [0, 0, 0], radii, radii.map((x: number): number => -x), [0, 0, 0], [0, 0, 0], radii.map((x: number): number => -x), ...[0, 1, 2, 3].map((): number[] => [Math.SQRT2 - 1, Math.SQRT2 - 1, Math.SQRT2 - 1])],
     tips: [null, { from: 3, tip: 4, rings: 2 }],
   };
   const spec: Native.ISpec = {
-    original: prior, bone: prior, originals, axis, scale: (): S.P => [2, 3],
+    original: prior, bone: prior, originals, axis, scale: (): AutoMovieVector2Tuple => [2, 3],
     station: (s: number): number => s, features: [], protection: [],
     authority: { sources },
   };
   const verify: (label: string, part: IAutoMovieViewPart, z: number) => void = (
     label: string, part: IAutoMovieViewPart, z: number,
   ): void => {
-    const reader: Full.IReader = Full.create(part);
+    const reader: IAutoMovieLoftViewFullSource.IReader = Full.create(part);
     for (const s of [0.5, 2.5, 3.5])
       for (const t of [0, 0.37, 1.2, 3.7]) {
         const actual: IAutoMovieSolidSurface.IJet = reader.jet(s, t);
@@ -96,7 +101,7 @@ export function test_human_native_source_authority(): void {
     verify("mirror authority", mirror, -5);
   });
   scenario("complete source/part/mirror authority", (): void => {
-    const family: H.IFamily = Native.create(spec);
+    const family: IAutoMovieHumanConicLoft.IFamily = Native.create(spec);
     const read: IAutoMovieViewPart = H.source(family);
     check("source keeps selected scalar", read.front.positive === source.front.positive);
     check("source keeps parameter", read.front.positive.parameter === source.front.positive.parameter);
@@ -107,7 +112,7 @@ export function test_human_native_source_authority(): void {
     const part: IAutoMovieViewPart = H.part(family, [0, 1, 2, 3]);
     verify("part", part, 5);
     check("unit-course literal grid", part.stations.length === 6 && part.stations.every((s: number, k: number): boolean => Object.is(s, [0, 1, 2, 3, 3.5, 4][k])));
-    const twin: H.IFamily = H.mirror(family, "made.mirror");
+    const twin: IAutoMovieHumanConicLoft.IFamily = H.mirror(family, "made.mirror");
     const reflected: IAutoMovieViewPart = H.source(twin);
     check("mirror owns its selected axis", reflected.axis === mirrorAxis);
     check("mirror owns selected scalar", reflected.front.positive === mirror.front.positive);
@@ -117,11 +122,11 @@ export function test_human_native_source_authority(): void {
     check("primary cache remains primary", H.source(family).axis === axis);
   });
   scenario("binding refusals", (): void => {
-    const family: H.IFamily = Native.create(spec);
+    const family: IAutoMovieHumanConicLoft.IFamily = Native.create(spec);
     for (const changed of [
       { ...family, name: "absent" },
       { ...family, values: family.values.map((row: number[], k: number): number[] => k === 0 ? row.map((x: number): number => x + 1) : row) },
-      { ...family, tips: [null, { ...family.tips![1]!, own: true }] as [null, H.ITip] },
+      { ...family, tips: [null, { ...family.tips![1]!, own: true }] as [null, IAutoMovieHumanConicLoft.ITip] },
     ]) {
       let refused: boolean = false;
       try { H.source(changed); } catch { refused = true; }
@@ -129,7 +134,7 @@ export function test_human_native_source_authority(): void {
     }
   });
   scenario("cap-inclusive speed sampling", (): void => {
-    const family: H.IFamily = Native.create({ ...spec, authority: {
+    const family: IAutoMovieHumanConicLoft.IFamily = Native.create({ ...spec, authority: {
       sources, sampling: { maximumSpeed: 4, materialBreaks: [0.5, 3.25] },
     } });
     const part: IAutoMovieViewPart = H.part(family, [0, 1, 2, 3]);
@@ -143,7 +148,7 @@ export function test_human_native_source_authority(): void {
 }
 
 /** Analytic circular cap, linear in its declared signed square-root parameter. */
-function circle(name: string, axis: AutoMovieViewAxis.IAxis): IAutoMovieViewPart {
+function circle(name: string, axis: IAutoMovieViewAxis.IAxis): IAutoMovieViewPart {
   const coordinate: (sign: number) => IAutoMovieViewPart.IOutline = (sign: number): IAutoMovieViewPart.IOutline => ({
     parameter: { type: "root", end: "top", pole: 4 },
     knots: [{ station: 0, value: 2 * sign, site: "base" }, { station: 4, value: 0, site: "pole" }],

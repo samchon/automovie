@@ -1,5 +1,6 @@
 import {
   ArchetypeFrame,
+  ArchetypeUnits,
   createBar,
   createDoor,
   createLadder,
@@ -18,6 +19,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
+import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 
 /** The accessibility standard. */
 const ADA: string = "2010 ADA Standards";
@@ -32,11 +34,11 @@ const OSHA: string = "29 CFR 1910.23";
  * Architectural elements stay inside their code dimensions for every seed, measured where a hand or a foot meets them.
  *
  * Scenarios, each over 200 seeds, inside the band, and spanning at least 80 % of it unless the code gives only a limit:
- * 1. A door: the lever's and the knob's grip 865 to 1220 mm above the floor (ADA 404.2.7), the lever's turn 45 to 78 degrees, the clear opening at least 815 mm wide (ADA 404.2.3) and the leaf 2032 to 2134 mm high; a push plate at 1143 mm and a pull bar at 1067 mm (ANSI/SDI A250.8 Table 5).
- * 2. Stairs: each riser 102 to 178 mm and each tread at least 279 mm (IBC 1011.5.2), measured between successive nosings; over the whole flight no riser or tread differs from the first by more than 9.5 mm (IBC 1011.5.4); the top of each rail 865 to 965 mm vertically above the line of the nosings (ADA 505.4) and 32 to 51 mm across (ADA 505.7.1); the flight 914 to 1118 mm wide (IBC 1011.2); a twenty-riser flight rises no more than 3658 mm (IBC 1011.8).
+ * 1. A door: the lever's and the knob's grip 865 to 1220 mm above the floor (ADA 404.2.7), the lever's turn 45 to 78 degrees, the clear opening at least 815 mm wide (ADA 404.2.3); over 200 seeds the leaf exactly one of ANSI/SDI A250.8's nominal sizes, 2 ft 10 in or 3 ft 0 in wide, 6 ft 8 in or 7 ft 0 in high and 1-3/8 or 1-3/4 in thick, every combination drawn, a lever's or a knob's backset and a sliding door's pull's exactly the Schlage ND's 2-3/8 or 2-3/4 in, and a lever exactly one of the nine ND styles, its length and projection together; a push plate at 1143 mm and a pull bar at 1067 mm (ANSI/SDI A250.8 Table 5).
+ * 2. Stairs: each riser 102 to 178 mm and each tread at least 279 mm (IBC 1011.5.2), measured between successive nosings; over the whole flight no riser or tread differs from the first by more than 9.5 mm (IBC 1011.5.4); the top of each rail 865 to 965 mm vertically above the line of the nosings (ADA 505.4) and 32 to 51 mm across (ADA 505.7.1); the flight exactly the 914 or 1118 mm least width of one of IBC 1011.2's occupant classes, each drawn; a twenty-riser flight rises no more than 3658 mm (IBC 1011.8).
  * 3. A ramp: its walking surface slopes between 1:20 and 1:12 (ADA 405.2), rises at most 760 mm (ADA 405.6) and is at least 915 mm wide (ADA 405.5).
  * 4. Ladders: rungs 250 to 360 mm apart along the ladder (29 CFR 1910.23(b)(2)), a fixed ladder's at least 410 mm and a leaning one's at least 290 mm wide, and a leaning ladder at 75.5 degrees, its foot a quarter of its length out (29 CFR 1926.1053(b)(5)(i)).
- * 5. Bars: a grab bar's top 840 to 915 mm high and 32 to 51 mm across (ADA 609), a level rail's top 865 to 965 mm (ADA 505.4), a high bar whose collider is 28 mm across with its upper edge at 2.80 to 2.90 m (FIG MAG 6).
+ * 5. Bars: a grab bar's top 840 to 915 mm high and 32 to 51 mm across (ADA 609), its length exactly the rear wall's 915 mm or the side wall's 1065 mm least (ADA 604.5), each drawn, a level rail's top 865 to 965 mm (ADA 505.4), a high bar whose collider is 28 mm across with its upper edge at 2.80 to 2.90 m (FIG MAG 6).
  * 6. A window's sill below 914 mm and its handle at most 1220 mm high; a call button 380 to 1220 mm high (ADA 407.2.1.1); a full wall at least 2286 mm high (IBC 1208.2).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces each element for 200 seeds and measures frames, declared extents and, for a dimension its source fixes at one value, the collider itself: heights of contacts, differences between successive nosings and rungs, the normal of a ramp's surface, a rail's top above the nosing line. A dimension outside its clause, a flight that is not uniform, a rail measured to its axis instead of its top, or a seed that does not vary a banded dimension is caught.
@@ -144,32 +146,24 @@ export function test_archetype_architecture_bands(): void {
       row(
         "door clear width",
         0.815,
-        0.914,
+        3 * ArchetypeUnits.FOOT,
         `${ADA} 404.2.3`,
         (seed: number): number =>
           createDoor({}, seed).affordance("aperture").width!,
         true,
       ),
       row(
-        "door height",
-        2.032,
-        2.134,
-        "ANSI/SDI A250.8 Table 1",
-        (seed: number): number =>
-          createDoor({}, seed).affordance("aperture").height!,
-      ),
-      row(
         "push plate height",
-        1.143,
-        1.143,
+        45 * ArchetypeUnits.INCH,
+        45 * ArchetypeUnits.INCH,
         "ANSI/SDI A250.8 Table 5",
         (seed: number): number =>
           y(createDoor({ hardware: "plate" }, seed).affordance("push").frame),
       ),
       row(
         "pull bar height",
-        1.067,
-        1.067,
+        42 * ArchetypeUnits.INCH,
+        42 * ArchetypeUnits.INCH,
         "ANSI/SDI A250.8 Table 5",
         (seed: number): number =>
           y(createDoor({ hardware: "plate" }, seed).affordance("pull").frame),
@@ -218,13 +212,6 @@ export function test_archetype_architecture_bands(): void {
         `${ADA} 505.7.1`,
         (seed: number): number =>
           stairs(seed).affordance("rightRail").aperture!,
-      ),
-      row(
-        "stair width",
-        0.914,
-        1.118,
-        `${IBC} 1011.2`,
-        (seed: number): number => stairs(seed).affordance("step1").length!,
       ),
       row(
         "tallest flight",
@@ -403,6 +390,105 @@ export function test_archetype_architecture_bands(): void {
           y(createWall({ kind: "full" }, seed).affordance("top").frame),
         true,
       ),
+    ]),
+    [],
+  );
+  const inch: number = ArchetypeUnits.INCH;
+  const foot: number = ArchetypeUnits.FOOT;
+  const leaf = (door: ReturnType<typeof createDoor>): number[] => [
+    archetypeExtent(door, "x", ["leaf"]).size,
+    archetypeExtent(door, "y", ["leaf"]).size,
+    archetypeExtent(door, "z", ["leaf"]).size,
+  ];
+  TestValidator.equals(
+    "architecture of read sizes is one of them",
+    archetypeModelSweep([
+      {
+        name: "door leaf width, height and thickness",
+        measure: (seed: number): readonly number[] =>
+          leaf(createDoor({}, seed)),
+        models: [2 * foot + 10 * inch, 3 * foot].flatMap(
+          (width: number): number[][] =>
+            [6 * foot + 8 * inch, 7 * foot].flatMap(
+              (height: number): number[][] =>
+                [(1 + 3 / 8) * inch, (1 + 3 / 4) * inch].map(
+                  (thickness: number): number[] => [width, height, thickness],
+                ),
+            ),
+        ),
+        source: "ANSI/SDI A250.8 Table 1 and section 1.4",
+      },
+      ...(["lever", "knob"] as const).map(
+        (hardware: "lever" | "knob"): archetypeModelSweep.IRow => ({
+          name: `${hardware} backset`,
+          measure: (seed: number): readonly number[] => {
+            const door: ReturnType<typeof createDoor> = createDoor(
+              { hardware },
+              seed,
+            );
+            return [
+              leaf(door)[0]! / 2 + door.affordance("latch").frame.translation.x,
+            ];
+          },
+          models: [[(2 + 3 / 8) * inch], [(2 + 3 / 4) * inch]],
+          source: "Schlage ND data sheet",
+        }),
+      ),
+      {
+        name: "sliding pull backset",
+        measure: (seed: number): readonly number[] => {
+          const door: ReturnType<typeof createDoor> = createDoor(
+            { kind: "sliding" },
+            seed,
+          );
+          return [
+            leaf(door)[0]! / 2 + door.affordance("pull").frame.translation.x,
+          ];
+        },
+        models: [[(2 + 3 / 8) * inch], [(2 + 3 / 4) * inch]],
+        source: "Schlage ND data sheet, applied to the pull",
+      },
+      {
+        name: "lever length and projection",
+        measure: (seed: number): readonly number[] => {
+          const door: ReturnType<typeof createDoor> = createDoor(
+            { hardware: "lever" },
+            seed,
+          );
+          const pull: IAutoMovieAffordance = door.affordance("pull");
+          return [pull.length!, pull.frame.translation.z - leaf(door)[2]! / 2];
+        },
+        models: [
+          [4 + 9 / 16, 3 + 5 / 16],
+          [4 + 15 / 16, 3 + 1 / 16],
+          [4 + 1 / 2, 3 + 1 / 16],
+          [4 + 1 / 2, 3 + 1 / 8],
+          [4 + 15 / 16, 3 + 1 / 8],
+          [5 + 1 / 16, 3 + 5 / 16],
+          [4 + 9 / 16, 2 + 15 / 16],
+          [4 + 15 / 16, 3 + 1 / 2],
+          [4 + 15 / 16, 3],
+        ].map((style: number[]): number[] =>
+          style.map((n: number): number => n * inch),
+        ),
+        source: "Schlage ND cut sheet",
+      },
+      {
+        name: "stair width",
+        measure: (seed: number): readonly number[] => [
+          stairs(seed).affordance("step1").length!,
+        ],
+        models: [[0.914], [1.118]],
+        source: `${IBC} 1011.2`,
+      },
+      {
+        name: "grab bar length",
+        measure: (seed: number): readonly number[] => [
+          createBar({ kind: "grab" }, seed).affordance("bar").length!,
+        ],
+        models: [[0.915], [1.065]],
+        source: `${ADA} 604.5`,
+      },
     ]),
     [],
   );

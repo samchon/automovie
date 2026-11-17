@@ -1,18 +1,3 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieViewLoft,
-  type IAutoMovieViewPart,
-  AutoMovieViewChain as Q,
-} from "@automovie/engine";
-import {
-  AutoMovieHumanF1,
-  AutoMovieHumanConicLoft as H,
-  AutoMovieHumanConicSection as S,
-} from "@automovie/human";
-import { createHash } from "node:crypto";
-import fs from "node:fs/promises";
-import path from "node:path";
-
 import { FamilyConicFit as F } from "./FamilyConicFit";
 import { FamilyConicNearest as D } from "./FamilyConicNearest";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
@@ -20,6 +5,26 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import {
+  AutoMovieLoftChain,
+  AutoMovieViewChain as Q,
+  AutoMovieViewLoft,
+} from "@automovie/engine";
+import {
+  AutoMovieHumanConicLoft as H,
+  AutoMovieHumanConicSection as S,
+  AutoMovieHumanF1,
+} from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicSection,
+  IAutoMovieHumanF1,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
+import { createHash } from "node:crypto";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /**
  * Where a stored piece's fields leave the flow of their own knots, and whether laying them again from their neighbours brings the skin the
@@ -154,13 +159,13 @@ export namespace FamilyConicFlow {
   /** One stored piece as the figure carries it. */
   export interface IPart {
     /** The family as stored. */
-    stored: H.IFamily;
+    stored: IAutoMovieHumanConicLoft.IFamily;
 
     /** Sewn into the skin or cut out of it. */
     kind: "family" | "cutter";
 
     /** The family the figure lofts from stored fields. */
-    figure: (family: H.IFamily) => H.IFamily;
+    figure: (family: IAutoMovieHumanConicLoft.IFamily) => IAutoMovieHumanConicLoft.IFamily;
 
     /** The figure's source of the piece: the view part the construction lofts. */
     source: IAutoMovieViewPart;
@@ -209,10 +214,10 @@ export namespace FamilyConicFlow {
         ? s[(s.length - 1) / 2]!
         : (s[s.length / 2 - 1]! + s[s.length / 2]!) / 2;
   };
-  type Chain = NonNullable<AutoMovieViewLoft.IResult["chain"]>;
+  type Chain = NonNullable<IAutoMovieViewLoft.IResult["chain"]>;
 
   /** Each field's leave-one-out value at each interior knot, the natural cubic through its other knots there; NaN at the ends. */
-  export function leaveOneOut(family: H.IFamily): number[][] {
+  export function leaveOneOut(family: IAutoMovieHumanConicLoft.IFamily): number[][] {
     return family.values.map((field: number[]): number[] =>
       field.map((_: number, k: number): number => {
         if (k === 0 || k === family.knots.length - 1) return NaN;
@@ -230,9 +235,9 @@ export namespace FamilyConicFlow {
 
   /** The family with the listed knots of the listed fields laid again from the field's other knots, as `--relay-stored` lays them. */
   export function relayed(
-    family: H.IFamily,
+    family: IAutoMovieHumanConicLoft.IFamily,
     groups: readonly Pick<IGroup, "knots" | "fields">[],
-  ): H.IFamily {
+  ): IAutoMovieHumanConicLoft.IFamily {
     const values: number[][] = family.values.map(
       (field: number[]): number[] => [...field],
     );
@@ -272,12 +277,12 @@ export namespace FamilyConicFlow {
   } {
     const out: IPart[] = [];
     const absent: string[] = [];
-    const ends = (family: H.IFamily, source: IAutoMovieViewPart): H.IFamily => {
+    const ends = (family: IAutoMovieHumanConicLoft.IFamily, source: IAutoMovieViewPart): IAutoMovieHumanConicLoft.IFamily => {
       const closes: { bottom: boolean; top: boolean } = {
         bottom: source.pole === "bottom" || source.pole === "both",
         top: source.pole === "top" || source.pole === "both",
       };
-      const [bottom, top]: [H.ITip | null, H.ITip | null] = family.tips ?? [
+      const [bottom, top]: [IAutoMovieHumanConicLoft.ITip | null, IAutoMovieHumanConicLoft.ITip | null] = family.tips ?? [
         null,
         null,
       ];
@@ -306,10 +311,10 @@ export namespace FamilyConicFlow {
         "family",
         AutoMovieHumanF1.FAMILIES.map(
           (
-            member: AutoMovieHumanF1.IMember,
-          ): { family: H.IFamily; cut: (family: H.IFamily) => H.IFamily } => ({
+            member: IAutoMovieHumanF1.IMember,
+          ): { family: IAutoMovieHumanConicLoft.IFamily; cut: (family: IAutoMovieHumanConicLoft.IFamily) => IAutoMovieHumanConicLoft.IFamily } => ({
             family: member.family,
-            cut: (family: H.IFamily): H.IFamily => family,
+            cut: (family: IAutoMovieHumanConicLoft.IFamily): IAutoMovieHumanConicLoft.IFamily => family,
           }),
         ),
       ],
@@ -328,7 +333,7 @@ export namespace FamilyConicFlow {
         out.push({
           stored: member.family,
           kind,
-          figure: (family: H.IFamily): H.IFamily =>
+          figure: (family: IAutoMovieHumanConicLoft.IFamily): IAutoMovieHumanConicLoft.IFamily =>
             ends(member.cut(family), source),
           source,
         });
@@ -586,7 +591,7 @@ export namespace FamilyConicFlow {
    * @param stations The grid's stations in the span, mm.
    */
   function faults(
-    family: H.IFamily,
+    family: IAutoMovieHumanConicLoft.IFamily,
     chain: Chain,
     stations: readonly number[],
   ): { folds: number; refused: number } {
@@ -627,7 +632,7 @@ export namespace FamilyConicFlow {
   /** A field vector's section as a polygon: each conic arc of the model's chain sampled `per` times. */
   function polygon(
     values: readonly number[],
-    layout: S.ILayout,
+    layout: IAutoMovieHumanConicSection.ILayout,
     per: number = 16,
   ): C.P[] {
     const input = S.resolve(values, layout).input;
@@ -686,7 +691,7 @@ export namespace FamilyConicFlow {
    * loop nearest the wall's section) against the bare wall's section, reliefs left out; its samples are the reference loop's points.
    */
   export function sectionMiss(
-    family: H.IFamily,
+    family: IAutoMovieHumanConicLoft.IFamily,
     span: readonly [number, number],
     source: R.ISource,
   ): IMiss {
@@ -733,10 +738,10 @@ export namespace FamilyConicFlow {
 
   /** Each field's flagged knots, grouped into runs of adjacent flagged knots, merged across fields that flag the same knots. */
   export function groups(
-    family: H.IFamily,
+    family: IAutoMovieHumanConicLoft.IFamily,
     loo: readonly (readonly number[])[],
   ): { knots: number[]; fields: number[]; worst: number }[] {
-    const units: S.Unit[] = S.units(family.layout);
+    const units: IAutoMovieHumanConicSection.Unit[] = S.units(family.layout);
     const byKnots: Map<
       string,
       { knots: number[]; fields: number[]; worst: number }
@@ -848,7 +853,7 @@ export namespace FamilyConicFlow {
       }),
     );
     NodeCanvasRaster.initialize();
-    const declared: AutoMovieHumanF1.IConstruction =
+    const declared: IAutoMovieHumanF1.IConstruction =
       AutoMovieHumanF1.construction();
     const found: { parts: IPart[]; absent: string[] } = parts(declared.sources);
     const summary: string[] = [
@@ -873,12 +878,12 @@ export namespace FamilyConicFlow {
       "# old check (bare wall's sections against the reference cut) beside the new one, every group: old -> new",
     ];
     for (const part of found.parts) {
-      const family: H.IFamily = part.stored;
-      const figured: H.IFamily = part.figure(family);
+      const family: IAutoMovieHumanConicLoft.IFamily = part.stored;
+      const figured: IAutoMovieHumanConicLoft.IFamily = part.figure(family);
       const stations: number[] = part.source.stations;
       const domain: [number, number] = [stations[0]!, stations.at(-1)!];
-      const loft: AutoMovieViewLoft.IResult = H.create(figured, stations);
-      const figure: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(
+      const loft: IAutoMovieViewLoft.IResult = H.create(figured, stations);
+      const figure: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(
         part.source,
       );
       const own: IOwned = owned(round, family.name);
@@ -1001,7 +1006,7 @@ export namespace FamilyConicFlow {
       );
 
       // The groups, each judged before and after on the kept samples of its span.
-      const units: S.Unit[] = S.units(family.layout);
+      const units: IAutoMovieHumanConicSection.Unit[] = S.units(family.layout);
       const loo: number[][] = leaveOneOut(family);
       const judged: IGroup[] = groups(family, loo).map((g): IGroup => {
         const first: number = family.knots.indexOf(g.knots[0]!),
@@ -1047,8 +1052,8 @@ export namespace FamilyConicFlow {
           ...faults(figured, chain, spanStations),
         };
         const after: IMiss = ((): IMiss => {
-          const moved: H.IFamily = part.figure(relayed(family, [g]));
-          const relaid: AutoMovieViewLoft.IResult = H.create(moved, stations);
+          const moved: IAutoMovieHumanConicLoft.IFamily = part.figure(relayed(family, [g]));
+          const relaid: IAutoMovieViewLoft.IResult = H.create(moved, stations);
           if (relaid.chain === null)
             return {
               samples: 0,
@@ -1191,7 +1196,7 @@ export namespace FamilyConicFlow {
           Math.max(domain[0], g.chart[0] - 10),
           Math.min(domain[1], g.chart[1] + 10),
         ];
-        const relaid: AutoMovieViewLoft.IResult = H.create(
+        const relaid: IAutoMovieViewLoft.IResult = H.create(
           part.figure(relayed(family, [g])),
           stations,
         );

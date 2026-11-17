@@ -1,15 +1,19 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanDrinkingArm,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTouchDrink,
+  IAutoMovieMotionHumanTouchEffector,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
-import type { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanDrinkingSwivel } from "./AutoMovieMotionHumanDrinkingSwivel";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
@@ -38,44 +42,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
   /** The most a held vessel is leaned toward the face to let the arm hold it as a drinker does, degrees (provisional: past it the vessel pours). */
   const LEAN: number = 60;
 
-  /**
-   * A vessel held by a kept grasp, leaned toward the face: the lean and the
-   * wrist's goal that brings the vessel there.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The lean found and the goal it gives, so the stroke and its reference read the one goal the arm was admitted with.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members: the stroke reads the goal, a reader of the law the lean.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The goal is the admitted one, never rebuilt by the caller.
-   */
-  export interface IHeld {
-    /** How far the vessel's axis leans from where the grasp holds it toward the region, degrees. */
-    lean: number;
-
-    /** The wrist's goal at that lean: its point, its rotation, the elbow's hint and the vessel's point as the contact, world. */
-    goal: IHumanPosture.IGoal;
-  }
-
   /** The step between the leans the search tries first, degrees, inside whose first admitting bracket it tries every `LEAN_STEP` (provisional). */
   const COARSE: number = 15;
-
-  /**
-   * Where the vessel is held after it arrives, while the drinker drinks: the
-   * posture with the head turned for the drinking phase and the region on
-   * it. A lean is admitted only if the arm still holds the vessel at its
-   * asked axis there.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and frame.
-   * @evidence contracts/development/design.md#principled-representation The drinking phase's posture and region, the second place the arm must hold the vessel.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by `trial` and `held`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The region is read on that posture, never moved by hand.
-   */
-  export interface IAfter {
-    /** The posture of the drinking phase. */
-    posture: IHumanPosture;
-
-    /** The region on it. */
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">;
-  }
 
   /**
    * The facing and the lean the arm brings the vessel at: the least lean
@@ -96,33 +64,34 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * @param side The hand.
    * @param effector The effector, whose along direction is the vessel's axis.
    * @param place The region.
-   * @param hint The elbow's hint, world.
+   * @param hint The elbow's hint each candidate starts from, world; moved into the drinking range where it lies outside (`AutoMovieMotionHumanDrinkingSwivel`).
    * @param after Where the vessel is held while the drinker drinks; the arrival alone when absent.
-   * @returns The facing, the lean and the tilt.
+   * @returns The facing, the lean, the tilt and the elbow's hint the arm was admitted with.
    * @throws {HumanRefusal} When no lean up to `LEAN` and no facing holds a drinking arm.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order of the search, its assumption, the admission, the choice, the measured defect and the refusal; the namespace states the candidates.
-   * @evidence contracts/development/implementation.md#principled-implementation Every candidate is solved by the resolver and read on its displayed bones; the arm is admitted by the posture a person drinks in (Murphy et al. 2011), the least lean that admits one is taken so the vessel tips no more than the arm needs, and of the admitted facings the hand's tilt decides.
+   * @evidence contracts/development/implementation.md#principled-implementation Every candidate is solved by the resolver and read on its displayed bones; the arm is admitted by the shoulder range healthy drinkers use (Alt Murphy et al. 2006), the least lean that admits one is taken so the vessel tips no more than the arm needs, and of the admitted facings the hand's tilt decides.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk of the leans (`least`), each lean one `trial`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The monotone admission the refinement relies on is stated here and read by the drinking signature spec, which checks that the lean a step below the returned one does not admit; with none admitted the law is refused, never given a raised arm.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most five coarse leans and two fine ones; each lean thirteen entry fits, then for its best one referred fit (its reference's entry fit is in the resolver's memory) and, with `after`, a referred fit in the drinking phase (two solves: its reference and the fit). Every 5-degree lean from 0 took up to thirteen leans.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most five coarse leans and two fine ones; each lean thirteen entry fits, then for its best one referred fit (its reference's entry fit is in the resolver's memory) and, with `after`, a referred fit in the drinking phase (two solves: its reference and the fit). Every 5-degree lean from 0 took up to thirteen leans. Each facing's hint is bounded once per lean (one trunk solve, then constant work).
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `trial`, `least` and `AutoMovieMotionHumanDrinkingArm`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function drinking(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
-    after?: IAfter,
-  ): AutoMovieMotionHumanTouchUpright.IFacing {
+    after?: IAutoMovieMotionHumanTouchDrink.IAfter,
+  ): IAutoMovieMotionHumanTouchDrink.IDrink {
     const level: number = Math.hypot(place.normal.x, place.normal.z);
-    if (!(level > 1e-6)) return { facing: place.normal, lean: 0, tilt: 0 };
-    let nearest: INearest | undefined;
-    const found: AutoMovieMotionHumanTouchUpright.IFacing | undefined = least(
-      (lean: number): AutoMovieMotionHumanTouchUpright.IFacing | undefined =>
+    if (!(level > 1e-6))
+      return { facing: place.normal, lean: 0, tilt: 0, bend: hint };
+    let nearest: IAutoMovieMotionHumanDrinkingArm.INearest | undefined;
+    const found: IAutoMovieMotionHumanTouchDrink.IDrink | undefined = least(
+      (lean: number): IAutoMovieMotionHumanTouchDrink.IDrink | undefined =>
         trial(
           body,
           posture,
@@ -131,16 +100,16 @@ export namespace AutoMovieMotionHumanTouchDrink {
           place,
           hint,
           lean,
-          (arm: AutoMovieMotionHumanDrinkingArm.IArm, at: string): void => {
-            nearest = near(nearest, arm, at);
+          (arm: IAutoMovieMotionHumanDrinkingArm.IArm, at: string): void => {
+            nearest = AutoMovieMotionHumanDrinkingArm.nearer(nearest, arm, at);
           },
           after,
         ),
     );
     if (found !== undefined) return found;
-    throw refusal(
+    throw AutoMovieMotionHumanDrinkingArm.refused(
       side,
-      `and no turn of it within ${AutoMovieMotionHumanTouchUpright.SPAN} degrees either way of head on`,
+      `up to ${LEAN} degrees and no turn of it within ${AutoMovieMotionHumanTouchUpright.SPAN} degrees either way of head on`,
       nearest!,
     );
   }
@@ -160,29 +129,29 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * @param side The hand.
    * @param effector The effector, whose along direction is the vessel's axis.
    * @param place The region.
-   * @param hint The elbow's hint, world.
+   * @param hint The elbow's hint each candidate starts from, world; moved into the drinking range where it lies outside (`AutoMovieMotionHumanDrinkingSwivel`).
    * @param lean The lean toward the face, degrees.
    * @param after Where the vessel is held while the drinker drinks; the arrival alone when absent.
-   * @returns The facing, the lean and the tilt; none when the lean admits no arm.
+   * @returns The facing, the lean, the tilt and the elbow's hint; none when the lean admits no arm.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the screen, the order, the choice and the admission.
    * @evidence contracts/development/implementation.md#principled-implementation The admitted arm is the one the stroke shows, fitted to the same goal and reference.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation to `trial`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every facing is solved; a tie keeps the one nearest head on.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Thirteen entry fits and one referred fit, whose reference's entry fit the resolver's memory already holds; with `after`, two more solves for the drinking phase's reference and referred fit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Thirteen entry fits and one referred fit, whose reference's entry fit the resolver's memory already holds; with `after`, two more solves for the drinking phase's reference and referred fit. Each facing's hint is bounded in constant work after one trunk solve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `drinking` and by the spec that checks its least lean.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function admitted(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
     lean: number,
-    after?: IAfter,
-  ): AutoMovieMotionHumanTouchUpright.IFacing | undefined {
+    after?: IAutoMovieMotionHumanTouchDrink.IAfter,
+  ): IAutoMovieMotionHumanTouchDrink.IDrink | undefined {
     return trial(
       body,
       posture,
@@ -218,7 +187,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * @throws {HumanRefusal} When no lean up to `LEAN` holds a drinking arm.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is fixed, what is sought, the order, the admission and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A kept grasp fixes the hand-to-vessel rotation, not the hand, so the same drink is admitted by the same posture (Murphy et al. 2011) however the vessel came to the hand; the vessel's point stays on the region as the stroke keeps it.
+   * @evidence contracts/development/implementation.md#principled-implementation A kept grasp fixes the hand-to-vessel rotation, not the hand, so the same drink is admitted by the same shoulder range (Alt Murphy et al. 2006) however the vessel came to the hand; the vessel's point stays on the region as the stroke keeps it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk (`least`) of a goal, a screen and an admission per lean.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The admitted arm is the referred one the stroke shows; with none admitted the law is refused.
    * @evidence contracts/development/implementation.md#efficient-algorithms Per lean tried (at most five coarse and two fine): one entry fit, and for a lean that passes it one referred fit (its reference's entry fit in the resolver's memory) and, with `after`, the drinking phase's reference and referred fit, two solves.
@@ -226,16 +195,16 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function held(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
-    after?: IAfter,
-  ): IHeld {
-    const laid: IHumanPosture.IGoal = AutoMovieMotionHumanTouchLaid.rest(
+    after?: IAutoMovieMotionHumanTouchDrink.IAfter,
+  ): IAutoMovieMotionHumanTouchDrink.IHeld {
+    const laid: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
       body,
       posture,
       side,
@@ -255,33 +224,36 @@ export namespace AutoMovieMotionHumanTouchDrink {
       Quaternion.inverse(rotation),
       { x: 0, y: 1, z: 0 },
     );
-    let nearest: INearest | undefined;
-    const found: IHeld | undefined = least(
-      (lean: number): IHeld | undefined => {
+    let nearest: IAutoMovieMotionHumanDrinkingArm.INearest | undefined;
+    const found: IAutoMovieMotionHumanTouchDrink.IHeld | undefined = least(
+      (lean: number): IAutoMovieMotionHumanTouchDrink.IHeld | undefined => {
         const turned: IAutoMovieQuaternion = Quaternion.normalize(
           Quaternion.multiply(
             AutoMovieMotionHumanTouchUpright.tip(place.normal, lean),
             rotation,
           ),
         );
-        const goal: IHumanPosture.IGoal = {
+        const goal: IAutoMovieHumanLimbGoal = {
           ...laid,
           rotation: turned,
           point: Vector3.subtract(at, Quaternion.rotateVector(turned, contact)),
         };
         // The same vessel in the drinking phase: the hand keeps the turn
         // and the vessel's point follows the region.
-        const later = (phase: IAfter): AutoMovieMotionHumanDrinkingArm.IArm => {
-          const there: IHumanPosture.IGoal = AutoMovieMotionHumanTouchLaid.rest(
-            body,
-            phase.posture,
-            side,
-            effector,
-            phase.place,
-            "up",
-            hint,
-            "upright",
-          );
+        const later = (
+          phase: IAutoMovieMotionHumanTouchDrink.IAfter,
+        ): IAutoMovieMotionHumanDrinkingArm.IArm => {
+          const there: IAutoMovieHumanLimbGoal =
+            AutoMovieMotionHumanTouchLaid.rest(
+              body,
+              phase.posture,
+              side,
+              effector,
+              phase.place,
+              "up",
+              hint,
+              "upright",
+            );
           return AutoMovieMotionHumanDrinkingArm.read(
             body,
             phase.posture,
@@ -301,7 +273,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
             axis,
           );
         };
-        const arm: AutoMovieMotionHumanDrinkingArm.IArm =
+        const arm: IAutoMovieMotionHumanDrinkingArm.IArm =
           AutoMovieMotionHumanDrinkingArm.read(
             body,
             posture,
@@ -310,7 +282,11 @@ export namespace AutoMovieMotionHumanTouchDrink {
             false,
             axis,
           );
-        nearest = near(nearest, arm, `at a lean of ${lean} degrees`);
+        nearest = AutoMovieMotionHumanDrinkingArm.nearer(
+          nearest,
+          arm,
+          `at a lean of ${lean} degrees`,
+        );
         return holds(arm) &&
           holds(
             AutoMovieMotionHumanDrinkingArm.read(
@@ -328,7 +304,11 @@ export namespace AutoMovieMotionHumanTouchDrink {
       },
     );
     if (found !== undefined) return found;
-    throw refusal(side, "in the grasp it was taken up by", nearest!);
+    throw AutoMovieMotionHumanDrinkingArm.refused(
+      side,
+      `up to ${LEAN} degrees in the grasp it was taken up by`,
+      nearest!,
+    );
   }
 
   /**
@@ -356,16 +336,16 @@ export namespace AutoMovieMotionHumanTouchDrink {
 
   /** One lean of `drinking`'s search (`admitted`), each screened arm shown to `seen` with where it was tried. */
   function trial(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
     lean: number,
-    seen: (arm: AutoMovieMotionHumanDrinkingArm.IArm, at: string) => void,
-    after?: IAfter,
-  ): AutoMovieMotionHumanTouchUpright.IFacing | undefined {
+    seen: (arm: IAutoMovieMotionHumanDrinkingArm.IArm, at: string) => void,
+    after?: IAutoMovieMotionHumanTouchDrink.IAfter,
+  ): IAutoMovieMotionHumanTouchDrink.IDrink | undefined {
     const level: number = Math.hypot(place.normal.x, place.normal.z);
     // The vessel's axis in the hand: the effector's along axis, which an
     // upright lay stands on the leaned axis.
@@ -374,11 +354,23 @@ export namespace AutoMovieMotionHumanTouchDrink {
       side,
       effector,
     ).forward;
-    const goal = (
+    // Each facing's arm is hinted inside the drinking range: the hint moved
+    // to the nearest swivel whose shoulder lies in it, kept where it does
+    // (`AutoMovieMotionHumanDrinkingSwivel`); the drinking phase keeps it.
+    const bound: (
+      point: IAutoMovieVector3,
+      hint: IAutoMovieVector3,
+    ) => IAutoMovieVector3 = AutoMovieMotionHumanDrinkingSwivel.bounded(
+      body,
+      posture,
+      side,
+    );
+    const laid = (
       facing: IAutoMovieVector3,
-      on: IHumanPosture = posture,
-      at: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal"> = place,
-    ): IHumanPosture.IGoal =>
+      on: IAutoMovieMotionHumanPosture,
+      at: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+      bend: IAutoMovieVector3,
+    ): IAutoMovieHumanLimbGoal =>
       AutoMovieMotionHumanTouchLaid.rest(
         body,
         on,
@@ -386,20 +378,34 @@ export namespace AutoMovieMotionHumanTouchDrink {
         effector,
         at,
         "up",
-        hint,
+        bend,
         "upright",
         facing,
         undefined,
         undefined,
         lean,
       );
+    const bends: Map<IAutoMovieVector3, IAutoMovieVector3> = new Map();
+    const bend = (facing: IAutoMovieVector3): IAutoMovieVector3 => {
+      let found: IAutoMovieVector3 | undefined = bends.get(facing);
+      if (found === undefined) {
+        found = bound(laid(facing, posture, place, hint).point, hint);
+        bends.set(facing, found);
+      }
+      return found;
+    };
+    const goal = (
+      facing: IAutoMovieVector3,
+      on: IAutoMovieMotionHumanPosture = posture,
+      at: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> = place,
+    ): IAutoMovieHumanLimbGoal => laid(facing, on, at, bend(facing));
     let best: IAutoMovieVector3 | undefined;
     let tilt: number = Infinity;
     for (const facing of AutoMovieMotionHumanTouchUpright.facings(
       place.normal,
       level,
     )) {
-      const arm: AutoMovieMotionHumanDrinkingArm.IArm =
+      const arm: IAutoMovieMotionHumanDrinkingArm.IArm =
         AutoMovieMotionHumanDrinkingArm.read(
           body,
           posture,
@@ -418,7 +424,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
       }
     }
     if (best === undefined) return undefined;
-    const shown: AutoMovieMotionHumanDrinkingArm.IArm =
+    const shown: IAutoMovieMotionHumanDrinkingArm.IArm =
       AutoMovieMotionHumanDrinkingArm.read(
         body,
         posture,
@@ -439,47 +445,12 @@ export namespace AutoMovieMotionHumanTouchDrink {
           true,
           axis,
         ).tilt <= LEAN_STEP)
-      ? { facing: best, lean, tilt: shown.tilt }
+      ? { facing: best, lean, tilt: shown.tilt, bend: bend(best) }
       : undefined;
   }
 
   /** Whether a fitted arm drinks (`AutoMovieMotionHumanDrinkingArm.drinks`) with the vessel where it was asked: the reached axis within one `LEAN_STEP` of the asked one, so an arm whose hand cannot reach the asked lean is not admitted at it. */
-  function holds(arm: AutoMovieMotionHumanDrinkingArm.IArm): boolean {
+  function holds(arm: IAutoMovieMotionHumanDrinkingArm.IArm): boolean {
     return AutoMovieMotionHumanDrinkingArm.drinks(arm) && arm.tilt <= LEAN_STEP;
-  }
-  /** The candidate whose arm was raised least, for a refusal: its arm and where it was tried. */
-  interface INearest {
-    /** Its fitted arm. */
-    arm: AutoMovieMotionHumanDrinkingArm.IArm;
-
-    /** Its lean and facing, in words. */
-    at: string;
-  }
-
-  /** The nearer of a candidate and the nearest so far: the one whose upper arm is raised less. */
-  function near(
-    nearest: INearest | undefined,
-    arm: AutoMovieMotionHumanDrinkingArm.IArm,
-    at: string,
-  ): INearest {
-    return nearest === undefined || arm.elevation < nearest.arm.elevation
-      ? { arm, at }
-      : nearest;
-  }
-
-  /** The refusal of a vessel no lean lets the arm drink with. */
-  function refusal(
-    side: HumanHand.Side,
-    turn: string,
-    closest: INearest,
-  ): HumanRefusal {
-    const nearest: string = `the arm raised least, ${closest.at}, is raised ${closest.arm.elevation.toFixed(1)} degrees with the elbow ${(closest.arm.drop * 1000).toFixed(0)} mm below the shoulder and the forearm's twist ${closest.arm.room.toFixed(0)} degrees inside its range`;
-    return new HumanRefusal({
-      kind: "reach",
-      axis: "facing",
-      value: side,
-      reason: `no lean of the held vessel toward the face up to ${LEAN} degrees ${turn} lets the ${side} arm bring it to the region as a person drinks, the upper arm raised at most ${AutoMovieMotionHumanDrinkingArm.ELEVATION} degrees, the elbow ${AutoMovieMotionHumanDrinkingArm.DROP * 1000} mm or more below the shoulder and the forearm's twist ${AutoMovieMotionHumanTouchLaid.MARGIN} degrees inside its range (${nearest})`,
-      fix: "bring the vessel to a region nearer the chin, or take it by a grip the arm can drink from: picked up for its use (`pickUp` with `use`), by its side, or with the other hand",
-    });
   }
 }

@@ -1,4 +1,4 @@
-import { ISubdivisionLevel } from "./ISubdivisionLevel";
+import type { IAutoMovieSubdivisionLevel } from "@automovie/interface";
 
 /**
  * Frozen-metric discrete bending residuals M^(-1/2) C on a quad cage.
@@ -16,7 +16,7 @@ import { ISubdivisionLevel } from "./ISubdivisionLevel";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned row maps own their coefficients; mass and construction arrays are local to the call and no state is retained.
  */
 export function subdivisionBendingRows(
-  level: ISubdivisionLevel,
+  level: IAutoMovieSubdivisionLevel,
 ): Array<Map<number, number>> {
   const count: number = level.topology.vertexCount;
   const mass: number[] = new Array<number>(count).fill(0);

@@ -6,8 +6,10 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -16,7 +18,7 @@ const OSHA: string =
   "29 CFR 1910.23 (https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.23)";
 
 /** The pitch of a ladder whose foot stands a quarter of its length from the wall, degrees: the arccosine of one quarter. */
-const QUARTER: number = (Math.acos(0.25) * 180) / Math.PI;
+const QUARTER: number = Math.acos(0.25) / ArchetypeUnits.DEGREE;
 
 /** A rung's diameter, which the regulation does not give. */
 const RUNG: string =
@@ -44,6 +46,13 @@ export function createLadder(
   params: createLadder.IParams,
   seed?: number | string,
 ): Archetype<createLadder.Affordance, createLadder.Dimension> {
+  const draw: ArchetypeDrawSession<createLadder.Dimension> =
+    new ArchetypeDrawSession<createLadder.Dimension>(
+      "ladder",
+      createLadder.UNITS,
+      seed,
+      params,
+    );
   const kind: createLadder.Kind = ArchetypeDraw.choice(
     "ladder",
     "kind",
@@ -66,25 +75,22 @@ export function createLadder(
       reason: `a ladder has 2 to ${createLadder.RUNGS} rungs, not ${rungs}`,
       fix: "give a whole number of rungs",
     });
-  const d: Record<createLadder.Dimension, number> = ArchetypeDraw.dimensions(
-    "ladder",
+  const d: Record<createLadder.Dimension, number> = draw.dimensions(
     createLadder.BANDS[kind],
-    seed,
-    params,
     createLadder.BANDS,
   );
   const builder: ArchetypeBuilder<
     createLadder.Affordance,
     createLadder.Dimension
   > = new ArchetypeBuilder({
-    archetype: "ladder",
+    material: "aluminium",
     id: params.id,
     name: `${kind} ladder`,
-    dimensions: d,
+    draw,
   });
 
   // The ladder's own line: up, tilted back toward the wall at -Z by the pitch from the floor.
-  const pitch: number = (d.pitch * Math.PI) / 180;
+  const pitch: number = d.pitch * ArchetypeUnits.DEGREE;
   const along: IAutoMovieVector3 = Vector3.create(
     0,
     Math.sin(pitch),
@@ -116,6 +122,7 @@ export function createLadder(
     builder.affordance({
       id: `${side}Rail`,
       kind: "bar",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         Vector3.add(foot, Vector3.scale(along, length / 2)),
         out,
@@ -139,6 +146,7 @@ export function createLadder(
     builder.affordance({
       id: `rung${k}`,
       kind: "bar",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(at, out, Vector3.create(1, 0, 0)),
       extent: null,
       grip: "power",
@@ -191,6 +199,15 @@ export namespace createLadder {
     | "pitch"
     | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    spacing: "m",
+    width: "m",
+    rungDiameter: "m",
+    pitch: "degrees",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, the count, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which ladder. */
@@ -211,7 +228,7 @@ export namespace createLadder {
       spacing: ArchetypeBand.metres(
         0.25,
         0.36,
-        `${OSHA}(b)(2), rungs 10 to 14 in apart`,
+        `${OSHA}(b)(2), rungs 10 to 14 in (25 to 36 cm) apart`,
       ),
       width: ArchetypeBand.metres(
         0.41,
@@ -232,7 +249,7 @@ export namespace createLadder {
       spacing: ArchetypeBand.metres(
         0.25,
         0.36,
-        `${OSHA}(b)(2), rungs 10 to 14 in apart`,
+        `${OSHA}(b)(2), rungs 10 to 14 in (25 to 36 cm) apart`,
       ),
       width: ArchetypeBand.metres(
         0.29,

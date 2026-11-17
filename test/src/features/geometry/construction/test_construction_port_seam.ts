@@ -1,15 +1,15 @@
-import {
-  type AutoMovieConstructionRealization,
-  AutoMovieSolidChain,
-  type AutoMovieSolidIntersection,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
 import type {
-  AutoMovieConstructionNode,
+  IAutoMovieConstructionNode,
   IAutoMovieConstructionPort,
+  IAutoMovieConstructionRealization,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidSurface,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import {
+  AutoMovieSolidChain,
+  realizeAutoMovieConstruction,
+} from "@automovie/engine";
 
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
@@ -24,7 +24,7 @@ type V3 = [number, number, number];
  * `[0, 0.1]`; its port curve is the chart ellipse about station 0.05 and phase 0 with semi-axes 0.01 m and 0.45 rad, sense +1, its distance
  * from the centre scaled per column by `1 + 0.15 cos 3c`, which leaves three concave stretches between the 16 columns. The part `arm` is a
  * cylinder of radius 0.007 along `+x` from `(0.012, 0, -0.05)`, its rail 0.02 m in (`x = 0.032`). Columns 16, rows 4. The port curve between
- * columns is the node's: the periodic cubic spline through the shares (`IAutoMovieConstructionPort.ILoop.shape`), here solved densely.
+ * columns is the node's: the periodic cubic spline through the shares (`IAutoMovieConstructionPortLoop.shape`), here solved densely.
  *
  * Scenarios, each read at the 16 mid-columns `c = 2 pi (k + 1/2) / 16`:
  * 1. Parent seam: the band's station-0 point is the host's point on the port curve within 1e-9 mm; its phase derivative is the host's
@@ -125,8 +125,8 @@ export function test_construction_port_seam(): void {
   const bend = (j: IAutoMovieSolidSurface.IJet, d: readonly [number, number]): V3 =>
     [0, 1, 2].map((i: number): number => j.uu[i]! * d[0] * d[0] + 2 * j.uv[i]! * d[0] * d[1] + j.vv[i]! * d[1] * d[1]) as V3;
 
-  const trunk: AutoMovieConstructionNode = ConstructionShapes.cylinder("trunk", ConstructionShapes.DOWN, 0.02, 0.1);
-  const arm: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+  const trunk: IAutoMovieConstructionNode = ConstructionShapes.cylinder("trunk", ConstructionShapes.DOWN, 0.02, 0.1);
+  const arm: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
     "arm",
     { origin: { x: 0.012, y: 0, z: -0.05 }, u: { x: 0, y: 0, z: 1 }, v: { x: 0, y: 1, z: 0 } },
     0.007,
@@ -147,9 +147,9 @@ export function test_construction_port_seam(): void {
     count: n,
     rows: 4,
   };
-  const realize = (root: AutoMovieConstructionNode): AutoMovieConstructionRealization.IRealization =>
+  const realize = (root: IAutoMovieConstructionNode): IAutoMovieConstructionRealization.IRealization =>
     realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
-  const real: AutoMovieConstructionRealization.IRealization = realize(port);
+  const real: IAutoMovieConstructionRealization.IRealization = realize(port);
   if (real.diagnostics.length !== 0) failures.push(`port: ${ConstructionRead.diagnostics(real)}`);
   const host: IAutoMovieSolidSurface = ConstructionRead.surface(real, "trunk");
   const band: IAutoMovieSolidSurface = ConstructionRead.surface(real, "band.port");
@@ -282,14 +282,14 @@ export function test_construction_port_seam(): void {
 
   // 7. A part published only 1 mm past its rail: the same rail ring `x = 32`, on a part whose first station is `x = 31`.
   {
-    const short: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+    const short: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
       "arm",
       { origin: { x: 0.031, y: 0, z: -0.05 }, u: { x: 0, y: 0, z: 1 }, v: { x: 0, y: 1, z: 0 } },
       0.007,
       0.041,
       7,
     );
-    const made: AutoMovieConstructionRealization.IRealization = realize({ ...port, part: short, rail: 0.001 });
+    const made: IAutoMovieConstructionRealization.IRealization = realize({ ...port, part: short, rail: 0.001 });
     if (made.diagnostics.length !== 0) failures.push(`short root: ${ConstructionRead.diagnostics(made)}`);
     else {
       const face: IAutoMovieSolidSurface = ConstructionRead.surface(made, "band.port");
@@ -321,10 +321,10 @@ export function test_construction_port_seam(): void {
     normal: V3,
     u: V3,
     seed: { face: string; host: [number, number]; phase: number },
-    on: AutoMovieConstructionNode,
-  ): AutoMovieConstructionNode => {
+    on: IAutoMovieConstructionNode,
+  ): IAutoMovieConstructionNode => {
     const v: V3 = cross(u, normal);
-    const tube: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+    const tube: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
       name,
       { origin: m(sub(centre, scaled(normal, 10))), u: m(scaled(u, 1000)), v: m(scaled(v, 1000)) },
       0.001,
@@ -347,7 +347,7 @@ export function test_construction_port_seam(): void {
   // The oblique cut: centred on the seam at mid-column 7.5, its seed 1 mm along -z, toward lower stations, outside the port curve.
   const c1: [number, number] = curve(clock(7.5)).at;
   const q1: V3 = trunkPoint(c1);
-  const one: AutoMovieConstructionNode = cutter("oblique", q1, radial(c1), [0, 0, 1], { face: "trunk", host: [c1[0] - 1, c1[1]], phase: 0 }, port);
+  const one: IAutoMovieConstructionNode = cutter("oblique", q1, radial(c1), [0, 0, 1], { face: "trunk", host: [c1[0] - 1, c1[1]], phase: 0 }, port);
 
   // The shallow cut: centred 0.95 mm inside the seam at mid-column 2.5, along the seam's normal in the tangent plane.
   const c2: { at: [number, number]; rate: [number, number] } = curve(clock(2.5));
@@ -360,7 +360,7 @@ export function test_construction_port_seam(): void {
   const centre2: V3 = [q2[0] + 0.95 * inward[0], q2[1] + 0.95 * inward[1], q2[2] + 0.95 * inward[2]];
   const outer2: V3 = sub(centre2, inward);
   const v2: V3 = cross([0, 0, 1], n2);
-  const two: AutoMovieConstructionNode = cutter(
+  const two: IAutoMovieConstructionNode = cutter(
     "shallow",
     centre2,
     n2,
@@ -372,7 +372,7 @@ export function test_construction_port_seam(): void {
   // The child cut: centred on the band's end point at mid-column 12.5, its seed 1 mm along +x on the part.
   const p3: readonly number[] = band.jet(span, clock(12.5)).p;
   const n3: V3 = scaled([0, p3[1]!, p3[2]! + 50], 1 / Math.hypot(p3[1]!, p3[2]! + 50));
-  const three: AutoMovieConstructionNode = cutter(
+  const three: IAutoMovieConstructionNode = cutter(
     "child",
     [p3[0]!, p3[1]!, p3[2]!],
     n3,
@@ -381,7 +381,7 @@ export function test_construction_port_seam(): void {
     port,
   );
   for (const [name, tree] of [["cut.oblique", one], ["cut.shallow", two], ["cut.child", three]] as const) {
-    const cut: AutoMovieConstructionRealization.IRealization = realize(tree);
+    const cut: IAutoMovieConstructionRealization.IRealization = realize(tree);
     const own: string[] = cut.diagnostics
       .filter((d: { node: string }): boolean => d.node === name)
       .map((d: { contract: string; detail: string }): string => `${d.contract}: ${d.detail}`);
@@ -390,14 +390,14 @@ export function test_construction_port_seam(): void {
       continue;
     }
     const faces: Set<number> = new Set(
-      ConstructionRead.join(cut, name).join.curve.points.map((p: AutoMovieSolidIntersection.IPoint): number => p.face),
+      ConstructionRead.join(cut, name).join.curve.points.map((p: IAutoMovieSolidIntersection.IPoint): number => p.face),
     );
     if (faces.size < 2) failures.push(`${name}: the traced loop stays on one host face, so it crosses no seam`);
   }
 
   // 6. The shallow cutter again, on the tree the oblique cut has already cut: the parent seam it crosses was clipped five columns away.
   {
-    const again: AutoMovieConstructionNode = cutter(
+    const again: IAutoMovieConstructionNode = cutter(
       "second",
       centre2,
       n2,
@@ -405,18 +405,18 @@ export function test_construction_port_seam(): void {
       { face: "trunk", host: chartOf(outer2), phase: Math.atan2(dot(scaled(inward, -1), v2), dot(scaled(inward, -1), [0, 0, 1])) },
       one,
     );
-    const cut: AutoMovieConstructionRealization.IRealization = realize(again);
+    const cut: IAutoMovieConstructionRealization.IRealization = realize(again);
     const own: string[] = cut.diagnostics
       .filter((d: { node: string }): boolean => d.node === "cut.second" || d.node === "cut.oblique")
       .map((d: { node: string; contract: string; detail: string }): string => `${d.node}: ${d.contract}: ${d.detail}`);
     if (own.length !== 0) failures.push(`second cut across the clipped seam: ${own.join("; ")}`);
     else {
-      const loop: AutoMovieSolidIntersection.IPoint[] = ConstructionRead.join(cut, "cut.second").join.curve.points;
+      const loop: IAutoMovieSolidIntersection.IPoint[] = ConstructionRead.join(cut, "cut.second").join.curve.points;
       const tube: IAutoMovieSolidSurface = ConstructionRead.surface(cut, "second");
       const sides: IAutoMovieSolidSurface[] = [ConstructionRead.surface(cut, "trunk"), ConstructionRead.surface(cut, "band.port")];
       const counts: [number, number] = [0, 0];
       let [offPart, offHost, outside, length, widest]: number[] = [0, 0, 0, 0, 0];
-      loop.forEach((p: AutoMovieSolidIntersection.IPoint, i: number): void => {
+      loop.forEach((p: IAutoMovieSolidIntersection.IPoint, i: number): void => {
         offPart = Math.max(offPart!, len(sub(tube.jet(p.s, p.phi).p, p.point)));
         const off: number[] = sides.map((s: IAutoMovieSolidSurface): number => len(sub(s.jet(p.y, p.theta).p, p.point)));
         const side: number = off[0]! <= off[1]! ? 0 : 1;

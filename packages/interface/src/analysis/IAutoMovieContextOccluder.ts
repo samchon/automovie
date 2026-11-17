@@ -1,4 +1,4 @@
-import { IAutoMovieHalfSpacePlane } from "../architecture/IAutoMovieHalfSpacePlane";
+import type { IAutoMovieHalfSpacePlane } from "../architecture/IAutoMovieHalfSpacePlane";
 
 /**
  * One neighbouring mass, as the intersection of its half-spaces.

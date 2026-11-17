@@ -1,13 +1,27 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import { createHash } from "node:crypto";
-import { AutoMovieLoftChain, type AutoMovieLoftFrame, type AutoMovieMeshExtract as M, type AutoMovieViewLoft } from "@automovie/engine";
-import { AutoMovieHumanConicLoft as H, AutoMovieHumanF1, AutoMovieHumanF1Joints as J, AutoMovieHumanF1Placement, AutoMovieHumanSegmentFrame as SF } from "@automovie/human";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import { AutoMovieLoftChain } from "@automovie/engine";
+import {
+  AutoMovieHumanConicLoft as H,
+  AutoMovieHumanF1,
+  AutoMovieHumanF1Joints as J,
+  AutoMovieHumanF1Placement,
+  AutoMovieHumanSegmentFrame as SF,
+} from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieMillimeterMesh,
+  IAutoMovieViewLoft,
+} from "@automovie/interface";
+import { createHash } from "node:crypto";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /**
  * The armscye's landmark loop on f1 (issue #3151, the shoulder and armscye redesign, step R1): the acromion, the anterior and posterior
@@ -36,7 +50,7 @@ namespace FamilyConicArmscyeLoop {
   const fixed = (p: readonly number[], digits: number = 1): string => "[" + p.map((x: number): string => x.toFixed(digits)).join(", ") + "]";
 
   /** A chart point of a frame back in the world. */
-  const world = (frame: AutoMovieLoftFrame.IFrame, p: C.P): V => [0, 1, 2].map((i: number): number => frame.origin[i]! + p[0] * frame.u[i]! + p[1] * frame.v[i]!) as V;
+  const world = (frame: IAutoMovieLoftSectionFrame, p: C.P): V => [0, 1, 2].map((i: number): number => frame.origin[i]! + p[0] * frame.u[i]! + p[1] * frame.v[i]!) as V;
 
   /** Where a closed chart polygon crosses a line: the parameter along `d` from `o` of each crossing. */
   function crossings(loop: readonly C.P[], o: C.P, d: C.P): number[] {
@@ -71,9 +85,9 @@ namespace FamilyConicArmscyeLoop {
    * section through the shoulder joint centre (the plane x = GH's x) as the corner where the shoulder's top meets the arm's lateral side:
    * the profile point farthest outside the chord from the top's skin 30 mm medial of GH to the arm's lateral skin 60 mm below GH.
    */
-  function acromion(mesh: M.IMesh): IReading {
+  function acromion(mesh: IAutoMovieMillimeterMesh): IReading {
     const gh: V = J.upperarm as V;
-    const frame: AutoMovieLoftFrame.IFrame = { origin: gh, u: [0, 0, 1], v: [0, 1, 0] };
+    const frame: IAutoMovieLoftSectionFrame = { origin: gh, u: [0, 0, 1], v: [0, 1, 0] };
     const loop: C.P[] | null = R.cut(mesh, frame).loop;
     const base = { id: "acromion", definition: "on the skin's frontal section through GH (x = " + gh[0].toFixed(1) + "), the profile point farthest outside the chord from the top's skin 30 mm medial of GH to the arm's lateral skin 60 mm below GH", source: "ISO 8559-1:2017 3.1.1 shoulder point; ISO 7250-1 acromion" };
     if (loop === null) return { ...base, point: null, check: "REFUSED: no frontal section round GH", sanity: "", trace: [] };
@@ -118,7 +132,7 @@ namespace FamilyConicArmscyeLoop {
    * read the trunk as air and found the head): its highest point from 60 mm medial to 10 mm lateral of GH and from 150 to 5 mm below GH,
    * the notch's apex. The highest of those over the sweep.
    */
-  function axilla(mesh: M.IMesh, from: number, to: number): IReading {
+  function axilla(mesh: IAutoMovieMillimeterMesh, from: number, to: number): IReading {
     const gh: V = J.upperarm as V;
     const window = { z: [gh[2] - 60, gh[2] + 10], y: [gh[1] - 150, gh[1] - 5] };
     let best: { x: number; z: number; y: number } | null = null;
@@ -126,7 +140,7 @@ namespace FamilyConicArmscyeLoop {
     for (let x: number = from; x <= to + 1e-9; x += 1) xs.push(x);
     const trace: V[] = [];
     for (const x of xs) {
-      const frame: AutoMovieLoftFrame.IFrame = { origin: [x, gh[1] - 150, 0], u: [0, 0, 1], v: [0, 1, 0] };
+      const frame: IAutoMovieLoftSectionFrame = { origin: [x, gh[1] - 150, 0], u: [0, 0, 1], v: [0, 1, 0] };
       const loop: C.P[] | null = R.cut(mesh, frame).loop;
       if (loop === null) continue;
       let top: { z: number; y: number } | null = null;
@@ -160,9 +174,9 @@ namespace FamilyConicArmscyeLoop {
    * level section, the skin point deepest inside the tape's bridge from the chest to the arm in front (the anterior fold) and from the back
    * to the arm behind (the posterior fold), among points from 70 mm medial to 30 mm lateral of GH.
    */
-  function folds(mesh: M.IMesh, y: number): { front: IReading; back: IReading; level: V[] } {
+  function folds(mesh: IAutoMovieMillimeterMesh, y: number): { front: IReading; back: IReading; level: V[] } {
     const gh: V = J.upperarm as V;
-    const frame: AutoMovieLoftFrame.IFrame = { origin: [0, y, 60], u: [1, 0, 0], v: [0, 0, 1] };
+    const frame: IAutoMovieLoftSectionFrame = { origin: [0, y, 60], u: [1, 0, 0], v: [0, 0, 1] };
     const loop: C.P[] | null = R.cut(mesh, frame).loop;
     const read = (id: string, sense: 1 | -1, source: string, definition: string): IReading => {
       const base = { id, source, definition };
@@ -208,11 +222,11 @@ namespace FamilyConicArmscyeLoop {
    * one to the other on the side facing away from GH. A plane through the joint centre cuts the skin round the joint, as a tape round the
    * armscye lies when drawn taut in that plane; a geodesic would need a surface solver the tools do not have.
    */
-  function piece(mesh: M.IMesh, p: V, q: V): V[] {
+  function piece(mesh: IAutoMovieMillimeterMesh, p: V, q: V): V[] {
     const gh: V = J.upperarm as V;
     const u: V = unit(sub(p, gh));
     const v: V = perpendicular(sub(q, gh), u);
-    const frame: AutoMovieLoftFrame.IFrame = { origin: gh, u, v };
+    const frame: IAutoMovieLoftSectionFrame = { origin: gh, u, v };
     const loop: C.P[] | null = R.cut(mesh, frame).loop;
     if (loop === null) return [p, q];
     const chart = (x: V): C.P => [dot(sub(x, gh), u), dot(sub(x, gh), v)];
@@ -240,10 +254,10 @@ namespace FamilyConicArmscyeLoop {
 
   /** Today's port loop in the world: `armscye(+1)`'s columns on the trunk's skin, read on the trunk's lofted ring at each column's station. */
   function today(): V[] {
-    const placed: AutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
+    const placed: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
     const loop = AutoMovieHumanF1.armscye(1, placed);
-    const trunk: H.IFamily = placed.body.trunk;
-    const pelvis: SF.IFrame = AutoMovieHumanF1Placement.frame("pelvis", placed.frames);
+    const trunk: IAutoMovieHumanConicLoft.IFamily = placed.body.trunk;
+    const pelvis: IAutoMovieHumanSegmentFrame = AutoMovieHumanF1Placement.frame("pelvis", placed.frames);
     const floor: V = SF.toLocal(pelvis, trunk.centres[0]!) as V;
     const t: V = unit(sub(SF.toLocal(pelvis, trunk.centres[1]!) as V, floor));
     const u: V = perpendicular(SF.toLocalDirection(pelvis, trunk.up) as V, t);
@@ -254,7 +268,7 @@ namespace FamilyConicArmscyeLoop {
     const stations: number[] = shape.map((share: number, k: number): number => 1000 * (loop.centre[0] + share * loop.semi[0] * Math.cos((2 * Math.PI * k) / columns)));
     const phases: number[] = shape.map((share: number, k: number): number => loop.centre[1] + (share * loop.semi[1] * Math.sin((2 * Math.PI * k) / columns)) / loop.sense);
     const grid: number[] = [...new Set(stations.map((s: number): number => Math.round(s)))].sort((a: number, b: number): number => a - b);
-    const loft: AutoMovieViewLoft.IResult = H.create(trunk, [Math.min(...grid) - 2, ...grid, Math.max(...grid) + 2].filter((s: number, i: number, all: number[]): boolean => i === 0 || s > all[i - 1]!));
+    const loft: IAutoMovieViewLoft.IResult = H.create(trunk, [Math.min(...grid) - 2, ...grid, Math.max(...grid) + 2].filter((s: number, i: number, all: number[]): boolean => i === 0 || s > all[i - 1]!));
     if (loft.chain === null) throw new Error("the trunk does not loft at the port's stations");
     const chain = loft.chain;
     return stations.map((s: number, k: number): V => {
@@ -292,7 +306,7 @@ namespace FamilyConicArmscyeLoop {
   export async function main(): Promise<void> {
     const root: string = path.resolve(process.cwd(), "..");
     const source: R.ISource = await R.load(root);
-    const mesh: M.IMesh = source.all;
+    const mesh: IAutoMovieMillimeterMesh = source.all;
     const gh: V = J.upperarm as V;
     const lines: string[] = ["f1 armscye landmark loop, the stored side (+Z), mm (forward +X, up +Y)", "GH (the shoulder joint centre, the humerus's origin): " + fixed(gh, 2), ""];
 
@@ -320,7 +334,7 @@ namespace FamilyConicArmscyeLoop {
     if (!settled && ax.point !== null && !ax.check.startsWith("REFUSED")) ax = { ...ax, check: "REFUSED, NOT SETTLED IN FIVE PASSES: " + ax.check };
     lines.push("");
     const readings: IReading[] = [ac, ax, ...(fold === null ? [] : [fold.front, fold.back])];
-    const thorax: SF.IFrame = AutoMovieHumanF1Placement.frame("thorax");
+    const thorax: IAutoMovieHumanSegmentFrame = AutoMovieHumanF1Placement.frame("thorax");
     for (const r of readings) lines.push(r.id + (r.point === null ? "  (none)" : "  " + fixed(r.point, 2) + "; thorax frame " + fixed(SF.toLocal(thorax, r.point), 2)), "  definition: " + r.definition, "  source: " + r.source, "  check: " + r.check, ...(r.sanity === "" ? [] : ["  sanity: " + r.sanity]), "");
     const refused: string[] = readings.filter((r: IReading): boolean => r.point === null || r.check.startsWith("REFUSED")).map((r: IReading): string => r.id);
 
@@ -367,7 +381,7 @@ namespace FamilyConicArmscyeLoop {
       const fore: V = perpendicular([1, 0, 0], humerus);
       for (let s: number = Math.floor(s0); s <= Math.ceil(s1); s += 4) {
         const origin: V = add(gh, scale(humerus, s));
-        const frame: AutoMovieLoftFrame.IFrame = { origin, u: fore, v: cross(humerus, fore) };
+        const frame: IAutoMovieLoftSectionFrame = { origin, u: fore, v: cross(humerus, fore) };
         const cut: C.P[] | null = R.cut(mesh, frame).loop;
         if (cut === null) {
           lines.push(`  ${s.toFixed(0)}: no section round the course`);
@@ -417,7 +431,7 @@ namespace FamilyConicArmscyeLoop {
     const out: string = path.join(root, "test/.shots/family-conic-armscye-loop", new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
     NodeCanvasRaster.initialize();
-    const crop = (m: M.IMesh, centre: V, radius: number, unitScale: number): N.Mesh => {
+    const crop = (m: IAutoMovieMillimeterMesh, centre: V, radius: number, unitScale: number): N.Mesh => {
       const positions: number[] = [];
       const indices: number[] = [];
       const remap: Map<number, number> = new Map();
@@ -437,14 +451,14 @@ namespace FamilyConicArmscyeLoop {
       }
       return { id: "skin", positions, indices, colour: [0.64, 0.65, 0.67] };
     };
-    const generatedPieces: AutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
+    const generatedPieces: IAutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
     const generatedIndices: number[] = [];
     let offset: number = 0;
     for (const p of generatedPieces) {
       for (const i of p.indices) generatedIndices.push(i + offset);
       offset += p.positions.length / 3;
     }
-    const generated: M.IMesh = { positions: generatedPieces.flatMap((p: AutoMovieHumanF1.IPiece): number[] => p.positions), indices: generatedIndices };
+    const generated: IAutoMovieMillimeterMesh = { positions: generatedPieces.flatMap((p: IAutoMovieHumanF1.IPiece): number[] => p.positions), indices: generatedIndices };
     const cross8 = (p: V, colour: string): N.Curve[] => [0, 1, 2].map((c: number): N.Curve => {
       const a: V = [...p];
       const b: V = [...p];

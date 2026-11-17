@@ -1,17 +1,20 @@
-import type { IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
+import type {
+  IAutoMovieBicubicAtlasGeometry,
+  IAutoMovieRecoveryAtlasObservationInput,
+  IAutoMovieRecoveryAtlasObservationPublish,
+  IAutoMovieRecoveryChartAssembly,
+  IAutoMovieRecoveryChartBatch,
+  IAutoMovieRecoveryChartBoundary,
+  IAutoMovieRecoveryChartInventory,
+  IAutoMovieRecoveryPendingChartObservation,
+  IAutoMovieRecoveryScalarIntervalsSelectionOperation,
+} from "@automovie/interface";
 
-import type { observeAutoMovieRecoveryAtlas } from "../observation/observeAutoMovieRecoveryAtlas";
-import type { RecoveryAtlasObservationTypes } from "./RecoveryAtlasObservationTypes";
 import { RecoveryChartAssembly } from "./RecoveryChartAssembly";
 import { RecoveryChartBatch as B } from "./RecoveryChartBatch";
-import { RecoveryChartBoundary } from "./RecoveryChartBoundary";
-import { selectRecoveryScalarIntervals } from "./selectRecoveryScalarIntervals";
 
-type Input = RecoveryAtlasObservationTypes["Input"];
-type Prepared = RecoveryAtlasObservationTypes["Prepared"];
-type Pending = RecoveryAtlasObservationTypes["Pending"];
-
-type Inventory = RecoveryAtlasObservationTypes["Inventory"];
+type Prepared =
+  Parameters<IAutoMovieRecoveryChartBatch.Operation>[0]["charts"][number];
 /**
  * Fit the completely registered selected domain and publish its canonical assembly and coverage.
  *
@@ -23,29 +26,9 @@ type Inventory = RecoveryAtlasObservationTypes["Inventory"];
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Fit reports and the original shared outcomes arrays reuse the same pending chart ownership.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned geometry and private reports transfer to the caller; no fit, publication or source resource is retained globally.
  */
-export function RecoveryAtlasObservationPublish(context: {
-  input: Input;
-  pending: Pending[];
-  boundaryOwner: ReturnType<typeof RecoveryChartBoundary>;
-  fittedCharts: Parameters<typeof RecoveryChartAssembly>[0][number][];
-  controls: IAutoMovieBicubicAtlasGeometry["controls"];
-  patches: IAutoMovieBicubicAtlasGeometry["patches"];
-  charts: object[];
-  privateLedger: object[];
-  representedFaces: Set<number>;
-  encounteredFaces: Set<number>;
-  failedSelectedComponents: Set<string>;
-  sourceNormals: number[][];
-  inventory: Inventory[];
-  order: readonly number[];
-  selection: ReturnType<typeof selectRecoveryScalarIntervals>;
-  visitedIntervalIds: number[];
-  visitedIntervals: number;
-  visitedComponents: number;
-  incrementUnsupported: () => void;
-  unsupportedCount: () => number;
-  observe: ((record: object) => void) | undefined;
-}): ReturnType<typeof observeAutoMovieRecoveryAtlas> {
+export function RecoveryAtlasObservationPublish(
+  context: Parameters<IAutoMovieRecoveryAtlasObservationPublish.Operation>[0],
+): ReturnType<IAutoMovieRecoveryAtlasObservationPublish.Operation> {
   const {
     input,
     pending,
@@ -69,10 +52,10 @@ export function RecoveryAtlasObservationPublish(context: {
     unsupportedCount,
     observe,
   }: {
-    input: Input;
-    pending: Pending[];
-    boundaryOwner: ReturnType<typeof RecoveryChartBoundary>;
-    fittedCharts: Parameters<typeof RecoveryChartAssembly>[0][number][];
+    input: IAutoMovieRecoveryAtlasObservationInput;
+    pending: IAutoMovieRecoveryPendingChartObservation[];
+    boundaryOwner: ReturnType<IAutoMovieRecoveryChartBoundary.Operation>;
+    fittedCharts: Parameters<IAutoMovieRecoveryChartAssembly.Operation>[0][number][];
     controls: IAutoMovieBicubicAtlasGeometry["controls"];
     patches: IAutoMovieBicubicAtlasGeometry["patches"];
     charts: object[];
@@ -81,9 +64,9 @@ export function RecoveryAtlasObservationPublish(context: {
     encounteredFaces: Set<number>;
     failedSelectedComponents: Set<string>;
     sourceNormals: number[][];
-    inventory: Inventory[];
+    inventory: IAutoMovieRecoveryChartInventory[];
     order: readonly number[];
-    selection: ReturnType<typeof selectRecoveryScalarIntervals>;
+    selection: ReturnType<IAutoMovieRecoveryScalarIntervalsSelectionOperation.Operation>;
     visitedIntervalIds: number[];
     visitedIntervals: number;
     visitedComponents: number;
@@ -92,14 +75,22 @@ export function RecoveryAtlasObservationPublish(context: {
     observe: ((record: object) => void) | undefined;
   } = context;
   // All selected chart families register their physical subarcs before any fit.
-  const pendingByName: Map<string, Pending> = new Map(
-    pending.map((prepared: Pending): [string, Pending] => [
-      prepared.chart.name,
-      prepared,
-    ]),
-  );
-  const batch: ReturnType<typeof B> = B({
-    charts: pending.map((prepared: Pending): Prepared => prepared.chart),
+  const pendingByName: Map<string, IAutoMovieRecoveryPendingChartObservation> =
+    new Map(
+      pending.map(
+        (
+          prepared: IAutoMovieRecoveryPendingChartObservation,
+        ): [string, IAutoMovieRecoveryPendingChartObservation] => [
+          prepared.chart.name,
+          prepared,
+        ],
+      ),
+    );
+  const batch: ReturnType<IAutoMovieRecoveryChartBatch.Operation> = B({
+    charts: pending.map(
+      (prepared: IAutoMovieRecoveryPendingChartObservation): Prepared =>
+        prepared.chart,
+    ),
     owner: boundaryOwner,
     fit: {
       toleranceMm: input.toleranceMm,
@@ -113,7 +104,8 @@ export function RecoveryAtlasObservationPublish(context: {
     },
   });
   for (const result of batch) {
-    const prepared: Pending | undefined = pendingByName.get(result.name);
+    const prepared: IAutoMovieRecoveryPendingChartObservation | undefined =
+      pendingByName.get(result.name);
     if (!prepared)
       throw new Error("A common-network result lost its private source owner");
     if (!result.fit || !result.chart) {
@@ -238,12 +230,15 @@ export function RecoveryAtlasObservationPublish(context: {
     });
   }
   let assembly:
-    | Omit<ReturnType<typeof RecoveryChartAssembly>, "controlsMm" | "patches">
+    | Omit<
+        ReturnType<IAutoMovieRecoveryChartAssembly.Operation>,
+        "controlsMm" | "patches"
+      >
     | { diagnostics: string[]; failed: true };
   let boundaryAuthorities: IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"],
     boundaryBindings: IAutoMovieBicubicAtlasGeometry["boundaryBindings"];
   try {
-    const merged: ReturnType<typeof RecoveryChartAssembly> =
+    const merged: ReturnType<IAutoMovieRecoveryChartAssembly.Operation> =
       RecoveryChartAssembly(fittedCharts);
     boundaryAuthorities = merged.boundaryAuthorities;
     boundaryBindings = merged.boundaryBindings;

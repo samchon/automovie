@@ -1,7 +1,8 @@
-import { AutoMovieHumanoidBone } from "@automovie/interface";
-
-import { IAutoMovieAxisFrame } from "../IAutoMovieAxisFrame";
-import { IAutoMovieRestFrame } from "../IAutoMovieRestFrame";
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieAxisFrame,
+  type IAutoMovieRestFrame,
+} from "@automovie/interface";
 
 /** Bones of each arm from the clavicle to the fingertips, without the side prefix. */
 const ARM: readonly string[] = [

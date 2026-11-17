@@ -1,8 +1,8 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieInstancePrototypeDesign } from "./IAutoMovieInstancePrototypeDesign";
-import { IAutoMovieInstanceSetLayout } from "./IAutoMovieInstanceSetLayout";
-import { IAutoMovieInstanceVariation } from "./IAutoMovieInstanceVariation";
-import { IAutoMovieModelLod } from "./IAutoMovieModelLod";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieInstancePrototypeDesign } from "./IAutoMovieInstancePrototypeDesign";
+import type { IAutoMovieInstanceSetLayout } from "./IAutoMovieInstanceSetLayout";
+import type { IAutoMovieInstanceVariation } from "./IAutoMovieInstanceVariation";
+import type { IAutoMovieModelLod } from "./IAutoMovieModelLod";
 
 /**
  * A compact non-formation crowd, vegetation, prop, or debris set.

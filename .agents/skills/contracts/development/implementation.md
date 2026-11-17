@@ -1,20 +1,20 @@
 # Implementation
 
-Each exported function and class method answers every item in its doc comment with grounds a reviewer can check against its body, callees and callers, as well as the [common](common.md) item. The types it accepts and returns answer [design](design.md). Keep simple decisions brief, and invent no alternatives or history.
+Each exported function and class method answers every item, and the [common](common.md) item, in its doc comment, with grounds a reviewer can check against its body, callees and callers. The types it accepts and returns answer [design](design.md). Keep simple decisions brief, and invent no alternatives or history.
 
-## Principled Implementation
+## Principled implementation
 
 Use a method the problem's semantics justify: a language idiom, documented API behavior, a recognized algorithm, or a cited physical principle, measurement or study of the real practice being reproduced, not precedent, popularity or what made one case look right.
 
 State the method, the premises it relies on, why they hold for the inputs it actually receives, and any unresolved limitation. Premises include units, coordinate frames and timebases, what a transformation must leave unchanged, and a numeric method's precision and degeneracies.
 
-## Clear and Simple Structure
+## Clear and simple structure
 
 Use the simplest decomposition that serves current requirements, with no layer, option, or abstraction for presumed future needs. A behavior several consumers already use is a current need: it lives once with its owner, an installed package or one shared module, and is imported rather than copied. Keep each decision with the responsibility that owns it.
 
 State how the decomposition exposes that responsibility and why any non-obvious layer or separation is needed.
 
-## Prohibited Implementation Shortcuts
+## Prohibited implementation shortcuts
 
 Do not:
 

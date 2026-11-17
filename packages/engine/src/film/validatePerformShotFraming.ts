@@ -1,6 +1,9 @@
-import { IAutoMovieCameraAction } from "@automovie/interface";
+import {
+  IAutoMovieCameraAction,
+  type IAutoMovieValidatePerformShotFraming,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { CAMERA_FRAMINGS } from "./constants/CAMERA_FRAMINGS";
 import { CAMERA_MOVES } from "./constants/CAMERA_MOVES";
@@ -27,11 +30,11 @@ import { CAMERA_MOVES } from "./constants/CAMERA_MOVES";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pushes at most two violations into the caller's collector and keeps nothing itself.
  */
 export function validatePerformShotFraming(
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   framing: unknown,
   move: unknown,
-): { framed: boolean; moved: boolean } {
+): IAutoMovieValidatePerformShotFraming.IResult {
   const framed: boolean = CAMERA_FRAMINGS.has(
     framing as IAutoMovieCameraAction["framing"],
   );

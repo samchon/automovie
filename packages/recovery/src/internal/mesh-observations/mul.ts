@@ -1,4 +1,4 @@
-import { V3 } from "./V3";
+import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
 /**
  * Scales a vector by a scalar without changing its frame.
@@ -11,8 +11,10 @@ import { V3 } from "./V3";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call depends directly on its arguments; no retained cache or effectful shared work exists.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh triple with no retained state.
  */
-export const mul: (a: V3, scale: number) => V3 = (a: V3, scale: number): V3 => [
-  a[0] * scale,
-  a[1] * scale,
-  a[2] * scale,
-];
+export const mul: (
+  a: AutoMovieVector3Tuple,
+  scale: number,
+) => AutoMovieVector3Tuple = (
+  a: AutoMovieVector3Tuple,
+  scale: number,
+): AutoMovieVector3Tuple => [a[0] * scale, a[1] * scale, a[2] * scale];

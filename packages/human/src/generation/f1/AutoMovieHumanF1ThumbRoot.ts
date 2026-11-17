@@ -1,5 +1,5 @@
 import { AutoMovieHumanLandmarkSurface } from "../conic/AutoMovieHumanLandmarkSurface";
-import type { AutoMovieHumanSegmentFrame } from "../frame/AutoMovieHumanSegmentFrame";
+import type { IAutoMovieHumanSegmentFrame } from "@automovie/interface";
 
 /**
  * The surface at the thumb's root, which divides the hand's skin from the thumb's.
@@ -45,7 +45,7 @@ export namespace AutoMovieHumanF1ThumbRoot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the surface's own closure only.
    * @evidence contracts/development/common.md#meaningful-documentation States frames and units.
    */
-  export function surface(metacarpal: AutoMovieHumanSegmentFrame.IFrame, knuckle: readonly number[], next: readonly number[]): AutoMovieHumanLandmarkSurface.ISurface {
+  export function surface(metacarpal: IAutoMovieHumanSegmentFrame, knuckle: readonly number[], next: readonly number[]): AutoMovieHumanLandmarkSurface.ISurface {
     const world = (local: readonly number[]): [number, number, number] => [0, 1, 2].map((k: number): number => metacarpal.origin[k]! + local[0]! * metacarpal.axes[0][k]! + local[1]! * metacarpal.axes[1][k]! + local[2]! * metacarpal.axes[2][k]!) as [number, number, number];
     return AutoMovieHumanLandmarkSurface.create(knuckle, LANDMARKS_MM.map(world), next);
   }

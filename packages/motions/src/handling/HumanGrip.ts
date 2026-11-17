@@ -1,7 +1,6 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   curlChainUntilContact,
@@ -9,17 +8,21 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieGripKind,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieCurlChainUntilContact,
   IAutoMovieJointPose,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrip,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * A hand closing on an object: which digits close for a grip kind, each
@@ -56,18 +59,16 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanGrip {
-  /** A digit. */
-  export type Digit = "Index" | "Middle" | "Ring" | "Little" | "Thumb";
-
   /** The digits that close for each grip kind, in closing order. */
-  export const CLOSING: Readonly<Record<AutoMovieGripKind, readonly Digit[]>> =
-    {
-      power: ["Index", "Middle", "Ring", "Little", "Thumb"],
-      lateral: ["Index", "Middle", "Ring", "Little", "Thumb"],
-      "two-hand": ["Index", "Middle", "Ring", "Little", "Thumb"],
-      hook: ["Index", "Middle", "Ring", "Little"],
-      precision: ["Thumb", "Index", "Middle"],
-    };
+  export const CLOSING: Readonly<
+    Record<AutoMovieGripKind, readonly IAutoMovieMotionHumanGrip.Digit[]>
+  > = {
+    power: ["Index", "Middle", "Ring", "Little", "Thumb"],
+    lateral: ["Index", "Middle", "Ring", "Little", "Thumb"],
+    "two-hand": ["Index", "Middle", "Ring", "Little", "Thumb"],
+    hook: ["Index", "Middle", "Ring", "Little"],
+    precision: ["Thumb", "Index", "Middle"],
+  };
 
   /**
    * A digit's bones, proximal to distal.
@@ -77,8 +78,8 @@ export namespace HumanGrip {
    * @returns The three bones.
    */
   export function bones(
-    side: HumanHand.Side,
-    digit: Digit,
+    side: AutoMovieHumanSide,
+    digit: IAutoMovieMotionHumanGrip.Digit,
   ): AutoMovieHumanoidBone[] {
     const segments: string[] =
       digit === "Thumb"
@@ -102,23 +103,19 @@ export namespace HumanGrip {
    * @throws {Error} When the profile declares no capsule on a phalanx of the digit.
    */
   export function chain(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    digit: Digit,
-  ): curlChainUntilContact.IChain {
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    digit: IAutoMovieMotionHumanGrip.Digit,
+  ): IAutoMovieCurlChainUntilContact.IChain {
     const list: AutoMovieHumanoidBone[] = bones(side, digit);
     const capsule = (
       bone: AutoMovieHumanoidBone,
-    ): Extract<IAutoMoviePhysicalProfile.IShape, { kind: "capsule" }> => {
-      const shape: IAutoMoviePhysicalProfile.IShape | undefined =
-        body.profile.segments
-          .find(
-            (s: IAutoMoviePhysicalProfile.ISegment): boolean => s.bone === bone,
-          )
-          ?.shapes.find(
-            (s: IAutoMoviePhysicalProfile.IShape): boolean =>
-              s.kind === "capsule",
-          );
+    ): Extract<IAutoMoviePhysicalShape, { kind: "capsule" }> => {
+      const shape: IAutoMoviePhysicalShape | undefined = body.profile.segments
+        .find((s: IAutoMoviePhysicalSegment): boolean => s.bone === bone)
+        ?.shapes.find(
+          (s: IAutoMoviePhysicalShape): boolean => s.kind === "capsule",
+        );
       if (shape === undefined || shape.kind !== "capsule")
         throw new Error(
           `The body's profile declares no capsule on ${bone}; a grasp needs its digits' colliders`,
@@ -154,13 +151,13 @@ export namespace HumanGrip {
    * @returns The closed finger angles of that hand and each closing digit's final gap, metres.
    */
   export function close(
-    body: IHumanBody,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     kind: AutoMovieGripKind,
-    hand: HumanHand.IWrist,
-    colliders: readonly curlChainUntilContact.ICollider[],
-    from: IHumanPosture["joints"] = {},
-  ): { joints: IHumanPosture["joints"]; gaps: Partial<Record<Digit, number>> } {
+    hand: IAutoMovieMotionHumanHand.IWrist,
+    colliders: readonly IAutoMovieCurlChainUntilContact.ICollider[],
+    from: IAutoMovieMotionHumanPosture["joints"] = {},
+  ): IAutoMovieMotionHumanGrip.ICloseResult {
     // Carry the object into the rest hand's frame: rest = R0 R^-1 (world - W) + P0.
     const rest: IAutoMovieResolvedBone = resolve(body, {
       skeleton: body.skeleton.id,
@@ -171,10 +168,10 @@ export namespace HumanGrip {
       rest.worldRotation,
       Quaternion.inverse(hand.rotation),
     );
-    const moved: curlChainUntilContact.ICollider[] = colliders.map(
+    const moved: IAutoMovieCurlChainUntilContact.ICollider[] = colliders.map(
       (
-        c: curlChainUntilContact.ICollider,
-      ): curlChainUntilContact.ICollider => ({
+        c: IAutoMovieCurlChainUntilContact.ICollider,
+      ): IAutoMovieCurlChainUntilContact.ICollider => ({
         shape: c.shape,
         frame: {
           position: Vector3.add(
@@ -190,40 +187,43 @@ export namespace HumanGrip {
         },
       }),
     );
-    const digits: readonly Digit[] = CLOSING[kind];
-    const result: curlChainUntilContact.IResult = curlChainUntilContact({
-      skeleton: body.skeleton,
-      pose: {
-        skeleton: body.skeleton.id,
-        root: null,
-        joints: (
-          Object.entries(from) as [
-            AutoMovieHumanoidBone,
-            readonly [number, number, number],
-          ][]
-        ).map(
-          ([bone, a]): IAutoMovieJointPose => ({
-            bone,
-            flexion: a[0],
-            abduction: a[1],
-            twist: a[2],
-          }),
+    const digits: readonly IAutoMovieMotionHumanGrip.Digit[] = CLOSING[kind];
+    const result: IAutoMovieCurlChainUntilContact.IResult =
+      curlChainUntilContact({
+        skeleton: body.skeleton,
+        pose: {
+          skeleton: body.skeleton.id,
+          root: null,
+          joints: (
+            Object.entries(from) as [
+              AutoMovieHumanoidBone,
+              readonly [number, number, number],
+            ][]
+          ).map(
+            ([bone, a]): IAutoMovieJointPose => ({
+              bone,
+              flexion: a[0],
+              abduction: a[1],
+              twist: a[2],
+            }),
+          ),
+        },
+        chains: digits.map(
+          (
+            d: IAutoMovieMotionHumanGrip.Digit,
+          ): IAutoMovieCurlChainUntilContact.IChain => chain(body, side, d),
         ),
-      },
-      chains: digits.map(
-        (d: Digit): curlChainUntilContact.IChain => chain(body, side, d),
-      ),
-      colliders: moved,
-      jointAxes: HUMANOID_JOINT_AXES,
-      restFrames: HUMANOID_REST_FRAME,
-      topology: body.topology,
-    });
-    const joints: IHumanPosture["joints"] = {};
+        colliders: moved,
+        jointAxes: HUMANOID_JOINT_AXES,
+        restFrames: HUMANOID_REST_FRAME,
+        topology: body.topology,
+      });
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const j of result.pose.joints)
       joints[j.bone] = [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0];
-    const gaps: Partial<Record<Digit, number>> = {};
+    const gaps: Partial<Record<IAutoMovieMotionHumanGrip.Digit, number>> = {};
     result.chains.forEach(
-      (c: curlChainUntilContact.IChainResult, i: number): void => {
+      (c: IAutoMovieCurlChainUntilContact.IChainResult, i: number): void => {
         gaps[digits[i]!] = c.gap;
       },
     );
@@ -239,12 +239,12 @@ export namespace HumanGrip {
    */
   export function fingers(
     pose: IAutoMoviePose,
-    side: HumanHand.Side,
-  ): IHumanPosture["joints"] {
-    const out: IHumanPosture["joints"] = {};
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanPosture["joints"] {
+    const out: IAutoMovieMotionHumanPosture["joints"] = {};
     const digits: Set<string> = new Set(
       (["Index", "Middle", "Ring", "Little", "Thumb"] as const).flatMap(
-        (d: Digit): string[] => bones(side, d),
+        (d: IAutoMovieMotionHumanGrip.Digit): string[] => bones(side, d),
       ),
     );
     for (const j of pose.joints as IAutoMovieJointPose[])
@@ -263,9 +263,9 @@ export namespace HumanGrip {
    * @returns Metres.
    */
   export function aperture(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    joints: IHumanPosture["joints"],
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    joints: IAutoMovieMotionHumanPosture["joints"],
   ): number {
     const pose: IAutoMoviePose = {
       skeleton: body.skeleton.id,
@@ -286,8 +286,12 @@ export namespace HumanGrip {
     };
     const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       resolve(body, pose);
-    const tip = (digit: Digit): IAutoMovieVector3 => {
-      const c: curlChainUntilContact.IChain = chain(body, side, digit);
+    const tip = (digit: IAutoMovieMotionHumanGrip.Digit): IAutoMovieVector3 => {
+      const c: IAutoMovieCurlChainUntilContact.IChain = chain(
+        body,
+        side,
+        digit,
+      );
       const distal: IAutoMovieResolvedBone = resolved.get(c.bones[2]!)!;
       return Vector3.add(
         distal.worldPosition,
@@ -300,7 +304,7 @@ export namespace HumanGrip {
 
 /** World bones of a pose. */
 function resolve(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   return new Map(

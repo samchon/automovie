@@ -1,14 +1,12 @@
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  type IHumanBody,
-} from "@automovie/motions";
+import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -40,7 +38,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the object, its reader and the 3 scenarios with their numbers.
  */
 export function test_human_motion_core_prop_point(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const RADIUS: number = 0.17;
   const AXLE: IAutoMovieVector3 = { x: 0.1, y: 0.3, z: 0 };
   const AHEAD: number = 1;
@@ -55,7 +53,7 @@ export function test_human_motion_core_prop_point(): void {
     frame: { translation, rotation: identity, scale: { x: 1, y: 1, z: 1 } },
     extent: null,
   });
-  const model: HumanObject.IModel = {
+  const model: IAutoMovieMotionHumanObject.IModel = {
     affordances: [
       contact("pedal", { x: AXLE.x, y: AXLE.y, z: RADIUS }, "pedal"),
       contact("saddle", { x: 0, y: 0.9, z: 0 }, "seat"),
@@ -75,7 +73,7 @@ export function test_human_motion_core_prop_point(): void {
     rotation: identity,
     scale: { x: 1, y: 1, z: 1 },
   });
-  const film = (moving: boolean): HumanPerformance =>
+  const film = (moving: boolean): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "pedal",
       performers: [
@@ -99,7 +97,7 @@ export function test_human_motion_core_prop_point(): void {
       composition: HumanChain.subject("a").stand({ seconds: 1 }).node,
     });
   const aimed = (
-    of: HumanPerformance,
+    of: IAutoMovieMotionHumanPerformance,
     point: string,
     seconds: number,
   ): number[] => {
@@ -124,9 +122,12 @@ export function test_human_motion_core_prop_point(): void {
       aim.normal.z,
     ].map((v: number): number => Number(v.toFixed(6)) + 0);
   };
-  const turning: HumanPerformance = film(true);
-  const fixed: HumanPerformance = film(false);
-  const rows = (of: HumanPerformance, point: string): number[][] =>
+  const turning: IAutoMovieMotionHumanPerformance = film(true);
+  const fixed: IAutoMovieMotionHumanPerformance = film(false);
+  const rows = (
+    of: IAutoMovieMotionHumanPerformance,
+    point: string,
+  ): number[][] =>
     [0, 0.25, 0.5].map((seconds: number): number[] =>
       aimed(of, point, seconds),
     );

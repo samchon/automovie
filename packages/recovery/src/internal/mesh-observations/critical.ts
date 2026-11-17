@@ -1,6 +1,9 @@
-import { CriticalVertex } from "./CriticalVertex";
-import { IAutoMovieRecoveryIndexedMesh } from "./IAutoMovieRecoveryIndexedMesh";
-import { V3 } from "./V3";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieMeshCriticalPoints,
+  IAutoMovieMeshCriticalVertex,
+} from "@automovie/interface";
+
 import { dot } from "./dot";
 import { norm } from "./norm";
 
@@ -25,19 +28,17 @@ import { norm } from "./norm";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All source qualification maps and link graphs are call-local and released after returning private events. No cross-call cache exists; callers discard source addresses before serialization.
  */
 export function critical(
-  skin: IAutoMovieRecoveryIndexedMesh,
-  axis: V3 = [0, 1, 0],
-  scalarHeights?: readonly number[],
-  policy:
-    | "legacy-link-cycle-v1"
-    | "boundary-regular-path-v1" = "legacy-link-cycle-v1",
-): CriticalVertex[] {
+  skin: Parameters<IAutoMovieMeshCriticalPoints.Operation>[0],
+  axis: Parameters<IAutoMovieMeshCriticalPoints.Operation>[1] = [0, 1, 0],
+  scalarHeights?: Parameters<IAutoMovieMeshCriticalPoints.Operation>[2],
+  policy: Parameters<IAutoMovieMeshCriticalPoints.Operation>[3] = "legacy-link-cycle-v1",
+): ReturnType<IAutoMovieMeshCriticalPoints.Operation> {
   if (
     policy !== "legacy-link-cycle-v1" &&
     policy !== "boundary-regular-path-v1"
   )
     throw new Error("Unknown PL critical classification policy");
-  const direction: V3 = norm(axis);
+  const direction: AutoMovieVector3Tuple = norm(axis);
   if (dot(direction, direction) === 0)
     throw new Error("Critical height axis is zero");
   if (
@@ -48,7 +49,9 @@ export function critical(
     throw new Error("PL scalar chart must align with source vertices");
   const heights: readonly number[] =
     scalarHeights ??
-    skin.vertices.map((point: V3): number => dot(point, direction));
+    skin.vertices.map((point: AutoMovieVector3Tuple): number =>
+      dot(point, direction),
+    );
   const boundaryPolicy: boolean = policy === "boundary-regular-path-v1";
   const invalidStars: Set<number> = new Set();
   const invalidAliases: Set<number> = new Set();
@@ -116,9 +119,9 @@ export function critical(
       const id: string = [...t]
         .sort((a: number, b: number): number => a - b)
         .join(",");
-      const a: V3 = skin.vertices[t[0]]!,
-        b: V3 = skin.vertices[t[1]]!,
-        c: V3 = skin.vertices[t[2]]!;
+      const a: AutoMovieVector3Tuple = skin.vertices[t[0]]!,
+        b: AutoMovieVector3Tuple = skin.vertices[t[1]]!,
+        c: AutoMovieVector3Tuple = skin.vertices[t[2]]!;
       const u: number[] = b.map((x: number, i: number): number => x - a[i]!);
       const v: number[] = c.map((x: number, i: number): number => x - a[i]!);
       const area: number = Math.hypot(
@@ -150,7 +153,7 @@ export function critical(
     for (let k: number = 0; k < 3; k++)
       edge(t[k], t[(k + 1) % 3], t[(k + 2) % 3]);
   }
-  const events: CriticalVertex[] = [];
+  const events: IAutoMovieMeshCriticalVertex[] = [];
   for (const [vertex, link] of links) {
     const level: number = heights[vertex];
     const below: (other: number) => boolean = (other: number): boolean =>
@@ -243,7 +246,9 @@ export function critical(
       });
   }
   return events.sort(
-    (a: CriticalVertex, b: CriticalVertex): number =>
-      a.level - b.level || a.vertex - b.vertex,
+    (
+      a: IAutoMovieMeshCriticalVertex,
+      b: IAutoMovieMeshCriticalVertex,
+    ): number => a.level - b.level || a.vertex - b.vertex,
   );
 }

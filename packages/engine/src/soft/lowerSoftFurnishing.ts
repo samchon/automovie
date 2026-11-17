@@ -1,14 +1,13 @@
 import {
   AutoMovieSoftAnalysisStatus,
+  type IAutoMovieLowerSoftFurnishing,
   IAutoMovieSoftAnalysis,
-  IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyState,
-  IAutoMovieSoftFurnishing,
+  type IAutoMovieSoftFurnishingFrame,
   IAutoMovieSoftNamedState,
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { IAutoMovieSoftFurnishingFrame } from "./IAutoMovieSoftFurnishingFrame";
 import { simulateSoftBody } from "./simulateSoftBody";
 import { softBodyStepAt } from "./softBodyStepAt";
 import { softBodySurfaceGeometry } from "./softBodySurfaceGeometry";
@@ -24,15 +23,11 @@ import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The selected state and computed particle field serve one surface derivation; no prior frame is reused under mutable domain/state/time assumptions.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh mesh/state arrays and analysis rows transfer to the caller; failed admission retains no geometry, and thrown simulation retains no playback cursor or render task.
  */
-export const lowerSoftFurnishing: (props: {
-  furnishing: IAutoMovieSoftFurnishing;
-  domain: IAutoMovieSoftBodyDomain;
-  time: number;
-}) => IAutoMovieSoftFurnishingFrame = (props: {
-  furnishing: IAutoMovieSoftFurnishing;
-  domain: IAutoMovieSoftBodyDomain;
-  time: number;
-}): IAutoMovieSoftFurnishingFrame => {
+export const lowerSoftFurnishing: (
+  props: IAutoMovieLowerSoftFurnishing.IProps,
+) => IAutoMovieSoftFurnishingFrame = (
+  props: IAutoMovieLowerSoftFurnishing.IProps,
+): IAutoMovieSoftFurnishingFrame => {
   const { furnishing, domain }: typeof props = props;
   /** Create the explicit computation status and unsupported-case report for this furnishing domain. */
   const analysis: (

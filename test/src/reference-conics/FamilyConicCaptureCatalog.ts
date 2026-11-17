@@ -1,11 +1,10 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieViewLoft,
-  type IAutoMovieSolidSurface,
-} from "@automovie/engine";
-import type { AutoMovieHumanF1 } from "@automovie/human";
-
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import { AutoMovieLoftChain, AutoMovieViewLoft } from "@automovie/engine";
+import type {
+  IAutoMovieHumanF1,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewLoft,
+} from "@automovie/interface";
 
 /** Display samples of actual native source factories and separately retained operator fields. */
 export namespace FamilyConicCaptureCatalog {
@@ -48,7 +47,7 @@ export namespace FamilyConicCaptureCatalog {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only sampled lines and provenance survive; temporary factory chains are released after each source and no global cache is added.
    */
   export function create(
-    declared: AutoMovieHumanF1.IConstruction,
+    declared: IAutoMovieHumanF1.IConstruction,
     surfaces: readonly IAutoMovieSolidSurface[],
     cutters: readonly string[],
   ): IResult {
@@ -122,10 +121,10 @@ export namespace FamilyConicCaptureCatalog {
     }
     for (const [name, part] of declared.sources) {
       try {
-        const raw: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+        const raw: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
         if (raw.chain === null)
           throw new Error(JSON.stringify(raw.diagnostics));
-        const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> =
+        const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> =
           raw.chain;
         if (chain.nativeSource === undefined)
           throw new Error(

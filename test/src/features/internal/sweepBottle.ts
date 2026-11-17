@@ -1,11 +1,11 @@
-import {
-  type IAutoMovieSurfaceNetwork,
-  type IAutoMovieSweep,
-  type IAutoMovieSweepSection,
-  type IAutoMovieSweepSurface,
-  compileAutoMovieSweep,
-} from "@automovie/engine";
-import { type IAutoMovieVector3 } from "@automovie/interface";
+import { compileAutoMovieSweep } from "@automovie/engine";
+import type {
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSweep,
+  IAutoMovieSweepSection,
+  IAutoMovieSweepSurface,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /** Columns per quarter turn by tier. */
 const QUARTER: IAutoMovieSurfaceNetwork.ICounts = {

@@ -1,26 +1,29 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanClinch,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionManner,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { tags } from "typia";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 
 /**
@@ -40,10 +43,13 @@ import { poseBones } from "../posture/poseBones";
  * both hands closed), `strokeStart`, `stroke`, `strokeEnd`, `relax`
  * (`release`).
  *
- * Not yet: pummelling, underhooks and overhooks, off-balancing (kuzushi),
- * entries and throws, takedowns, and the receiver's response and breakfall
- * (Koshida et al. 2016); the two partners' interaction forces are not
- * modelled, so the held partner does not yield.
+ * With `under` the clinch is a throw's entry (tsukuri): the body lowers
+ * through the reach until its fulcrum region stands at the height of the
+ * partner's region that lies on it, the contact the throw turns over
+ * (#3439); the throw itself is the partner's `perturb` under the pull.
+ *
+ * Not yet: pummelling, underhooks and overhooks, and the turn-in's own
+ * footwork (Koshida et al. 2016).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two grips with their regions, the timing, the events and what is missing.
  * @evidence contracts/development/design.md#principled-representation A law record of two arm visits on the partner's regions over a standing base.
@@ -52,43 +58,15 @@ import { poseBones } from "../posture/poseBones";
  */
 export namespace clinch {
   /** The action's name. */
-  export const name: HumanActionName = "clinch";
+  export const name: AutoMovieMotionHumanActionName = "clinch";
 
   /** Cancel table: a clinch goes into a knee or lets go at any time. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     knee: [
       { window: ["ready", 1], kind: "inertialize", entry: 0, blend: 0.15 },
     ],
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
   };
-
-  /** A clinch grip. */
-  export type Grip = "plum" | "collarSleeve";
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its default.
-   * @evidence contracts/development/design.md#principled-representation The partner, a closed grip, a hand and a hold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place is typed.
-   */
-  export interface IParams {
-    /** The partner gripped. */
-    partner: string;
-
-    /** The grip; `plum` when absent. */
-    grip?: Grip;
-
-    /** The collar hand of `collarSleeve`; `right` when absent. */
-    hand?: HumanHand.Side;
-
-    /** Seconds the grip is held; 2 when absent. */
-    hold?: number & tags.Minimum<0> & HumanUnit<"s">;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
 
   /** How far each plum hand lies from the nape's middle, a share of the partner's half shoulder width (provisional). */
   export const SPREAD: number = 0.35;
@@ -102,18 +80,15 @@ export namespace clinch {
    * @returns The region and offset by hand.
    */
   export function regions(
-    grip: Grip,
-    collar: HumanHand.Side,
-  ): Record<
-    HumanHand.Side,
-    { region: AutoMovieHumanoidRegion; across: number }
-  > {
+    grip: IAutoMovieMotionHumanClinch.Grip,
+    collar: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanClinch.IRegionsResult {
     if (grip === "plum")
       return {
         left: { region: "nape", across: -SPREAD },
         right: { region: "nape", across: SPREAD },
       };
-    const sleeve: HumanHand.Side = collar === "right" ? "left" : "right";
+    const sleeve: AutoMovieHumanSide = collar === "right" ? "left" : "right";
     return {
       [collar]: {
         region: collar === "right" ? "neckLeft" : "neckRight",
@@ -124,7 +99,7 @@ export namespace clinch {
         across: 0,
       },
     } as Record<
-      HumanHand.Side,
+      AutoMovieHumanSide,
       { region: AutoMovieHumanoidRegion; across: number }
     >;
   }
@@ -140,11 +115,11 @@ export namespace clinch {
    * @returns The point and outward normal, world.
    */
   export function place(
-    body: IHumanBody,
-    bones: ReturnType<IHumanActionContext.IPerformer["bones"]>,
+    body: IAutoMovieMotionHumanBody,
+    bones: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]>,
     region: AutoMovieHumanoidRegion,
     across: number,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
+  ): IAutoMovieMotionHumanClinch.IPlaceResult {
     const frame = body.surfaces.regions[region];
     const placed = resolveAutoMovieHumanoidSurfaces.place(
       frame,
@@ -173,23 +148,24 @@ export namespace clinch {
    * @throws {HumanRefusal} When the hold is negative.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClinch.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const hold: number = context.params.hold ?? 2;
     HumanBound.least("hold", hold, 0, "s");
-    const grip: Grip = context.params.grip ?? "plum";
+    const grip: IAutoMovieMotionHumanClinch.Grip =
+      context.params.grip ?? "plum";
     const table = regions(grip, context.params.hand ?? "right");
-    const partner: IHumanActionContext.IPerformer = context.performer(
+    const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
       context.params.partner,
     );
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const reach: number = AutoMovieMotionHumanTiming.aimed(
       0.85 * (body.measure.upperArm + body.measure.forearm),
       0.05,
     );
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: reach,
         attack: AutoMovieMotionHumanTiming.PAUSES.brief,
@@ -200,12 +176,14 @@ export namespace clinch {
       { holds: ["strokeEnd"] },
     );
     const duration: number = clock.duration;
-    const base: IHumanActionPlan = stand.plan({
-      ...context,
-      params: { seconds: duration },
-    });
+    // The body stands under the clinch, its sway signed in the gripping
+    // hand's frame, so a left clinch mirrors a right one (`stand.plan`).
+    const base: IAutoMovieMotionHumanActionPlan = stand.plan(
+      { ...context, params: { seconds: duration } },
+      context.params.hand ?? "right",
+    );
     const bones = poseBones(body, context.entry.pose);
-    const arm = (side: HumanHand.Side) =>
+    const arm = (side: AutoMovieHumanSide) =>
       AutoMovieMotionHumanArm.visit({
         body,
         clock,
@@ -228,7 +206,7 @@ export namespace clinch {
             region: table[side].region,
           },
         },
-        target: (posture: IHumanPosture, seconds: number) => {
+        target: (posture: IAutoMovieMotionHumanPosture, seconds: number) => {
           const at = place(
             partner.body,
             partner.bones(context.start + seconds),
@@ -242,11 +220,53 @@ export namespace clinch {
           });
         },
       });
-    return composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      contact: "stroke",
-      primitives: [arm("left"), arm("right")],
-    });
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        contact: "stroke",
+        primitives: [arm("left"), arm("right")],
+      });
+    const under: IAutoMovieMotionHumanClinch.IParams["under"] =
+      context.params.under;
+    if (under === undefined) return composed;
+
+    // The entry: the fulcrum's height over the partner's region's, read on
+    // both placed trunks at the start, taken off the root through the reach.
+    const height = (
+      who: IAutoMovieMotionHumanBody,
+      posture: IAutoMovieMotionHumanPosture,
+      region: AutoMovieHumanoidRegion,
+    ): number => {
+      const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+        who.surfaces.regions[region];
+      return resolveAutoMovieHumanoidSurfaces.place(
+        frame,
+        HumanTrunk.resolve(who, posture).get(frame.bone)!,
+      ).point.y;
+    };
+    const theirs: IAutoMovieMotionHumanPosture | undefined = partner.posture?.(
+      context.start,
+    );
+    const drop: number =
+      theirs === undefined
+        ? 0
+        : Math.max(
+            0,
+            height(body, context.entry.posture, under.fulcrum) -
+              height(partner.body, theirs, under.on),
+          );
+    return {
+      ...composed,
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+        const posture: IAutoMovieMotionHumanPosture = composed.posture(seconds);
+        const lowered: number =
+          drop * clock.progress(AutoMovieMotionClock.START, "ready", seconds);
+        return {
+          ...posture,
+          root: { ...posture.root, y: posture.root.y - lowered },
+        };
+      },
+    };
   }
 }

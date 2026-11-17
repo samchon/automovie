@@ -1,8 +1,10 @@
-import { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieFootPlant,
+  type IAutoMoviePinStanceTargets,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
-import { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
-import { IAutoMovieFootPlant } from "./IAutoMovieFootPlant";
 import { contactMask } from "./contactMask";
 
 /**
@@ -16,53 +18,11 @@ import { contactMask } from "./contactMask";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work All frames in one run share the same fixed target object and the compact plant record, so IK reads one admitted contact rather than resampling ground at each pinned frame.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned per-frame maps and plants belong to the pass caller; run masks/ranges are temporary, and no input pose, callback or external handle is retained.
  */
-export const pinStanceTargets: (props: {
-  /** Legs whose feet are planted. */ legs: readonly IAutoMovieFootLeg[];
-  /** Per-frame FK bone lookups. */ resolved: ReadonlyArray<
-    ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-  >;
-  /** Frame times, parallel to `resolved`. */ times: readonly number[];
-  /** Ground height at a plan position. */ groundAt: (
-    x: number,
-    z: number,
-  ) => number;
-  /** Contact tolerance above the ground counted as stance. */ tolerance: number;
-  /** Prior beat's authoritative opening pin per foot, in model space. */ openingTargets?: ReadonlyMap<
-    AutoMovieHumanoidBone,
-    IAutoMovieVector3
-  >;
-}) => {
-  /** Compact inclusive stance records, one per detected run. */ plants: IAutoMovieFootPlant[];
-  /** Parallel per-frame maps sharing each run's fixed contact target. */ targets: Array<
-    Map<AutoMovieHumanoidBone, IAutoMovieVector3>
-  >;
-} = (props: {
-  /** Legs whose feet are planted. */
-  legs: readonly IAutoMovieFootLeg[];
-
-  /** Per-frame FK bone lookups. */
-  resolved: ReadonlyArray<
-    ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-  >;
-
-  /** Frame times, parallel to `resolved`. */
-  times: readonly number[];
-
-  /** Ground height at a plan position. */
-  groundAt: (x: number, z: number) => number;
-
-  /** Contact tolerance above the ground counted as stance. */
-  tolerance: number;
-
-  /** Prior beat's authoritative opening pin per foot, in model space. */
-  openingTargets?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>;
-}): {
-  /** Compact inclusive stance records, one per detected run. */
-  plants: IAutoMovieFootPlant[];
-
-  /** Parallel per-frame maps sharing each run's fixed contact target. */
-  targets: Array<Map<AutoMovieHumanoidBone, IAutoMovieVector3>>;
-} => {
+export const pinStanceTargets: (
+  props: IAutoMoviePinStanceTargets.IProps,
+) => IAutoMoviePinStanceTargets.IResult = (
+  props: IAutoMoviePinStanceTargets.IProps,
+): IAutoMoviePinStanceTargets.IResult => {
   const { legs, resolved, times, groundAt, tolerance }: typeof props = props;
   const plants: IAutoMovieFootPlant[] = [];
   const targets: Array<Map<AutoMovieHumanoidBone, IAutoMovieVector3>> =

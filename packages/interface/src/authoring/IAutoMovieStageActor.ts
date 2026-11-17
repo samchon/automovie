@@ -1,5 +1,5 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieMountBinding } from "../harness/IAutoMovieMountBinding";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieMountBinding } from "../harness/IAutoMovieMountBinding";
 
 /**
  * One scripted actor's initial world placement and persistent coupling.

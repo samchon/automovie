@@ -1,4 +1,5 @@
-import type { IAutoMovieRecoveryFeasibleReportCapacity } from "../structures/internal/IAutoMovieRecoveryFeasibleReportCapacity";
+import type { IAutoMovieRecoveryFeasibleReportCapacity } from "@automovie/interface";
+
 import { RecoveryFeasibleCapacityError } from "./RecoveryFeasibleCapacityError";
 
 /**

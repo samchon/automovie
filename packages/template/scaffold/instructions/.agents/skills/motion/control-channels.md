@@ -1,29 +1,35 @@
 # Control channels
 
-A motion hint reaches its receiver through control channels rendered from the performance. A complete hint can be delivered without a generator; report its compatibility as unverified rather than run an uncommissioned job. [Video](../video/SKILL.md) decides which channels the chosen model takes; this document owns rendering them from the performance.
+A motion hint reaches its receiver through control channels rendered from the performance. [Video](../video/SKILL.md) decides which channels the chosen model takes.
 
-## Render what the receiver takes
+## Channels to render
 
-Render only the channels the actual receiver needs, such as the hint video, pose, depth, normal, outline or a semantic mask, and read the installed packages' documentation for what each really outputs. The outline is the line pass nearest a model's edge input. A mode name or a plausible image does not establish another tool's expected representation. When no installed path produces an essential channel, follow [installed packages](../development/reuse.md#installed-packages).
+Render only the channels the receiver needs, such as the hint video, pose, depth, normal, outline, a semantic mask or the tracks of chosen points. The outline, a line drawing, is the channel nearest a model's edge input, and point tracks projected from the scene are exact where a model drawing trajectories would guess them.
 
-Light the hint video so each form is shaded, because some models read less motion from a flat, single-color form than from a shaded one.
+Material channels, such as base color and roughness, carry only what the forms' materials hold, so they serve only a film that switched on its [detail options](../development/entities.md#detail).
 
-Render from the scene any control mask a [request](../video/requests.md) asks for, because the scene knows each silhouette and contact exactly where an estimate from pictures would guess.
+Read the installed packages' documentation for what each channel outputs, because a mode name or a plausible image does not establish the representation another tool expects. When no installed path produces an essential channel, tell the user.
 
-## Dense passes
+Render the hint video in the [entity colors](../development/entities.md#coarse-first), lit so each simple form's volume reads. Omit inspection overlays such as axes or marks, which a model draws as objects, and keep the forms free of textures and lettering, because surface detail competes with the references.
 
-A control adapter conditions a model on a structural pass, such as pose, depth or edge. A dense pass, such as the hint video, depth or outline, carries a form's shape as well as its place, so at full strength the model reproduces the coarse form's boxes and the polygon man's smooth surface. Give people a pose pass and other forms a depth pass weakened by reduced strength or blur, and keep a full-strength dense pass for what must keep its exact shape.
+Render from the scene any control mask a video request asks for, never estimate it from pictures.
 
-An adapter trained on gray layouts is the exception: it takes the whole hint video and replaces its forms.
+## Dense channels
 
-## Keep channels aligned
+A control adapter conditions a model on a structural channel, such as pose or depth. A dense channel, such as the hint video, depth or outline, carries a form's shape as well as its place, so the more strongly it is applied, the more of the coarse form's boxes and the polygon man's smooth surface the model keeps.
 
-Give time-matched channels one frame format, camera, crop and time mapping, resolved through [frame evaluation](frame-evaluation.md), and keep them [matched as passes](../visual-debugging/passes.md#keep-passes-matched) of one evaluated performance and view. A matching frame count does not prove matching poses or events.
+As a starting point to check on takes, give people a pose channel and other forms a depth channel at reduced strength or blurred, and keep a full-strength dense channel for what must keep its exact shape. An adapter trained on gray layouts is the exception: it takes the whole hint video and replaces its forms, though their shapes can still drift.
 
-Read each pass's limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities or only positional colors. A structural pass keeps its values free of exposure, tone mapping or overlays.
+## Channel alignment
 
-## Hand off
+Give time-matched channels one frame format, camera, crop and time mapping, resolved through [frame evaluation](frame-evaluation.md), and keep them [matched as passes](../visual-debugging/passes.md#matched-passes) of one evaluated performance and view. A matching frame count does not prove matching poses or events.
+
+Read each channel's limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities or only positional colors. Keep a structural channel's values free of exposure, tone mapping and overlays.
+
+An adapter was trained on its own annotator's convention, such as depth stretched per frame or a pose skeleton with face and hand points. Compare one frame of each rendered channel with that annotator's output on the same hint frame, and tell the user of a mismatch. Until it is fixed, pass the annotator's own depth computed from the hint video but keep the rendered pose, because an annotator misreads a faceless figure.
+
+## Handoff
 
 Keep accepted control files, mappings, palettes and sidecars with their content digests under the film's [media records](../production/media-records.md) folder, apart from any viewing encode, because lossy encoding, color conversion and transitions change depth values and invent mask colors.
 
-Inspect stills of the complete sequence at matched frames, including contacts, cuts and the ending, then the files through the receiver's input path when one is selected. Hand them with their observed limits to [assembly](../production/assembly.md) or [video generation](../video/generation.md).
+Inspect stills of the complete sequence at matched frames, at the [times](../visual-debugging/capture.md#times) capture sets and at the ending, then the files through the receiver's input path when one is selected. Hand them with their observed limits to [assembly](../production/assembly.md) or [video generation](../video/generation.md). A complete hint can be delivered without a generator; report its compatibility as unverified rather than run an uncommissioned job.

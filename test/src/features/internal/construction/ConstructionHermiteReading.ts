@@ -1,8 +1,8 @@
-import {
-  AutoMovieViewHermite,
-  AutoMovieViewOutline,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import { AutoMovieViewHermite, AutoMovieViewOutline } from "@automovie/engine";
+import type {
+  IAutoMovieViewHermite,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { nclose } from "../nclose";
 
@@ -83,7 +83,7 @@ export namespace ConstructionHermiteReading {
 
 /** Separate original APIs remain a strict binary64 oracle for the combined capability, including signed zero and NaN. */
 function same(
-  curve: AutoMovieViewHermite.ICurve,
+  curve: IAutoMovieViewHermite.ICurve,
   x: number,
   failures: string[],
 ): void {

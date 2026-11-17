@@ -2,9 +2,12 @@ import {
   AutoMovieSolidCycle,
   AutoMovieSolidMesh,
   AutoMovieSolidMeshLoop,
-  type AutoMovieSolidVector,
-  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
@@ -12,9 +15,9 @@ import { nclose } from "../../../internal/nclose";
 /** A chart point, with each coordinate in its surface parameter's units. */
 type Point = [number, number];
 /** A world vector in mm per unit parameter. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 /** A face trim record used without any generated person. */
-type Loop = AutoMovieSolidMesh.ILoop;
+type Loop = IAutoMovieSolidMesh.ILoop;
 
 /**
  * Face-local trim preparation preserves the live classifier while reusing only
@@ -111,26 +114,97 @@ export function test_construction_operator_trim_classification(): void {
   // moved to within half a period of that mean read the far end's points in the gap's image.
   const wide: Point[] = [
     [0, 0.1],
-    ...Array.from({ length: 40 }, (_: unknown, k: number): Point => [0, 0.1 + (0.5 * k) / 39]),
+    ...Array.from(
+      { length: 40 },
+      (_: unknown, k: number): Point => [0, 0.1 + (0.5 * k) / 39],
+    ),
     [0, 6.0],
     [1, 6.0],
     [1, 0.1],
   ];
-  const wideRead: (u: number, v: number) => boolean = AutoMovieSolidCycle.prepare(loop("island", wide), 2 * Math.PI);
-  TestValidator.predicate("wide island keeps its far end", wideRead(0.5, 5.8) && AutoMovieSolidCycle.kept(loop("island", wide), 0.5, 5.8, 2 * Math.PI));
-  TestValidator.predicate("wide island keeps its far end through a lifted phase", wideRead(0.5, 5.8 - 2 * Math.PI));
-  TestValidator.predicate("wide island leaves its gap", !wideRead(0.5, 6.2) && !wideRead(0.5, 0.05));
+  const wideRead: (u: number, v: number) => boolean =
+    AutoMovieSolidCycle.prepare(loop("island", wide), 2 * Math.PI);
+  TestValidator.predicate(
+    "wide island keeps its far end",
+    wideRead(0.5, 5.8) &&
+      AutoMovieSolidCycle.kept(loop("island", wide), 0.5, 5.8, 2 * Math.PI),
+  );
+  TestValidator.predicate(
+    "wide island keeps its far end through a lifted phase",
+    wideRead(0.5, 5.8 - 2 * Math.PI),
+  );
+  TestValidator.predicate(
+    "wide island leaves its gap",
+    !wideRead(0.5, 6.2) && !wideRead(0.5, 0.05),
+  );
 
   // An island wider than a period, as a cut whose two runs across a band stand apart in phase leaves. The coordinates are f1's: the ear's
   // face after the concha's cut, widened forward, crossed its band (every twelfth point of the island's 384, and the three beside the
   // query). It spans 2.34 to 9.05 rad about 5.69, so the triangle's probe at 8.89 has two images within it, and only the one at 8.89 lies
   // inside; moved to within half a period of the middle it was read at 2.61, outside, and the face's triangulation was refused.
-  const across: Point[] = [[8.42, 2.64], [7.31, 2.65], [10.43, 2.8], [11.54, 3.02], [15.35, 3.24], [21.47, 3.8], [22.49, 5.41], [22.16, 6.14], [17.19, 6.34], [9.68, 6.55], [7.76, 6.88], [14.05, 6.63], [19.66, 6.52], [20.98, 8.41], [20.56, 8.82], [20.31, 8.9], [20.07, 8.96], [17.67, 9.05], [12.67, 8.96], [10.36, 8.78], [8.61, 8.59], [7.28, 8.41], [6.03, 8.3], [4.86, 8.29], [4.5, 7.93], [4.5, 6.77], [4.5, 6.28], [4.5, 5.58], [4.5, 3.46], [4.5, 2.94], [4.5, 2.75], [4.5, 2.39], [5.07, 2.34], [6.1, 2.44], [7.18, 2.54]];
-  const acrossRead: (u: number, v: number) => boolean = AutoMovieSolidCycle.prepare(loop("island", across), 2 * Math.PI);
-  TestValidator.predicate("island wider than a period keeps a point at either image", acrossRead(20.31, 8.89) && acrossRead(20.31, 8.89 - 2 * Math.PI) && AutoMovieSolidCycle.kept(loop("island", across), 20.31, 8.89, 2 * Math.PI));
-  TestValidator.predicate("island wider than a period reads its low end through the high image", acrossRead(5, 2) && acrossRead(15, 2));
-  TestValidator.predicate("island wider than a period leaves what lies past it", !acrossRead(20.3, 9.3) && !acrossRead(12, 9.3) && !acrossRead(25, 5));
-  TestValidator.predicate("hole wider than a period removes a point at either image", !AutoMovieSolidCycle.kept(loop("hole", across), 20.31, 8.89, 2 * Math.PI) && AutoMovieSolidCycle.kept(loop("hole", across), 20.3, 9.3, 2 * Math.PI));
+  const across: Point[] = [
+    [8.42, 2.64],
+    [7.31, 2.65],
+    [10.43, 2.8],
+    [11.54, 3.02],
+    [15.35, 3.24],
+    [21.47, 3.8],
+    [22.49, 5.41],
+    [22.16, 6.14],
+    [17.19, 6.34],
+    [9.68, 6.55],
+    [7.76, 6.88],
+    [14.05, 6.63],
+    [19.66, 6.52],
+    [20.98, 8.41],
+    [20.56, 8.82],
+    [20.31, 8.9],
+    [20.07, 8.96],
+    [17.67, 9.05],
+    [12.67, 8.96],
+    [10.36, 8.78],
+    [8.61, 8.59],
+    [7.28, 8.41],
+    [6.03, 8.3],
+    [4.86, 8.29],
+    [4.5, 7.93],
+    [4.5, 6.77],
+    [4.5, 6.28],
+    [4.5, 5.58],
+    [4.5, 3.46],
+    [4.5, 2.94],
+    [4.5, 2.75],
+    [4.5, 2.39],
+    [5.07, 2.34],
+    [6.1, 2.44],
+    [7.18, 2.54],
+  ];
+  const acrossRead: (u: number, v: number) => boolean =
+    AutoMovieSolidCycle.prepare(loop("island", across), 2 * Math.PI);
+  TestValidator.predicate(
+    "island wider than a period keeps a point at either image",
+    acrossRead(20.31, 8.89) &&
+      acrossRead(20.31, 8.89 - 2 * Math.PI) &&
+      AutoMovieSolidCycle.kept(
+        loop("island", across),
+        20.31,
+        8.89,
+        2 * Math.PI,
+      ),
+  );
+  TestValidator.predicate(
+    "island wider than a period reads its low end through the high image",
+    acrossRead(5, 2) && acrossRead(15, 2),
+  );
+  TestValidator.predicate(
+    "island wider than a period leaves what lies past it",
+    !acrossRead(20.3, 9.3) && !acrossRead(12, 9.3) && !acrossRead(25, 5),
+  );
+  TestValidator.predicate(
+    "hole wider than a period removes a point at either image",
+    !AutoMovieSolidCycle.kept(loop("hole", across), 20.31, 8.89, 2 * Math.PI) &&
+      AutoMovieSolidCycle.kept(loop("hole", across), 20.3, 9.3, 2 * Math.PI),
+  );
 
   // This oracle owns equivalence with the face's arithmetic, not correct boundary ownership.
   const turn: number = 2 * Math.PI;
@@ -471,13 +545,13 @@ function consumer(): void {
       };
     },
   };
-  const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
   const owner: number = AutoMovieSolidMesh.owner(mesh, surface);
   const chart: Point[] = phases.map((v: number): Point => [1, v]);
   const vertices: number[] = chart.map(([u, v]: Point): number =>
     AutoMovieSolidMesh.vertex(mesh, [Math.cos(v), u, Math.sin(v)], owner, u, v),
   );
-  const open: AutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(mesh, {
+  const open: IAutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(mesh, {
     surface,
     stations: [0, 1, 2, 3],
     phases,
@@ -596,7 +670,7 @@ function consumer(): void {
     [[], []],
     [[0], [0]],
   ] as [number[], number[]][]) {
-    const empty: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+    const empty: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
     TestValidator.predicate(
       "degenerate grid has no triangles",
       AutoMovieSolidMesh.face(empty, {

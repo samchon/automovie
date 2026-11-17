@@ -1,76 +1,61 @@
 import {
   AutoMovieConstructionViews,
-  type AutoMovieLoftContract,
-  type AutoMovieLoftFrame,
   AutoMovieLoftSectionNative,
-  type AutoMovieLoftSectionSource,
   AutoMovieLoftViewRead,
   AutoMovieLoftViewSource,
   AutoMovieViewOutline,
   AutoMovieViewParameter,
   AutoMovieViewSection,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
+import type {
+  IAutoMovieHumanHeadNeckCurves,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanTrunkConnection,
+  IAutoMovieLoftContract,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
-import type { AutoMovieHumanSiteViewPart as Site } from "../limb/AutoMovieHumanSiteViewPart";
-import type { AutoMovieHumanHeadNeckCurves } from "../head/AutoMovieHumanHeadNeckCurves";
 
 /** A physical-station scalar value and its available first two derivatives. */
 type Scalar = readonly [number, number, number];
 
 /** Transfer the canonical regular neck family into the trunk's original sources, before either loft or tree publication. */
 export namespace AutoMovieHumanTrunkConnection {
-  /** Actual original section plane and its available physical-station derivatives; no coefficient layer is manufactured. */
-  export interface IBoundary {
-    /** Physical world-height station, calibration millimetres. */
-    y: number;
-
-    /** Original world origin and fixed +X/+Z basis. */
-    frame: AutoMovieLoftFrame.IFrame;
-
-    /** Actual first derivative in physical station millimetres. */
-    frameSlopes: AutoMovieLoftFrame.IFrame;
-
-    /** Actual second derivative in the same physical station. */
-    frameCurvatures: AutoMovieLoftFrame.IFrame;
-  }
-
-  /** One actual native generating boundary and frame2; this original view declares no additional phase lift. */
-  export interface IDefinition {
-    /** Actual regular neck boundary, before any coefficient layer exists. */
-    boundary: IBoundary;
-
-    /** Whole phase family, not just four supports or fitted coefficients. */
-    field: Extract<
-      AutoMovieLoftSectionSource.IEndpoint["field"],
-      { kind: "native" }
-    >;
-  }
-
-  /** A boundary read from an actual interval part additionally retains that part's original declarations. */
-  export interface IConnection extends IDefinition {
-    /** Actual preloft source ownership retained by both original consumers. */
-    original: {
-      part: IAutoMovieViewPart;
-      source: AutoMovieLoftViewSource.ISource;
-    };
-  }
-
   /** Direct normal-cylinder boundary, including the valid zero-height plane case; no lower radius or interval is invented. */
-  export function normal(definition: AutoMovieHumanHeadNeckCurves.IDefinition): IDefinition {
+  export function normal(
+    definition: IAutoMovieHumanHeadNeckCurves.IDefinition,
+  ): IAutoMovieHumanTrunkConnection.IDefinition {
     const y: number = definition.band[1];
-    const x: number = definition.planeOrigin[0] + definition.slope * (y - definition.planeOrigin[1]);
+    const x: number =
+      definition.planeOrigin[0] +
+      definition.slope * (y - definition.planeOrigin[1]);
     return {
-      boundary: { y,
+      boundary: {
+        y,
         frame: { origin: [x, y, 0], u: [1, 0, 0], v: [0, 0, 1] },
-        frameSlopes: { origin: [definition.slope, 1, 0], u: [0, 0, 0], v: [0, 0, 0] },
+        frameSlopes: {
+          origin: [definition.slope, 1, 0],
+          u: [0, 0, 0],
+          v: [0, 0, 0],
+        },
         frameCurvatures: { origin: [0, 0, 0], u: [0, 0, 0], v: [0, 0, 0] },
       },
-      field: { kind: "native", inputs: {
-        extents: definition.extents.map((value: number): Scalar => [value, 0, 0]),
-        shoulders: definition.extents.map((): Scalar => [AutoMovieViewSection.ELLIPSE, 0, 0]),
-      } },
+      field: {
+        kind: "native",
+        inputs: {
+          extents: definition.extents.map(
+            (value: number): Scalar => [value, 0, 0],
+          ),
+          shoulders: definition.extents.map(
+            (): Scalar => [AutoMovieViewSection.ELLIPSE, 0, 0],
+          ),
+        },
+      },
     };
   }
 
@@ -78,15 +63,15 @@ export namespace AutoMovieHumanTrunkConnection {
   export function captureOriginal(
     part: IAutoMovieViewPart,
     station: number,
-  ): IConnection {
-    const prepared: AutoMovieLoftViewSource.IResult | null =
+  ): IAutoMovieHumanTrunkConnection.IConnection {
+    const prepared: IAutoMovieLoftViewSource.IResult | null =
       AutoMovieLoftViewSource.create(part);
     if (prepared?.source === null || prepared === null)
       throw new Error(
         `Canonical neck needs its actual direct original: ${JSON.stringify(prepared?.diagnostics ?? [])}`,
       );
-    const source: AutoMovieLoftViewSource.ISource = prepared.source;
-    const inputs: AutoMovieLoftViewRead.IJets | string =
+    const source: IAutoMovieLoftViewSource.ISource = prepared.source;
+    const inputs: IAutoMovieLoftViewRead.IJets | string =
       AutoMovieLoftViewRead.jets(source, station);
     if (typeof inputs === "string") throw new Error(inputs);
     AutoMovieLoftSectionNative.jet(inputs)(0);
@@ -146,13 +131,14 @@ export namespace AutoMovieHumanTrunkConnection {
    * Native quarter fullness and actual axis origin remain independent owners.
    */
   export function apply(
-    definition: Site.IDefinition,
-    connection: IDefinition,
-  ): Site.IDefinition {
+    definition: IAutoMovieHumanSourceDefinition,
+    connection: IAutoMovieHumanTrunkConnection.IDefinition,
+  ): IAutoMovieHumanSourceDefinition {
     if (definition.part === null || definition.view === null) return definition;
     try {
       const original: IAutoMovieViewPart = definition.part;
-      const view: NonNullable<Site.IDefinition["view"]> = definition.view;
+      const view: NonNullable<IAutoMovieHumanSourceDefinition["view"]> =
+        definition.view;
       const at: number = connection.boundary.y;
       if (
         view.axis.type !== "parallel" ||
@@ -171,12 +157,13 @@ export namespace AutoMovieHumanTrunkConnection {
         throw new Error(
           "Canonical neck station does not equal the trunk's named connection",
         );
-      const ends: AutoMovieViewOutline.IEnds = {};
+      const ends: IAutoMovieViewOutline.IEnds = {};
       if (original.pole === "bottom" || original.pole === "both")
         ends.bottom = original.stations[0]!;
       if (original.pole === "top" || original.pole === "both")
         ends.top = original.stations.at(-1)!;
-      const inputs: IConnection["field"]["inputs"] = connection.field.inputs;
+      const inputs: IAutoMovieHumanTrunkConnection.IConnection["field"]["inputs"] =
+        connection.field.inputs;
       const edge: (
         outline: IAutoMovieViewPart.IOutline,
         q: number,
@@ -192,9 +179,9 @@ export namespace AutoMovieHumanTrunkConnection {
           q < 2 ? jet : [-jet[0], -jet[1], -jet[2]],
         );
       };
-      const frame: AutoMovieLoftFrame.IFrame = connection.boundary.frame;
-      const first: AutoMovieLoftFrame.IFrame = connection.boundary.frameSlopes;
-      const second: AutoMovieLoftFrame.IFrame =
+      const frame: IAutoMovieLoftSectionFrame = connection.boundary.frame;
+      const first: IAutoMovieLoftSectionFrame = connection.boundary.frameSlopes;
+      const second: IAutoMovieLoftSectionFrame =
         connection.boundary.frameCurvatures;
 
       // Keep the actual asymmetric origin; back+anterior radius would recenter it.
@@ -253,7 +240,7 @@ export namespace AutoMovieHumanTrunkConnection {
         diagnostics: [...definition.diagnostics],
       };
     } catch (error: unknown) {
-      const diagnostic: AutoMovieLoftContract.IDiagnostic = {
+      const diagnostic: IAutoMovieLoftContract.IDiagnostic = {
         producer: "view.trunk",
         level: 2,
         contract: "canonical neck source",
@@ -271,13 +258,13 @@ export namespace AutoMovieHumanTrunkConnection {
 /** Reproduce every old polynomial span by its value/two jets, changing only this named boundary in the same source clock. */
 function replace(
   outline: IAutoMovieViewPart.IOutline,
-  ends: AutoMovieViewOutline.IEnds,
+  ends: IAutoMovieViewOutline.IEnds,
   at: number,
   target: Scalar,
 ): IAutoMovieViewPart.IOutline {
   const prepared:
-    | AutoMovieViewOutline.IOutline
-    | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
     outline,
     ends,
   );
@@ -299,7 +286,7 @@ function replace(
     throw new Error("Connection needs a regular source-coordinate transfer");
   const knots: IAutoMovieViewPart.IKnot[] = prepared.knots.map(
     (knot: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => {
-      const old: AutoMovieViewOutline.IReading | string =
+      const old: IAutoMovieViewOutline.IReading | string =
         AutoMovieViewOutline.at(prepared, knot.station);
       if (typeof old === "string") throw new Error(old);
       const own: boolean = knot.station === at;

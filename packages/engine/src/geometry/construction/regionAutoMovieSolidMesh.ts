@@ -1,5 +1,7 @@
-import type { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
-import type { AutoMovieSolidMeshPlan } from "./AutoMovieSolidMeshPlan";
+import type {
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
 
 /**
  * Label each triangle with its region: the triangles joined across sides that are no source constraint.
@@ -33,15 +35,15 @@ import type { AutoMovieSolidMeshPlan } from "./AutoMovieSolidMeshPlan";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The side map, constraint set and parent array are call-local O(T + S); only the returned label array survives, owned by the caller.
  */
 export function regionAutoMovieSolidMesh(
-  triangles: readonly AutoMovieSolidMeshPlan.ITriangle[],
-  constraints: readonly AutoMovieSolidMeshConstraints.ISegment[],
+  triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[],
+  constraints: readonly IAutoMovieSolidMeshConstraints.ISegment[],
 ): number[] {
   const fixed: Set<string> = new Set(
-    constraints.map((edge: AutoMovieSolidMeshConstraints.ISegment): string =>
+    constraints.map((edge: IAutoMovieSolidMeshConstraints.ISegment): string =>
       key(edge.a, edge.b, edge.turn),
     ),
   );
-  const parent: number[] = triangles.map((_: AutoMovieSolidMeshPlan.ITriangle, index: number): number => index);
+  const parent: number[] = triangles.map((_: IAutoMovieSolidMeshPlan.ITriangle, index: number): number => index);
 
   /** The region's least index, halving the path on the way. */
   const find: (index: number) => number = (index: number): number => {
@@ -55,7 +57,7 @@ export function regionAutoMovieSolidMesh(
   const first: Map<string, number> = new Map();
   for (let index: number = 0; index < triangles.length; index++)
     for (let corner: number = 0; corner < 3; corner++) {
-      const triangle: AutoMovieSolidMeshPlan.ITriangle = triangles[index]!;
+      const triangle: IAutoMovieSolidMeshPlan.ITriangle = triangles[index]!;
       const next: number = (corner + 1) % 3;
       const name: string = key(
         triangle.vertices[corner]!,
@@ -73,7 +75,7 @@ export function regionAutoMovieSolidMesh(
       if (a < b) parent[b] = a;
       else parent[a] = b;
     }
-  return triangles.map((_: AutoMovieSolidMeshPlan.ITriangle, index: number): number => find(index));
+  return triangles.map((_: IAutoMovieSolidMeshPlan.ITriangle, index: number): number => find(index));
 }
 
 /** Canonical indexed edge identity retaining the relative period turn, as the insertion and legalization owners read it. */

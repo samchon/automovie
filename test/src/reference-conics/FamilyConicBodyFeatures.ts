@@ -1,11 +1,14 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import type { AutoMovieMeshExtract as M } from "@automovie/engine";
-import { AutoMovieHumanF1Joints as J, AutoMovieHumanF1Landmarks as L } from "@automovie/human";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import {
+  AutoMovieHumanF1Joints as J,
+  AutoMovieHumanF1Landmarks as L,
+} from "@automovie/human";
+import type { IAutoMovieMillimeterMesh } from "@automovie/interface";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /**
  * Reads on the f1 reference, in one run, the surface landmarks the body's feature templates are placed by and each feature's footprint
@@ -491,7 +494,7 @@ namespace FamilyConicBodyFeatures {
   }
 
   /** A mesh's triangles as nine numbers each. */
-  function triangles(mesh: M.IMesh): Float64Array {
+  function triangles(mesh: IAutoMovieMillimeterMesh): Float64Array {
     const out: Float64Array = new Float64Array(mesh.indices.length * 3);
     for (let t: number = 0; t < mesh.indices.length; ++t) for (let c: number = 0; c < 3; ++c) out[3 * t + c] = mesh.positions[3 * mesh.indices[t]! + c]!;
     return out;
@@ -538,7 +541,7 @@ namespace FamilyConicBodyFeatures {
   }
 
   /** The skin's triangles whose vertices all lie within `radius` of `centre`, so no other part hides the landmarks. */
-  function crop(mesh: M.IMesh, centre: V, radius: number): N.Mesh {
+  function crop(mesh: IAutoMovieMillimeterMesh, centre: V, radius: number): N.Mesh {
     const positions: number[] = [];
     const indices: number[] = [];
     const remap: Map<number, number> = new Map();

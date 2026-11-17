@@ -1,7 +1,6 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
@@ -11,17 +10,21 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   AutoMovieHumanoidSocket,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingBody,
+  IAutoMovieMotionHumanStrikingContact,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { StrikingContact } from "./StrikingContact";
 
 /**
  * The body facts striking laws read: where a posture puts the shoulders,
@@ -60,8 +63,8 @@ export namespace StrikingBody {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function trunk(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const pose = resolveHumanPosture(body, { ...posture, limbs: {} });
     return new Map(
@@ -97,12 +100,12 @@ export namespace StrikingBody {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function region(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     region: AutoMovieHumanoidRegion,
-    tangent?: resolveAutoMovieHumanoidSurfaces.ITangent,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
-    const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+    tangent?: IAutoMovieHumanoidSurfaces.ITangent,
+  ): IAutoMovieMotionHumanStrikingBody.IRegionResult {
+    const frame: IAutoMovieHumanoidSurfaces.IFrame =
       tangent === undefined || (tangent.up === 0 && tangent.out === 0)
         ? body.surfaces.regions[region]
         : resolveAutoMovieHumanoidSurfaces.offset(
@@ -136,11 +139,11 @@ export namespace StrikingBody {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function radius(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     region: AutoMovieHumanoidRegion,
   ): number {
     const at = (name: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
-      const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+      const frame: IAutoMovieHumanoidSurfaces.IFrame =
         body.surfaces.regions[name];
       return Vector3.add(body.rest.get(frame.bone)!, frame.point);
     };
@@ -175,7 +178,7 @@ export namespace StrikingBody {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function socket(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     socket: AutoMovieHumanoidSocket,
     rotation: IAutoMovieQuaternion,
   ): IAutoMovieVector3 {
@@ -206,7 +209,7 @@ export namespace StrikingBody {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function fist(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     knuckles: IAutoMovieVector3,
     palm: IAutoMovieVector3,
@@ -302,15 +305,17 @@ export namespace StrikingBody {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function colliders(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): StrikingContact.ICollider[] {
+  ): IAutoMovieMotionHumanStrikingContact.ICollider[] {
     return HumanColliders.placed(body, bones).flatMap(
-      (segment: HumanColliders.IPlaced): StrikingContact.ICollider[] =>
+      (
+        segment: IAutoMovieMotionHumanColliders.IPlaced,
+      ): IAutoMovieMotionHumanStrikingContact.ICollider[] =>
         segment.shapes.map(
           (
-            shape: IAutoMoviePhysicalProfile.IShape,
-          ): StrikingContact.ICollider => ({
+            shape: IAutoMoviePhysicalShape,
+          ): IAutoMovieMotionHumanStrikingContact.ICollider => ({
             name: segment.bone,
             pose: segment.pose,
             shape,

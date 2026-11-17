@@ -1,14 +1,16 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalRecoveryState,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
+  IAutoMovieSamplePhysicalTarget,
+} from "@automovie/interface";
 
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
-import type { advancePhysicalBalance as Balance } from "./advancePhysicalBalance";
 import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
 import { planPhysicalContactTargets } from "./planPhysicalContactTargets";
 import { projectPhysicalTargets } from "./projectPhysicalTargets";
 import { readPhysicalScene } from "./readPhysicalScene";
-import type { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
  * Resolve collider relationships once per cached interval from the actual simultaneous scene. Only motor goals change; root/support forces have already used their independently declared goals.
@@ -22,17 +24,17 @@ import type { samplePhysicalTarget } from "./samplePhysicalTarget";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 5 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function trackPhysicalContactTargets(
-  input: Simulation.IInput,
-  body: Simulation.IBody,
-  target: Simulation.ITarget,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  body: IAutoMoviePhysicalSimulationInput.IBody,
+  target: IAutoMoviePhysicalSimulationInput.ITarget,
   bound: Bound,
   step: number,
-  goals: Record<string, ReturnType<typeof samplePhysicalTarget>>,
+  goals: Record<string, IAutoMovieSamplePhysicalTarget.IResult>,
   seconds: number,
   revision: number = 0,
-  scene?: ReturnType<typeof readPhysicalScene>,
-  state?: Balance.IState,
-): ReturnType<typeof readPhysicalScene> | undefined {
+  scene?: Record<string, Record<string, IAutoMovieRigidTransform>>,
+  state?: IAutoMoviePhysicalRecoveryState,
+): Record<string, Record<string, IAutoMovieRigidTransform>> | undefined {
   if (
     (!target.bindings?.length &&
       !target.pointBounds?.length &&
@@ -56,7 +58,7 @@ export function trackPhysicalContactTargets(
     );
     const support: ReturnType<typeof bound.supportPlanned.get> =
       bound.supportPlanned.get(body.id);
-    const poses: Record<string, P.ITransform> = authoredRoot
+    const poses: Record<string, IAutoMovieRigidTransform> = authoredRoot
       ? target.segments
       : support?.step === step && support.revision === revision
         ? support.targets

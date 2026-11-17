@@ -1,20 +1,20 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  type IAutoMovieHingedArticulation,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieResolvedJointAngles,
+  type IAutoMovieRestFrame,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { getConstraint } from "../rom/getConstraint";
-import { IAutoMovieHingedArticulation } from "./IAutoMovieHingedArticulation";
-import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
-import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import { armChainFault } from "./armChainFault";
 import { clinicalDeviation } from "./clinicalDeviation";
 import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";

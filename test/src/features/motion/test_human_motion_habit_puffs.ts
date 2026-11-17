@@ -1,10 +1,9 @@
-import {
-  HumanChain,
-  HumanHabit,
-  HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
-} from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+} from "@automovie/interface";
+import { HumanChain, HumanHabit, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -36,26 +35,28 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule with its source, what is not read, why no posture is read and the 4 scenarios with their bounds.
  */
 export function test_human_motion_habit_puffs(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   const puffs: number[] = [];
   for (let i: number = 0; i < 200; i++)
     try {
-      const performance: HumanPerformance = new HumanPerformance({
-        seed: `cigarette-${i}`,
-        laws: [HumanHabit.smoke],
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-        ],
-        composition: HumanChain.subject("a").registered("smoke", {}).node,
-      });
-      const placed: HumanSegment.ISegment = performance.segments("a")[0]!;
+      const performance: IAutoMovieMotionHumanPerformance =
+        new HumanPerformance({
+          seed: `cigarette-${i}`,
+          laws: [HumanHabit.smoke],
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          composition: HumanChain.subject("a").registered("smoke", {}).node,
+        });
+      const placed: IAutoMovieMotionHumanSegment =
+        performance.segments("a")[0]!;
       const at = (event: string): number =>
         (placed.plan.events.find((e): boolean => e.name === event)?.share ??
           NaN) * placed.plan.duration;

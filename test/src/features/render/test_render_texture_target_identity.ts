@@ -1,11 +1,11 @@
 import {
-  type IAutoMovieRenderTextureSource,
   autoMovieRenderTextureDigest,
   compareAutoMovieRenderTarget,
   deriveAutoMovieSemanticMask,
   evaluateAutoMovieRenderBudget,
   sealAutoMovieRenderTarget,
 } from "@automovie/engine";
+import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

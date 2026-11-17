@@ -1,13 +1,18 @@
+import { nclose } from "../../internal/nclose";
 import {
   AutoMovieLoftViewFullSource as Full,
   AutoMovieViewAxis,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
 import { AutoMovieHumanF1NativeRootLaw as Root } from "@automovie/human";
-import type { IAutoMovieConstructionPort } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionPortLoop,
+  IAutoMovieHumanF1NativeRoot,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { nclose } from "../../internal/nclose";
 
 /**
  * A finite source-domain bracket must not query past its literal endpoint.
@@ -76,39 +81,39 @@ export function test_human_native_root_domain(): void {
         "made-domain-child", a, breadth, [0, 1],
         AutoMovieViewAxis.straight([2, entry.centre, 0], [0, 1, 0], [0, 0, 1]),
       );
-      const loop: IAutoMovieConstructionPort.ILoop = {
+      const loop: IAutoMovieConstructionPortLoop = {
         centre: [entry.centre / 1000, 0],
         semi: [entry.semiMetres, phaseSemi], sense: 1,
         shape: Array.from({ length: count }, (): number => 1),
       };
-      const original: Root.ICalibration = Root.calibrate({
+      const original: IAutoMovieHumanF1NativeRoot.ICalibration = Root.calibrate({
         name: "made-domain", parent, child, loop, rails: [0.5], count,
         correspondence: "angle",
         metric: { station: 0.5, depth: 2 * a, breadth: 2 * breadth },
         basis: child.axis.at(0.5),
       });
-      const source: Full.IReader = Full.create(parent);
+      const source: IAutoMovieLoftViewFullSource.IReader = Full.create(parent);
       close("literal lower station", source.point(entry.domain[0], 0)[1], entry.domain[0]);
       close("literal upper station", source.point(entry.domain[1], 0)[1], entry.domain[1]);
-      rejects("below actual domain", (): Root.V => source.point(entry.domain[0] - 1, 0));
-      rejects("above actual domain", (): Root.V => source.point(entry.domain[1] + 1, 0));
-      const held: Root.IRootSpec = Root.prepare(original, parent, [1, 1]).resolve(child);
+      rejects("below actual domain", (): AutoMovieVector3Tuple => source.point(entry.domain[0] - 1, 0));
+      rejects("above actual domain", (): AutoMovieVector3Tuple => source.point(entry.domain[1] + 1, 0));
+      const held: IAutoMovieHumanF1NativeRoot.IRootSpec = Root.prepare(original, parent, [1, 1]).resolve(child);
       if (held.loop !== loop) failures.push(entry.name + ": original loop was replaced");
-      held.rows.forEach((row: Root.IRootRow): void => {
+      held.rows.forEach((row: IAutoMovieHumanF1NativeRoot.IRootRow): void => {
         if (!Object.is(row.level.share, 1)) failures.push("original share was changed");
       });
 
-      const prepared: Root.IPrepared = Root.prepare(original, parent, [entry.scale, 1]);
+      const prepared: IAutoMovieHumanF1NativeRoot.IPrepared = Root.prepare(original, parent, [entry.scale, 1]);
       const candidate: IAutoMovieViewPart = ellipse(
         child.name, a * entry.scale, breadth, [0, 1], prepared.axis,
       );
-      const made: Root.IRootSpec = prepared.resolve(candidate);
-      const row: Root.IRootRow = made.rows[entry.column]!;
+      const made: IAutoMovieHumanF1NativeRoot.IRootSpec = prepared.resolve(candidate);
+      const row: IAutoMovieHumanF1NativeRoot.IRootRow = made.rows[entry.column]!;
       const c: number = 2 * Math.PI * entry.column / count;
       const q: number = row.level.share;
       if (!(q > 1 && q < 2))
         failures.push(entry.name + ": selected root is not the independent interior branch: " + q);
-      const p: Root.V = row.actualParent;
+      const p: AutoMovieVector3Tuple = row.actualParent;
       close("actual unit cylinder", p[0] * p[0] + p[2] * p[2], 1);
       close("actual native station", row.parentAddress[0], p[1]);
       const centre: number = entry.centre + (1 - entry.scale) * a;
@@ -132,7 +137,7 @@ export function test_human_native_root_domain(): void {
 /** Constant exact ellipse originals with regular physical2 throughout a closed domain. */
 function ellipse(
   name: string, depth: number, breadth: number, domain: readonly [number, number],
-  axis: AutoMovieViewAxis.IAxis,
+  axis: IAutoMovieViewAxis.IAxis,
 ): IAutoMovieViewPart {
   const outline: (value: number) => IAutoMovieViewPart.IOutline = (
     value: number,

@@ -1,4 +1,4 @@
-import { IAutoMovieTravelMotion } from "./IAutoMovieTravelMotion";
+import type { IAutoMovieTravelMotion } from "./IAutoMovieTravelMotion";
 
 /**
  * One member that travels on a single degree of freedom.

@@ -1,7 +1,9 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
@@ -67,7 +69,7 @@ export namespace runStance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function plan(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     props: {
       stride: number;
       share: number;

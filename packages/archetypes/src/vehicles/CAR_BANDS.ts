@@ -1,4 +1,5 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { ArchetypeUnits, ArchetypeBand, type IArchetypeBand } from "../core";
+import { CAR_MODELS } from "./CAR_MODELS";
 import type { createCar } from "./createCar";
 
 /** A band in degrees. */
@@ -14,9 +15,13 @@ const deg = (
 const HATCH: string =
   "Honda Jazz Hybrid and Civic Hybrid specifications (https://www.honda.co.uk/cars/new/jazz-hybrid/specifications.html, https://www.honda.co.uk/cars/new/civic-hybrid/specifications.html)";
 
-/** Two sedans read at a secondary source. */
-const SEDAN: string =
-  "Toyota Corolla (E210) sedan and Camry (XV70) infoboxes (https://en.wikipedia.org/wiki/Toyota_Corolla_(E210), https://en.wikipedia.org/wiki/Toyota_Camry_(XV70))";
+/** A panel van read at its maker's technical specification. */
+const VAN: string =
+  "Ford Transit Custom 2023 technical specification, L1H1 van (https://www.fordpers.be/content/documents/news/2023/2023_10_09_transit_custom_2023_technical_specification_eu.pdf)";
+
+/** A crew-cab pickup read at its maker's technical specification. */
+const PICKUP: string =
+  "2025 Ford Ranger technical specifications, SuperCrew 4x2 and 4x4 (https://www.fromtheroad.ford.com/content/dam/fordmediasite/us/en/library/2025/specs/2025_Ford_Ranger_Technical_Specifications.pdf)";
 
 /** The interior packaging standard. */
 const J1100: string =
@@ -25,24 +30,18 @@ const J1100: string =
 /** Interior positions the standard defines without giving values. */
 const PACKAGE: string = `${J1100} defines this dimension without a value; the figure is a typical package, not read at a source`;
 
-/** The bands both classes share. */
+/** The bands every class shares. */
 const SHARED: Readonly<
   Record<
-    | "seatHeight"
     | "steeringDiameter"
     | "steeringAngle"
-    | "steeringRatio"
-    | "lockTurns"
     | "doorSwing"
-    | "pedalTravel",
+    | "pedalTravel"
+    | "bonnetSwing"
+    | "recline",
     IArchetypeBand
   >
 > = {
-  seatHeight: ArchetypeBand.metres(
-    0.127,
-    0.405,
-    `${J1100}: class A seat height H30, 127 to 405 mm`,
-  ),
   steeringDiameter: ArchetypeBand.metres(
     0.35,
     0.39,
@@ -50,19 +49,6 @@ const SHARED: Readonly<
     true,
   ),
   steeringAngle: deg(15, 30, PACKAGE, true),
-  steeringRatio: ArchetypeBand.of(
-    "",
-    12,
-    20,
-    "overall steering ratio of most passenger cars, 12:1 to 20:1 (Wikipedia, Steering ratio, https://en.wikipedia.org/wiki/Steering_ratio)",
-    true,
-  ),
-  lockTurns: ArchetypeBand.of(
-    "",
-    2.2,
-    2.63,
-    `${HATCH}: 2.2 to 2.63 turns lock to lock`,
-  ),
   doorSwing: deg(
     60,
     70,
@@ -74,40 +60,149 @@ const SHARED: Readonly<
     "pedal travel, not read at a source",
     true,
   ),
+  bonnetSwing: deg(
+    45,
+    55,
+    "a bonnet's opening: 54.6 degrees in a hood-linkage study (https://dergipark.org.tr/en/download/article-file/450731) and about 50 degrees held by a hood hinge's springs (US patent 12486704), seen in search results only",
+    true,
+  ),
+  recline: deg(
+    0,
+    30,
+    "a seat back reclined from the 23-degree torso angle of the SAE J826 manikin to 53 degrees, the settings of a seat-back study (Traffic Injury Prevention 2019, https://informahealthcare.com/doi/abs/10.1080/15389588.2019.1630733), seen in search results only",
+    true,
+  ),
 };
 
 /**
- * The band of each free dimension of a car, by class, with the source it was read at; `createCar.BANDS` is this table.
+ * The least and the greatest of the hatchbacks' read grades' figures of one dimension, for a band a class whose models state none borrows.
+ *
+ * @param dimension The dimension.
+ * @returns The least and the greatest figure.
+ */
+function hatchbacks(dimension: createCar.Dimension): [number, number] {
+  const figures: number[] = Object.values(CAR_MODELS.figures.hatchback)
+    .map((model: Readonly<Partial<Record<createCar.Dimension, number>>> | undefined): number | undefined => model?.[dimension])
+    .filter((figure: number | undefined): figure is number => figure !== undefined);
+  return [Math.min(...figures), Math.max(...figures)];
+}
+
+/** The turns lock to lock of a class whose models state none: the span of the hatchbacks' read grades, borrowed for want of the class's own. */
+const TURNS: IArchetypeBand = ArchetypeBand.of(
+  "",
+  ...hatchbacks("lockTurns"),
+  `${HATCH}: the grades' turns lock to lock, borrowed by a class whose models state none`,
+  true,
+);
+
+/** The bands of the classes that are passenger cars. */
+const CAR: Readonly<
+  Record<"seatHeight" | "steeringRatio" | "bootSwing", IArchetypeBand>
+> = {
+  seatHeight: ArchetypeBand.metres(
+    0.127,
+    0.405,
+    `${J1100}: class A seat height H30, 127 to 405 mm`,
+  ),
+  steeringRatio: ArchetypeBand.of(
+    "",
+    12,
+    20,
+    "overall steering ratio of most passenger cars, 12:1 to 20:1 (Wikipedia, Steering ratio, https://en.wikipedia.org/wiki/Steering_ratio)",
+    true,
+  ),
+  bootSwing: deg(
+    85,
+    95,
+    "a liftgate pivoting about 90 degrees about its horizontal hinge (US patents 6425205 and 6637157), seen in search results only; the band is that figure's neighbourhood",
+    true,
+  ),
+};
+
+/** The seat height of the light commercial classes, read with the passenger-car band. */
+const COMMERCIAL_SEAT: IArchetypeBand = ArchetypeBand.metres(
+  0.127,
+  0.405,
+  `${J1100}: class A seat height H30, 127 to 405 mm, applied to a light commercial vehicle until the standard's class B values are read`,
+  true,
+);
+
+/**
+ * The band of each free dimension of a car, by class, with the source it was read at; `createCar.BANDS` is this table. A class lacks the dimensions of the parts it does not have: only the sedan and the hatchback have a boot, only the van a sliding door and a cargo floor, only the pickup a bed. A model's own figures are its read model's (`CAR_MODELS`), not bands; the van's sliding door, step and cargo floor are the L1's read figures, the L2's dealer page giving the same 1,030 mm door and none of the others, so the L2 takes the L1's, the same body section: provisional for the L2.
  */
 export const CAR_BANDS: Readonly<
-  Record<createCar.Kind, Readonly<Record<createCar.Dimension, IArchetypeBand>>>
+  Record<
+    createCar.Kind,
+    Readonly<Partial<Record<createCar.Dimension, IArchetypeBand>>>
+  >
 > = {
   hatchback: {
     ...SHARED,
-    length: ArchetypeBand.metres(4.089, 4.56, HATCH),
-    width: ArchetypeBand.metres(1.694, 1.802, HATCH),
-    height: ArchetypeBand.metres(1.408, 1.526, HATCH),
-    wheelbase: ArchetypeBand.metres(2.517, 2.734, HATCH),
-    wheelDiameter: ArchetypeBand.metres(
-      0.603,
-      0.647,
-      `${HATCH}: tyres 185/60 R15 to 215/50 R17, the outer diameter computed from the size`,
-      true,
-    ),
-    mass: ArchetypeBand.of("kg", 1230, 1503, HATCH),
+    ...CAR,
   },
   sedan: {
     ...SHARED,
-    length: ArchetypeBand.metres(4.63, 4.91, SEDAN, true),
-    width: ArchetypeBand.metres(1.78, 1.84, SEDAN, true),
-    height: ArchetypeBand.metres(1.435, 1.46, SEDAN, true),
-    wheelbase: ArchetypeBand.metres(2.7, 2.82, SEDAN, true),
+    ...CAR,
+    lockTurns: TURNS,
     wheelDiameter: ArchetypeBand.metres(
-      0.603,
-      0.647,
-      `${HATCH}: tyre sizes of comparable cars, the outer diameter computed from the size`,
+      ...hatchbacks("wheelDiameter"),
+      `${HATCH}: the span of the grades' tyres' outer diameters, computed from their sizes, borrowed for want of a sedan's read tyre`,
       true,
     ),
-    mass: ArchetypeBand.of("kg", 1290, 1660, SEDAN, true),
+  },
+  van: {
+    ...SHARED,
+    seatHeight: COMMERCIAL_SEAT,
+    lockTurns: TURNS,
+    steeringRatio: ArchetypeBand.of("", 15.7, 15.7, `${VAN}: ratio 15.7:1`),
+    sideDoorWidth: ArchetypeBand.metres(
+      1.03,
+      1.03,
+      `${VAN}: side door aperture width`,
+    ),
+    sideDoorHeight: ArchetypeBand.metres(
+      1.301,
+      1.301,
+      `${VAN}: side door aperture height`,
+    ),
+    sideStep: ArchetypeBand.metres(
+      0.393,
+      0.435,
+      `${VAN}: side door step height`,
+    ),
+    cargoFloor: ArchetypeBand.metres(
+      0.575,
+      0.593,
+      `${VAN}: rear door loading height`,
+    ),
+  },
+  pickup: {
+    ...SHARED,
+    seatHeight: COMMERCIAL_SEAT,
+    steeringRatio: CAR.steeringRatio,
+    lockTurns: TURNS,
+    length: ArchetypeBand.metres(210.6 * ArchetypeUnits.INCH, 210.6 * ArchetypeUnits.INCH, PICKUP),
+    width: ArchetypeBand.metres(
+      75.5 * ArchetypeUnits.INCH,
+      75.5 * ArchetypeUnits.INCH,
+      `${PICKUP}: width excluding mirrors`,
+    ),
+    wheelbase: ArchetypeBand.metres(128.7 * ArchetypeUnits.INCH, 128.7 * ArchetypeUnits.INCH, PICKUP),
+    bedLength: ArchetypeBand.metres(
+      59.6 * ArchetypeUnits.INCH,
+      59.6 * ArchetypeUnits.INCH,
+      `${PICKUP}: cargo bed length at floor`,
+    ),
+    bedWidth: ArchetypeBand.metres(
+      62.4 * ArchetypeUnits.INCH,
+      62.4 * ArchetypeUnits.INCH,
+      `${PICKUP}: maximum width inside the box`,
+    ),
+    bedDepth: ArchetypeBand.metres(
+      20.8 * ArchetypeUnits.INCH,
+      20.9 * ArchetypeUnits.INCH,
+      "a 2024-2025 Ranger SuperCrew bed's inside height, 20.8 to 20.9 in, in dealers' and outfitters' guides (https://www.greghublerford.com/2024-ford-ranger-bed-size/, https://offroadtents.com/blogs/news/ford-ranger-bed-dimensions-guide-for-every-model), seen in search results only",
+      true,
+    ),
   },
 };

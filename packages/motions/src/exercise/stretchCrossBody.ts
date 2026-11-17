@@ -1,12 +1,14 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * The arms of the cross-body shoulder stretch (`stretch`): the stretched
@@ -38,10 +40,10 @@ export namespace stretchCrossBody {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function arms(props: {
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
     side: "left" | "right";
     duration: number;
-    rest: (side: "left" | "right") => AutoMovieMotionHumanArm.IAngles;
+    rest: (side: "left" | "right") => IAutoMovieMotionHumanArmAngles.IAngles;
     weight: (seconds: number) => number;
     forward: IAutoMovieVector3;
   }): IAutoMovieMotionHumanPrimitive[] {
@@ -50,14 +52,14 @@ export namespace stretchCrossBody {
     const other: "left" | "right" = side === "right" ? "left" : "right";
     const sign: number = side === "left" ? 1 : -1;
     const facing = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       local: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
       HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
         local,
       );
-    const reach = (posture: IHumanPosture): IAutoMovieVector3 =>
+    const reach = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
       HumanFrame.point(
         {
           origin: { x: posture.root.x, y: 0, z: posture.root.z },
@@ -79,7 +81,7 @@ export namespace stretchCrossBody {
         weight,
         // The wrist, not the palm, is carried past the other shoulder: the
         // palm lies a hand's own reach further across.
-        place: (posture: IHumanPosture) => {
+        place: (posture: IAutoMovieMotionHumanPosture) => {
           const at: Parameters<typeof AutoMovieMotionHumanPlaced.wrist>[2] = {
             point: reach(posture),
             facing: facing(posture, { x: 0, y: 0, z: -1 }),
@@ -100,7 +102,7 @@ export namespace stretchCrossBody {
         to: props.duration,
         rest: rest(other),
         weight,
-        place: (posture: IHumanPosture) => {
+        place: (posture: IAutoMovieMotionHumanPosture) => {
           const shoulder: IAutoMovieVector3 = HumanFrame.point(
             { origin: posture.root, yaw: posture.yaw },
             body.rest.get(`${side}UpperArm`)!,

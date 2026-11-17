@@ -1,4 +1,5 @@
-import { ITwoBoneIK, solveTwoBoneIK } from "@automovie/engine";
+import { solveTwoBoneIK } from "@automovie/engine";
+import type { IAutoMovieTwoBoneIK } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -28,63 +29,63 @@ import { throwsError } from "../internal/throwsError";
  */
 export function test_kinematics_two_bone_ik(): void {
   // 1. right angle
-  const a: ITwoBoneIK = solveTwoBoneIK(1, 1, Math.SQRT2);
+  const a: IAutoMovieTwoBoneIK = solveTwoBoneIK(1, 1, Math.SQRT2);
   TestValidator.predicate("bend 90", nclose(a.bend, 90, 1e-4));
   TestValidator.predicate("lift 45", nclose(a.lift, 45, 1e-4));
   TestValidator.equals("in reach", a.clamped, false);
 
   // 2. max reach, straight
-  const b: ITwoBoneIK = solveTwoBoneIK(1, 1, 2);
+  const b: IAutoMovieTwoBoneIK = solveTwoBoneIK(1, 1, 2);
   TestValidator.predicate("bend 180", nclose(b.bend, 180, 1e-4));
   TestValidator.predicate("lift 0", nclose(b.lift, 0, 1e-4));
   TestValidator.equals("max is in reach", b.clamped, false);
 
   // 3. distance0, equal bones folded, d===0 guard
-  const c: ITwoBoneIK = solveTwoBoneIK(1, 1, 0);
+  const c: IAutoMovieTwoBoneIK = solveTwoBoneIK(1, 1, 0);
   TestValidator.predicate("folded bend 0", nclose(c.bend, 0, 1e-4));
   TestValidator.predicate("lift 0 (guard)", nclose(c.lift, 0));
   TestValidator.equals("0 within shell", c.clamped, false);
 
   // 4. beyond reach: clamped, extended
-  const d: ITwoBoneIK = solveTwoBoneIK(2, 1, 5);
+  const d: IAutoMovieTwoBoneIK = solveTwoBoneIK(2, 1, 5);
   TestValidator.equals("too far clamped", d.clamped, true);
   TestValidator.predicate("clamped to straight", nclose(d.bend, 180, 1e-4));
 
   // 5. inside inner shell: clamped, folded
-  const e: ITwoBoneIK = solveTwoBoneIK(2, 1, 0.5);
+  const e: IAutoMovieTwoBoneIK = solveTwoBoneIK(2, 1, 0.5);
   TestValidator.equals("too near clamped", e.clamped, true);
   TestValidator.predicate("clamped to folded", nclose(e.bend, 0, 1e-4));
 
   TestValidator.predicate(
     "NaN upper length rejects",
     throwsError(
-      (): ITwoBoneIK => solveTwoBoneIK(Number.NaN, 1, 1),
+      (): IAutoMovieTwoBoneIK => solveTwoBoneIK(Number.NaN, 1, 1),
       ["two-bone IK upper length", "finite", "NaN"],
     ),
   );
   TestValidator.predicate(
     "zero lower length rejects",
     throwsError(
-      (): ITwoBoneIK => solveTwoBoneIK(1, 0, 1),
+      (): IAutoMovieTwoBoneIK => solveTwoBoneIK(1, 0, 1),
       ["two-bone IK lower length", "> 0", "0"],
     ),
   );
   TestValidator.predicate(
     "infinite distance rejects",
     throwsError(
-      (): ITwoBoneIK => solveTwoBoneIK(1, 1, Infinity),
+      (): IAutoMovieTwoBoneIK => solveTwoBoneIK(1, 1, Infinity),
       ["two-bone IK distance", "finite", "Infinity"],
     ),
   );
   TestValidator.predicate(
     "negative distance rejects",
     throwsError(
-      (): ITwoBoneIK => solveTwoBoneIK(1, 1, -1),
+      (): IAutoMovieTwoBoneIK => solveTwoBoneIK(1, 1, -1),
       ["two-bone IK distance", "non-negative", "-1"],
     ),
   );
   for (const scale of [1e-200, 1e200]) {
-    const similar: ITwoBoneIK = solveTwoBoneIK(
+    const similar: IAutoMovieTwoBoneIK = solveTwoBoneIK(
       scale,
       scale,
       Math.SQRT2 * scale,
@@ -102,14 +103,14 @@ export function test_kinematics_two_bone_ik(): void {
   TestValidator.predicate(
     "unrepresentable side ratio refuses",
     throwsError(
-      (): ITwoBoneIK => solveTwoBoneIK(1e-300, 1e300, 1e300),
+      (): IAutoMovieTwoBoneIK => solveTwoBoneIK(1e-300, 1e300, 1e300),
       ["two-bone IK", "ratios", "precision"],
     ),
   );
   TestValidator.predicate(
     "nonzero goal ratio cannot underflow to root convention",
     throwsError(
-      (): ITwoBoneIK => solveTwoBoneIK(1e300, 1e300, 1e-300),
+      (): IAutoMovieTwoBoneIK => solveTwoBoneIK(1e300, 1e300, 1e-300),
       ["two-bone IK", "ratios", "precision"],
     ),
   );

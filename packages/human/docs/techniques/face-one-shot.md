@@ -47,7 +47,7 @@ One instrument, tracked: `test/src/reference-conics/FamilyConicFace.ts`. It read
 | `--outer` | Only skin that sees the outside along one of 64 directions past the skin and both eyeballs, so the mouth's lining, the vestibules and the sockets are left out |
 | `--profile` | The front profile in a sagittal plane and its local extremes |
 | `--cast` | Parallel rays on a grid: how many times each enters the skin within a depth, and whether its first face stands within 15 degrees of it |
-| `--radial` | Rays square to a trial course: whether each meets the skin once, the star-shape of [Lofting](../../../../.agents/skills/3d-modeling/lofting.md#one-section-family) |
+| `--radial` | Rays square to a trial course: whether each meets the skin once, the star-shape of [Lofting](../../../../.agents/skills/3d-modeling/crafting/lofting.md#one-section-family) |
 | `--wedge` | The skin's turn across every fold of a plane cut, at 3, 6 and 12 mm |
 | `--stills` | The reference in clay with the rims and typed marks and lines over it |
 
@@ -86,7 +86,7 @@ Rays along -X, the direction `trunk.face`, `trunk.eyes` and `trunk.mouth` are mo
 
 And 1,539 of the 27,531 first faces stand within 15 degrees of the ray: the sides of the cheeks and the flanks of the nose. A height moved along -X there slides along the skin instead of standing on it.
 
-Sizes against the nets' spacing: the lid margin is 1.9 to 2.8 mm thick (tool `o-radial-eye-canthal-*.txt`), the lips meet in a line of no width, the alar groove turns 71 to 77 degrees within 6 mm. [Lofting](../../../../.agents/skills/3d-modeling/lofting.md#fitting-and-verification) asks a sampling of a quarter of a roll; the nets stand 1.8 to 3.5 mm apart.
+Sizes against the nets' spacing: the lid margin is 1.9 to 2.8 mm thick (tool `o-radial-eye-canthal-*.txt`), the lips meet in a line of no width, the alar groove turns 71 to 77 degrees within 6 mm. [Lofting](../../../../.agents/skills/3d-modeling/crafting/lofting.md#fitting-and-verification) asks a sampling of a quarter of a roll; the nets stand 1.8 to 3.5 mm apart.
 
 ### The generated head, before
 

@@ -1,6 +1,9 @@
 import type {
+  IAutoMoviePhysicalGravityTorques,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import type { RigidBody } from "@dimforge/rapier3d-compat";
 
@@ -21,11 +24,11 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 5 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function physicalGravityTorques(
-  profile: P,
-  order: readonly P.IJoint[],
+  profile: IAutoMoviePhysicalProfile,
+  order: readonly IAutoMoviePhysicalJoint[],
   segments: ReadonlyMap<string, RigidBody>,
   gravity: IAutoMovieVector3,
-): { joints: Map<string, IAutoMovieVector3>; root: IAutoMovieVector3 } {
+): IAutoMoviePhysicalGravityTorques.IResult {
   const loads: Map<string, { mass: number; moment: IAutoMovieVector3 }> =
     new Map(
       profile.segments.map(
@@ -76,7 +79,7 @@ export function physicalGravityTorques(
     ancestor.mass += load.mass;
     ancestor.moment = Vector3.add(ancestor.moment, load.moment);
   }
-  const root: P.ISegment = profile.segments.find(
+  const root: IAutoMoviePhysicalSegment = profile.segments.find(
     (segment: (typeof profile.segments)[number]): boolean =>
       !profile.joints.some(
         (joint: (typeof profile.joints)[number]): boolean =>

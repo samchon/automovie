@@ -1,23 +1,22 @@
-import {
-  type IAutoMovieIntent,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
-  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
+import { HumanPerformanceHold } from "./HumanPerformanceHold";
+import { HumanPropHold } from "./HumanPropHold";
 import { HumanSegment } from "./HumanSegment";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * What a performance is read by: a person's pose, posture and bones, a
@@ -38,7 +37,7 @@ export namespace HumanPerformanceRead {
    * @returns The pose.
    */
   export function pose(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
   ): IAutoMoviePose {
@@ -57,15 +56,13 @@ export namespace HumanPerformanceRead {
    * @returns The posture.
    */
   export function posture(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
-  ): IHumanPosture {
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      subject,
-    );
-    let active: HumanSegment.ISegment | undefined;
+  ): IAutoMovieMotionHumanPosture {
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, subject);
+    let active: IAutoMovieMotionHumanSegment | undefined;
     for (const s of person.segments)
       if (s.entryTime <= seconds + 1e-12) active = s;
     return active === undefined
@@ -83,14 +80,12 @@ export namespace HumanPerformanceRead {
    * @returns Resolved bones by rig bone.
    */
   export function bones(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      subject,
-    );
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, subject);
     return poseBones(
       person.performer.body,
       HumanPerformanceRead.pose(self, subject, seconds),
@@ -103,7 +98,9 @@ export namespace HumanPerformanceRead {
    * with the offset it had when the grip closed, and left where the last
    * grip released it. A worn span is a grip by a bone: from the film's start
    * for a prop declared worn, from the instant an action puts it on
-   * (`IHumanActionPlan.wears`), each to the next grip that takes it off.
+   * (`IHumanActionPlan.wears`), each to the next grip that takes it off; a
+   * prop set on another prop's socket (`IHumanActionPlan.mounts`) rides
+   * that socket the same way, posed as the other prop is.
    *
    * A grip is any action's contact window of kind `grip` on a hand whose
    * support is this prop. The hand's grip socket rides the hand bone, so the
@@ -112,109 +109,42 @@ export namespace HumanPerformanceRead {
    * captured at the grip's start instead of authored. When grips overlap (a
    * handover), the one that closed last carries the prop, unless it is the
    * other hand of the performer already carrying it, which only steadies
-   * it (a camera held in both hands). A hold an action
+   * it (a camera held in both hands). Two hands that close on it at the
+   * same instant take it together: the prop is one rigid thing between the
+   * two fists, each grip socket keeping its place on it (`HumanPropHold`; a
+   * sled pushed by its two handles). A hold an action
    * leaves (`IHumanActionPlan.holds`) is a grip lasting until a later action
    * takes that hand over. Released props stay where the last grip to end
    * released them; falling is the physics layer's.
    *
+   * A grip carries the prop only after it closes: at its first second the
+   * prop is where it was, which is where the offset the grip keeps puts it
+   * then. The offset is read off the hand at that second, whose pose may be
+   * an action reading the prop; read there by the closing grip, the frame
+   * would wait on itself.
+   *
+   * A performer reading a prop they carry themselves (`own`) reads it on
+   * their own body as the read gives it (an action's, as it entered the
+   * action), as a performer reads their own region: their displayed bones
+   * at that second are the posture still being solved, and through the
+   * hand that carries the prop they read the action reading it (a reload
+   * pressing the magazine of the gun the other hand holds).
+   *
    * @param subject The prop.
    * @param seconds Film seconds.
+   * @param own The performer reading the prop and their own bones, for a prop they may carry.
    * @returns Its frame.
    */
   export function prop(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
-  ): IHumanProp.IFrame {
-    const prop: IHumanProp | undefined = self.props.get(subject);
-    if (prop === undefined)
-      throw HumanPerformanceRead.missing("prop", subject, [
-        ...self.props.keys(),
-      ]);
-    if (prop.motion !== undefined) return prop.motion(seconds);
-    const grips: HumanPerformanceState.IGrip[] = HumanPerformanceRead.grips(
-      self,
-      subject,
-    );
-    // The latest grip still holding carries it; with none holding, the one released last left it.
-    let active: HumanPerformanceState.IGrip | undefined;
-    let released: HumanPerformanceState.IGrip | undefined;
-    for (const g of grips) {
-      if (g.from > seconds) continue;
-      if (seconds <= g.to) {
-        // A performer's other hand on a prop that performer already holds
-        // steadies it and does not take it over: a camera's far end held
-        // with the right hand on the grip.
-        const steadies: boolean =
-          active !== undefined &&
-          active.bone === undefined &&
-          g.bone === undefined &&
-          active.subject === g.subject &&
-          active.side !== g.side;
-        if (!steadies) active = g;
-      } else if (released === undefined || g.to >= released.to) released = g;
-    }
-    const window: HumanPerformanceState.IGrip | undefined = active ?? released;
-    if (window === undefined) return prop.frame;
-    const at: number = Math.min(seconds, window.to);
-    // A window opening on a hand that already holds the prop (a put down
-    // after a pick up) keeps that grip's offset: the hand never re-seats what
-    // it holds, so no action boundary moves the prop in the hand.
-    // A worn span rides its bone; a held one, its hand's grip socket.
-    const carrier = (
-      w: HumanPerformanceState.IGrip,
-      at: number,
-    ): IHumanProp.IFrame => {
-      if (w.bone === undefined)
-        return HumanPerformanceRead.hand(self, w.subject, w.side, at);
-      const bone: IAutoMovieResolvedBone = HumanPerformanceRead.bones(
-        self,
-        w.subject,
-        at,
-      ).get(w.bone)!;
-      return { position: bone.worldPosition, rotation: bone.worldRotation };
-    };
-    const seat = (w: HumanPerformanceState.IGrip): IHumanProp.IFrame => {
-      if (w.offset !== undefined) return w.offset;
-      const earlier: HumanPerformanceState.IGrip | undefined =
-        w.bone !== undefined
-          ? undefined
-          : grips.find(
-              (g: HumanPerformanceState.IGrip): boolean =>
-                g !== w &&
-                g.bone === undefined &&
-                g.subject === w.subject &&
-                g.side === w.side &&
-                g.from < w.from &&
-                g.to >= w.from - 1e-6,
-            );
-      if (earlier !== undefined) return (w.offset = seat(earlier));
-      const before: IHumanProp.IFrame = HumanPerformanceRead.prop(
-        self,
-        subject,
-        w.from - 1e-6,
-      );
-      const hand: IHumanProp.IFrame = carrier(w, w.from);
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
-      return (w.offset = {
-        position: Quaternion.rotateVector(
-          inverse,
-          Vector3.subtract(before.position, hand.position),
-        ),
-        rotation: Quaternion.multiply(inverse, before.rotation),
-      });
-    };
-    const offset: IHumanProp.IFrame = seat(window);
-    const hand: IHumanProp.IFrame = carrier(window, at);
-    return {
-      position: Vector3.add(
-        hand.position,
-        Quaternion.rotateVector(hand.rotation, offset.position),
-      ),
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(hand.rotation, offset.rotation),
-      ),
-    };
+    own?: {
+      subject: string;
+      bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+    },
+  ): IAutoMovieRigidTransform {
+    return HumanPerformanceHold.prop(self, subject, seconds, own);
   }
 
   /**
@@ -224,9 +154,9 @@ export namespace HumanPerformanceRead {
    * @returns The segments.
    */
   export function segments(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-  ): readonly HumanSegment.ISegment[] {
+  ): readonly IAutoMovieMotionHumanSegment[] {
     return HumanPerformanceRead.person(self, subject).segments;
   }
 
@@ -238,23 +168,28 @@ export namespace HumanPerformanceRead {
    * @returns The overlays.
    */
   export function overlays(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-  ): readonly HumanSegment.IOverlay[] {
+  ): readonly IAutoMovieMotionHumanSegment.IOverlay[] {
     return HumanPerformanceRead.person(self, subject).overlays;
   }
 
-  /** Every grip window on a prop across every person, and every span it is worn on a bone, in film order, computed once after construction. */
+  /** Every grip window on a prop across every person, and every span it is worn on a bone, in film order, computed once after construction; none for a fixture, which no grip carries. */
   export function grips(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-  ): HumanPerformanceState.IGrip[] {
-    const known: HumanPerformanceState.IGrip[] | undefined =
+  ): IAutoMovieMotionHumanPerformanceState.IGrip[] {
+    const known: IAutoMovieMotionHumanPerformanceState.IGrip[] | undefined =
       self.gripCache.get(subject);
     if (known !== undefined) return known;
-    const out: HumanPerformanceState.IGrip[] = [];
-    const worn: HumanPerformanceState.IGrip[] = [];
-    const declared: IHumanProp.IWorn | undefined =
+    const out: IAutoMovieMotionHumanPerformanceState.IGrip[] = [];
+    const worn: IAutoMovieMotionHumanPerformanceState.IGrip[] = [];
+    // A fixture bears the hands that grip it and is never carried by them.
+    if (self.props.get(subject)?.fixed === true) {
+      if (!self.resolving) self.gripCache.set(subject, out);
+      return out;
+    }
+    const declared: IAutoMovieMotionHumanProp.IWorn | undefined =
       self.props.get(subject)?.worn;
     if (declared !== undefined)
       worn.push({
@@ -275,6 +210,20 @@ export namespace HumanPerformanceRead {
                 subject: person.performer.subject,
                 side: "right",
                 bone: w.bone,
+                from,
+                to: Infinity,
+              });
+          }
+      // A prop set on another prop's socket rides it like a worn one.
+      for (const segment of [...person.segments, ...person.overlays])
+        for (const m of segment.plan.mounts ?? [])
+          if (m.prop === subject) {
+            const from: number = segment.start + m.from * segment.plan.duration;
+            if (from >= segment.entryTime - 1e-9 && from <= segment.end + 1e-9)
+              worn.push({
+                subject: person.performer.subject,
+                side: "right",
+                mount: { prop: m.onto, point: m.point },
                 from,
                 to: Infinity,
               });
@@ -309,6 +258,7 @@ export namespace HumanPerformanceRead {
                 side: c.part === "leftHand" ? "left" : "right",
                 from,
                 to,
+                ...(c.inHand === undefined ? {} : { inHand: c.inHand }),
               });
           }
     }
@@ -320,8 +270,8 @@ export namespace HumanPerformanceRead {
     }
     out.sort(
       (
-        a: HumanPerformanceState.IGrip,
-        b: HumanPerformanceState.IGrip,
+        a: IAutoMovieMotionHumanPerformanceState.IGrip,
+        b: IAutoMovieMotionHumanPerformanceState.IGrip,
       ): number => a.from - b.from,
     );
     if (!self.resolving) self.gripCache.set(subject, out);
@@ -330,28 +280,16 @@ export namespace HumanPerformanceRead {
 
   /** A hand's grip-socket frame: the socket's point with the hand bone's world rotation. */
   export function hand(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     side: "left" | "right",
     seconds: number,
-  ): IHumanProp.IFrame {
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      subject,
+  ): IAutoMovieRigidTransform {
+    return HumanPropHold.frame(
+      HumanPerformanceRead.person(self, subject).performer.body,
+      HumanPerformanceRead.bones(self, subject, seconds),
+      { side },
     );
-    const frame =
-      person.performer.body.surfaces.sockets[
-        side === "left" ? "gripLeft" : "gripRight"
-      ];
-    const bone: IAutoMovieResolvedBone = HumanPerformanceRead.bones(
-      self,
-      subject,
-      seconds,
-    ).get(frame.bone)!;
-    return {
-      position: resolveAutoMovieHumanoidSurfaces.place(frame, bone).point,
-      rotation: bone.worldRotation,
-    };
   }
 
   /**
@@ -365,18 +303,17 @@ export namespace HumanPerformanceRead {
    * where the last action put them.
    */
   export function root(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
     axis: string,
-  ): IHumanActionContext.IRoot {
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      subject,
-    );
-    const last: HumanSegment.ISegment | undefined = person.segments.at(-1);
+  ): IAutoMovieMotionHumanActionContext.IRoot {
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, subject);
+    const last: IAutoMovieMotionHumanSegment | undefined =
+      person.segments.at(-1);
     const left: number =
-      (self.intended.get(subject) ?? 0) - person.segments.length;
+      (self.intended.get(subject)?.length ?? 0) - person.segments.length;
     if (self.resolving && left > 0 && seconds > (last?.end ?? 0) + 1e-9)
       throw new HumanRefusal({
         kind: "participant",
@@ -395,7 +332,7 @@ export namespace HumanPerformanceRead {
         }, and ${left} more of theirs come later in the composition`,
         fix: `compose ${subject}'s actions before self one: put their chain first in the parallel group, or join both chains with a mutual action`,
       });
-    const posture: IHumanPosture = HumanPerformanceRead.posture(
+    const posture: IAutoMovieMotionHumanPosture = HumanPerformanceRead.posture(
       self,
       subject,
       seconds,
@@ -405,10 +342,11 @@ export namespace HumanPerformanceRead {
 
   /** A person by subject, or an error naming the performers. */
   export function person(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-  ): HumanSegment.IPerson {
-    const person: HumanSegment.IPerson | undefined = self.people.get(subject);
+  ): IAutoMovieMotionHumanSegment.IPerson {
+    const person: IAutoMovieMotionHumanSegment.IPerson | undefined =
+      self.people.get(subject);
     if (person === undefined)
       throw HumanPerformanceRead.missing("performer", subject, [
         ...self.people.keys(),
@@ -418,9 +356,9 @@ export namespace HumanPerformanceRead {
 
   /** The place of an intent in the film: its performer, its action and which occurrence of the action's id this is. */
   export function where(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     intent: IAutoMovieIntent,
-  ): HumanRefusal.IWhere {
+  ): IAutoMovieMotionHumanRefusal.IWhere {
     const id: string = intent.anchor ?? intent.capability;
     return {
       performer: intent.subject,
@@ -429,7 +367,8 @@ export namespace HumanPerformanceRead {
         [
           ...(self.people.get(intent.subject)?.segments ?? []),
           ...(self.people.get(intent.subject)?.overlays ?? []),
-        ].filter((s: HumanSegment.ISegment): boolean => s.id === id).length + 1,
+        ].filter((s: IAutoMovieMotionHumanSegment): boolean => s.id === id)
+          .length + 1,
     };
   }
 
@@ -439,7 +378,7 @@ export namespace HumanPerformanceRead {
     subject: string,
     known: readonly string[],
     axis: string = what,
-  ): HumanRefusal {
+  ): IAutoMovieMotionHumanRefusal {
     return new HumanRefusal({
       kind: what === "prop" ? "affordance" : "participant",
       axis,

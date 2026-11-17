@@ -1,6 +1,8 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieJacobianCofactor,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { IAutoMovieJacobianCofactor } from "./IAutoMovieJacobianCofactor";
 import { Vector3 } from "./Vector3";
 
 /**

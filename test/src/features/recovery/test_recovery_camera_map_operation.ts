@@ -64,10 +64,12 @@ export function test_recovery_camera_map_operation(): void {
   before.abort();
   const during: AbortController = new AbortController();
   const cancelledBefore: ReturnType<typeof estimateAutoMovieRecoveryCameraMap> =
-    estimateAutoMovieRecoveryCameraMap(make(), { signal: before.signal });
+    estimateAutoMovieRecoveryCameraMap(make(), {
+      cancelled: (): boolean => before.signal.aborted,
+    });
   const cancelledDuring: ReturnType<typeof estimateAutoMovieRecoveryCameraMap> =
     estimateAutoMovieRecoveryCameraMap(make(), {
-      signal: during.signal,
+      cancelled: (): boolean => during.signal.aborted,
       onProgress: (): void => during.abort(),
     });
   const failed: ReturnType<typeof estimateAutoMovieRecoveryCameraMap> =

@@ -1,8 +1,8 @@
 import { decodeAutoMoviePpmImage } from "@automovie/ingest";
 import type {
-  AutoMovieRecoveryImageRecipe,
   IAutoMovieRecoveryImageInput,
   IAutoMovieRecoveryImageObservation,
+  IAutoMovieRecoveryImageRecipe,
 } from "@automovie/interface";
 import {
   compileAutoMovieRecoveryImageLoft,
@@ -140,12 +140,12 @@ export function recoveryImages(args: string[], sourceEpoch: string): void {
         : fitAutoMovieRecoveryImageLoft(spec?.observation, spec?.policy);
   } else {
     const spec: {
-      recipe: AutoMovieRecoveryImageRecipe;
+      recipe: IAutoMovieRecoveryImageRecipe;
       budget:
         | Parameters<typeof compileAutoMovieRecoveryImageLoft>[1]
         | Parameters<typeof compileAutoMovieRecoverySupportLoft>[1];
     } = document as {
-      recipe: AutoMovieRecoveryImageRecipe;
+      recipe: IAutoMovieRecoveryImageRecipe;
       budget:
         | Parameters<typeof compileAutoMovieRecoveryImageLoft>[1]
         | Parameters<typeof compileAutoMovieRecoverySupportLoft>[1];

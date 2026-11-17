@@ -1,23 +1,28 @@
+import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
+import { FamilyConicNativePremises } from "./FamilyConicNativePremises";
+import {
+  FamilyConicNativeRootObservations as Observation,
+} from "./FamilyConicNativeRootObservations";
 import {
   AutoMovieConstructionAdmission,
   AutoMovieSolidChain,
   AutoMovieViewLoft,
-  type IAutoMovieLoftChain,
-  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
 import {
-  AutoMovieHumanHipSupportPlacement,
-  AutoMovieHumanF1Engineering as Engineering,
   AutoMovieHumanF1 as Figure,
   AutoMovieHumanF1NativeLaw as Law,
   AutoMovieHumanF1Placing as Placing,
+  AutoMovieHumanHipSupportPlacement,
 } from "@automovie/human";
+import type {
+  IAutoMovieHumanF1,
+  IAutoMovieHumanF1Engineering,
+  IAutoMovieHumanF1NativeLaw,
+  IAutoMovieLoftChain,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-
-import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
-import { FamilyConicNativePremises } from "./FamilyConicNativePremises";
-import { FamilyConicNativeRootObservations as Observation } from "./FamilyConicNativeRootObservations";
 
 /**
  * Missing root/operator inputs from the completed frozen engineering round.
@@ -80,7 +85,7 @@ namespace FamilyConicNativeRootInputs {
       patchBytes: Buffer = await fs.readFile(patchPath);
     const catalog: {
       sourceHashes: Record<string, string>;
-      cases: Engineering.IResolvedCase[];
+      cases: IAutoMovieHumanF1Engineering.IResolvedCase[];
     } = JSON.parse(catalogBytes.toString());
     const originRound: { sourceHashes: Record<string, string> } = JSON.parse(
       roundBytes.toString(),
@@ -188,17 +193,17 @@ namespace FamilyConicNativeRootInputs {
         "separate observation-only generation; original case bytes/fields retained; not a replacement accepted case/preflight receipt",
     };
     const started: number = performance.now(),
-      original: Figure.IAssembly = Figure.assemble(),
+      original: IAutoMovieHumanF1.IAssembly = Figure.assemble(),
       originalConstruction: ReturnType<typeof Figure.constructionFrom> =
         Figure.constructionFrom(original),
-      prepared: Law.IPrepared = Law.prepare(
+      prepared: IAutoMovieHumanF1NativeLaw.IPrepared = Law.prepare(
         original,
         originalConstruction.sources,
       );
-    const bones: Map<number, Figure.IAssembly> = new Map([
+    const bones: Map<number, IAutoMovieHumanF1.IAssembly> = new Map([
       [prepared.fields.hipJointCentreBreadth, original],
     ]);
-    const plans: Engineering.IResolvedCase[] = [
+    const plans: IAutoMovieHumanF1Engineering.IResolvedCase[] = [
       catalog.cases[0]!,
       { ...catalog.cases[0]!, id: "forced-native-f1" },
       ...catalog.cases.slice(1),
@@ -232,7 +237,7 @@ namespace FamilyConicNativeRootInputs {
         const old: {
           id: string;
           fieldsHash: string;
-          fields: Law.IFields;
+          fields: IAutoMovieHumanF1NativeLaw.IFields;
           sourceHashes: Record<string, string>;
           operators: { failures: unknown; backward: unknown };
         } = JSON.parse(oldBytes.toString());
@@ -245,7 +250,7 @@ namespace FamilyConicNativeRootInputs {
             Identity.dataHash(catalog.sourceHashes)
         )
           throw new Error("completed case metadata differs: " + plan.id);
-        let bone: Figure.IAssembly | undefined = bones.get(
+        let bone: IAutoMovieHumanF1.IAssembly | undefined = bones.get(
           plan.fields.hipJointCentreBreadth,
         );
         if (bone === undefined) {
@@ -262,7 +267,7 @@ namespace FamilyConicNativeRootInputs {
         const baseline: boolean =
           plan.id !== "forced-native-f1" &&
           fieldsHash === Identity.dataHash(prepared.fields);
-        const assembly: Figure.IAssembly = baseline
+        const assembly: IAutoMovieHumanF1.IAssembly = baseline
           ? original
           : prepared.apply(plan.fields, bone);
         const assembled: number = performance.now(),

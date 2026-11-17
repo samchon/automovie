@@ -1,5 +1,8 @@
-import type { IAutoMovieRecoveryFeasibleDiagnostics } from "../structures/image/IAutoMovieRecoveryFeasibleDiagnostics";
-import type { IAutoMovieRecoveryFeasibleFit } from "../structures/internal/IAutoMovieRecoveryFeasibleFit";
+import type {
+  IAutoMovieRecoveryFeasibleDiagnostics,
+  IAutoMovieRecoveryFeasibleFit,
+} from "@automovie/interface";
+
 import { encodeRecoveryDiagnosticNumber } from "./encodeRecoveryDiagnosticNumber";
 
 /**

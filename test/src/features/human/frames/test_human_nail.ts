@@ -1,5 +1,6 @@
-import { AutoMovieLoftChain, type AutoMovieViewLoft } from "@automovie/engine";
+import { AutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanNail } from "@automovie/human";
+import type { IAutoMovieHumanNail, IAutoMovieViewLoft } from "@automovie/interface";
 
 /**
  * The nail law against closed forms, on one made digit: a level-topped bar along +X, 10 mm long, whose section is
@@ -44,7 +45,7 @@ export function test_human_nail(): void {
   // the fold the relief needs there, so the plate's line is not raised and the frame stays unpitched.
   const close: number = 4.6;
   const root = (x: number): number => Math.sign(x) * Math.abs(x) ** 0.25;
-  const skin = (long: number): AutoMovieHumanNail.ISkin => ({
+  const skin = (long: number): IAutoMovieHumanNail.ISkin => ({
     first: 0,
     tip: long + (close * Math.PI) / 2,
     point: (station: number, phase: number): number[] => {
@@ -52,9 +53,9 @@ export function test_human_nail(): void {
       return [Math.min(station, long) + close * Math.sin(turn), high * Math.cos(turn) * root(Math.cos(phase)), broad * Math.cos(turn) * root(Math.sin(phase))];
     },
   });
-  const proportions: AutoMovieHumanNail.IProportions = { width: 0.7, aspect: 0.91, radius: 0.7, thickness, fold, lunula: 1, wrap: 1 };
-  const segment: AutoMovieHumanNail.IFrame = { origin: [0, 0, 0], distal: [1, 0, 0], dorsal: [0, Math.cos(turned), Math.sin(turned)] };
-  const nail: AutoMovieHumanNail.INail = AutoMovieHumanNail.create("nail.made", "nailbed.made", segment, skin(length), proportions, 0.69, 10);
+  const proportions: IAutoMovieHumanNail.IProportions = { width: 0.7, aspect: 0.91, radius: 0.7, thickness, fold, lunula: 1, wrap: 1 };
+  const segment: IAutoMovieHumanNail.IFrame = { origin: [0, 0, 0], distal: [1, 0, 0], dorsal: [0, Math.cos(turned), Math.sin(turned)] };
+  const nail: IAutoMovieHumanNail.INail = AutoMovieHumanNail.create("nail.made", "nailbed.made", segment, skin(length), proportions, 0.69, 10);
 
   // 1. Breadth, tip, width and fold.
   const breadth: number = 2 * ((high * Math.sin(turned)) ** (8 / 7) + (broad * Math.cos(turned)) ** (8 / 7)) ** (7 / 8);
@@ -77,10 +78,10 @@ export function test_human_nail(): void {
   const bedArc: number = shrunk * high * (1 - (1 - (nail.readings.width / 2 / broad) ** 8) ** 0.125);
   const sagitta: number = arc - Math.sqrt(arc ** 2 - ((shrunk * nail.readings.width) / 2) ** 2);
   near("greatest sagitta", nail.readings.sagitta[1], sagitta, 0.05 * (sagitta - bedArc) + 0.02);
-  const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(nail.plate, nail.plate.knots);
+  const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(nail.plate, nail.plate.knots);
   if (loft.chain === null) failures.push("the plate does not loft: " + JSON.stringify(loft.diagnostics).slice(0, 300));
   else {
-    const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+    const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
     const station: number = 9 - nail.plate.centres[0]![0];
     // The crown stands at phase 0 of the plate's chart; each edge is found by bisection of the phase on its side.
     const on = (phase: number): number[] => AutoMovieLoftChain.point(chain, station, phase);

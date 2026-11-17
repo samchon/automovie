@@ -1,37 +1,38 @@
-import { Vector3 } from "@automovie/engine";
-
+import { HorseHarness } from "../animals/HorseHarness";
 import {
-  Archetype,
-  ArchetypeBand,
+  type Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeFrame,
+  ArchetypeDrawSession,
+  type ArchetypeFriction,
+  type ArchetypeRide,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
-
-/** A shopping trolley, from its maker's page and a reseller's listing. */
-const TROLLEY: string =
-  "Wanzl EL series shopping trolleys (https://www.wanzl.com/en_DE/products/trolleys/shopping-trolleys/various-shopping-trolleys/el-series~p390); the EL 185's 610 x 1150 x 1030 mm from a reseller listing seen only in search results";
-
-/** A wheelbarrow read at its maker's data sheet. */
-const BARROW: string =
-  "Matador M-130-L4 wheelbarrow data sheet (https://bati-avenue.com/media/akeneo_connector/media_files/1/0/10868_M_130_L4_EN_Data_sheet_final_1_f9d6.pdf)";
+import { CART_BANDS } from "./CART_BANDS";
+import { CART_MODELS } from "./CART_MODELS";
+import { CartCoach } from "./CartCoach";
+import { CartDrawn } from "./CartDrawn";
+import { CartFit } from "./CartFit";
+import { CartLimber } from "./CartLimber";
+import { CartPushed } from "./CartPushed";
+import { cartTowing } from "./cartTowing";
 
 /**
- * A pushed load carrier: a shopping trolley or a wheelbarrow.
+ * A wheeled load carrier, pushed by hand or drawn: a shopping trolley, a wheelbarrow, a horse's two-wheeled cart, a runner's rickshaw, a pair's chariot, an artillery limber, a four-wheeled wagon or a closed carriage.
  *
- * The carrier stands on the floor with its front toward `+Z` and the person behind it at `-Z`. A trolley is pushed by the one `handle` bar across its back; a wheelbarrow is lifted and pushed by its two handles, `leftHandle` on `+X`. `load` is the floor of the basket or the tray, where things are put. `ArchetypeRide.along` moves either along a course.
+ * The carrier stands on the floor with its front toward `+Z`. A trolley and a wheelbarrow are pushed from behind at `-Z`: a trolley by the one `handle` bar across its back, a wheelbarrow lifted and pushed by its two handles, `leftHandle` on `+X`; `load` is the floor of the basket or the tray. A drawn kind's (rear) axle runs along `X` under the origin, and its `coupling` is where it is drawn from, ahead along `+Z`: a cart's shafts at the horse's tugs, a rickshaw's shafts at the runner's hands, a chariot's, a limber's, a wagon's or a carriage's pole at its end. A wagon's and a carriage's front axle turns on `frontAxle` about its pivot, `wheelbase` ahead of the rear axle, carrying the pole. `ArchetypeRide.along` moves a pushed kind along a course, and `ArchetypeRide.towed` draws a drawn kind by its `coupling` behind a leader's hitch, a four-wheeler with `front` set to its pivot and `frontAxle`; each road wheel spins on a `knob` the ride turns by the distance covered. A cart drawn by a horse in harness takes its traces and driving lines from `lines`, which the towing ride lays between the two at every second.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, its read model and options, and any dimension the author fixes.
+ * @param seed The seed that picks the model and its options and draws every dimension left free inside its band; absent, the first model and option, and each dimension the middle of its band.
  * @returns The carrier.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a fixed dimension outside its band, one the kind lacks or one the model reads, or a model or option the kind does not offer.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States how the carrier stands, where it is pushed from and where it is loaded.
- * @evidence contracts/development/implementation.md#principled-implementation A basket or tray box on wheels with handle bars at the drawn height; a trolley's basket stands over its chassis on two rear uprights and carries the push bar on two arms from its rear rim; each handle's frame lies on its bar's axis with the bar's diameter as its `aperture`.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then one branch per kind.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wheelbarrow is modelled resting on its legs, handles at rest height; lifting it is the pushing act's to pose. A trolley's basket is one solid box held at its rear, its wire mesh, child seat and front supports not modelled.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most eleven parts.
+ * @evidence contracts/development/common.md#meaningful-documentation States how the carrier stands, where it is pushed or drawn from and where it is loaded.
+ * @evidence contracts/development/implementation.md#principled-implementation Pick the read model whole, among a cart's only those made for a fixed horse, then its castors or shafts; draw the dimensions it leaves free inside the kind's bands and its own ranges; lay its figures over them; then build the kind on them: a pushed kind by `CartPushed`, a two-wheeled drawn kind by `CartDrawn`, the limber by `CartLimber`, a four-wheeled one by `CartCoach`; a horse's cart is first fitted to its horse by `CartFit`. A cart without read shafts takes the shafts that reach from the horse's point of shoulder past its point of buttock by the drawn clearance (`createHorse.rig`).
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One dispatch per family; each family is its own module.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every unread place a builder uses is a named provisional constant here, stating the source to read.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most about twenty parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -39,228 +40,335 @@ export function createCart(
   params: createCart.IParams,
   seed?: number | string,
 ): Archetype<createCart.Affordance, createCart.Dimension> {
+  const draw: ArchetypeDrawSession<createCart.Dimension> =
+    new ArchetypeDrawSession<createCart.Dimension>(
+      "cart",
+      createCart.UNITS,
+      seed,
+      params,
+    );
   const kind: createCart.Kind = ArchetypeDraw.choice(
     "cart",
     "kind",
     params.kind,
     createCart.KINDS,
   );
-  const d: Record<createCart.Dimension, number> = ArchetypeDraw.dimensions(
-    "cart",
-    createCart.BANDS[kind],
-    seed,
-    params,
+  // One read model of the kind, among those made for the horse when its height is fixed, then its castors or its shafts, their figures recorded first; the kind's bands and the model's own ranges draw what they leave.
+  const model: {
+    name: createCart.Model | undefined;
+    figures: Readonly<Partial<Record<createCart.Dimension, number>>>;
+  } = draw.model<createCart.Model>(
+    "model",
+    params.model,
+    params.model === undefined
+      ? CartFit.models(CART_MODELS.figures[kind], params)
+      : CART_MODELS.figures[kind],
+  );
+  draw.model<createCart.Castor>(
+    "castor",
+    params.castor,
+    CART_MODELS.castors[kind],
+  );
+  draw.model<createCart.Shaft>(
+    "shaft",
+    params.shaft,
+    model.name === undefined ? undefined : CART_MODELS.shafts[model.name],
+  );
+  draw.dimensions(
+    {
+      ...createCart.BANDS[kind],
+      ...(model.name === undefined ? {} : CART_MODELS.ranges[model.name]),
+    },
     createCart.BANDS,
   );
+  if (kind === "cart") CartFit.harness(draw);
+  const d: Partial<Record<createCart.Dimension, number>> = { ...draw.values };
   const builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension> =
     new ArchetypeBuilder({
-      archetype: "cart",
+      material: "composite",
       id: params.id,
-      name: kind === "trolley" ? "shopping trolley" : "wheelbarrow",
-      dimensions: d,
+      name: createCart.NAMES[kind],
+      draw,
     });
-  const v: typeof Vector3.create = Vector3.create;
-  const grip: number = d.gripDiameter / 2;
-  const wheel: number = d.wheelDiameter / 2;
-
-  if (kind === "trolley") {
-    const floor: number = d.wheelDiameter + 0.3;
-    builder.box(
-      "basket",
-      v(d.width, d.handleHeight - 0.08 - floor, d.length - 0.15),
-      v(0, (d.handleHeight - 0.08 + floor) / 2, 0.075),
-      { color: "#b9bcc0", density: 0.1 },
-    );
-    builder.box(
-      "chassis",
-      v(d.width, 0.03, d.length - 0.15),
-      v(0, d.wheelDiameter + 0.015, 0.075),
-      { color: "#8a8d91" },
-    );
-    for (const [name, x, z] of [
-      ["castor-front-left", 1, 1],
-      ["castor-front-right", -1, 1],
-      ["castor-rear-left", 1, -1],
-      ["castor-rear-right", -1, -1],
-    ] as const)
-      builder.rod(
-        name,
-        wheel,
-        v(
-          x * (d.width / 2 - 0.05) - 0.015,
-          wheel,
-          z * (d.length / 2 - 0.2) + 0.075,
-        ),
-        v(
-          x * (d.width / 2 - 0.05) + 0.015,
-          wheel,
-          z * (d.length / 2 - 0.2) + 0.075,
-        ),
-        { color: "#22262b" },
-      );
-    const bar: number = -d.length / 2 + grip;
-
-    // What joins the three: an upright under each rear corner of the basket, and an arm from the basket's rear rim to each end of the bar.
-    const back: number = -d.length / 2 + 0.15;
-    for (const [side, sign] of [
-      ["left", 1],
-      ["right", -1],
-    ] as const) {
-      const x: number = sign * (d.width / 2 - grip);
-      builder.rod(
-        `upright-${side}`,
-        grip,
-        v(x, d.wheelDiameter + 0.03, back + grip),
-        v(x, floor, back + grip),
-        { color: "#8a8d91" },
-      );
-      builder.rod(
-        `arm-${side}`,
-        grip,
-        v(x, d.handleHeight - 0.08, back),
-        v(x, d.handleHeight, bar),
-        { color: "#8a8d91" },
-      );
-    }
-    builder.rod(
-      "handle",
-      grip,
-      v(-d.width / 2, d.handleHeight, bar),
-      v(d.width / 2, d.handleHeight, bar),
-      { color: "#c0392b" },
-    );
-    builder.affordance({
-      id: "handle",
-      kind: "bar",
-      frame: ArchetypeFrame.upright(v(0, d.handleHeight, bar)),
-      extent: null,
-      grip: "power",
-      aperture: d.gripDiameter,
-      length: d.width,
-    });
-    builder.affordance({
-      id: "load",
-      kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, floor, 0.075)),
-      extent: null,
-      width: d.width,
-      depth: d.length - 0.15,
-    });
-    return builder.build(d.mass);
-  }
-
-  // A wheelbarrow: a tray over one front wheel, two legs behind, and two handles reaching back.
-  const tray: number = 0.88;
-  const rear: number = -d.length / 2 + createCart.GRIP;
-  builder.box(
-    "tray",
-    v(d.width, 0.3, tray),
-    v(
-      0,
-      d.handleHeight - 0.05,
-      d.length / 2 - d.wheelDiameter - tray / 2 + 0.2,
-    ),
-    { color: "#4f7f5a", density: 0.2 },
-  );
-  builder.rod(
-    "wheel",
-    wheel,
-    v(-0.04, wheel, d.length / 2 - wheel),
-    v(0.04, wheel, d.length / 2 - wheel),
-    { color: "#22262b" },
-  );
-  for (const [side, sign] of [
-    ["left", 1],
-    ["right", -1],
-  ] as const) {
-    const x: number = (sign * d.handleSpacing) / 2;
-    builder.rod(
-      `shaft-${side}`,
-      grip,
-      v(x, d.handleHeight, rear),
-      v(sign * 0.08, wheel, d.length / 2 - wheel),
-      { color: "#8a8d91" },
-    );
-    builder.rod(
-      `grip-${side}`,
-      grip,
-      v(x, d.handleHeight, -d.length / 2),
-      v(x, d.handleHeight, rear),
-      { color: "#22262b" },
-    );
-    builder.rod(
-      `leg-${side}`,
-      0.015,
-      v(x * 0.8, 0, -0.1),
-      v(x * 0.8, d.handleHeight - 0.2, -0.1),
-      { color: "#8a8d91" },
-    );
-    builder.affordance({
-      id: `${side}Handle`,
-      kind: "handle",
-      frame: ArchetypeFrame.facing(
-        v(x, d.handleHeight, -d.length / 2 + createCart.GRIP / 2),
-        v(0, 1, 0),
-        v(0, 0, 1),
-      ),
-      extent: null,
-      grip: "power",
-      aperture: d.gripDiameter,
-      length: createCart.GRIP,
-    });
-  }
-  builder.affordance({
-    id: "load",
-    kind: "surface",
-    frame: ArchetypeFrame.upright(
-      v(
-        0,
-        d.handleHeight - 0.2,
-        d.length / 2 - d.wheelDiameter - tray / 2 + 0.2,
-      ),
-    ),
-    extent: null,
-    width: d.width,
-    depth: tray,
-  });
-  return builder.build(d.mass);
+  if (kind === "trolley") CartPushed.trolley(builder, d);
+  else if (kind === "wheelbarrow") CartPushed.wheelbarrow(builder, d);
+  else if (kind === "cart") CartDrawn.cart(builder, d);
+  else if (kind === "rickshaw") CartDrawn.rickshaw(builder, d);
+  else if (kind === "chariot") CartDrawn.chariot(builder, d);
+  else if (kind === "limber") CartLimber.build(builder, d);
+  else if (kind === "wagon") CartCoach.wagon(builder, d);
+  else CartCoach.carriage(builder, d);
+  return builder.build(d.mass!, createCart.RESTS[kind]);
 }
 
 /**
- * Companion types and bands of {@link createCart}.
+ * Companion types, constants and bands of {@link createCart}.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The handle's height, width and diameter a pushing act reads (#3372, #3351).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A wheelbarrow's handle spacing has no trolley counterpart, so the trolley's band fixes it to its width.
+ * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is; each band and constant its source, or that none was read and which to read.
+ * @evidence contracts/development/design.md#principled-representation Closed unions, the read models and their options picked whole (`CART_MODELS`), one cited band per dimension a model leaves free, a kind lacking the dimensions of the parts it does not have.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface What a pushing, driving, riding or towing act reads (#3372, #3351, #3495): the handles, the seats, the floors, the shafts, the pole's end and the wheels' turn.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A horse-drawn kind draws the horse's withers height from `createHorse`'s band, and a cart takes the girth that height gives the horse, so the places it takes from the horse fit the horse that draws it; a rickshaw takes its shafts' height from the measured human wrist.
  */
 export namespace createCart {
+  /**
+   * The read models by kind, picked whole (`CART_MODELS`): a cart's multi-use cart and the Dennett gig; a rickshaw's Edo-Tokyo Museum 89210382 and 90360001 and the Powerhouse 245268; a chariot's six from the tomb of Tutankhamun by Carter's object numbers; a carriage's Brewster, Miner, Stevens and Peters broughams. A trolley, a wheelbarrow, a limber and a wagon have none.
+   */
+  export type Model =
+    | "multiUse"
+    | "dennettGig"
+    | "edo89210382"
+    | "edo90360001"
+    | "powerhouse245268"
+    | "carter120"
+    | "carter121"
+    | "carter122"
+    | "carter161"
+    | "carter332"
+    | "carter333"
+    | "brewster"
+    | "minerStevens"
+    | "peters";
+
+  /** A trolley's castors, by their wheels' diameter: 100 or 125 mm. */
+  export type Castor = "mm100" | "mm125";
+
+  /** A cart's read shafts, by their length: the multi-use cart's 89.5 or 93.5 in. */
+  export type Shaft = "in89" | "in93";
+
   /** The kinds of carrier. */
-  export type Kind = "trolley" | "wheelbarrow";
+  export type Kind =
+    | "trolley"
+    | "wheelbarrow"
+    | "cart"
+    | "rickshaw"
+    | "chariot"
+    | "limber"
+    | "wagon"
+    | "carriage";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["trolley", "wheelbarrow"];
+  export const KINDS: readonly Kind[] = [
+    "trolley",
+    "wheelbarrow",
+    "cart",
+    "rickshaw",
+    "chariot",
+    "limber",
+    "wagon",
+    "carriage",
+  ];
+
+  /** Each kind's model name. */
+  export const NAMES: Readonly<Record<Kind, string>> = {
+    trolley: "shopping trolley",
+    wheelbarrow: "wheelbarrow",
+    cart: "two-wheeled cart",
+    rickshaw: "rickshaw",
+    chariot: "chariot",
+    limber: "limber",
+    wagon: "wagon",
+    carriage: "brougham",
+  };
+
+  /**
+   * What each kind rests on and on what ground, for its body's friction (`ArchetypeFriction`): a wheelbarrow's pneumatic tyre on concrete, a wagon's iron tyres on stone. The other kinds' tyres no source read names, so their bodies carry no friction until one does: the trolley's castor treads, the cart's and the carriage's tyres (rubber or iron), the rickshaw's (the Hong Kong rules of 1882 give its tyre's width only), the chariot's (rawhide or wood) and the limber's.
+   */
+  export const RESTS: Readonly<
+    Record<
+      Kind,
+      {
+        rests?: ArchetypeFriction.Material;
+        ground?: ArchetypeFriction.Material;
+      }
+    >
+  > = {
+    trolley: {},
+    wheelbarrow: { rests: "rubber" },
+    cart: {},
+    rickshaw: {},
+    chariot: {},
+    limber: {},
+    wagon: { rests: "steel", ground: "stone" },
+    carriage: {},
+  };
 
   /** A wheelbarrow handgrip's length, metres: the 130 mm of the Matador M-130-L4 data sheet. */
   export const GRIP: number = 0.13;
 
+  /** A cart's single tree ahead of its axle, metres, a provisional value: not read at a source. It sets how far the coupling stands ahead of the axle, so it is read by a towing ride. The source to read is a carriage builder's draft of a gig or a road cart (The Hub, the Carriage Journal's drafts). */
+  export const SINGLE_TREE: number = 0.9;
+
   /**
-   * The affordance ids:
+   * The rest geometry of a cart's driving lines, metres: `elbow`, the height above the seat of the point each line's held run is laid toward, the middle of the women's and men's means of ANSUR II's elbow rest height (232.4 and 245.0 mm), computed from the 1,986 women's and 4,082 men's public records (https://www.openlab.psu.edu/ansur2/). It shapes the lines at rest only; a driver's hands choose where along the held runs they hold.
+   */
+  export const REST: Readonly<{ elbow: number }> = {
+    elbow: (0.2324 + 0.245) / 2,
+  };
+
+  /** A single horse's driving lines' length from the bit, metres: IVC Carriage's stock horse lines of 14 ft, "measure the distance from the horse's mouth to your hands, and then add at least an extra two feet" (https://cdn.shopify.com/s/files/1/0046/6819/4886/files/Reins.pdf). */
+  export const LINES: number = 14 * ArchetypeUnits.FOOT;
+
+  /** A single horse's driving line's width, metres: the 3/4 in leather reins IVC Carriage finds most hands, and a larger horse, prefer (https://cdn.shopify.com/s/files/1/0046/6819/4886/files/Reins.pdf). */
+  export const LINE: number = (3 / 4) * ArchetypeUnits.INCH;
+
+  /** A trace's radius, metres: in a single horse's harness a trace is the same leather strap as the rest of the harness, so it takes the harness's strap (`HorseHarness.ESTIMATES.strap`, a construction estimate no act reads, the strap's width unread). */
+  export const TRACE: number = HorseHarness.ESTIMATES.strap;
+
+  /** A rickshaw's seat above the ground, metres, a provisional value: not read at a source. The source to read is a museum record or a period rule that gives the seat's height (the Hong Kong rules of 1882 give its width and its distance to the footboard only). */
+  export const RICKSHAW_SEAT: number = 0.9;
+
+  /** A rickshaw's shafts apart at the runner's hands, centre to centre, metres, a provisional value: not read at a source. The source to read is a museum record with the shafts' spacing. */
+  export const RICKSHAW_SHAFTS: number = 0.55;
+
+  /** A rickshaw seat's width, metres: 21 in, the Hong Kong public rickshaw rules of 1882 (The China Mail, quoted at https://industrialhistoryhk.org/hong-kong-rickshaw-design/). */
+  export const RICKSHAW_SEAT_WIDTH: number = 21 * ArchetypeUnits.INCH;
+
+  /** A rickshaw's footboard ahead of its seat, metres: 23 in from the seat to the front of the footboard, the same rules, taken along the rickshaw. */
+  export const RICKSHAW_FOOTBOARD: number = 23 * ArchetypeUnits.INCH;
+
+  /** A limber's frame, read and derived from The Ordnance Manual (1861), p. 74 and p. 77 (https://archive.org/details/cu31924031187887/page/74). */
+  export const LIMBER: Readonly<{
+    /** The frame's rear end behind the axle, metres: the 57 in wheel's 28.5 in radius less the 11.88 in the wheels add to the limber's length (173.08 in with wheels and pole, 161.2 in without wheels), since only the wheels' rims stand behind the frame. */
+    rear: number;
+
+    /** The ammunition chest's inside length across the limber, width along it and depth, metres: 40, 18 and 14.75 in (p. 77). */
+    chest: Readonly<{ length: number; width: number; depth: number }>;
+
+    /** The chest's boards, metres: a construction estimate, not read, which sets the chest's outside and so its lid's height, the gunners' seat. */
+    board: number;
+
+    /** The pintle hook above the ground, metres, a provisional value: taken at the axle's height, not read. The source to read is the Ordnance Manual's limber plate or the Instruction for Field Artillery (1864). */
+    pintle: number;
+  }> = {
+    rear: (28.5 - 11.88) * ArchetypeUnits.INCH,
+    chest: {
+      length: 40 * ArchetypeUnits.INCH,
+      width: 18 * ArchetypeUnits.INCH,
+      depth: 14.75 * ArchetypeUnits.INCH,
+    },
+    board: 0.025,
+    pintle: 28.5 * ArchetypeUnits.INCH,
+  };
+
+  /** A wagon's places beyond its bands, from the Army's specification (https://archive.org/details/specificationsf02deptgoog/page/n13) where read. */
+  export const WAGON: Readonly<{
+    /** The tongue's front end above the ground at rest, metres: it is "to hang within 2 feet of the ground" (p. 1). */
+    drop: number;
+
+    /** The body's floor above the hind axle, metres, a provisional value: not read. It rests on the hind bolster, 3.5 in deep (p. 2), over the axle-tree, whose depth the specification gives elsewhere; the source to read is its axle-tree clause. */
+    bed: number;
+
+    /** The front axle's lock to either side, degrees, a provisional value: not read. The four-horse wagon's specification gives iron plates for the front wheels to strike in turning (pp. 9-16) but no angle; the source to read is a drawing of the running gear. */
+    lock: number;
+  }> = { drop: 24 * ArchetypeUnits.INCH, bed: 0.15, lock: 35 };
+
+  /** A carriage's places no museum record read gives, each a provisional value: the source to read is a carriage builder's draft of a brougham (The Hub, the Carriage Journal's drafts) or a museum record with these measurements. */
+  export const CARRIAGE: Readonly<{
+    /** The wheels' track short of the overall width, metres: the hubs' projection, taken from the width because no record gives the track. */
+    hubs: number;
+
+    /** The body's floor above the ground, metres. */
+    floor: number;
+
+    /** The inside seat above the floor, metres. */
+    seat: number;
+
+    /** The driver's box seat above the ground, metres. */
+    box: number;
+
+    /** A door's width and height, metres, and its widest opening, degrees. */
+    door: Readonly<{ width: number; height: number; swing: number }>;
+
+    /** The pole from the front axle to its end, metres. */
+    pole: number;
+
+    /** The front axle's lock to either side, degrees. */
+    lock: number;
+  }> = {
+    hubs: 0.25,
+    floor: 0.55,
+    seat: 0.4,
+    box: 1.6,
+    door: { width: 0.6, height: 1.2, swing: 90 },
+    pole: 2.8,
+    lock: 40,
+  };
+
+  /**
+   * The affordance ids; a kind lacks the ids of the parts it does not have:
    *
    * - `handle`: a trolley's push bar.
    * - `leftHandle`, `rightHandle`: a wheelbarrow's handgrips on `+X` and `-X`.
-   * - `load`: the floor of the basket or the tray.
+   * - `load`: the floor of a trolley's basket or a wheelbarrow's tray.
+   * - `coupling`: where a drawn kind is drawn from: the middle between a cart's shafts at the horse's tugs or a rickshaw's at the runner's hands, or a chariot's or limber's pole end.
+   * - `leftShaft`, `rightShaft`: a rickshaw's shafts where the runner's hands hold them, on `+X` and `-X`.
+   * - `seat`: a cart's or rickshaw's seat, or a limber chest's lid the gunners ride on, facing forward.
+   * - `footboard`: where a seated driver's or passenger's feet rest.
+   * - `floor`: a chariot's floor, where its crew stands.
+   * - `rim`: the top of a chariot's front siding, held by its crew.
+   * - `chest`: a limber chest's lid on its hinge at its rear edge; a positive travel lifts its front.
+   * - `pintle`: a limber's hook at its rear, which takes a gun's trail.
+   * - `leftSpin`, `rightSpin`: a two-wheeled drawn kind's road wheels' roll about the axle, a positive travel rolling them forward.
+   * - `frontAxle`: a wagon's or carriage's front axle turning about its pivot over the axle, positive to the left; the front wheels and drawbar pitch pivot ride it.
+   * - `drawbarPitch`: the actual front-axle hinge of a four-wheeler's fixed-length pole, about +X, positive lowering the forward end; coupling rides it. Its ±180 degrees are a principal-angle chart, not a measured working limit.
+   * - `frontLeftSpin`, `frontRightSpin`, `rearLeftSpin`, `rearRightSpin`: a four-wheeled kind's road wheels' roll, the front pair riding `frontAxle`.
+   * - `bed`: a wagon body's floor, inside.
+   * - `box`: a carriage driver's seat on the box at its front, facing forward.
+   * - `leftLine`, `rightLine`: a cart's driving lines' held runs, each line's length behind its terret, each frame at the run's middle, the run pointing forward to the horse's terret; the driver's hands hold anywhere along it.
+   * - `leftDoor`, `rightDoor`: a carriage's doors' hinges at their front edges; a positive travel swings a door outward. `leftAperture`, `rightAperture`: the openings behind them, passed through into the carriage.
    */
-  export type Affordance = "handle" | "leftHandle" | "rightHandle" | "load";
+  export type Affordance =
+    | "handle"
+    | "leftHandle"
+    | "rightHandle"
+    | "load"
+    | "coupling"
+    | "leftShaft"
+    | "rightShaft"
+    | "seat"
+    | "footboard"
+    | "floor"
+    | "rim"
+    | "chest"
+    | "pintle"
+    | "leftSpin"
+    | "rightSpin"
+    | "frontAxle"
+    | "drawbarPitch"
+    | "frontLeftSpin"
+    | "frontRightSpin"
+    | "rearLeftSpin"
+    | "rearRightSpin"
+    | "bed"
+    | "box"
+    | "leftDoor"
+    | "rightDoor"
+    | "leftAperture"
+    | "rightAperture"
+    | "leftLine"
+    | "rightLine";
 
   /**
-   * The free dimensions, metres unless stated:
+   * The free dimensions, metres unless stated; a kind lacks those of the parts it does not have:
    *
-   * - `length`, `width`: overall, along `+Z` and `+X`.
-   * - `handleHeight`: the handle's axis above the floor, a wheelbarrow's at rest.
+   * - `length`, `width`: a pushed kind's overall size along `+Z` and `+X`; a rickshaw's overall length, wheels and shafts included, and width; a limber's frame without wheels or pole; a wagon body's inside length at its floor and width; a carriage's overall length and width.
+   * - `height`: a carriage's overall height.
+   * - `bedDepth`: a wagon body's inside depth.
+   * - `frontWheelDiameter`: a four-wheeled kind's front wheels; `wheelDiameter` is then its hind wheels'.
+   * - `wheelbase`: a four-wheeled kind's front axle's pivot to its rear axle.
+   * - `handleHeight`: a pushed kind's handle above the floor, a wheelbarrow's at rest.
    * - `handleSpacing`: between a wheelbarrow's two handles.
-   * - `gripDiameter`: the handle where the hands hold it.
-   * - `wheelDiameter`: a castor or the wheel.
+   * - `gripDiameter`: a pushed kind's handle where the hands hold it.
+   * - `wheelDiameter`: a castor or a road wheel.
+   * - `track`: between a drawn kind's wheels, centre to centre.
+   * - `shaftLength`: a cart's shafts from the tip to the single tree.
+   * - `clearance`: a cart's single tree behind the horse's point of buttock, which sets the shafts' length where they are not read.
+   * - `seatHeight`: a cart's seat above the ground.
+   * - `gripHeight`: a rickshaw's shafts above the ground where the standing runner's hands hold them, the hanging wrist's height.
+   * - `floorWidth`, `floorDepth`: a chariot floor's width across and depth along it.
+   * - `railHeight`: a chariot's siding above its floor.
+   * - `poleLength`: a chariot's pole from the axle to the yoke; a limber's pole beyond its frame; a wagon's tongue.
+   * - `withersHeight`, `girth`: the height at the withers of the horse a cart or a chariot is sized for, as `createHorse` draws it, and that horse's heart girth (`createHorse.PROFILE.girth`).
    * - `mass`: the empty carrier, kilograms.
    */
   export type Dimension =
@@ -270,12 +378,62 @@ export namespace createCart {
     | "handleSpacing"
     | "gripDiameter"
     | "wheelDiameter"
+    | "track"
+    | "shaftLength"
+    | "clearance"
+    | "seatHeight"
+    | "gripHeight"
+    | "floorWidth"
+    | "floorDepth"
+    | "railHeight"
+    | "poleLength"
+    | "withersHeight"
+    | "girth"
+    | "height"
+    | "bedDepth"
+    | "frontWheelDiameter"
+    | "wheelbase"
     | "mass";
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    width: "m",
+    handleHeight: "m",
+    handleSpacing: "m",
+    gripDiameter: "m",
+    wheelDiameter: "m",
+    track: "m",
+    shaftLength: "m",
+    clearance: "m",
+    seatHeight: "m",
+    gripHeight: "m",
+    floorWidth: "m",
+    floorDepth: "m",
+    railHeight: "m",
+    poleLength: "m",
+    withersHeight: "m",
+    girth: "m",
+    height: "m",
+    bedDepth: "m",
+    frontWheelDiameter: "m",
+    wheelbase: "m",
+    mass: "kg",
+  };
+
+  /** The parameters: the kind, its read model and options, and any free dimension the kind has fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which carrier. */
     kind: Kind;
+
+    /** Which read model of the kind; drawn from the seed when absent, a cart's among those made for a fixed withers height. */
+    model?: Model;
+
+    /** Which castors, for a trolley; drawn from the seed when absent. */
+    castor?: Castor;
+
+    /** Which read shafts, for a cart whose model offers more than one; drawn from the seed when absent. */
+    shaft?: Shaft;
 
     /** The model's id, unique in a scene; `cart` when absent. */
     id?: string;
@@ -283,54 +441,30 @@ export namespace createCart {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
-  > = {
-    trolley: {
-      length: ArchetypeBand.metres(1.15, 1.15, TROLLEY, true),
-      width: ArchetypeBand.metres(0.61, 0.61, TROLLEY, true),
-      handleHeight: ArchetypeBand.metres(
-        0.89,
-        1.03,
-        `the 35 and 37 in middle push hand heights of the Liberty Mutual tables after Snook and Ciriello 1991 (https://www.gorbel.com/resources/blog/LibertyMutualTables manual materials handling guidelines.pdf) up to the trolley's 1030 mm height (${TROLLEY})`,
-        true,
-      ),
-      handleSpacing: ArchetypeBand.metres(0.61, 0.61, TROLLEY, true),
-      gripDiameter: ArchetypeBand.metres(
-        0.025,
-        0.032,
-        "the trolley's handle is a round tube whose diameter its maker does not state; an estimate",
-        true,
-      ),
-      wheelDiameter: ArchetypeBand.metres(
-        0.1,
-        0.125,
-        `${TROLLEY}: castors of 100 or 125 mm`,
-      ),
-      mass: ArchetypeBand.of("kg", 18, 28, ArchetypeBand.TYPICAL_MASS, true),
-    },
-    wheelbarrow: {
-      length: ArchetypeBand.metres(1.45, 1.45, BARROW),
-      width: ArchetypeBand.metres(0.59, 0.59, BARROW),
-      handleHeight: ArchetypeBand.metres(
-        0.62,
-        0.645,
-        `${BARROW}: 620 mm overall height; 645 mm handle height of another model, seen only in search results`,
-        true,
-      ),
-      handleSpacing: ArchetypeBand.metres(
-        0.59,
-        0.595,
-        `${BARROW}: 590 mm overall width; 595 mm handle spacing of another model, seen only in search results`,
-        true,
-      ),
-      gripDiameter: ArchetypeBand.metres(
-        0.038,
-        0.038,
-        `${BARROW}: handgrip 38 mm, the column's label being ambiguous`,
-        true,
-      ),
-      wheelDiameter: ArchetypeBand.metres(0.4, 0.4, BARROW),
-      mass: ArchetypeBand.of("kg", 18.6, 18.6, BARROW),
-    },
-  };
+    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+  > = CART_BANDS;
+
+  /**
+   * Actual wheel/pivot support for generic towing; cartTowing owns admission.
+   *
+   * @param cart Actual createCart output in its neutral steering/drawbar pose.
+   * @returns Independent model-space metre support: one freely pitching wheel axle, or grounded front/rear axles with the declared drawbar hinge.
+   * @throws {RangeError} For another producer, invalid actual wheel-axis geometry or a front steering pivot outside its axle.
+   * @throws {ArchetypeRefusal} If the selected variant lacks a required wheel/steering affordance, including a pushed carrier without towing roles.
+   */
+  export const towing: typeof cartTowing = cartTowing;
+
+  /**
+   * The traces and the driving lines between a cart and the horse in harness that draws it, for `ArchetypeRide.towed`'s `lines`: a trace from each point of draft at the breast collar's end to its end of the cart's single tree, and a driving line from each bit ring through the neck strap's ring and the saddle's terret to the driver's held run (Harness Stuff: the reins pass from the bit through the rings on the breastplate's neck strap, then the saddle's terrets, to the driver).
+   *
+   * @param cart A `cart` kind, built for the horse that draws it.
+   * @returns The four lines, the traces first, left before right.
+   * @throws {ArchetypeRefusal} When the cart is not a horse's two-wheeled cart.
+   *
+   */
+  export function lines(
+    cart: Archetype<Affordance, Dimension>,
+  ): ArchetypeRide.ILine[] {
+    return CartFit.lines(cart);
+  }
 }

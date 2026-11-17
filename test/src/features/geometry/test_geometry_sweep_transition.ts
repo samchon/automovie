@@ -1,11 +1,13 @@
 import {
-  type AutoMovieSurfaceTier,
-  type IAutoMovieSubdivisionParameter,
-  type IAutoMovieSurfaceCage,
   layoutAutoMovieSurfaceTransition,
   mapAutoMovieSurfaceTier,
   sampleAutoMovieSurfaceNetwork,
 } from "@automovie/engine";
+import type {
+  AutoMovieSurfaceTier,
+  IAutoMovieSubdivisionParameter,
+  IAutoMovieSurfaceCage,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/namedFacts";

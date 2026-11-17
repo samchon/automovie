@@ -1,8 +1,19 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { tags } from "typia";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRacket,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -12,17 +23,9 @@ import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLe
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * Racket and golf positions without the stroke itself (#3249): the tennis
@@ -57,10 +60,10 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  */
 export namespace racket {
   /** The action's name. */
-  export const name: HumanActionName = "racket";
+  export const name: AutoMovieMotionHumanActionName = "racket";
 
   /** Cancel table. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       racket: ["fromStrokeEnd", "quick"],
@@ -68,31 +71,6 @@ export namespace racket {
 
   /** How far below the shoulders the golfer's upper hand grips, arm lengths (provisional): the elbows a little soft. */
   export const HANG: number = 0.8;
-
-  /** The positions. */
-  export type Kind = "readyPosition" | "splitStep" | "golfAddress";
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The position, the hand and the hold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IParams {
-    /** The position. */
-    kind: Kind;
-
-    /** The racket or lead hand; `right` when absent. */
-    side?: "left" | "right";
-
-    /** Seconds held; 0.6 when absent. */
-    seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
 
   /**
    * Plan a racket or golf position.
@@ -110,18 +88,18 @@ export namespace racket {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRacket.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanRacket.IParams = context.params;
     const body = context.body;
     const m = body.measure;
     const hold: number = p.seconds ?? 0.6;
     HumanBound.least("seconds", hold, 0, "s");
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const side: "left" | "right" = p.side ?? "right";
     const other: "left" | "right" = side === "right" ? "left" : "right";
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: 0.6,
         attack: p.kind === "golfAddress" ? 1.2 : 0.3,
@@ -134,21 +112,25 @@ export namespace racket {
         fixed: p.kind === "splitStep" ? ["strokeStart"] : [],
       },
     );
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const into = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);
     const local = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       v: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
       HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, v);
     const leftward: IAutoMovieVector3 = local(entry, { x: 1, y: 0, z: 0 });
     const arm: number = m.upperArm + m.forearm;
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-    let contacts: IHumanContactWindow[] = AutoMovieMotionHumanBase.plants();
+    let contacts: IAutoMovieMotionHumanContactWindow[] =
+      AutoMovieMotionHumanBase.plants();
     const grip = (
       hand: "left" | "right",
-      place: (posture: IHumanPosture, s: number) => IAutoMovieVector3,
+      place: (
+        posture: IAutoMovieMotionHumanPosture,
+        s: number,
+      ) => IAutoMovieVector3,
       bend: "front" | "forward",
     ): IAutoMovieMotionHumanPrimitive[] =>
       AutoMovieMotionHumanPlaced.arm({
@@ -160,7 +142,7 @@ export namespace racket {
         weight: into,
         surface: "grip",
         shape: "fist",
-        place: (posture: IHumanPosture, s: number) => ({
+        place: (posture: IAutoMovieMotionHumanPosture, s: number) => ({
           point: place(posture, s),
           facing: local(posture, { x: hand === "left" ? 1 : -1, y: 0, z: 0 }),
           forward: local(posture, { x: 0, y: 0, z: 1 }),
@@ -187,11 +169,11 @@ export namespace racket {
       const landed = (s: number): number =>
         clock.linear("strokeStart", "stroke", s);
       for (const foot of ["left", "right"] as const) {
-        const from: HumanFoot.IPlacement = {
+        const from: IAutoMovieMotionHumanFoot.IPlacement = {
           ankle: context.entry.feet[foot].ankle,
           rotation: context.entry.feet[foot].rotation,
         };
-        const out = (by: number): HumanFoot.IPlacement => ({
+        const out = (by: number): IAutoMovieMotionHumanFoot.IPlacement => ({
           ankle: Vector3.add(
             from.ankle,
             Vector3.scale(leftward, (foot === "left" ? 1 : -1) * by),
@@ -204,8 +186,11 @@ export namespace racket {
             side: foot,
             from: 0,
             to: clock.duration,
-            placement: (_: IHumanPosture, s: number): HumanFoot.IPlacement => {
-              const placed: HumanFoot.IPlacement =
+            placement: (
+              _: IAutoMovieMotionHumanPosture,
+              s: number,
+            ): IAutoMovieMotionHumanFoot.IPlacement => {
+              const placed: IAutoMovieMotionHumanFoot.IPlacement =
                 AutoMovieMotionHumanLegPhrase.between(
                   from,
                   out(half + wider * landed(s)),
@@ -229,7 +214,10 @@ export namespace racket {
           channels: ["root"],
           from: 0,
           to: clock.duration,
-          write: (posture: IHumanPosture, s: number): IHumanPosture => ({
+          write: (
+            posture: IAutoMovieMotionHumanPosture,
+            s: number,
+          ): IAutoMovieMotionHumanPosture => ({
             ...posture,
             root: {
               ...posture.root,
@@ -241,14 +229,17 @@ export namespace racket {
           channels: ["trunk"],
           from: 0,
           to: clock.duration,
-          write: (posture: IHumanPosture, s: number): IHumanPosture => ({
+          write: (
+            posture: IAutoMovieMotionHumanPosture,
+            s: number,
+          ): IAutoMovieMotionHumanPosture => ({
             ...posture,
             pitch: posture.pitch + 15 * into(s),
           }),
         },
         ...grip(
           side,
-          (posture: IHumanPosture) =>
+          (posture: IAutoMovieMotionHumanPosture) =>
             AutoMovieMotionHumanPlaced.grid(body, posture, side, {
               height: "waist",
               lateral: "centre",
@@ -259,7 +250,7 @@ export namespace racket {
         ...grip(
           other,
           // A hand's length ahead of the racket hand along the heading, on the racket's throat.
-          (posture: IHumanPosture) =>
+          (posture: IAutoMovieMotionHumanPosture) =>
             Vector3.add(
               AutoMovieMotionHumanPlaced.grid(body, posture, side, {
                 height: "waist",
@@ -292,7 +283,7 @@ export namespace racket {
         primitives.push(
           ...grip(
             hand,
-            (posture: IHumanPosture, s: number) => {
+            (posture: IAutoMovieMotionHumanPosture, s: number) => {
               // Hanging below the shoulders: their midpoint dropped by `HANG` of the arm, which leaves the lower hand's wrist inside the arm's reach through the waggle.
               const shoulder: IAutoMovieVector3 =
                 AutoMovieMotionHumanPlaced.shoulders(body, posture);

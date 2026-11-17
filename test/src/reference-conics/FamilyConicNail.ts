@@ -1,13 +1,36 @@
-import { type Canvas, createCanvas, loadImage, type SKRSContext2D } from "@napi-rs/canvas";
-import fs from "node:fs/promises";
-import path from "node:path";
-import { AutoMovieLoftChain, type AutoMovieMeshExtract as M, type AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
-import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection, AutoMovieHumanF1, AutoMovieHumanF1Frames, AutoMovieHumanF1Nails, AutoMovieHumanF1Placement, AutoMovieHumanNail, AutoMovieHumanNailLoop, type AutoMovieHumanSegmentFrame as F, AutoMovieHumanTipDome } from "@automovie/human";
-import type { AutoMovieConstructionNode } from "@automovie/interface";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import { AutoMovieLoftChain, realizeAutoMovieConstruction } from "@automovie/engine";
+import {
+  AutoMovieHumanConicLoft,
+  AutoMovieHumanConicSection,
+  AutoMovieHumanF1,
+  AutoMovieHumanF1Frames,
+  AutoMovieHumanF1Nails,
+  AutoMovieHumanF1Placement,
+  AutoMovieHumanNail,
+  AutoMovieHumanNailLoop,
+  AutoMovieHumanTipDome,
+} from "@automovie/human";
+import type {
+  IAutoMovieConstructionNode,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicSection,
+  IAutoMovieHumanF1,
+  IAutoMovieHumanF1Frames,
+  IAutoMovieHumanF1Nails,
+  IAutoMovieHumanNail,
+  IAutoMovieHumanNailLoop,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieMillimeterMesh,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
+import { type Canvas, createCanvas, loadImage, type SKRSContext2D } from "@napi-rs/canvas";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /**
  * The nail unit of every digit, read on the reference and on the generated digit families in each digit's distal segment frame.
@@ -192,14 +215,14 @@ namespace FamilyConicNail {
    * pole is the digit's share of the section's mean reach there (the mean of its four extents, as `rounded` reads it), no earlier than
    * the family's second knot. Past the last knot the wall has no section of its own, so the reach there is the last knot's.
    */
-  function domed(family: AutoMovieHumanConicLoft.IFamily): { family: AutoMovieHumanConicLoft.IFamily; was: number; start: AutoMovieHumanTipDome.IStart } {
-    const end: AutoMovieHumanConicLoft.ITip | null = family.tips?.[1] ?? null;
+  function domed(family: IAutoMovieHumanConicLoft.IFamily): { family: IAutoMovieHumanConicLoft.IFamily; was: number; start: AutoMovieHumanTipDome.IStart } {
+    const end: IAutoMovieHumanConicLoft.ITip | null = family.tips?.[1] ?? null;
     const share: number | undefined = DOME[family.name];
     if (end === null || share === undefined) throw new Error("no tip or no dome share for " + family.name);
     const read: (s: number) => number[] = AutoMovieHumanConicLoft.reader(family);
     const last: number = family.knots.at(-1)!;
     const reach = (s: number): number => {
-      const chain: AutoMovieHumanConicSection.IChain = AutoMovieHumanConicSection.resolve(read(Math.min(s, last)), family.layout);
+      const chain: IAutoMovieHumanConicSection.IChain = AutoMovieHumanConicSection.resolve(read(Math.min(s, last)), family.layout);
       return chain.guides.reduce((sum: number, g: number, q: number): number => sum + Math.abs(chain.input.points[g]![q % 2]!), 0) / 4;
     };
     const start: AutoMovieHumanTipDome.IStart = AutoMovieHumanTipDome.start(reach, end.tip, share, family.knots[1]!);
@@ -218,20 +241,20 @@ namespace FamilyConicNail {
     const cells: ICell[] = [];
     // The ten nails are made together: the prior's spread is the ten digits' own, so no one digit's roll is final without the others.
     const lawStarted: number = performance.now();
-    const together: AutoMovieHumanF1Nails.IMade[] = AutoMovieHumanF1Nails.all(
-      AutoMovieHumanF1.DIGITS.map((digit: AutoMovieHumanF1.IDigit): AutoMovieHumanConicLoft.IFamily => domed(digit.family).family),
+    const together: IAutoMovieHumanF1Nails.IMade[] = AutoMovieHumanF1Nails.all(
+      AutoMovieHumanF1.DIGITS.map((digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanConicLoft.IFamily => domed(digit.family).family),
       AutoMovieHumanF1Placement.REFERENCE,
     );
     const lawEach: number = Math.round((performance.now() - lawStarted) / together.length);
     for (const digit of AutoMovieHumanF1.DIGITS) {
       if (only !== undefined && digit.family.name !== only) continue;
-      const dome: { family: AutoMovieHumanConicLoft.IFamily; was: number; start: AutoMovieHumanTipDome.IStart } = domed(digit.family);
-      const family: AutoMovieHumanConicLoft.IFamily = dome.family;
+      const dome: { family: IAutoMovieHumanConicLoft.IFamily; was: number; start: AutoMovieHumanTipDome.IStart } = domed(digit.family);
+      const family: IAutoMovieHumanConicLoft.IFamily = dome.family;
       let started: number = performance.now();
       const row: Record<string, unknown> = { digit: family.name, dome: { from: round(dome.start.from), was: dome.was, pole: family.tips?.[1]?.tip, held: dome.start.held } };
       report.push(row);
-      const made: AutoMovieHumanF1Nails.IMade = together[AutoMovieHumanF1.DIGITS.indexOf(digit)]!;
-      const { plate, bed, frame, readings }: AutoMovieHumanNail.INail = made.nail;
+      const made: IAutoMovieHumanF1Nails.IMade = together[AutoMovieHumanF1.DIGITS.indexOf(digit)]!;
+      const { plate, bed, frame, readings }: IAutoMovieHumanNail.INail = made.nail;
       row.lawMilliseconds = lawEach;
       row.profile = made.nail.profile.map((p: { along: number; middle: number; height: number; edge: number; turn: number }): number[] => [round(p.along), round(p.middle), round(p.height), round(p.edge), round((p.turn * 180) / Math.PI, 1)]);
       started = performance.now();
@@ -246,10 +269,10 @@ namespace FamilyConicNail {
 
       // `--law`: the law's readings and profile only, with no realization.
       if (process.argv.includes("--law")) continue;
-      const hosted: AutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Nails.bedded(family, made, true);
+      const hosted: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Nails.bedded(family, made, true);
       const cell: number = (bed.stations[1] - bed.stations[0]) / (bed.rows - 3);
       const stations: number[] = [];
-      const strip: AutoMovieHumanNail.INail["strip"] = made.nail.strip;
+      const strip: IAutoMovieHumanNail.INail["strip"] = made.nail.strip;
       const fine: number = (strip.stations[1] - strip.stations[0]) / (strip.rows - 3);
       for (let s: number = family.knots[0]!; s < family.knots.at(-1)!; s += s >= strip.stations[0] ? fine : s >= bed.stations[0] - 2 ? cell : 2) stations.push(s);
       const lastKnot: number = family.knots.at(-1)!;
@@ -261,12 +284,12 @@ namespace FamilyConicNail {
         [plate.name, AutoMovieHumanConicLoft.part(plate, plateStations)],
       ]);
       // `--loop`: the meeting curve declared from the two lofted surfaces (`AutoMovieHumanNailLoop`) with fold widths, instead of traced.
-      let loop: AutoMovieHumanNailLoop.ILoop | null = null;
+      let loop: IAutoMovieHumanNailLoop.ILoop | null = null;
       if (process.argv.includes("--loop")) {
-        const lofts: AutoMovieViewLoft.IResult[] = [AutoMovieHumanConicLoft.create(plate, plateStations), AutoMovieHumanConicLoft.create(hosted, stations)];
-        const [plateChain, hostChain]: (AutoMovieViewLoft.IResult["chain"] | undefined)[] = [lofts[0]?.chain, lofts[1]?.chain];
+        const lofts: IAutoMovieViewLoft.IResult[] = [AutoMovieHumanConicLoft.create(plate, plateStations), AutoMovieHumanConicLoft.create(hosted, stations)];
+        const [plateChain, hostChain]: (IAutoMovieViewLoft.IResult["chain"] | undefined)[] = [lofts[0]?.chain, lofts[1]?.chain];
         if (plateChain === null || plateChain === undefined || hostChain === null || hostChain === undefined) {
-          row.refused = "the plate or the bedded digit does not loft: " + JSON.stringify(lofts.map((l: AutoMovieViewLoft.IResult): unknown => l.diagnostics)).slice(0, 300);
+          row.refused = "the plate or the bedded digit does not loft: " + JSON.stringify(lofts.map((l: IAutoMovieViewLoft.IResult): unknown => l.diagnostics)).slice(0, 300);
           continue;
         }
         try {
@@ -289,7 +312,7 @@ namespace FamilyConicNail {
         rows: 4,
         grazing: 0.04,
       };
-      const join: AutoMovieConstructionNode =
+      const join: IAutoMovieConstructionNode =
         loop === null
           ? {
               ...base,
@@ -323,8 +346,8 @@ namespace FamilyConicNail {
 
       // The realized skin read in the nail's own frame: the median cut and the section midway along the visible plate.
       const lateral: V = cross(frame.distal, frame.dorsal);
-      const mm: M.IMesh = { positions: mesh.positions.map((x: number): number => x * 1000), indices: mesh.indices };
-      const cut = (which: M.IMesh, origin: V, u: V, v: V): number[][][] =>
+      const mm: IAutoMovieMillimeterMesh = { positions: mesh.positions.map((x: number): number => x * 1000), indices: mesh.indices };
+      const cut = (which: IAutoMovieMillimeterMesh, origin: V, u: V, v: V): number[][][] =>
         R.chains(which, { origin, u, v })
           .map((piece: { points: C.P[]; closed: boolean }): number[][] => {
             const turn: number[] = turns(piece.points, piece.closed);
@@ -338,7 +361,7 @@ namespace FamilyConicNail {
       row.section = { generated: clip(cut(mm, middle, lateral, frame.dorsal), -readings.width, readings.width, -1), reference: clip(cut(source.body, middle, lateral, frame.dorsal), -readings.width, readings.width, -1) };
 
       // The figure's level beside the close-up's: the same digit with its bed alone, its layers cut to the bed's rows only.
-      const plain: AutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Nails.bedded(family, made);
+      const plain: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Nails.bedded(family, made);
       const plainStations: number[] = [];
       for (let s: number = family.knots[0]!; s < lastKnot; s += s >= bed.stations[0] - 2 ? cell : 2) plainStations.push(s);
       plainStations.push(lastKnot);
@@ -408,17 +431,17 @@ namespace FamilyConicNail {
   async function figure(out: string): Promise<void> {
     NodeCanvasRaster.initialize();
     const started: number = performance.now();
-    const assembled: AutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
-    const domes: AutoMovieHumanF1.IDigit[] = assembled.digits.map((digit: AutoMovieHumanF1.IDigit): AutoMovieHumanF1.IDigit => ({ ...digit, family: domed(digit.family).family }));
-    const nails: AutoMovieHumanF1Nails.IMade[] = AutoMovieHumanF1Nails.all(
-      domes.map((digit: AutoMovieHumanF1.IDigit): AutoMovieHumanConicLoft.IFamily => digit.family),
+    const assembled: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
+    const domes: IAutoMovieHumanF1.IDigit[] = assembled.digits.map((digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanF1.IDigit => ({ ...digit, family: domed(digit.family).family }));
+    const nails: IAutoMovieHumanF1Nails.IMade[] = AutoMovieHumanF1Nails.all(
+      domes.map((digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanConicLoft.IFamily => digit.family),
       assembled.frames,
     );
-    const placed: AutoMovieHumanF1.IAssembly = { ...assembled, digits: domes.map((digit: AutoMovieHumanF1.IDigit, i: number): AutoMovieHumanF1.IDigit => ({ ...digit, family: AutoMovieHumanF1Nails.bedded(digit.family, nails[i]!) })) };
-    const declared: AutoMovieHumanF1.IConstruction = AutoMovieHumanF1.constructionFrom(placed);
+    const placed: IAutoMovieHumanF1.IAssembly = { ...assembled, digits: domes.map((digit: IAutoMovieHumanF1.IDigit, i: number): IAutoMovieHumanF1.IDigit => ({ ...digit, family: AutoMovieHumanF1Nails.bedded(digit.family, nails[i]!) })) };
+    const declared: IAutoMovieHumanF1.IConstruction = AutoMovieHumanF1.constructionFrom(placed);
     const lawMilliseconds: number = Math.round(performance.now() - started);
     const sources: Map<string, IAutoMovieViewPart> = new Map(declared.sources);
-    const tree: AutoMovieConstructionNode = declared.root;
+    const tree: IAutoMovieConstructionNode = declared.root;
     const realized: ReturnType<typeof realizeAutoMovieConstruction> = realizeAutoMovieConstruction({ name: "f1.body", root: tree, fills: declared.fills }, { chord: 0.001, sources });
     const report: Record<string, unknown> = {
       lawAndDeclarationMilliseconds: lawMilliseconds,
@@ -499,16 +522,16 @@ namespace FamilyConicNail {
     const out: string = path.join(root, "packages/human/.shots/nails", new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
     const source: R.ISource = await R.load(root);
-    const frames: Map<string, F.IFrame> = new Map(AutoMovieHumanF1Frames.segments().map((segment: AutoMovieHumanF1Frames.ISegment): [string, F.IFrame] => [segment.name, segment.frame]));
+    const frames: Map<string, IAutoMovieHumanSegmentFrame> = new Map(AutoMovieHumanF1Frames.segments().map((segment: IAutoMovieHumanF1Frames.ISegment): [string, IAutoMovieHumanSegmentFrame] => [segment.name, segment.frame]));
     const joints: Record<string, unknown> = (await import("@automovie/human")).AutoMovieHumanF1Joints as unknown as Record<string, unknown>;
     const survey: Record<string, unknown>[] = [];
     if (process.argv.includes("--frames")) NodeCanvasRaster.initialize();
 
     for (const digit of AutoMovieHumanF1.DIGITS) {
-      const family: AutoMovieHumanConicLoft.IFamily = digit.family;
+      const family: IAutoMovieHumanConicLoft.IFamily = digit.family;
       const entry = SEGMENTS[family.name];
       if (entry === undefined) throw new Error("no distal segment declared for " + family.name);
-      const frame: F.IFrame | undefined = frames.get(entry.segment);
+      const frame: IAutoMovieHumanSegmentFrame | undefined = frames.get(entry.segment);
       if (frame === undefined) throw new Error("no segment " + entry.segment);
       const distal: V = entry.hand ? neg(frame.axes[1]) : frame.axes[0];
       const dorsal: V = entry.hand ? neg(frame.axes[0]) : frame.axes[1];
@@ -518,8 +541,8 @@ namespace FamilyConicNail {
       const from: number = family.knots[0]!;
       const to: number = family.knots.at(-1)!;
       const count: number = Math.ceil((to - from) / 2) + 1;
-      const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1)));
-      const chain: AutoMovieViewLoft.IResult["chain"] = loft.chain;
+      const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1)));
+      const chain: IAutoMovieViewLoft.IResult["chain"] = loft.chain;
       const made: { positions: number[]; indices: number[] } = { positions: [], indices: [] };
       if (chain !== null) {
         const layers: number[] = chain.layers.map((layer: { y: number }): number => layer.y);
@@ -532,7 +555,7 @@ namespace FamilyConicNail {
             made.indices.push(a, a + phases, b, b, a + phases, b + phases);
           }
       }
-      const generated: M.IMesh = made;
+      const generated: IAutoMovieMillimeterMesh = made;
 
       // How far the reference's skin runs past the joint along the distal direction, within a section's reach of the long axis.
       const first: C.P[] | null = R.cut(source.body, { origin: at.origin, u: at.dorsal, v: at.lateral }).loop;
@@ -563,7 +586,7 @@ namespace FamilyConicNail {
       }
 
       // The median cut, charted `[along, dorsal]` from the joint: every chain's vertices on the dorsal side over the segment, with their turns.
-      const median = (mesh: M.IMesh): number[][][] =>
+      const median = (mesh: IAutoMovieMillimeterMesh): number[][][] =>
         R.chains(mesh, { origin: at.origin, u: at.distal, v: at.dorsal })
           .map((piece: { points: C.P[]; closed: boolean }): number[][] => {
             const turn: number[] = turns(piece.points, piece.closed);

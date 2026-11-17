@@ -1,39 +1,63 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanDress,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionManner,
+  IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import { HumanGrip } from "../handling/HumanGrip";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
+import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanWorn } from "./HumanWorn";
 
 /**
- * Putting on a hat or a pair of glasses with both hands while standing.
+ * Putting on a hat or a pair of glasses held in one hand, with both hands,
+ * while standing.
  *
- * The goals are places on the performer's own head, read on the posture so
- * the hands follow the head: a hat's brim is held by both palms at the sides
- * of the head's girth (`HAT`, provisional), on the head's own surface, and
- * set onto it; a pair of glasses is held by both index fingertips at the
- * temples' arms just before the ears and slid back onto them, the fingers
- * pointing back along the temples. Both hands rise to a place a
- * quarter of the forearm before the item's final place in front of the
- * face (the item held up), then move it onto the head in a stroke, hold it a
- * moment and return. The reach takes the aimed movement time (McIntosh et
+ * The item is the wearable prop the hand holds since a pick-up (`prop`, by
+ * its `hold`): that hand carries it, rigid in the hand
+ * (`AutoMovieMotionHumanHeld`), so that its own `wear` socket comes onto the
+ * head's region it is worn on (`HumanWorn`: a hat's on the crown, a pair of
+ * glasses' on the nose's bridge), spectacles facing the way the body faces
+ * and a hat, round about its crown, at whichever turn the arm, fitted
+ * within its ranges, brings the wear socket nearest the crown at (the
+ * shared chooser, `HumanFreedomChoice`, the turn a wrapped freedom);
+ * from the stroke it is worn on the head (`IHumanActionPlan.wears`) and the
+ * hand lets go. The other hand steadies it at a place on the performer's own
+ * head, read on the posture so it follows the head: a hat's brim at the
+ * side of the head's girth (`HAT`, provisional), the palm on the head's own
+ * surface; a pair of glasses' temple just before the ear, the index finger
+ * pointing back along it. Both hands rise to a place a quarter of the
+ * forearm before the item's final place in front of the face (the item held
+ * up), then move it onto the head in a stroke, hold it a moment and return. The reach takes the aimed movement time (McIntosh et
  * al. 2018), the stroke a beat, both provisional. The shoulder's elevation
  * stays within the functional ranges of daily tasks (flexion 121, abduction
  * 128 degrees, Namdari et al. 2012, J Shoulder Elbow Surg 21:1177), which the
@@ -41,20 +65,20 @@ import { poseBones } from "../posture/poseBones";
  * `stroke` (item on), `relax` (hands off).
  *
  * Not yet: the jacket through rigid sleeve sockets, shoes and socks while
- * seated, zips and buttons (garment sockets as props); no item is a prop, so
- * nothing is drawn on the head.
+ * seated, zips and buttons (garment sockets as props), and a watch on the
+ * other wrist.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the item places, the stroke, the timing, the range bound's source and what is missing, with provisional values marked.
- * @evidence contracts/development/design.md#principled-representation A law record of two arm strokes on the performer's own head regions over a standing base.
+ * @evidence contracts/development/design.md#principled-representation A law record of two arm strokes over a standing base, one carrying the held wearable to its place on the head, which then wears it.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the item places and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place is a head region of the performer's own body.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place is a head region of the performer's own body and the item's own socket.
  */
 export namespace dress {
   /** The action's name. */
-  export const name: HumanActionName = "dress";
+  export const name: AutoMovieMotionHumanActionName = "dress";
 
   /** Cancel table: the hands come down and the body stands or walks. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       { window: ["relax", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
@@ -63,25 +87,6 @@ export namespace dress {
 
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
   export const overlay: boolean = true;
-
-  /** An item put on. */
-  export type Item = "hat" | "glasses";
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its default.
-   * @evidence contracts/development/design.md#principled-representation A closed item and a manner.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place is typed.
-   */
-  export interface IParams {
-    /** The item. */
-    item: Item;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
 
   /**
    * The hat's brim held at the head's front quarters: the direction out and
@@ -110,16 +115,11 @@ export namespace dress {
    *   the palm toward the head.
    */
   export function place(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    item: Item,
-    side: HumanHand.Side,
-  ): {
-    point: IAutoMovieVector3;
-    normal: IAutoMovieVector3;
-    surface: HumanHand.Surface;
-    forward: IAutoMovieVector3;
-  } {
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    item: IAutoMovieMotionHumanDress.Item,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanDress.IPlaceResult {
     const outward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
       { x: side === "left" ? 1 : -1, y: 0, z: 0 },
@@ -165,18 +165,47 @@ export namespace dress {
     };
   }
 
+  /** The refinement step of a hat's turn about the crown, and the spacing of the turns tried first round it, degrees (search resolution: an eighth of a turn, halving to under 6). */
+  export const TURN: number = 45;
+
+  /** The head region each item is worn on. */
+  export const WORN: Readonly<
+    Record<IAutoMovieMotionHumanDress.Item, AutoMovieHumanoidRegion>
+  > = {
+    hat: "crown",
+    glasses: "noseBridge",
+  };
+
   /**
    * Plan putting an item on.
    *
    * @param context The action's context.
    * @returns The plan.
+   * @throws {HumanRefusal} When the hand does not hold the wearable or the wearable declares no `wear` socket.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
-    const item: Item = context.params.item;
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDress.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const item: IAutoMovieMotionHumanDress.Item = context.params.item;
+    const subject: string = context.params.prop;
+    const holder: AutoMovieHumanSide =
+      context.params.hand ??
+      (context.entry.holds.left === subject &&
+      context.entry.holds.right !== subject
+        ? "left"
+        : "right");
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+      context,
+      holder,
+      subject,
+    );
+    const wearable: IAutoMovieMotionHumanProp = context.prop(subject).prop;
+    // The item's frame in the hand's, for the hand that carries it.
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      held.frame.rotation,
+    );
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const yaw: number = context.entry.posture.yaw;
     const forward: IAutoMovieVector3 = HumanFrame.point(
@@ -189,7 +218,7 @@ export namespace dress {
       0.6 * (body.measure.upperArm + body.measure.forearm),
       0.03,
     );
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: reach,
         attack: AutoMovieMotionHumanTiming.PAUSES.beat,
@@ -198,8 +227,159 @@ export namespace dress {
       }),
       modifiers,
     );
-    const arm = (side: HumanHand.Side) => {
-      const surface: HumanHand.Surface = item === "hat" ? "palm" : "indexTip";
+    // Where the carrying hand's grip socket is, and how the hand is turned,
+    // when the item, rigid in it, sits on the head at a turn.
+    const carried = (
+      posture: IAutoMovieMotionHumanPosture,
+      degrees: number,
+    ): { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => {
+      const worn: IAutoMovieRigidTransform = HumanWorn.frame(
+        body,
+        posture,
+        wearable,
+        WORN[item],
+        degrees,
+      );
+      const rotation: IAutoMovieQuaternion = Quaternion.normalize(
+        Quaternion.multiply(worn.rotation, inverse),
+      );
+      return {
+        grip: Vector3.subtract(
+          worn.position,
+          Quaternion.rotateVector(rotation, held.frame.position),
+        ),
+        rotation,
+      };
+    };
+    // A hat is round about its crown, so it is set at whichever turn the
+    // arm, fitted within its ranges, brings its wear socket nearest the
+    // crown (the shared chooser, a wrapped freedom); spectacles face the
+    // body's way.
+    const socket: IAutoMovieVector3 = HumanHand.offset(
+      body,
+      holder,
+      "grip",
+    ).point;
+    const wear: IAutoMovieVector3 = AutoMovieMotionHumanHeld.point(
+      held,
+      "wear",
+    ).point;
+    // Each turn fitted once, however often the search comes back to it.
+    const fitted: Map<number, number> = new Map();
+    const missed = (degrees: number): number => {
+      const known: number | undefined = fitted.get(degrees);
+      if (known !== undefined) return known;
+      const posture: IAutoMovieMotionHumanPosture = context.entry.posture;
+      const at: { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion } =
+        carried(posture, degrees);
+      const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
+        body,
+        holder,
+        "grip",
+        at.grip,
+        at.rotation,
+      );
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+      limbs[`${holder}Arm`] = {
+        point: wrist.point,
+        rotation: wrist.rotation,
+        contact: socket,
+        bend: AutoMovieMotionHumanBend.solve({
+          body,
+          posture,
+          side: holder,
+          point: wrist.point,
+          rotation: wrist.rotation,
+          fallback: "hang",
+        }),
+      };
+      const bones: ReturnType<typeof poseBones> = poseBones(
+        body,
+        resolveHumanPosture(body, { ...posture, limbs }),
+      );
+      const hand: IAutoMovieMotionHumanHand.IFrame = HumanHand.frame(
+        body,
+        bones,
+        holder,
+        "grip",
+      );
+      const miss: number = Vector3.length(
+        Vector3.subtract(
+          Vector3.add(
+            hand.point,
+            Quaternion.rotateVector(
+              bones.get(`${holder}Hand`)!.worldRotation,
+              wear,
+            ),
+          ),
+          HumanTrunk.region(body, posture, WORN[item]).point,
+        ),
+      );
+      fitted.set(degrees, miss);
+      return miss;
+    };
+    const seeds: number[] = [0];
+    for (let k: number = TURN; k <= 180; k += TURN)
+      seeds.push(...(k < 180 ? [k, -k] : [k]));
+    const turn: number =
+      item === "glasses"
+        ? 0
+        : HumanFreedomChoice.chosen({
+            tried: seeds.map((degrees: number): number[] => [degrees]),
+            freedoms: [{ kind: "wrapped", step: TURN, period: 360 }],
+            judge: (values: readonly number[]): number[] => [
+              missed(values[0]!),
+            ],
+          }).values[0]!;
+    // The carrying hand: the item held up the lead before its place.
+    const carry = (): IAutoMovieMotionHumanPrimitive =>
+      AutoMovieMotionHumanArm.stroke({
+        body,
+        clock,
+        side: holder,
+        origin: AutoMovieMotionHumanArm.origin(
+          body,
+          bones,
+          { origin: context.entry.posture.root, yaw },
+          holder,
+          "grip",
+        ),
+        path: (
+          posture: IAutoMovieMotionHumanPosture,
+          _: number,
+          progress: number,
+        ) => {
+          const { grip: on, rotation } = carried(posture, turn);
+          const grip: IAutoMovieVector3 = Vector3.add(
+            on,
+            Vector3.scale(forward, lead * (1 - progress)),
+          );
+          return {
+            surface: "grip",
+            shape: "relaxed",
+            point: grip,
+            rotation,
+            bend: AutoMovieMotionHumanBend.solve({
+              body,
+              posture,
+              side: holder,
+              point: HumanHand.place(
+                body,
+                holder,
+                "grip",
+                grip,
+                rotation,
+                "relaxed",
+              ).point,
+              rotation,
+              fallback: "hang",
+            }),
+          };
+        },
+      });
+    const arm = (side: AutoMovieHumanSide) => {
+      const surface: IAutoMovieMotionHumanHand.Surface =
+        item === "hat" ? "palm" : "indexTip";
       return AutoMovieMotionHumanArm.stroke({
         body,
         clock,
@@ -211,7 +391,11 @@ export namespace dress {
           side,
           surface,
         ),
-        path: (posture: IHumanPosture, _: number, progress: number) => {
+        path: (
+          posture: IAutoMovieMotionHumanPosture,
+          _: number,
+          progress: number,
+        ) => {
           const at = place(body, posture, item, side);
           return AutoMovieMotionHumanTarget.hand(
             body,
@@ -233,11 +417,36 @@ export namespace dress {
         },
       });
     };
-    return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.under(context, clock.duration),
-      clock,
-      contact: "stroke",
-      primitives: [arm("left"), arm("right")],
-    });
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.under(context, clock.duration),
+        clock,
+        contact: "stroke",
+        primitives: [
+          holder === "left" ? carry() : arm("left"),
+          holder === "right" ? carry() : arm("right"),
+        ],
+      });
+    // The holding hand keeps the item until it is on, closed as the grip
+    // left it; from then the head wears it.
+    const on: number = clock.at("stroke") / clock.duration;
+    const fingers: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.fingers(
+      context.entry.pose,
+      holder,
+    );
+    return {
+      ...composed,
+      contacts: [
+        ...composed.contacts,
+        { ...AutoMovieMotionHumanHeld.grip(held), to: on },
+      ],
+      wears: [{ prop: subject, bone: "head", from: on }],
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+        const posture: IAutoMovieMotionHumanPosture = composed.posture(seconds);
+        return seconds / clock.duration < on
+          ? { ...posture, joints: { ...posture.joints, ...fingers } }
+          : posture;
+      },
+    };
   }
 }

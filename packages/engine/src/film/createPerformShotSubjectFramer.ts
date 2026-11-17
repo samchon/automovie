@@ -2,7 +2,11 @@ import {
   IAutoMovieActionTarget,
   IAutoMovieClip,
   IAutoMovieCompiledFormation,
+  type IAutoMovieCreatePerformShotSubjectFramer,
+  type IAutoMovieEnginePerformShotGateContext,
   IAutoMovieFormationMotion,
+  type IAutoMovieFramedBox,
+  type IAutoMovieFramedSubject,
   IAutoMovieGroupTarget,
   IAutoMovieModel,
   IAutoMovieMotion,
@@ -15,9 +19,6 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieFramedBox } from "./IAutoMovieFramedBox";
-import { IAutoMovieFramedSubject } from "./IAutoMovieFramedSubject";
-import { IPerformShotGateContext } from "./IPerformShotGateContext";
 import { animatedBaseAt } from "./animatedBaseAt";
 import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
 import { computeModelRestExtent } from "./computeModelRestExtent";
@@ -58,14 +59,8 @@ import { unionSubjectBoxes } from "./unionSubjectBoxes";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains node and formation extent maps, bounded by the shot's node/formation populations, plus borrowed staged and clip tables until performShot releases it. Per-sample group boxes are temporary and no cache survives the shot call.
  */
 export function createPerformShotSubjectFramer(
-  context: IPerformShotGateContext,
-  props: {
-    models: readonly IAutoMovieModel[] | undefined;
-    formationMotions: readonly IAutoMovieFormationMotion[];
-    motions: Readonly<Record<string, IAutoMovieMotion>>;
-    objectMotions: readonly IAutoMovieClip[];
-    rotations: ReadonlyMap<string, IAutoMovieQuaternion>;
-  },
+  context: IAutoMovieEnginePerformShotGateContext,
+  props: IAutoMovieCreatePerformShotSubjectFramer.IProps,
 ): (on: IAutoMovieActionTarget) => IAutoMovieFramedSubject {
   const stagedNodes: Map<string, IAutoMovieSceneNode> = new Map(
     context.staged.scene.nodes.map(
@@ -225,7 +220,7 @@ export function createPerformShotSubjectFramer(
 
 /** How a point subject moves over shot time, or null when it holds still. */
 function movementOf(
-  context: IPerformShotGateContext,
+  context: IAutoMovieEnginePerformShotGateContext,
   props: {
     motions: Readonly<Record<string, IAutoMovieMotion>>;
     objectMotions: readonly IAutoMovieClip[];
@@ -235,7 +230,8 @@ function movementOf(
   node: string | null,
   point: IAutoMovieVector3,
 ): ((seconds: number) => IAutoMovieVector3) | null {
-  const targetAt: IPerformShotGateContext["targetAt"] = context.targetAt;
+  const targetAt: IAutoMovieEnginePerformShotGateContext["targetAt"] =
+    context.targetAt;
   if (on.kind === "bone" && targetAt !== undefined)
     return (seconds: number): IAutoMovieVector3 =>
       targetAt(on, seconds) ?? point;

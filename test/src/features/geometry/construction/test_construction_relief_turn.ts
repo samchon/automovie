@@ -5,10 +5,13 @@ import {
   AutoMovieViewAxis,
   AutoMovieViewLoft,
   AutoMovieViewSection,
-  type IAutoMovieLoftChain,
-  type IAutoMovieLoftRelief,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftRelief,
+  IAutoMovieLoftSurfaceJet,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 type V3 = [number, number, number];
 
@@ -31,9 +34,11 @@ type V3 = [number, number, number];
  */
 export function test_construction_relief_turn(): void {
   const failures: string[] = [];
-  const bare: IAutoMovieLoftChain | null = AutoMovieViewLoft.create(tube()).chain;
+  const bare: IAutoMovieLoftChain | null =
+    AutoMovieViewLoft.create(tube()).chain;
   if (bare === null) throw new Error("The made tube did not loft");
-  const at = (chain: IAutoMovieLoftChain, s: number, t: number): V3 => AutoMovieLoftChain.point(chain, s, t) as V3;
+  const at = (chain: IAutoMovieLoftChain, s: number, t: number): V3 =>
+    AutoMovieLoftChain.point(chain, s, t) as V3;
   const sub = (a: V3, b: V3): V3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   const norm = (a: V3): number => Math.hypot(a[0], a[1], a[2]);
   const unit = (a: V3): V3 => [a[0] / norm(a), a[1] / norm(a), a[2] / norm(a)];
@@ -46,13 +51,33 @@ export function test_construction_relief_turn(): void {
   const turn: V3 = unit(sub(at(bare, 50, Math.PI / 2), centre(50)));
   const rows: number = 9;
   const columns: number = 15;
-  const net: number[] = Array.from({ length: rows * columns }, (_: unknown, k: number): number => {
-    const r: number = Math.floor(k / columns);
-    const c: number = k % columns;
-    return r >= 3 && r < rows - 3 && c >= 3 && c < columns - 3 ? 3 : 0;
-  });
-  const turning: IAutoMovieLoftRelief = { name: "turning", stations: [20, 80], phases: [-1.4, 1.4], axis, turn, rows, columns, heights: net };
-  const fixed: IAutoMovieLoftRelief = { name: "fixed", stations: [20, 80], phases: [-1.4, 1.4], axis, rows, columns, heights: net };
+  const net: number[] = Array.from(
+    { length: rows * columns },
+    (_: unknown, k: number): number => {
+      const r: number = Math.floor(k / columns);
+      const c: number = k % columns;
+      return r >= 3 && r < rows - 3 && c >= 3 && c < columns - 3 ? 3 : 0;
+    },
+  );
+  const turning: IAutoMovieLoftRelief = {
+    name: "turning",
+    stations: [20, 80],
+    phases: [-1.4, 1.4],
+    axis,
+    turn,
+    rows,
+    columns,
+    heights: net,
+  };
+  const fixed: IAutoMovieLoftRelief = {
+    name: "fixed",
+    stations: [20, 80],
+    phases: [-1.4, 1.4],
+    axis,
+    rows,
+    columns,
+    heights: net,
+  };
   const round: IAutoMovieLoftChain = { ...bare, reliefs: [turning] };
   const flat: IAutoMovieLoftChain = { ...bare, reliefs: [fixed] };
 
@@ -60,40 +85,110 @@ export function test_construction_relief_turn(): void {
   for (const s of [30, 50, 70])
     for (const t of [-1.2, -0.6, 0, 0.5, 1.2]) {
       const h: number = AutoMovieLoftRelief.height(turning, s, t)[0];
-      const e: V3 = [0, 1, 2].map((k: number): number => Math.cos(t) * axis[k]! + Math.sin(t) * turn[k]!) as V3;
+      const e: V3 = [0, 1, 2].map(
+        (k: number): number => Math.cos(t) * axis[k]! + Math.sin(t) * turn[k]!,
+      ) as V3;
       const b: V3 = at(bare, s, t);
       const expected: V3 = [b[0] + h * e[0], b[1] + h * e[1], b[2] + h * e[2]];
       const off: number = norm(sub(at(round, s, t), expected));
-      if (!(off <= 1e-9)) failures.push(`station ${s} phase ${t}: ${off} mm off the height along the turned axis`);
+      if (!(off <= 1e-9))
+        failures.push(
+          `station ${s} phase ${t}: ${off} mm off the height along the turned axis`,
+        );
       const radius: number = norm(sub(at(round, s, t), centre(s)));
-      if (!(Math.abs(radius - (20 + h)) <= 1e-6)) failures.push(`station ${s} phase ${t}: radius ${radius} mm, not 20 + ${h}`);
+      if (!(Math.abs(radius - (20 + h)) <= 1e-6))
+        failures.push(
+          `station ${s} phase ${t}: radius ${radius} mm, not 20 + ${h}`,
+        );
     }
   const height: number = AutoMovieLoftRelief.height(turning, 50, 0.9)[0];
   const short: number = 20 + height - norm(sub(at(flat, 50, 0.9), centre(50)));
-  if (!(height > 2 && short > 0.5)) failures.push(`proof: at phase 0.9 the fixed axis stands only ${short} mm short of the radial cast of ${height} mm`);
+  if (!(height > 2 && short > 0.5))
+    failures.push(
+      `proof: at phase 0.9 the fixed axis stands only ${short} mm short of the radial cast of ${height} mm`,
+    );
 
   // 3. What the relief adds to the phase derivatives, against differences of what it adds to the points and to the first derivatives.
   const step: number = 1e-4;
-  const added = (read: (chain: IAutoMovieLoftChain) => readonly number[]): V3 => sub(read(round) as V3, read(bare) as V3);
-  const slope = (plus: V3, minus: V3): V3 => sub(plus, minus).map((x: number): number => x / (2 * step)) as V3;
+  const added = (read: (chain: IAutoMovieLoftChain) => readonly number[]): V3 =>
+    sub(read(round) as V3, read(bare) as V3);
+  const slope = (plus: V3, minus: V3): V3 =>
+    sub(plus, minus).map((x: number): number => x / (2 * step)) as V3;
   // The samples stand off the net's knots (stations 20 + 10 i, phases -1.4 + 0.2333 j): at a knot the height's third derivative jumps and a
   // central difference of its first derivative is off by half the step times that jump.
-  for (const [s, t] of [[43, 0.8], [55, -1.0], [47, 1.25]] as [number, number][]) {
-    const got = (pick: (jet: AutoMovieLoftJet.IJet) => readonly number[]): V3 => added((chain: IAutoMovieLoftChain): readonly number[] => pick(AutoMovieLoftJet.at(chain, s, t)));
-    const first: V3 = slope(added((chain: IAutoMovieLoftChain): readonly number[] => at(chain, s, t + step)), added((chain: IAutoMovieLoftChain): readonly number[] => at(chain, s, t - step)));
-    const second: V3 = slope(added((chain: IAutoMovieLoftChain): readonly number[] => AutoMovieLoftJet.at(chain, s, t + step).t), added((chain: IAutoMovieLoftChain): readonly number[] => AutoMovieLoftJet.at(chain, s, t - step).t));
-    const mixed: V3 = slope(added((chain: IAutoMovieLoftChain): readonly number[] => AutoMovieLoftJet.at(chain, s + step, t).t), added((chain: IAutoMovieLoftChain): readonly number[] => AutoMovieLoftJet.at(chain, s - step, t).t));
-    for (const [name, value, want] of [["t", got((jet: AutoMovieLoftJet.IJet): readonly number[] => jet.t), first], ["tt", got((jet: AutoMovieLoftJet.IJet): readonly number[] => jet.tt), second], ["st", got((jet: AutoMovieLoftJet.IJet): readonly number[] => jet.st), mixed]] as [string, V3, V3][]) {
+  for (const [s, t] of [
+    [43, 0.8],
+    [55, -1.0],
+    [47, 1.25],
+  ] as [number, number][]) {
+    const got = (
+      pick: (jet: IAutoMovieLoftSurfaceJet) => readonly number[],
+    ): V3 =>
+      added((chain: IAutoMovieLoftChain): readonly number[] =>
+        pick(AutoMovieLoftJet.at(chain, s, t)),
+      );
+    const first: V3 = slope(
+      added((chain: IAutoMovieLoftChain): readonly number[] =>
+        at(chain, s, t + step),
+      ),
+      added((chain: IAutoMovieLoftChain): readonly number[] =>
+        at(chain, s, t - step),
+      ),
+    );
+    const second: V3 = slope(
+      added(
+        (chain: IAutoMovieLoftChain): readonly number[] =>
+          AutoMovieLoftJet.at(chain, s, t + step).t,
+      ),
+      added(
+        (chain: IAutoMovieLoftChain): readonly number[] =>
+          AutoMovieLoftJet.at(chain, s, t - step).t,
+      ),
+    );
+    const mixed: V3 = slope(
+      added(
+        (chain: IAutoMovieLoftChain): readonly number[] =>
+          AutoMovieLoftJet.at(chain, s + step, t).t,
+      ),
+      added(
+        (chain: IAutoMovieLoftChain): readonly number[] =>
+          AutoMovieLoftJet.at(chain, s - step, t).t,
+      ),
+    );
+    for (const [name, value, want] of [
+      [
+        "t",
+        got((jet: IAutoMovieLoftSurfaceJet): readonly number[] => jet.t),
+        first,
+      ],
+      [
+        "tt",
+        got((jet: IAutoMovieLoftSurfaceJet): readonly number[] => jet.tt),
+        second,
+      ],
+      [
+        "st",
+        got((jet: IAutoMovieLoftSurfaceJet): readonly number[] => jet.st),
+        mixed,
+      ],
+    ] as [string, V3, V3][]) {
       const off: number = norm(sub(value, want));
-      if (!(off <= 1e-5)) failures.push(`station ${s} phase ${t}: the relief's part of jet.${name} is ${off} off the difference`);
+      if (!(off <= 1e-5))
+        failures.push(
+          `station ${s} phase ${t}: the relief's part of jet.${name} is ${off} off the difference`,
+        );
     }
   }
 
   // 4. A fixed axis.
   const [e, e1, e2] = AutoMovieLoftRelief.direction(fixed, 0.9);
-  if (norm(sub(e, axis)) !== 0 || norm(e1) !== 0 || norm(e2) !== 0) failures.push("a relief without a turn does not read its own axis with zero derivatives");
+  if (norm(sub(e, axis)) !== 0 || norm(e1) !== 0 || norm(e2) !== 0)
+    failures.push(
+      "a relief without a turn does not read its own axis with zero derivatives",
+    );
 
-  if (failures.length > 0) throw new Error("relief turn:\n" + failures.join("\n"));
+  if (failures.length > 0)
+    throw new Error("relief turn:\n" + failures.join("\n"));
 }
 
 /** A 20 mm tube on the horizontal course, open at both ends. */

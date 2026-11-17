@@ -1,10 +1,14 @@
-import type { AutoMovieViewAxis } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanF1,
   AutoMovieHumanF1NativeCalibration as Calibration,
   AutoMovieHumanF1NativeSites as Sites,
 } from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1,
+  IAutoMovieViewAxis,
+} from "@automovie/interface";
 
 /**
  * A digit's caliper site stands at its definition's joint on the digit the calibration reads, and moving the site leaves f1 as it is.
@@ -29,7 +33,7 @@ import {
 export function test_human_f1_native_digit_sites(): void {
   const failures: string[] = [];
   const sites: Sites.ISites = Sites.REFERENCE;
-  const distance = (axis: AutoMovieViewAxis.IAxis, s: number, p: readonly number[]): number => {
+  const distance = (axis: IAutoMovieViewAxis.IAxis, s: number, p: readonly number[]): number => {
     const o: readonly number[] = axis.at(s).origin;
     return Math.hypot(o[0]! - p[0]!, o[1]! - p[1]!, o[2]! - p[2]!);
   };
@@ -37,13 +41,13 @@ export function test_human_f1_native_digit_sites(): void {
     const site: Sites.IDigitSite = sites.digits[kind];
 
     // 1. The digit the calibration reads.
-    const read: AutoMovieHumanF1.IDigit | undefined = AutoMovieHumanF1.DIGITS.find((digit: AutoMovieHumanF1.IDigit): boolean => digit.limb === limb && digit.knuckle);
+    const read: IAutoMovieHumanF1.IDigit | undefined = AutoMovieHumanF1.DIGITS.find((digit: IAutoMovieHumanF1.IDigit): boolean => digit.limb === limb && digit.knuckle);
     if (read === undefined || read.family.name !== site.family) failures.push(`the ${kind}'s site is read on ${site.family}, the calibration's digit is ${read?.family.name}`);
-    const family: H.IFamily = Sites.F1.digits[kind];
+    const family: IAutoMovieHumanConicLoft.IFamily = Sites.F1.digits[kind];
     if (family.name !== site.family) failures.push(`the ${kind}'s site names ${site.family}, its input family is ${family.name}`);
 
     // 2. At the joint: a local minimum of the course's distance to the second centre, inside the turn.
-    const axis: AutoMovieViewAxis.IAxis = H.axis(family);
+    const axis: IAutoMovieViewAxis.IAxis = H.axis(family);
     const joint: readonly number[] = family.centres[1]!;
     const here: number = distance(axis, site.station, joint);
     if (distance(axis, site.station - 0.05, joint) < here || distance(axis, site.station + 0.05, joint) < here) failures.push(`the ${kind}'s site at ${site.station} is not the course's nearest station to its joint`);

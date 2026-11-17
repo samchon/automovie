@@ -5,10 +5,10 @@ import {
   validateBuiltEnvironment,
 } from "@automovie/engine";
 import type {
-  AutoMovieBuiltPlacementSupportLocator,
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltPlacementBounds,
   IAutoMovieBuiltPlacementOverlapResult,
+  IAutoMovieBuiltPlacementSupportLocator,
   IAutoMovieBuiltSupportResult,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -229,11 +229,11 @@ export function test_architecture_built_environment_placement(): void {
 
   const bearing: (
     subjectId: string,
-    target?: AutoMovieBuiltPlacementSupportLocator,
+    target?: IAutoMovieBuiltPlacementSupportLocator,
     tolerance?: number,
   ) => IAutoMovieBuiltSupportResult = (
     subjectId: string,
-    target: AutoMovieBuiltPlacementSupportLocator = support("element", "slab"),
+    target: IAutoMovieBuiltPlacementSupportLocator = support("element", "slab"),
     tolerance?: number,
   ): IAutoMovieBuiltSupportResult =>
     builtEnvironmentSupportStatus({

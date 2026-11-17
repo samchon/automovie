@@ -1,13 +1,13 @@
-import {
-  type IAutoMovieContourLoft64 as L,
-  realizeAutoMovieBicubicAtlas64 as realize,
-} from "@automovie/engine";
-import type { IAutoMovieModel } from "@automovie/interface";
+import { realizeAutoMovieBicubicAtlas64 as realize } from "@automovie/engine";
+import type {
+  IAutoMovieContourLoft64,
+  IAutoMovieModel,
+  IAutoMovieRecoveryAtlasGeneration,
+  IAutoMovieRecoveryTensorFamiliesInput,
+  IAutoMovieRecoveryTensorRealization,
+} from "@automovie/interface";
 
 import { readRecoveryMetadata as read } from "../internal/readRecoveryMetadata";
-import type { IAutoMovieRecoveryAtlasGeneration } from "../structures/domain/IAutoMovieRecoveryAtlasGeneration";
-import type { IAutoMovieRecoveryTensorFamiliesInput } from "../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
-import type { IAutoMovieRecoveryTensorRealization } from "../structures/domain/IAutoMovieRecoveryTensorRealization";
 
 /**
  * Admit ordinary-family ownership and generate saved analytic tensors through the engine.
@@ -36,7 +36,10 @@ export function realizeAutoMovieRecoveryTensorFamilies(
       replacements: new Map(),
       reports: [],
     };
-  const curves: Map<string, L.ISection["loops"][number]["curve"]> = new Map();
+  const curves: Map<
+    string,
+    IAutoMovieContourLoft64.ISection["loops"][number]["curve"]
+  > = new Map();
   for (const section of bundle.loft.sections)
     for (const loop of section.loops) {
       const name: unknown = read(loop, ["curve", "name"]);
@@ -69,7 +72,9 @@ export function realizeAutoMovieRecoveryTensorFamilies(
     );
     let previous: { interval: number; after: number } | undefined;
     for (const address of family.replacedGroups) {
-      const group: L.IInterval["groups"][number] | undefined =
+      const group:
+        | IAutoMovieContourLoft64.IInterval["groups"][number]
+        | undefined =
         bundle.loft.intervals?.[address.interval]?.groups[address.group];
       const key: string = `${address.interval}:${address.group}`;
       if (
@@ -86,8 +91,9 @@ export function realizeAutoMovieRecoveryTensorFamilies(
       replacements.set(key, family.id);
     }
     for (const address of ordered) {
-      const interval: L.IInterval = bundle.loft.intervals![address.interval]!;
-      const group: L.IInterval["groups"][number] =
+      const interval: IAutoMovieContourLoft64.IInterval =
+        bundle.loft.intervals![address.interval]!;
+      const group: IAutoMovieContourLoft64.IInterval["groups"][number] =
         interval.groups[address.group]!;
       if (
         bundle.loft.sections[address.interval]!.loops[group.before[0]!]!
@@ -108,7 +114,7 @@ export function realizeAutoMovieRecoveryTensorFamilies(
         );
       if (
         bundle.loft.events.some(
-          (event: L.IEvent): boolean =>
+          (event: IAutoMovieContourLoft64.IEvent): boolean =>
             event.beforeMm === interval.beforeMm &&
             event.afterMm === interval.afterMm &&
             (event.before.includes(group.before[0]!) ||
@@ -146,8 +152,9 @@ export function realizeAutoMovieRecoveryTensorFamilies(
         "Tensor boundary bindings must name the actual first and last delegated curves",
       );
     for (const boundary of family.boundaries) {
-      const curve: L.ISection["loops"][number]["curve"] | undefined =
-        curves.get(boundary.curveName);
+      const curve:
+        | IAutoMovieContourLoft64.ISection["loops"][number]["curve"]
+        | undefined = curves.get(boundary.curveName);
       if (
         !curve ||
         !curve.closed ||

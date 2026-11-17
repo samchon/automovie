@@ -1,14 +1,17 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  type IHumanBody,
-  type IHumanPosture,
   hipJoints,
   poseBones,
   resolveHumanPosture,
@@ -94,7 +97,7 @@ export function test_motion_posture_resolve_helpers(): void {
       }
 
   // 2. Short.
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const a: number = body.measure.thigh;
   const b: number = body.measure.shank;
   const knee: number = 20;
@@ -139,13 +142,17 @@ export function test_motion_posture_resolve_helpers(): void {
   );
 
   // 3. Lower.
-  const quiet: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
-  const free: IHumanPosture = { ...quiet, limbs: {} };
+  const quiet: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
+  const free: IAutoMovieMotionHumanPosture = { ...quiet, limbs: {} };
   complaints.check(
     "a posture with no planted leg is kept",
     resolveHumanPosture.lower(body, free) === free,
   );
-  const sunk: IHumanPosture = {
+  const sunk: IAutoMovieMotionHumanPosture = {
     ...quiet,
     limbs: Object.fromEntries(
       Object.entries(quiet.limbs).map(([limb, goal]) => [
@@ -160,7 +167,10 @@ export function test_motion_posture_resolve_helpers(): void {
       ]),
     ),
   };
-  const lowered: IHumanPosture = resolveHumanPosture.lower(body, sunk);
+  const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+    body,
+    sunk,
+  );
   const hips = hipJoints(
     body,
     lowered.root,
@@ -168,7 +178,7 @@ export function test_motion_posture_resolve_helpers(): void {
     lowered.joints.hips,
   );
   for (const side of ["left", "right"] as const) {
-    const goal: IHumanPosture.IGoal | undefined = sunk.limbs[`${side}Leg`];
+    const goal: IAutoMovieHumanLimbGoal | undefined = sunk.limbs[`${side}Leg`];
     if (goal === undefined) continue;
     const left: number = resolveHumanPosture.short(
       body,
@@ -247,7 +257,7 @@ export function test_motion_posture_resolve_helpers(): void {
   );
 
   // 6. Order.
-  const at: IHumanPosture.IGoal = {
+  const at: IAutoMovieHumanLimbGoal = {
     point: { x: 0, y: 0, z: 0 },
     bend: { x: 0, y: 0, z: 1 },
   };
@@ -256,7 +266,7 @@ export function test_motion_posture_resolve_helpers(): void {
     resolveHumanPosture.order({ rightArm: at, leftLeg: at }),
     ["leftLeg", "rightLeg", "leftArm", "rightArm"],
   );
-  const order: IHumanPosture.Limb[] = resolveHumanPosture.order({
+  const order: AutoMovieHumanLimb[] = resolveHumanPosture.order({
     leftArm: { ...at, on: "rightLowerArm" },
     rightArm: at,
     leftLeg: { ...at, on: "leftHand" },
@@ -285,7 +295,7 @@ export function test_motion_posture_resolve_helpers(): void {
     { x: 0, y: 1, z: 0 },
     30,
   );
-  const carried: IHumanPosture.IGoal = resolveHumanPosture.world(
+  const carried: IAutoMovieHumanLimbGoal = resolveHumanPosture.world(
     body,
     pose,
     "rightArm",

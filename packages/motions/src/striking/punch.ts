@@ -1,18 +1,23 @@
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPunch,
+  IAutoMovieMotionHumanStrikingRecord,
+  IAutoMovieMotionHumanStrikingSkill,
+  IAutoMovieMotionHumanVariation,
+  IAutoMovieMotionWeaponContact,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
-import type { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
@@ -75,10 +80,10 @@ import { punchGeometry } from "./punchGeometry";
  */
 export namespace punch {
   /** The action's name. */
-  export const name: HumanActionName = "punch";
+  export const name: AutoMovieMotionHumanActionName = "punch";
 
   /** Cancel table: a punch chains into the next punch from its contact on. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     punch: [
       {
         window: ["impact", 1],
@@ -89,39 +94,6 @@ export namespace punch {
       },
     ],
   };
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, range and default.
-   * @evidence contracts/development/design.md#principled-representation Closed unions for the technique and the hand, the interface's motion target, the accuracy union and a feint share in (0, 1), checked when planning.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan, the defence's telegraph and the kickboxing rules read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target and accuracy types.
-   */
-  export interface IParams {
-    /** The technique. */
-    technique: "straight" | "hook" | "uppercut";
-
-    /** Which hand: the stance's lead or rear; lead for a straight or a hook and rear for an uppercut when absent. */
-    hand?: "lead" | "rear";
-
-    /** What it strikes. */
-    at: AutoMovieMotionTarget;
-
-    /** Declared accuracy; `hit` when absent. */
-    accuracy?: StrikingQuality.Accuracy;
-
-    /** A feint: the share of the delivery shown before returning, in (0, 1). */
-    feint?: number;
-
-    /**
-     * How much repeats of the punch differ: `variation` in [0, 1] scales the
-     * spread of the point aimed at within a person's region, and
-     * `proficiency` replaces the performer's skill for that spread. Absent or
-     * 0, every repeat is aimed at the region's own point.
-     */
-    manner?: Pick<AutoMovieMotionManner.IManner, "variation" | "proficiency">;
-  }
 
   /**
    * The hand a punch's parameters resolve to.
@@ -137,7 +109,9 @@ export namespace punch {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function hand(params: IParams): "lead" | "rear" {
+  export function hand(
+    params: IAutoMovieMotionHumanPunch.IParams,
+  ): "lead" | "rear" {
     return params.hand ?? (params.technique === "uppercut" ? "rear" : "lead");
   }
 
@@ -157,9 +131,9 @@ export namespace punch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry and one stop second, released with the plan.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanPunch.IParams = context.params;
     if (p.feint !== undefined && !(p.feint > 0 && p.feint < 1))
       throw new Error("A feint shows a share of the delivery in (0, 1)");
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
@@ -178,7 +152,8 @@ export namespace punch {
     ) {
       const elapsed: number =
         from.share * from.plan.duration - from.plan.contact;
-      const same: boolean = hand(from.params as IParams) === which;
+      const same: boolean =
+        hand(from.params as IAutoMovieMotionHumanPunch.IParams) === which;
       delivery = Math.max(
         0.12,
         (same
@@ -192,7 +167,7 @@ export namespace punch {
       delivery * StrikingSkill.strike(context.skill),
     );
     const shown: number = p.feint === undefined ? delivery : p.feint * delivery;
-    const drop: StrikingSkill.IGuardDrop =
+    const drop: IAutoMovieMotionHumanStrikingSkill.IGuardDrop =
       p.feint === undefined
         ? StrikingSkill.guardDrop(context.skill, context.random("guard"), 0)
         : { depth: 0, seconds: 0 };
@@ -233,13 +208,14 @@ export namespace punch {
       StrikingQuality.stops(p.accuracy);
     let fixed: number | null | undefined = strikes ? null : undefined;
 
-    // The whole arm as three capsules read from the performer's shown bones,
-    // which are the free path until the performance commits the stop: the
-    // upper arm from the shoulder to the elbow, the forearm from the elbow to
-    // the wrist and the fist from the wrist to the knuckles, so a punch stops
-    // where its arm first meets a body anywhere along it (as when two crosses
-    // cross), and the resolution meets the arm the figure shows, the upper
-    // arm tapered from the shoulder's girth to the elbow's.
+    // The whole arm as three capsules fitted on the punch's free course,
+    // which is what the figure shows until the performance commits the stop
+    // (`StrikingWeapon.arm`): the upper arm from the shoulder to the elbow,
+    // the forearm from the elbow to the wrist and the fist from the wrist to
+    // the knuckles, so a punch stops where its arm first meets a body
+    // anywhere along it (as when two crosses cross), and the resolution meets
+    // the arm the figure shows, the upper arm tapered from the shoulder's
+    // girth to the elbow's.
     const limb: "leftArm" | "rightArm" =
       side === "left" ? "leftArm" : "rightArm";
     const chain: StrikingWeapon.IChain = {
@@ -249,21 +225,29 @@ export namespace punch {
       from: context.start,
       to: context.start + shown + 0.1,
       ends: (seconds: number): IAutoMovieVector3[] =>
-        StrikingWeapon.arm(context, side, seconds),
+        StrikingWeapon.arm(
+          context.body,
+          (at: number): IAutoMovieMotionHumanPosture =>
+            geometry().posture(
+              Math.min(duration, Math.max(0, at - context.start)),
+            ),
+          side,
+          seconds,
+        ),
     };
 
     // The contact the performance committed, and the stopped arm's ride on
     // the body it met ({@link StrikingRide}), built on first use.
-    let met: IHumanActionPlan.IContactEvent | null = null;
+    let met: IAutoMovieMotionWeaponContact | null = null;
     let ride: StrikingRide.IRide | undefined;
     const carried = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): IHumanPosture => {
+    ): IAutoMovieMotionHumanPosture => {
       if (met === null) return posture;
-      const event: IHumanActionPlan.IContactEvent = met;
+      const event: IAutoMovieMotionWeaponContact = met;
       ride ??= StrikingRide.create({
-        other: (): IHumanActionContext.IPerformer =>
+        other: (): IAutoMovieMotionHumanPerformerReader =>
           context.performer(event.against),
         stop: event.seconds,
         goal: (at: number): IAutoMovieVector3 =>
@@ -279,10 +263,10 @@ export namespace punch {
     // from the struck body. Only the intent varies here: the arm's miss is
     // the seeded scatter the tracker already adds (`StrikingQuality.offset`),
     // so it is not counted a second time.
-    const source: AutoMovieMotionHumanVariation.ISource | undefined =
+    const source: IAutoMovieMotionHumanVariation.ISource | undefined =
       AutoMovieMotionHumanVariation.of(context, p.manner);
-    let tangent: resolveAutoMovieHumanoidSurfaces.ITangent | undefined;
-    const aimed = (): resolveAutoMovieHumanoidSurfaces.ITangent | undefined => {
+    let tangent: IAutoMovieHumanoidSurfaces.ITangent | undefined;
+    const aimed = (): IAutoMovieHumanoidSurfaces.ITangent | undefined => {
       if (
         source === undefined ||
         p.at.kind !== "person" ||
@@ -314,16 +298,16 @@ export namespace punch {
       }
       return built;
     };
-    const out: IHumanActionPlan = {
+    const out: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
-      get contacts(): IHumanContactWindow[] {
+      get contacts(): IAutoMovieMotionHumanContactWindow[] {
         return geometry().contacts;
       },
       ...(p.feint === undefined
         ? { contact: delivery }
         : { feigned: delivery }),
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         return carried(geometry().posture(t), t);
       },
@@ -334,7 +318,7 @@ export namespace punch {
       ...(strikes
         ? {
             weapons: StrikingWeapon.capsules(chain),
-            stop: (found: readonly IHumanActionPlan.IContactEvent[]): void => {
+            stop: (found: readonly IAutoMovieMotionWeaponContact[]): void => {
               met = StrikingWeapon.first(found);
               fixed = met === null ? null : met.seconds;
               ride = undefined;
@@ -348,7 +332,7 @@ export namespace punch {
       Object.defineProperty(out, "aimed", { enumerable: true, get: aimed });
     StrikingRecord.register(
       out,
-      (): StrikingRecord.IRecord => geometry().record,
+      (): IAutoMovieMotionHumanStrikingRecord.IRecord => geometry().record,
     );
     return out;
   }

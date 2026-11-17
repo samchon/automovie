@@ -1,8 +1,12 @@
 import {
   AutoMovieNaturalSpline,
   AutoMovieViewOutline,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
+import type {
+  IAutoMovieNaturalCubicSpline,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionHermiteReading } from "../../internal/construction/ConstructionHermiteReading";
@@ -28,11 +32,10 @@ export function test_construction_source_lookup(): void {
   const failures: string[] = [];
   ConstructionHermiteReading.check(failures);
   for (const scale of [0.001, 1, 1000]) {
-    const spline: AutoMovieNaturalSpline.ISpline =
-      AutoMovieNaturalSpline.create(
-        [0, scale, 2 * scale],
-        [scale, 0.01 * scale, 0.01 * scale],
-      );
+    const spline: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+      [0, scale, 2 * scale],
+      [scale, 0.01 * scale, 0.01 * scale],
+    );
     for (const x of [-1, 0, 0.25, 1, 1.5, 2, 3]) {
       const expected: [number, number, number] =
         x < 0
@@ -68,7 +71,7 @@ export function test_construction_source_lookup(): void {
         failures.push(`combined arithmetic ${scale}/${x}`);
     }
   }
-  const tie: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+  const tie: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
     [0, 1, 2],
     [1, 0.01, 0.01],
   );
@@ -118,18 +121,18 @@ export function test_construction_source_lookup(): void {
     ],
   };
   const prepared:
-    | AutoMovieViewOutline.IOutline
-    | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(raw, {
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(raw, {
     bottom: 0,
   });
   if ("detail" in prepared) throw new Error(prepared.detail);
-  const copied: AutoMovieViewOutline.IOutline = structuredClone(prepared);
+  const copied: IAutoMovieViewOutline.IOutline = structuredClone(prepared);
   for (const s of [0, 1e-310, 0.25, 1, 4, 9]) {
-    const at: AutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
+    const at: IAutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
       prepared,
       s,
     );
-    const copy: AutoMovieViewOutline.IReading | string =
+    const copy: IAutoMovieViewOutline.IReading | string =
       AutoMovieViewOutline.at(copied, s);
     if (typeof at === "string" || typeof copy === "string") {
       failures.push(`sqrt source unavailable ${s}`);
@@ -183,11 +186,10 @@ function lookupWork(failures: string[]): void {
     { length: count },
     (_: unknown, i: number): number => i - 4096,
   );
-  const original: AutoMovieNaturalSpline.ISpline =
-    AutoMovieNaturalSpline.create(
-      xs,
-      xs.map((x: number): number => 2 * x + 3),
-    );
+  const original: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
+    xs,
+    xs.map((x: number): number => 2 * x + 3),
+  );
   const work: { reads: number } = { reads: 0 };
   const counted: readonly number[] = new Proxy(xs, {
     /** Numeric index reads expose the lookup cost without changing an ordinate. */
@@ -200,7 +202,7 @@ function lookupWork(failures: string[]): void {
       return Reflect.get(target, property, receiver);
     },
   });
-  const spline: AutoMovieNaturalSpline.ISpline = { ...original, xs: counted };
+  const spline: IAutoMovieNaturalCubicSpline = { ...original, xs: counted };
   const x: number = xs.at(-1)! - 0.25;
   const limit: number = 6 * Math.ceil(Math.log2(count)) + 32;
   work.reads = 0;

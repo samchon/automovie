@@ -1,12 +1,20 @@
-import { type AutoMovieViewAxis, type AutoMovieViewAxisJet, AutoMovieViewChain, AutoMovieViewJointedCourse } from "@automovie/engine";
-
 import { AutoMovieHumanConicLoft as H } from "../conic/AutoMovieHumanConicLoft";
-import type { AutoMovieHumanConicRecentre as Recentre } from "../conic/AutoMovieHumanConicRecentre";
 import { AutoMovieHumanConicSection as S } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
 import { AutoMovieHumanF1Centres as Centres } from "./AutoMovieHumanF1Centres";
 import { AutoMovieHumanF1Placement as Placement } from "./AutoMovieHumanF1Placement";
 import { AutoMovieHumanF1Placing as T } from "./AutoMovieHumanF1Placing";
+import { AutoMovieViewChain, AutoMovieViewJointedCourse } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicRecentre,
+  IAutoMovieHumanConicSection,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewChain,
+  IAutoMovieViewJointedCourse,
+} from "@automovie/interface";
 
 /**
  * The laws of a course (the Human skill's Centres Before Curves, steps 2 and 3): the line a family's sections are centred on, the
@@ -91,22 +99,22 @@ export namespace AutoMovieHumanF1CourseLaw {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure measurement coordinates no shared work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain records.
    */
-  export function folds(family: H.IFamily): IFold[] {
-    const prepared: AutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(family.centres, family.halves);
+  export function folds(family: IAutoMovieHumanConicLoft.IFamily): IFold[] {
+    const prepared: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(family.centres, family.halves);
     if (typeof prepared === "string") throw new Error("course of " + family.name + ": " + prepared);
     const names: readonly string[] = T.COURSES[family.name] ?? [];
-    const axis: AutoMovieViewAxis.IAxis = H.axis(family);
+    const axis: IAutoMovieViewAxis.IAxis = H.axis(family);
     const read: (s: number) => number[] = H.reader(family);
     return prepared.turns
-      .filter((turn: AutoMovieViewJointedCourse.ITurn): boolean => turn.angle > 0)
-      .map((turn: AutoMovieViewJointedCourse.ITurn): IFold => {
+      .filter((turn: IAutoMovieViewJointedCourse.ITurn): boolean => turn.angle > 0)
+      .map((turn: IAutoMovieViewJointedCourse.ITurn): IFold => {
         const station: number = turn.start + turn.half;
-        const jet: AutoMovieViewAxisJet.IJet | null = axis.jet?.(station) ?? null;
+        const jet: IAutoMovieViewAxisJet.IJet | null = axis.jet?.(station) ?? null;
         let concave: number = NaN;
         if (jet !== null && station >= family.knots[0]! && station <= family.knots.at(-1)!) {
           const bend: readonly number[] = jet.second.origin;
           const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
-          const section: AutoMovieViewChain.ISection = S.chain(read(station), family.layout);
+          const section: IAutoMovieViewChain.ISection = S.chain(read(station), family.layout);
           if (section.fault !== null) throw new Error("section of " + family.name + " at " + station + ": " + section.fault);
           concave = AutoMovieViewChain.radius(section, Math.atan2(dot(bend, jet.value.v), dot(bend, jet.value.u)));
         }
@@ -126,25 +134,25 @@ export namespace AutoMovieHumanF1CourseLaw {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure measurement coordinates no shared work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain pairs.
    */
-  export function skeleton(family: H.IFamily): ([number, number] | null)[] {
+  export function skeleton(family: IAutoMovieHumanConicLoft.IFamily): ([number, number] | null)[] {
     const line: { points?: readonly string[]; frames?: readonly string[] } | undefined = SKELETON[family.name];
-    const bones: F.V3[] =
+    const bones: AutoMovieVector3Tuple[] =
       line === undefined
-        ? (T.COURSES[family.name] ?? []).filter((name: string): boolean => Centres.describe(name).kind === "joint").map((name: string): F.V3 => Placement.point(name))
-        : [...(line.points ?? []).map((name: string): F.V3 => Placement.point(name)), ...(line.frames ?? []).map((name: string): F.V3 => Placement.frame(name).origin)];
-    const axis: AutoMovieViewAxis.IAxis = H.axis(family);
+        ? (T.COURSES[family.name] ?? []).filter((name: string): boolean => Centres.describe(name).kind === "joint").map((name: string): AutoMovieVector3Tuple => Placement.point(name))
+        : [...(line.points ?? []).map((name: string): AutoMovieVector3Tuple => Placement.point(name)), ...(line.frames ?? []).map((name: string): AutoMovieVector3Tuple => Placement.frame(name).origin)];
+    const axis: IAutoMovieViewAxis.IAxis = H.axis(family);
     return family.knots.map((station: number): [number, number] | null => {
-      const frame: ReturnType<AutoMovieViewAxis.IAxis["at"]> = axis.at(station);
-      const [o, u, v]: F.V3[] = [[...frame.origin] as F.V3, [...frame.u] as F.V3, [...frame.v] as F.V3];
-      const n: F.V3 = F.cross(v!, u!);
+      const frame: ReturnType<IAutoMovieViewAxis.IAxis["at"]> = axis.at(station);
+      const [o, u, v]: AutoMovieVector3Tuple[] = [[...frame.origin] as AutoMovieVector3Tuple, [...frame.u] as AutoMovieVector3Tuple, [...frame.v] as AutoMovieVector3Tuple];
+      const n: AutoMovieVector3Tuple = F.cross(v!, u!);
       let best: [number, number] | null = null;
       for (let k: number = 1; k < bones.length; ++k) {
-        const [a, b]: F.V3[] = [bones[k - 1]!, bones[k]!];
+        const [a, b]: AutoMovieVector3Tuple[] = [bones[k - 1]!, bones[k]!];
         const along: number = F.dot(n, F.sub(b!, a!));
         if (along === 0) continue;
         const share: number = F.dot(n, F.sub(o!, a!)) / along;
         if (!(share >= 0 && share <= 1)) continue;
-        const q: F.V3 = F.sub(F.add(a!, F.scale(F.sub(b!, a!), share)), o!);
+        const q: AutoMovieVector3Tuple = F.sub(F.add(a!, F.scale(F.sub(b!, a!), share)), o!);
         const at: [number, number] = [F.dot(q, u!), F.dot(q, v!)];
         if (best === null || Math.hypot(at[0], at[1]) < Math.hypot(best[0], best[1])) best = at;
       }
@@ -169,18 +177,18 @@ export namespace AutoMovieHumanF1CourseLaw {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the centres once through `AutoMovieHumanF1Centres.offsets`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns two fresh arrays.
    */
-  export function centreLine(family: H.IFamily, choice: "course" | "sections", scale?: number): Recentre.ILine {
+  export function centreLine(family: IAutoMovieHumanConicLoft.IFamily, choice: "course" | "sections", scale?: number): IAutoMovieHumanConicRecentre.ILine {
     if (choice === "course") return { u: family.knots.map((): number => 0), v: family.knots.map((): number => 0) };
     const read: (s: number) => number[] = H.reader(family);
     const reach = (s: number): number => {
-      const chain: S.IChain = S.resolve(read(s), family.layout);
+      const chain: IAutoMovieHumanConicSection.IChain = S.resolve(read(s), family.layout);
       return chain.guides.reduce((sum: number, k: number): number => sum + Math.hypot(chain.input.points[k]![0], chain.input.points[k]![1]), 0) / chain.guides.length;
     };
     const knots: readonly number[] = family.knots;
     const width: number = scale ?? knots.reduce((sum: number, s: number): number => sum + reach(s), 0) / knots.length;
     if (!(Number.isFinite(width) && width >= 0)) throw new Error("centre line needs a finite nonnegative smoothing scale");
     const centres: [number, number][] = Centres.offsets(family).map((o: Centres.IOffset): [number, number] => o.centroid);
-    const median: boolean = family.layout.mirror || family.layout.anchors.some((anchor: S.IAnchor): boolean => anchor.mid === true);
+    const median: boolean = family.layout.mirror || family.layout.anchors.some((anchor: IAutoMovieHumanConicSection.IAnchor): boolean => anchor.mid === true);
 
     // Each knot stands for half the course to each neighbour, so unevenly spaced knots average as the course they sample.
     const span: number[] = knots.map((s: number, k: number): number => ((knots[k + 1] ?? s) - (knots[k - 1] ?? s)) / 2);

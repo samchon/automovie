@@ -1,7 +1,7 @@
 import type {
   IAutoMovieBone,
   IAutoMovieModel,
-  IAutoMoviePhysicalProfile as P,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -20,8 +20,8 @@ import { Vector3 } from "../math/Vector3";
  */
 export function physicalModelRestTransforms(
   model: IAutoMovieModel,
-): Map<string, P.ITransform> {
-  const transforms: Map<string, P.ITransform> = new Map();
+): Map<string, IAutoMovieRigidTransform> {
+  const transforms: Map<string, IAutoMovieRigidTransform> = new Map();
   if (!model.skeleton) return transforms;
   const pending: typeof model.skeleton.bones = [...model.skeleton.bones];
   if (
@@ -40,7 +40,7 @@ export function physicalModelRestTransforms(
     if (index < 0)
       throw new Error("Physical model skeleton is disconnected or cyclic");
     const bone: (typeof pending)[number] = pending.splice(index, 1)[0]!;
-    const parent: P.ITransform =
+    const parent: IAutoMovieRigidTransform =
       bone.parent === null
         ? {
             position: { x: 0, y: 0, z: 0 },

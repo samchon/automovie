@@ -1,13 +1,18 @@
-import type { IAutoMovieConstructionJoin } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionJoin,
+  IAutoMovieConstructionPortCurve,
+  IAutoMovieConstructionSharedLoop,
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidSharedCurve,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionPortCurve } from "./AutoMovieConstructionPortCurve";
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieConstructionWidths } from "./AutoMovieConstructionWidths";
-import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
-import type { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
 import { AutoMovieSolidSharedCurve } from "./AutoMovieSolidSharedCurve";
-import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * A mixed join's record as the kernel's join input: the declared loop of `IAutoMovieConstructionJoin.loop` turned into the shared
@@ -25,38 +30,6 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A refused premise returns its name and numbers; no part of the loop falls back to a trace.
  */
 export namespace AutoMovieConstructionSharedLoop {
-  /**
-   * The kernel's join input for a declared loop, and the contact it was built from.
-   *
-   * @evidence contracts/development/design.md#principled-representation The join input carries the supplied curve, its sides and its width laws together, as the body's merge reads them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values and readers only.
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's consumer.
-   */
-  export interface IPrepared {
-    /** What `AutoMovieSolidBody.merge` takes as its `join`. */
-    join: Omit<AutoMovieSolidJoin.IInput, "part" | "host">;
-
-    /** The contact, for a reader of its arcs. */
-    shared: AutoMovieSolidSharedCurve.IShared;
-  }
-
-  /**
-   * A premise the record broke.
-   *
-   * @evidence contracts/development/design.md#principled-representation The contract's name and its numbers, as a construction diagnostic reports them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two strings.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A refusal carries no partial input.
-   * @evidence contracts/development/common.md#meaningful-documentation States both fields.
-   */
-  export interface IRefusal {
-    /** `shared loop`, `closed loop`, `enclosed loop`, `one kept side` or `width`. */
-    contract: string;
-
-    /** The message with its numbers. */
-    detail: string;
-  }
-
   /**
    * Prepare a mixed join's kernel input.
    *
@@ -79,7 +52,7 @@ export namespace AutoMovieConstructionSharedLoop {
     part: IAutoMovieSolidSurface,
     host: IAutoMovieSolidAtlas,
     face: number,
-  ): IPrepared | IRefusal {
+  ): IAutoMovieConstructionSharedLoop.IPrepared | IAutoMovieConstructionSharedLoop.IRefusal {
     const S: number = AutoMovieConstructionViews.SCALE;
     const loop: IAutoMovieConstructionJoin["loop"] = node.loop;
     if (loop === undefined) return { contract: "shared loop", detail: "the join declares no loop" };
@@ -99,7 +72,7 @@ export namespace AutoMovieConstructionSharedLoop {
       };
     if (!(Number.isInteger(node.count) && node.count >= 8 && node.count % 4 === 0))
       return { contract: "shared loop", detail: `the count ${node.count} is not a multiple of 4 of at least 8` };
-    const curve: AutoMovieConstructionPortCurve.ICurve | string = AutoMovieConstructionPortCurve.curve(
+    const curve: IAutoMovieConstructionPortCurve.ICurve | string = AutoMovieConstructionPortCurve.curve(
       loop,
       node.count,
       host.faces[face]!.period,
@@ -108,7 +81,7 @@ export namespace AutoMovieConstructionSharedLoop {
 
     // The contact: the loop through the host, its foot on the part from the seed's part point when the seed states one.
     const start: [number, number] | undefined = node.seed.type === "point" ? [node.seed.part[0] * S, node.seed.part[1]] : undefined;
-    const made: AutoMovieSolidSharedCurve.IResult = AutoMovieSolidSharedCurve.create({
+    const made: IAutoMovieSolidSharedCurve.IResult = AutoMovieSolidSharedCurve.create({
       part,
       host,
       face,
@@ -123,17 +96,17 @@ export namespace AutoMovieConstructionSharedLoop {
       const first: { contract: string; detail: string } | undefined = made.diagnostics[0];
       return { contract: first?.contract ?? "shared loop", detail: first?.detail ?? "the contact could not be built" };
     }
-    const shared: AutoMovieSolidSharedCurve.IShared = made.shared;
+    const shared: IAutoMovieSolidSharedCurve.IShared = made.shared;
 
     // The widths, read on the contact: its clock is not the part's phase, so both rails offset square to it.
-    const width: AutoMovieSolidJoin.IInput["width"] | string = AutoMovieConstructionWidths.create(
+    const width: IAutoMovieSolidJoin.IInput["width"] | string = AutoMovieConstructionWidths.create(
       node.partWidth,
       node.hostWidth,
       false,
       { curve: shared.curve, part, host, diff: node.kind === "diff" },
     );
     if (typeof width === "string") return { contract: "width", detail: width };
-    const first: AutoMovieSolidIntersection.IPoint = shared.curve.points[0]!;
+    const first: IAutoMovieSolidIntersection.IPoint = shared.curve.points[0]!;
     return {
       join: {
         seed: { phi: first.phi, s: first.s, y: first.y, theta: first.theta, face },

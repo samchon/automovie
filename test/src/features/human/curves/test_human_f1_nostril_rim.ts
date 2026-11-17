@@ -1,4 +1,5 @@
-import { type AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
+import { AutoMovieHumanF1 } from "@automovie/human";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -28,13 +29,13 @@ export function test_human_f1_nostril_rim(): void {
 
   // 1. A made section at every knot: front (5, -1), medial (-3, 4), back (-6, 2), lateral (4.8, -5), with the stored shoulders.
   const section: number[] = [5, -1, -3, 4, -6, 2, 4.8, -5];
-  const made: AutoMovieHumanConicLoft.IFamily = {
+  const made: IAutoMovieHumanConicLoft.IFamily = {
     ...cutter.family,
     values: cutter.family.values.map((row: number[], f: number): number[] => (f < section.length ? row.map((): number => section[f]!) : row)),
   };
   const found: string[] = faults(made, cutter.cut(made));
   TestValidator.predicate("a section with a 0.2 mm lead keeps its extremes: " + found.join("; "), found.length === 0);
-  const drawn: AutoMovieHumanConicLoft.IFamily = cutter.cut(made);
+  const drawn: IAutoMovieHumanConicLoft.IFamily = cutter.cut(made);
   TestValidator.predicate("the back extreme, leading by 3 mm, comes in by the whole rim", Math.abs(drawn.values[4]![0]! - (-6 + RIM_MM)) < 1e-9);
   TestValidator.predicate("the lateral extreme, leading by 4 mm, comes in by the whole rim", Math.abs(drawn.values[7]![0]! - (-5 + RIM_MM)) < 1e-9);
 
@@ -53,7 +54,7 @@ const RIM_MM: number = 1.5;
  * @param after The family drawn in.
  * @returns One line per fault, its knot first.
  */
-function faults(before: AutoMovieHumanConicLoft.IFamily, after: AutoMovieHumanConicLoft.IFamily): string[] {
+function faults(before: IAutoMovieHumanConicLoft.IFamily, after: IAutoMovieHumanConicLoft.IFamily): string[] {
   const names: string[] = ["front", "medial", "back", "lateral"];
   const out: string[] = [];
   before.knots.forEach((_: number, k: number): void => {
@@ -61,7 +62,7 @@ function faults(before: AutoMovieHumanConicLoft.IFamily, after: AutoMovieHumanCo
       // The front and back extremes are extremes of `u`, the medial and lateral ones of `v`; the first two are maxima.
       const axis: number = q % 2;
       const sign: number = q < 2 ? 1 : -1;
-      const own = (family: AutoMovieHumanConicLoft.IFamily, e: number, a: number): number => family.values[2 * e + a]![k]!;
+      const own = (family: IAutoMovieHumanConicLoft.IFamily, e: number, a: number): number => family.values[2 * e + a]![k]!;
       if (Math.abs(own(after, q, 1 - axis) - own(before, q, 1 - axis)) > 1e-9) out.push(`knot ${k}: the ${names[q]} extreme left its normal by ${(own(after, q, 1 - axis) - own(before, q, 1 - axis)).toFixed(3)} mm`);
       const moved: number = sign * (own(before, q, axis) - own(after, q, axis));
       if (moved <= 0 || moved > RIM_MM + 1e-9) out.push(`knot ${k}: the ${names[q]} extreme moved in by ${moved.toFixed(3)} mm`);

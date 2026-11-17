@@ -1,10 +1,15 @@
-import type { AutoMovieConstructionPortCurve as PortCurve } from "./AutoMovieConstructionPortCurve";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionBandEdge,
+  IAutoMovieConstructionPortBand,
+  IAutoMovieConstructionPortField,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import { AutoMovieConstructionPortField as Field } from "./AutoMovieConstructionPortField";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** World point or derivative, mm. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 
 /** A chart point or chart derivative. */
 type V2 = [number, number];
@@ -58,10 +63,10 @@ const { combine, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector
  * `sigma(1) = 0.4` of its ribbon from its seam: the host inside the port curve, the part in its kept side.
  *
  * The clock fields join per-column values by the periodic cubic (`AutoMovieConstructionPortField.periodic`): the port curve's share
- * (in `PortCurve.ICurve`), each side's cross speed `g` (the column's ribbon factor times its chord over the side's speed along the
+ * (in `IAutoMovieConstructionPortCurve.ICurve`), each side's cross speed `g` (the column's ribbon factor times its chord over the side's speed along the
  * direction, exactly the column strip's ribbon at each column), the part's phase `chi(c) = sense c + delta(c)` through the column
  * correspondence, and a curved rail's station `rho`. No second interpolation of either seam exists: the host's trim reads the same port
- * curve and the part's rail cycle the same `rho` (`AutoMovieSolidCycle.IExact`).
+ * curve and the part's rail cycle the same `rho` (`IAutoMovieSolidCycle.IExact`).
  *
  * Between its seams the band is not the column strip: the strip spans each side's second-order ribbon, this band each side's surface,
  * and the two differ by the sides' third-order terms over the ribbon, largest near the middle of the span.
@@ -72,98 +77,6 @@ const { combine, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Admission refuses a non-monotone correspondence, a non-positive cross speed or a reading outside a side's domain; nothing is clamped or extrapolated past a domain.
  */
 export namespace AutoMovieConstructionPortBand {
-  /**
-   * The part's side: its surface, its rail station field over its own phase, and its station sign into its kept side.
-   *
-   * @evidence contracts/development/design.md#principled-representation The rail is the part's curve `u = rho(phi)` in its chart, the one its rail cycle reads.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three fields.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only.
-   * @evidence contracts/development/common.md#meaningful-documentation States the units and the sign.
-   */
-  export interface ISide {
-    /** The part's surface, mm. */
-    surface: IAutoMovieSolidSurface;
-
-    /** The rail's station at the part's phase, mm, with two derivatives. */
-    rail: Field.IField;
-
-    /** The station's sign into the part's kept side. */
-    into: 1 | -1;
-  }
-
-  /**
-   * What the band is built from: the column strip's own results and both sides.
-   *
-   * @evidence contracts/development/design.md#principled-representation The column strip has already admitted the columns, their correspondence and their ribbon factors; this band joins those values round the loop.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two sides, the port curve, the column data and the span.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only.
-   * @evidence contracts/development/common.md#meaningful-documentation States each field's unit and indexing.
-   */
-  export interface IInput {
-    /** The band's face name. */
-    name: string;
-
-    /** The host's surface, mm. */
-    host: IAutoMovieSolidSurface;
-
-    /** The port curve on the host's chart. */
-    curve: PortCurve.ICurve;
-
-    /** The part's side. */
-    child: ISide;
-
-    /** The part's phase at each column, radians, unwrapped along the clock (`AutoMovieConstructionSplitBand.IStrip.childPhases`). */
-    childPhases: readonly number[];
-
-    /** Each column's ribbon factor (`AutoMovieConstructionSplitBand.IStrip.field`). */
-    field: readonly number[];
-
-    /** The band's span, mm: its station runs from 0 at the port curve to this at the rail. */
-    length: number;
-
-    /** The sign that turns `S_u x S_v` outward, the column strip's. */
-    orientation: 1 | -1;
-  }
-
-  /**
-   * The band and its correspondence to the part.
-   *
-   * @evidence contracts/development/design.md#principled-representation The surface with the two maps the part's seam needs in both directions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three readers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The maps are the band's own correspondence, not a nearest search.
-   * @evidence contracts/development/common.md#meaningful-documentation States each reader's charts.
-   */
-  export interface IBand {
-    /** The band's surface: chart `(station mm, clock rad)`, period `2 pi`, domain `[0, length]`. */
-    surface: IAutoMovieSolidSurface;
-
-    /**
-     * The part's chart point on its rail at a band clock.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the chart.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `create` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    rail: (clock: number) => V2;
-
-    /**
-     * The band clock whose rail point stands at a part phase: the inverse of the monotone correspondence, in `[0, 2 pi)`.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the range.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `create` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    clock: (phase: number) => number;
-  }
-
   /**
    * Build the band, or the reason it cannot be built.
    *
@@ -178,8 +91,8 @@ export namespace AutoMovieConstructionPortBand {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The clock fields are prepared once for every reading.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The surface retains the two sides, the curve and four fields.
    */
-  export function create(input: IInput): IBand | string {
-    const { host, curve, child, childPhases, field, length: L }: IInput = input;
+  export function create(input: IAutoMovieConstructionPortBand.IInput): IAutoMovieConstructionBandEdge | string {
+    const { host, curve, child, childPhases, field, length: L }: IAutoMovieConstructionPortBand.IInput = input;
     const n: number = childPhases.length;
     const turn: number = 2 * Math.PI;
     const clock: (k: number) => number = (k: number): number => (turn * k) / n;
@@ -201,9 +114,9 @@ export namespace AutoMovieConstructionPortBand {
       starts.push((field[k]! * chord) / speed);
       ends.push((field[k]! * chord) / norm(far.u));
     }
-    const ga: Field.IField = Field.periodic(starts);
-    const gb: Field.IField = Field.periodic(ends);
-    const delta: Field.IField = Field.periodic(
+    const ga: IAutoMovieConstructionPortField.IField = Field.periodic(starts);
+    const gb: IAutoMovieConstructionPortField.IField = Field.periodic(ends);
+    const delta: IAutoMovieConstructionPortField.IField = Field.periodic(
       childPhases.map((phase: number, k: number): number => phase - sense * clock(k)),
     );
 
@@ -220,7 +133,7 @@ export namespace AutoMovieConstructionPortBand {
     };
 
     // Every reading inside its side's domain, span by span: over the clocks of one column span each field lies within its controls
-    // there (`Field.IField.range`). The host is read at the station `y0 + a cos c (r - t g)`, the part at `rho(chi) - into t g`, for
+    // there (`IAutoMovieConstructionPortField.IField.range`). The host is read at the station `y0 + a cos c (r - t g)`, the part at `rho(chi) - into t g`, for
     // `t` in `[0, sigma(1)]`.
     const y0: number = (curve.reach[0] + curve.reach[1]) / 2;
     for (let k: number = 0; k < n; ++k) {

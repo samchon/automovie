@@ -1,6 +1,6 @@
-import type { IAutoMovieActionSynthesizer } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
+  IAutoMovieActionSynthesizer,
   IAutoMovieMotion,
 } from "@automovie/interface";
 

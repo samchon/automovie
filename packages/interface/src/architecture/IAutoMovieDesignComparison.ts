@@ -1,4 +1,4 @@
-import { IAutoMovieDesignDifference } from "./IAutoMovieDesignDifference";
+import type { IAutoMovieDesignDifference } from "./IAutoMovieDesignDifference";
 
 /**
  * The result of comparing two alternatives on their common basis.

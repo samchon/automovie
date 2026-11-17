@@ -1,18 +1,21 @@
 import type {
+  IAutoMovieLinearizePhysicalTargetRows,
+  IAutoMoviePhysicalContactSupportRows,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { linearizePhysicalInterval } from "./linearizePhysicalInterval";
-import type { linearizePhysicalTargetRows } from "./linearizePhysicalTargetRows";
 import { memoizePhysicalTransformValue } from "./memoizePhysicalTransformValue";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalSupportPoint } from "./physicalSupportPoint";
-import type { preparePhysicalGeometry as Geometry } from "./preparePhysicalGeometry";
 
 /** Borrowed world transforms for one candidate. */
-type Poses = Readonly<Record<string, P.ITransform>>;
+type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
 
 /**
  * Keep an endpoint's existing XYZ promise and its explicitly declared real support plane in the same solve. Geometry, witnesses and original goals are borrowed only for this invocation.
@@ -25,57 +28,61 @@ type Poses = Readonly<Record<string, P.ITransform>>;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 19 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function physicalContactSupportRows(input: {
-  /** Borrowed fixed geometry for this invocation. */ profile: P;
-  /** Original endpoints and explicit support patches. */ supports: readonly physicalContactSupportRows.ISupport[];
-  /** Source scene identity. */ body: string;
-  /** Initialized no-dynamics queries. */ geometry: Geometry.IQueries;
-  /** Global nonpenetration plane, metres. */ floor: number;
-}): linearizePhysicalTargetRows.IRows[] {
-  const profile: P = input.profile;
+export function physicalContactSupportRows(
+  input: IAutoMoviePhysicalContactSupportRows.IInput,
+): IAutoMovieLinearizePhysicalTargetRows.IRows[] {
+  const profile: IAutoMoviePhysicalProfile = input.profile;
   if (!Number.isFinite(input.floor))
     throw new Error("Invalid physical contact floor");
-  const floors: linearizePhysicalTargetRows.IRows[] = profile.segments.flatMap(
-    (segment: P.ISegment): linearizePhysicalTargetRows.IRows[] =>
-      segment.shapes.map(
-        (shape: P.IShape): linearizePhysicalTargetRows.IRows => {
-          const minimum: (poses: Poses) => number =
-            memoizePhysicalTransformValue(
-              (poses: Poses): P.ITransform[] => [poses[segment.bone]!],
-              (poses: Poses): number =>
-                input.geometry.minimumY({
-                  body: input.body,
-                  bone: segment.bone,
-                  shape,
-                  pose: poses[segment.bone]!,
-                }),
-            );
-          return {
-            bones: new Set([segment.bone]),
-            measure: (poses: Poses): number[] => [
-              Math.min(0, minimum(poses) - input.floor),
-            ],
-            linearize: (poses: Poses): ((probe: Poses) => number[]) => {
-              const model: (value: number) => number[] =
-                linearizePhysicalInterval(minimum(poses), input.floor);
-              return (probe: Poses): number[] => model(minimum(probe));
-            },
-          };
-        },
-      ),
-  );
+  const floors: IAutoMovieLinearizePhysicalTargetRows.IRows[] =
+    profile.segments.flatMap(
+      (
+        segment: IAutoMoviePhysicalSegment,
+      ): IAutoMovieLinearizePhysicalTargetRows.IRows[] =>
+        segment.shapes.map(
+          (
+            shape: IAutoMoviePhysicalShape,
+          ): IAutoMovieLinearizePhysicalTargetRows.IRows => {
+            const minimum: (poses: Poses) => number =
+              memoizePhysicalTransformValue(
+                (poses: Poses): IAutoMovieRigidTransform[] => [
+                  poses[segment.bone]!,
+                ],
+                (poses: Poses): number =>
+                  input.geometry.minimumY({
+                    body: input.body,
+                    bone: segment.bone,
+                    shape,
+                    pose: poses[segment.bone]!,
+                  }),
+              );
+            return {
+              bones: new Set([segment.bone]),
+              measure: (poses: Poses): number[] => [
+                Math.min(0, minimum(poses) - input.floor),
+              ],
+              linearize: (poses: Poses): ((probe: Poses) => number[]) => {
+                const model: (value: number) => number[] =
+                  linearizePhysicalInterval(minimum(poses), input.floor);
+                return (probe: Poses): number[] => model(minimum(probe));
+              },
+            };
+          },
+        ),
+    );
   return [
     ...floors,
     ...input.supports.map(
       (
-        support: physicalContactSupportRows.ISupport,
-      ): linearizePhysicalTargetRows.IRows => {
+        support: IAutoMoviePhysicalContactSupportRows.ISupport,
+      ): IAutoMovieLinearizePhysicalTargetRows.IRows => {
         const names: Set<string> = new Set([support.bone]);
-        const patch: physicalContactSupportRows.ISupport["patch"] =
+        const patch: IAutoMoviePhysicalContactSupportRows.ISupport["patch"] =
           support.patch;
         if (
           !profile.segments.some(
-            (segment: P.ISegment): boolean => segment.bone === support.bone,
+            (segment: IAutoMoviePhysicalSegment): boolean =>
+              segment.bone === support.bone,
           ) ||
           !finite(support.point) ||
           (support.localPoint !== undefined && !finite(support.localPoint)) ||
@@ -88,7 +95,7 @@ export function physicalContactSupportRows(input: {
               patch.contacts.some(
                 (bone: string): boolean =>
                   !profile.segments.some(
-                    (segment: P.ISegment): boolean =>
+                    (segment: IAutoMoviePhysicalSegment): boolean =>
                       segment.bone === bone && segment.shapes.length > 0,
                   ),
               ) ||
@@ -107,23 +114,26 @@ export function physicalContactSupportRows(input: {
         )
           throw new Error("Invalid physical contact support patch");
         for (const bone of patch?.contacts ?? []) names.add(bone);
-        const carriers: P.ISegment[] = profile.segments.filter(
-          (segment: P.ISegment): boolean =>
+        const carriers: IAutoMoviePhysicalSegment[] = profile.segments.filter(
+          (segment: IAutoMoviePhysicalSegment): boolean =>
             patch?.contacts.includes(segment.bone) ?? false,
         );
         const minimum: (poses: Poses) => number = (poses: Poses): number =>
           Math.min(
-            ...carriers.flatMap((segment: P.ISegment): number[] =>
-              segment.shapes.map(
-                (shape: P.IShape): number =>
-                  physicalShapeBounds(poses[segment.bone]!, shape).min.y,
-              ),
+            ...carriers.flatMap(
+              (segment: IAutoMoviePhysicalSegment): number[] =>
+                segment.shapes.map(
+                  (shape: IAutoMoviePhysicalShape): number =>
+                    physicalShapeBounds(poses[segment.bone]!, shape).min.y,
+                ),
             ),
           );
         const measure: (poses: Poses) => number[] =
           memoizePhysicalTransformValue(
-            (poses: Poses): P.ITransform[] =>
-              [...names].map((bone: string): P.ITransform => poses[bone]!),
+            (poses: Poses): IAutoMovieRigidTransform[] =>
+              [...names].map(
+                (bone: string): IAutoMovieRigidTransform => poses[bone]!,
+              ),
             (poses: Poses): number[] => {
               const difference: IAutoMovieVector3 = Vector3.subtract(
                 physicalSupportPoint(poses[support.bone]!, support.localPoint),
@@ -165,31 +175,6 @@ export function physicalContactSupportRows(input: {
       },
     ),
   ];
-}
-
-/**
- * Generic endpoint and optional actual planar support geometry.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Generic endpoint and optional actual planar support geometry) and documents 1 documented member as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Generic endpoint and optional actual planar support geometry: companion namespace of 1 member (`ISupport`); units and frames named in its text: world, local, metres. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `physicalContactSupportRows` in packages/engine/src/physics/physicalContactSupportRows.ts; its surface is the 1 member listed and the text shows 3 other files naming it, mostly packages/engine (2), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
- */
-export namespace physicalContactSupportRows {
-  /** A world endpoint always keeps all three original coordinate rows. */
-  export interface ISupport {
-    /** Endpoint carrier. */ bone: string;
-    /** Carrier-local endpoint. */ localPoint?: IAutoMovieVector3;
-    /** Original world goal; fitting must never replace it with an unmet output. */ point: IAutoMovieVector3;
-    /** An explicitly planted patch, independent of anatomical vocabulary. */ patch?: {
-      /** Every real carrier of this patch. */ contacts: readonly string[];
-      /** Declared local surface witnesses sharing the plane. */ floorPoints?: readonly {
-        bone: string;
-        localPoint: IAutoMovieVector3;
-      }[];
-      /** Original horizontal support plane, metres. */ floor: number;
-    };
-  }
 }
 
 /** Missing or nonfinite declared geometry is refused rather than guessed. */

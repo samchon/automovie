@@ -1,15 +1,15 @@
-import { IAutoMovieQuadraticPolishingResult } from "./IAutoMovieQuadraticPolishingResult";
-import { IAutoMovieQuadraticRefinementInterval as Group } from "./IAutoMovieQuadraticRefinementInterval";
-import { IAutoMovieQuadraticRefinementNativeCall } from "./IAutoMovieQuadraticRefinementNativeCall";
-import { IAutoMovieQuadraticRefinementOptions } from "./IAutoMovieQuadraticRefinementOptions";
-import { IAutoMovieQuadraticRefinementResult } from "./IAutoMovieQuadraticRefinementResult";
-import { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
+import type {
+  IAutoMovieQuadraticPolishingResult,
+  IAutoMovieQuadraticRefinementInterval,
+  IAutoMovieQuadraticRefinementNativeCall,
+  IAutoMovieQuadraticRefinementOptions,
+  IAutoMovieQuadraticRefinementResult,
+  IAutoMovieQuadraticRow,
+  IAutoMovieSolveQuadraticProgram,
+} from "@automovie/interface";
+
 import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram";
 import { polishAutoMovieQuadraticProgram } from "./polishAutoMovieQuadraticProgram";
-import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
-
-type Problem = Parameters<typeof solveAutoMovieQuadraticProgram>[0];
-type Native = ReturnType<typeof solveAutoMovieQuadraticProgram>;
 
 /**
  * Polish a Solved native diagonal convex QP in its original coordinates.
@@ -46,8 +46,8 @@ type Native = ReturnType<typeof solveAutoMovieQuadraticProgram>;
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The result owns copied vectors, row groups and bounded attempt traces; grouping maps and measurement buffers are temporary and no native workspace is acquired here.
  */
 export function refineAutoMovieQuadraticProgram(
-  input: Problem,
-  initial: Native,
+  input: IAutoMovieSolveQuadraticProgram.IInput,
+  initial: IAutoMovieSolveQuadraticProgram.IResult,
   options: IAutoMovieQuadraticRefinementOptions,
 ): IAutoMovieQuadraticRefinementResult {
   admitAutoMovieQuadraticProgram(input);
@@ -80,7 +80,7 @@ export function refineAutoMovieQuadraticProgram(
           initial,
         }),
     );
-  const groups: Group[] = intervals(input);
+  const groups: IAutoMovieQuadraticRefinementInterval[] = intervals(input);
   const first: {
     maximumViolation: number;
     stationarityResidual: number;
@@ -107,14 +107,21 @@ export function refineAutoMovieQuadraticProgram(
     ...first,
     refinements: 0,
     reference: primal.slice(),
-    rowGroups: groups.map((group: Group): number[] => group.originals.slice()),
+    rowGroups: groups.map(
+      (group: IAutoMovieQuadraticRefinementInterval): number[] =>
+        group.originals.slice(),
+    ),
     nativeCalls,
   };
   const admits: (reading: {
     maximumViolation: number;
     stationarityResidual: number;
     complementarityResidual: number;
-  }) => boolean = (reading: ReturnType<typeof residuals>): boolean =>
+  }) => boolean = (reading: {
+    maximumViolation: number;
+    stationarityResidual: number;
+    complementarityResidual: number;
+  }): boolean =>
     reading.maximumViolation <= options.tolerance &&
     reading.stationarityResidual <= options.tolerance &&
     reading.complementarityResidual <= options.tolerance;
@@ -176,7 +183,10 @@ export function refineAutoMovieQuadraticProgram(
 }
 
 /** Read the unchanged original objective without relying on native diagnostics. */
-function objectiveValue(input: Problem, primal: readonly number[]): number {
+function objectiveValue(
+  input: IAutoMovieSolveQuadraticProgram.IInput,
+  primal: readonly number[],
+): number {
   let value: number = 0;
   for (let at: number = 0; at < input.diagonal.length; at++)
     value +=
@@ -186,16 +196,20 @@ function objectiveValue(input: Problem, primal: readonly number[]): number {
 }
 
 /** Exact interval metadata; original rows and caller arrays remain unchanged. */
-function intervals(input: Problem): Group[] {
-  const groups: Group[] = [],
-    byCoefficients: Map<string, Group> = new Map<string, Group>();
+function intervals(
+  input: IAutoMovieSolveQuadraticProgram.IInput,
+): IAutoMovieQuadraticRefinementInterval[] {
+  const groups: IAutoMovieQuadraticRefinementInterval[] = [],
+    byCoefficients: Map<string, IAutoMovieQuadraticRefinementInterval> =
+      new Map<string, IAutoMovieQuadraticRefinementInterval>();
   for (let at: number = 0; at < input.rows.length; at++) {
     const row: IAutoMovieQuadraticRow = input.rows[at];
     const pairs: number[][] = row.indices
       .map((id: number, column: number): number[] => [id, row.weights[column]])
       .sort((a: number[], b: number[]): number => a[0] - b[0]);
     const key: string = JSON.stringify(pairs);
-    let group: Group | undefined = byCoefficients.get(key);
+    let group: IAutoMovieQuadraticRefinementInterval | undefined =
+      byCoefficients.get(key);
     if (group === undefined) {
       group = {
         indices: pairs.map((pair: number[]): number => pair[0]),
@@ -244,7 +258,7 @@ function intervals(input: Problem): Group[] {
 
 /** Admission in original row units and the original signed-dual convention. */
 function residuals(
-  input: Problem,
+  input: IAutoMovieSolveQuadraticProgram.IInput,
   primal: readonly number[],
   dual: readonly number[],
 ): {
@@ -281,7 +295,7 @@ function residuals(
 
 /** Original stationarity formula shared by admission and numerical correction. */
 function gradientOf(
-  input: Problem,
+  input: IAutoMovieSolveQuadraticProgram.IInput,
   primal: readonly number[],
   dual: readonly number[],
 ): number[] {
@@ -299,7 +313,7 @@ function gradientOf(
 
 /** Original endpoint/null-bound convention, also used to verify dual projection. */
 function complementarityOf(
-  row: Problem["rows"][number],
+  row: IAutoMovieSolveQuadraticProgram.IInput["rows"][number],
   value: number,
   multiplier: number,
 ): number {

@@ -1,8 +1,13 @@
 import { type IEvidenceConfig } from "@wrtnlabs/evidence";
 
-const files: string[] = ["src/compose/**/*.ts"];
+const files: string[] = [
+  "src/compose/**/*.ts",
+  "src/perform/HumanPropOutcome.ts",
+  "src/perform/HumanPropFlight.ts",
+  "src/perform/HumanPropSweep.ts",
+];
 
-/** The part primitives and the layers built on them answer the checklists: every exported declaration the shared documentation checklist, types the design checklist and functions the implementation checklist. */
+/** Composition primitives and the maintained prop-outcome reader answer the shared documentation, design and implementation checklists on their declarations. */
 export default {
   severity: "error",
   claims: [

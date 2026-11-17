@@ -1,4 +1,8 @@
-import { HumanAffect, type IHumanPosture } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanAffect,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
+import { HumanAffect } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -22,7 +26,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and what each pins.
  */
 export function test_motion_everyday_affect(): void {
-  const kinds: HumanAffect.Kind[] = [
+  const kinds: IAutoMovieMotionHumanAffect.Kind[] = [
     "laugh",
     "sigh",
     "yawn",
@@ -92,7 +96,7 @@ export function test_motion_everyday_affect(): void {
       ),
   );
 
-  const posture: IHumanPosture = {
+  const posture: IAutoMovieMotionHumanPosture = {
     root: { x: 1, y: 0, z: 2 },
     yaw: 30,
     pitch: 0,
@@ -106,7 +110,7 @@ export function test_motion_everyday_affect(): void {
       },
     },
   };
-  const layered: IHumanPosture = HumanAffect.layer([
+  const layered: IAutoMovieMotionHumanPosture = HumanAffect.layer([
     { kind: "cough", at: 0 },
   ]).apply(posture, 0.22, undefined as never);
   const cough: number = HumanAffect.angles(
@@ -127,7 +131,7 @@ export function test_motion_everyday_affect(): void {
     "root unchanged",
     layered.root === posture.root && layered.yaw === 30,
   );
-  const both: IHumanPosture = HumanAffect.layer([
+  const both: IAutoMovieMotionHumanPosture = HumanAffect.layer([
     { kind: "cough", at: 0 },
     { kind: "laugh", at: 0 },
   ]).apply(posture, 0.22, undefined as never);

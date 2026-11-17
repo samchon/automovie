@@ -1,6 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalFrame,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { physicalNativeVector } from "./physicalNativeVector";
 
@@ -15,8 +17,11 @@ import { physicalNativeVector } from "./physicalNativeVector";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 6 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function readPhysicalFrame(bound: Bound, seconds: number): Cache.IFrame {
-  const bodies: Cache.IFrame["bodies"] = Object.create(null);
+export function readPhysicalFrame(
+  bound: Bound,
+  seconds: number,
+): IAutoMoviePhysicalFrame {
+  const bodies: IAutoMoviePhysicalFrame["bodies"] = Object.create(null);
   for (const [key, body] of bound.bodies) {
     const slash: number = key.indexOf("/");
     const id: string = key.slice(0, slash);

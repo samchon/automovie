@@ -5,7 +5,12 @@ import {
   memoizePhysicalTransformValue,
   solvePhysicalArticulationTargets,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMovieLinearizePhysicalTargetRows,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -13,7 +18,7 @@ import { PhysicalPointFixtures } from "../internal/PhysicalPointFixtures";
 import { nclose } from "../internal/predicates";
 
 /** Borrowed candidate placements for direct primitive arithmetic. */
-type Poses = Readonly<Record<string, P.ITransform>>;
+type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
 
 /** Dirty articulation preserves published candidates and the dependencies of every residual.
  *
@@ -30,11 +35,15 @@ type Poses = Readonly<Record<string, P.ITransform>>;
  */
 export function test_physical_target_dependencies(): void {
   const profile: P = PhysicalPointFixtures.profile();
-  const targets: Record<string, P.ITransform> = Object.fromEntries(
-    profile.segments.map((segment: P.ISegment): [string, P.ITransform] => [
-      segment.bone,
-      structuredClone(segment.neutral),
-    ]),
+  const targets: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
+    profile.segments.map(
+      (
+        segment: IAutoMoviePhysicalSegment,
+      ): [string, IAutoMovieRigidTransform] => [
+        segment.bone,
+        structuredClone(segment.neutral),
+      ],
+    ),
   );
   const original: string = JSON.stringify(targets);
   const published: { poses: Poses; before: string }[] = [];
@@ -73,14 +82,14 @@ export function test_physical_target_dependencies(): void {
       "later probes and rejected backtracks cannot mutate earlier published poses",
     );
   for (const joint of profile.joints) {
-    const first: P.ITransform["position"] = Vector3.add(
+    const first: IAutoMovieRigidTransform["position"] = Vector3.add(
       result.targets[joint.parent]!.position,
       Quaternion.rotateVector(
         result.targets[joint.parent]!.rotation,
         joint.parentFrame.position,
       ),
     );
-    const second: P.ITransform["position"] = Vector3.add(
+    const second: IAutoMovieRigidTransform["position"] = Vector3.add(
       result.targets[joint.child]!.position,
       Quaternion.rotateVector(
         result.targets[joint.child]!.rotation,
@@ -93,17 +102,20 @@ export function test_physical_target_dependencies(): void {
     );
   }
 
-  const accepted: Record<string, P.ITransform> = {
+  const accepted: Record<string, IAutoMovieRigidTransform> = {
     a: targets.source!,
     b: targets.reference!,
   };
-  const angle: P.ITransform["rotation"] = Quaternion.fromAxisAngle(
+  const angle: IAutoMovieRigidTransform["rotation"] = Quaternion.fromAxisAngle(
     { x: 0, y: 0, z: 1 },
     90,
   );
-  const probe: Record<string, P.ITransform> = Object.fromEntries(
+  const probe: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
     Object.entries(accepted).map(
-      ([bone, pose]: [string, P.ITransform]): [string, P.ITransform] => [
+      ([bone, pose]: [string, IAutoMovieRigidTransform]): [
+        string,
+        IAutoMovieRigidTransform,
+      ] => [
         bone,
         {
           position: Quaternion.rotateVector(angle, pose.position),
@@ -112,7 +124,9 @@ export function test_physical_target_dependencies(): void {
       ],
     ),
   );
-  const start: P.ITransform["position"] = { ...accepted.a!.position };
+  const start: IAutoMovieRigidTransform["position"] = {
+    ...accepted.a!.position,
+  };
   const distance: (poses: Poses) => number[] = (poses: Poses): number[] => [
     Vector3.length(Vector3.subtract(poses.a!.position, poses.b!.position)),
   ];
@@ -122,7 +136,7 @@ export function test_physical_target_dependencies(): void {
   const weighted: (poses: Poses) => number[] = (poses: Poses): number[] => [
     poses.a!.position.x - (start.x + poses.b!.position.x) / 2,
   ];
-  const rows: linearizePhysicalTargetRows.IRows[] = [
+  const rows: IAutoMovieLinearizePhysicalTargetRows.IRows[] = [
     distance,
     world,
     weighted,
@@ -130,7 +144,7 @@ export function test_physical_target_dependencies(): void {
     (
       measure: (poses: Poses) => number[],
       index: number,
-    ): linearizePhysicalTargetRows.IRows => ({
+    ): IAutoMovieLinearizePhysicalTargetRows.IRows => ({
       bones: new Set(["a", "b"]),
       rigidInvariant: index === 0,
       measure,
@@ -163,7 +177,7 @@ export function test_physical_target_dependencies(): void {
 
   let reads: number = 0;
   const read: (poses: Poses) => number = memoizePhysicalTransformValue(
-    (poses: Poses): P.ITransform[] => [poses.a!, poses.b!],
+    (poses: Poses): IAutoMovieRigidTransform[] => [poses.a!, poses.b!],
     (poses: Poses): number => {
       reads++;
       return poses.a!.position.x - poses.b!.position.x;
@@ -176,7 +190,8 @@ export function test_physical_target_dependencies(): void {
     1,
     "a new map with identical coordinates reuses the same geometric value",
   );
-  const mutable: Record<string, P.ITransform> = structuredClone(accepted);
+  const mutable: Record<string, IAutoMovieRigidTransform> =
+    structuredClone(accepted);
   const prior: number = read(mutable);
   mutable.b!.position.x += 0.25;
   TestValidator.predicate(

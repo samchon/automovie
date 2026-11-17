@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieSingularDecomposition,
+  IAutoMovieSolvePhysicalTargetStep,
+} from "@automovie/interface";
+
 import { decomposeAutoMovieSingularMatrix } from "../math/decomposeAutoMovieSingularMatrix";
 import { physicalSingularBudget } from "./physicalSingularBudget";
 
@@ -16,16 +21,9 @@ import { physicalSingularBudget } from "./physicalSingularBudget";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function solvePhysicalTargetStep(input: {
-  /** One residual derivative column per bounded coordinate. */ columns: readonly (readonly number[])[];
-  /** Actual residual vector, in the caller's units. */ errors: readonly number[];
-  /** Current coordinates and inclusive limits. */ coordinates: readonly {
-    value: number;
-    minimum: number;
-    maximum: number;
-  }[];
-  /** Positive damping in Jacobian units. */ damping: number;
-}): number[] {
+export function solvePhysicalTargetStep(
+  input: IAutoMovieSolvePhysicalTargetStep.IInput,
+): number[] {
   if (
     !input.errors.length ||
     input.columns.length !== input.coordinates.length ||
@@ -76,7 +74,7 @@ export function solvePhysicalTargetStep(input: {
     const design: number[][] = rows.map((row: number): number[] =>
       free.map((index: number): number => input.columns[index]![row]!),
     );
-    const decomposition: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
+    const decomposition: IAutoMovieSingularDecomposition =
       decomposeAutoMovieSingularMatrix(design, physicalSingularBudget);
     for (let column: number = 0; column < free.length; column++) {
       const singular: number = decomposition.singularValues[column]!;

@@ -1,4 +1,4 @@
-import { IAutoMovieHalfSpacePlane } from "./IAutoMovieHalfSpacePlane";
+import type { IAutoMovieHalfSpacePlane } from "./IAutoMovieHalfSpacePlane";
 
 /**
  * A convex cell represented by intersecting half-spaces, meant to be bounded.

@@ -1,5 +1,5 @@
-import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
-import { AutoMovieNodeKind } from "./AutoMovieNodeKind";
+import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { AutoMovieNodeKind } from "./AutoMovieNodeKind";
 
 /**
  * A node in the scene graph: the universal transformable element. Characters,

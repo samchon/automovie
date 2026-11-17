@@ -1,14 +1,17 @@
 import { createPell, createSword } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanBlade,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -36,7 +39,7 @@ export function motionBladeSeed(name: motionHumanBody.Name): string[] {
   const pell: ReturnType<typeof createPell> = createPell();
   const tip: IAutoMovieVector3 = sword.affordance("point").frame.translation;
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const stature: number = body.measure.stature;
   const place: { at: IAutoMovieVector3; yaw: number } = {
     at: { x: 0, y: 0, z: 0.91 * stature },
@@ -54,10 +57,10 @@ export function motionBladeSeed(name: motionHumanBody.Name): string[] {
     seed: string,
   ): {
     point: (seconds: number) => IAutoMovieVector3;
-    act: HumanSegment.ISegment;
+    act: IAutoMovieMotionHumanSegment;
     at: number;
   } => {
-    const film: HumanPerformance = new HumanPerformance({
+    const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed,
       laws: Object.values(HumanBlade),
       performers: [
@@ -93,14 +96,14 @@ export function motionBladeSeed(name: motionHumanBody.Name): string[] {
           target: { kind: "prop", subject: "pell", point: "target" },
         }).node,
     });
-    const act: HumanSegment.ISegment = film
+    const act: IAutoMovieMotionHumanSegment = film
       .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.name === "lunge")!;
+      .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === "lunge")!;
     return {
       act,
       at: act.start + (act.plan.contact ?? Number.NaN),
       point: (seconds: number): IAutoMovieVector3 => {
-        const frame: IHumanProp.IFrame = film.prop("sword", seconds);
+        const frame: IAutoMovieRigidTransform = film.prop("sword", seconds);
         return Vector3.add(
           frame.position,
           Quaternion.rotateVector(frame.rotation, tip),

@@ -1,12 +1,12 @@
-import {
-  type AutoMovieSurfacePatternGenerator,
-  type IAutoMoviePatternFinding,
-  type IAutoMoviePatternPlacement,
-  type IAutoMoviePatternPoint,
-  type IAutoMovieSurfacePatternResult,
-  type IAutoMovieSurfacePatternZone,
-  generateAutoMovieSurfacePattern,
-} from "@automovie/engine";
+import { generateAutoMovieSurfacePattern } from "@automovie/engine";
+import type {
+  AutoMovieSurfacePatternGenerator,
+  IAutoMoviePatternFinding,
+  IAutoMoviePatternPlacement,
+  IAutoMoviePatternPoint,
+  IAutoMovieSurfacePatternResult,
+  IAutoMovieSurfacePatternZone,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { pattern, rectangle, zone } from "../internal/patternFixtures";

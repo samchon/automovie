@@ -1,4 +1,10 @@
-import type { IAutoMovieHumanHeadIdentity } from "../structures/head/IAutoMovieHumanHeadIdentity";
+import type {
+  AutoMovieHumanSex as AutoMovieHumanSexType,
+  IAutoMovieAffineCoefficients,
+  IAutoMovieHumanHeadArcs,
+  IAutoMovieHumanHeadIdentity,
+} from "@automovie/interface";
+
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 
 /**
@@ -22,43 +28,18 @@ import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
  * survey's tape takes them.
  */
 export namespace AutoMovieHumanHeadArcs {
-  /** One sex's straight line `a + b x`, mm. */
-  export interface ILine {
-    /** Intercept, mm. */
-    a: number;
-
-    /** Slope, mm per mm of the predictor. */
-    b: number;
-  }
-
-  /** The six arcs, mm. */
-  export interface IArcs {
-    /** Over the vertex in the coronal plane. */
-    coronal: number;
-
-    /** Over the crinion, the hairline's midpoint. */
-    crinion: number;
-
-    /** Over the forehead at the minimum frontal breadth. */
-    minimumFrontal: number;
-
-    /** Under the nose, over the subnasale. */
-    subnasale: number;
-
-    /** Over the chin's menton. */
-    menton: number;
-
-    /** Under the mandible. */
-    submandibular: number;
-  }
-
   /**
    * Each arc's line, women and men: the vault's on the head circumference
    * (coronal R2 0.35 and 0.32, crinion 0.38 and 0.42, minimum frontal 0.42 and
    * 0.46), the face's on the bizygomatic breadth (subnasale 0.37 and 0.40,
    * menton 0.29 and 0.31, submandibular 0.26 and 0.26).
    */
-  export const ARCS: Readonly<Record<keyof IArcs, readonly [ILine, ILine]>> = {
+  export const ARCS: Readonly<
+    Record<
+      keyof IAutoMovieHumanHeadArcs.IArcs,
+      readonly [IAutoMovieAffineCoefficients, IAutoMovieAffineCoefficients]
+    >
+  > = {
     coronal: [
       { a: 49.88, b: 0.5246 },
       { a: 82.07, b: 0.4778 },
@@ -86,10 +67,14 @@ export namespace AutoMovieHumanHeadArcs {
   };
 
   /** The arcs read on the head circumference; the rest read the bizygomatic breadth. */
-  export const ON_CIRCUMFERENCE: readonly (keyof IArcs)[] = ["coronal", "crinion", "minimumFrontal"];
+  export const ON_CIRCUMFERENCE: readonly (keyof IAutoMovieHumanHeadArcs.IArcs)[] =
+    ["coronal", "crinion", "minimumFrontal"];
 
   /** Tragion to the top of the head on the head circumference, ANSUR II: R2 0.14 and 0.15, residual SD 6.1 and 5.7 mm. */
-  export const TRAGION_DROP_ON_CIRCUMFERENCE: readonly [ILine, ILine] = [
+  export const TRAGION_DROP_ON_CIRCUMFERENCE: readonly [
+    IAutoMovieAffineCoefficients,
+    IAutoMovieAffineCoefficients,
+  ] = [
     { a: 55.33, b: 0.1268 },
     { a: 45.85, b: 0.1485 },
   ];
@@ -100,11 +85,20 @@ export namespace AutoMovieHumanHeadArcs {
    * @param head The person's resolved head measures.
    * @param sex The person's sex.
    */
-  export function of(head: IAutoMovieHumanHeadIdentity, sex: AutoMovieHumanSex): IArcs {
+  export function of(
+    head: IAutoMovieHumanHeadIdentity,
+    sex: AutoMovieHumanSexType,
+  ): IAutoMovieHumanHeadArcs.IArcs {
     const k: 0 | 1 = sex === AutoMovieHumanSex.Female ? 0 : 1;
-    const arc = (name: keyof IArcs): number => {
-      const fit: ILine = ARCS[name][k];
-      return fit.a + fit.b * (ON_CIRCUMFERENCE.includes(name) ? head.circumference : head.faceWidth);
+    const arc = (name: keyof IAutoMovieHumanHeadArcs.IArcs): number => {
+      const fit: IAutoMovieAffineCoefficients = ARCS[name][k];
+      return (
+        fit.a +
+        fit.b *
+          (ON_CIRCUMFERENCE.includes(name)
+            ? head.circumference
+            : head.faceWidth)
+      );
     };
     return {
       coronal: head.bitragionCoronalArc ?? arc("coronal"),
@@ -123,9 +117,13 @@ export namespace AutoMovieHumanHeadArcs {
    * @param sex The person's sex.
    * @returns Vertex to tragion, vertical, mm.
    */
-  export function tragionDrop(head: IAutoMovieHumanHeadIdentity, sex: AutoMovieHumanSex): number {
+  export function tragionDrop(
+    head: IAutoMovieHumanHeadIdentity,
+    sex: AutoMovieHumanSexType,
+  ): number {
     if (head.tragionTopOfHead !== undefined) return head.tragionTopOfHead;
-    const fit: ILine = TRAGION_DROP_ON_CIRCUMFERENCE[sex === AutoMovieHumanSex.Female ? 0 : 1];
+    const fit: IAutoMovieAffineCoefficients =
+      TRAGION_DROP_ON_CIRCUMFERENCE[sex === AutoMovieHumanSex.Female ? 0 : 1];
     return fit.a + fit.b * head.circumference;
   }
 }

@@ -1,6 +1,6 @@
-import { AutoMovieSubjectKind } from "./AutoMovieSubjectKind";
-import { IAutoMovieSubjectDescription } from "./IAutoMovieSubjectDescription";
-import { IAutoMovieSubjectDiffFanout } from "./IAutoMovieSubjectDiffFanout";
+import type { AutoMovieSubjectKind } from "./AutoMovieSubjectKind";
+import type { IAutoMovieSubjectDescription } from "./IAutoMovieSubjectDescription";
+import type { IAutoMovieSubjectDiffFanout } from "./IAutoMovieSubjectDiffFanout";
 
 /**
  * One stable subject entry in a structural diff category with aggregate affected usage.

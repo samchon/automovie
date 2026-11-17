@@ -1,9 +1,12 @@
-import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** World vector, mm. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 
 /** A surface's 2-jet. */
 type IJet = IAutoMovieSolidSurface.IJet;
@@ -57,7 +60,7 @@ export namespace AutoMovieSolidFoldContact {
     part: IAutoMovieSolidSurface,
     face: IAutoMovieSolidSurface,
     diff: boolean,
-    p: AutoMovieSolidIntersection.IPoint,
+    p: IAutoMovieSolidIntersection.IPoint,
     radius: number,
   ): { host: number; part: number } | null {
     const a: IJet = part.jet(p.s, p.phi);

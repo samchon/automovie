@@ -1,33 +1,37 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { tags } from "typia";
+import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCrouch,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
-import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
-import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
+import { braceOnThigh } from "./braceOnThigh";
 
 /**
  * A crouch or a squat held in place: the hips sink over the planted feet to
@@ -41,22 +45,28 @@ import { HumanTrunk } from "./HumanTrunk";
  * of 150 degrees, inside the 141.6 degrees measured in kneeling (Acker et al.
  * 2011, J Arthroplasty 26:319) and below the 157 +- 6 degrees of a heels-up
  * squat (Hemmerich et al. 2006, J Orthop Res 24:770), which the range table
- * does not reach. The shank tilts forward by the ankle's dorsiflexion range,
- * plus the heel lift when the heels are up (the foot pivots about its toes'
+ * does not reach. The shank tilts forward by the crouching ankle's
+ * dorsiflexion (`ANKLE`, within the range table's), plus the heel lift when
+ * the heels are up (the foot pivots about its toes'
  * joint, which stays on the floor), and the thigh takes the rest of the knee
  * flexion, so the hip joint's place over the ankle follows from the leg's
- * two lengths. A depth whose thigh angle and the hip's flexion range leave
+ * two lengths. On the way down the shank and the thigh tilt together, each
+ * by the descent's share of its own tilt, so the hips follow the leg's arc
+ * and the ankle never passes its range: the heel stays down until the ankle
+ * reaches the range and then rises by the rest, the heel-off of a
+ * range-limited ankle. A depth whose thigh angle and the hip's flexion range leave
  * no room for the trunk is refused with the deepest knee flexion the heels
- * allow: a full squat with flat heels needs more ankle dorsiflexion than the
- * range table's 20 degrees, so it asks for `heels: "up"` (Hemmerich et al.
- * 2006 measure heels-flat squats only on bodies with that ankle range).
+ * allow: a full squat with flat heels leaves the thigh past the hip's range
+ * at the crouching ankle, so it asks for `heels: "up"`.
  *
  * The trunk's forward inclination is found by bisection at every eighth of
  * the descent, and by a secant search from those between them, so that the
- * whole-body centre of mass (`HumanBalance.offset`) keeps a straight course
- * over the soles, with no speed to carry it off them: it stays where it
- * stands with the heels flat, or as near to that as the lumbar range brings
- * it at the lowest pose, and goes to the soles' middle when the heels rise.
+ * whole-body centre of mass keeps a straight course over the soles, with no
+ * speed to carry it off them: it stays where it stands with the heels flat,
+ * or as near to that as the lumbar range brings it at the lowest pose, and
+ * reaches the middle of the forefoot the body will stand on
+ * (`HumanBalance.offset`, the base of support `HumanFoot.base`) by the time
+ * the heels rise.
  * The inclination is shared by
  * the lumbopelvic rhythm: the pelvis tilts about the hips as far as the
  * folded thighs leave the hip room and the spine flexes for the rest, the
@@ -71,15 +81,15 @@ import { HumanTrunk } from "./HumanTrunk";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the depth law with its sources, the refusal, the balance solve, the hands, the timing and the events, with provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core composed of part primitives over a standing base on one clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the depth table and the plan.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the depth table and the plan; the thigh brace it shares with the kneel is `braceOnThigh`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place is read from the body's measure and the range table; no world coordinate is typed.
  */
 export namespace crouch {
   /** The action's name. */
-  export const name: HumanActionName = "crouch";
+  export const name: AutoMovieMotionHumanActionName = "crouch";
 
   /** Cancel table: a crouch stands up at any time, and kneels or handles a low thing from its lowest pose. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
     crouch: [{ window: ["ascend", 1], kind: "inertialize", entry: 0 }],
     kneel: [
@@ -108,39 +118,16 @@ export namespace crouch {
     ],
   };
 
-  /** How deep: a parallel squat or a deep squat. */
-  export type Depth = "partial" | "full";
-
-  /** Whether the heels stay on the floor or rise about the toes' joints. */
-  export type Heels = "flat" | "up";
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and its default.
-   * @evidence contracts/development/design.md#principled-representation Two closed names and a hold; the knee flexion and the heel lift come from tables.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four optional members, all read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No height or angle is typed by the author.
-   */
-  export interface IParams {
-    /** How deep; `partial` when absent. */
-    depth?: Depth;
-
-    /** The heels; `flat` for a partial and `up` for a full squat when absent. */
-    heels?: Heels;
-
-    /** Seconds held at the lowest pose; 1 when absent. */
-    hold?: number & tags.Minimum<0> & HumanUnit<"s">;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
-
   /** Knee flexion at the lowest pose by depth, degrees (Escamilla 2001; the range table's end for `full`). */
-  export const KNEE: Readonly<Record<Depth, number>> = {
+  export const KNEE: Readonly<
+    Record<IAutoMovieMotionHumanCrouch.Depth, number>
+  > = {
     partial: 100,
     full: 150,
   };
+
+  /** The ankle's dorsiflexion in a crouch, degrees: the most measured while crouching, 28 +- 10 at a knee flexion of 149 +- 6 (Hyodo, Masuda, Aizawa, Jinno and Morita 2017, Braz J Phys Ther 21:159, electromagnetic tracking of 26 adults), within the range table's loaded maximum. */
+  export const ANKLE: number = 28;
 
   /** The heel lift of `heels: "up"`, degrees about the toes' joint (provisional, the bend law's squat lift). */
   export const HEEL: number = 30;
@@ -149,7 +136,9 @@ export namespace crouch {
   export const SHARES: number = 8;
 
   /** Descent seconds by depth for a 0.93 m hip height (provisional). */
-  export const DESCENT: Readonly<Record<Depth, number>> = {
+  export const DESCENT: Readonly<
+    Record<IAutoMovieMotionHumanCrouch.Depth, number>
+  > = {
     partial: 1.0,
     full: 1.3,
   };
@@ -170,22 +159,25 @@ export namespace crouch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its solved numbers and the base.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrouch.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
-    const depth: Depth = context.params.depth ?? "partial";
-    const heels: Heels =
+    const depth: IAutoMovieMotionHumanCrouch.Depth =
+      context.params.depth ?? "partial";
+    const heels: IAutoMovieMotionHumanCrouch.Heels =
       context.params.heels ?? (depth === "full" ? "up" : "flat");
     const hold: number = context.params.hold ?? 1;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
 
-    // The leg's angles: the shank tilts by the ankle's range plus the heel
+    // The leg's angles: the shank tilts by the crouching ankle plus the heel
     // lift, the thigh takes the rest of the knee flexion.
-    const dorsiflexion: number =
-      AutoMovieMotionHumanRange.limit("leftFoot", "flexion") ?? 0;
+    const dorsiflexion: number = Math.min(
+      ANKLE,
+      AutoMovieMotionHumanRange.limit("leftFoot", "flexion") ?? 0,
+    );
     const hipRange: number =
       AutoMovieMotionHumanRange.limit("leftUpperLeg", "flexion") ?? 0;
     const heel: number = heels === "up" ? HEEL : 0;
@@ -203,7 +195,7 @@ export namespace crouch {
 
     // The clock: descent, hold, rise.
     const down: number = DESCENT[depth] * Math.sqrt(m.hipHeight / 0.93);
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence([
         { name: "descend", seconds: down },
         { name: "lowest", seconds: hold },
@@ -213,28 +205,36 @@ export namespace crouch {
       { holds: ["lowest"] },
     );
     const duration: number = clock.duration;
-    const base: IHumanActionPlan = stand.plan({
+    const base: IAutoMovieMotionHumanActionPlan = stand.plan({
       ...context,
       params: { seconds: duration },
     });
-    const standing: IHumanPosture = base.posture(0);
+    const standing: IAutoMovieMotionHumanPosture = base.posture(0);
     const yaw: number = standing.yaw;
     const share = (seconds: number): number =>
       clock.envelope(["descend", "lowest"], ["ascend", "end"], seconds);
 
-    // The feet at a share of the heel lift: each pivots about its toes' joint.
+    // The leg's angles move together over the descent, the shank's tilt and
+    // the thigh's each by its share, so the ankle never passes the crouching
+    // ankle: it takes the shank's tilt until it reaches it, and the heel rises
+    // about the toes' joint by the rest.
+    const lift = (s: number): number =>
+      Math.max(0, shankTilt * s - dorsiflexion);
+
+    // The feet at a share of the descent: each pivots about its toes' joint
+    // by the heel's lift there.
     const feet = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       s: number,
-    ): IHumanPosture["limbs"] => {
-      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    ): IAutoMovieMotionHumanPosture["limbs"] => {
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       for (const side of ["left", "right"] as const) {
-        const goal: IHumanPosture.IGoal = posture.limbs[`${side}Leg`]!;
-        const flat: HumanFoot.IPlacement = {
+        const goal: IAutoMovieHumanLimbGoal = posture.limbs[`${side}Leg`]!;
+        const flat: IAutoMovieMotionHumanFoot.IPlacement = {
           ankle: goal.point,
           rotation: goal.rotation ?? HumanFrame.turn(yaw),
         };
-        const placed: HumanFoot.IPlacement =
+        const placed: IAutoMovieMotionHumanFoot.IPlacement =
           heel === 0
             ? flat
             : HumanFoot.pivot(
@@ -243,7 +243,7 @@ export namespace crouch {
                 "mtp",
                 HumanFoot.point(body, side, "mtp", flat),
                 HumanFoot.heading(flat.rotation),
-                -heel * s,
+                -lift(s),
               );
         limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
           body,
@@ -256,51 +256,59 @@ export namespace crouch {
       return limbs;
     };
 
-    // The hip joints' move at the lowest pose, from the leg's geometry over
-    // each lifted ankle, averaged over the two legs.
-    const lowLimbs: IHumanPosture["limbs"] = feet(standing, 1);
+    // The hip joints over each ankle at a share, from the leg's two lengths
+    // at the share's tilts, averaged over the two legs. The standing legs
+    // stand a little off the straight vertical leg this places at the start;
+    // that difference is carried in by the share, so the root starts where
+    // the standing posture puts it and ends where the leg's geometry does.
     const forward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw },
       { x: 0, y: 0, z: 1 },
     );
     const rad = (deg: number): number => (deg * Math.PI) / 180;
     const joints = hipJoints(body, standing.root, HumanFrame.turn(yaw));
-    let move: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    for (const side of ["left", "right"] as const) {
-      const ankle: IAutoMovieVector3 = lowLimbs[`${side}Leg`]!.point;
-      const hip: IAutoMovieVector3 = Vector3.add(
-        Vector3.add(ankle, {
-          x: 0,
-          y:
-            m.shank * Math.cos(rad(shankTilt)) +
-            m.thigh * Math.cos(rad(thighTilt)),
-          z: 0,
-        }),
-        Vector3.scale(
-          forward,
-          m.shank * Math.sin(rad(shankTilt)) -
-            m.thigh * Math.sin(rad(thighTilt)),
-        ),
-      );
-      move = Vector3.add(
-        move,
-        Vector3.scale(Vector3.subtract(hip, joints[side]), 0.5),
-      );
-    }
+    const over = (s: number): IAutoMovieVector3 => {
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = feet(standing, s);
+      let out: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+      for (const side of ["left", "right"] as const) {
+        const hip: IAutoMovieVector3 = Vector3.add(
+          Vector3.add(limbs[`${side}Leg`]!.point, {
+            x: 0,
+            y:
+              m.shank * Math.cos(rad(shankTilt * s)) +
+              m.thigh * Math.cos(rad(thighTilt * s)),
+            z: 0,
+          }),
+          Vector3.scale(
+            forward,
+            m.shank * Math.sin(rad(shankTilt * s)) -
+              m.thigh * Math.sin(rad(thighTilt * s)),
+          ),
+        );
+        out = Vector3.add(
+          out,
+          Vector3.scale(Vector3.subtract(hip, joints[side]), 0.5),
+        );
+      }
+      return out;
+    };
+    const start: IAutoMovieVector3 = over(0);
+    const move = (s: number): IAutoMovieVector3 =>
+      Vector3.add(Vector3.subtract(over(s), start), Vector3.scale(start, s));
 
     // The body at a share: root moved, trunk inclined by the lumbopelvic
     // rhythm (the pelvis about the hips as far as the folded thighs leave
     // the hip room, the spine the rest), feet lifted.
     const lowered = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       s: number,
       inclination: number,
-    ): IHumanPosture => {
-      const moved: IHumanPosture = {
+    ): IAutoMovieMotionHumanPosture => {
+      const moved: IAutoMovieMotionHumanPosture = {
         ...posture,
-        root: Vector3.add(posture.root, Vector3.scale(move, s)),
+        root: Vector3.add(posture.root, move(s)),
       };
-      const stood: IHumanPosture["limbs"] = feet(moved, s);
+      const stood: IAutoMovieMotionHumanPosture["limbs"] = feet(moved, s);
       const inclined = HumanTrunk.incline(
         moved.joints,
         inclination,
@@ -309,7 +317,7 @@ export namespace crouch {
           right: stood.rightLeg!.point,
         }),
       );
-      const tipped: IHumanPosture = AutoMovieMotionHumanLean.tip(
+      const tipped: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.tip(
         body,
         { ...moved, joints: inclined.joints },
         inclined.pitch,
@@ -322,8 +330,8 @@ export namespace crouch {
           ...(heel === 0
             ? {}
             : {
-                leftToes: [heel * s, 0, 0] as const,
-                rightToes: [heel * s, 0, 0] as const,
+                leftToes: [lift(s), 0, 0] as const,
+                rightToes: [lift(s), 0, 0] as const,
               }),
         },
         limbs: feet(tipped, s),
@@ -339,18 +347,30 @@ export namespace crouch {
       ((AutoMovieMotionHumanRange.limit("spine", "flexion") ?? 0) *
         (HumanTrunk.RHYTHM.lumbar + HumanTrunk.RHYTHM.thorax)) /
       HumanTrunk.RHYTHM.lumbar;
-    // The centre keeps a straight course, so it has no speed to carry it
-    // off the soles: from where it stands over them to their middle when
-    // the heels rise, and otherwise staying where it stands, or as near to
-    // that as the most inclination brings it at the lowest pose.
+    // The centre keeps a straight course along the heading, read in the
+    // world so the course does not turn where the base does, and has no
+    // speed to carry it off the soles: with the heels flat it stays where it
+    // stands, or as near to that as the most inclination brings it at the
+    // lowest pose; with the heels rising it reaches the middle of the
+    // forefoot (`HumanBalance.offset`) by the share the heels leave the
+    // floor at, and stays over it.
     const ahead = (s: number, q: number): number =>
-      HumanBalance.offset(body, lowered(standing, s, q));
+      Vector3.dot(
+        HumanBalance.support(body, lowered(standing, s, q)).centre,
+        forward,
+      );
     const upright: number = ahead(0, 0);
-    const low: number = heel === 0 ? Math.min(upright, ahead(1, most)) : 0;
+    const low: number =
+      heel === 0
+        ? Math.min(upright, ahead(1, most))
+        : ahead(1, 0) - HumanBalance.offset(body, lowered(standing, 1, 0));
+    const rises: number = heel === 0 ? 1 : dorsiflexion / shankTilt;
+    const course = (s: number): number =>
+      upright + (low - upright) * Math.min(1, s / rises);
     const inclinations: number[] = [0];
     for (let k: number = 1; k <= SHARES; k++) {
       const error = (q: number): number =>
-        ahead(k / SHARES, q) - (upright + (low - upright) * (k / SHARES));
+        ahead(k / SHARES, q) - course(k / SHARES);
       let lo: number = 0;
       let hi: number = most;
       if (error(lo) >= 0) hi = lo;
@@ -371,7 +391,7 @@ export namespace crouch {
       const k: number = Math.min(SHARES - 1, Math.floor(at));
       const within = (q: number): number => Math.max(0, Math.min(most, q));
       const error = (q: number): number =>
-        ahead(at / SHARES, q) - (upright + ((low - upright) * at) / SHARES);
+        ahead(at / SHARES, q) - course(at / SHARES);
       let a: number =
         inclinations[k]! + (inclinations[k + 1]! - inclinations[k]!) * (at - k);
       if (at === k || at === SHARES) return a;
@@ -390,13 +410,16 @@ export namespace crouch {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
         const s: number = share(seconds);
         return lowered(posture, s, inclination(s));
       },
     };
     const rest = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
-      brace(
+      braceOnThigh(
         body,
         side,
         AutoMovieMotionHumanArm.angles(context.entry.pose, side),
@@ -404,95 +427,16 @@ export namespace crouch {
         share,
       );
 
-    return composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      contact: "lowest",
-      primitives: [sink, rest("left"), rest("right")],
-    });
-  }
-
-  /**
-   * A palm carried from the angles the arm held onto its own thigh just
-   * above the knee, the hand support of a low posture (Kingma, Faber and van
-   * Dieen 2016, J Biomech 49:881), read on the legs the action has placed.
-   *
-   * @param body The body.
-   * @param side The hand and thigh.
-   * @param rest The arm's angles at weight 0.
-   * @param duration The action's duration, seconds; the arm is written over all of it.
-   * @param weight How far the palm is on the thigh at a second, in [0, 1].
-   * @returns The primitive, on the arm's channel.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the place, its source, the frame it rides and the weight.
-   * @evidence contracts/development/implementation.md#principled-implementation The thigh's front region is placed on the solved thigh and moved 0.6 of the way toward the knee; the palm faces it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One arm carry with one goal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 0.6 share toward the knee is provisional, the bend law's brace point.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per written second for the thigh.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the crouch and the kneel.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closes over its arguments only.
-   */
-  export function brace(
-    body: IHumanBody,
-    side: "left" | "right",
-    rest: AutoMovieMotionHumanArm.IAngles,
-    duration: number,
-    weight: (seconds: number) => number,
-  ): IAutoMovieMotionHumanPrimitive {
-    return AutoMovieMotionHumanArm.carried({
-      body,
-      side,
-      from: 0,
-      to: duration,
-      rest,
-      weight,
-      goal: (posture: IHumanPosture): IHumanPosture.IGoal => {
-        const bones = poseBones(body, resolveHumanPosture(body, posture));
-        const thigh = bones.get(`${side}UpperLeg`)!;
-        const kneeAt: IAutoMovieVector3 = bones.get(
-          `${side}LowerLeg`,
-        )!.worldPosition;
-        const region =
-          body.surfaces.regions[
-            side === "left" ? "thighFrontLeft" : "thighFrontRight"
-          ];
-        const onThigh: IAutoMovieVector3 = Vector3.add(
-          thigh.worldPosition,
-          Quaternion.rotateVector(thigh.worldRotation, region.point),
-        );
-        const point: IAutoMovieVector3 = Vector3.lerp(
-          onThigh,
-          Vector3.add(
-            kneeAt,
-            Vector3.subtract(
-              onThigh,
-              Vector3.lerp(thigh.worldPosition, kneeAt, 0.5),
-            ),
-          ),
-          0.6,
-        );
-        return AutoMovieMotionHumanArm.goal(
-          body,
-          side,
-          AutoMovieMotionHumanTarget.hand(
-            body,
-            posture,
-            side,
-            {
-              point,
-              normal: Quaternion.rotateVector(
-                thigh.worldRotation,
-                region.normal,
-              ),
-            },
-            {
-              surface: "palm",
-              shape: "relaxed",
-              forward: Vector3.subtract(kneeAt, thigh.worldPosition),
-            },
-          ),
-        );
-      },
-    });
+    // The crouch rises again at its end, so it leaves the body standing
+    // (#3363: a base transition declares the base it ends in).
+    return {
+      ...composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        contact: "lowest",
+        primitives: [sink, rest("left"), rest("right")],
+      }),
+      base: { kind: "standing" },
+    };
   }
 }

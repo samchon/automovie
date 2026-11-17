@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieCaptureTime,
-  planAutoMovieCaptureFrames,
-} from "@automovie/render";
+import type { IAutoMovieCaptureTime } from "@automovie/interface";
+import { planAutoMovieCaptureFrames } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**

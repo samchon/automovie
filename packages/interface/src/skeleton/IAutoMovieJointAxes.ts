@@ -1,5 +1,5 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { AutoMovieJointTwistPlacement } from "./AutoMovieJointTwistPlacement";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieJointTwistPlacement } from "./AutoMovieJointTwistPlacement";
 
 /**
  * The bone-local axes the three clinical angles rotate about.

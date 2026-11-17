@@ -1,28 +1,36 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { tags } from "typia";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionClockInstant,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanClimbLadder,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanLadder,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanLadder } from "./HumanLadder";
 
 /**
  * Climbing a vertical fixed ladder from the floor before it, in the
@@ -30,10 +38,15 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * foot, one limb moving at a time, so three limbs always hold the ladder
  * (Jensen and Holland 2020, Int J Environ Res Public Health 17:2897).
  *
- * The goals are rungs. The ladder stands `start` metres ahead of the toes,
- * its rungs `spacing` apart from the floor up (OSHA 1910.23(b)(2): 25 to 36
- * cm, the default 0.3 m); a spacing outside that band, or one the body's leg
- * cannot step, is refused. Each foot stands with its ball on a rung's top,
+ * The goals are rungs: the ladder is a prop of the scene, a fixture
+ * (`IHumanProp.fixed`) that the hands grip and never carry, and its rungs are
+ * its own `rung1` upward (`createLadder`'s affordances), read where the
+ * ladder stands at the action's start. The rungs' spacing must lie in OSHA
+ * 1910.23(b)(2)'s 25 to 36 cm and their line be upright; the climber stands
+ * before the ladder, facing it within `FACING` degrees, the toes within
+ * `NEAR` of the rungs and between the rails. A ladder that is no fixture,
+ * leans, has too few rungs above the hands, or one the climber stands away
+ * from, is refused. Each foot stands with its ball on a rung's top,
  * and each hand grips a rung (Jensen and Holland found rungs used in 59 of
  * 80 tasks) at the rung nearest the shoulder's height above the feet. First
  * both hands reach their rungs, then every beat moves one limb up one rung:
@@ -56,32 +69,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  */
 export namespace climbLadder {
   /** The action's name. */
-  export const name: HumanActionName = "climbLadder";
+  export const name: AutoMovieMotionHumanActionName = "climbLadder";
 
   /** Cancel table: none yet; the climber holds the ladder at the end. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {};
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and default.
-   * @evidence contracts/development/design.md#principled-representation The ladder's spacing and place, and how far to climb.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No hold is typed.
-   */
-  export interface IParams {
-    /** How many rungs the feet climb; 3 when absent. */
-    rungs?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
-
-    /** Rung spacing, metres, from 0.25 to 0.36; 0.3 when absent. */
-    spacing?: number & tags.Minimum<0.25> & tags.Maximum<0.36> & HumanUnit<"m">;
-
-    /** The rungs' distance ahead of the toes, metres; 0.15 when absent. */
-    start?: number;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
   /** One beat's seconds (provisional). */
   export const BEAT: number = 0.8;
@@ -92,116 +83,97 @@ export namespace climbLadder {
   /** How far the hip joints stay behind the rungs, in leg lengths (provisional). */
   export const BACK: number = 0.35;
 
-  /** A rung's radius, metres (provisional). */
-  export const RUNG: number = 0.015;
+  /** The most the climber's heading may differ from facing the ladder, degrees (provisional). */
+  export const FACING: number = 30;
+
+  /** The farthest the toes may stand from the rungs, metres (provisional): a step from the ladder. */
+  export const NEAR: number = 0.5;
 
   /** The beat order of the four-beat ipsilateral pattern. */
-  export const ORDER: readonly Limb[] = [
+  export const ORDER: readonly IAutoMovieMotionHumanClimbLadder.Limb[] = [
     "rightHand",
     "rightFoot",
     "leftHand",
     "leftFoot",
   ];
 
-  /** A limb of the climb. */
-  export type Limb = "leftHand" | "rightHand" | "leftFoot" | "rightFoot";
+  /** A rung's centre at a lateral place (`HumanLadder.rung`). */
+  export const rung: typeof HumanLadder.rung = HumanLadder.rung;
 
-  /**
-   * A ladder as the plan resolved it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The rungs' plane and spacing in the starting floor frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `rung` and the capture.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain numbers.
-   */
-  export interface ILadder {
-    /** The floor frame at the start: origin under the feet's middle, the heading. */
-    frame: HumanFrame.IFrame;
-
-    /** The rungs' distance ahead in that frame, metres. */
-    ahead: number;
-
-    /** The rung spacing, metres. */
-    spacing: number;
-  }
-
-  /**
-   * A rung's centre at a lateral place.
-   *
-   * @param ladder The ladder.
-   * @param index The rung, 1 the lowest; 0 is the floor under the rungs.
-   * @param x The lateral place in the ladder's frame, metres, `x` left.
-   * @returns World metres.
-   */
-  export function rung(
-    ladder: ILadder,
-    index: number,
-    x: number,
-  ): IAutoMovieVector3 {
-    return HumanFrame.point(ladder.frame, {
-      x,
-      y: index * ladder.spacing,
-      z: ladder.ahead,
-    });
-  }
+  /** A rung's radius when the ladder declares none (`HumanLadder.RUNG`). */
+  export const RUNG: number = HumanLadder.RUNG;
 
   /**
    * Plan a ladder climb.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the spacing lies outside the OSHA band or the rung count is not a positive integer.
+   * @throws {HumanRefusal} When the ladder is no fixture, leans, spaces its rungs outside the OSHA band or has too few above the hands, the climber does not stand before it facing it, or the rung count is not a positive integer.
    */
-  export function plan(context: IHumanActionContext<IParams>): IPlan {
-    const body: IHumanBody = context.body;
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClimbLadder.IParams>,
+  ): IAutoMovieMotionHumanClimbLadder.IPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
-    const spacing: number = context.params.spacing ?? 0.3;
     const count: number = context.params.rungs ?? 3;
-    HumanBound.within("spacing", spacing, 0.25, 0.36, "m");
     HumanBound.whole("rungs", count);
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const ladder: IAutoMovieMotionHumanLadder.ILadder = HumanLadder.of(
+      context,
+      context.params.ladder,
+    );
+    const spacing: number = ladder.spacing;
+    const frame: IAutoMovieMotionHumanFrame = ladder.frame;
+    const yaw: number = frame.yaw;
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
-    const standing: IHumanPosture = stand
+    const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const yaw: number = standing.yaw;
-    const flat = (side: "left" | "right"): HumanFoot.IPlacement => {
-      const goal: IHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
+    const flat = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanFoot.IPlacement => {
+      const goal: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
       return {
         ankle: goal.point,
-        rotation: goal.rotation ?? HumanFrame.turn(yaw),
+        rotation: goal.rotation ?? HumanFrame.turn(standing.yaw),
       };
     };
-    const origin: IAutoMovieVector3 = {
-      ...Vector3.lerp(flat("left").ankle, flat("right").ankle, 0.5),
-      y: 0,
-    };
-    const frame: HumanFrame.IFrame = { origin, yaw };
+
+    // The climber stands before the ladder, facing it, the toes near the
+    // rungs and the feet between the rails.
+    const turned: number = Math.abs(
+      ((((standing.yaw - yaw) % 360) + 540) % 360) - 180,
+    );
+    HumanBound.within("facing", turned, 0, FACING, "degrees");
     const toe: number = Math.max(
       ...(["left", "right"] as const).map(
-        (side) =>
+        (side: "left" | "right"): number =>
           HumanFrame.local(
             frame,
             HumanFoot.point(body, side, "toe", flat(side)),
           ).z,
       ),
     );
-    const ladder: ILadder = {
-      frame,
-      ahead: toe + (context.params.start ?? 0.15),
-      spacing,
-    };
+    HumanBound.within("toes", -toe, 0, NEAR, "m");
     const lateral = (side: "left" | "right"): number =>
       HumanFrame.local(frame, flat(side).ankle).x;
+    HumanBound.within(
+      "beside",
+      Math.abs((lateral("left") + lateral("right")) / 2),
+      0,
+      ladder.width / 2,
+      "m",
+    );
     const reach: number = Math.round(
       (m.shoulderHeight - 0.5 * m.upperArm) / spacing,
     );
+    HumanBound.within("rungs", reach + count, 1, ladder.count, "");
 
     // A foot's placement on a rung: the ball on the rung's top.
     const footOn = (
       side: "left" | "right",
       index: number,
-    ): HumanFoot.IPlacement =>
+    ): IAutoMovieMotionHumanFoot.IPlacement =>
       index === 0
         ? flat(side)
         : HumanFoot.pivot(
@@ -210,7 +182,7 @@ export namespace climbLadder {
             "ball",
             Vector3.add(rung(ladder, index, lateral(side)), {
               x: 0,
-              y: RUNG,
+              y: ladder.radius,
               z: 0,
             }),
             HumanFoot.heading(flat(side).rotation),
@@ -219,28 +191,35 @@ export namespace climbLadder {
 
     // The schedule: hands on, then four beats a rung.
     const beat: number = BEAT * modifiers.tempo;
-    const instants: AutoMovieMotionClock.IInstant[] = [
+    const instants: IAutoMovieMotionClockInstant[] = [
       { name: "handsOn", seconds: beat },
     ];
-    const moves: { limb: Limb; n: number; from: number; to: number }[] = [];
+    const moves: {
+      limb: IAutoMovieMotionHumanClimbLadder.Limb;
+      n: number;
+      from: number;
+      to: number;
+    }[] = [];
     for (let k: number = 1; k <= count; k++)
-      ORDER.forEach((limb: Limb, i: number): void => {
-        const from: number = beat * (1 + (k - 1) * 4 + i);
-        moves.push({ limb, n: k, from, to: from + beat });
-        instants.push(
-          { name: `${limb}Release${k}`, seconds: from },
-          { name: `${limb}Contact${k}`, seconds: from + beat },
-        );
-      });
+      ORDER.forEach(
+        (limb: IAutoMovieMotionHumanClimbLadder.Limb, i: number): void => {
+          const from: number = beat * (1 + (k - 1) * 4 + i);
+          moves.push({ limb, n: k, from, to: from + beat });
+          instants.push(
+            { name: `${limb}Release${k}`, seconds: from },
+            { name: `${limb}Contact${k}`, seconds: from + beat },
+          );
+        },
+      );
     const duration: number = beat * (2 + count * 4);
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       duration,
       instants,
     );
 
     // Where a limb is at a second: its rung index (fractional while moving).
     const level = (
-      limb: Limb,
+      limb: IAutoMovieMotionHumanClimbLadder.Limb,
       seconds: number,
     ): { index: number; from: number; u: number; moving: boolean } => {
       const base: number = limb.endsWith("Hand") ? reach : 0;
@@ -263,16 +242,25 @@ export namespace climbLadder {
       channels: ["root", "leftLeg", "rightLeg", "leftArm", "rightArm"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const limbs: IHumanPosture["limbs"] = {};
-        const feet: Record<"left" | "right", HumanFoot.IPlacement> = {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
+        const feet: Record<
+          "left" | "right",
+          IAutoMovieMotionHumanFoot.IPlacement
+        > = {
           left: flat("left"),
           right: flat("right"),
         };
         for (const side of ["left", "right"] as const) {
           const at = level(`${side}Foot`, seconds);
-          const a: HumanFoot.IPlacement = footOn(side, at.from);
-          const b: HumanFoot.IPlacement = footOn(side, at.index);
+          const a: IAutoMovieMotionHumanFoot.IPlacement = footOn(side, at.from);
+          const b: IAutoMovieMotionHumanFoot.IPlacement = footOn(
+            side,
+            at.index,
+          );
           feet[side] = at.moving
             ? (() => {
                 const out = AutoMovieMotionHumanLeg.arc(a, b, CLEARANCE, at.u);
@@ -306,7 +294,7 @@ export namespace climbLadder {
           }),
           y: rise - stand.DROP,
         };
-        const placed: IHumanPosture = { ...posture, root, yaw };
+        const placed: IAutoMovieMotionHumanPosture = { ...posture, root, yaw };
         for (const side of ["left", "right"] as const)
           limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
             body,
@@ -315,10 +303,13 @@ export namespace climbLadder {
             feet[side],
             !level(`${side}Foot`, seconds).moving,
           );
-        const lowered: IHumanPosture = resolveHumanPosture.lower(body, {
-          ...placed,
-          limbs,
-        });
+        const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+          body,
+          {
+            ...placed,
+            limbs,
+          },
+        );
 
         // Each hand grips its rung, reaching it from where it hung at first.
         const reachShare: number = clock.progress("start", "handsOn", seconds);
@@ -357,7 +348,7 @@ export namespace climbLadder {
             target,
           );
         }
-        const gripped: IHumanPosture = {
+        const gripped: IAutoMovieMotionHumanPosture = {
           ...lowered,
           limbs: {
             ...lowered.limbs,
@@ -379,7 +370,7 @@ export namespace climbLadder {
     };
 
     // Contact windows between each limb's moves.
-    const contacts: IHumanContactWindow[] = [];
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
     for (const limb of ORDER) {
       const own = moves.filter((move) => move.limb === limb);
       const hand: boolean = limb.endsWith("Hand");
@@ -394,7 +385,7 @@ export namespace climbLadder {
           support:
             !hand && i === 0
               ? { kind: "ground" }
-              : { kind: "prop", subject: "ladder" },
+              : { kind: "prop", subject: context.params.ladder },
         });
         if (i < own.length) from = own[i]!.to;
       }
@@ -409,11 +400,5 @@ export namespace climbLadder {
       }),
       ladder,
     };
-  }
-
-  /** A climb's plan: an action plan with the ladder it resolved. */
-  export interface IPlan extends IHumanActionPlan {
-    /** The ladder. */
-    ladder: ILadder;
   }
 }

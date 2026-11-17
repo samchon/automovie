@@ -1,7 +1,9 @@
 import { reduceAutoMovieQrDesign } from "@automovie/engine";
-import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryCameraMapBudget,
+  IAutoMovieRecoveryMapMetric,
+} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapMetric } from "../structures/internal/IAutoMovieRecoveryMapMetric";
 import { createRecoveryMapTriangularMetric } from "./createRecoveryMapTriangularMetric";
 
 /**

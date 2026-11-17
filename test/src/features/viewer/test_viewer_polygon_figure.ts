@@ -1,7 +1,5 @@
-import {
-  type AutoMovieHumanPolygon,
-  createAutoMovieHumanPolygonFigure,
-} from "@automovie/render";
+import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
+import { createAutoMovieHumanPolygonFigure } from "@automovie/render";
 import { planAutoMovieAudioPlayback } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
@@ -23,7 +21,8 @@ import { createHumanPolygonFixture } from "../internal/createHumanPolygonFixture
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Placing the same expression twice keeps one face object; a changed expression replaces it, and the head carries exactly one face.).
  */
 export function test_viewer_polygon_figure(): void {
-  const input: AutoMovieHumanPolygon.IInput = createHumanPolygonFixture();
+  const input: Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed"> =
+    createHumanPolygonFixture();
   const figure: createAutoMovieHumanPolygonFigure.IFigure =
     createAutoMovieHumanPolygonFigure({ evaluate: () => input });
   const faces = (): THREE.Object3D[] =>

@@ -1,4 +1,3 @@
-import type { AutoMovieLoftFrame, AutoMovieViewAxis } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanCourseRuns as Runs,
@@ -7,8 +6,15 @@ import {
   AutoMovieHumanF1NativeCourse as Course,
   AutoMovieHumanF1Placement as P,
   AutoMovieHumanF1SegmentLengths as Lengths,
-  AutoMovieHumanSegmentFrame as F,
 } from "@automovie/human";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1SegmentLengths,
+  IAutoMovieHumanSegmentJoint,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewAxis,
+} from "@automovie/interface";
 
 /**
  * A segment length enters a family through its course in material stations (`AutoMovieHumanF1NativeCourse`).
@@ -33,31 +39,31 @@ import {
  */
 export function test_human_f1_native_course(): void {
   const failures: string[] = [];
-  const family = (name: string): H.IFamily => {
-    const found: { family: H.IFamily } | undefined = AutoMovieHumanF1.FAMILIES.find((member: { family: H.IFamily }): boolean => member.family.name === name);
+  const family = (name: string): IAutoMovieHumanConicLoft.IFamily => {
+    const found: { family: IAutoMovieHumanConicLoft.IFamily } | undefined = AutoMovieHumanF1.FAMILIES.find((member: { family: IAutoMovieHumanConicLoft.IFamily }): boolean => member.family.name === name);
     if (found === undefined) throw new Error("f1 has no family " + name);
     return found.family;
   };
-  const placedAt = (prior: H.IFamily, lengths: Lengths.IFields): H.IFamily => {
-    const chain: readonly F.IJoint[] = Lengths.chain(lengths);
-    return P.repose(prior, P.frames(undefined, chain), (name: string): F.V3 => Centres.local(name, lengths, chain)).family;
+  const placedAt = (prior: IAutoMovieHumanConicLoft.IFamily, lengths: IAutoMovieHumanF1SegmentLengths.IFields): IAutoMovieHumanConicLoft.IFamily => {
+    const chain: readonly IAutoMovieHumanSegmentJoint[] = Lengths.chain(lengths);
+    return P.repose(prior, P.frames(undefined, chain), (name: string): AutoMovieVector3Tuple => Centres.local(name, lengths, chain)).family;
   };
-  const leg: H.IFamily = family("leg");
+  const leg: IAutoMovieHumanConicLoft.IFamily = family("leg");
 
   // 1. Unchanged lengths, every family.
   for (const member of AutoMovieHumanF1.FAMILIES)
     if (!Course.unchanged(member.family, placedAt(member.family, Lengths.F1))) failures.push(member.family.name + " at f1's own lengths has changed runs");
 
   // 2. A longer shank.
-  const longer: Lengths.IFields = { ...Lengths.F1, shank: Lengths.F1.shank * 1.1 };
-  const placed: H.IFamily = placedAt(leg, longer);
+  const longer: IAutoMovieHumanF1SegmentLengths.IFields = { ...Lengths.F1, shank: Lengths.F1.shank * 1.1 };
+  const placed: IAutoMovieHumanConicLoft.IFamily = placedAt(leg, longer);
   if (Course.unchanged(leg, placed)) failures.push("a longer shank left the leg's runs unchanged");
-  const [before, after]: F.V3[][] = [Centres.course("leg"), Centres.course("leg", longer)];
-  const reference: AutoMovieViewAxis.IAxis = H.axis(leg);
-  const course: AutoMovieViewAxis.IAxis = Course.create(leg, placed);
+  const [before, after]: AutoMovieVector3Tuple[][] = [Centres.course("leg"), Centres.course("leg", longer)];
+  const reference: IAutoMovieViewAxis.IAxis = H.axis(leg);
+  const course: IAutoMovieViewAxis.IAxis = Course.create(leg, placed);
   Runs.joints(leg.centres, leg.halves).forEach((station: number, k: number): void => {
-    const [own, made]: AutoMovieLoftFrame.IFrame[] = [reference.at(station), course.at(station)];
-    const off = (frame: AutoMovieLoftFrame.IFrame, centre: F.V3): number[] => frame.origin.map((x: number, c: number): number => x - centre[c]!);
+    const [own, made]: IAutoMovieLoftSectionFrame[] = [reference.at(station), course.at(station)];
+    const off = (frame: IAutoMovieLoftSectionFrame, centre: AutoMovieVector3Tuple): number[] => frame.origin.map((x: number, c: number): number => x - centre[c]!);
     const [want, got]: number[][] = [off(own!, before![k]!), off(made!, after![k]!)];
     const gap: number = Math.hypot(...got!.map((x: number, c: number): number => x - want![c]!));
     if (!(gap <= 1e-9)) failures.push(`leg joint ${k}: the course stands [${got!.join(", ")}] off its centre, the reference [${want!.join(", ")}]`);
@@ -72,11 +78,11 @@ export function test_human_f1_native_course(): void {
   // 45 mm window, the course at 155 is the reference's own point, the ring at 104 stays within 1 mm (the window lends the held run
   // the ratio 1 + (1 - k) (5 w / 32) / (155 - 5 w / 32) with k about 0.85 for the run from 155 to the knee, 0.8 mm at 104), and the
   // knee's turn middle still stands off the person's knee centre as the reference's does off its own.
-  const shorter: Lengths.IFields = { ...Lengths.F1, thigh: Lengths.F1.thigh * 0.9 };
-  const short: H.IFamily = placedAt(leg, shorter);
+  const shorter: IAutoMovieHumanF1SegmentLengths.IFields = { ...Lengths.F1, thigh: Lengths.F1.thigh * 0.9 };
+  const short: IAutoMovieHumanConicLoft.IFamily = placedAt(leg, shorter);
   const apart = (a: readonly number[], b: readonly number[]): number => Math.hypot(a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!);
-  const free: AutoMovieViewAxis.IAxis = Course.create(leg, short);
-  const held: AutoMovieViewAxis.IAxis = Course.create(leg, short, { station: 155, window: 45 });
+  const free: IAutoMovieViewAxis.IAxis = Course.create(leg, short);
+  const held: IAutoMovieViewAxis.IAxis = Course.create(leg, short, { station: 155, window: 45 });
   const lifted: number = apart(free.at(104).origin, reference.at(104).origin);
   if (!(Math.abs(lifted - 10.4) <= 0.2)) failures.push(`an unheld root ring moves ${lifted} mm under a 0.9 thigh, 10.4 expected`);
   if (!(apart(held.at(155).origin, reference.at(155).origin) <= 1e-9)) failures.push("the held root's end left the reference's point");

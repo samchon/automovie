@@ -1,8 +1,11 @@
-import { IAutoMovieJointAxes, IAutoMovieQuaternion } from "@automovie/interface";
+import {
+  IAutoMovieJointAxes,
+  type IAutoMovieJointRotationDomain,
+  IAutoMovieQuaternion,
+  type IAutoMovieResolvedJointAngles,
+  type IAutoMovieRestFrame,
+} from "@automovie/interface";
 
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { IAutoMovieJointRotationDomain } from "./IAutoMovieJointRotationDomain";
-import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { decomposeJointRotationOnBasis } from "./decomposeJointRotationOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";

@@ -1,6 +1,6 @@
 # Testing
 
-Each exported test function answers every item in its doc comment from its actual assertions and execution path, including cases registered through a shared harness, as well as the [common](common.md) item. A passing run is not an answer.
+Each exported test function answers every item, and the [common](common.md) item, in its doc comment, from its actual assertions and execution path, including cases registered through a shared harness. A passing run is not an answer.
 
 ## Behavioral verification
 

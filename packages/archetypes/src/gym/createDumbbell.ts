@@ -4,7 +4,9 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
+  ArchetypeDensity,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -24,7 +26,7 @@ import {
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it lies, how the heads are sized and the contact.
- * @evidence contracts/development/implementation.md#principled-implementation The heads' size follows from the mass at steel's density, so no head size is stated beside the mass and the two cannot disagree.
+ * @evidence contracts/development/implementation.md#principled-implementation The heads' size follows from the mass at steel's density (`ArchetypeDensity.STEEL`, EN 1991-1-1's), so no head size is stated beside the mass and the two cannot disagree.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, size the heads, lay three rods, one contact.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Round heads stand for the hexagonal ones of a rubber dumbbell, and no maker's sizes were read: every band is an estimate and says so.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three rods.
@@ -35,20 +37,23 @@ export function createDumbbell(
   params: createDumbbell.IParams,
   seed?: number | string,
 ): Archetype<createDumbbell.Affordance, createDumbbell.Dimension> {
+  const draw: ArchetypeDrawSession<createDumbbell.Dimension> =
+    new ArchetypeDrawSession<createDumbbell.Dimension>(
+      "dumbbell",
+      createDumbbell.UNITS,
+      seed,
+      params,
+    );
   const kind: createDumbbell.Kind = ArchetypeDraw.choice(
     "dumbbell",
     "kind",
     params.kind ?? "fixed",
     createDumbbell.KINDS,
   );
-  const d: Partial<Record<createDumbbell.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "dumbbell",
-      createDumbbell.BANDS[kind],
-      seed,
-      params,
-      createDumbbell.BANDS,
-    );
+  const d: Partial<Record<createDumbbell.Dimension, number>> = draw.dimensions(
+    createDumbbell.BANDS[kind],
+    createDumbbell.BANDS,
+  );
   const half: number = d.handle! / 2;
   const slim: number = d.diameter! / 2;
 
@@ -57,20 +62,22 @@ export function createDumbbell(
   const steel: number =
     Math.max(
       0,
-      d.mass! - createDumbbell.STEEL * Math.PI * slim * slim * d.handle!,
+      d.mass! - ArchetypeDensity.STEEL * Math.PI * slim * slim * d.handle!,
     ) / 2;
   const radius: number = Math.max(
     slim,
-    Math.cbrt(steel / (createDumbbell.STEEL * Math.PI * createDumbbell.SQUAT)),
+    Math.cbrt(
+      steel / (ArchetypeDensity.STEEL * Math.PI * createDumbbell.SQUAT),
+    ),
   );
   const builder: ArchetypeBuilder<
     createDumbbell.Affordance,
     createDumbbell.Dimension
   > = new ArchetypeBuilder({
-    archetype: "dumbbell",
+    material: "steel",
     id: params.id,
     name: "dumbbell",
-    dimensions: d,
+    draw,
   });
   builder.rod(
     "handle",
@@ -90,6 +97,7 @@ export function createDumbbell(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, 0, -1),
@@ -118,9 +126,6 @@ export namespace createDumbbell {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["fixed"];
 
-  /** Steel's density, kilograms per cubic metre. */
-  export const STEEL: number = 7850;
-
   /** A head's thickness in its own radii. An estimate, not read at a source. */
   export const SQUAT: number = 0.8;
 
@@ -135,6 +140,13 @@ export namespace createDumbbell {
    * - `mass`: kilograms.
    */
   export type Dimension = "handle" | "diameter" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    handle: "m",
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

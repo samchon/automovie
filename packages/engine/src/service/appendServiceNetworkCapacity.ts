@@ -3,9 +3,9 @@ import {
   IAutoMovieServiceNode,
   IAutoMovieServicePort,
   IAutoMovieServiceSystem,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { serviceSystemLoad } from "./serviceSystemLoad";
 import { serviceSystemReach } from "./serviceSystemReach";
 
@@ -22,7 +22,7 @@ import { serviceSystemReach } from "./serviceSystemReach";
 export function appendServiceNetworkCapacity(
   network: IAutoMovieServiceNetwork,
   root: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void {
   network.systems.forEach(
     (system: IAutoMovieServiceSystem, index: number): void => {

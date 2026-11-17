@@ -1,6 +1,6 @@
+import type { IAutoMovieInspectionView } from "@automovie/interface";
 import {
   type IAutoMovieInspectionHandle,
-  type IAutoMovieInspectionView,
   type IAutoMovieViewerSubjectBounds,
   applyAutoMovieInspection,
   parseAutoMovieInspectionView,

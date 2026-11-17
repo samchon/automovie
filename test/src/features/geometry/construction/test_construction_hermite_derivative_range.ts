@@ -1,8 +1,12 @@
+import type {
+  IAutoMovieNaturalCubicSpline,
+  IAutoMovieViewHermite,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import {
   AutoMovieNaturalSpline as Natural,
   AutoMovieViewHermite as Hermite,
   AutoMovieViewHermiteDerivativeRange as derivativeRange,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -90,7 +94,7 @@ export function test_construction_hermite_derivative_range(): void {
 
   for (const entry of cases) {
     try {
-      const spline: Natural.ISpline = Natural.create([entry.from, entry.to], [...entry.values]);
+      const spline: IAutoMovieNaturalCubicSpline = Natural.create([entry.from, entry.to], [...entry.values]);
       const knots: IAutoMovieViewPart.IKnot[] = [0, 1].map(
         (k: number): IAutoMovieViewPart.IKnot => ({
           station: k === 0 ? entry.from : entry.to,
@@ -98,7 +102,7 @@ export function test_construction_hermite_derivative_range(): void {
           jet: { first: entry.first[k]!, second: entry.second[k]! },
         }),
       );
-      const prepared: Hermite.ICurve | string = Hermite.create(spline, knots, undefined);
+      const prepared: IAutoMovieViewHermite.ICurve | string = Hermite.create(spline, knots, undefined);
       if (typeof prepared === "string") {
         failures.push(entry.name + ": original source preparation refused: " + prepared);
         continue;

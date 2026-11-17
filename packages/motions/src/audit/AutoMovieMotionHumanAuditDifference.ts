@@ -1,11 +1,13 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditDifference,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
  * How far two displayed motions are apart: the largest distance between the
@@ -34,27 +36,6 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditDifference {
-  /** How the second motion is read against the first. */
-  export interface IOptions {
-    /** The person in the second motion; the first one's subject by default. */
-    other?: string;
-
-    /** The lateral coordinate of the sagittal plane the second motion is reflected in; absent for no reflection. */
-    mirror?: number;
-
-    /** Grid samples per second; 24 by default. */
-    rate?: number;
-  }
-
-  /** The reading of {@link measure}. */
-  export interface IResult {
-    /** The largest distance between the same joint centre, metres. */
-    distance: IAutoMovieMotionHumanAuditMeasure;
-
-    /** The absolute difference of the two lengths, seconds. */
-    duration: number;
-  }
-
   /**
    * Read how far two motions are apart.
    *
@@ -69,15 +50,15 @@ export namespace AutoMovieMotionHumanAuditDifference {
     a: IAutoMovieMotionHumanAuditMotion,
     b: IAutoMovieMotionHumanAuditMotion,
     subject: string,
-    options: IOptions = {},
-  ): IResult {
+    options: IAutoMovieMotionHumanAuditDifference.IOptions = {},
+  ): IAutoMovieMotionHumanAuditDifference.IResult {
     const other: string = options.other ?? subject;
     let distance: IAutoMovieMotionHumanAuditMeasure = {
       value: 0,
       seconds: 0,
       where: "none",
     };
-    for (const t of IAutoMovieMotionHumanAuditMotion.grid(
+    for (const t of HumanAuditMotion.grid(
       0,
       Math.min(a.duration, b.duration),
       options.rate ?? 24,

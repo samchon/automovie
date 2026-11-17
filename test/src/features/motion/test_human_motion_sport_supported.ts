@@ -4,8 +4,16 @@ import {
   createPlyoBox,
   createPullUpBar,
 } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -13,12 +21,10 @@ import {
   HumanChain,
   HumanObject,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
   HumanSportGym,
   HumanSportThrow,
   HumanSportWorkout,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -31,8 +37,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * height computed from the body.
  *
  * The bound is the motion campaign's 15 mm contact bound where a joint is
- * put on a place (the wrists' middle on a bar's axis, which the workout's
- * first pass pins there). A body lying on a bench is read by its hip
+ * put on a place (the fists' middle, the hands' grip sockets, on a bar's
+ * axis, where the workout holds a gripped bar). A body lying on a bench is read by its hip
  * joints: above the bench's top, within a fifth of the stature of it (a
  * lying trunk's half depth with room, an estimate), and within 0.3 m of the
  * top's middle on the floor plan. One film per body with the three rows,
@@ -43,10 +49,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 1. Bench press `on` the bench's `surface`: at `lockout1` the hip joints
  *    are above the top by less than a fifth of the stature and within 0.3 m
  *    of its middle on the floor plan.
- * 2. Pull-up `on` the bar's `bar`: at `hang1` and at `top1` the wrists'
+ * 2. Pull-up `on` the bar's `bar`: at `hang1` and at `top1` the fists'
  *    middle is within 15 mm of the bar's middle.
  * 3. Dip `on` the station's `barLeft` and `barRight`: at `top1` and at
- *    `bottom1` the wrists' middle is within 15 mm of the middle between the
+ *    `bottom1` the fists' middle is within 15 mm of the middle between the
  *    two bars.
  * 4. Step-up `on` a 0.508 m box's `surface` behind: at `up1` the right ankle
  *    is 0 to 0.15 m above the box's top (an ankle's own height with room),
@@ -95,9 +101,9 @@ export function test_human_motion_sport_supported(): void {
   );
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "supported",
@@ -182,16 +188,16 @@ export function test_human_motion_sport_supported(): void {
       );
       continue;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       film,
       "a",
       body,
       0,
     );
     const when = (row: string, event: string): number => {
-      const found: HumanSegment.ISegment = film
+      const found: IAutoMovieMotionHumanSegment = film
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === row)!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
       return (
         found.start +
         (found.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -211,6 +217,25 @@ export function test_human_motion_sport_supported(): void {
         ),
         0.5,
       );
+    // The grip sockets' middle, the centre of the closed fists.
+    const fists = (seconds: number): IAutoMovieVector3 => {
+      const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+        film.bones("a", seconds);
+      return Vector3.scale(
+        [body.surfaces.sockets.gripLeft, body.surfaces.sockets.gripRight]
+          .map(
+            (
+              socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripLeft"],
+            ): IAutoMovieVector3 =>
+              resolveAutoMovieHumanoidSurfaces.place(
+                socket,
+                bones.get(socket.bone)!,
+              ).point,
+          )
+          .reduce(Vector3.add),
+        0.5,
+      );
+    };
     const of = (
       prop: "bench" | "bar" | "station" | "box",
       local: IAutoMovieVector3,
@@ -333,16 +358,10 @@ export function test_human_motion_sport_supported(): void {
       ["dip", "bottom1", pressed],
     ] as const) {
       const away: number =
-        1000 *
-        Vector3.length(
-          Vector3.subtract(
-            middle(when(row, event), "leftHand", "rightHand"),
-            place,
-          ),
-        );
+        1000 * Vector3.length(Vector3.subtract(fists(when(row, event)), place));
       if (!(away <= 15))
         complaints.push(
-          `${name}: at ${row}'s ${event} the wrists' middle is ${away.toFixed(1)} mm from its support's place, 15 mm at most expected`,
+          `${name}: at ${row}'s ${event} the fists' middle is ${away.toFixed(1)} mm from its support's place, 15 mm at most expected`,
         );
     }
   }

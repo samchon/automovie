@@ -1,3 +1,5 @@
+import type { IAutoMovieLoftParameter } from "@automovie/interface";
+
 /**
  * Correspondence rules that assign a phase to each point of a closed section.
  *
@@ -36,16 +38,6 @@
  */
 export namespace AutoMovieLoftParameter {
   /**
-   * Correspondence selected for the polygon's geometric premises described above.
-   *
-   * @evidence contracts/development/design.md#principled-representation The closed union distinguishes polar angles, front-anchored whole arclength and separately anchored front/back half arclength.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One literal choice drives phases without independent mode flags that could disagree.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type selects a rule without proving star shape or anchor suitability; those remain caller geometry premises.
-   * @evidence contracts/development/common.md#meaningful-documentation The namespace explains each rule's phase origin, orientation and admissible section shape.
-   */
-  export type Rule = "polar" | "sagittal" | "arclength";
-
-  /**
    * Phase of every polygon vertex under a rule.
    *
    * Polar phases are unwrapped and monotone. Sagittal phases lie in
@@ -71,7 +63,7 @@ export namespace AutoMovieLoftParameter {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the N-entry phase array escapes; polygon references and intermediate crossings/lengths are call-local, with no module cache.
    */
   export function phases(
-    rule: Rule,
+    rule: IAutoMovieLoftParameter.Rule,
     polygon: readonly (readonly [number, number])[],
   ): number[] {
     const axis: [number, number] = centroid(polygon);

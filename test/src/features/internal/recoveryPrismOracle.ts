@@ -1,8 +1,8 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
-import {
-  type IAutoMovieRecoveryTensorFamiliesInput,
-  type reconstructAutoMovieRecoveryModel,
-} from "@automovie/recovery";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieRecoveryTensorFamiliesInput,
+} from "@automovie/interface";
+import { type reconstructAutoMovieRecoveryModel } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "./nclose";

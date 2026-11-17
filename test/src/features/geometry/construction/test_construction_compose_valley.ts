@@ -1,7 +1,8 @@
-import {
-  AutoMovieConstructionSplitCompose,
-  type IAutoMovieSolidSurface,
-} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionSplitCompose,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
+import { AutoMovieConstructionSplitCompose } from "@automovie/engine";
 
 type V3 = [number, number, number];
 
@@ -29,7 +30,7 @@ export function test_construction_compose_valley(): void {
   const n: number = 32;
   const stations: number[] = Array.from({ length: 10 }, (_: unknown, i: number): number => -12 + 8 * i);
   /** A cylinder of radius r about the line through `origin` along the unit `axis`, its phase 0 along `ex`. */
-  const tube = (name: string, r: number, origin: V3, ex: V3, axis: V3): AutoMovieConstructionSplitCompose.IChild => {
+  const tube = (name: string, r: number, origin: V3, ex: V3, axis: V3): IAutoMovieConstructionSplitCompose.IChild => {
     const at = (cos: number, sin: number, u: number): V3 => [origin[0] + r * cos * ex[0] + u * axis[0], origin[1] + r * sin + u * axis[1], origin[2] + r * cos * ex[2] + u * axis[2]];
     const surface: IAutoMovieSolidSurface = {
       name,
@@ -72,7 +73,7 @@ export function test_construction_compose_valley(): void {
     }
     return [r * Math.cos(Math.PI + polar + (Math.PI - 2 * polar) * f), r * Math.sin(Math.PI + polar + (Math.PI - 2 * polar) * f)];
   };
-  const derive = (r: number, s: number, b: number, at: (phi: number) => [number, number]): AutoMovieConstructionSplitCompose.IDerived | string => {
+  const derive = (r: number, s: number, b: number, at: (phi: number) => [number, number]): IAutoMovieConstructionSplitCompose.IDerived | string => {
     const host: IAutoMovieSolidSurface = {
       name: "host",
       orientation: 1,
@@ -99,7 +100,7 @@ export function test_construction_compose_valley(): void {
   };
   /** The closed-form knots against a derivation's: the greatest error in place and depth, and the middle depth. */
   const check = (what: string, r: number, s: number, b: number): number => {
-    const made: AutoMovieConstructionSplitCompose.IDerived | string = derive(r, s, b, outline(r, s, b));
+    const made: IAutoMovieConstructionSplitCompose.IDerived | string = derive(r, s, b, outline(r, s, b));
     if (typeof made === "string") {
       failures.push(`${what}: ${made}`);
       return NaN;
@@ -133,12 +134,12 @@ export function test_construction_compose_valley(): void {
   }
 
   // 4. A round ring is refused with its closed-form distance.
-  const round: AutoMovieConstructionSplitCompose.IDerived | string = derive(9, 15, 0.3, (phi: number): [number, number] => [24.5 * Math.cos(phi), 24.5 * Math.sin(phi)]);
+  const round: IAutoMovieConstructionSplitCompose.IDerived | string = derive(9, 15, 0.3, (phi: number): [number, number] => [24.5 * Math.cos(phi), 24.5 * Math.sin(phi)]);
   const named: RegExpMatchArray | null = typeof round === "string" ? round.match(/up to ([0-9.]+) mm .*length ([0-9.]+) mm/) : null;
   if (named === null || !(Number(named[1]) >= 15.5 - 1e-9 && Number(named[1]) <= 15.52 && Number(named[2]) === 6)) failures.push(`round ring: ${typeof round === "string" ? round : "admitted, greatest distance " + round.host.max}`);
 
   // 5. A ring within the band's length is admitted and reported.
-  const scaled: AutoMovieConstructionSplitCompose.IDerived | string = derive(9, 15, 0.3, (phi: number): [number, number] => {
+  const scaled: IAutoMovieConstructionSplitCompose.IDerived | string = derive(9, 15, 0.3, (phi: number): [number, number] => {
     const [px, py]: [number, number] = outline(9, 15, 0.3)(phi);
     return [1.1 * px, 1.1 * py];
   });

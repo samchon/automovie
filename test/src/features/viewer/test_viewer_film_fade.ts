@@ -1,5 +1,5 @@
+import type { IAutoMovieFilmBeautyComposition } from "@automovie/interface";
 import {
-  type AutoMovieFilmBeautyComposition,
   disposeFadeToBlack,
   renderFadeToBlackFrame,
   resolveAutoMovieFilmBeautyComposition,
@@ -54,13 +54,15 @@ export function test_viewer_film_fade(): void {
     shot: "shot-b",
     weight: 0.75,
   };
-  const direct: AutoMovieFilmBeautyComposition<{
+  const direct: IAutoMovieFilmBeautyComposition<{
     shot: string;
     weight: number;
   }> = resolveAutoMovieFilmBeautyComposition([directLayer]);
-  const fade: AutoMovieFilmBeautyComposition<{ shot: string; weight: number }> =
-    resolveAutoMovieFilmBeautyComposition([fadedLayer]);
-  const dissolve: AutoMovieFilmBeautyComposition<{
+  const fade: IAutoMovieFilmBeautyComposition<{
+    shot: string;
+    weight: number;
+  }> = resolveAutoMovieFilmBeautyComposition([fadedLayer]);
+  const dissolve: IAutoMovieFilmBeautyComposition<{
     shot: string;
     weight: number;
   }> = resolveAutoMovieFilmBeautyComposition([outgoing, incoming]);
@@ -92,11 +94,11 @@ export function test_viewer_film_fade(): void {
 
   const invalid: unknown[] = [
     captureError(
-      (): AutoMovieFilmBeautyComposition<never> =>
+      (): IAutoMovieFilmBeautyComposition<never> =>
         resolveAutoMovieFilmBeautyComposition([]),
     ),
     captureError(
-      (): AutoMovieFilmBeautyComposition<{ weight: number }> =>
+      (): IAutoMovieFilmBeautyComposition<{ weight: number }> =>
         resolveAutoMovieFilmBeautyComposition([
           { weight: 1 },
           { weight: 0 },
@@ -104,19 +106,19 @@ export function test_viewer_film_fade(): void {
         ]),
     ),
     captureError(
-      (): AutoMovieFilmBeautyComposition<{ weight: number }> =>
+      (): IAutoMovieFilmBeautyComposition<{ weight: number }> =>
         resolveAutoMovieFilmBeautyComposition([{ weight: Number.NaN }]),
     ),
     captureError(
-      (): AutoMovieFilmBeautyComposition<{ weight: number }> =>
+      (): IAutoMovieFilmBeautyComposition<{ weight: number }> =>
         resolveAutoMovieFilmBeautyComposition([{ weight: -0.1 }]),
     ),
     captureError(
-      (): AutoMovieFilmBeautyComposition<{ weight: number }> =>
+      (): IAutoMovieFilmBeautyComposition<{ weight: number }> =>
         resolveAutoMovieFilmBeautyComposition([{ weight: 1.1 }]),
     ),
     captureError(
-      (): AutoMovieFilmBeautyComposition<{ weight: number }> =>
+      (): IAutoMovieFilmBeautyComposition<{ weight: number }> =>
         resolveAutoMovieFilmBeautyComposition([
           { weight: 0.2 },
           { weight: 0.7 },

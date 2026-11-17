@@ -1,4 +1,4 @@
-import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
  * Explicit source-node to target-semantic-bone mapping entry.

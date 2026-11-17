@@ -1,11 +1,26 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import { type Canvas, ImageData, type SKRSContext2D, createCanvas } from "@napi-rs/canvas";
-import { type AutoMovieLoftFrame, AutoMovieLoftViewFullSource, type AutoMovieViewAxis, AutoMovieViewChain } from "@automovie/engine";
-import { AutoMovieHumanConicLoft as H, AutoMovieHumanConicRelief, AutoMovieHumanConicSection as S, AutoMovieHumanF1, AutoMovieHumanF1Joints, AutoMovieHumanF1NativeSites } from "@automovie/human";
 import { FamilyConicLandmarkKnots as Knots } from "./FamilyConicLandmarkKnots";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
+import { AutoMovieLoftViewFullSource, AutoMovieViewChain } from "@automovie/engine";
+import {
+  AutoMovieHumanConicLoft as H,
+  AutoMovieHumanConicRelief,
+  AutoMovieHumanConicSection as S,
+  AutoMovieHumanF1,
+  AutoMovieHumanF1Joints,
+  AutoMovieHumanF1NativeSites,
+} from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieViewAxis,
+  IAutoMovieViewChain,
+} from "@automovie/interface";
+import { type Canvas, createCanvas, ImageData, type SKRSContext2D } from "@napi-rs/canvas";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /**
  * Every part of the body below the head laid out side by side: what each family is stored as, and, at stations along each family's own
@@ -34,7 +49,7 @@ namespace FamilyConicBodyParts {
   /** One family to lay out. */
   interface IPart {
     /** The stored family as the figure lofts it. */
-    family: H.IFamily;
+    family: IAutoMovieHumanConicLoft.IFamily;
 
     /** Spacing of its stations, mm. */
     step: number;
@@ -159,16 +174,16 @@ namespace FamilyConicBodyParts {
   /** What reads one family's stations. */
   interface IReading {
     /** The family. */
-    family: H.IFamily;
+    family: IAutoMovieHumanConicLoft.IFamily;
 
     /** Its course. */
-    axis: AutoMovieViewAxis.IAxis;
+    axis: IAutoMovieViewAxis.IAxis;
 
     /** Its field vector by station. */
     read: (s: number) => number[];
 
     /** Its skin by station and phase. */
-    skin: AutoMovieLoftViewFullSource.IReader;
+    skin: IAutoMovieLoftViewFullSource.IReader;
 
     /** The reference mesh its planes cut. */
     mesh: R.ISource["body"];
@@ -181,13 +196,13 @@ namespace FamilyConicBodyParts {
 
   /** Read one station of a family. */
   function stationAt(of: IReading, s: number): IStation {
-    const family: H.IFamily = of.family;
-    const frame: AutoMovieLoftFrame.IFrame = of.axis.at(s);
+    const family: IAutoMovieHumanConicLoft.IFamily = of.family;
+    const frame: IAutoMovieLoftSectionFrame = of.axis.at(s);
     const normal: V = [frame.v[1]! * frame.u[2]! - frame.v[2]! * frame.u[1]!, frame.v[2]! * frame.u[0]! - frame.v[0]! * frame.u[2]!, frame.v[0]! * frame.u[1]! - frame.v[1]! * frame.u[0]!];
     const wallTo: number = Math.min(family.tips?.[1]?.from ?? Infinity, family.knots.at(-1)!);
 
     // The wall: the conic chain of the stored fields, where the fields own the section.
-    const section: AutoMovieViewChain.ISection | null = s <= wallTo && s >= family.knots[0]! ? S.chain(of.read(s), family.layout) : null;
+    const section: IAutoMovieViewChain.ISection | null = s <= wallTo && s >= family.knots[0]! ? S.chain(of.read(s), family.layout) : null;
     const wall: ((theta: number) => number) | null = section === null || section.fault !== null ? null : (theta: number): number => AutoMovieViewChain.radius(section, theta);
     const wallPolygon: P[] | null =
       wall === null
@@ -291,12 +306,12 @@ namespace FamilyConicBodyParts {
       { family: body.arm, step: 4, mesh: "body" },
       { family: body.hand, step: 2, mesh: "body" },
       { family: body.leg, step: 4, mesh: "body" },
-      ...AutoMovieHumanF1.DIGITS.map((digit: AutoMovieHumanF1.IDigit): IPart => ({ family: digit.family, step: 1, mesh: "body" })),
+      ...AutoMovieHumanF1.DIGITS.map((digit: IAutoMovieHumanF1.IDigit): IPart => ({ family: digit.family, step: 1, mesh: "body" })),
     ];
   }
 
   /** The stored rows of one family: its wall and each of its nets. */
-  function stored(family: H.IFamily): string[] {
+  function stored(family: IAutoMovieHumanConicLoft.IFamily): string[] {
     const rows: string[] = [];
     rows.push(
       [
@@ -337,7 +352,7 @@ namespace FamilyConicBodyParts {
 
   /** Lay one family out: its station table and its map. */
   async function layOut(part: IPart, source: R.ISource, out: string): Promise<string> {
-    const family: H.IFamily = part.family;
+    const family: IAutoMovieHumanConicLoft.IFamily = part.family;
     const of: IReading = reading(part, source);
     const from: number = Math.max(of.skin.domain[0], family.knots[0]!);
     const to: number = Math.min(of.skin.domain[1], part.to ?? Infinity);
@@ -354,7 +369,7 @@ namespace FamilyConicBodyParts {
     const digest: { off: number[]; fill: number[]; net: [number, number]; folded: number } = { off: [], fill: [], net: [0, 0], folded: 0 };
 
     // A family whose last end is visible skin closing in a pole (a digit, the breast) has its end read as a dome.
-    const end: H.ITip | null | undefined = family.tips?.[1];
+    const end: IAutoMovieHumanConicLoft.ITip | null | undefined = family.tips?.[1];
     const pole: number | undefined = end === null || end === undefined || end.covered === true ? undefined : end.tip;
     const ends: { skin: [number, number][]; reference: [number, number][] } = { skin: [], reference: [] };
     const gathers: [number, P][] = [];
@@ -556,7 +571,7 @@ namespace FamilyConicBodyParts {
    * today's wall and is an upper reading of what a wall fitted on those knots will need.
    */
   function knotsOf(part: IPart): string {
-    const family: H.IFamily = part.family;
+    const family: IAutoMovieHumanConicLoft.IFamily = part.family;
     const all: AutoMovieHumanF1NativeSites.ISites = AutoMovieHumanF1NativeSites.REFERENCE;
     const sites: number[] = [
       ...[...Object.values(all.wall), ...Object.values(all.arm), ...Object.values(all.leg), ...Object.values(all.extremities)].filter((site: AutoMovieHumanF1NativeSites.ISite): boolean => site.family === family.name).map((site: AutoMovieHumanF1NativeSites.ISite): number => site.station),

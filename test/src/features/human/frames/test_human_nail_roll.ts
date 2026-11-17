@@ -1,4 +1,5 @@
 import { AutoMovieHumanNail } from "@automovie/human";
+import type { IAutoMovieHumanNail } from "@automovie/interface";
 
 /**
  * A nail's roll is the least of one objective: the skin's levelling against the prior that the nail lies in its segment's frame.
@@ -32,13 +33,13 @@ import { AutoMovieHumanNail } from "@automovie/human";
 export function test_human_nail_roll(): void {
   const failures: string[] = [];
   const [length, close, turned, spread]: [number, number, number, number] = [10, 4.6, 0.2, 0.3];
-  const proportions: AutoMovieHumanNail.IProportions = { width: 0.7, aspect: 0.91, radius: 0.7, thickness: 0.47, fold: 0.46, lunula: 1, wrap: 1 };
-  const segment: AutoMovieHumanNail.IFrame = { origin: [0, 0, 0], distal: [1, 0, 0], dorsal: [0, Math.cos(turned), Math.sin(turned)] };
+  const proportions: IAutoMovieHumanNail.IProportions = { width: 0.7, aspect: 0.91, radius: 0.7, thickness: 0.47, fold: 0.46, lunula: 1, wrap: 1 };
+  const segment: IAutoMovieHumanNail.IFrame = { origin: [0, 0, 0], distal: [1, 0, 0], dorsal: [0, Math.cos(turned), Math.sin(turned)] };
   for (const [what, across, high, near] of [
     ["the flat bar", 3.5, 2, false],
     ["the nearly round bar", 3.5, 3.43, true],
   ] as const) {
-    const skin: AutoMovieHumanNail.ISkin = {
+    const skin: IAutoMovieHumanNail.ISkin = {
       first: 0,
       tip: length + (close * Math.PI) / 2,
       point: (station: number, phase: number): number[] => {
@@ -57,14 +58,14 @@ export function test_human_nail_roll(): void {
     }
 
     // 1 and 2. With the prior.
-    const nail: AutoMovieHumanNail.INail = AutoMovieHumanNail.create("nail.made", "nailbed.made", segment, skin, proportions, 0.69, spread);
+    const nail: IAutoMovieHumanNail.INail = AutoMovieHumanNail.create("nail.made", "nailbed.made", segment, skin, proportions, 0.69, spread);
     if (!(Math.abs(nail.readings.roll - expected) <= 3e-3)) failures.push(what + "'s roll: " + nail.readings.roll + " against " + expected);
     if (!(Math.abs(nail.readings.conditioning - (1 - (high / across) ** 2)) <= 3e-2)) failures.push(what + "'s conditioning: " + nail.readings.conditioning + " against " + (1 - (high / across) ** 2));
     if (near && !(Math.abs(nail.readings.roll) <= 0.02)) failures.push(what + " left its frame by " + nail.readings.roll + " rad");
     if (!near && !(Math.abs(nail.readings.roll + turned) <= 0.05)) failures.push(what + " stands " + (nail.readings.roll + turned) + " rad from its level roll");
 
     // 3. The control: the prior removed.
-    const bare: AutoMovieHumanNail.INail = AutoMovieHumanNail.create("nail.bare", "nailbed.bare", segment, skin, proportions, 0.69, 1e6);
+    const bare: IAutoMovieHumanNail.INail = AutoMovieHumanNail.create("nail.bare", "nailbed.bare", segment, skin, proportions, 0.69, 1e6);
     if (!(Math.abs(bare.readings.roll + turned) <= 3e-3)) failures.push(what + " without its prior: roll " + bare.readings.roll + " against the level roll " + -turned);
     if (!(Math.abs(bare.readings.roll - expected) > 6e-3)) failures.push(what + " without its prior is not told from the objective: " + bare.readings.roll + " against " + expected);
     if (near && !(Math.abs(bare.readings.roll) > 0.02)) failures.push(what + " without its prior stayed in its frame: " + bare.readings.roll);

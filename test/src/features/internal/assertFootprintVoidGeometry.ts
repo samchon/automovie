@@ -1,7 +1,4 @@
 import {
-  IAutoMovieFootprint,
-  IAutoMoviePropSupportFace,
-  ITessellation,
   builtEnvironmentSpaceFidelity,
   footprintContains,
   footprintConvexPieces,
@@ -18,8 +15,11 @@ import {
 import {
   AutoMovieSurfaceKind,
   IAutoMovieBuiltEnvironment,
+  type IAutoMovieFootprint,
   IAutoMovieHeightRule,
+  type IAutoMoviePropSupportFace,
   IAutoMovieQuantityFinding,
+  type IAutoMovieTessellation,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -43,7 +43,7 @@ export const assertFootprintVoidGeometry: (
     spaceOf,
     pieceArea,
   }: typeof props = props;
-  const drawn: ITessellation = tessellateSurface(plate)!;
+  const drawn: IAutoMovieTessellation = tessellateSurface(plate)!;
   TestValidator.equals(
     "the drawn plate has the void open, exactly where the query says it is",
     namedFacts([
@@ -201,7 +201,7 @@ export const assertFootprintVoidGeometry: (
     },
   );
 
-  const relieved: ITessellation = tessellateSurface(relief)!;
+  const relieved: IAutoMovieTessellation = tessellateSurface(relief)!;
   TestValidator.equals(
     "relief over a holed plate keeps both the lattice and the void",
     namedFacts([

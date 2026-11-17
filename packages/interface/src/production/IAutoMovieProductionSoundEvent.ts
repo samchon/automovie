@@ -1,6 +1,6 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieProductionAcousticResponse } from "./IAutoMovieProductionAcousticResponse";
-import { IAutoMovieShotEventContract } from "./IAutoMovieShotEventContract";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieProductionAcousticResponse } from "./IAutoMovieProductionAcousticResponse";
+import type { IAutoMovieShotEventContract } from "./IAutoMovieShotEventContract";
 
 /**
  * One semantic event lowered from the compiled film edit into audible space.

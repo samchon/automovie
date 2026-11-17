@@ -1,12 +1,15 @@
+import { nclose } from "../../internal/predicates";
 import {
-  AutoMovieHumanF1NativeFanControls as Fan,
-  AutoMovieHumanConicLoft as H,
-  AutoMovieHumanF1NativeRootLaw as Root,
   AutoMovieHumanConicSection as S,
+  AutoMovieHumanF1NativeFanControls as Fan,
+  AutoMovieHumanF1NativeRootLaw as Root,
   AutoMovieHumanF1SourceScope as Scope,
 } from "@automovie/human";
-
-import { nclose } from "../../internal/predicates";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1NativeRoot,
+} from "@automovie/interface";
 
 /**
  * Shared root control response, preserved address residual and independent web/source scope.
@@ -25,7 +28,7 @@ import { nclose } from "../../internal/predicates";
  */
 export function test_human_native_shared_root_controls(): void {
   const failures: string[] = [];
-  const basis: Root.ITargets["basis"] = {
+  const basis: IAutoMovieHumanF1NativeRoot.ITargets["basis"] = {
     origin: [0, 0, 0],
     u: [1, 0, 0],
     v: [0, 0, 1],
@@ -51,7 +54,7 @@ export function test_human_native_shared_root_controls(): void {
       );
   };
   for (const sign of [-1, 1]) {
-    const actual: Root.ICurves = Root.targets({
+    const actual: IAutoMovieHumanF1NativeRoot.ICurves = Root.targets({
       parent: [
         [0, 0, 0],
         [0, 2, 0],
@@ -70,7 +73,7 @@ export function test_human_native_shared_root_controls(): void {
     close("complete parent wall carry", actual.parent[1]!, [0, 2, 3 * sign]);
     close("complete child wall carry", actual.child[1]!, [1, 2, 3 * sign]);
   }
-  const anisotropic: Root.ICurves = Root.targets({
+  const anisotropic: IAutoMovieHumanF1NativeRoot.ICurves = Root.targets({
     parent: [
       [4, 0, 0],
       [4, 2, 1],
@@ -88,7 +91,7 @@ export function test_human_native_shared_root_controls(): void {
   });
   close("independent affine parent", anisotropic.parent[1]!, [5, 2, 6]);
   close("independent affine child", anisotropic.child[1]!, [7, 2, 6]);
-  const huge: Root.V = [1e20, 2, 3];
+  const huge: AutoMovieVector3Tuple = [1e20, 2, 3];
   close(
     "zero delta preserves actual controls",
     Root.targets({
@@ -153,7 +156,7 @@ export function test_human_native_shared_root_controls(): void {
     }
     if (!refused) failures.push("invalid root scale accepted " + invalid);
   }
-  const family: H.IFamily = {
+  const family: IAutoMovieHumanConicLoft.IFamily = {
     name: "made",
     centres: [
       [0, 0, 0],

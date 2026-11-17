@@ -1,12 +1,15 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanMartialArt,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
 import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { martialArt } from "../../sport/martialArt";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
@@ -46,7 +49,7 @@ export function martialArtCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = createHumanBody(
       man.body.skeleton,
       man.body.profile,
     );
@@ -56,9 +59,9 @@ export function martialArtCases(
       "horseStance",
       "chokuZuki",
       "taiChiPush",
-    ] as martialArt.Kind[]) {
+    ] as IAutoMovieMotionHumanMartialArt.Kind[]) {
       const name: string = `martial-${kind}${suffix}`;
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "martial",

@@ -1,22 +1,23 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionPropHold,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
@@ -38,32 +39,10 @@ import { poseBones } from "../posture/poseBones";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, when, in which frame, why it stays constant and where the fact of holding comes from.
  * @evidence contracts/development/design.md#principled-representation A held thing is a rigid offset in the hand's frame (inverse(hand) times object, captured once), the parent constraint of the motion skill's held-object rule.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The held record, its reading, a declared point and direction in the hand's frame, and the grip window and hold that keep the prop held; read by the hand-to-face and striking families, which add their own effector and tool on top.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The held record, its reading, the record a candidate grip would hold, a declared point and direction in the hand's frame, and the grip window and hold that keep the prop held; read by the hand-to-face and striking families, which add their own effector and tool on top.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named: points are the prop's own affordance ids, and a missing one is refused with the ids the prop has.
  */
 export namespace AutoMovieMotionHumanHeld {
-  /**
-   * A prop in the hand that holds it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, the frame of `frame` and that `affordances` are in the prop's own frame.
-   * @evidence contracts/development/design.md#principled-representation The prop's subject id, the holding side, the prop's rigid offset in the hand's grip frame (metres and a rotation) and its declared contacts, the facts every held-thing action starts from.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read through `of` and the point and direction readers by the handling and striking laws, the workout load and the pole vault; the affordances are the interface package's own type.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named; the side is the closed `"left" | "right"` union and `frame` reuses `IHumanProp.IFrame`.
-   */
-  export interface IHeld {
-    /** The prop's subject id. */
-    prop: string;
-
-    /** The holding hand. */
-    side: "left" | "right";
-
-    /** The prop's frame in the hand's grip frame: its origin from the grip socket in the hand bone's axes, metres, and its rotation from the hand bone's. */
-    frame: IHumanProp.IFrame;
-
-    /** The prop's contacts, in its own frame. */
-    affordances: readonly IAutoMovieAffordance[];
-  }
-
   /**
    * Read the prop a hand holds at an action's entry.
    *
@@ -82,10 +61,13 @@ export namespace AutoMovieMotionHumanHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    context: Pick<IHumanActionContext, "body" | "entry" | "prop">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop"
+    >,
     side: "left" | "right",
     prop: string,
-  ): IHeld {
+  ): IAutoMovieMotionHumanHeld.IHeld {
     const held: string | undefined = context.entry.holds[side];
     if (held !== prop)
       throw new HumanRefusal({
@@ -100,7 +82,7 @@ export namespace AutoMovieMotionHumanHeld {
         fix: `pick ${prop} up with the ${side} hand first, or perform the action with the hand that holds it`,
       });
     // A body without that hand's bone has no frame to hold anything in.
-    const handless = (): HumanRefusal =>
+    const handless = (): IAutoMovieMotionHumanRefusal =>
       new HumanRefusal({
         kind: "participant",
         axis: "side",
@@ -123,8 +105,8 @@ export namespace AutoMovieMotionHumanHeld {
       )
     )
       throw handless();
-    const read: IHumanActionContext.IProp = context.prop(prop);
-    const world: IHumanProp.IFrame = read.frame(context.entry.seconds);
+    const read: IAutoMovieMotionHumanPropReader = context.prop(prop);
+    const world: IAutoMovieRigidTransform = read.frame(context.entry.seconds);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       context.body,
       context.entry.pose,
@@ -154,6 +136,59 @@ export namespace AutoMovieMotionHumanHeld {
   }
 
   /**
+   * A prop in the grip frame of a hand that has not taken it yet: a grasp's
+   * candidate wrist, the prop where it lies, the offset the grip would keep
+   * once it closed there.
+   *
+   * @param body The body.
+   * @param side The hand.
+   * @param prop The prop's subject id.
+   * @param lying The prop's world frame.
+   * @param affordances The prop's contacts, in its own frame.
+   * @param wrist The candidate hand's wrist, world.
+   * @returns The prop in that hand's grip frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read and in which frame.
+   * @evidence contracts/development/implementation.md#principled-implementation The same change of frame as `of` (inverse(hand) times prop, from the grip socket), with the grip socket the candidate wrist puts at its hand's offset.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One grip socket and one change of frame.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Holding is not asserted: the record is what the grip would hold.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The held record `point` and the tool reading (`StrikingHeld.read`) take, so a grasp's use is judged on the frame the hold will keep.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function grasped(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+    prop: string,
+    lying: IAutoMovieRigidTransform,
+    affordances: readonly IAutoMovieAffordance[],
+    wrist: IAutoMovieMotionHumanHeld.IGraspedWrist,
+  ): IAutoMovieMotionHumanHeld.IHeld {
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(wrist.rotation);
+    const socket: IAutoMovieVector3 = Vector3.add(
+      wrist.point,
+      Quaternion.rotateVector(
+        wrist.rotation,
+        HumanHand.offset(body, side, "grip").point,
+      ),
+    );
+    return {
+      prop,
+      side,
+      frame: {
+        position: Quaternion.rotateVector(
+          inverse,
+          Vector3.subtract(lying.position, socket),
+        ),
+        rotation: Quaternion.normalize(
+          Quaternion.multiply(inverse, lying.rotation),
+        ),
+      },
+      affordances,
+    };
+  }
+
+  /**
    * One of the prop's contacts in the hand's grip frame.
    *
    * @param held The held prop.
@@ -170,9 +205,9 @@ export namespace AutoMovieMotionHumanHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function point(
-    held: IHeld,
+    held: IAutoMovieMotionHumanHeld.IHeld,
     id: string,
-  ): { point: IAutoMovieVector3; direction: IAutoMovieVector3 } {
+  ): IAutoMovieMotionHumanHeld.IPointResult {
     const found: IAutoMovieAffordance | undefined = held.affordances.find(
       (affordance: IAutoMovieAffordance): boolean => affordance.id === id,
     );
@@ -218,7 +253,9 @@ export namespace AutoMovieMotionHumanHeld {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function grip(held: IHeld): IHumanContactWindow {
+  export function grip(
+    held: IAutoMovieMotionHumanHeld.IHeld,
+  ): IAutoMovieMotionHumanContactWindow {
     return {
       part: `${held.side}Hand`,
       kind: "grip",
@@ -245,9 +282,9 @@ export namespace AutoMovieMotionHumanHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function hold(
-    context: Pick<IHumanActionContext, "entry">,
-    held: IHeld,
-  ): IHumanActionPlan.IHold {
+    context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
+    held: IAutoMovieMotionHumanHeld.IHeld,
+  ): IAutoMovieMotionPropHold {
     return {
       side: held.side,
       prop: held.prop,

@@ -1,12 +1,19 @@
+import {
+  FamilyConicCaptureViews as Views,
+} from "../../../reference-conics/FamilyConicCaptureViews";
+import {
+  FamilyConicOriginalCatalog as Original,
+} from "../../../reference-conics/FamilyConicOriginalCatalog";
+import {
+  FamilyConicSourceCapture as Source,
+} from "../../../reference-conics/FamilyConicSourceCapture";
 import type {
-  IAutoMovieViewPart as Part,
+  NodeCanvasTypes as N,
+} from "../../../reference-conics/render/NodeCanvasTypes";
+import type {
   IAutoMovieLoftRelief as Relief,
-} from "@automovie/engine";
-
-import { FamilyConicCaptureViews as Views } from "../../../reference-conics/FamilyConicCaptureViews";
-import { FamilyConicOriginalCatalog as Original } from "../../../reference-conics/FamilyConicOriginalCatalog";
-import { FamilyConicSourceCapture as Source } from "../../../reference-conics/FamilyConicSourceCapture";
-import type { NodeCanvasTypes as N } from "../../../reference-conics/render/NodeCanvasTypes";
+  IAutoMovieViewPart as Part,
+} from "@automovie/interface";
 
 /**
  * Original source observations survive unavailable physical2 and individual source failures.

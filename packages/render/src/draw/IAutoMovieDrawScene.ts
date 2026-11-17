@@ -1,4 +1,4 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type { IAutoMovieMark } from "@automovie/interface";
 import type * as THREE from "three";
 
 /**
@@ -48,6 +48,14 @@ export interface IAutoMovieDrawScene {
   instants?: readonly { seconds: number; label: string }[];
 
   /**
+   * Mark kinds that can appear during this subject, including ones absent
+   * at second zero. Capture planning admits these names without seeking or
+   * inventing marks; `marks` still supplies the actual geometry at a second.
+   * Kinds present at zero are discovered without this declaration.
+   */
+  markKinds?: readonly string[];
+
+  /**
    * The marks the subject's owners supply at a second, asked for after `seek`; absent when it supplies none.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is returned, when it is asked for, and what absence means.
@@ -61,7 +69,7 @@ export interface IAutoMovieDrawScene {
   marks?: (seconds: number) => readonly IAutoMovieMark[];
 
   /**
-   * Put every object and the delivery camera at a second; the returned promise resolves once the subject is ready to be drawn at it, such as when its textures for that second have loaded.
+   * Put every object and the delivery camera at a second; objects may be replaced. The returned promise resolves once the subject is ready, including its textures. The draw host binds inspection after this placement, so no removed object's masks or measurements stand in for the current geometry.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is placed and what the promise means.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the subject that implements it answers.

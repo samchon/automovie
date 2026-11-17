@@ -1,9 +1,10 @@
 import type {
-  IAutoMovieRecoveryCameraMapBudget,
-  IAutoMovieRecoveryCameraMapPolicy,
+  IAutoMovieRecoveryMapDesignSolutionOperation,
+  IAutoMovieRecoveryMapPointProjectionOperation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoveryResectionRefinementOperation,
 } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 import { solveRecoveryMapDesign } from "./solveRecoveryMapDesign";
 import { stepRecoveryMapPose } from "./stepRecoveryMapPose";
@@ -23,23 +24,14 @@ import { stepRecoveryMapPose } from "./stepRecoveryMapPose";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only an owned pose and scalar fit counters return. Temporary rows, callbacks and borrowed observations expire on every return or throw, with no cache or external resource.
  */
 export function refineRecoveryResection(
-  initial: IAutoMovieRecoveryMapPose,
-  points: readonly (readonly [number, number, number])[],
-  pixels: readonly (readonly [number, number])[],
-  intrinsic: readonly number[],
-  policy: IAutoMovieRecoveryCameraMapPolicy,
-  budget: IAutoMovieRecoveryCameraMapBudget,
-  checkpoint: () => void,
-): {
-  pose: IAutoMovieRecoveryMapPose;
-  converged: boolean;
-  iterations: number;
-  acceptedSteps: number;
-  initialCost: number;
-  finalCost: number;
-  minimumDesignRatio: number;
-  termination: "gradient" | "step" | "cost" | "iteration-budget";
-} {
+  initial: Parameters<IAutoMovieRecoveryResectionRefinementOperation.Operation>[0],
+  points: Parameters<IAutoMovieRecoveryResectionRefinementOperation.Operation>[1],
+  pixels: Parameters<IAutoMovieRecoveryResectionRefinementOperation.Operation>[2],
+  intrinsic: Parameters<IAutoMovieRecoveryResectionRefinementOperation.Operation>[3],
+  policy: Parameters<IAutoMovieRecoveryResectionRefinementOperation.Operation>[4],
+  budget: Parameters<IAutoMovieRecoveryResectionRefinementOperation.Operation>[5],
+  checkpoint: Parameters<IAutoMovieRecoveryResectionRefinementOperation.Operation>[6],
+): ReturnType<IAutoMovieRecoveryResectionRefinementOperation.Operation> {
   if (
     points.length < 6 ||
     points.length !== pixels.length ||
@@ -57,7 +49,7 @@ export function refineRecoveryResection(
       right: number[] = [];
     let cost: number = 0;
     for (let at: number = 0; at < points.length; at++) {
-      const value: ReturnType<typeof projectRecoveryMapPoint> =
+      const value: ReturnType<IAutoMovieRecoveryMapPointProjectionOperation.Operation> =
         projectRecoveryMapPoint(pose, points[at]!, intrinsic);
       if (value === null) return null;
       const residual: number[] = [
@@ -97,7 +89,7 @@ export function refineRecoveryResection(
     "iteration-budget";
   for (; iterations < budget.maxRefinementIterations; iterations++) {
     checkpoint();
-    const solved: ReturnType<typeof solveRecoveryMapDesign> =
+    const solved: ReturnType<IAutoMovieRecoveryMapDesignSolutionOperation.Operation> =
       solveRecoveryMapDesign(
         current.rows,
         current.right,

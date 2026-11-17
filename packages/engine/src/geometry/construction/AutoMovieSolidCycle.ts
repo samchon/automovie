@@ -1,10 +1,12 @@
+import type { IAutoMovieSolidCycle } from "@automovie/interface";
+
 /**
  * A trim cycle of a face in its own chart: the closed boundary of the face's
  * kept region, a sequence of shared vertices with their charts on this face
  * and, per segment, the neighbour face across it with the segment's ends in
  * the neighbour's chart.
  *
- * Kinds, as `AutoMovieSolidMesh.ILoop`: a `hole` encloses a region of
+ * Kinds, as `IAutoMovieSolidMesh.ILoop`: a `hole` encloses a region of
  * the chart and the face keeps its outside; an `island` keeps its inside.
  * A `start` or `end` cycle winds once round the face's periodic phase and
  * the face keeps the stations above
@@ -16,126 +18,11 @@
  * first crossing and is not a general inverse of that predicate.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the four kinds and which side each keeps.
- * @evidence contracts/development/design.md#principled-representation Represents A trim cycle of a face in its own chart: the closed boundary of the face's kept region, a sequence of shared vertices with their charts on this face and, per segment, the neighbour face across it with the segment's ends in the neighbour's chart: companion namespace of 15 exported members (`ICycle`, `IExactSegment`, `IExact`, `piece`, `divide`, `held`, ...); units and frames named in its text: second, world, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#principled-representation Represents A trim cycle of a face in its own chart: the closed boundary of the face's kept region, a sequence of shared vertices with their charts on this face and, per segment, the neighbour face across it with the segment's ends in the neighbour's chart: companion namespace of 15 exported members (`IAutoMovieSolidCycle.ICycle`, `IAutoMovieSolidCycle.IExactSegment`, `IAutoMovieSolidCycle.IExact`, `piece`, `divide`, `held`, ...); units and frames named in its text: second, world, local. It has no optional member, so no absent-value state combines with another.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidCycle` in packages/engine/src/geometry/construction/AutoMovieSolidCycle.ts; its surface is the 15 members listed and the text shows 17 other files naming it, mostly packages/engine (14), test (3), so no member is declared for a presumed future need.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidCycle {
-  /**
-   * One mutable face boundary, with coindexed chart/mesh vertices and one
-   * neighbour mapping per closing polygon segment.
-   *
-   * @evidence contracts/development/design.md#principled-representation Parallel vertex/chart/segment arrays represent a face's boundary and its shared neighbour correspondence without deriving geometry from a rendered mesh.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four fields separate kept-side kind, shared mesh identity, this chart and the adjacent chart's endpoint maps; the optional fifth carries the exact curve a winding cycle samples, absent where its chords are its boundary, the sixth the owner's exact boundary readers and the seventh, on a cycle a clip has edited, which segments still lie on such a boundary.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not validate array lengths, winding, simplicity or inclusive boundary classification; prepared readers require unchanged kind/chart data during their lifetime.
-   * @evidence contracts/development/common.md#meaningful-documentation States coindexing, closing-segment ownership, chart phase unwrapping and which face keeps each side.
-   */
-  export interface ICycle {
-    /** Which side the face keeps. */
-    kind: "hole" | "island" | "start" | "end";
-
-    /** Mesh vertex indices, in cycle order. */
-    vertices: number[];
-
-    /** Each vertex's chart point `[u, v]` on this face, `v` unwrapped along the cycle. */
-    chart: [number, number][];
-
-    /** Per segment `k` (vertex `k` to `k + 1`, the last closing the cycle): the neighbour face across it. */
-    neighbours: INeighbour[];
-
-    /**
-     * For a winding cycle sampled from an exact curve `u = along(v)` of this chart: the curve's station at a phase. A segment whose two
-     * stored vertices both lie on it (`along(v) === u` at each, as the builder evaluated them) is read along the curve between them, not
-     * as the chord through them; a vertex inserted later off the curve leaves its segments read as chords. Absent, every segment is a chord.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States which chart the curve is in, which segments read it, and what an inserted off-curve vertex or an absent curve leaves as chords.
-     * @evidence contracts/development/implementation.md#principled-implementation The kept edge is the exact curve the neighbouring band ends on (a port's curved rail), so the two faces share one edge instead of a chord standing off it by its sagitta.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional reader on the cycle; kept tests read it only on segments whose both stored vertices lie on it, and every other reader keeps the chords.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no tolerance or widened boundary: a segment off the curve is read exactly as before.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One evaluation per kept test on a qualifying segment, in place of the chord's interpolation.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The builder passes the same rail function that placed the cycle's vertices and the band's column ends.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cycle holds the builder's function for its own lifetime; copies share it and retain nothing else.
-     */
-    along?: (v: number) => number;
-
-    /**
-     * The exact boundary this cycle samples, when one generating owner supplies it to both faces (a port's curve on the host and the
-     * band's start edge, the band's end edge and the part's rail): the face's kept side of that curve, and the neighbour's chart point
-     * for a point past it, both read on the curve between the stored vertices as well as at them. It describes the cycle as it was
-     * built; once a clip has edited the cycle, `segments` says which segments still lie on it. No tolerance and no fallback face is
-     * added by it.
-     */
-    exact?: IExact;
-
-    /**
-     * Per segment of a cycle a clip has edited (`divide`, and the clip's rebuilt cycles): the exact boundary the segment still lies
-     * on, or null for a chord. A segment between two consecutive vertices of an owner's boundary keeps that owner's readers; a segment
-     * a clip made, by placing a crossing into a segment or by laying its own run, is the chord between its vertices. Absent, the
-     * cycle is as built and `exact` covers every segment.
-     */
-    segments?: (IExactSegment | null)[];
-  }
-
-  /**
-   * The exact boundary one segment of an edited cycle lies on (`ICycle.segments`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the readers' owner and what the sense orients.
-   * @evidence contracts/development/design.md#principled-representation An edited cycle is a chain of pieces of its owners' curves and of clips' chords, so exactness is a property of a segment: a cut that crosses a seam at one column leaves every other column on the owner's curve, and a cycle joined from two trims has two owners.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The owner's shared readers and one sign; the segment's ends are the cycle's own chart points.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stores no copy of the curve, no vertex-count proxy and no tolerance; the sign is fixed by the cycle the owner built and reversed only with the segment's direction.
-   */
-  export interface IExactSegment {
-    /** The owner's readers, shared with every other segment of that boundary. */
-    exact: IExact;
-
-    /**
-     * Which side of the directed chord the owner's boundary removes: a chart point `p` beside the segment from `a` to `b` lies on the
-     * removed side of the chord when `sense * cross(b - a, p - a)` is positive.
-     */
-    sense: number;
-  }
-
-  /**
-   * One shared boundary's exact readers on a face's chart (`ICycle.exact`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the count's role, the kept reading and the correspondence.
-   * @evidence contracts/development/design.md#principled-representation The atlas's kept test and crossing map read the generating owner's curve directly, so the two faces of one seam own complementary sides of one curve and map a point across it to the same physical point.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A count, an optional kept reader for a boundary whose chords are not already exact, and the crossing map.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The readers are the owner's; nothing is fitted or clamped here.
-   */
-  export interface IExact {
-    /** The vertex count the cycle was built with: the readers cover a cycle of that count with no `segments`, every segment of it. */
-    count: number;
-
-    /**
-     * Whether a chart point lies on the face's kept side of the curve, or on it; absent where the cycle's own chart is already the
-     * exact curve (a band's station line).
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the reading and the absent case.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; the owner's curve is the implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body; its cost is the owner's.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    kept?: (u: number, v: number) => boolean;
-
-    /**
-     * The neighbour's chart point corresponding to a chart point past the curve: the point's foot on the curve by the owner's
-     * correspondence, read in the neighbour's chart.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the foot and the chart it returns.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; the owner's correspondence is the implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body; its cost is the owner's.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    across: (u: number, v: number) => [number, number];
-  }
-
   /**
    * The exact boundary one segment of a cycle lies on: the cycle's own for every segment of a cycle as built, the segment's record
    * on a cycle a clip has edited.
@@ -154,11 +41,11 @@ export namespace AutoMovieSolidCycle {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the cycle's record or a fresh one sharing the owner's readers; retains nothing.
    */
   export function piece(
-    cycle: Pick<ICycle, "kind" | "chart" | "exact" | "segments">,
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart" | "exact" | "segments">,
     k: number,
     reversed: boolean = false,
-  ): IExactSegment | null {
-    const found: IExactSegment | null =
+  ): IAutoMovieSolidCycle.IExactSegment | null {
+    const found: IAutoMovieSolidCycle.IExactSegment | null =
       cycle.segments !== undefined
         ? (cycle.segments[k] ?? null)
         : cycle.exact !== undefined && cycle.exact.count === cycle.chart.length
@@ -184,11 +71,11 @@ export namespace AutoMovieSolidCycle {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every segment of one owner shares one record.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cycle holds one array of S references.
    */
-  export function divide(cycle: ICycle, segment: number): void {
+  export function divide(cycle: IAutoMovieSolidCycle.ICycle, segment: number): void {
     if (cycle.segments === undefined) {
-      const whole: IExactSegment | null = piece(cycle, segment);
+      const whole: IAutoMovieSolidCycle.IExactSegment | null = piece(cycle, segment);
       if (whole === null) return;
-      cycle.segments = cycle.chart.map((): IExactSegment => whole);
+      cycle.segments = cycle.chart.map((): IAutoMovieSolidCycle.IExactSegment => whole);
     }
     cycle.segments.splice(segment, 1, null, null);
   }
@@ -218,21 +105,21 @@ export namespace AutoMovieSolidCycle {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a boolean; retains nothing.
    */
   export function held(
-    cycle: Pick<ICycle, "kind" | "chart" | "along" | "exact" | "segments">,
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart" | "along" | "exact" | "segments">,
     u: number,
     v: number,
     period: number | undefined,
   ): boolean {
     if (cycle.segments === undefined) {
-      const whole: IExact | undefined =
+      const whole: IAutoMovieSolidCycle.IExact | undefined =
         cycle.exact?.count === cycle.chart.length ? cycle.exact : undefined;
       return whole?.kept !== undefined
         ? whole.kept(u, v)
         : kept(cycle, u, v, period);
     }
     const chords: boolean = kept(cycle, u, v, period);
-    const at: IFoot = foot(cycle, u, v, period);
-    const beside: IExactSegment | null = cycle.segments[at.segment] ?? null;
+    const at: IAutoMovieSolidCycle.IFoot = foot(cycle, u, v, period);
+    const beside: IAutoMovieSolidCycle.IExactSegment | null = cycle.segments[at.segment] ?? null;
     if (beside === null || beside.exact.kept === undefined) return chords;
 
     // The point's side of the chord at its foot against its side of the owner's curve.
@@ -260,13 +147,13 @@ export namespace AutoMovieSolidCycle {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure copy coordinates no work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record; retains nothing.
    */
-  export function copy(c: ICycle): ICycle {
+  export function copy(c: IAutoMovieSolidCycle.ICycle): IAutoMovieSolidCycle.ICycle {
     return {
       kind: c.kind,
       vertices: c.vertices.slice(),
       chart: c.chart.map((p: [number, number]): [number, number] => [p[0], p[1]]),
       neighbours: c.neighbours.map(
-        (n: INeighbour): INeighbour => ({
+        (n: IAutoMovieSolidCycle.INeighbour): IAutoMovieSolidCycle.INeighbour => ({
           face: n.face,
           from: [n.from[0], n.from[1]],
           to: [n.to[0], n.to[1]],
@@ -279,11 +166,11 @@ export namespace AutoMovieSolidCycle {
   }
 
   /**
-   * The removed side of a cycle's directed chords as its owner built it (`IExactSegment.sense`): a hole removes its polygon's inside,
+   * The removed side of a cycle's directed chords as its owner built it (`IAutoMovieSolidCycle.IExactSegment.sense`): a hole removes its polygon's inside,
    * the left of its chords when its signed chart area is positive, and an island the outside; a start cycle removes the stations
    * below it, the left of chords of rising phase, and an end cycle those above.
    */
-  function removed(cycle: Pick<ICycle, "kind" | "chart">): number {
+  function removed(cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart">): number {
     const n: number = cycle.chart.length;
     if (cycle.kind === "start" || cycle.kind === "end")
       return (
@@ -300,47 +187,6 @@ export namespace AutoMovieSolidCycle {
   }
 
   /**
-   * The face across one segment and the same directed endpoints in its chart.
-   * A body face index of -1 marks an open boundary; Body.atlas translates
-   * included body indices to its own face indices before returning across.
-   *
-   * @evidence contracts/development/design.md#principled-representation An adjacent face identity and two corresponding chart endpoints let Body.atlas linearly map a boundary foot's segment share into that face.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One fixed record keeps neighbour identity and directed endpoint correspondence together.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A negative or excluded neighbour is not replaced by another face; the record alone does not prove that both surfaces meet along the segment.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives body-index ownership, the open sentinel and endpoint order before atlas-index translation.
-   */
-  export interface INeighbour {
-    /** Neighbour index in the owning body, or -1 for an open boundary. */
-    face: number;
-
-    /** The segment's first vertex in the neighbour's chart. */
-    from: [number, number];
-
-    /** The segment's second vertex in the neighbour's chart. */
-    to: [number, number];
-  }
-
-  /**
-   * A nearest polygon-segment foot in Euclidean chart coordinates, not in
-   * the surface metric or world millimetres when the parameters differ.
-   *
-   * @evidence contracts/development/design.md#principled-representation A segment index and clamped affine share identify the chart foot consumed by Clip and Body.atlas's neighbour map.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three scalars distinguish where the foot lies from the chart distance used to rank it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record certifies no analytic-curve or world-distance minimum; foot on an empty chart returns segment/share zero with infinite distance, not an admitted correspondence.
-   * @evidence contracts/development/common.md#meaningful-documentation States polygon meaning, share range, distance space and the empty-chart sentinel limitation.
-   */
-  export interface IFoot {
-    /** The segment, `k` to `k + 1`. */
-    segment: number;
-
-    /** The share along it, `[0, 1]`. */
-    share: number;
-
-    /** The chart distance to it, the point's phase moved by whole periods to the segment's. */
-    distance: number;
-  }
-
-  /**
    * Whether a chart point lies on a cycle's kept side or on the cycle.
    *
    * @param cycle The cycle.
@@ -351,14 +197,14 @@ export namespace AutoMovieSolidCycle {
    *
    * @evidence contracts/development/implementation.md#principled-implementation Uses crossing parity in the existing chart branches for all four cycle kinds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to the same predicate as the prepared reader, without retained state.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original inequality and half-period tie; a winding segment on its cycle's exact curve (`ICycle.along`) reads that curve's station instead of the chord's, and no other boundary is moved.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original inequality and half-period tie; a winding segment on its cycle's exact curve (`IAutoMovieSolidCycle.ICycle.along`) reads that curve's station instead of the chord's, and no other boundary is moved.
    * @evidence contracts/development/common.md#meaningful-documentation The inclusive 'on cycle' wording has an existing strict-parity boundary gap, recorded separately; preparation does not claim to fix it.
    * @evidence contracts/development/implementation.md#efficient-algorithms Scans S edges, plus the hole/island centre scan, in O(S) time.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work This live reading caches nothing; prepare is the face-local repeated-query path.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a boolean and retains no input or scratch after the call.
    */
   export function kept(
-    cycle: Pick<ICycle, "kind" | "chart" | "along">,
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart" | "along">,
     u: number,
     v: number,
     period: number | undefined,
@@ -380,7 +226,7 @@ export namespace AutoMovieSolidCycle {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure owns O(S) endpoint scratch, with no global cache; dropping the reader releases those references.
    */
   export function prepare(
-    cycle: Pick<ICycle, "kind" | "chart" | "along">,
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart" | "along">,
     period: number | undefined,
   ): (u: number, v: number) => boolean {
     const curve: ((v: number) => number) | undefined = cycle.along;
@@ -398,8 +244,9 @@ export namespace AutoMovieSolidCycle {
             ...(curve === undefined
               ? {}
               : {
-                  on: cycle.chart.map((a: [number, number], k: number): boolean =>
-                    on(curve, a, cycle.chart[(k + 1) % cycle.chart.length]!),
+                  on: cycle.chart.map(
+                    (a: [number, number], k: number): boolean =>
+                      on(curve, a, cycle.chart[(k + 1) % cycle.chart.length]!),
                   ),
                 }),
           };
@@ -409,13 +256,16 @@ export namespace AutoMovieSolidCycle {
 
   /** Cycle-invariant values; coordinates and kind are owned unchanged by the caller. */
   interface IPrepared {
-    /** Lowest and highest unwrapped v of a hole or an island (`span`). */ span?: [number, number];
+    /** Lowest and highest unwrapped v of a hole or an island (`span`). */ span?: [
+      number,
+      number,
+    ];
     /** Original winding endpoint and its integer turn relative to the segment start. */ ends?: [
       number,
       number,
       number,
     ][];
-    /** Per winding segment, whether both its vertices lie on the cycle's exact curve (`ICycle.along`). */ on?: boolean[];
+    /** Per winding segment, whether both its vertices lie on the cycle's exact curve (`IAutoMovieSolidCycle.ICycle.along`). */ on?: boolean[];
   }
 
   /** Whether a segment's two stored vertices lie on the exact curve, as its builder evaluated them. */
@@ -448,7 +298,9 @@ export namespace AutoMovieSolidCycle {
    * apart in phase leaves one wider than a period, where a point near either end has two images within the span and only one of them lies
    * inside (f1's ear: an island 6.6 rad wide about 5.6, a triangle at 8.9 read at its image 2.6 and found outside).
    */
-  function span(cycle: Pick<ICycle, "chart">): [number, number] {
+  function span(
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
+  ): [number, number] {
     let low: number = Infinity;
     let high: number = -Infinity;
     // Each point's coordinates are read once, `u` then `v`, as `centre` reads them.
@@ -462,7 +314,11 @@ export namespace AutoMovieSolidCycle {
   }
 
   /** Crossing parity of the ray from `(u, w)` toward lower `u` against a hole's or an island's polygon, `w` already on the polygon's branch. */
-  function crossed(cycle: Pick<ICycle, "chart">, u: number, w: number): boolean {
+  function crossed(
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
+    u: number,
+    w: number,
+  ): boolean {
     const n: number = cycle.chart.length;
     let inside: boolean = false;
     for (let k: number = 0; k < n; k++) {
@@ -479,7 +335,7 @@ export namespace AutoMovieSolidCycle {
 
   /** The original parity and tie arithmetic, with optional invariant values. */
   function read(
-    cycle: Pick<ICycle, "kind" | "chart" | "along">,
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart" | "along">,
     u: number,
     v: number,
     period: number | undefined,
@@ -570,7 +426,7 @@ export namespace AutoMovieSolidCycle {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains no cycle, query history or temporary closing-endpoint tuple.
    */
   export function station(
-    cycle: Pick<ICycle, "chart">,
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
     v: number,
     period: number,
   ): number {
@@ -612,13 +468,17 @@ export namespace AutoMovieSolidCycle {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns only the final three-scalar foot; earlier candidates and per-edge tuples are call-local and no cycle reference is retained afterward.
    */
   export function foot(
-    cycle: Pick<ICycle, "chart">,
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
     u: number,
     v: number,
     period: number | undefined,
-  ): IFoot {
+  ): IAutoMovieSolidCycle.IFoot {
     const n: number = cycle.chart.length;
-    let best: IFoot = { segment: 0, share: 0, distance: Infinity };
+    let best: IAutoMovieSolidCycle.IFoot = {
+      segment: 0,
+      share: 0,
+      distance: Infinity,
+    };
     for (let k: number = 0; k < n; k++) {
       const a: [number, number] = cycle.chart[k]!;
       const b: [number, number] = cycle.chart[(k + 1) % n]!;
@@ -649,7 +509,9 @@ export namespace AutoMovieSolidCycle {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Live kept calls recompute this mean, while prepare retains the same value only for unchanged cycle kind/chart/period dependencies.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh two-number tuple and retains neither the chart nor any prior centre globally.
    */
-  export function centre(cycle: Pick<ICycle, "chart">): [number, number] {
+  export function centre(
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
+  ): [number, number] {
     let u: number = 0;
     let v: number = 0;
     for (const p of cycle.chart) {

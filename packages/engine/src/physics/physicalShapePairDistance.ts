@@ -1,7 +1,9 @@
 import type {
+  IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -40,10 +42,10 @@ import { physicalShapeNearest } from "./physicalShapeNearest";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The edge lists live in a weak map keyed by the point list, so they go when the shape goes.
  */
 export function physicalShapePairDistance(
-  poseA: P.ITransform,
-  shapeA: P.IShape,
-  poseB: P.ITransform,
-  shapeB: P.IShape,
+  poseA: IAutoMovieRigidTransform,
+  shapeA: IAutoMoviePhysicalShape,
+  poseB: IAutoMovieRigidTransform,
+  shapeB: IAutoMoviePhysicalShape,
 ): number {
   let least: number = Infinity;
   for (const [pose, shape, otherPose, other] of [
@@ -81,7 +83,7 @@ interface IWires {
 }
 
 /** The wire frame of one shape. */
-const wires = (shape: P.IShape): IWires => {
+const wires = (shape: IAutoMoviePhysicalShape): IWires => {
   if (shape.kind === "sphere")
     return {
       segments: [
@@ -126,7 +128,9 @@ const wires = (shape: P.IShape): IWires => {
   if (shape.kind === "hull") {
     const known: IWires | undefined = EDGES.get(shape.points);
     if (known !== undefined) return known;
-    const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
+    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
+      shape.points,
+    );
     const index: Map<IAutoMovieVector3, number> = new Map();
     const seen: Set<string> = new Set();
     const segments: [IAutoMovieVector3, IAutoMovieVector3][] = [];

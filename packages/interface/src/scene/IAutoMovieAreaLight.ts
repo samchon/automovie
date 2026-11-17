@@ -1,4 +1,4 @@
-import { IAutoMovieLightBase } from "./IAutoMovieLightBase";
+import type { IAutoMovieLightBase } from "./IAutoMovieLightBase";
 
 /**
  * A rectangular emissive panel: a softbox, a window, a light strip, a luminous ceiling coffer.

@@ -1,14 +1,16 @@
-import {
-  type AutoMovieLoftFrame,
-  AutoMovieViewAxis,
-  type AutoMovieViewAxisJet,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import { AutoMovieHumanF1NativeRootLaw as Root } from "@automovie/human";
-import type { IAutoMovieConstructionPort } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-
 import { nclose } from "../../internal/nclose";
+import { AutoMovieViewAxis } from "@automovie/engine";
+import { AutoMovieHumanF1NativeRootLaw as Root } from "@automovie/human";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionPortLoop,
+  IAutoMovieHumanF1NativeRoot,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 /**
  * Original controls survive native root transport without a new identity solve.
@@ -100,8 +102,8 @@ export function test_human_native_root_transport(): void {
     0.2,
     AutoMovieViewAxis.straight([4, 1.81, 0], [0, 1, 0], [0, 0, 1]),
   );
-  const basis: AutoMovieLoftFrame.IFrame = child.axis.at(2);
-  const loop: IAutoMovieConstructionPort.ILoop = {
+  const basis: IAutoMovieLoftSectionFrame = child.axis.at(2);
+  const loop: IAutoMovieConstructionPortLoop = {
     centre: [0.002, 0],
     semi: [0.0002, 0.01],
     sense: 1,
@@ -154,8 +156,8 @@ export function test_human_native_root_transport(): void {
       },
     ];
     for (const row of cases) {
-      const wall: Root.V = [row.wall, 0, 0];
-      const result: Root.ICurves = Root.targets({
+      const wall: AutoMovieVector3Tuple = [row.wall, 0, 0];
+      const result: IAutoMovieHumanF1NativeRoot.ICurves = Root.targets({
         parent: [[row.parent, 0, 0]],
         child: [[row.child, 0, 0]],
         wall: [wall],
@@ -173,7 +175,7 @@ export function test_human_native_root_transport(): void {
   });
 
   scenario("actual original transport", (): void => {
-    const original: Root.ICalibration = Root.calibrate({
+    const original: IAutoMovieHumanF1NativeRoot.ICalibration = Root.calibrate({
       name: "made-offset-circles",
       parent,
       child,
@@ -206,10 +208,10 @@ export function test_human_native_root_transport(): void {
         "made stricter graph",
       ),
     );
-    const prepared: Root.IPrepared = Root.prepare(original, parent, [1, 1]);
+    const prepared: IAutoMovieHumanF1NativeRoot.IPrepared = Root.prepare(original, parent, [1, 1]);
     if (prepared.axis !== child.axis)
       failures.push("unchanged candidate replaced its original course");
-    const root: Root.IRootSpec = prepared.resolve(child);
+    const root: IAutoMovieHumanF1NativeRoot.IRootSpec = prepared.resolve(child);
     if (root.loop !== loop)
       failures.push("unchanged root replaced its original radial controls");
     exact("unchanged rail station", root.railStations[0]!, 2);
@@ -219,15 +221,15 @@ export function test_human_native_root_transport(): void {
         root.rows[k]!.sourceClock,
         (turn * k) / 4,
       );
-    const seed: Root.ISeed = { phase: 0.17, from: 0.1, to: 0.9 };
-    const transported: Root.ISeedTransport = root.seed(child, child, seed);
+    const seed: IAutoMovieHumanF1NativeRoot.ISeed = { phase: 0.17, from: 0.1, to: 0.9 };
+    const transported: IAutoMovieHumanF1NativeRoot.ISeedTransport = root.seed(child, child, seed);
     exact("unchanged seed phase", transported.seed.phase, seed.phase);
     exact("unchanged seed from", transported.seed.from, seed.from);
     exact("unchanged seed to", transported.seed.to, seed.to);
     for (const control of transported.controls)
       close("unchanged seed physical residual", control.residual, [0, 0, 0]);
 
-    const inspection: readonly Root.IInspection[] = root.inspect(child);
+    const inspection: readonly IAutoMovieHumanF1NativeRoot.IInspection[] = root.inspect(child);
     if (inspection.length !== 4)
       failures.push("actual source2 inspection lost a column");
     for (const row of inspection) {
@@ -255,7 +257,7 @@ export function test_human_native_root_transport(): void {
   });
 
   scenario("candidate physical axis2", (): void => {
-    const original: Root.ICalibration = Root.calibrate({
+    const original: IAutoMovieHumanF1NativeRoot.ICalibration = Root.calibrate({
       name: "made-axis",
       parent,
       child,
@@ -266,16 +268,16 @@ export function test_human_native_root_transport(): void {
       metric: { station: 2, depth: 0.4, breadth: 0.4 },
       basis,
     });
-    const axis: AutoMovieViewAxis.IAxis = Root.prepare(
+    const axis: IAutoMovieViewAxis.IAxis = Root.prepare(
       original,
       parent,
       [2, 3],
     ).axis;
     close("affine candidate origin", axis.at(2).origin, [2, 1.42, 0]);
-    const physical: AutoMovieViewAxisJet.IJet | null = axis.jet?.(2) ?? null;
-    const root: AutoMovieViewAxisJet.IJet | null =
+    const physical: IAutoMovieViewAxisJet.IJet | null = axis.jet?.(2) ?? null;
+    const root: IAutoMovieViewAxisJet.IJet | null =
       axis.jet?.(2, { type: "root", pole: 1, end: "bottom" }) ?? null;
-    const angle: AutoMovieViewAxisJet.IJet | null =
+    const angle: IAutoMovieViewAxisJet.IJet | null =
       axis.jet?.(2, { type: "angle", bottom: 1, top: 4 }) ?? null;
     if (physical === null || root === null || angle === null)
       failures.push("candidate lost available physical/root/angle axis2");
@@ -297,9 +299,9 @@ export function test_human_native_root_transport(): void {
       failures.push("out-of-parameter-domain axis2 was fabricated");
     const without2: IAutoMovieViewPart = {
       ...child,
-      axis: { at: (s: number): AutoMovieLoftFrame.IFrame => child.axis.at(s) },
+      axis: { at: (s: number): IAutoMovieLoftSectionFrame => child.axis.at(s) },
     };
-    const valueOriginal: Root.ICalibration = Root.calibrate({
+    const valueOriginal: IAutoMovieHumanF1NativeRoot.ICalibration = Root.calibrate({
       name: "made-value-only",
       parent,
       child: without2,
@@ -310,7 +312,7 @@ export function test_human_native_root_transport(): void {
       metric: { station: 2, depth: 0.4, breadth: 0.4 },
       basis,
     });
-    const valuePrepared: Root.IPrepared = Root.prepare(
+    const valuePrepared: IAutoMovieHumanF1NativeRoot.IPrepared = Root.prepare(
       valueOriginal,
       parent,
       [2, 3],
@@ -387,7 +389,7 @@ export function test_human_native_root_transport(): void {
   });
 
   scenario("radial source clock provenance", (): void => {
-    const original: IAutoMovieConstructionPort.ILoop = {
+    const original: IAutoMovieConstructionPortLoop = {
       centre: [0.002, 0.4],
       semi: [0.0002, 0.1],
       sense: 1,
@@ -440,7 +442,7 @@ export function test_human_native_root_transport(): void {
 function circle(
   name: string,
   radius: number,
-  axis: AutoMovieViewAxis.IAxis,
+  axis: IAutoMovieViewAxis.IAxis,
 ): IAutoMovieViewPart {
   const outline: (value: number) => IAutoMovieViewPart.IOutline = (
     value: number,

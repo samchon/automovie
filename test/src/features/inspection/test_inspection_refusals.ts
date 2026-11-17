@@ -1,6 +1,6 @@
+import type { IAutoMovieInspectionRequest } from "@automovie/interface";
 import {
   type IAutoMovieInspectionHandle,
-  type IAutoMovieInspectionRequest,
   type IAutoMovieSectionRenderer,
   applyAutoMovieInspection,
 } from "@automovie/render";

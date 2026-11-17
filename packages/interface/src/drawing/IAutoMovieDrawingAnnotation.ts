@@ -1,5 +1,5 @@
-import { AutoMovieDrawingTargetStatus } from "./AutoMovieDrawingTargetStatus";
-import { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
+import type { AutoMovieDrawingTargetStatus } from "./AutoMovieDrawingTargetStatus";
+import type { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
 
 /**
  * One note as the drawing resolved it.

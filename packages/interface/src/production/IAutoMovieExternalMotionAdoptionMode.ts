@@ -1,5 +1,5 @@
-import { IAutoMovieExternalMotionHumanoidRetargetMode } from "./IAutoMovieExternalMotionHumanoidRetargetMode";
-import { IAutoMovieExternalMotionNativeMode } from "./IAutoMovieExternalMotionNativeMode";
+import type { IAutoMovieExternalMotionHumanoidRetargetMode } from "./IAutoMovieExternalMotionHumanoidRetargetMode";
+import type { IAutoMovieExternalMotionNativeMode } from "./IAutoMovieExternalMotionNativeMode";
 
 /**
  * Closed authored choice between native use and humanoid retargeting.

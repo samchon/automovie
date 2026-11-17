@@ -1,9 +1,12 @@
-import { IAutoMovieLight, IAutoMovieStageLight } from "@automovie/interface";
+import {
+  IAutoMovieLight,
+  IAutoMovieStageLight,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
 import { AUTO_MOVIE_LIGHT_TYPES } from "../../resolve/constants/AUTO_MOVIE_LIGHT_TYPES";
 import { withArticle } from "../../text/withArticle";
-import { ViolationCollector } from "../../validation/ViolationCollector";
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
 import { isRecord } from "../../validation/isRecord";
 import { validateColor } from "../../validation/validateColor";
@@ -32,11 +35,11 @@ import { lightTypeOf } from "./lightTypeOf";
 export const validateLightPlacementShape: (
   light: IAutoMovieStageLight,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   light: IAutoMovieStageLight,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   const type: IAutoMovieLight["type"] | null = lightTypeOf(light);
   if (type === null) {
@@ -158,12 +161,12 @@ const validateLightExtent: (
   light: IAutoMovieStageLight,
   type: IAutoMovieLight["type"],
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   light: IAutoMovieStageLight,
   type: IAutoMovieLight["type"],
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   for (const axis of ["width", "height"] as const) {
     const value: unknown = light[axis];
@@ -199,12 +202,12 @@ const validateLightShadow: (
   light: IAutoMovieStageLight,
   type: IAutoMovieLight["type"],
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   light: IAutoMovieStageLight,
   type: IAutoMovieLight["type"],
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   if (light.castShadow !== undefined && typeof light.castShadow !== "boolean")
     out.push(

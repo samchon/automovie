@@ -1,5 +1,8 @@
+import type {
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
 import {
-  type AutoMovieSolidMeshConstraints,
   AutoMovieSolidMeshPlan,
   insertAutoMovieSolidMeshPoints,
   orientAutoMovieSolidChart as orient,
@@ -26,7 +29,7 @@ interface Case {
 
   /** Original IDs and exact stored chart numbers; interior points are inserted in this order. */ points: ReadonlyMap<number, Point>;
 
-  /** Existing triangle population before insertion. */ triangles: readonly AutoMovieSolidMeshPlan.ITriangle[];
+  /** Existing triangle population before insertion. */ triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[];
 
   /** Directed region boundary, held as original constraints. */ boundary: readonly number[];
 
@@ -183,15 +186,15 @@ function cases(): Case[] {
 }
 
 /** Closed local source boundaries use the same original IDs and zero relative lift. */
-function edges(ids: readonly number[]): AutoMovieSolidMeshConstraints.ISegment[] {
-  return ids.map((id: number, k: number): AutoMovieSolidMeshConstraints.ISegment =>
+function edges(ids: readonly number[]): IAutoMovieSolidMeshConstraints.ISegment[] {
+  return ids.map((id: number, k: number): IAutoMovieSolidMeshConstraints.ISegment =>
     ({ a: id, b: ids[(k + 1) % ids.length]!, turn: 0 }));
 }
 
 /** Membership is the closed union of the case's own input triangles, read by exact signs. */
 function membership(input: Case): (s: number, t: number) => boolean {
   return (s: number, t: number): boolean =>
-    input.triangles.some((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean =>
+    input.triangles.some((triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean =>
       triangle.vertices.every((id: number, k: number): boolean => orient(
         input.points.get(id)!, input.points.get(triangle.vertices[(k + 1) % 3]!)!, [s, t],
       ) >= 0),
@@ -200,14 +203,14 @@ function membership(input: Case): (s: number, t: number) => boolean {
 
 /** Insert into the given population, and plan from the boundary alone where the case asks, without mutating the inputs. */
 function local(input: Case, failures: string[]): void {
-  const constraints: AutoMovieSolidMeshConstraints.ISegment[] = edges(input.boundary);
+  const constraints: IAutoMovieSolidMeshConstraints.ISegment[] = edges(input.boundary);
   const before: string = JSON.stringify({ points: [...input.points], triangles: input.triangles, constraints });
   const keeps: (s: number, t: number) => boolean = membership(input);
   inspect(input, "insertion", insertAutoMovieSolidMeshPoints(
     input.points, constraints, input.triangles, keeps, PERIOD, true,
   ), failures);
   if (input.plan) {
-    const plan: AutoMovieSolidMeshPlan.IPlan | string = AutoMovieSolidMeshPlan.triangulate(
+    const plan: IAutoMovieSolidMeshPlan.IPlan | string = AutoMovieSolidMeshPlan.triangulate(
       input.points, constraints, keeps, PERIOD, true,
     );
     inspect(input, "region", typeof plan === "string" ? plan : plan.triangles, failures);
@@ -217,7 +220,7 @@ function local(input: Case, failures: string[]): void {
 }
 
 /** A valid triangulation of the disk: Euler's count, every ID, exact positive and empty closed triangles, lifts zero and each boundary edge once. */
-function inspect(input: Case, stage: string, made: readonly AutoMovieSolidMeshPlan.ITriangle[] | string, failures: string[]): void {
+function inspect(input: Case, stage: string, made: readonly IAutoMovieSolidMeshPlan.ITriangle[] | string, failures: string[]): void {
   const label: string = `${input.name} ${stage}`;
   if (typeof made === "string") {
     failures.push(`${label}: refused: ${made.split("; diagnostic=")[0]}`);
@@ -226,7 +229,7 @@ function inspect(input: Case, stage: string, made: readonly AutoMovieSolidMeshPl
   const expected: number = 2 * input.points.size - input.boundary.length - 2;
   if (made.length !== expected) failures.push(`${label}: ${made.length} triangles, Euler requires ${expected}`);
   for (const id of input.points.keys())
-    if (!made.some((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(id)))
+    if (!made.some((triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(id)))
       failures.push(`${label}: original point ${id} lost`);
   for (const triangle of made) {
     const corners: Point[] = triangle.vertices.map((id: number): Point => input.points.get(id)!);
@@ -257,24 +260,24 @@ function inspect(input: Case, stage: string, made: readonly AutoMovieSolidMeshPl
 /** A point exactly on a source constraint or an unshared boundary has no authoritative subdivision; on a free diagonal it does. */
 function refusals(failures: string[]): void {
   const square: Map<number, Point> = new Map([[0, [0, 0]], [1, [4, 0]], [2, [4, 4]], [3, [0, 4]], [4, [2, 2]]]);
-  const halves: AutoMovieSolidMeshPlan.ITriangle[] = [
+  const halves: IAutoMovieSolidMeshPlan.ITriangle[] = [
     { vertices: [0, 1, 2], lifts: [0, 0, 0] },
     { vertices: [0, 2, 3], lifts: [0, 0, 0] },
   ];
   const all: (u: number, v: number) => boolean = (): boolean => true;
-  const constrained: AutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(
+  const constrained: IAutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(
     square, [...edges([0, 1, 2, 3]), { a: 0, b: 2, turn: 0 }], halves, all,
   );
   if (typeof constrained !== "string" || !constrained.includes("authoritative source-edge subdivision"))
     failures.push(`point on a source constraint was not refused by name: ${JSON.stringify(constrained)}`);
-  const free: AutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(
+  const free: IAutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(
     square, edges([0, 1, 2, 3]), halves, all,
   );
   if (typeof free === "string" || free.length !== 4 ||
-    !free.every((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(4)))
+    !free.every((triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(4)))
     failures.push(`point on a free diagonal did not split both triangles: ${JSON.stringify(free)}`);
   const edge: Map<number, Point> = new Map([[0, [0, 0]], [1, [4, 0]], [2, [0, 4]], [3, [2, 0]]]);
-  const unshared: AutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(
+  const unshared: IAutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(
     edge, edges([0, 1, 2]), [{ vertices: [0, 1, 2], lifts: [0, 0, 0] }], all,
   );
   if (typeof unshared !== "string" || !unshared.includes("unshared boundary"))
@@ -285,14 +288,14 @@ function refusals(failures: string[]): void {
 function ordinary(failures: string[]): void {
   const points: Map<number, Point> = new Map([[0, [0, 0]], [1, [4, 0]], [2, [0, 4]], [3, [1, 1]]]);
   const inside: (u: number, v: number) => boolean = (u: number, v: number): boolean => u > 0 && v > 0 && u + v < 4;
-  const split: AutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(
+  const split: IAutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(
     points, edges([0, 1, 2]), [{ vertices: [0, 1, 2], lifts: [0, 0, 0] }], inside,
   );
   if (typeof split === "string" || split.length !== 3 ||
-    !split.every((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(3)))
+    !split.every((triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(3)))
     failures.push(`ordinary interior point did not split its triangle into three: ${JSON.stringify(split)}`);
   const alone: Map<number, Point> = new Map([[0, [0, 0]], [1, [4, 0]], [2, [0, 4]]]);
-  const plan: AutoMovieSolidMeshPlan.IPlan | string = AutoMovieSolidMeshPlan.triangulate(alone, edges([0, 1, 2]), inside);
+  const plan: IAutoMovieSolidMeshPlan.IPlan | string = AutoMovieSolidMeshPlan.triangulate(alone, edges([0, 1, 2]), inside);
   if (typeof plan === "string" || plan.triangles.length !== 1 ||
     ![0, 1, 2].every((id: number): boolean => plan.triangles[0]!.vertices.includes(id)))
     failures.push("ordinary triangle did not plan as itself");
@@ -301,12 +304,12 @@ function ordinary(failures: string[]): void {
 /** The probe and witness find a representable thin interior and refuse an unrepresentable one. */
 function capability(failures: string[]): void {
   const dyadic: Map<number, Point> = new Map([[0, [0, 0]], [1, [4, 4]], [2, [4, 4 + 2 ** -40]]]);
-  const boundary: AutoMovieSolidMeshConstraints.ISegment[] = edges([0, 1, 2]);
+  const boundary: IAutoMovieSolidMeshConstraints.ISegment[] = edges([0, 1, 2]);
   const found: Point | string = probe(dyadic, boundary, { vertices: [0, 1, 2], lifts: [0, 0, 0], winding: 0 }, PERIOD);
   if (typeof found === "string" || ![0, 1, 2].every((id: number, k: number): boolean =>
     orient(dyadic.get(id)!, dyadic.get((k + 1) % 3)!, found) > 0))
     failures.push(`dyadic thin triangle: probe found no strict interior: ${JSON.stringify(found)}`);
-  else if (!boundary.some((edge: AutoMovieSolidMeshConstraints.ISegment): boolean =>
+  else if (!boundary.some((edge: IAutoMovieSolidMeshConstraints.ISegment): boolean =>
     witness(dyadic, boundary, edge, found, PERIOD) === true))
     failures.push("dyadic thin triangle: no exact empty-corridor witness");
   const tiny: Map<number, Point> = new Map([[0, [0, 0]], [1, [Number.MIN_VALUE, 0]], [2, [0, Number.MIN_VALUE]]]);

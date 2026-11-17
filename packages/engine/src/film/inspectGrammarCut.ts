@@ -1,19 +1,18 @@
 import {
-  IAutoMovieCameraIntent,
+  type AutoMovieInspectGrammarCutFraming,
+  type IAutoMovieGrammarCameraObservation,
+  type IAutoMovieGrammarDiagnostic,
+  type IAutoMovieGrammarSubjectObservation,
+  type IAutoMovieInspectGrammarCut,
+  type IAutoMovieNormalizedGrammarShot,
+  type IAutoMovieProjectToNdc,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { roundToThousandths } from "../math/roundToThousandths";
-import { IAutoMovieGrammarCameraObservation } from "./IAutoMovieGrammarCameraObservation";
-import { IAutoMovieGrammarDiagnostic } from "./IAutoMovieGrammarDiagnostic";
-import { IAutoMovieGrammarSubjectObservation } from "./IAutoMovieGrammarSubjectObservation";
-import { IAutoMovieNormalizedGrammarShot } from "./IAutoMovieNormalizedGrammarShot";
 import { GRAMMAR_EPSILON } from "./constants/GRAMMAR_EPSILON";
 import { projectToNdc } from "./projectToNdc";
-
-/** A shot's size at one boundary, or null when it cannot be measured. */
-type Framing = IAutoMovieCameraIntent["framing"] | null;
 
 /** A sign on one screen axis: toward negative, none, or toward positive. */
 type Sign = -1 | 0 | 1;
@@ -44,12 +43,15 @@ export function inspectGrammarCut(
   sizeOf: (
     shot: IAutoMovieNormalizedGrammarShot,
     boundary: "start" | "end",
-  ) => Framing,
-  thresholds: { minimumCutAngleDegrees: number; reestablishDistance: number },
+  ) => AutoMovieInspectGrammarCutFraming,
+  thresholds: IAutoMovieInspectGrammarCut.IThresholds,
 ): void {
   inspectAxis(diagnostics, previous, incoming);
   inspectEyeline(diagnostics, previous, incoming);
-  const incomingSize: Framing = sizeOf(incoming, "start");
+  const incomingSize: AutoMovieInspectGrammarCutFraming = sizeOf(
+    incoming,
+    "start",
+  );
   // Each shot is the incoming side of exactly one cut, so a displacement
   // finding filed here is the only re-establishing finding it can carry.
   let reestablished: boolean = false;
@@ -62,7 +64,10 @@ export function inspectGrammarCut(
       previous.subjectById.get(subjectId)!;
     const arriving: IAutoMovieGrammarSubjectObservation =
       incoming.subjectById.get(subjectId)!;
-    const previousSize: Framing = sizeOf(previous, "end");
+    const previousSize: AutoMovieInspectGrammarCutFraming = sizeOf(
+      previous,
+      "end",
+    );
     const cutAngle: number = cameraBearingAngleDegrees(
       outgoing.end,
       arriving.start,
@@ -293,13 +298,13 @@ function relativeScreenDirection(
   target: IAutoMovieVector3,
 ): IScreenRelation {
   const halfY: number = Math.tan((camera.fovY * Math.PI) / 360);
-  const from: ReturnType<typeof projectToNdc> = projectToNdc(
+  const from: IAutoMovieProjectToNdc.IResult = projectToNdc(
     camera,
     subject,
     halfY,
     camera.aspect,
   );
-  const to: ReturnType<typeof projectToNdc> = projectToNdc(
+  const to: IAutoMovieProjectToNdc.IResult = projectToNdc(
     camera,
     target,
     halfY,
@@ -320,13 +325,13 @@ function screenMotionDirection(
 ): Sign {
   const startHalfY: number = Math.tan((shot.camera.start.fovY * Math.PI) / 360);
   const endHalfY: number = Math.tan((shot.camera.end.fovY * Math.PI) / 360);
-  const start: ReturnType<typeof projectToNdc> = projectToNdc(
+  const start: IAutoMovieProjectToNdc.IResult = projectToNdc(
     shot.camera.start,
     subject.start,
     startHalfY,
     shot.camera.start.aspect,
   );
-  const end: ReturnType<typeof projectToNdc> = projectToNdc(
+  const end: IAutoMovieProjectToNdc.IResult = projectToNdc(
     shot.camera.end,
     subject.end,
     endHalfY,

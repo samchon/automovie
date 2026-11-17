@@ -1,4 +1,9 @@
 import { AutoMovieHumanSegmentFrame as F } from "./AutoMovieHumanSegmentFrame";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
+} from "@automovie/interface";
 
 /**
  * The height a standing figure's root stands at: derived from the person's own chain, so the soles stay on the floor when a leg's
@@ -37,14 +42,14 @@ export namespace AutoMovieHumanStandingRoot {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work An unchanged height returns the person's chain itself; every record but the root's is borrowed.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A changed result owns one array and one root record with its offset.
    */
-  export function place(reference: readonly F.IJoint[], person: readonly F.IJoint[], support: string, up: F.V3): readonly F.IJoint[] {
+  export function place(reference: readonly IAutoMovieHumanSegmentJoint[], person: readonly IAutoMovieHumanSegmentJoint[], support: string, up: AutoMovieVector3Tuple): readonly IAutoMovieHumanSegmentJoint[] {
     if (Math.abs(F.dot(up, up) - 1) > 1e-9) throw new Error("standing root needs a unit floor normal");
-    const roots: F.IJoint[] = person.filter((joint: F.IJoint): boolean => joint.parent === null);
+    const roots: IAutoMovieHumanSegmentJoint[] = person.filter((joint: IAutoMovieHumanSegmentJoint): boolean => joint.parent === null);
     if (roots.length !== 1) throw new Error("standing root needs a chain with exactly one root, found " + roots.length);
 
     // The support's height on each chain at its reference rotations: the standing pose both chains were authored in.
-    const height = (chain: readonly F.IJoint[]): number => {
-      const frame: F.IFrame | undefined = F.world(chain, (): undefined => undefined).get(support);
+    const height = (chain: readonly IAutoMovieHumanSegmentJoint[]): number => {
+      const frame: IAutoMovieHumanSegmentFrame | undefined = F.world(chain, (): undefined => undefined).get(support);
       if (frame === undefined) throw new Error("standing root's supporting segment is absent: " + support);
       return F.dot(frame.origin, up);
     };
@@ -52,7 +57,7 @@ export namespace AutoMovieHumanStandingRoot {
     if (rise === 0) return person;
 
     // Moving the root moves every segment by the same vector, so the support regains its height and nothing else changes.
-    const root: F.IJoint = roots[0]!;
-    return person.map((joint: F.IJoint): F.IJoint => (joint === root ? { ...joint, offset: F.add(joint.offset, F.scale(up, rise)) } : joint));
+    const root: IAutoMovieHumanSegmentJoint = roots[0]!;
+    return person.map((joint: IAutoMovieHumanSegmentJoint): IAutoMovieHumanSegmentJoint => (joint === root ? { ...joint, offset: F.add(joint.offset, F.scale(up, rise)) } : joint));
   }
 }

@@ -1,6 +1,6 @@
-import type { AutoMovieConstructionAxis } from "./AutoMovieConstructionAxis";
-import type { AutoMovieConstructionFullness } from "./AutoMovieConstructionFullness";
 import type { AutoMovieConstructionPole } from "./AutoMovieConstructionPole";
+import type { IAutoMovieConstructionAxis } from "./IAutoMovieConstructionAxis";
+import type { IAutoMovieConstructionFullness } from "./IAutoMovieConstructionFullness";
 import type { IAutoMovieConstructionOutlinePair } from "./IAutoMovieConstructionOutlinePair";
 
 /**
@@ -23,7 +23,7 @@ export interface IAutoMovieConstructionView {
   name: string;
 
   /** The part's frame along its stations: the section plane at each station. */
-  axis: AutoMovieConstructionAxis;
+  axis: IAutoMovieConstructionAxis;
 
   /** Stations of principal output sections, metres, strictly increasing. Continuous direct shoulder/top sources remain authoritative between them. Generic girth requires every retained contour/fullness knot here, regardless of diagnostic label. Outside source controls retain their original functions; internal interpolation and axis knots require no extra layers. */
   stations: number[];
@@ -35,7 +35,7 @@ export interface IAutoMovieConstructionView {
   side: IAutoMovieConstructionOutlinePair;
 
   /** What owns the quarters' fullness at each station. */
-  fullness: AutoMovieConstructionFullness;
+  fullness: IAutoMovieConstructionFullness;
 
   /** Which ends close in a point, each a smooth dome. */
   pole: AutoMovieConstructionPole;

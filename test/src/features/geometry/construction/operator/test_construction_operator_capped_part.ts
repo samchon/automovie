@@ -1,5 +1,17 @@
-import { AutoMovieConstructionWidths, type AutoMovieLoftContract, AutoMovieSolidIntersection, AutoMovieSolidJoin, AutoMovieSolidSharedCurve, type IAutoMovieSolidSurface } from "@automovie/engine";
-import type { AutoMovieConstructionWidth } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionWidth,
+  IAutoMovieLoftContract,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidSharedCurve,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
+import {
+  AutoMovieConstructionWidths,
+  AutoMovieSolidIntersection,
+  AutoMovieSolidJoin,
+  AutoMovieSolidSharedCurve,
+} from "@automovie/engine";
 
 import { ConstructionMound } from "../../../internal/construction/ConstructionMound";
 
@@ -39,7 +51,7 @@ import { ConstructionMound } from "../../../internal/construction/ConstructionMo
  */
 export function test_construction_operator_capped_part(): void {
   const failures: string[] = [];
-  const rim: AutoMovieConstructionWidth = { type: "fold", radius: 0.2 / 1000, cap: 0.002 };
+  const rim: IAutoMovieConstructionWidth = { type: "fold", radius: 0.2 / 1000, cap: 0.002 };
   for (const [name, depth, clear] of [
     ["clear of the poles", 2.4, true],
     ["beside the poles", 0.3, false],
@@ -48,15 +60,15 @@ export function test_construction_operator_capped_part(): void {
     const made: ICase = compose(depth, rim);
     if (!clear && !SERVED_ROUND_A_POLE) {
       if (made.join !== null && made.join.join !== null) failures.push(`${name} (h = ${depth}): joined, expected the shared loop refusal`);
-      else if (!made.diagnostics.some((x: AutoMovieLoftContract.IDiagnostic): boolean => x.contract === "shared loop")) failures.push(`${name} (h = ${depth}): expected the shared loop refusal, got ${describe(made)}`);
+      else if (!made.diagnostics.some((x: IAutoMovieLoftContract.IDiagnostic): boolean => x.contract === "shared loop")) failures.push(`${name} (h = ${depth}): expected the shared loop refusal, got ${describe(made)}`);
       continue;
     }
     if (made.shared === null || made.join === null || made.join.join === null || made.diagnostics.length !== 0) {
       failures.push(`${name} (h = ${depth}): not admitted: ${describe(made)}`);
       continue;
     }
-    const join: AutoMovieSolidJoin.IJoin = made.join.join;
-    const lost: number = made.shared.curve.points.filter((p: AutoMovieSolidIntersection.IPoint): boolean => join.rail(p.t) === null).length;
+    const join: IAutoMovieSolidJoin.IJoin = made.join.join;
+    const lost: number = made.shared.curve.points.filter((p: IAutoMovieSolidIntersection.IPoint): boolean => join.rail(p.t) === null).length;
     if (lost !== 0) failures.push(`${name} (h = ${depth}): no rail at ${lost} of ${made.shared.curve.points.length} stored points`);
   }
   if (failures.length !== 0) throw new Error(`${failures.length} capped part failures:\n${failures.join("\n")}`);
@@ -73,14 +85,14 @@ const COUNT: number = 64;
 
 /** One composed case. */
 interface ICase {
-  shared: AutoMovieSolidSharedCurve.IShared | null;
-  join: AutoMovieSolidJoin.IResult | null;
-  diagnostics: AutoMovieLoftContract.IDiagnostic[];
+  shared: IAutoMovieSolidSharedCurve.IShared | null;
+  join: IAutoMovieSolidJoin.IResult | null;
+  diagnostics: IAutoMovieLoftContract.IDiagnostic[];
 }
 
 /** The case's diagnostics, for a message. */
 function describe(c: ICase): string {
-  return c.diagnostics.map((x: AutoMovieLoftContract.IDiagnostic): string => `${x.contract}: ${x.detail.slice(0, 200)}`).join("; ") || "no diagnostic";
+  return c.diagnostics.map((x: IAutoMovieLoftContract.IDiagnostic): string => `${x.contract}: ${x.detail.slice(0, 200)}`).join("; ") || "no diagnostic";
 }
 
 /** The ellipsoid with its centre `depth` under the plane, charted `(s, phi)` about its long axis; `P_s x P_phi` points outward. */
@@ -106,12 +118,12 @@ function ellipsoid(depth: number): IAutoMovieSolidSurface {
 }
 
 /** The plane section's contact, its fold widths and the join of the ellipsoid onto the plane, the part kept above it. */
-function compose(depth: number, width: AutoMovieConstructionWidth): ICase {
+function compose(depth: number, width: IAutoMovieConstructionWidth): ICase {
   const [a, b, c]: [number, number, number] = AXES;
   const k: number = Math.sqrt(1 - (depth / c) ** 2);
   const host: IAutoMovieSolidSurface = ConstructionMound.build({ frame: ConstructionMound.LEVEL, a: 15, slope: (): [number, number, number] => [0, 0, 0], q: 0, c: 0, lift: 0 }).host;
   const part: IAutoMovieSolidSurface = ellipsoid(depth);
-  const made: AutoMovieSolidSharedCurve.IResult = AutoMovieSolidSharedCurve.create({
+  const made: IAutoMovieSolidSharedCurve.IResult = AutoMovieSolidSharedCurve.create({
     part,
     host,
     loop: (t: number): { point: [number, number]; first: [number, number]; second: [number, number] } => ({
@@ -128,12 +140,12 @@ function compose(depth: number, width: AutoMovieConstructionWidth): ICase {
   });
   const out: ICase = { shared: made.shared, join: null, diagnostics: [...made.diagnostics] };
   if (made.shared === null) return out;
-  const law: AutoMovieSolidJoin.IInput["width"] | string = AutoMovieConstructionWidths.create(width, width, false, { curve: made.shared.curve, part, host: AutoMovieSolidIntersection.atlas(host), diff: false });
+  const law: IAutoMovieSolidJoin.IInput["width"] | string = AutoMovieConstructionWidths.create(width, width, false, { curve: made.shared.curve, part, host: AutoMovieSolidIntersection.atlas(host), diff: false });
   if (typeof law === "string") {
     out.diagnostics.push({ producer: "test", level: 6, contract: "width", detail: law });
     return out;
   }
-  const first: AutoMovieSolidIntersection.IPoint = made.shared.curve.points[0]!;
+  const first: IAutoMovieSolidIntersection.IPoint = made.shared.curve.points[0]!;
   out.join = AutoMovieSolidJoin.create(
     { part, host, seed: { phi: first.phi, s: first.s, y: first.y, theta: first.theta }, parameter: { kind: "arc" }, count: COUNT, tolerance: 1e-6, grazing: 0.05, curve: made.shared.curve, toward: made.shared.toward, width: law },
     "outside",

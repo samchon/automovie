@@ -1,12 +1,16 @@
 import { Vector3 } from "@automovie/engine";
-import type { tags } from "typia";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanSword,
+  IAutoMovieMotionHumanSwordGuard,
+} from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingSkill } from "../striking/StrikingSkill";
@@ -29,16 +33,6 @@ import { HumanSword } from "./HumanSword";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No blade kind is named, and no pose is in metres.
  */
 export namespace HumanSwordGuard {
-  /** A guard, named by where the hilt is held. */
-  export type Guard =
-    | "high"
-    | "shoulder"
-    | "middle"
-    | "low"
-    | "ox"
-    | "hanging"
-    | "tail";
-
   /**
    * Each guard: the hilt's place from the blade hand's shoulder in arm
    * lengths, the way the blade points and the way its true edge faces. All
@@ -48,11 +42,11 @@ export namespace HumanSwordGuard {
    */
   export const GUARDS: Readonly<
     Record<
-      Guard,
+      IAutoMovieMotionHumanSwordGuard.Guard,
       {
-        hilt: HumanSword.IParts;
-        point: HumanSword.IParts;
-        edge: HumanSword.IParts;
+        hilt: IAutoMovieMotionHumanSword.IParts;
+        point: IAutoMovieMotionHumanSword.IParts;
+        edge: IAutoMovieMotionHumanSword.IParts;
       }
     >
   > = {
@@ -93,15 +87,6 @@ export namespace HumanSwordGuard {
     },
   };
 
-  /** Parameters of a guard. */
-  export interface IParams extends HumanSword.IWield {
-    /** The guard; `middle` when absent. */
-    guard?: Guard;
-
-    /** Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. */
-    seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
-  }
-
   /**
    * Take a guard and hold it: the hilt reaches the guard's place after the setting time (`stroke`) and stays to the end.
    *
@@ -113,39 +98,46 @@ export namespace HumanSwordGuard {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
-  export const guard: IHumanActionLaw<IParams> = {
-    name: "swordGuard",
-    interrupts: HumanSword.follows("stroke"),
-    plan: (context: IHumanActionContext<IParams>): IHumanActionPlan => {
-      const s: HumanSword.ISetup = HumanSword.setup(context);
-      const set: number = 0.5 * StrikingSkill.recovery(context.skill);
-      const seconds: number = Math.max(set, context.params.seconds ?? 1);
-      HumanBound.least("seconds", context.params.seconds ?? 1, 0, "s");
-      const row: (typeof GUARDS)[Guard] =
-        GUARDS[context.params.guard ?? "middle"];
-      const pose: StrikingHeld.IHandFrame = StrikingHeld.hand(
-        s.tool,
-        s.tool.length,
-        Vector3.add(s.shoulder, Vector3.scale(s.world(row.hilt), s.arm)),
-        s.world(row.point),
-        s.world(row.edge),
-      );
-      return StrikingBlade.plan(context, {
-        tool: s.tool,
-        clock: AutoMovieMotionClock.phrase({
-          prepare: set,
-          attack: 0,
-          hold: seconds - set,
-          retract: 0,
-        }),
-        path: (): StrikingHeld.IHandFrame => pose,
-        back: s.tool.length,
-        support: s.support,
-        advance: "none",
-        line: s.world({ out: 0, up: 0, forward: 1 }),
-        stay: true,
-        stop: 1,
-      });
-    },
-  };
+  export const guard: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSwordGuard.IParams> =
+    {
+      name: "swordGuard",
+      interrupts: HumanSword.follows("stroke"),
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwordGuard.IParams>,
+      ): IAutoMovieMotionHumanActionPlan => {
+        const s: IAutoMovieMotionHumanSword.ISetup = HumanSword.setup(context);
+        const set: number = 0.5 * StrikingSkill.recovery(context.skill);
+        const seconds: number = Math.max(set, context.params.seconds ?? 1);
+        HumanBound.least("seconds", context.params.seconds ?? 1, 0, "s");
+        const row: (typeof GUARDS)[IAutoMovieMotionHumanSwordGuard.Guard] =
+          GUARDS[context.params.guard ?? "middle"];
+        const pose: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+          StrikingHeld.hand(
+            s.tool,
+            s.tool.length,
+            Vector3.add(s.shoulder, Vector3.scale(s.world(row.hilt), s.arm)),
+            s.world(row.point),
+            s.world(row.edge),
+          );
+        return StrikingBlade.plan(context, {
+          tool: s.tool,
+          clock: AutoMovieMotionManner.time(
+            AutoMovieMotionClock.phrase({
+              prepare: set,
+              attack: 0,
+              hold: seconds - set,
+              retract: 0,
+            }),
+            AutoMovieMotionManner.of(context, context.params.manner),
+          ),
+          path: (): IAutoMovieMotionHumanStrikingHeld.IHandFrame => pose,
+          back: s.tool.length,
+          support: s.support,
+          advance: "none",
+          line: s.world({ out: 0, up: 0, forward: 1 }),
+          stay: true,
+          stop: 1,
+        });
+      },
+    };
 }

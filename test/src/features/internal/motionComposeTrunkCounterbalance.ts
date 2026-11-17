@@ -1,6 +1,10 @@
-import { type IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -8,9 +12,6 @@ import {
   HumanBalance,
   HumanRefusal,
   HumanTrunk,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -47,8 +48,14 @@ export namespace motionComposeTrunkCounterbalance {
    * floor, so a pitch of 30 degrees stands the hips about half a hip height
    * ahead of the planted feet: a body that falls forward as it is, and that
    * a person holds as a bow with the hips behind the feet. The balance is
-   * `HumanBalance.offset`, the centre of mass ahead of the soles' middle,
-   * within 2 mm of it after the shift.
+   * the centre of mass against the feet where they bear, flat feet first:
+   * after the shift it is not ahead of their middle by more than 2 mm
+   * (`HumanBalance.offset`) and lies inside the base of support
+   * (`HumanBalance.margin` positive). A balanced body keeps its centre
+   * inside its base, not at the base's midpoint: a heel the pitched pose
+   * lifted comes down as the hips go back, and the flat foot then holds the
+   * centre behind its middle, so the bound is the balance itself and not
+   * the old law's construction of a shift to the middle.
    *
    * Whether a pose can be balanced at all is decided here, not by the
    * phrase: the hips are moved back along the heading in 5 mm steps for as
@@ -61,9 +68,11 @@ export namespace motionComposeTrunkCounterbalance {
    * degrees (scenarios 1 to 5) and of 60 degrees at a heading of 0
    * (scenario 6):
    * 1. The phrase claims the root.
-   * 2. At the middle of its hold the centre of mass is over the soles'
-   *    middle and the hips have moved back; a pose whose centre is not ahead
-   *    of the soles is not moved.
+   * 2. At the middle of its hold a pose whose centre was ahead of the feet's
+   *    middle has its hips moved back and its centre balanced (not ahead of
+   *    the middle by more than 2 mm, inside the base); a pose whose centre
+   *    is not ahead of that middle and lies inside the base is not moved;
+   *    one outside the base is moved and balanced the same way.
    * 3. The root moves straight back along the heading: not sideways, not
    *    up, and the heading is kept.
    * 4. The phrase is gone at both ends.
@@ -79,10 +88,14 @@ export namespace motionComposeTrunkCounterbalance {
    */
   export function counterbalance(name: motionHumanBody.Name): void {
     const all: motionComplaints.IGatherer = motionComplaints();
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const reach: number = body.measure.thigh + body.measure.shank;
     for (const yaw of [0, 90] as const) {
-      const turned: IHumanPosture = stand.posture(body, ORIGIN, yaw);
+      const turned: IAutoMovieMotionHumanPosture = stand.posture(
+        body,
+        ORIGIN,
+        yaw,
+      );
       const base: Bones = poseBones(body, resolveHumanPosture(body, turned));
       const ahead = (
         p: IAutoMovieVector3,
@@ -93,7 +106,7 @@ export namespace motionComposeTrunkCounterbalance {
         y: p.y + up,
         z: p.z + (yaw === 0 ? forward : 0),
       });
-      const arm = (side: "left" | "right"): IHumanPosture.IGoal => {
+      const arm = (side: "left" | "right"): IAutoMovieHumanLimbGoal => {
         const shoulder: IAutoMovieVector3 = base.get(
           `${side}UpperArm`,
         )!.worldPosition;
@@ -108,7 +121,7 @@ export namespace motionComposeTrunkCounterbalance {
           bend: ahead(shoulder, 0.3 * length, -0.5 * length),
         };
       };
-      const extend = (pitch: number): IHumanPosture => ({
+      const extend = (pitch: number): IAutoMovieMotionHumanPosture => ({
         ...turned,
         pitch,
         limbs: {
@@ -119,9 +132,9 @@ export namespace motionComposeTrunkCounterbalance {
       });
       // Whether some place of the hips back along the heading, within the
       // legs' reach of their plants, puts the centre inside the base.
-      const balanceable = (posture: IHumanPosture): boolean => {
+      const balanceable = (posture: IAutoMovieMotionHumanPosture): boolean => {
         for (let back: number = 0; ; back += 0.005) {
-          const moved: IHumanPosture = {
+          const moved: IAutoMovieMotionHumanPosture = {
             ...posture,
             root: ahead(posture.root, -back, 0),
           };
@@ -138,7 +151,7 @@ export namespace motionComposeTrunkCounterbalance {
         }
       };
       const read = (pitch: number, cell: string): boolean => {
-        const extended: IHumanPosture = extend(pitch);
+        const extended: IAutoMovieMotionHumanPosture = extend(pitch);
         const phrase: IAutoMovieMotionHumanPrimitive =
           AutoMovieMotionHumanTrunk.counterbalance(
             body,
@@ -148,18 +161,26 @@ export namespace motionComposeTrunkCounterbalance {
             extended,
           );
         const before: number = HumanBalance.offset(body, extended);
-        const full: IHumanPosture = phrase.write(extended, 0.625);
+        const full: IAutoMovieMotionHumanPosture = phrase.write(
+          extended,
+          0.625,
+        );
         const after: number = HumanBalance.offset(body, full);
         const back: number =
           yaw === 0
             ? extended.root.z - full.root.z
             : extended.root.x - full.root.x;
         all.equals(`${cell} claims the root`, phrase.channels, ["root"]);
+        const inside: boolean = HumanBalance.margin(body, extended) > 0;
+        const held: number = HumanBalance.margin(body, full);
+        const balanced: boolean = after <= 0.002 && held > 0;
         all.check(
-          `${cell} puts the centre over the soles' middle, ${mm(after)} mm ahead from ${mm(before)} mm, the hips ${mm(back)} mm back`,
+          `${cell} balances the centre over the feet, ${mm(after)} mm ahead of their middle from ${mm(before)} mm with a margin of ${mm(held)} mm, the hips ${mm(back)} mm back`,
           before > 0
-            ? Math.abs(after) <= 0.002 && back > 0
-            : Math.abs(back) <= 1e-9,
+            ? balanced && back > 0
+            : inside
+              ? Math.abs(back) <= 1e-9
+              : balanced && Math.abs(back) > 0,
         );
         all.check(
           `${cell} moves the root straight back along the heading`,
@@ -226,13 +247,14 @@ export namespace motionComposeTrunkCounterbalance {
         `${name}: at a heading of ${yaw} a pitched trunk puts the centre ahead of the soles, so the counterbalance is exercised`,
         unbalanced >= 1,
       );
-      const still: IHumanPosture = AutoMovieMotionHumanTrunk.counterbalance(
-        body,
-        CLOCK,
-        RISE,
-        FALL,
-        turned,
-      ).write(turned, 0.625);
+      const still: IAutoMovieMotionHumanPosture =
+        AutoMovieMotionHumanTrunk.counterbalance(
+          body,
+          CLOCK,
+          RISE,
+          FALL,
+          turned,
+        ).write(turned, 0.625);
       all.check(
         `${name}: a counterbalance at a heading of ${yaw} moves nothing for the standing body, whose centre is ${mm(HumanBalance.offset(body, turned))} mm ahead`,
         HumanBalance.offset(body, turned) > 0 ||

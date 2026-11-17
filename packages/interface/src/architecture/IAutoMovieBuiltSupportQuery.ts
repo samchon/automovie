@@ -1,5 +1,5 @@
-import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBodyLocator";
-import { AutoMovieBuiltPlacementSupportLocator } from "./AutoMovieBuiltPlacementSupportLocator";
+import type { IAutoMovieBuiltPlacementBodyLocator } from "./IAutoMovieBuiltPlacementBodyLocator";
+import type { IAutoMovieBuiltPlacementSupportLocator } from "./IAutoMovieBuiltPlacementSupportLocator";
 
 /**
  * One project-authored claim about how a placed building body is supported.
@@ -17,10 +17,10 @@ import { AutoMovieBuiltPlacementSupportLocator } from "./AutoMovieBuiltPlacement
  */
 export interface IAutoMovieBuiltSupportQuery {
   /** The element or compact population whose placement is being reviewed. */
-  subject: AutoMovieBuiltPlacementBodyLocator;
+  subject: IAutoMovieBuiltPlacementBodyLocator;
 
   /** The named body or surface claimed to support the subject. */
-  support: AutoMovieBuiltPlacementSupportLocator;
+  support: IAutoMovieBuiltPlacementSupportLocator;
 
   /**
    * `bearing` when the subject rests on the support and is measured, and

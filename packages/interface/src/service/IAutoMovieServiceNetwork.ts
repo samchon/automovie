@@ -1,8 +1,8 @@
-import { IAutoMovieServiceNode } from "./IAutoMovieServiceNode";
-import { IAutoMovieServicePenetration } from "./IAutoMovieServicePenetration";
-import { IAutoMovieServiceSegment } from "./IAutoMovieServiceSegment";
-import { IAutoMovieServiceSystem } from "./IAutoMovieServiceSystem";
-import { IAutoMovieWetZone } from "./IAutoMovieWetZone";
+import type { IAutoMovieServiceNode } from "./IAutoMovieServiceNode";
+import type { IAutoMovieServicePenetration } from "./IAutoMovieServicePenetration";
+import type { IAutoMovieServiceSegment } from "./IAutoMovieServiceSegment";
+import type { IAutoMovieServiceSystem } from "./IAutoMovieServiceSystem";
+import type { IAutoMovieWetZone } from "./IAutoMovieWetZone";
 
 /**
  * The distribution networks a built environment is served by, as one graph.

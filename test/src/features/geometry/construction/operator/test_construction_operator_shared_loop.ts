@@ -1,5 +1,17 @@
-import { AutoMovieConstructionSharedLoop, AutoMovieSolidIntersection, AutoMovieSolidJoin, type IAutoMovieSolidSurface } from "@automovie/engine";
-import type { AutoMovieConstructionNode, AutoMovieConstructionWidth, IAutoMovieConstructionJoin, IAutoMovieConstructionPort } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionJoin,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionPortLoop,
+  IAutoMovieConstructionSharedLoop,
+  IAutoMovieConstructionWidth,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
+import {
+  AutoMovieConstructionSharedLoop,
+  AutoMovieSolidIntersection,
+  AutoMovieSolidJoin,
+} from "@automovie/engine";
 
 import { ConstructionShapes } from "../../../internal/construction/ConstructionShapes";
 
@@ -66,18 +78,18 @@ export function test_construction_operator_shared_loop(): void {
       };
     },
   };
-  const fold: AutoMovieConstructionWidth = { type: "fold", radius: 0.011, cap: 0.02, reach: 0.0015 };
-  const loop = (sense: 1 | -1): IAutoMovieConstructionPort.ILoop => ({ centre: [0, 0], semi: [0.08, 2], sense });
+  const fold: IAutoMovieConstructionWidth = { type: "fold", radius: 0.011, cap: 0.02, reach: 0.0015 };
+  const loop = (sense: 1 | -1): IAutoMovieConstructionPortLoop => ({ centre: [0, 0], semi: [0.08, 2], sense });
 
   /** A join record over two placeholder subtrees, which the preparation does not read. */
   const record = (
     seed: IAutoMovieConstructionJoin["seed"],
-    widths: { part: AutoMovieConstructionWidth; host: AutoMovieConstructionWidth },
-    declared: IAutoMovieConstructionPort.ILoop | undefined,
+    widths: { part: IAutoMovieConstructionWidth; host: IAutoMovieConstructionWidth },
+    declared: IAutoMovieConstructionPortLoop | undefined,
   ): IAutoMovieConstructionJoin => {
     const frame: Parameters<typeof ConstructionShapes.cylinder>[1] = { origin: { x: 0, y: 0, z: 0 }, u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 1, z: 0 } };
-    const host: AutoMovieConstructionNode = ConstructionShapes.cylinder("wall", frame, 0.03, 0.2);
-    const part: AutoMovieConstructionNode = ConstructionShapes.cylinder("mound", frame, 0.015, 0.08);
+    const host: IAutoMovieConstructionNode = ConstructionShapes.cylinder("wall", frame, 0.03, 0.2);
+    const part: IAutoMovieConstructionNode = ConstructionShapes.cylinder("mound", frame, 0.015, 0.08);
     return {
       type: "join",
       kind: "merge",
@@ -104,7 +116,7 @@ export function test_construction_operator_shared_loop(): void {
     ["counter-clockwise", 1, point],
     ["clockwise", -1, search],
   ] as [string, 1 | -1, IAutoMovieConstructionJoin["seed"]][]) {
-    const prepared: AutoMovieConstructionSharedLoop.IPrepared | AutoMovieConstructionSharedLoop.IRefusal = AutoMovieConstructionSharedLoop.create(
+    const prepared: IAutoMovieConstructionSharedLoop.IPrepared | IAutoMovieConstructionSharedLoop.IRefusal = AutoMovieConstructionSharedLoop.create(
       record(seed, { part: fold, host: fold }, loop(sense)),
       mound,
       AutoMovieSolidIntersection.atlas(wall),
@@ -114,7 +126,7 @@ export function test_construction_operator_shared_loop(): void {
       failures.push(`${label}: refused: ${prepared.contract}: ${prepared.detail}`);
       continue;
     }
-    const made: AutoMovieSolidJoin.IResult = AutoMovieSolidJoin.create({ ...prepared.join, part: mound, host: wall }, "outside");
+    const made: IAutoMovieSolidJoin.IResult = AutoMovieSolidJoin.create({ ...prepared.join, part: mound, host: wall }, "outside");
     if (made.join === null || made.diagnostics.length !== 0) {
       failures.push(`${label}: not admitted: ${made.diagnostics.map((d: { contract: string; detail: string }): string => `${d.contract}: ${d.detail.slice(0, 200)}`).join("; ")}`);
       continue;
@@ -126,7 +138,7 @@ export function test_construction_operator_shared_loop(): void {
       const want: number = Math.hypot(1.5, 11 * Math.tan(beta / 2));
       const law: { host: number; part: number | null } = made.join.widths(t);
       if (Math.abs(law.host - want) > 1e-9 || law.part === null || Math.abs(law.part - want) > 1e-9) failures.push(`${label}: chords at clock ${t}: host ${law.host}, part ${law.part}, expected ${want}`);
-      const rail: ReturnType<AutoMovieSolidJoin.IJoin["rail"]> = made.join.rail(t);
+      const rail: ReturnType<IAutoMovieSolidJoin.IJoin["rail"]> = made.join.rail(t);
       if (rail === null) {
         failures.push(`${label}: no rail at clock ${t}`);
         continue;
@@ -141,7 +153,7 @@ export function test_construction_operator_shared_loop(): void {
 
   // 3. Refusals.
   const expect = (label: string, name: string, node: IAutoMovieConstructionJoin): void => {
-    const got: AutoMovieConstructionSharedLoop.IPrepared | AutoMovieConstructionSharedLoop.IRefusal = AutoMovieConstructionSharedLoop.create(
+    const got: IAutoMovieConstructionSharedLoop.IPrepared | IAutoMovieConstructionSharedLoop.IRefusal = AutoMovieConstructionSharedLoop.create(
       node,
       mound,
       AutoMovieSolidIntersection.atlas(wall),

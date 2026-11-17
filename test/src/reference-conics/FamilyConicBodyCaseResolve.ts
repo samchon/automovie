@@ -1,5 +1,8 @@
-import type { AutoMovieHumanF1Engineering as Engineering, AutoMovieHumanF1NativeLaw as Law } from "@automovie/human";
 import type { FamilyConicBodyCases as Cases } from "./FamilyConicBodyCases";
+import type {
+  IAutoMovieHumanF1Engineering,
+  IAutoMovieHumanF1NativeLaw,
+} from "@automovie/interface";
 
 /**
  * The body round's cases resolved into native fields, in the record the native round's artifact holds
@@ -14,13 +17,13 @@ import type { FamilyConicBodyCases as Cases } from "./FamilyConicBodyCases";
  * This module computes fields only. Writing the artifact (its source hashes and bundle manifest) stays the native round's.
  */
 export namespace FamilyConicBodyCaseResolve {
-  type IFields = Law.IFields;
+  type IFields = IAutoMovieHumanF1NativeLaw.IFields;
 
   /** A caliper record of the native fields: depth and breadth, mm. */
   type ISize = IFields["wall"]["hipSkin"];
 
   /** A row resolved, or the reason it is not yet. */
-  export type IOutcome = { resolved: Engineering.IResolvedCase } | { id: string; unresolved: string };
+  export type IOutcome = { resolved: IAutoMovieHumanF1Engineering.IResolvedCase } | { id: string; unresolved: string };
 
   /** Where each site's caliper stands in the native fields; a site without one is absent. */
   const CALIPERS: Record<string, (fields: IFields) => { depth: number; breadth: number }> = {

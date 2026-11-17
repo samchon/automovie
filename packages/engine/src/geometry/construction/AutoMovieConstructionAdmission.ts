@@ -1,5 +1,5 @@
 import type {
-  AutoMovieConstructionNode,
+  IAutoMovieConstructionNode,
   IAutoMovieConstructionSplit,
 } from "@automovie/interface";
 
@@ -35,10 +35,10 @@ export namespace AutoMovieConstructionAdmission {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Computes each subtree's two sets once and reuses them for reference checks and the parent union rather than rewalking that subtree per reference.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The seen set, returned child sets, union temporaries and recursion stack are owned by this synchronous call and become unreachable on return/throw; no tree or name cache survives.
    */
-  export function admit(root: AutoMovieConstructionNode): void {
+  export function admit(root: IAutoMovieConstructionNode): void {
     const seen: Set<string> = new Set();
     /** Check this node before returning the faces structurally produced below it. */
-    function check(node: AutoMovieConstructionNode): Names {
+    function check(node: IAutoMovieConstructionNode): Names {
       const name: string = (node as { name?: unknown }).name as string;
       if (typeof name !== "string")
         throw new Error("realizeAutoMovieConstruction: a node has no name");
@@ -79,7 +79,13 @@ export namespace AutoMovieConstructionAdmission {
           const part: Names = check(node.part);
           need(part.views, node.seed.partFace, "part face");
           need(host.faces, node.seed.hostFace, "host face");
-          if (node.fair !== undefined && !(Number.isFinite(node.fair) && node.fair > 0)) throw new Error(`realizeAutoMovieConstruction: ${name}'s fair ${node.fair} m is not positive and finite`);
+          if (
+            node.fair !== undefined &&
+            !(Number.isFinite(node.fair) && node.fair > 0)
+          )
+            throw new Error(
+              `realizeAutoMovieConstruction: ${name}'s fair ${node.fair} m is not positive and finite`,
+            );
 
           // A mixed join's declared loop and each fold's reach (`IAutoMovieConstructionJoin.loop`, `IAutoMovieConstructionFoldWidth.reach`).
           const loop: typeof node.loop = node.loop;
@@ -99,11 +105,27 @@ export namespace AutoMovieConstructionAdmission {
           need(host.views, node.hostFace, "host face");
           need(part.views, node.partFace, "part face");
           const band: typeof node.band = node.band;
-          if (band !== undefined && !(Number.isFinite(band.rail) && band.rail > 0 && Number.isInteger(band.count) && band.count >= 8 && band.count % 4 === 0 && Number.isInteger(band.rows) && band.rows >= 1))
-            throw new Error(`realizeAutoMovieConstruction: ${name}'s band (rail ${band.rail} m, ${band.count} columns, ${band.rows} rows) is out of range`);
+          if (
+            band !== undefined &&
+            !(
+              Number.isFinite(band.rail) &&
+              band.rail > 0 &&
+              Number.isInteger(band.count) &&
+              band.count >= 8 &&
+              band.count % 4 === 0 &&
+              Number.isInteger(band.rows) &&
+              band.rows >= 1
+            )
+          )
+            throw new Error(
+              `realizeAutoMovieConstruction: ${name}'s band (rail ${band.rail} m, ${band.count} columns, ${band.rows} rows) is out of range`,
+            );
           return {
             views: union(host.views, part.views),
-            faces: band === undefined ? union(host.faces, part.faces) : union(union(host.faces, part.faces), new Set([name])),
+            faces:
+              band === undefined
+                ? union(host.faces, part.faces)
+                : union(union(host.faces, part.faces), new Set([name])),
           };
         }
         case "split": {
@@ -188,13 +210,43 @@ export namespace AutoMovieConstructionAdmission {
               refuse(
                 `profile corner ${profile.corner} rad is not in (0, pi / 2)`,
               );
-            if (profile.reach !== undefined && !(Number.isFinite(profile.reach) && profile.reach > 0 && profile.reach <= 1))
+            if (
+              profile.reach !== undefined &&
+              !(
+                Number.isFinite(profile.reach) &&
+                profile.reach > 0 &&
+                profile.reach <= 1
+              )
+            )
               refuse(`profile reach ${profile.reach} is not in (0, 1]`);
-            if (profile.square !== undefined && typeof profile.square !== "boolean") refuse(`profile square ${String(profile.square)} is not a boolean`);
-            if (profile.fair !== undefined && !(typeof profile.fair === "number" ? [profile.fair] : profile.fair).every((share: number): boolean => Number.isFinite(share) && share > 0 && share <= 1)) refuse(`profile fair ${JSON.stringify(profile.fair)} is not in (0, 1]`);
-            const heading: [number, number, number] | undefined = profile.heading;
-            if (heading !== undefined && !(heading.every(Number.isFinite) && Math.hypot(...heading) > 0))
-              refuse(`profile heading [${heading.join(", ")}] is not a finite nonzero direction`);
+            if (
+              profile.square !== undefined &&
+              typeof profile.square !== "boolean"
+            )
+              refuse(
+                `profile square ${String(profile.square)} is not a boolean`,
+              );
+            if (
+              profile.fair !== undefined &&
+              !(
+                typeof profile.fair === "number" ? [profile.fair] : profile.fair
+              ).every(
+                (share: number): boolean =>
+                  Number.isFinite(share) && share > 0 && share <= 1,
+              )
+            )
+              refuse(
+                `profile fair ${JSON.stringify(profile.fair)} is not in (0, 1]`,
+              );
+            const heading: [number, number, number] | undefined =
+              profile.heading;
+            if (
+              heading !== undefined &&
+              !(heading.every(Number.isFinite) && Math.hypot(...heading) > 0)
+            )
+              refuse(
+                `profile heading [${heading.join(", ")}] is not a finite nonzero direction`,
+              );
           };
           admit(node.profile);
           // Further seams each enclose the one before, and the children are one
@@ -303,22 +355,40 @@ export namespace AutoMovieConstructionAdmission {
             node.rails !== undefined &&
             !(
               node.rails.length >= 3 &&
-              node.rails.every((x: number): boolean => Number.isFinite(x) && x > 0)
+              node.rails.every(
+                (x: number): boolean => Number.isFinite(x) && x > 0,
+              )
             )
           )
             throw new Error(
               `realizeAutoMovieConstruction: ${name}'s rails are not at least 3 finite positive distances`,
             );
-          if (node.correspondence !== undefined && node.correspondence !== "angle" && node.correspondence !== "length")
-            throw new Error(`realizeAutoMovieConstruction: ${name}'s correspondence ${String(node.correspondence)} is neither angle nor length`);
-          if (node.ribbons !== undefined && node.ribbons !== "common" && node.ribbons !== "column")
-            throw new Error(`realizeAutoMovieConstruction: ${name}'s ribbons ${String(node.ribbons)} is neither common nor column`);
+          if (
+            node.correspondence !== undefined &&
+            node.correspondence !== "angle" &&
+            node.correspondence !== "length"
+          )
+            throw new Error(
+              `realizeAutoMovieConstruction: ${name}'s correspondence ${String(node.correspondence)} is neither angle nor length`,
+            );
+          if (
+            node.ribbons !== undefined &&
+            node.ribbons !== "common" &&
+            node.ribbons !== "column"
+          )
+            throw new Error(
+              `realizeAutoMovieConstruction: ${name}'s ribbons ${String(node.ribbons)} is neither common nor column`,
+            );
           for (const profile of node.profiles ?? []) {
             const knots: boolean =
               profile.knots.length >= 1 &&
               profile.knots.every(
                 ([t, depth]: [number, number], k: number): boolean =>
-                  Number.isFinite(t) && t > 0 && t < 1 && Number.isFinite(depth) && (k === 0 || t > profile.knots[k - 1]![0]),
+                  Number.isFinite(t) &&
+                  t > 0 &&
+                  t < 1 &&
+                  Number.isFinite(depth) &&
+                  (k === 0 || t > profile.knots[k - 1]![0]),
               );
             const window: boolean =
               Number.isFinite(profile.start) &&
@@ -328,9 +398,13 @@ export namespace AutoMovieConstructionAdmission {
               Number.isFinite(profile.transition) &&
               profile.transition > 0;
             if (!knots)
-              throw new Error(`realizeAutoMovieConstruction: ${name}'s profile knots are not increasing shares in (0, 1) with finite depths`);
+              throw new Error(
+                `realizeAutoMovieConstruction: ${name}'s profile knots are not increasing shares in (0, 1) with finite depths`,
+              );
             if (!window)
-              throw new Error(`realizeAutoMovieConstruction: ${name}'s profile window is not start <= end < start + 2 pi with a positive transition`);
+              throw new Error(
+                `realizeAutoMovieConstruction: ${name}'s profile window is not start <= end < start + 2 pi with a positive transition`,
+              );
           }
           const shape: number[] | undefined = node.loop.shape;
           if (

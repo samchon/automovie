@@ -1,10 +1,14 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -35,10 +39,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_travel_follow_moving(): void {
   const complaints: string[] = [];
   for (const names of [["m-average", "f-small"]] as const) {
-    const follower: IHumanBody = motionHumanBody(names[0]);
-    const leader: IHumanBody = motionHumanBody(names[1]);
+    const follower: IAutoMovieMotionHumanBody = motionHumanBody(names[0]);
+    const leader: IAutoMovieMotionHumanBody = motionHumanBody(names[1]);
     const label: string = `${names[0]} following ${names[1]}`;
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "follow",
@@ -76,13 +80,13 @@ export function test_human_motion_travel_follow_moving(): void {
       );
       continue;
     }
-    const a: HumanSignature.IReader = HumanSignature.of(
+    const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       follower,
       0,
     );
-    const b: HumanSignature.IReader = HumanSignature.of(
+    const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "b",
       leader,
@@ -96,7 +100,10 @@ export function test_human_motion_travel_follow_moving(): void {
       complaints.push(
         `${label}: when both have stopped the follower's chest is ${gap.toFixed(3)} m from the leader's back, 1.2 to 2.1 m expected`,
       );
-    const along = (reader: HumanSignature.IReader, t: number): number =>
+    const along = (
+      reader: IAutoMovieMotionHumanSignature.IReader,
+      t: number,
+    ): number =>
       (HumanSignature.joint(reader, t, "leftUpperLeg").z +
         HumanSignature.joint(reader, t, "rightUpperLeg").z) /
       2;

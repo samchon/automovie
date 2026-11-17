@@ -1,4 +1,4 @@
-import { type AutoMovieViewAxis, type AutoMovieViewAxisJet, AutoMovieViewChain } from "@automovie/engine";
+import { AutoMovieViewChain } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicRecentre as Recentre,
@@ -6,6 +6,14 @@ import {
   AutoMovieHumanF1,
   AutoMovieHumanF1TrunkCentre as TrunkCentre,
 } from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicRecentre,
+  IAutoMovieHumanConicSection,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewChain,
+} from "@automovie/interface";
 
 /**
  * A section's centre is the centroid of its area, a family's centre line follows its sections' centres, and f1's trunk re-expressed about
@@ -43,7 +51,7 @@ export function test_human_f1_trunk_centre(): void {
     if (!(d <= tolerance)) failures.push(`${what}: [${got.join(", ")}] instead of [${want.join(", ")}]`);
   };
   const rho: number = Math.SQRT2 - 1;
-  const world = (course: AutoMovieViewAxis.IAxis, knots: readonly number[], values: readonly (readonly number[])[], layout: S.ILayout, s: number, t: number): number[] => {
+  const world = (course: IAutoMovieViewAxis.IAxis, knots: readonly number[], values: readonly (readonly number[])[], layout: IAutoMovieHumanConicSection.ILayout, s: number, t: number): number[] => {
     const frame = course.at(s);
     const r: number = AutoMovieViewChain.radius(S.chain(H.reader({ knots: knots as number[], values: values as number[][] })(s), layout), t);
     return [0, 1, 2].map((k: number): number => frame.origin[k]! + r * (Math.cos(t) * frame.u[k]! + Math.sin(t) * frame.v[k]!));
@@ -51,33 +59,33 @@ export function test_human_f1_trunk_centre(): void {
 
   // 1. Centroids.
   const [a, b]: [number, number] = [20, 10];
-  const limb: S.ILayout = S.limb(0);
+  const limb: IAutoMovieHumanConicSection.ILayout = S.limb(0);
   const ellipse = (e: readonly [number, number]): number[] => [e[0] + a, e[1], e[0], e[1] + b, e[0] - a, e[1], e[0], e[1] - b, rho, rho, rho, rho];
   near("centroid of an off-centre ellipse", TrunkCentre.centroid(S.chain(ellipse([3, -2]), limb)), [3, -2], 1e-6);
-  const bilateral: S.ILayout = S.bilateral(0);
+  const bilateral: IAutoMovieHumanConicSection.ILayout = S.bilateral(0);
   near("centroid of two half ellipses", TrunkCentre.centroid(S.chain([30, 0, 15, -10, rho, rho], bilateral)), [(4 * (30 - 10)) / (3 * Math.PI), 0], 1e-6);
 
   // 2. Centre lines of made families.
   const knots: number[] = [0, 10, 20, 30];
-  const family = (layout: S.ILayout, section: (s: number) => number[]): H.IFamily => {
+  const family = (layout: IAutoMovieHumanConicSection.ILayout, section: (s: number) => number[]): IAutoMovieHumanConicLoft.IFamily => {
     const sections: number[][] = knots.map(section);
     return { name: "made", centres: [[1, 2, 3], [1, 42, 3]], halves: [], up: [1, 0, 0], layout, knots, values: sections[0]!.map((_: number, f: number): number[] => sections.map((values: number[]): number => values[f]!)) };
   };
-  const still: H.IFamily = family(limb, (): number[] => ellipse([3, -2]));
+  const still: IAutoMovieHumanConicLoft.IFamily = family(limb, (): number[] => ellipse([3, -2]));
   for (const share of [0, 0.5, 2]) {
-    const line: Recentre.ILine = TrunkCentre.line(still, share);
+    const line: IAutoMovieHumanConicRecentre.ILine = TrunkCentre.line(still, share);
     knots.forEach((s: number, k: number): void => near(`constant centre at station ${s}, share ${share}`, [line.u[k]!, line.v[k]!], [3, -2], 1e-9));
   }
   const centre = (s: number): [number, number] => [3 + 0.1 * s, -2 + 0.05 * s];
-  const moving: H.IFamily = family(limb, (s: number): number[] => ellipse(centre(s)));
-  const own: Recentre.ILine = TrunkCentre.line(moving, 0);
+  const moving: IAutoMovieHumanConicLoft.IFamily = family(limb, (s: number): number[] => ellipse(centre(s)));
+  const own: IAutoMovieHumanConicRecentre.ILine = TrunkCentre.line(moving, 0);
   knots.forEach((s: number, k: number): void => near(`moving centre at station ${s}`, [own.u[k]!, own.v[k]!], centre(s), 1e-9));
-  const half: Recentre.ILine = TrunkCentre.line(family(bilateral, (s: number): number[] => [30 + 0.1 * s, 0, 15, -10, rho, rho]), 0.5);
+  const half: IAutoMovieHumanConicRecentre.ILine = TrunkCentre.line(family(bilateral, (s: number): number[] => [30 + 0.1 * s, 0, 15, -10, rho, rho]), 0.5);
   if (!half.v.every((x: number): boolean => x === 0)) failures.push("a bilateral family's line left the median line");
 
   // 3. The made family about its own line.
   const made: TrunkCentre.IRecentred = TrunkCentre.recentre(moving, own);
-  const base: AutoMovieViewAxis.IAxis = H.axis(moving);
+  const base: IAutoMovieViewAxis.IAxis = H.axis(moving);
   for (const s of [0, 5, 12.5, 20, 30])
     for (let j: number = 0; j < 16; ++j) {
       const t: number = (2 * Math.PI * j) / 16 + 0.05;
@@ -88,14 +96,14 @@ export function test_human_f1_trunk_centre(): void {
     }
 
   // 4. f1's trunk about its centre line.
-  const trunk: H.IFamily = AutoMovieHumanF1.BODY.trunk;
+  const trunk: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.BODY.trunk;
   const centred: TrunkCentre.IRecentred = TrunkCentre.recentre(trunk);
   if (!centred.line.v.every((x: number): boolean => x === 0)) failures.push("the trunk's centre line leaves the median line");
-  const course: AutoMovieViewAxis.IAxis = H.axis(trunk);
+  const course: IAutoMovieViewAxis.IAxis = H.axis(trunk);
   const stations: number[] = trunk.knots.flatMap((s: number, m: number): number[] => (m === 0 ? [s] : [0.25, 0.5, 0.75, 1].map((x: number): number => trunk.knots[m - 1]! + x * (s - trunk.knots[m - 1]!))));
   const read: (s: number) => number[] = H.reader({ knots: trunk.knots, values: centred.values });
   for (const s of stations) {
-    const section: AutoMovieViewChain.ISection = S.chain(read(s), trunk.layout);
+    const section: IAutoMovieViewChain.ISection = S.chain(read(s), trunk.layout);
     if (section.fault !== null) {
       failures.push(`the re-expressed trunk section at ${s} is refused: ${section.fault}`);
       continue;
@@ -113,8 +121,8 @@ export function test_human_f1_trunk_centre(): void {
   }
 
   // 5. The moved course is twice differentiable.
-  const jet = (s: number): AutoMovieViewAxisJet.IJet => {
-    const j: AutoMovieViewAxisJet.IJet | null | undefined = centred.axis.jet?.(s);
+  const jet = (s: number): IAutoMovieViewAxisJet.IJet => {
+    const j: IAutoMovieViewAxisJet.IJet | null | undefined = centred.axis.jet?.(s);
     if (j === null || j === undefined) throw new Error(`the moved trunk course has no jet at ${s}`);
     return j;
   };
@@ -122,7 +130,7 @@ export function test_human_f1_trunk_centre(): void {
   for (const s of [trunk.knots[0]!, trunk.knots.at(-1)!]) near(`moved course bend at end knot ${s}`, jet(s).second.origin, [0, 0, 0], 1e-12);
 
   // 6. A centroid moves with its region.
-  const [before, after]: Recentre.ILine[] = [TrunkCentre.line(trunk, 0), TrunkCentre.line({ ...trunk, values: centred.values }, 0)];
+  const [before, after]: IAutoMovieHumanConicRecentre.ILine[] = [TrunkCentre.line(trunk, 0), TrunkCentre.line({ ...trunk, values: centred.values }, 0)];
   trunk.knots.forEach((s: number, k: number): void => near(`trunk centroid about the new origin at ${s}`, [after!.u[k]!], [before!.u[k]! - centred.line.u[k]!], 0.02));
 
   if (failures.length !== 0) throw new Error(failures.join("\n"));

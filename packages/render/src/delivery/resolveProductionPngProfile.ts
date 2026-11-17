@@ -1,7 +1,8 @@
 import { AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS } from "@automovie/engine";
-
-import type { AutoMovieProductionPngRole } from "./AutoMovieProductionPngRole.js";
-import type { IAutoMovieProductionPngProfile } from "./IAutoMovieProductionPngProfile.js";
+import type {
+  IAutoMovieProductionPngProfile,
+  IAutoMovieResolveProductionPngProfileProps,
+} from "@automovie/interface";
 
 /**
  * Resolve one output role to the exact PNG profile its writer must emit.
@@ -23,20 +24,11 @@ import type { IAutoMovieProductionPngProfile } from "./IAutoMovieProductionPngPr
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one small profile from its arguments and coordinates no phases or requests whose work could be shared.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The PNG profile is a fresh eleven-field record handed to the validator that requested it; the engine raster constant is read, never retained, and no file handle or task is opened.
  */
-export const resolveProductionPngProfile: (props: {
-  role: AutoMovieProductionPngRole;
-  width?: number;
-  height?: number;
-}) => IAutoMovieProductionPngProfile = (props: {
-  /** Output role selecting an engine-fixed or caller-supplied raster. */
-  role: AutoMovieProductionPngRole;
-
-  /** Pixel width required for preview/guide-frame and ignored for sound-evidence roles. */
-  width?: number;
-
-  /** Pixel height required for preview/guide-frame and ignored for sound-evidence roles. */
-  height?: number;
-}): IAutoMovieProductionPngProfile => {
+export const resolveProductionPngProfile: (
+  props: IAutoMovieResolveProductionPngProfileProps,
+) => IAutoMovieProductionPngProfile = (
+  props: IAutoMovieResolveProductionPngProfileProps,
+): IAutoMovieProductionPngProfile => {
   const raster: { width: number | undefined; height: number | undefined } =
     props.role === "waveform" || props.role === "spectrogram"
       ? AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS[props.role]

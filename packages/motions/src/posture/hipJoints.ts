@@ -1,11 +1,12 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
+import { Transform } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { poseBones } from "./poseBones";
 
 /**
@@ -20,7 +21,7 @@ import { poseBones } from "./poseBones";
  * @returns Each hip joint, world metres.
  */
 export function hipJoints(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   root: IAutoMovieVector3,
   rotation: IAutoMovieQuaternion,
   pelvis?: readonly [number, number, number],
@@ -29,7 +30,7 @@ export function hipJoints(
     body,
     {
       skeleton: body.skeleton.id,
-      root: { translation: root, rotation, scale: { x: 1, y: 1, z: 1 } },
+      root: Transform.of(root, rotation),
       joints:
         pelvis === undefined
           ? []

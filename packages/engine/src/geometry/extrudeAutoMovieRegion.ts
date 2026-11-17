@@ -1,8 +1,12 @@
-import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieExtrudeRegion,
+  IAutoMovieMesh,
+  type IAutoMovieMeshTarget,
+  type IAutoMovieProfilePoint,
+  type IAutoMovieRegionTriangulation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { IAutoMovieMeshTarget } from "./IAutoMovieMeshTarget";
-import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
-import { IAutoMovieRegionTriangulation } from "./IAutoMovieRegionTriangulation";
 import { emptyMeshTarget } from "./emptyMeshTarget";
 import { positive } from "./positive";
 import { triangulateRegion } from "./triangulateRegion";
@@ -47,16 +51,9 @@ import { triangulateRegion } from "./triangulateRegion";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One mesh per authored region and depth; a caller that places the same solid repeatedly can keep the returned mesh.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the target's four arrays, holding 6n vertices for n region points, as the mesh's own buffers; the triangulation is released on return.
  */
-export const extrudeAutoMovieRegion = (props: {
-  /** Outer boundary in local XY metres. */
-  outer: readonly IAutoMovieProfilePoint[];
-
-  /** Voids through the whole depth. */
-  holes?: ReadonlyArray<readonly IAutoMovieProfilePoint[]>;
-
-  /** Positive extrusion depth along local Z, in metres. */
-  depth: number;
-}): IAutoMovieMesh => {
+export const extrudeAutoMovieRegion = (
+  props: IAutoMovieExtrudeRegion.IProps,
+): IAutoMovieMesh => {
   positive(props.depth, "polygon extrusion depth");
   const plan: IAutoMovieRegionTriangulation = triangulateRegion(
     props.outer,

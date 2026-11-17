@@ -1,6 +1,8 @@
 import { AutoMovieNaturalSpline } from "@automovie/engine";
-
-import type { AutoMovieHumanConicSection as S } from "./AutoMovieHumanConicSection";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieNaturalCubicSpline,
+} from "@automovie/interface";
 
 /**
  * A directional tissue scale along a family's course, as a function of material station with its own 2-jet.
@@ -30,13 +32,13 @@ export namespace AutoMovieHumanNativeScaleProfile {
    */
   export interface IJet {
     /** Depth and breadth ratios, dimensionless and positive. */
-    value: S.P;
+    value: AutoMovieVector2Tuple;
 
     /** First station derivatives of both ratios, per mm. */
-    first: S.P;
+    first: AutoMovieVector2Tuple;
 
     /** Second station derivatives of both ratios, per mm squared. */
-    second: S.P;
+    second: AutoMovieVector2Tuple;
   }
 
   /**
@@ -49,7 +51,7 @@ export namespace AutoMovieHumanNativeScaleProfile {
    */
   export interface IScale {
     /** Depth and breadth ratios at a material station, mm. */
-    (station: number): S.P;
+    (station: number): AutoMovieVector2Tuple;
 
     /** The ratios and their first two station derivatives at a material station, mm. */
     jet: (station: number) => IJet;
@@ -58,7 +60,7 @@ export namespace AutoMovieHumanNativeScaleProfile {
     breaks: readonly number[];
 
     /** The ratio every station reads, when the law is constant by construction; otherwise null. */
-    constant: S.P | null;
+    constant: AutoMovieVector2Tuple | null;
   }
 
   /**
@@ -74,9 +76,9 @@ export namespace AutoMovieHumanNativeScaleProfile {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The anchors are copied once and shared by value and jet.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only its copied anchors for the caller's lifetime.
    */
-  export function create(anchors: readonly (readonly [number, S.P])[]): IScale {
-    const sites: [number, S.P][] = anchors.map(
-      ([station, value]: readonly [number, S.P]): [number, S.P] => [
+  export function create(anchors: readonly (readonly [number, AutoMovieVector2Tuple])[]): IScale {
+    const sites: [number, AutoMovieVector2Tuple][] = anchors.map(
+      ([station, value]: readonly [number, AutoMovieVector2Tuple]): [number, AutoMovieVector2Tuple] => [
         station,
         [value[0], value[1]],
       ],
@@ -84,7 +86,7 @@ export namespace AutoMovieHumanNativeScaleProfile {
     if (
       sites.length === 0 ||
       !sites.every(
-        ([station, value]: [number, S.P], k: number): boolean =>
+        ([station, value]: [number, AutoMovieVector2Tuple], k: number): boolean =>
           Number.isFinite(station) &&
           value.every((x: number): boolean => Number.isFinite(x) && x > 0) &&
           (k === 0 || station > sites[k - 1]![0]),
@@ -102,16 +104,16 @@ export namespace AutoMovieHumanNativeScaleProfile {
         if (station <= sites[k]![0]) return k;
       return sites.length;
     };
-    const held = (value: S.P): IJet => ({
+    const held = (value: AutoMovieVector2Tuple): IJet => ({
       value: [value[0], value[1]],
       first: [0, 0],
       second: [0, 0],
     });
-    const read = (station: number): S.P => {
+    const read = (station: number): AutoMovieVector2Tuple => {
       const k: number = span(station);
       if (k < 0) return [sites[0]![1][0], sites[0]![1][1]];
       if (k >= sites.length) return [sites.at(-1)![1][0], sites.at(-1)![1][1]];
-      const [a, b]: [[number, S.P], [number, S.P]] = [sites[k - 1]!, sites[k]!];
+      const [a, b]: [[number, AutoMovieVector2Tuple], [number, AutoMovieVector2Tuple]] = [sites[k - 1]!, sites[k]!];
       const h: number = smooth((station - a[0]) / (b[0] - a[0]));
       return [a[1][0] + h * (b[1][0] - a[1][0]), a[1][1] + h * (b[1][1] - a[1][1])];
     };
@@ -119,29 +121,29 @@ export namespace AutoMovieHumanNativeScaleProfile {
       const k: number = span(station);
       if (k < 0) return held(sites[0]![1]);
       if (k >= sites.length) return held(sites.at(-1)![1]);
-      const [a, b]: [[number, S.P], [number, S.P]] = [sites[k - 1]!, sites[k]!];
+      const [a, b]: [[number, AutoMovieVector2Tuple], [number, AutoMovieVector2Tuple]] = [sites[k - 1]!, sites[k]!];
       const length: number = b[0] - a[0];
       const [h, h1, h2]: [number, number, number] = weight(
         (station - a[0]) / length,
         length,
       );
-      const rise: S.P = [b[1][0] - a[1][0], b[1][1] - a[1][1]];
+      const rise: AutoMovieVector2Tuple = [b[1][0] - a[1][0], b[1][1] - a[1][1]];
       return {
         value: [a[1][0] + h * rise[0], a[1][1] + h * rise[1]],
         first: [h1 * rise[0], h1 * rise[1]],
         second: [h2 * rise[0], h2 * rise[1]],
       };
     };
-    const first: S.P = sites[0]![1];
-    const constant: S.P | null = sites.every(
-      ([, value]: [number, S.P]): boolean =>
+    const first: AutoMovieVector2Tuple = sites[0]![1];
+    const constant: AutoMovieVector2Tuple | null = sites.every(
+      ([, value]: [number, AutoMovieVector2Tuple]): boolean =>
         value[0] === first[0] && value[1] === first[1],
     )
       ? [first[0], first[1]]
       : null;
     return Object.assign(read, {
       jet,
-      breaks: sites.map(([station]: [number, S.P]): number => station),
+      breaks: sites.map(([station]: [number, AutoMovieVector2Tuple]): number => station),
       constant,
     });
   }
@@ -159,12 +161,12 @@ export namespace AutoMovieHumanNativeScaleProfile {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A constant shares no preparation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one copied pair.
    */
-  export function constant(value: S.P): IScale {
+  export function constant(value: AutoMovieVector2Tuple): IScale {
     if (!value.every((x: number): boolean => Number.isFinite(x) && x > 0))
       throw new Error("constant scale needs positive finite ratios");
-    const fixed: S.P = [value[0], value[1]];
+    const fixed: AutoMovieVector2Tuple = [value[0], value[1]];
     const breaks: number[] = [];
-    return Object.assign((): S.P => [fixed[0], fixed[1]], {
+    return Object.assign((): AutoMovieVector2Tuple => [fixed[0], fixed[1]], {
       jet: (): IJet => ({
         value: [fixed[0], fixed[1]],
         first: [0, 0],
@@ -201,9 +203,9 @@ export namespace AutoMovieHumanNativeScaleProfile {
     if (!(Number.isFinite(start) && Number.isFinite(end) && end > start))
       throw new Error("scale handoff needs a finite increasing interval");
     const length: number = end - start;
-    const read = (station: number): S.P => {
-      const b: S.P = before(station);
-      const a: S.P = after(station);
+    const read = (station: number): AutoMovieVector2Tuple => {
+      const b: AutoMovieVector2Tuple = before(station);
+      const a: AutoMovieVector2Tuple = after(station);
       const h: number = smooth((station - start) / length);
       return [b[0] + h * (a[0] - b[0]), b[1] + h * (a[1] - b[1])];
     };
@@ -231,9 +233,9 @@ export namespace AutoMovieHumanNativeScaleProfile {
         second: [u![2], v![2]],
       };
     };
-    const held: S.P | null = before.constant;
-    const reached: S.P | null = after.constant;
-    const constant: S.P | null =
+    const held: AutoMovieVector2Tuple | null = before.constant;
+    const reached: AutoMovieVector2Tuple | null = after.constant;
+    const constant: AutoMovieVector2Tuple | null =
       held !== null &&
       reached !== null &&
       held[0] === reached[0] &&
@@ -298,8 +300,8 @@ export namespace AutoMovieHumanNativeScaleProfile {
       throw new Error(
         "scaling centre line needs at least two finite increasing knots with one finite u and v each",
       );
-    const splines: AutoMovieNaturalSpline.ISpline[] = [u, v].map(
-      (values: readonly number[]): AutoMovieNaturalSpline.ISpline =>
+    const splines: IAutoMovieNaturalCubicSpline[] = [u, v].map(
+      (values: readonly number[]): IAutoMovieNaturalCubicSpline =>
         AutoMovieNaturalSpline.create(knots, values),
     );
     const [first, last]: [number, number] = [knots[0]!, knots.at(-1)!];
@@ -338,7 +340,7 @@ export namespace AutoMovieHumanNativeScaleProfile {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure guard schedules no work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function of(scale: (station: number) => S.P): IScale | null {
+  export function of(scale: (station: number) => AutoMovieVector2Tuple): IScale | null {
     const carried: Partial<IScale> = scale as Partial<IScale>;
     return typeof carried.jet === "function" &&
       Array.isArray(carried.breaks) &&

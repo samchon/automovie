@@ -1,4 +1,9 @@
 import { AutoMovieHumanSegmentFrame as F } from "./AutoMovieHumanSegmentFrame";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
+} from "@automovie/interface";
 
 /**
  * The one rule for a datum that stands on a wall, and for the rigid child that hangs on it.
@@ -26,7 +31,7 @@ export namespace AutoMovieHumanSkinDatum {
     /** The course frame at a station, mm. */
     at: (station: number) => IFrame;
     /** The course station of a point, mm. */
-    station: (point: F.V3) => number;
+    station: (point: AutoMovieVector3Tuple) => number;
     /** The wall's depth and breadth ratios, along `u` and `v`, at a station. */
     ratio: (station: number) => readonly [number, number];
   }
@@ -42,16 +47,16 @@ export namespace AutoMovieHumanSkinDatum {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure map coordinates no shared work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one point.
    */
-  export function skin(point: F.V3, wall: IWall): F.V3 {
+  export function skin(point: AutoMovieVector3Tuple, wall: IWall): AutoMovieVector3Tuple {
     const station: number = wall.station(point);
     const [a, b]: readonly [number, number] = wall.ratio(station);
     if (![a, b].every((k: number): boolean => Number.isFinite(k) && k > 0))
       throw new Error("skin datum ratios must be finite and positive");
     if (a === 1 && b === 1) return point;
     const frame: IFrame = wall.at(station);
-    const q: F.V3 = F.sub(point, [frame.origin[0]!, frame.origin[1]!, frame.origin[2]!]);
-    const u: F.V3 = [frame.u[0]!, frame.u[1]!, frame.u[2]!];
-    const v: F.V3 = [frame.v[0]!, frame.v[1]!, frame.v[2]!];
+    const q: AutoMovieVector3Tuple = F.sub(point, [frame.origin[0]!, frame.origin[1]!, frame.origin[2]!]);
+    const u: AutoMovieVector3Tuple = [frame.u[0]!, frame.u[1]!, frame.u[2]!];
+    const v: AutoMovieVector3Tuple = [frame.v[0]!, frame.v[1]!, frame.v[2]!];
     return F.add(point, F.add(F.scale(u, (a - 1) * F.dot(q, u)), F.scale(v, (b - 1) * F.dot(q, v))));
   }
 
@@ -66,14 +71,14 @@ export namespace AutoMovieHumanSkinDatum {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every other record is borrowed.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A changed result owns one array and one record.
    */
-  export function attach(chain: readonly F.IJoint[], frames: ReadonlyMap<string, F.IFrame>, joint: string, origin: F.V3): readonly F.IJoint[] {
-    const index: number = chain.findIndex((entry: F.IJoint): boolean => entry.name === joint);
-    const record: F.IJoint | undefined = chain[index];
+  export function attach(chain: readonly IAutoMovieHumanSegmentJoint[], frames: ReadonlyMap<string, IAutoMovieHumanSegmentFrame>, joint: string, origin: AutoMovieVector3Tuple): readonly IAutoMovieHumanSegmentJoint[] {
+    const index: number = chain.findIndex((entry: IAutoMovieHumanSegmentJoint): boolean => entry.name === joint);
+    const record: IAutoMovieHumanSegmentJoint | undefined = chain[index];
     if (record === undefined || record.parent === null) throw new Error("skin datum attaches only a present child joint: " + joint);
-    const parent: F.IFrame | undefined = frames.get(record.parent);
-    const own: F.IFrame | undefined = frames.get(joint);
+    const parent: IAutoMovieHumanSegmentFrame | undefined = frames.get(record.parent);
+    const own: IAutoMovieHumanSegmentFrame | undefined = frames.get(joint);
     if (parent === undefined || own === undefined) throw new Error("skin datum needs the frames of " + joint + " and its parent");
     if (own.origin.every((x: number, k: number): boolean => Object.is(x, origin[k]))) return chain;
-    return chain.map((entry: F.IJoint, k: number): F.IJoint => (k === index ? { ...entry, offset: F.toLocal(parent, origin) } : entry));
+    return chain.map((entry: IAutoMovieHumanSegmentJoint, k: number): IAutoMovieHumanSegmentJoint => (k === index ? { ...entry, offset: F.toLocal(parent, origin) } : entry));
   }
 }

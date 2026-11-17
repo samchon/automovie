@@ -1,9 +1,8 @@
-import path from "node:path";
-
 import { FamilyConicCaptureInput as Input } from "./FamilyConicCaptureInput";
 import { FamilyConicFigureCapture as Figure } from "./FamilyConicFigureCapture";
 import { FamilyConicNativeCapture as Native } from "./FamilyConicNativeCapture";
 import { FamilyConicSourceCapture as Source } from "./FamilyConicSourceCapture";
+import path from "node:path";
 
 /**
  * Legacy figure capture is unchanged when native options are absent.

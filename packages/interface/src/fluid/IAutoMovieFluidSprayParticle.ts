@@ -1,4 +1,4 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * One decorative spray particle returned by sampleFluidSpray at the sampled step.

@@ -1,6 +1,8 @@
-import type { AutoMovieHumanF1Engineering as Engineering } from "./AutoMovieHumanF1Engineering";
-import type { AutoMovieHumanF1NativeFieldTypes as Types } from "./AutoMovieHumanF1NativeFieldTypes";
-import type { AutoMovieHumanF1SegmentLengths as Lengths } from "./AutoMovieHumanF1SegmentLengths";
+import type {
+  IAutoMovieHumanF1Engineering,
+  IAutoMovieHumanF1NativeLaw,
+  IAutoMovieHumanF1SegmentLengths,
+} from "@automovie/interface";
 
 /**
  * The working anatomical field model of the F1 derivation (#3172, campaign #3151): which measurable fields account for f1's controls,
@@ -26,10 +28,10 @@ export namespace AutoMovieHumanF1FieldModel {
    */
   export interface IPrimary {
     /** Joint-centre segment lengths, mm, which move the chain's joint centres, frames and course runs. */
-    lengths: Lengths.IFields;
+    lengths: IAutoMovieHumanF1SegmentLengths.IFields;
 
     /** The hip joint centre breadth and the directional tissue calipers at the measurement sites, mm. */
-    tissue: Types.IFields;
+    tissue: IAutoMovieHumanF1NativeLaw.IFields;
   }
 
   /**
@@ -40,7 +42,7 @@ export namespace AutoMovieHumanF1FieldModel {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No check is writable as an input through this model.
    * @evidence contracts/development/common.md#meaningful-documentation States the generated-source scope.
    */
-  export type IChecks = Engineering.IReading;
+  export type IChecks = IAutoMovieHumanF1Engineering.IReading;
 
   /** A field's layer, from the skeleton outward. */
   export type Layer = "joint" | "length" | "frame" | "rest" | "bone" | "tissue" | "check";
@@ -50,9 +52,9 @@ export namespace AutoMovieHumanF1FieldModel {
 
   /** A member of the typed working records a catalogue row documents. */
   export type Member =
-    | `lengths.${keyof Lengths.IFields}`
-    | `tissue.${keyof Types.IFields}`
-    | `checks.${keyof Engineering.IReading}`;
+    | `lengths.${keyof IAutoMovieHumanF1SegmentLengths.IFields}`
+    | `tissue.${keyof IAutoMovieHumanF1NativeLaw.IFields}`
+    | `checks.${keyof IAutoMovieHumanF1Engineering.IReading}`;
 
   /**
    * One working field or derived check.

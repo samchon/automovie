@@ -1,7 +1,12 @@
-import { AutoMovieLoftChain, type AutoMovieLoftFrame, type AutoMovieViewAxis, type AutoMovieViewLoft } from "@automovie/engine";
-
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
-import type { AutoMovieHumanNail } from "./AutoMovieHumanNail";
+import { AutoMovieLoftChain } from "@automovie/engine";
+import type {
+  IAutoMovieHumanNail,
+  IAutoMovieHumanNailLoop,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewLoft,
+} from "@automovie/interface";
 
 /**
  * The curve a nail's plate and its digit meet on, as a declared loop on the digit's chart (`IAutoMovieConstructionJoin.loop`).
@@ -14,25 +19,7 @@ import type { AutoMovieHumanNail } from "./AutoMovieHumanNail";
  */
 export namespace AutoMovieHumanNailLoop {
   /** A lofted chain, as the engine publishes it. */
-  export type Chain = NonNullable<AutoMovieViewLoft.IResult["chain"]>;
-
-  /** The loop and the join's point seed, in the join's units: metres and radians. */
-  export interface ILoop {
-    /** The chart ellipse's centre `[station, phase]` on the digit. */
-    centre: [number, number];
-
-    /** Its semi-axes `[station, phase]`. */
-    semi: [number, number];
-
-    /** The curve's share of the ellipse at each column's clock. */
-    shape: number[];
-
-    /** The plate's chart point `[station, phase]` on the curve at clock 0. */
-    part: [number, number];
-
-    /** The digit's chart point `[station, phase]` on the curve at clock 0. */
-    host: [number, number];
-  }
+  export type Chain = NonNullable<IAutoMovieViewLoft.IResult["chain"]>;
 
   /** Phases a plate's ring is scanned at for its side extreme. */
   const SCAN: number = 24;
@@ -46,16 +33,16 @@ export namespace AutoMovieHumanNailLoop {
    * @param tip The station of the digit's tip, mm.
    * @param count The join's columns.
    */
-  export function create(nail: AutoMovieHumanNail.INail, plate: Chain, host: Chain, tip: number, count: number): ILoop {
-    const axis: AutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(nail.plate);
+  export function create(nail: IAutoMovieHumanNail.INail, plate: Chain, host: Chain, tip: number, count: number): IAutoMovieHumanNailLoop.ILoop {
+    const axis: IAutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(nail.plate);
     const knots: [number, number] = [nail.plate.knots[0]!, nail.plate.knots.at(-1)!];
     const [from, to]: [number, number] = [nail.plate.tips?.[0]?.tip ?? knots[0], nail.plate.tips?.[1]?.tip ?? knots[1]];
-    const start: AutoMovieLoftFrame.IFrame = axis.at(0);
-    const next: AutoMovieLoftFrame.IFrame = axis.at(1);
+    const start: IAutoMovieLoftSectionFrame = axis.at(0);
+    const next: IAutoMovieLoftSectionFrame = axis.at(1);
     const along: number[] = [0, 1, 2].map((k: number): number => next.origin[k]! - start.origin[k]!);
     // The plate's own chart point `[u, v]` of its ring at a station and a phase.
     const ring = (station: number, phase: number): [number, number] => {
-      const frame: AutoMovieLoftFrame.IFrame = axis.at(station);
+      const frame: IAutoMovieLoftSectionFrame = axis.at(station);
       const p: number[] = AutoMovieLoftChain.point(plate, station, phase);
       const d: number[] = [0, 1, 2].map((k: number): number => p[k]! - frame.origin[k]!);
       return [d[0]! * frame.u[0] + d[1]! * frame.u[1] + d[2]! * frame.u[2], d[0]! * frame.v[0] + d[1]! * frame.v[1] + d[2]! * frame.v[2]];
@@ -67,13 +54,13 @@ export namespace AutoMovieHumanNailLoop {
       // along the course's own direction there, since the course turns past the free edge.
       let station: number = Math.max(from + 1e-6, Math.min(to - 1e-6, [0, 1, 2].reduce((sum: number, k: number): number => sum + (p[k]! - start.origin[k]!) * along[k]!, 0)));
       for (let i: number = 0; i < 16; ++i) {
-        const here: AutoMovieLoftFrame.IFrame = axis.at(station);
-        const ahead: AutoMovieLoftFrame.IFrame = axis.at(station + 1e-4);
+        const here: IAutoMovieLoftSectionFrame = axis.at(station);
+        const ahead: IAutoMovieLoftSectionFrame = axis.at(station + 1e-4);
         const step: number = [0, 1, 2].reduce((sum: number, k: number): number => sum + ((p[k]! - here.origin[k]!) * (ahead.origin[k]! - here.origin[k]!)) / 1e-4, 0);
         station += step;
         if (!(station > from && station < to - 1e-4)) return null;
       }
-      const frame: AutoMovieLoftFrame.IFrame = axis.at(station);
+      const frame: IAutoMovieLoftSectionFrame = axis.at(station);
       const d: number[] = [0, 1, 2].map((k: number): number => p[k]! - frame.origin[k]!);
       const [u, v]: [number, number] = [d[0]! * frame.u[0] + d[1]! * frame.u[1] + d[2]! * frame.u[2], d[0]! * frame.v[0] + d[1]! * frame.v[1] + d[2]! * frame.v[2]];
       // The upper face runs from the crown at phase 0 to the side extreme, the same on both sides; the side extreme is the ring's

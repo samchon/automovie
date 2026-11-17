@@ -1,10 +1,12 @@
-import { IAutoMovieLight } from "@automovie/interface";
+import {
+  IAutoMovieLight,
+  type IAutoMovieLightChannelProperty,
+  type IAutoMovieLightOverride,
+  type IAutoMovieLightPointer,
+  type IAutoMovieShotLightingInput,
+} from "@automovie/interface";
 
 import { withArticle } from "../text/withArticle";
-import type { IAutoMovieLightChannelProperty } from "./IAutoMovieLightChannelProperty";
-import { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
-import type { IAutoMovieLightPointer } from "./IAutoMovieLightPointer";
-import { IAutoMovieShotLightingInput } from "./IAutoMovieShotLightingInput";
 import { applyLightOverride } from "./applyLightOverride";
 import { LIGHT_CHANNEL_PROPERTIES } from "./constants/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "./parseLightPointer";

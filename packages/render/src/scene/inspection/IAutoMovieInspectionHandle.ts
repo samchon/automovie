@@ -1,10 +1,12 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type {
+  IAutoMovieInspectionFocus,
+  IAutoMovieInspectionLabel,
+  IAutoMovieInspectionLegendEntry,
+  IAutoMovieMark,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
-import type { IAutoMovieInspectionLabel } from "./IAutoMovieInspectionLabel.js";
-import type { IAutoMovieInspectionLegendEntry } from "./IAutoMovieInspectionLegendEntry.js";
-import type { IAutoMovieInspectionView } from "./IAutoMovieInspectionView.js";
 
 /**
  * An inspection applied to a scene: what its colours mean, what it selected, and the calls made while it is in force.
@@ -26,7 +28,7 @@ export interface IAutoMovieInspectionHandle {
   selected: string[];
 
   /**
-   * Bring the shade and the marks to the scene's current time and pose. Call it after every seek and before drawing.
+   * Bring the shade and the marks to the current pose of the objects inspected at application. Call it after moving those same objects and before drawing. If placement replaces scene objects, restore this handle before placement and apply a fresh inspection to the new graph instead.
    *
    * Given `marks`, the supplied marks are replaced by them first, as a subject whose marks change with time hands over those of the drawn second; the request's patterns select among them as they did at apply, and a kind that matches no pattern is not drawn. The `outline` shells and the `pose` segments move with the scene, and so does every mark.
    *
@@ -90,7 +92,7 @@ export interface IAutoMovieInspectionHandle {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain numbers and keeps nothing.
    */
   bounds: (
-    focus?: IAutoMovieInspectionView.IFocus | null,
+    focus?: IAutoMovieInspectionFocus | null,
   ) => IAutoMovieViewerSubjectBounds | null;
 
   /**

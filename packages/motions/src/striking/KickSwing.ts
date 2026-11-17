@@ -1,13 +1,13 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanKickGeometry,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { IKickGeometry } from "./IKickGeometry";
 import { KickCarriage } from "./KickCarriage";
 import type { KickChamber } from "./KickChamber";
 import { KickForm } from "./KickForm";
@@ -43,16 +43,16 @@ export namespace KickSwing {
   /** What a kicking leg's path is built from. */
   export interface IProps {
     /** The kicking body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The kicking side. */
     side: "left" | "right";
 
     /** The kick's timing. */
-    timing: IKickGeometry.ITiming;
+    timing: IAutoMovieMotionHumanKickGeometry.ITiming;
 
     /** The body's posture at the contact, under which the leg was fitted. */
-    base: IHumanPosture;
+    base: IAutoMovieMotionHumanPosture;
 
     /** The chambered leg under that posture. */
     key: KickChamber.IKey;
@@ -83,9 +83,9 @@ export namespace KickSwing {
     props: IProps,
   ): (
     clock: number,
-    base: IHumanPosture,
+    base: IAutoMovieMotionHumanPosture,
     shift: IAutoMovieVector3,
-  ) => IKickGeometry.ILeg {
+  ) => IAutoMovieMotionHumanKickGeometry.ILeg {
     const { body, side, timing, key, contact, plant } = props;
     const { prep, chamber, impact, duration } = timing;
     const recoil: number = duration - impact;
@@ -133,14 +133,13 @@ export namespace KickSwing {
     const rising = (clock: number): number =>
       minimumJerk((clock - prep) / Math.max(1e-3, chamber - prep)).s;
     const lowering = (clock: number): number =>
-      minimumJerk(
-        (clock - impact - folding) / Math.max(1e-3, recoil - folding),
-      ).s;
+      minimumJerk((clock - impact - folding) / Math.max(1e-3, recoil - folding))
+        .s;
     return (
       clock: number,
-      base: IHumanPosture,
+      base: IAutoMovieMotionHumanPosture,
       shift: IAutoMovieVector3,
-    ): IKickGeometry.ILeg => {
+    ): IAutoMovieMotionHumanKickGeometry.ILeg => {
       const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(base);
       const carried = (v: IAutoMovieVector3): IAutoMovieVector3 =>
         Vector3.add(
@@ -172,10 +171,7 @@ export namespace KickSwing {
           Quaternion.slerp(
             plant.rotation,
             Quaternion.normalize(
-              Quaternion.multiply(
-                heading,
-                Quaternion.multiply(opened, folded),
-              ),
+              Quaternion.multiply(heading, Quaternion.multiply(opened, folded)),
             ),
             up,
           ),
@@ -208,9 +204,7 @@ export namespace KickSwing {
     const sine: number = Math.hypot(q.x, q.y, q.z);
     if (sine < 1e-9) return { axis: { x: 1, y: 0, z: 0 }, degrees: 0 };
     return {
-      axis: local(
-        Vector3.scale({ x: q.x, y: q.y, z: q.z }, sign / sine),
-      ),
+      axis: local(Vector3.scale({ x: q.x, y: q.y, z: q.z }, sign / sine)),
       degrees: (2 * Math.atan2(sine, sign * q.w)) / Quaternion.DEG2RAD,
     };
   }

@@ -1,6 +1,12 @@
-import { AutoMovieHumanSegmentFrame as F, AutoMovieHumanStandingRoot } from "@automovie/human";
-
 import { nclose } from "../../internal/predicates";
+import {
+  AutoMovieHumanSegmentFrame as F,
+  AutoMovieHumanStandingRoot,
+} from "@automovie/human";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanSegmentJoint,
+} from "@automovie/interface";
 
 /**
  * The standing root law keeps the supporting segment's origin at its reference height by moving the chain's root alone.
@@ -33,18 +39,18 @@ export function test_human_standing_root(): void {
     if (!nclose(got, expected, tolerance)) failures.push(`${what}: ${got} against ${expected}`);
   };
   const [a, b]: [number, number] = [0.1, 0.05];
-  const up: F.V3 = [0, 1, 0];
-  const made = (thigh: number, shank: number, toe: number = 60): F.IJoint[] => [
+  const up: AutoMovieVector3Tuple = [0, 1, 0];
+  const made = (thigh: number, shank: number, toe: number = 60): IAutoMovieHumanSegmentJoint[] => [
     { name: "pelvis", parent: null, offset: [10, 900, 0], rotation: F.IDENTITY },
     { name: "femur", parent: "pelvis", offset: [0, 0, 90], rotation: F.about(2, a) },
     { name: "tibia", parent: "femur", offset: [0, -thigh, 0], rotation: F.about(0, b) },
     { name: "foot", parent: "tibia", offset: [0, -shank, 0], rotation: F.IDENTITY },
     { name: "toe", parent: "foot", offset: [toe, 0, 0], rotation: F.IDENTITY },
   ];
-  const reference: F.IJoint[] = made(400, 420);
-  const origin = (chain: readonly F.IJoint[], name: string): F.V3 => F.world(chain, (): undefined => undefined).get(name)!.origin;
+  const reference: IAutoMovieHumanSegmentJoint[] = made(400, 420);
+  const origin = (chain: readonly IAutoMovieHumanSegmentJoint[], name: string): AutoMovieVector3Tuple => F.world(chain, (): undefined => undefined).get(name)!.origin;
   const floor: number = origin(reference, "foot")[1];
-  const cases: [string, F.IJoint[], number][] = [
+  const cases: [string, IAutoMovieHumanSegmentJoint[], number][] = [
     ["shank 1.1", made(400, 462), 42 * Math.cos(a) * Math.cos(b)],
     ["thigh 0.9", made(360, 420), -40 * Math.cos(a)],
     ["both", made(360, 462), 42 * Math.cos(a) * Math.cos(b) - 40 * Math.cos(a)],
@@ -53,21 +59,21 @@ export function test_human_standing_root(): void {
   // 1 to 3. A changed leg: the defect left alone, the support's height restored, the root alone moved.
   for (const [what, person, rise] of cases) {
     close(what + ": the unplaced foot's fall", floor - origin(person, "foot")[1], rise, 1e-9);
-    const placed: readonly F.IJoint[] = AutoMovieHumanStandingRoot.place(reference, person, "foot", up);
+    const placed: readonly IAutoMovieHumanSegmentJoint[] = AutoMovieHumanStandingRoot.place(reference, person, "foot", up);
     close(what + ": the placed foot's height", origin(placed, "foot")[1], floor, 1e-9);
     close(what + ": the root's rise", placed[0]!.offset[1] - 900, rise, 1e-9);
     if (placed[0]!.offset[0] !== 10 || placed[0]!.offset[2] !== 0) failures.push(what + ": the root moved off the floor's normal");
-    if (placed.length !== person.length || placed.some((joint: F.IJoint, k: number): boolean => k > 0 && joint !== person[k])) failures.push(what + ": a record other than the root's was replaced");
+    if (placed.length !== person.length || placed.some((joint: IAutoMovieHumanSegmentJoint, k: number): boolean => k > 0 && joint !== person[k])) failures.push(what + ": a record other than the root's was replaced");
     if (person[0]!.offset[1] !== 900) failures.push(what + ": the person's own chain was edited");
   }
 
   // 4. Nothing to restore: the chain itself.
   if (AutoMovieHumanStandingRoot.place(reference, reference, "foot", up) !== reference) failures.push("the reference was not returned as given");
-  const longerToe: F.IJoint[] = made(400, 420, 70);
+  const longerToe: IAutoMovieHumanSegmentJoint[] = made(400, 420, 70);
   if (AutoMovieHumanStandingRoot.place(reference, longerToe, "foot", up) !== longerToe) failures.push("a chain whose support stands at its height was not returned as given");
 
   // 5. Another normal: the support's change along X. The foot hangs along R_z(a) R_x(b) (0, -1, 0), whose X component is sin a cos b.
-  const sideways: readonly F.IJoint[] = AutoMovieHumanStandingRoot.place(reference, made(400, 462), "foot", [1, 0, 0]);
+  const sideways: readonly IAutoMovieHumanSegmentJoint[] = AutoMovieHumanStandingRoot.place(reference, made(400, 462), "foot", [1, 0, 0]);
   close("the root's shift along X", sideways[0]!.offset[0] - 10, -42 * Math.sin(a) * Math.cos(b), 1e-9);
   close("the support's place along X", origin(sideways, "foot")[0], origin(reference, "foot")[0], 1e-9);
 

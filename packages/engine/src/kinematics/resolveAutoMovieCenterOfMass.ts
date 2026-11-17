@@ -1,8 +1,12 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -10,7 +14,7 @@ import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/convexHull2D";
 import { nearestHullEdge } from "../math/nearestHullEdge";
 import { pointInHull } from "../math/pointInHull";
-import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
+import { AutoMovieGravity } from "../physics/AutoMovieGravity";
 import { resolvePose } from "./resolvePose";
 
 /**
@@ -40,8 +44,8 @@ import { resolvePose } from "./resolvePose";
  */
 export function resolveAutoMovieCenterOfMass(
   skeleton: IAutoMovieSkeleton,
-  profile: P,
-): resolveAutoMovieCenterOfMass.IModel {
+  profile: IAutoMoviePhysicalProfile,
+): IAutoMovieResolveCenterOfMass.IModel {
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
     resolvePose(
       { skeleton: skeleton.id, root: null, joints: [] },
@@ -52,9 +56,11 @@ export function resolveAutoMovieCenterOfMass(
       ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
     ),
   );
-  const segments: resolveAutoMovieCenterOfMass.ISegment[] =
+  const segments: IAutoMovieResolveCenterOfMass.ISegment[] =
     profile.segments.map(
-      (s: P.ISegment): resolveAutoMovieCenterOfMass.ISegment => {
+      (
+        s: IAutoMoviePhysicalSegment,
+      ): IAutoMovieResolveCenterOfMass.ISegment => {
         const bone: IAutoMovieResolvedBone | undefined = rest.get(
           s.bone as AutoMovieHumanoidBone,
         );
@@ -64,18 +70,32 @@ export function resolveAutoMovieCenterOfMass(
           s.neutral.position,
           Quaternion.rotateVector(s.neutral.rotation, s.centerOfMass),
         );
+        const unturn: IAutoMovieQuaternion = Quaternion.inverse(
+          bone.worldRotation,
+        );
         return {
           bone: bone.bone,
           mass: s.mass,
           point: Quaternion.rotateVector(
-            Quaternion.inverse(bone.worldRotation),
+            unturn,
             Vector3.subtract(world, bone.worldPosition),
+          ),
+          inertia: s.inertia,
+
+          // The principal axes go from the segment's neutral frame to the
+          // bone's rest frame as the centre does, so a pose turns them by
+          // the bone's world rotation alone.
+          axes: Quaternion.normalize(
+            Quaternion.multiply(
+              unturn,
+              Quaternion.multiply(s.neutral.rotation, s.inertiaRotation),
+            ),
           ),
         };
       },
     );
   const mass: number = segments.reduce(
-    (sum: number, s: resolveAutoMovieCenterOfMass.ISegment): number =>
+    (sum: number, s: IAutoMovieResolveCenterOfMass.ISegment): number =>
       sum + s.mass,
     0,
   );
@@ -93,25 +113,39 @@ export function resolveAutoMovieCenterOfMass(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses resolved bones and the engine's hull routines.
  */
 export namespace resolveAutoMovieCenterOfMass {
-  /** A body's mass model. */
-  export interface IModel {
-    /** Total mass, kilograms. */
-    mass: number;
+  /** The inverted pendulum's length in hip heights: the leg length, about 1.34 times the trochanteric height (Hof, Gazendam and Sinke 2005, J Biomech 38:1), which `pendulum` takes its length from. */
+  export const PENDULUM: number = 1.34;
 
-    /** Every segment's mass point. */
-    segments: ISegment[];
+  /**
+   * The inverted pendulum's length of a body: Hof's leg length, `PENDULUM`
+   * hip heights.
+   *
+   * @param hipHeight The body's hip height, metres.
+   * @returns The pendulum's length, metres.
+   */
+  export function pendulum(hipHeight: number): number {
+    return PENDULUM * hipHeight;
   }
 
-  /** One segment's mass point. */
-  export interface ISegment {
-    /** The bone it rides. */
-    bone: AutoMovieHumanoidBone;
-
-    /** Kilograms. */
-    mass: number;
-
-    /** Centre of mass relative to the bone's joint, in its rest frame, metres. */
-    point: IAutoMovieVector3;
+  /**
+   * The inverted pendulum's eigenfrequency, `ω0 = sqrt(g / l)` (Hof,
+   * Gazendam and Sinke 2005): its reciprocal is the time a centre of mass
+   * takes to cover its own velocity's extrapolation.
+   *
+   * @param length The pendulum's length, metres; positive.
+   * @param gravity Gravitational acceleration, m/s²; standard gravity (`AutoMovieGravity.STANDARD`) when absent.
+   * @returns Radians per second.
+   * @throws {Error} When the length or gravity is not positive.
+   */
+  export function frequency(
+    length: number,
+    gravity: number = AutoMovieGravity.STANDARD,
+  ): number {
+    if (!(length > 0) || !(gravity > 0))
+      throw new Error(
+        `The inverted pendulum needs a positive length and gravity, got ${length} and ${gravity}`,
+      );
+    return Math.sqrt(gravity / length);
   }
 
   /**
@@ -123,7 +157,7 @@ export namespace resolveAutoMovieCenterOfMass {
    * @throws {Error} When a segment's bone is not posed.
    */
   export function place(
-    model: IModel,
+    model: IAutoMovieResolveCenterOfMass.IModel,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieVector3 {
     let x: number = 0;
@@ -148,13 +182,13 @@ export namespace resolveAutoMovieCenterOfMass {
    * The extrapolated centre of mass (XCoM) of Hof, Gazendam and Sinke (2005,
    * "The condition for dynamic stability", J. Biomech. 38): the centre of
    * mass plus its velocity over the inverted pendulum's eigenfrequency,
-   * `x + v / ω0` with `ω0 = sqrt(g / l)`, where `l` is the pendulum length
-   * (Hof takes the leg length, about 1.34 times the trochanteric height).
+   * `x + v / ω0` with `ω0 = sqrt(g / l)` (`frequency`), where `l` is the
+   * pendulum length (Hof takes the leg length, `pendulum`).
    *
    * @param com The centre of mass, world metres.
    * @param velocity Its velocity, metres per second.
    * @param length The pendulum length, metres; positive.
-   * @param gravity Gravitational acceleration, m/s²; 9.81 when absent.
+   * @param gravity Gravitational acceleration, m/s²; standard gravity (`AutoMovieGravity.STANDARD`) when absent.
    * @returns The extrapolated centre of mass, world metres.
    * @throws {Error} When the length or gravity is not positive.
    */
@@ -162,15 +196,11 @@ export namespace resolveAutoMovieCenterOfMass {
     com: IAutoMovieVector3,
     velocity: IAutoMovieVector3,
     length: number,
-    gravity: number = 9.81,
+    gravity: number = AutoMovieGravity.STANDARD,
   ): IAutoMovieVector3 {
-    if (!(length > 0) || !(gravity > 0))
-      throw new Error(
-        `The extrapolated centre needs a positive length and gravity, got ${length} and ${gravity}`,
-      );
     return Vector3.add(
       com,
-      Vector3.scale(velocity, 1 / Math.sqrt(gravity / length)),
+      Vector3.scale(velocity, 1 / frequency(length, gravity)),
     );
   }
 

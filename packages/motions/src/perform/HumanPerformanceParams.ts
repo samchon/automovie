@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieMotionHumanLexiconSchemas,
+  IAutoMovieMotionHumanRefusal,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HUMAN_LEXICON_SCHEMAS } from "../lexicon/HUMAN_LEXICON_SCHEMAS";
 
@@ -9,7 +14,8 @@ import { HUMAN_LEXICON_SCHEMAS } from "../lexicon/HUMAN_LEXICON_SCHEMAS";
  * that read it unchecked.
  *
  * The schema is the one the website and the generator read
- * (`HUMAN_LEXICON_SCHEMAS`), typia's from the laws' own parameter types, so
+ * (`HUMAN_LEXICON_SCHEMAS`), generated from canonical parameter structures
+ * and motions-owned numeric admission metadata, so
  * the check reads the contract the checker reads: its required members,
  * its constants and unions, its types and its numeric bounds. Members it
  * does not list are refused by name; a name the file does not list is
@@ -38,7 +44,7 @@ export namespace HumanPerformanceParams {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure check that retains nothing.
    */
   export function check(row: string, given: object): void {
-    const schema: HUMAN_LEXICON_SCHEMAS.ISchema | undefined =
+    const schema: IAutoMovieMotionHumanLexiconSchemas.ISchema | undefined =
       HUMAN_LEXICON_SCHEMAS.rows[row] ?? HUMAN_LEXICON_SCHEMAS.actions[row];
     if (schema === undefined) return;
     const fault: IFault | null = read(schema, given, "", undefined);
@@ -63,7 +69,7 @@ interface IFault {
   value: unknown;
 
   /** What the member accepts. */
-  feasible: HumanRefusal.Feasible | null;
+  feasible: IAutoMovieMotionHumanRefusal.Feasible | null;
 
   /** Why, after the row's name. */
   reason: string;
@@ -74,7 +80,7 @@ interface IFault {
 
 /** A schema's own record: the referenced component's, followed. */
 const follow = (
-  schema: HUMAN_LEXICON_SCHEMAS.ISchema,
+  schema: IAutoMovieMotionHumanLexiconSchemas.ISchema,
 ): Record<string, unknown> => {
   let at: Record<string, unknown> = schema as Record<string, unknown>;
   for (let hops: number = 0; typeof at.$ref === "string" && hops < 16; hops++) {
@@ -91,7 +97,7 @@ const constants = (alternatives: readonly unknown[]): string[] | null => {
   const out: string[] = [];
   for (const alternative of alternatives) {
     const own: Record<string, unknown> = follow(
-      alternative as HUMAN_LEXICON_SCHEMAS.ISchema,
+      alternative as IAutoMovieMotionHumanLexiconSchemas.ISchema,
     );
     if (!Object.hasOwn(own, "const")) return null;
     out.push(String(own.const));
@@ -132,7 +138,9 @@ const typed = (value: unknown, type: string): boolean => {
 };
 
 /** A number's bounds as the range a refusal offers, in the unit its type carries into the schema (`HumanUnit`, `x-unit`); null when it has none. */
-const bounds = (own: Record<string, unknown>): HumanRefusal.IRange | null => {
+const bounds = (
+  own: Record<string, unknown>,
+): IAutoMovieMotionHumanRefusal.IRange | null => {
   const low: number | undefined =
     typeof own.minimum === "number"
       ? own.minimum
@@ -166,7 +174,7 @@ const bounds = (own: Record<string, unknown>): HumanRefusal.IRange | null => {
 
 /** The first fault of a value against a schema; null when it is accepted. */
 const read = (
-  schema: HUMAN_LEXICON_SCHEMAS.ISchema,
+  schema: IAutoMovieMotionHumanLexiconSchemas.ISchema,
   value: unknown,
   path: string,
   meaning: string | undefined,
@@ -181,7 +189,12 @@ const read = (
     const alternatives: readonly unknown[] = own.oneOf;
     const faults: (IFault | null)[] = alternatives.map(
       (alternative: unknown): IFault | null =>
-        read(alternative as HUMAN_LEXICON_SCHEMAS.ISchema, value, path, what),
+        read(
+          alternative as IAutoMovieMotionHumanLexiconSchemas.ISchema,
+          value,
+          path,
+          what,
+        ),
     );
     if (faults.some((fault: IFault | null): boolean => fault === null))
       return null;
@@ -198,7 +211,7 @@ const read = (
     // the kinds when it names none.
     const kinds: string[] = alternatives.map((alternative: unknown): string => {
       const properties: unknown = follow(
-        alternative as HUMAN_LEXICON_SCHEMAS.ISchema,
+        alternative as IAutoMovieMotionHumanLexiconSchemas.ISchema,
       ).properties;
       const kind: unknown =
         typeof properties === "object" && properties !== null
@@ -206,7 +219,7 @@ const read = (
           : undefined;
       const fixed: Record<string, unknown> =
         typeof kind === "object" && kind !== null
-          ? follow(kind as HUMAN_LEXICON_SCHEMAS.ISchema)
+          ? follow(kind as IAutoMovieMotionHumanLexiconSchemas.ISchema)
           : {};
       return Object.hasOwn(fixed, "const") ? String(fixed.const) : "";
     });
@@ -253,7 +266,7 @@ const read = (
 
   // Numeric bounds.
   if (typeof value === "number") {
-    const range: HumanRefusal.IRange | null = bounds(own);
+    const range: IAutoMovieMotionHumanRefusal.IRange | null = bounds(own);
     const under: boolean =
       range !== null &&
       range.minimum !== null &&
@@ -323,7 +336,7 @@ const read = (
       if (item === undefined || typeof member !== "object" || member === null)
         continue;
       const fault: IFault | null = read(
-        member as HUMAN_LEXICON_SCHEMAS.ISchema,
+        member as IAutoMovieMotionHumanLexiconSchemas.ISchema,
         item,
         below(path, key),
         undefined,
@@ -378,7 +391,7 @@ const read = (
             : undefined;
       if (item === undefined) continue;
       const fault: IFault | null = read(
-        item as HUMAN_LEXICON_SCHEMAS.ISchema,
+        item as IAutoMovieMotionHumanLexiconSchemas.ISchema,
         value[i],
         below(path, i),
         undefined,

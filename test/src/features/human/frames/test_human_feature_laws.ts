@@ -1,6 +1,10 @@
-import { AutoMovieHumanFeatureLaws as Laws, AutoMovieHumanFeatureTemplate as Template, AutoMovieHumanSegmentFrame as F } from "@automovie/human";
-
 import { nclose } from "../../internal/predicates";
+import {
+  AutoMovieHumanFeatureLaws as Laws,
+  AutoMovieHumanFeatureTemplate as Template,
+  AutoMovieHumanSegmentFrame as F,
+} from "@automovie/human";
+import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
 /**
  * Every feature law makes its template by its definition: placed by its landmarks, sized by its shares of the person's length.
@@ -33,7 +37,7 @@ export function test_human_feature_laws(): void {
   const close = (label: string, actual: number, expected: number): void => {
     if (!nclose(actual, expected, 1e-9)) failures.push(label + ": " + actual + " against " + expected);
   };
-  const same = (label: string, actual: F.V3, expected: F.V3): void => {
+  const same = (label: string, actual: AutoMovieVector3Tuple, expected: AutoMovieVector3Tuple): void => {
     for (let c: number = 0; c < 3; ++c) close(label + "[" + c + "]", actual[c]!, expected[c]!);
   };
   const one: Laws.IDatums = { from: [10, -200, 30], outward: [2, 0, 0], along: [1, -4, 0] };

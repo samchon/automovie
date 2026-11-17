@@ -1,4 +1,8 @@
-import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryCameraChartCreationOperation,
+  IAutoMovieRecoveryCameraPairAdmissionOperation,
+  IAutoMovieRecoveryCameraPairInput,
+} from "@automovie/interface";
 
 import { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 
@@ -17,14 +21,8 @@ import { createRecoveryCameraChart } from "./createRecoveryCameraChart";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function returns two owned fixed-size charts and a pixel count, retaining no RGB array, callback, handle or global cache on success or refusal.
  */
 export function admitRecoveryCameraPair(
-  input: IAutoMovieRecoveryCameraPairInput,
-): {
-  charts: [
-    ReturnType<typeof createRecoveryCameraChart>,
-    ReturnType<typeof createRecoveryCameraChart>,
-  ];
-  pixels: number;
-} {
+  input: Parameters<IAutoMovieRecoveryCameraPairAdmissionOperation.Operation>[0],
+): ReturnType<IAutoMovieRecoveryCameraPairAdmissionOperation.Operation> {
   const keys: (
     value: object,
     expected: readonly string[],
@@ -164,7 +162,8 @@ export function admitRecoveryCameraPair(
     );
   let pixels: number = 0;
   const identities: Set<string> = new Set<string>();
-  const charts: ReturnType<typeof createRecoveryCameraChart>[] = [];
+  const charts: ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>[] =
+    [];
   for (const view of input.views) {
     keys(
       view,

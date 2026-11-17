@@ -1,10 +1,10 @@
 import {
   IAutoMovieAngleRange,
   IAutoMovieJointConstraint,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { swingConeAngle } from "../rom/swingConeAngle";
-import { ViolationCollector } from "./ViolationCollector";
 
 const CONSTRAINT_AXES: readonly ["flexion", "abduction", "twist"] = [
   "flexion",
@@ -26,11 +26,11 @@ const CONSTRAINT_AXES: readonly ["flexion", "abduction", "twist"] = [
 export const validateJointConstraint: (
   constraint: IAutoMovieJointConstraint,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   constraint: IAutoMovieJointConstraint,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   for (const axis of CONSTRAINT_AXES) {
     const range: IAutoMovieAngleRange | null = constraint[axis];
@@ -141,11 +141,11 @@ const constraintSwingCandidates: (
 const validateAngleRange: (
   range: IAutoMovieAngleRange,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   range: IAutoMovieAngleRange,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const fields: ReadonlyArray<readonly [string, number]> = [
     ["min", range.min],

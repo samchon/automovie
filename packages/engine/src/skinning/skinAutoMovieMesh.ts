@@ -4,10 +4,10 @@ import {
   IAutoMovieMeshMorphTarget,
   IAutoMovieMeshSkin,
   IAutoMovieQuaternion,
+  type IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { Quaternion } from "../math/Quaternion";
 
 /**

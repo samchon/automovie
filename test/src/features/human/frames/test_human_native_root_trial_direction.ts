@@ -1,16 +1,21 @@
+import { nclose } from "../../internal/nclose";
 import {
   AutoMovieConstructionPortCurve as PortCurve,
   AutoMovieLoftViewFullSource as Full,
   AutoMovieSolidVector as Vector,
   AutoMovieViewAxis,
-  type IAutoMovieSolidSurface,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
 import { AutoMovieHumanF1NativeRootLaw as Root } from "@automovie/human";
-import type { IAutoMovieConstructionPort } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionPortLoop,
+  IAutoMovieHumanF1NativeRoot,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { nclose } from "../../internal/nclose";
 
 /** A radius knot and its two physical station derivatives, in mm. */
 type RadiusKnot = readonly [number, number, number, number];
@@ -67,18 +72,18 @@ export function test_human_native_root_trial_direction(): void {
     }
   };
 
-  const parentAxis: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.horizontal();
+  const parentAxis: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.horizontal();
   const originalParent: IAutoMovieViewPart = circle("trial-parent", [
     [0, 1 / 4, 1 / 4, 0], [5, 3 / 2, 1 / 4, 0],
   ], parentAxis);
   const child: IAutoMovieViewPart = circle("trial-child", [
     [0, 1, 0, 0], [2, 1, 0, 0],
   ], AutoMovieViewAxis.straight([1 / 2, 0, 0], [1, 0, 0], [0, 0, 1]));
-  const loop: IAutoMovieConstructionPort.ILoop = {
+  const loop: IAutoMovieConstructionPortLoop = {
     centre: [0.001, 0], semi: [0.001, 1 / 4], sense: 1,
     shape: [1, 1, 1, 1],
   };
-  const original: Root.ICalibration = Root.calibrate({
+  const original: IAutoMovieHumanF1NativeRoot.ICalibration = Root.calibrate({
     name: "made-trial-direction", parent: originalParent, child, loop,
     rails: [1], count: 4, correspondence: "angle",
     metric: { station: 0, depth: 2, breadth: 2 }, basis: child.axis.at(0),
@@ -89,22 +94,22 @@ export function test_human_native_root_trial_direction(): void {
     [2, 5 / 8, 2 / 177, -14 / 59],
     [5, 13 / 8, 4 / 3, 66 / 59],
   ], parentAxis);
-  const reader: Full.IReader = Full.create(parent);
+  const reader: IAutoMovieLoftViewFullSource.IReader = Full.create(parent);
 
   /** Exercise Level through its production public Root consumer and real calibration. */
-  const solve: (source: IAutoMovieViewPart) => Root.IRootSpec = (
+  const solve: (source: IAutoMovieViewPart) => IAutoMovieHumanF1NativeRoot.IRootSpec = (
     source: IAutoMovieViewPart,
-  ): Root.IRootSpec => Root.prepare(original, source, [1, 1]).resolve(child);
+  ): IAutoMovieHumanF1NativeRoot.IRootSpec => Root.prepare(original, source, [1, 1]).resolve(child);
 
   scenario("literal identity", (): void => {
-    const full: Full.IReader = Full.create(originalParent);
-    const same: Root.IRootSpec = solve(originalParent);
+    const full: IAutoMovieLoftViewFullSource.IReader = Full.create(originalParent);
+    const same: IAutoMovieHumanF1NativeRoot.IRootSpec = solve(originalParent);
     check("literal original loop", same.loop === loop);
-    same.rows.forEach((row: Root.IRootRow, k: number): void => {
-      const column: Root.IRootRow["level"] = row.level;
+    same.rows.forEach((row: IAutoMovieHumanF1NativeRoot.IRootRow, k: number): void => {
+      const column: IAutoMovieHumanF1NativeRoot.IRootRow["level"] = row.level;
       check("literal original share " + k, Object.is(column.share, 1));
       check("identity has no replacement derivative " + k, column.derivative === null);
-      const point: Vector.Vec3 = full.point(...original.charts[k]!);
+      const point: AutoMovieVector3Tuple = full.point(...original.charts[k]!);
       point.forEach((value: number, j: number): void =>
         check("literal original point " + k + "/" + j, Object.is(value, original.parent[k]![j])));
     });
@@ -136,8 +141,8 @@ export function test_human_native_root_trial_direction(): void {
   });
 
   scenario("regular final root survives a negative trial", (): void => {
-    const result: Root.IRootSpec = solve(parent);
-    const column: Root.IRootRow["level"] = result.rows[0]!.level;
+    const result: IAutoMovieHumanF1NativeRoot.IRootSpec = solve(parent);
+    const column: IAutoMovieHumanF1NativeRoot.IRootRow["level"] = result.rows[0]!.level;
     check("final root in independently isolated interval", column.share > 2 && column.share < 3);
     check("final original direction", column.derivative !== null && column.derivative > 0);
     const high: number = column.bracket?.[1] ?? NaN;
@@ -145,7 +150,7 @@ export function test_human_native_root_trial_direction(): void {
 
     // Directed arithmetic promises a safe inner endpoint, not literal 4.
     // Read that endpoint through the actual chart owner and strict source.
-    const boundary: IAutoMovieConstructionPort.ILoop = {
+    const boundary: IAutoMovieConstructionPortLoop = {
       ...result.loop, shape: [high, ...result.loop.shape!.slice(1)],
     };
     const address: [number, number] = PortCurve.chart(boundary, 4).addresses[0]!;
@@ -157,10 +162,10 @@ export function test_human_native_root_trial_direction(): void {
       check("strict source admits canonical Q address", reader.point(...address).every(Number.isFinite));
     physical(reader, column.share, close, check);
     close("root equation R=3/4", radius(column.share)[0], 3 / 4);
-    result.rows.forEach((rootRow: Root.IRootRow, k: number): void => {
-      const row: Root.IRootRow["level"] = rootRow.level;
+    result.rows.forEach((rootRow: IAutoMovieHumanF1NativeRoot.IRootRow, k: number): void => {
+      const row: IAutoMovieHumanF1NativeRoot.IRootRow["level"] = rootRow.level;
       const c: number = 2 * Math.PI * k / 4;
-      const point: Vector.Vec3 = reader.point(
+      const point: AutoMovieVector3Tuple = reader.point(
         1 + row.share * Math.cos(c), row.share * (1 / 4) * Math.sin(c),
       );
       const actual: number = (point[0] - 1 / 2) ** 2 + point[2] ** 2;
@@ -180,8 +185,8 @@ export function test_human_native_root_trial_direction(): void {
         ? [[0, 3 / 4, 0, 0], [5, 3 / 4, 0, 0]]
         : [[0, 17 / 20, -1 / 20, 0], [5, 3 / 5, -1 / 20, 0]];
       const source: IAutoMovieViewPart = circle("trial-parent", knots, parentAxis);
-      const full: Full.IReader = Full.create(source);
-      const point: Vector.Vec3 = full.point(2, 0);
+      const full: IAutoMovieLoftViewFullSource.IReader = Full.create(source);
+      const point: AutoMovieVector3Tuple = full.point(2, 0);
       const jet: IAutoMovieSolidSurface.IJet = full.jet(2, 0);
       close(kind + " already solves the level", (point[0] - 1 / 2) ** 2 + point[2] ** 2, 1 / 16);
       check(kind + " surface remains regular", Vector.norm(Vector.cross(jet.u, jet.v)) > 0);
@@ -218,20 +223,20 @@ function radius(q: number): readonly [number, number, number] {
 
 /** Check total2 of S(s,t)=(R(s-1) cos(t),s,R(s-1) sin(t)) at t=0. */
 function physical(
-  reader: Full.IReader,
+  reader: IAutoMovieLoftViewFullSource.IReader,
   q: number,
   close: (label: string, actual: number, expected: number) => void,
   check: (label: string, pass: boolean) => void,
 ): void {
   const [r, first, second]: readonly [number, number, number] = radius(q);
-  const point: Vector.Vec3 = reader.point(q + 1, 0);
+  const point: AutoMovieVector3Tuple = reader.point(q + 1, 0);
   const jet: IAutoMovieSolidSurface.IJet = reader.jet(q + 1, 0);
   const expected: readonly (readonly number[])[] = [
     [r, q + 1, 0], [first, 1, 0], [0, 0, r],
     [second, 0, 0], [0, 0, first], [-r, 0, 0],
   ];
-  const rows: Vector.Vec3[] = [jet.p, jet.u, jet.v, jet.uu, jet.uv, jet.vv];
-  rows.forEach((row: Vector.Vec3, i: number): void => row.forEach(
+  const rows: AutoMovieVector3Tuple[] = [jet.p, jet.u, jet.v, jet.uu, jet.uv, jet.vv];
+  rows.forEach((row: AutoMovieVector3Tuple, i: number): void => row.forEach(
     (value: number, j: number): void => close("source2 q=" + q + "/" + i + "/" + j, value, expected[i]![j]!),
   ));
   point.forEach((value: number, j: number): void => close("Point0 q=" + q + "/" + j, value, expected[0]![j]!));
@@ -245,7 +250,7 @@ function physical(
 function circle(
   name: string,
   knots: readonly RadiusKnot[],
-  axis: AutoMovieViewAxis.IAxis,
+  axis: IAutoMovieViewAxis.IAxis,
 ): IAutoMovieViewPart {
   const span: number = knots.at(-1)![0] - knots[0]![0];
 

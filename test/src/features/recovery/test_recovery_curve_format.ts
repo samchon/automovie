@@ -1,7 +1,9 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type {
+  IAutoMovieCubicBezierCurve64,
+  IAutoMovieRecoveryHermiteCurve,
+  IAutoMovieRecoveryHermiteSpan,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryHermiteCurve,
-  type IAutoMovieRecoveryHermiteSpan,
   convertAutoMovieRecoveryCurves,
   reconstructAutoMovieRecoveryModel,
 } from "@automovie/recovery";
@@ -12,26 +14,26 @@ import { recoveryPrismOracle as prism } from "../internal/recoveryPrismOracle";
 
 /** One override in the generic polynomial artifact. */
 interface RecoveryCurveOverride {
-  curve: C.Cubic;
+  curve: IAutoMovieCubicBezierCurve64;
 }
 
 /** Independent aliases exercise nested saved-curve publication. */
 interface RecoveryCurveArtifact {
-  curve: C.Cubic;
-  open: C.Cubic[];
-  guide: C.Cubic;
+  curve: IAutoMovieCubicBezierCurve64;
+  open: IAutoMovieCubicBezierCurve64[];
+  guide: IAutoMovieCubicBezierCurve64;
   overrides: RecoveryCurveOverride[];
 }
 
 /** A cubic record can itself carry another cubic as ordinary metadata. */
-interface RecoveryCurveMetadata extends C.Cubic {
-  attached: C.Cubic;
+interface RecoveryCurveMetadata extends IAutoMovieCubicBezierCurve64 {
+  attached: IAutoMovieCubicBezierCurve64;
 }
 
 /** A named malformed coefficient case whose own data are changed locally. */
 interface RecoveryMalformedCurve {
   name: string;
-  value: C.Cubic | IAutoMovieRecoveryHermiteCurve;
+  value: IAutoMovieCubicBezierCurve64 | IAutoMovieRecoveryHermiteCurve;
 }
 
 /**
@@ -53,7 +55,7 @@ interface RecoveryMalformedCurve {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Unequal phase widths reproduce the independent polynomial (s²,s³,2s).).
  */
 export function test_recovery_curve_format(): void {
-  const curve: C.Cubic = {
+  const curve: IAutoMovieCubicBezierCurve64 = {
     type: "cubicBezier",
     name: "polynomial",
     closed: false,
@@ -119,7 +121,7 @@ export function test_recovery_curve_format(): void {
       }
     }
   }
-  const horizontal: C.Cubic = {
+  const horizontal: IAutoMovieCubicBezierCurve64 = {
     ...curve,
     phaseUnit: "normalized",
     phaseIntervals: [2],
@@ -133,7 +135,10 @@ export function test_recovery_curve_format(): void {
     ],
   };
   const horizontalSaved: ReturnType<
-    typeof convertAutoMovieRecoveryCurves<C.Cubic, "hermite">
+    typeof convertAutoMovieRecoveryCurves<
+      IAutoMovieCubicBezierCurve64,
+      "hermite"
+    >
   > = convertAutoMovieRecoveryCurves(horizontal, "hermite");
   TestValidator.predicate(
     "horizontal chart derivative",
@@ -143,7 +148,7 @@ export function test_recovery_curve_format(): void {
     "horizontal Y derivative",
     nclose(horizontalSaved.spans[0]!.startDerivative[1], 0),
   );
-  const restored: C.Cubic = convertAutoMovieRecoveryCurves(
+  const restored: IAutoMovieCubicBezierCurve64 = convertAutoMovieRecoveryCurves(
     saved.curve,
     "bezier",
   );
@@ -205,7 +210,7 @@ export function test_recovery_curve_format(): void {
   );
   const malformed: RecoveryMalformedCurve[] = [];
   for (const target of ["spans", "controls", "components", "widths"] as const) {
-    const value: C.Cubic = structuredClone(horizontal);
+    const value: IAutoMovieCubicBezierCurve64 = structuredClone(horizontal);
     const population: readonly unknown[] =
       target === "spans"
         ? value.spans
@@ -217,16 +222,19 @@ export function test_recovery_curve_format(): void {
     Reflect.deleteProperty(population, "0");
     malformed.push({ name: `sparse ${target}`, value });
   }
-  const extraCoordinate: C.Cubic = structuredClone(horizontal);
+  const extraCoordinate: IAutoMovieCubicBezierCurve64 =
+    structuredClone(horizontal);
   Reflect.set(extraCoordinate.spans[0]![0], "3", 11);
   malformed.push({ name: "non-triple coordinate", value: extraCoordinate });
-  const extraControl: C.Cubic = structuredClone(horizontal);
+  const extraControl: IAutoMovieCubicBezierCurve64 =
+    structuredClone(horizontal);
   Reflect.set(extraControl.spans[0]!, "4", [5, 7, 3]);
   malformed.push({ name: "non-cubic control count", value: extraControl });
-  const nonfiniteControl: C.Cubic = structuredClone(horizontal);
+  const nonfiniteControl: IAutoMovieCubicBezierCurve64 =
+    structuredClone(horizontal);
   Reflect.set(nonfiniteControl.spans[0]![0], "0", Infinity);
   malformed.push({ name: "nonfinite Bezier control", value: nonfiniteControl });
-  const inherited: C.Cubic = structuredClone(horizontal);
+  const inherited: IAutoMovieCubicBezierCurve64 = structuredClone(horizontal);
   Reflect.deleteProperty(inherited.spans[0]![0], "1");
   Object.setPrototypeOf(
     inherited.spans[0]![0],
@@ -245,7 +253,8 @@ export function test_recovery_curve_format(): void {
   Reflect.deleteProperty(missingEndpoint.spans[0]!, "end");
   malformed.push({ name: "missing Hermite endpoint", value: missingEndpoint });
   let getterReads: number = 0;
-  const accessorControl: C.Cubic = structuredClone(horizontal);
+  const accessorControl: IAutoMovieCubicBezierCurve64 =
+    structuredClone(horizontal);
   Object.defineProperty(accessorControl.spans[0]![0], "0", {
     enumerable: true,
     configurable: true,

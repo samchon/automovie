@@ -1,16 +1,19 @@
+import { FamilyConicOwnershipPaths } from "./FamilyConicOwnershipPaths";
 import {
   AutoMovieConstructionNativeProfile,
   AutoMovieLoftViewSource,
   AutoMovieLoftViewWorldJet,
-  type IAutoMovieConstructionProfileSource,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
 import { AutoMovieHumanF1 } from "@automovie/human";
+import type {
+  IAutoMovieConstructionProfileSource,
+  IAutoMovieHumanF1,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-
-import { FamilyConicOwnershipPaths } from "./FamilyConicOwnershipPaths";
 
 /**
  * Capture the current public f1 constructor before an ownership refactor.
@@ -97,9 +100,9 @@ namespace FamilyConicOwnership {
 
   /** Read one exact old material address through the existing original evaluators. */
   function original(part: IAutoMovieViewPart, address: Address): unknown {
-    const prepared: AutoMovieLoftViewSource.IResult | null =
+    const prepared: IAutoMovieLoftViewSource.IResult | null =
       AutoMovieLoftViewSource.create(part);
-    const source: AutoMovieLoftViewSource.ISource | null =
+    const source: IAutoMovieLoftViewSource.ISource | null =
       prepared?.source ?? null;
     let profile: IAutoMovieConstructionProfileSource | undefined;
     const admission: unknown = read((): unknown => {
@@ -191,7 +194,7 @@ namespace FamilyConicOwnership {
       oldPath === undefined
         ? undefined
         : (JSON.parse(await fs.readFile(oldPath, "utf8")) as Receipt);
-    const declared: AutoMovieHumanF1.IConstruction =
+    const declared: IAutoMovieHumanF1.IConstruction =
       AutoMovieHumanF1.construction();
     const addresses: Address[] =
       old?.addresses ??

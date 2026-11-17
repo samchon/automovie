@@ -1,4 +1,4 @@
-import { AutoMovieRepaintRetryableFailureClass } from "./AutoMovieRepaintRetryableFailureClass";
+import type { AutoMovieRepaintRetryableFailureClass } from "./AutoMovieRepaintRetryableFailureClass";
 
 /**
  * Explicit attempt, elapsed-time, cancellation and metered-cost envelope for one immutable repaint request.

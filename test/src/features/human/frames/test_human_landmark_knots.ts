@@ -1,7 +1,12 @@
-import { type AutoMovieHumanConicLoft as H, AutoMovieHumanConicSection as S } from "@automovie/human";
-
-import { FamilyConicLandmarkKnots as Knots } from "../../../reference-conics/FamilyConicLandmarkKnots";
+import {
+  FamilyConicLandmarkKnots as Knots,
+} from "../../../reference-conics/FamilyConicLandmarkKnots";
 import { nclose } from "../../internal/predicates";
+import { AutoMovieHumanConicSection as S } from "@automovie/human";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanConicLoft,
+} from "@automovie/interface";
 
 /**
  * A family's landmark knots, as the fit tool takes them: run ends, sites and outline extrema with their places in their runs.
@@ -29,7 +34,7 @@ import { nclose } from "../../internal/predicates";
 export function test_human_landmark_knots(): void {
   const failures: string[] = [];
   const quarter: number = Math.SQRT2 - 1;
-  const tube = (centres: H.V3[], halves: number[], length: number, radius: (s: number) => number): H.IFamily => {
+  const tube = (centres: AutoMovieVector3Tuple[], halves: number[], length: number, radius: (s: number) => number): IAutoMovieHumanConicLoft.IFamily => {
     const knots: number[] = Array.from({ length: length / 25 + 1 }, (_: unknown, k: number): number => 25 * k);
     const field = (of: (r: number) => number): number[] => knots.map((s: number): number => of(radius(s)));
     return {
@@ -65,7 +70,7 @@ export function test_human_landmark_knots(): void {
   }
 
   // 2. Two bones, a belly on each, a waist at the joint, a site.
-  const limb: H.IFamily = tube([[0, 0, 0], [0, 0, 200], [0, 0, 400]], [10], 400, (s: number): number => 40 + 10 * Math.abs(Math.sin((Math.PI * s) / 200)));
+  const limb: IAutoMovieHumanConicLoft.IFamily = tube([[0, 0, 0], [0, 0, 200], [0, 0, 400]], [10], 400, (s: number): number => 40 + 10 * Math.abs(Math.sin((Math.PI * s) / 200)));
   const two: Knots.IKnot[] = Knots.knots(limb, { sites: [150, 450], step: 2 });
   if (two.length !== 6) failures.push("the limb's knots: " + JSON.stringify(two));
   else {

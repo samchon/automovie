@@ -6,7 +6,7 @@ Statements: [statements/obligations/review.md](../statements/obligations/review.
 
 ## Complete current round
 
-Did the round read everything its kind requires under [narrative rounds](../../../../review/narrative-rounds.md), and collect every member of each finding class? Local passes, earlier clean snapshots or an exhausted review budget cannot establish the current state.
+Did the round read everything the review skill's narrative rounds require of its kind, and collect every member of each finding class? Local passes, earlier clean snapshots or an exhausted review budget cannot establish the current state.
 
 ## Round accountability
 

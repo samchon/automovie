@@ -1,23 +1,29 @@
 # Verification
 
-Prompting's [verification](../prompting/SKILL.md#verification) holds for a scaffold change. This page adds what the scaffold needs beyond it: the rendered distribution and a comparison of real decisions.
+Prompting's [verification](../prompting/SKILL.md#verification) holds for a scaffold change. The scaffold adds three checks: what actually ships, how a production agent behaves with it, and what a task reads.
 
-## Inspect the actual inputs
+## Distribution
 
-Follow each changed rule from its entry point to the actual task and contract, repair owner and handoff.
+Follow each changed rule from its entry point to the task, contract, repair owner and handoff that use it. When the change alters what ships, inspect the file map `createAutoMovieScaffold` returns, with its substitutions and the shared resources the changed links reach. A Markdown-only change needs these checks and a review of its consumers, not a new test or a generated production.
 
-A Markdown-only change needs these checks and its affected-consumer review; it does not justify inventing a test or generating a disposable production.
+Untracked files under the scaffold folder still ship, so remove stale copies from the checkout first. Changed program behavior takes development's checks. For changed installation behavior, observe a generated project's installed entry point and its `lint`, `evidence` and `test` commands.
 
-Inspect the file map `createAutoMovieScaffold` returns when changing what production instructions ship, including substitutions and any generated shared resources the changed links use.
+Scaffold edits reach only new installations. An authorized update of an existing production is a deliberate change to that project: compare the scaffold with its actual files, keep its choices and custom contracts, and follow its own repair rules for the answers and reviews the change touches. Do not infer renewed approval from new wording or overwrite a repaired body with an old edition.
 
-Installed files are project-owned: an existing production update follows [scaffold](../scaffold/SKILL.md), not an assumed upstream sync. Changed installation or program behavior requires development's actual consumer checks.
+## Behavior
 
-## Compare decisions before claiming effects
+Give a separate agent session real tasks the change governs, with the shipped instructions and raw inputs only, withholding the change's intent and any earlier verdict. Choose contrasting cases, such as a screenplay scene on the short route, a whole motion hint, a commissioned generated film, a direct 3D film or a generation request.
 
-Use actual tasks and retained failures with their strongest legitimate counterexamples. Select cases affected by the change rather than requiring every project to run a universal suite. Useful route contrasts include a screenplay-only task, the brief → screenplay short route, a complete coarse motion hint, and a commissioned finished film.
+Record which pages the session opened, what it produced, and where it had to guess, and repair the text behind each guess and each page it read without need.
 
-For a changed expression criterion, compare preserved meaning with the experience made by actual language, image, sound and timing. Check an informative but ineffective passage and a deliberate restrained form; a function list cannot acquit the first and a style label cannot condemn the second. Confirm that the existing overall item can judge what sentence classification alone misses.
+A review round's reviewer is the exception to withholding verdicts, because [review](../review/SKILL.md) gives it the decisions earlier rounds settled.
 
-Under prompting's separate-context check, also withhold the author defense and prior verdict, and observe which resources it reads. Preserve the actual result and limits. Do not launch an agent solely because a design changed when the user's delegation rules prohibit it.
+For a changed expression criterion, also test an informative but ineffective passage and a deliberate restrained form against [creation and judgment](task-design.md#creation-and-judgment), and confirm that the question of the item holding the criterion catches what the production's independent classification alone misses.
 
-Name what was established: instruction consistency, rendered distribution, observed author behavior or actual media result. Static case comparison does not prove better storytelling, a clean sentence table does not approve the whole experience, and an instruction-only change does not verify an unrendered film.
+## Reading cost
+
+Measure the [reading cost](layout.md#reading-cost) of the same tasks before and after the change, and judge it as that section sets.
+
+## Report
+
+Report distribution, behavior, reading cost and actual media results as separate categories. A static comparison does not prove better storytelling, a clean classification does not approve the experience, and an instruction-only change does not verify an unrendered film.

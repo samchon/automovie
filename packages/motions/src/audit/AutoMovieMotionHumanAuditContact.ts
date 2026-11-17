@@ -1,9 +1,14 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanAuditContact,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
  * Whether the feet's contact with the floor, inferred from the displayed
@@ -27,7 +32,8 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  *
  * A window of any kind declared on a foot (a plant, a pivot, a strike)
  * declares its contact, so only steps wholly outside all of them are read
- * for `skate`.
+ * for `skate`: a step a window's edge falls inside, between two grid
+ * instants, is partly declared and is not read.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the gap it closes, how contact is inferred with each threshold's source, and what each reading means.
  * @evidence contracts/development/implementation.md#principled-implementation Kinematic contact inference by a height and a speed threshold on the sole's own sockets, compared with the declared windows.
@@ -39,18 +45,19 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  */
 export namespace AutoMovieMotionHumanAuditContact {
   /**
-   * The height under which a sole socket is on the floor, metres: under half
-   * the 12.9 mm mean minimum toe clearance of the swinging foot in normal
-   * walking (Winter 1992, Foot trajectory in human gait, Physical Therapy
+   * The height under which a sole socket is on the floor, metres: the
+   * foot's own bearing height (`HumanFoot.BEARING`), under half the 12.9 mm
+   * mean minimum toe clearance of the swinging foot in normal walking
+   * (Winter 1992, Foot trajectory in human gait, Physical Therapy
    * 72(1):45-53), so a foot at the lowest point of a normal swing is not
    * read as on the floor.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, the source and why the bound sits where it does.
    * @evidence contracts/development/design.md#principled-representation One length compared with a socket's height.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by this audit and by the tests that set a film at its two sides.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Derived from a measured clearance, not tuned to a motion.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by this audit and by the tests that set a film at its two sides; the base of support reads the same height from its owner.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Derived from a measured clearance, not tuned to a motion, and held once by the foot.
    */
-  export const HEIGHT: number = 0.006;
+  export const HEIGHT: number = HumanFoot.BEARING;
 
   /**
    * The horizontal speed under which a socket on the floor is at rest,
@@ -65,28 +72,6 @@ export namespace AutoMovieMotionHumanAuditContact {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The study's threshold, not tuned to a motion.
    */
   export const SPEED: number = 0.05;
-
-  /**
-   * What the reading found.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and what it is read on.
-   * @evidence contracts/development/design.md#principled-representation One worst reading per defect and the one share the worst reading cannot tell.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, each asserted by the audit's test.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member.
-   */
-  export interface IResult {
-    /** The fastest a socket on the floor travels outside every declared window, metres per second, with the foot and the socket. */
-    skate: IAutoMovieMotionHumanAuditMeasure;
-
-    /** The part of the film's steps in which a socket skates faster than `SPEED`, in [0, 1]. */
-    share: number;
-
-    /** The fastest the contact socket of a foot planted on the ground travels, metres per second, with the action and the foot. */
-    loose: IAutoMovieMotionHumanAuditMeasure;
-
-    /** The highest the lowest socket of a foot planted on the ground stands off the floor, metres, with the action and the foot. */
-    afloat: IAutoMovieMotionHumanAuditMeasure;
-  }
 
   /**
    * Read one person's feet over a motion.
@@ -109,27 +94,23 @@ export namespace AutoMovieMotionHumanAuditContact {
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     rate: number = 24,
-  ): IResult {
+  ): IAutoMovieMotionHumanAuditContact.IResult {
     const none = (): IAutoMovieMotionHumanAuditMeasure => ({
       value: 0,
       seconds: 0,
       where: "none",
     });
-    const out: IResult = {
+    const out: IAutoMovieMotionHumanAuditContact.IResult = {
       skate: none(),
       share: 0,
       loose: none(),
       afloat: none(),
     };
-    const frames: number[] = IAutoMovieMotionHumanAuditMotion.grid(
-      0,
-      motion.duration,
-      rate,
-    );
+    const frames: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
     const windows: IAutoMovieMotionHumanAuditMotion.IWindow[] =
-      IAutoMovieMotionHumanAuditMotion.windows(motion, subject);
+      HumanAuditMotion.windows(motion, subject);
     const skated: boolean[] = frames.map((): boolean => false);
     for (const side of ["left", "right"] as const) {
       const part: "leftFoot" | "rightFoot" = `${side}Foot`;
@@ -138,10 +119,10 @@ export namespace AutoMovieMotionHumanAuditContact {
           (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
             w.contact.part === part,
         );
-      let before: HumanFoot.ISocket[] | null = null;
+      let before: IAutoMovieMotionHumanFoot.ISocket[] | null = null;
       for (let i: number = 0; i < frames.length; i++) {
         const t: number = frames[i]!;
-        const sole: HumanFoot.ISocket[] = HumanFoot.sockets(
+        const sole: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
           body,
           motion.bones(subject, t),
           side,
@@ -155,19 +136,29 @@ export namespace AutoMovieMotionHumanAuditContact {
               );
         const span: number = before === null ? 0 : t - frames[i - 1]!;
         if (before !== null && span > 1e-9) {
-          const speed = (socket: HumanFoot.ISocket): number => {
+          const speed = (socket: IAutoMovieMotionHumanFoot.ISocket): number => {
             const was: IAutoMovieVector3 = before!.find(
-              (s: HumanFoot.ISocket): boolean => s.socket === socket.socket,
+              (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+                s.socket === socket.socket,
             )!.point;
             return (
               Math.hypot(socket.point.x - was.x, socket.point.z - was.z) / span
             );
           };
-          const height = (socket: HumanFoot.ISocket): number =>
+          const height = (socket: IAutoMovieMotionHumanFoot.ISocket): number =>
             before!.find(
-              (s: HumanFoot.ISocket): boolean => s.socket === socket.socket,
+              (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+                s.socket === socket.socket,
             )!.point.y;
-          if (holding.length === 0)
+          // A step read for a skate lies wholly outside every window on the
+          // foot: one a window's end or start falls inside is partly
+          // declared, wherever the window falls between two instants.
+          if (
+            !declared.some(
+              (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+                w.from < t - 1e-9 && w.to > frames[i - 1]! + 1e-9,
+            )
+          )
             for (const socket of sole) {
               if (socket.point.y > HEIGHT || height(socket) > HEIGHT) continue;
               const v: number = speed(socket);
@@ -186,7 +177,7 @@ export namespace AutoMovieMotionHumanAuditContact {
             )
               continue;
             const where: string = `${window.action} ${part}`;
-            const low: HumanFoot.ISocket = lowest(sole);
+            const low: IAutoMovieMotionHumanFoot.ISocket = lowest(sole);
             if (low.point.y > out.afloat.value)
               out.afloat = { value: low.point.y, seconds: t, where };
             if (lowest(before).socket !== low.socket) continue;
@@ -208,8 +199,10 @@ export namespace AutoMovieMotionHumanAuditContact {
 }
 
 /** The lowest socket of a sole, the heel and then the ball winning a tie within a micrometre. */
-const lowest = (sole: readonly HumanFoot.ISocket[]): HumanFoot.ISocket => {
-  let contact: HumanFoot.ISocket = sole[0]!;
+const lowest = (
+  sole: readonly IAutoMovieMotionHumanFoot.ISocket[],
+): IAutoMovieMotionHumanFoot.ISocket => {
+  let contact: IAutoMovieMotionHumanFoot.ISocket = sole[0]!;
   for (const socket of sole)
     if (socket.point.y < contact.point.y - 1e-6) contact = socket;
   return contact;

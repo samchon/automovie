@@ -5,13 +5,11 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
-
-/** The reach range for operable parts. */
-const REACH: string =
-  "2010 ADA Standards 308.2.1 and 309.3, operable parts 15 to 48 in above the floor (https://www.access-board.gov/ada/chapter/ch03/)";
+import { ADA_RANGES } from "./ADA_RANGES";
 
 /** The travel of a switch or a button, for which no specification was read. */
 const TRAVEL: string = "switch travel, not read at a source";
@@ -38,27 +36,31 @@ export function createSwitch(
   params: createSwitch.IParams,
   seed?: number | string,
 ): Archetype<createSwitch.Affordance, createSwitch.Dimension> {
+  const draw: ArchetypeDrawSession<createSwitch.Dimension> =
+    new ArchetypeDrawSession<createSwitch.Dimension>(
+      "switch",
+      createSwitch.UNITS,
+      seed,
+      params,
+    );
   const kind: createSwitch.Kind = ArchetypeDraw.choice(
     "switch",
     "kind",
     params.kind,
     createSwitch.KINDS,
   );
-  const d: Record<createSwitch.Dimension, number> = ArchetypeDraw.dimensions(
-    "switch",
+  const d: Record<createSwitch.Dimension, number> = draw.dimensions(
     createSwitch.BANDS[kind],
-    seed,
-    params,
     createSwitch.BANDS,
   );
   const builder: ArchetypeBuilder<
     createSwitch.Affordance,
     createSwitch.Dimension
   > = new ArchetypeBuilder({
-    archetype: "switch",
+    material: "composite",
     id: params.id,
     name: kind === "rocker" ? "light switch" : "call button",
-    dimensions: d,
+    draw,
   });
   builder.box(
     "plate",
@@ -125,6 +127,15 @@ export namespace createSwitch {
    */
   export type Dimension = "height" | "size" | "width" | "travel" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    size: "m",
+    width: "m",
+    travel: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which control. */
@@ -141,8 +152,8 @@ export namespace createSwitch {
     rocker: {
       height: ArchetypeBand.metres(
         1.065,
-        1.22,
-        `${REACH}; the upper part of the range, where switches are mounted`,
+        ADA_RANGES.reach.high,
+        `${ADA_RANGES.reach.source}; the upper part of the range, where switches are mounted`,
         true,
       ),
       size: ArchetypeBand.metres(
@@ -162,9 +173,9 @@ export namespace createSwitch {
     },
     button: {
       height: ArchetypeBand.metres(
-        0.38,
-        1.22,
-        `2010 ADA Standards 407.2.1.1, call buttons within the reach ranges of 308 (https://www.access-board.gov/ada/chapter/ch04/)`,
+        ADA_RANGES.reach.low,
+        ADA_RANGES.reach.high,
+        `2010 ADA Standards 407.2.1.1, call buttons within the reach ranges of 308 (https://www.access-board.gov/ada/chapter/ch04/); ${ADA_RANGES.reach.source}`,
       ),
       size: ArchetypeBand.metres(
         0.019,

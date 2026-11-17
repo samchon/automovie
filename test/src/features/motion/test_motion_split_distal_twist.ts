@@ -1,7 +1,6 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   fitChainToTarget,
@@ -13,6 +12,7 @@ import type {
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

@@ -1,7 +1,7 @@
-import { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieCameraDepthPrecisionReport } from "../scene/IAutoMovieCameraDepthPrecisionReport";
-import { IAutoMovieCompiledPredicateResult } from "./IAutoMovieCompiledPredicateResult";
+import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieCameraDepthPrecisionReport } from "../scene/IAutoMovieCameraDepthPrecisionReport";
+import type { IAutoMovieCompiledPredicateResult } from "./IAutoMovieCompiledPredicateResult";
 
 /**
  * Measurements that grade one shot contract against its compiled scene and motion. Failure records preserve missing measurements instead of treating contract prose as execution evidence.

@@ -1,4 +1,4 @@
-import { type AutoMovieViewAxis, type AutoMovieViewAxisJet, AutoMovieViewJointedCourse } from "@automovie/engine";
+import { AutoMovieViewJointedCourse } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanF1,
@@ -8,6 +8,16 @@ import {
   AutoMovieHumanF1SegmentLengths as Lengths,
   AutoMovieHumanSegmentFrame as F,
 } from "@automovie/human";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1SegmentLengths,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewJointedCourse,
+} from "@automovie/interface";
 
 /**
  * Every f1 course is generated from its centres' rules, a length moves exactly the centres past it, and every turn is C2.
@@ -33,9 +43,9 @@ import {
  */
 export function test_human_f1_centres(): void {
   const failures: string[] = [];
-  const families: H.IFamily[] = [
-    ...AutoMovieHumanF1.FAMILIES.map((member: { family: H.IFamily }): H.IFamily => member.family),
-    ...AutoMovieHumanF1.CUTTERS.map((cutter: { family: H.IFamily }): H.IFamily => cutter.family),
+  const families: IAutoMovieHumanConicLoft.IFamily[] = [
+    ...AutoMovieHumanF1.FAMILIES.map((member: { family: IAutoMovieHumanConicLoft.IFamily }): IAutoMovieHumanConicLoft.IFamily => member.family),
+    ...AutoMovieHumanF1.CUTTERS.map((cutter: { family: IAutoMovieHumanConicLoft.IFamily }): IAutoMovieHumanConicLoft.IFamily => cutter.family),
   ];
   const same = (a: readonly number[], b: readonly number[]): boolean => a.every((x: number, k: number): boolean => Object.is(x, b[k]));
   const near = (what: string, got: readonly number[], want: readonly number[], tolerance: number): void => {
@@ -45,48 +55,48 @@ export function test_human_f1_centres(): void {
 
   // 1. f1's centres.
   for (const family of families) {
-    const made: F.V3[] = Centres.course(family.name);
+    const made: AutoMovieVector3Tuple[] = Centres.course(family.name);
     if (made.length !== family.centres.length) failures.push(`${family.name}: ${made.length} generated centres for ${family.centres.length} stored`);
-    else made.forEach((p: F.V3, k: number): void => {
+    else made.forEach((p: AutoMovieVector3Tuple, k: number): void => {
       if (!same(p, family.centres[k]!)) failures.push(`${family.name} centre ${k} is not the stored centre`);
     });
   }
 
   // 2. A longer thigh.
-  const longer: Lengths.IFields = { ...Lengths.F1, thigh: Lengths.F1.thigh * 1.1 };
+  const longer: IAutoMovieHumanF1SegmentLengths.IFields = { ...Lengths.F1, thigh: Lengths.F1.thigh * 1.1 };
   const [leg0, leg1] = [Centres.course("leg"), Centres.course("leg", longer)];
-  const femur: F.IFrame = P.REFERENCE.get("femur")!;
-  const move: F.V3 = F.scale(F.toWorldDirection(femur, T.CHAIN.find((j: F.IJoint): boolean => j.name === "tibia")!.offset), 0.1);
+  const femur: IAutoMovieHumanSegmentFrame = P.REFERENCE.get("femur")!;
+  const move: AutoMovieVector3Tuple = F.scale(F.toWorldDirection(femur, T.CHAIN.find((j: IAutoMovieHumanSegmentJoint): boolean => j.name === "tibia")!.offset), 0.1);
   if (!same(leg1[0]!, leg0[0]!)) failures.push("a longer thigh moved the hip joint centre");
   for (let k: number = 1; k < leg0.length; ++k) near(`leg centre ${k} under a longer thigh`, leg1[k]!, F.add(leg0[k]!, move), 1e-9);
-  Centres.course("arm", longer).forEach((p: F.V3, k: number): void => {
+  Centres.course("arm", longer).forEach((p: AutoMovieVector3Tuple, k: number): void => {
     if (!same(p, Centres.course("arm")[k]!)) failures.push(`a longer thigh moved the arm's centre ${k}`);
   });
 
   // 3. The offset law on a moved glenohumeral centre.
-  const shift: F.V3 = [1, 2, 3];
-  const chain: F.IJoint[] = T.CHAIN.map((j: F.IJoint): F.IJoint => (j.name === "humerus" ? { ...j, offset: F.add(j.offset, shift) } : j));
-  const world: F.V3 = F.toWorldDirection(P.REFERENCE.get("thorax")!, shift);
+  const shift: AutoMovieVector3Tuple = [1, 2, 3];
+  const chain: IAutoMovieHumanSegmentJoint[] = T.CHAIN.map((j: IAutoMovieHumanSegmentJoint): IAutoMovieHumanSegmentJoint => (j.name === "humerus" ? { ...j, offset: F.add(j.offset, shift) } : j));
+  const world: AutoMovieVector3Tuple = F.toWorldDirection(P.REFERENCE.get("thorax")!, shift);
   for (const course of ["arm", "axilla"]) {
     const [before, after] = [Centres.course(course), Centres.course(course, Lengths.F1, chain)];
     const count: number = course === "arm" ? 2 : before.length;
     for (let k: number = 0; k < count; ++k) near(`${course} centre ${k} under a moved shoulder`, after[k]!, F.add(before[k]!, world), 1e-9);
   }
-  Centres.course("trunk", Lengths.F1, chain).forEach((p: F.V3, k: number): void => {
+  Centres.course("trunk", Lengths.F1, chain).forEach((p: AutoMovieVector3Tuple, k: number): void => {
     if (!same(p, Centres.course("trunk")[k]!)) failures.push(`a moved shoulder moved the trunk's centre ${k}`);
   });
 
   // 4. Every turn is C2: straight tangents and zero curvature at its ends, the quintic's peak curvature at its middle.
   for (const family of families) {
     if (family.halves.length === 0) continue;
-    const prepared: AutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(family.centres, family.halves);
+    const prepared: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(family.centres, family.halves);
     if (typeof prepared === "string") {
       failures.push(`${family.name}: ${prepared}`);
       continue;
     }
-    const axis: AutoMovieViewAxis.IAxis = H.axis({ centres: family.centres, halves: family.halves, up: family.up });
-    const jet = (s: number): AutoMovieViewAxisJet.IJet => {
-      const j: AutoMovieViewAxisJet.IJet | null | undefined = axis.jet?.(s);
+    const axis: IAutoMovieViewAxis.IAxis = H.axis({ centres: family.centres, halves: family.halves, up: family.up });
+    const jet = (s: number): IAutoMovieViewAxisJet.IJet => {
+      const j: IAutoMovieViewAxisJet.IJet | null | undefined = axis.jet?.(s);
       if (j === null || j === undefined) throw new Error(`${family.name} has no course jet at ${s}`);
       return j;
     };

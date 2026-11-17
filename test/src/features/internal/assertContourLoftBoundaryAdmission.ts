@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieContourLoft64 as L,
-  tessellateAutoMovieContourLoft64,
-} from "@automovie/engine";
+import { tessellateAutoMovieContourLoft64 } from "@automovie/engine";
+import type { IAutoMovieContourLoft64 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
@@ -21,11 +19,14 @@ const { rectangle, intervalTriangles, aligned }: typeof B = B;
  * @evidence contracts/development/testing.md#execution-ownership Called by the existing discoverable named test; direct portable imports start no process, browser, GPU or native build and register no dynamic tests.
  */
 export function assertContourLoftBoundaryAdmission(): void {
-  const localSections: L.ISection[] = [0, 2].map(
-    (y: number, i: number): L.ISection => ({
+  const localSections: IAutoMovieContourLoft64.ISection[] = [0, 2].map(
+    (y: number, i: number): IAutoMovieContourLoft64.ISection => ({
       coordinateMm: y,
       loops: (i === 0 ? [0, 20] : [0]).map(
-        (x: number, j: number): L.ISection["loops"][number] => ({
+        (
+          x: number,
+          j: number,
+        ): IAutoMovieContourLoft64.ISection["loops"][number] => ({
           curve: O.curve(`local-${i}-${j}`, rectangle(y, x, 1, 1)),
           winding: 1,
         }),
@@ -33,7 +34,7 @@ export function assertContourLoftBoundaryAdmission(): void {
     }),
   );
 
-  const localInterval: L.IInterval = {
+  const localInterval: IAutoMovieContourLoft64.IInterval = {
     beforeMm: 0,
     afterMm: 2,
     groups: [
@@ -47,12 +48,13 @@ export function assertContourLoftBoundaryAdmission(): void {
     ],
   };
 
-  const local: L.IResult = tessellateAutoMovieContourLoft64({
-    sections: localSections,
-    intervals: [localInterval],
-    events: [],
-    chordToleranceMm: 0.25,
-  });
+  const local: IAutoMovieContourLoft64.IResult =
+    tessellateAutoMovieContourLoft64({
+      sections: localSections,
+      intervals: [localInterval],
+      events: [],
+      chordToleranceMm: 0.25,
+    });
 
   TestValidator.predicate(
     "unsupported closed-to-open continuation remains one exact local reason",
@@ -74,28 +76,29 @@ export function assertContourLoftBoundaryAdmission(): void {
       ),
   );
 
-  const hidden: L.IResult = tessellateAutoMovieContourLoft64({
-    sections: [
-      { coordinateMm: 0, loops: [] },
-      { coordinateMm: 2, loops: [] },
-    ],
-    events: [],
-    intervals: [
-      {
-        beforeMm: 0,
-        afterMm: 2,
-        groups: [
-          {
-            before: [],
-            after: [],
-            supported: false,
-            reason: "Unresolved open component",
-          },
-        ],
-      },
-    ],
-    chordToleranceMm: 0.25,
-  });
+  const hidden: IAutoMovieContourLoft64.IResult =
+    tessellateAutoMovieContourLoft64({
+      sections: [
+        { coordinateMm: 0, loops: [] },
+        { coordinateMm: 2, loops: [] },
+      ],
+      events: [],
+      intervals: [
+        {
+          beforeMm: 0,
+          afterMm: 2,
+          groups: [
+            {
+              before: [],
+              after: [],
+              supported: false,
+              reason: "Unresolved open component",
+            },
+          ],
+        },
+      ],
+      chordToleranceMm: 0.25,
+    });
 
   TestValidator.predicate(
     "an unsupported hidden component survives without a fabricated boundary",
@@ -106,11 +109,14 @@ export function assertContourLoftBoundaryAdmission(): void {
       hidden.unresolved[0].reason === "Unresolved open component",
   );
 
-  const admissionSections: L.ISection[] = [0, 2, 4].map(
-    (y: number, i: number): L.ISection => ({
+  const admissionSections: IAutoMovieContourLoft64.ISection[] = [0, 2, 4].map(
+    (y: number, i: number): IAutoMovieContourLoft64.ISection => ({
       coordinateMm: y,
       loops: [0, 20].map(
-        (x: number, j: number): L.ISection["loops"][number] => ({
+        (
+          x: number,
+          j: number,
+        ): IAutoMovieContourLoft64.ISection["loops"][number] => ({
           curve: O.curve(`admission-${i}-${j}`, rectangle(y, x, 1, 1)),
           winding: 1,
         }),
@@ -118,22 +124,24 @@ export function assertContourLoftBoundaryAdmission(): void {
     }),
   );
 
-  const complete: L.IInterval[] = [0, 2].map(
-    (before: number): L.IInterval => ({
+  const complete: IAutoMovieContourLoft64.IInterval[] = [0, 2].map(
+    (before: number): IAutoMovieContourLoft64.IInterval => ({
       beforeMm: before,
       afterMm: before + 2,
-      groups: [0, 1].map((id: number): L.IInterval["groups"][number] => ({
-        before: [id],
-        after: [id],
-        supported: true,
-        reason: null,
-      })),
+      groups: [0, 1].map(
+        (id: number): IAutoMovieContourLoft64.IInterval["groups"][number] => ({
+          before: [id],
+          after: [id],
+          supported: true,
+          reason: null,
+        }),
+      ),
     }),
   );
 
   const malformed: {
     name: string;
-    intervals: L.IInterval[];
+    intervals: IAutoMovieContourLoft64.IInterval[];
     firstTriangles: number;
   }[] = [
     {
@@ -177,14 +185,16 @@ export function assertContourLoftBoundaryAdmission(): void {
   ];
 
   for (const scenario of malformed) {
-    const retained: L.IResult = tessellateAutoMovieContourLoft64({
-      sections: admissionSections,
-      intervals: scenario.intervals,
-      events: [],
-      chordToleranceMm: 0.25,
-    });
-    const ranges: NonNullable<L.IResult["primitiveRanges"]> =
-      retained.primitiveRanges ?? [];
+    const retained: IAutoMovieContourLoft64.IResult =
+      tessellateAutoMovieContourLoft64({
+        sections: admissionSections,
+        intervals: scenario.intervals,
+        events: [],
+        chordToleranceMm: 0.25,
+      });
+    const ranges: NonNullable<
+      IAutoMovieContourLoft64.IResult["primitiveRanges"]
+    > = retained.primitiveRanges ?? [];
     TestValidator.equals(
       `${scenario.name} preserves exactly the independently supported triangles`,
       intervalTriangles(retained),
@@ -193,15 +203,20 @@ export function assertContourLoftBoundaryAdmission(): void {
     TestValidator.predicate(
       `${scenario.name} retains local diagnostics without an inferred cap`,
       retained.unresolved.some(
-        (record: L.IResult["unresolved"][number]): boolean =>
+        (
+          record: IAutoMovieContourLoft64.IResult["unresolved"][number],
+        ): boolean =>
           nclose(record.beforeMm, 0, 0) &&
           nclose(record.afterMm, 2, 0) &&
           typeof record.reason === "string" &&
           record.reason.length > 0,
       ) &&
         ranges.every(
-          (range: NonNullable<L.IResult["primitiveRanges"]>[number]): boolean =>
-            range.kind === "strip",
+          (
+            range: NonNullable<
+              IAutoMovieContourLoft64.IResult["primitiveRanges"]
+            >[number],
+          ): boolean => range.kind === "strip",
         ),
     );
     TestValidator.predicate(
@@ -220,11 +235,14 @@ export function assertContourLoftBoundaryAdmission(): void {
     );
   }
 
-  const birthSections: L.ISection[] = [0, 2, 4].map(
-    (y: number, i: number): L.ISection => ({
+  const birthSections: IAutoMovieContourLoft64.ISection[] = [0, 2, 4].map(
+    (y: number, i: number): IAutoMovieContourLoft64.ISection => ({
       coordinateMm: y,
       loops: (i === 0 ? [0] : [0, 20]).map(
-        (x: number, j: number): L.ISection["loops"][number] => ({
+        (
+          x: number,
+          j: number,
+        ): IAutoMovieContourLoft64.ISection["loops"][number] => ({
           curve: O.curve(`birth-${i}-${j}`, rectangle(y, x, 1, 1)),
           winding: 1,
         }),
@@ -232,7 +250,7 @@ export function assertContourLoftBoundaryAdmission(): void {
     }),
   );
 
-  const birthIntervals: L.IInterval[] = [
+  const birthIntervals: IAutoMovieContourLoft64.IInterval[] = [
     {
       beforeMm: 0,
       afterMm: 2,
@@ -244,7 +262,7 @@ export function assertContourLoftBoundaryAdmission(): void {
     complete[1],
   ];
 
-  const birth: L.IEvent = {
+  const birth: IAutoMovieContourLoft64.IEvent = {
     name: "birth-B",
     coordinateMm: 1,
     beforeMm: 0,
@@ -256,12 +274,13 @@ export function assertContourLoftBoundaryAdmission(): void {
     terminal: [20, 1, 0],
   };
 
-  const validBirth: L.IResult = tessellateAutoMovieContourLoft64({
-    sections: birthSections,
-    intervals: birthIntervals,
-    events: [birth],
-    chordToleranceMm: 0.25,
-  });
+  const validBirth: IAutoMovieContourLoft64.IResult =
+    tessellateAutoMovieContourLoft64({
+      sections: birthSections,
+      intervals: birthIntervals,
+      events: [birth],
+      chordToleranceMm: 0.25,
+    });
 
   TestValidator.equals(
     "a valid declared birth contributes its four explicit cap triangles",
@@ -269,7 +288,10 @@ export function assertContourLoftBoundaryAdmission(): void {
     [12, 16],
   );
 
-  const invalidEvents: { name: string; events: L.IEvent[] }[] = [
+  const invalidEvents: {
+    name: string;
+    events: IAutoMovieContourLoft64.IEvent[];
+  }[] = [
     { name: "missing terminal", events: [{ ...birth, terminal: null }] },
     {
       name: "nonfinite terminal",
@@ -289,12 +311,13 @@ export function assertContourLoftBoundaryAdmission(): void {
   ];
 
   for (const scenario of invalidEvents) {
-    const retained: L.IResult = tessellateAutoMovieContourLoft64({
-      sections: birthSections,
-      intervals: birthIntervals,
-      events: scenario.events,
-      chordToleranceMm: 0.25,
-    });
+    const retained: IAutoMovieContourLoft64.IResult =
+      tessellateAutoMovieContourLoft64({
+        sections: birthSections,
+        intervals: birthIntervals,
+        events: scenario.events,
+        chordToleranceMm: 0.25,
+      });
     TestValidator.equals(
       `${scenario.name} keeps the independent strip and next interval`,
       intervalTriangles(retained),
@@ -303,7 +326,9 @@ export function assertContourLoftBoundaryAdmission(): void {
     TestValidator.predicate(
       `${scenario.name} has an explicit event diagnostic in its known bracket`,
       retained.unresolved.some(
-        (record: L.IResult["unresolved"][number]): boolean =>
+        (
+          record: IAutoMovieContourLoft64.IResult["unresolved"][number],
+        ): boolean =>
           nclose(record.beforeMm, 0, 0) &&
           nclose(record.afterMm, 2, 0) &&
           record.reason?.toLowerCase().includes("event") === true,
@@ -312,8 +337,11 @@ export function assertContourLoftBoundaryAdmission(): void {
     TestValidator.predicate(
       `${scenario.name} invents no extremum cap`,
       retained.primitiveRanges!.every(
-        (range: NonNullable<L.IResult["primitiveRanges"]>[number]): boolean =>
-          range.kind === "strip",
+        (
+          range: NonNullable<
+            IAutoMovieContourLoft64.IResult["primitiveRanges"]
+          >[number],
+        ): boolean => range.kind === "strip",
       ),
     );
     TestValidator.predicate(
@@ -329,7 +357,7 @@ export function assertContourLoftBoundaryAdmission(): void {
     TestValidator.predicate(
       "an event without identifiable saved brackets still refuses",
       throwsError(
-        (): L.IResult =>
+        (): IAutoMovieContourLoft64.IResult =>
           tessellateAutoMovieContourLoft64({
             sections: birthSections,
             intervals: birthIntervals,

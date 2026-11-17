@@ -1,11 +1,11 @@
-import {
-  type IAutoMovieCurve64 as C,
-  realizeAutoMovieBicubicAtlas64,
-} from "@automovie/engine";
+import { realizeAutoMovieBicubicAtlas64 } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryEventChartInput,
+  IAutoMovieRecoveryEventCurveArc,
+} from "@automovie/interface";
 import {
   AutoMovieRecoveryEventCurve as E,
-  type IAutoMovieRecoveryEventChartInput,
-  type IAutoMovieRecoveryEventCurveArc,
   compileAutoMovieRecoveryEventDomain,
 } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
@@ -27,10 +27,10 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: One affine patch and either orientation retain the declared square area.).
  */
 export function test_geometry_recovery_event_domain(): void {
-  const a: C.Vector = [0, 0, 0],
-    b: C.Vector = [3, 0, 0],
-    c: C.Vector = [0, 3, 0],
-    d: C.Vector = [3, 3, 0];
+  const a: Readonly<AutoMovieVector3Tuple> = [0, 0, 0],
+    b: Readonly<AutoMovieVector3Tuple> = [3, 0, 0],
+    c: Readonly<AutoMovieVector3Tuple> = [0, 3, 0],
+    d: Readonly<AutoMovieVector3Tuple> = [3, 3, 0];
   const input: IAutoMovieRecoveryEventChartInput = {
     id: "square",
     winding: 1,

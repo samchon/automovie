@@ -1,4 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalHullFaces,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 
@@ -32,8 +35,9 @@ import { Vector3 } from "../math/Vector3";
  */
 export function physicalHullFaces(
   points: readonly IAutoMovieVector3[],
-): physicalHullFaces.IHull {
-  const cached: physicalHullFaces.IHull | undefined = HULLS.get(points);
+): IAutoMoviePhysicalHullFaces.IHull {
+  const cached: IAutoMoviePhysicalHullFaces.IHull | undefined =
+    HULLS.get(points);
   if (cached !== undefined) return cached;
   const count: number = points.length;
   let extent: number = 0;
@@ -41,7 +45,7 @@ export function physicalHullFaces(
     for (const q of points)
       extent = Math.max(extent, Vector3.length(Vector3.subtract(p, q)));
   const tolerance: number = 1e-9 * extent;
-  const faces: physicalHullFaces.IFace[] = [];
+  const faces: IAutoMoviePhysicalHullFaces.IFace[] = [];
   const members: boolean[][] = [];
   const used: boolean[] = points.map((): boolean => false);
   for (let i: number = 0; i < count; i++)
@@ -113,7 +117,7 @@ export function physicalHullFaces(
         );
       buried = Math.max(buried, -outermost);
     }
-  const hull: physicalHullFaces.IHull = {
+  const hull: IAutoMoviePhysicalHullFaces.IHull = {
     faces,
     vertices,
     centre,
@@ -129,7 +133,7 @@ export function physicalHullFaces(
 /** One hull per live points array, released with the array. */
 const HULLS: WeakMap<
   readonly IAutoMovieVector3[],
-  physicalHullFaces.IHull
+  IAutoMoviePhysicalHullFaces.IHull
 > = new WeakMap();
 
 /**
@@ -185,31 +189,3 @@ const planarLoop = (
     (p: { index: number; x: number; y: number }): number => p.index,
   );
 };
-
-/**
- * The hull record and its face.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the two records the hull owner returns; each member states its frame, unit and orientation.
- * @evidence contracts/development/design.md#principled-representation A convex polytope as its supporting half-spaces with their boundary loops, the form every distance, clipping and integration consumer needs; no optional member.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `physicalHullFaces`; each member is read by a hull consumer in this package (nearest query, bounds, mass, erosion, validation).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No `any`, `unknown`, index signature or cast; it repeats no type another owner declares.
- */
-export namespace physicalHullFaces {
-  /** One supporting plane of the hull with its boundary. */
-  export interface IFace {
-    /** Outward unit normal, shape-local. */ normal: IAutoMovieVector3;
-    /** The plane's distance from the origin along the normal, metres. */ offset: number;
-    /** Boundary vertices, counter clockwise seen from outside. */ loop: IAutoMovieVector3[];
-  }
-
-  /** The hull of one point set. */
-  export interface IHull {
-    /** Every face; empty when the points span no volume. */ faces: IFace[];
-    /** The points that are corners of some face. */ vertices: IAutoMovieVector3[];
-    /** Mean of the vertices, shape-local metres. */ centre: IAutoMovieVector3;
-    /** Radius about `centre` of a sphere containing the hull, metres. */ radius: number;
-    /** Least distance from `centre` to a face plane, metres: a sphere of this radius about `centre` lies inside the hull. Zero without faces. */ depth: number;
-    /** Greatest depth of any input point below the surface, metres: at most `tolerance` when every point lies on the surface. */ buried: number;
-    /** The coplanarity tolerance used, metres: 1e-9 of the extent. */ tolerance: number;
-  }
-}

@@ -1,24 +1,34 @@
 import {
   AutoMovieScheduleError,
-  type IAutoMovieIntent,
-  type IAutoMovieSchedule,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
   resolveAutoMovieSchedule,
 } from "@automovie/engine";
 import type {
+  IAutoMovieIntent,
+  IAutoMovieIntentTiming,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanResponse,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionMeeting,
+  IAutoMovieSchedule,
+  IAutoMovieScheduleAlignment,
+  IAutoMovieScheduleContext,
+  IAutoMovieScheduleCue,
+  IAutoMovieScheduleEntry,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanPerformance } from "./HumanPerformance";
+import { HumanResponse } from "../skill/HumanResponse";
+import { HumanSkill } from "../skill/HumanSkill";
+import { HumanHitTrack } from "./HumanHitTrack";
 import { HumanPerformancePlace } from "./HumanPerformancePlace";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanScheduleRefusal } from "./HumanScheduleRefusal";
-import { HumanSegment } from "./HumanSegment";
 
 /**
  * The composition resolved on the film clock: the engine's schedule
@@ -38,19 +48,17 @@ export namespace HumanPerformanceSchedule {
    * author as a located refusal with the names that exist.
    */
   export function resolve(
-    self: HumanPerformanceState,
-    input: HumanPerformance.IInput,
+    self: IAutoMovieMotionHumanPerformanceState,
+    input: IAutoMovieMotionHumanPerformance.IInput,
   ): IAutoMovieSchedule {
     try {
       return resolveAutoMovieSchedule(input.composition, {
         timing: (
           intent: IAutoMovieIntent,
-          context: resolveAutoMovieSchedule.IContext,
-        ): resolveAutoMovieSchedule.ITiming => {
-          const where: HumanRefusal.IWhere = HumanPerformanceRead.where(
-            self,
-            intent,
-          );
+          context: IAutoMovieScheduleContext,
+        ): IAutoMovieIntentTiming => {
+          const where: IAutoMovieMotionHumanRefusal.IWhere =
+            HumanPerformanceRead.where(self, intent);
           try {
             return HumanPerformancePlace.place(
               self,
@@ -68,14 +76,15 @@ export namespace HumanPerformanceSchedule {
           placed: { start: number; duration: number },
         ): number | undefined =>
           HumanPerformanceSchedule.proximity(self, intent, placed),
+        // A struck subject's hits are a track computed from what is placed.
+        instants: (of: string): readonly IAutoMovieScheduleCue[] | undefined =>
+          HumanHitTrack.instants(self, of),
         cues: {
           ...self.cues,
           ...Object.fromEntries(
             [...self.layered].filter(
-              ([, cues]: [
-                string,
-                readonly resolveAutoMovieSchedule.ICue[],
-              ]): boolean => cues.length !== 0,
+              ([, cues]: [string, readonly IAutoMovieScheduleCue[]]): boolean =>
+                cues.length !== 0,
             ),
           ),
         },
@@ -83,18 +92,17 @@ export namespace HumanPerformanceSchedule {
           intent: IAutoMovieIntent,
           instant: string,
           target: number,
-          context: resolveAutoMovieSchedule.IAlignment,
+          context: IAutoMovieScheduleAlignment,
         ): number => {
-          const where: HumanRefusal.IWhere = HumanPerformanceRead.where(
-            self,
-            intent,
-          );
+          const where: IAutoMovieMotionHumanRefusal.IWhere =
+            HumanPerformanceRead.where(self, intent);
           try {
             return HumanPerformanceSchedule.align(
               self,
               intent,
               instant,
-              target,
+              target +
+                HumanPerformanceSchedule.latency(self, intent, context, where),
               context,
               where,
             );
@@ -122,19 +130,17 @@ export namespace HumanPerformanceSchedule {
    * the start found so far until that settles; nothing is placed.
    */
   export function align(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     intent: IAutoMovieIntent,
     instant: string,
     target: number,
-    context: resolveAutoMovieSchedule.IAlignment,
-    where: HumanRefusal.IWhere,
+    context: IAutoMovieScheduleAlignment,
+    where: IAutoMovieMotionHumanRefusal.IWhere,
   ): number {
-    const entries: readonly IAutoMovieSchedule.IEntry[] = context.entries;
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      intent.subject,
-    );
-    const previous: HumanSegment.ISegment | undefined =
+    const entries: readonly IAutoMovieScheduleEntry[] = context.entries;
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, intent.subject);
+    const previous: IAutoMovieMotionHumanSegment | undefined =
       intent.parameters?.over === true ? undefined : person.segments.at(-1);
     const floor: number = Math.max(0, previous?.entryTime ?? 0);
     let start: number = target;
@@ -143,17 +149,16 @@ export namespace HumanPerformanceSchedule {
       // Planning a mutual action records its meeting; a trial must not.
       const meetings: [
         string,
-        { subject: string; meeting: AutoMovieMotionMeeting.IMeeting },
+        { subject: string; meeting: IAutoMovieMotionMeeting },
       ][] = [...self.meetings];
-      const timing: resolveAutoMovieSchedule.ITiming =
-        HumanPerformancePlace.place(
-          self,
-          intent,
-          Math.max(floor, start),
-          entries,
-          where,
-          true,
-        );
+      const timing: IAutoMovieIntentTiming = HumanPerformancePlace.place(
+        self,
+        intent,
+        Math.max(floor, start),
+        entries,
+        where,
+        true,
+      );
       self.meetings.clear();
       for (const [key, value] of meetings) self.meetings.set(key, value);
       const share: number | undefined =
@@ -185,17 +190,16 @@ export namespace HumanPerformanceSchedule {
     if (start < floor - 1e-9) {
       // The instants of the same name the anchor or track still offers: the
       // first one late enough is what the author can sync to instead.
-      const anchor: resolveAutoMovieSchedule.IAlignment["anchor"] =
-        context.anchor;
-      const same: readonly resolveAutoMovieSchedule.ICue[] =
+      const anchor: IAutoMovieScheduleAlignment["anchor"] = context.anchor;
+      const same: readonly IAutoMovieScheduleCue[] =
         anchor.event === undefined
           ? []
           : anchor.instants.filter(
-              (cue: resolveAutoMovieSchedule.ICue): boolean =>
+              (cue: IAutoMovieScheduleCue): boolean =>
                 cue.name === anchor.event,
             );
       const earliest: number = same.findIndex(
-        (cue: resolveAutoMovieSchedule.ICue): boolean =>
+        (cue: IAutoMovieScheduleCue): boolean =>
           cue.seconds + anchor.offset >= floor + lead - 1e-9,
       );
       throw new HumanRefusal({
@@ -224,22 +228,68 @@ export namespace HumanPerformanceSchedule {
     return start;
   }
 
+  /**
+   * The drawn latency a synced action waits after its instant
+   * (`HumanChainCore.ISync.latency`), 0 for an action synced without one: the
+   * performer's own draw (`HumanResponse.latency`), keyed by the performer,
+   * the action's id, its occurrence and `latency`, and warned when the cue
+   * track holds the instant's preparatory word (`HumanCue.orders`).
+   */
+  export function latency(
+    self: IAutoMovieMotionHumanPerformanceState,
+    intent: IAutoMovieIntent,
+    context: IAutoMovieScheduleAlignment,
+    where: IAutoMovieMotionHumanRefusal.IWhere,
+  ): number {
+    const raw: unknown = intent.parameters?.latency;
+    const kind: IAutoMovieMotionHumanResponse.Latency | undefined =
+      raw === "reaction"
+        ? "reaction"
+        : typeof raw === "object" &&
+            raw !== null &&
+            "mean" in raw &&
+            "spread" in raw
+          ? { mean: Number(raw.mean), spread: Number(raw.spread) }
+          : undefined;
+    if (kind === undefined) return 0;
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, intent.subject);
+    const event: string | undefined = context.anchor.event;
+    const index: number = context.anchor.index ?? 0;
+    const warned: boolean =
+      event !== undefined &&
+      context.anchor.instants.filter(
+        (cue: IAutoMovieScheduleCue): boolean => cue.name === `${event}Caution`,
+      ).length > index;
+    return HumanResponse.latency(
+      person.skill,
+      HumanSkill.stream(
+        person.skill,
+        intent.subject,
+        intent.anchor ?? intent.capability,
+        where.instance,
+        "latency",
+      ),
+      kind,
+      warned,
+      person.performer.attributes,
+    );
+  }
+
   /** The share of the latest segment's active span at which a proximity cut happens. */
   export function proximity(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     intent: IAutoMovieIntent,
     placed: { start: number; duration: number },
   ): number | undefined {
     const until = intent.until;
     if (until === undefined || !("proximity" in until)) return undefined;
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      intent.subject,
-    );
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, intent.subject);
 
     // A proximity cut reads the carrier's reach; an overlay's is not found.
     if (intent.parameters?.over === true) return undefined;
-    const segment: HumanSegment.ISegment = person.segments.at(-1)!;
+    const segment: IAutoMovieMotionHumanSegment = person.segments.at(-1)!;
     const frame =
       person.performer.body.surfaces.regions[until.proximity.effector];
     const gap = (seconds: number): number => {

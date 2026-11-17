@@ -1,9 +1,8 @@
 import {
   countAutoMovieMeshComponents,
   inspectAutoMovieMeshTopology,
-  type IAutoMovieMeshTopology,
 } from "@automovie/engine";
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMesh, IAutoMovieMeshTopology } from "@automovie/interface";
 
 /**
  * Observe the one realized construction mesh without copying its buffers.

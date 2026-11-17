@@ -1,6 +1,14 @@
 import { AutoMovieHumanConicSection as S } from "./AutoMovieHumanConicSection";
-import { AutoMovieHumanNativeGirthClosure as Closure } from "./AutoMovieHumanNativeGirthClosure";
-import { AutoMovieHumanNativeSiteReaches as Reaches } from "./AutoMovieHumanNativeSiteReaches";
+import {
+  AutoMovieHumanNativeGirthClosure as Closure,
+} from "./AutoMovieHumanNativeGirthClosure";
+import {
+  AutoMovieHumanNativeSiteReaches as Reaches,
+} from "./AutoMovieHumanNativeSiteReaches";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieHumanConicSection,
+} from "@automovie/interface";
 
 /**
  * One section at a measurement site solved from the site's measures: its extremes carried to the person's four reaches about the
@@ -20,7 +28,7 @@ export namespace AutoMovieHumanNativeSiteSection {
   /** A site's measures as the section takes them. */
   export interface ISite {
     /** The point the reaches are measured from, in the section's chart, mm: where the skeleton crosses the section's plane. */
-    centre: S.P;
+    centre: AutoMovieVector2Tuple;
 
     /** The reaches the given section was laid at. */
     from: Reaches.IReaches;
@@ -56,10 +64,10 @@ export namespace AutoMovieHumanNativeSiteSection {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A site whose reaches are its own and that has no girth returns the given array.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one record.
    */
-  export function solve(values: readonly number[], layout: S.ILayout, site: ISite): ISolved {
-    const odd: S.IAnchor | undefined = layout.anchors.find((anchor: S.IAnchor): boolean => anchor.kind === "i" || anchor.kind === "f");
+  export function solve(values: readonly number[], layout: IAutoMovieHumanConicSection.ILayout, site: ISite): ISolved {
+    const odd: IAutoMovieHumanConicSection.IAnchor | undefined = layout.anchors.find((anchor: IAutoMovieHumanConicSection.IAnchor): boolean => anchor.kind === "i" || anchor.kind === "f");
     if (odd !== undefined) throw new Error("site section: a layout with an anchor of kind " + odd.kind + " has no site law yet");
-    const median: boolean = layout.mirror || layout.anchors.some((anchor: S.IAnchor): boolean => anchor.mid === true);
+    const median: boolean = layout.mirror || layout.anchors.some((anchor: IAutoMovieHumanConicSection.IAnchor): boolean => anchor.mid === true);
     if (median && site.centre[1] !== 0) throw new Error("site section: a section on its median line takes a centre on that line");
 
     // A reflected section has one side: its two side reaches must change alike, or the reflection would not be the person's other side.
@@ -73,10 +81,10 @@ export namespace AutoMovieHumanNativeSiteSection {
     if (!same) {
       const { at }: { at: number[] } = S.offsets(layout);
       const out: number[] = [...values];
-      layout.anchors.forEach((anchor: S.IAnchor, k: number): void => {
+      layout.anchors.forEach((anchor: IAutoMovieHumanConicSection.IAnchor, k: number): void => {
         if (anchor.kind !== "u" && anchor.kind !== "v") return;
-        const point: S.P = anchor.mid === true ? [values[at[k]!]!, 0] : [values[at[k]!]!, values[at[k]! + 1]!];
-        const carried: S.P = Reaches.extreme(point, anchor.kind, site.centre, site.from, site.to);
+        const point: AutoMovieVector2Tuple = anchor.mid === true ? [values[at[k]!]!, 0] : [values[at[k]!]!, values[at[k]! + 1]!];
+        const carried: AutoMovieVector2Tuple = Reaches.extreme(point, anchor.kind, site.centre, site.from, site.to);
         out[at[k]!] = carried[0];
         if (anchor.mid !== true) out[at[k]! + 1] = carried[1];
       });

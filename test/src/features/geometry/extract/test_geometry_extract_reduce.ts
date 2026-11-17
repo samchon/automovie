@@ -1,4 +1,5 @@
 import { AutoMovieMeshExtract as X } from "@automovie/engine";
+import type { IAutoMovieScalarHermiteKnot } from "@automovie/interface";
 
 /** An independent cubic Hermite, written here from its factored basis functions. */
 function hermite(
@@ -21,11 +22,14 @@ function hermite(
 }
 
 /** The largest deviation of a dense run from its knots' spans, measured with the Hermite above. */
-function deviation(run: [number, number][], knots: X.IKnot[]): number {
+function deviation(
+  run: [number, number][],
+  knots: IAutoMovieScalarHermiteKnot[],
+): number {
   let worst: number = 0;
   for (let k: number = 0; k + 1 < knots.length; ++k) {
-    const a: X.IKnot = knots[k]!;
-    const b: X.IKnot = knots[k + 1]!;
+    const a: IAutoMovieScalarHermiteKnot = knots[k]!;
+    const b: IAutoMovieScalarHermiteKnot = knots[k + 1]!;
     for (let i: number = a.index; i <= b.index; ++i)
       worst = Math.max(
         worst,
@@ -73,20 +77,25 @@ export function test_geometry_extract_reduce(): void {
       return [s, 100 * s ** 3];
     },
   );
-  const loose: { knots: X.IKnot[]; error: number } = X.reduce(cubic, 0.5);
+  const loose: { knots: IAutoMovieScalarHermiteKnot[]; error: number } =
+    X.reduce(cubic, 0.5);
   if (!(deviation(cubic, loose.knots) <= 0.5))
     failures.push(
       `the reduced cubic deviates ${deviation(cubic, loose.knots)} mm`,
     );
   if (!(loose.knots[0]!.index === 0 && loose.knots.at(-1)!.index === 200))
     failures.push("the run's ends were removed");
-  if (!loose.knots.some((k: X.IKnot): boolean => Math.abs(k.s) <= 0.011))
+  if (
+    !loose.knots.some(
+      (k: IAutoMovieScalarHermiteKnot): boolean => Math.abs(k.s) <= 0.011,
+    )
+  )
     failures.push("the cubic's inflection at 0 was removed");
   if (!(loose.knots.length <= 6))
     failures.push(`the cubic keeps ${loose.knots.length} knots at 0.5 mm`);
   if (
     !X.reduce(cubic, 0.5, [150]).knots.some(
-      (k: X.IKnot): boolean => k.index === 150,
+      (k: IAutoMovieScalarHermiteKnot): boolean => k.index === 150,
     )
   )
     failures.push("a pinned landmark was removed");
@@ -97,13 +106,18 @@ export function test_geometry_extract_reduce(): void {
       10 * Math.sin(i / 100),
     ],
   );
-  const wave: X.IKnot[] = X.reduce(sine, 0.5).knots;
+  const wave: IAutoMovieScalarHermiteKnot[] = X.reduce(sine, 0.5).knots;
   for (const [label, at] of [
     ["maximum", Math.PI / 2],
     ["minimum", (3 * Math.PI) / 2],
     ["inflection", Math.PI],
   ] as const)
-    if (!wave.some((k: X.IKnot): boolean => Math.abs(k.s - at) <= 0.011))
+    if (
+      !wave.some(
+        (k: IAutoMovieScalarHermiteKnot): boolean =>
+          Math.abs(k.s - at) <= 0.011,
+      )
+    )
       failures.push(`the sine's ${label} was removed`);
   if (!(deviation(sine, wave) <= 0.5))
     failures.push(`the reduced sine deviates ${deviation(sine, wave)}`);
@@ -116,19 +130,19 @@ export function test_geometry_extract_reduce(): void {
     (_: unknown, i: number): [number, number] => [i, i === 50 ? 20 : 0],
   );
   if (
-    !X.reduce(spiked, 0.5).knots.some((k: X.IKnot): boolean => k.index === 50)
+    !X.reduce(spiked, 0.5).knots.some(
+      (k: IAutoMovieScalarHermiteKnot): boolean => k.index === 50,
+    )
   )
     failures.push(
       "the unexcluded spike sample is not kept (the run cannot hold it)",
     );
-  const cleaned: { knots: X.IKnot[]; error: number } = X.reduce(
-    spiked,
-    0.5,
-    [],
-    [50],
-  );
+  const cleaned: { knots: IAutoMovieScalarHermiteKnot[]; error: number } =
+    X.reduce(spiked, 0.5, [], [50]);
   if (
-    cleaned.knots.some((k: X.IKnot): boolean => k.index === 50) ||
+    cleaned.knots.some(
+      (k: IAutoMovieScalarHermiteKnot): boolean => k.index === 50,
+    ) ||
     !(cleaned.error <= 0.5) ||
     cleaned.knots.length !== 2
   )
@@ -141,7 +155,7 @@ export function test_geometry_extract_reduce(): void {
     { length: 201 },
     (_: unknown, i: number): [number, number] => [i, i % 2 === 0 ? 0.1 : -0.1],
   );
-  const calm: X.IKnot[] = X.reduce(ripple, 0.5).knots;
+  const calm: IAutoMovieScalarHermiteKnot[] = X.reduce(ripple, 0.5).knots;
   if (!(calm.length < 10 && deviation(ripple, calm) <= 0.5))
     failures.push(
       `the rippled flat run keeps ${calm.length} knots, deviation ${deviation(ripple, calm)}`,
@@ -154,7 +168,7 @@ export function test_geometry_extract_reduce(): void {
       30 + 10 * Math.sin(i / 40) + 0.2 * (random() - 0.5),
     ],
   );
-  const faceted: X.IKnot[] = X.reduce(noisy, 0.5).knots;
+  const faceted: IAutoMovieScalarHermiteKnot[] = X.reduce(noisy, 0.5).knots;
   const top: number = Math.max(
     ...noisy.map((p: [number, number]): number => p[1]),
   );
@@ -162,7 +176,9 @@ export function test_geometry_extract_reduce(): void {
     failures.push(
       `the noisy sine keeps ${faceted.length} of 201 knots, deviation ${deviation(noisy, faceted)}`,
     );
-  if (!faceted.some((k: X.IKnot): boolean => k.value === top))
+  if (
+    !faceted.some((k: IAutoMovieScalarHermiteKnot): boolean => k.value === top)
+  )
     failures.push("the noisy sine's highest sample was removed");
   // Crossings close together (a cut near a ring puts a diagonal crossing
   // beside a vertical one): the same noisy sine sampled every 0.25 mm, where
@@ -174,7 +190,7 @@ export function test_geometry_extract_reduce(): void {
       30 + 10 * Math.sin(i / 160) + 0.2 * (random() - 0.5),
     ],
   );
-  const dense: X.IKnot[] = X.reduce(fine, 0.5).knots;
+  const dense: IAutoMovieScalarHermiteKnot[] = X.reduce(fine, 0.5).knots;
   if (!(dense.length < 12 && deviation(fine, dense) <= 0.5))
     failures.push(
       `the densely sampled noisy sine keeps ${dense.length} of 801 knots, deviation ${deviation(fine, dense)}`,

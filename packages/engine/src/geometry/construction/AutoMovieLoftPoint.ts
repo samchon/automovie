@@ -1,3 +1,12 @@
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftCoefficientSource,
+  IAutoMovieLoftPhaseReading,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftSectionPhase,
+  IAutoMovieStationHermite,
+} from "@automovie/interface";
+
 import { AutoMovieLoftCapRead } from "./AutoMovieLoftCapRead";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
@@ -6,7 +15,6 @@ import { AutoMovieLoftReliefCompose } from "./AutoMovieLoftReliefCompose";
 import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /**
  * Value-only loft station samplers and the existing bounded lazy point cache.
@@ -39,14 +47,14 @@ export namespace AutoMovieLoftPoint {
     chain: IAutoMovieLoftChain,
     s: number,
   ): (t: number) => [number, number, number] {
-    const cap: ReturnType<typeof AutoMovieLoftCapRead.phase> =
+    const cap: ((phi: number) => IAutoMovieLoftPhaseReading) | null =
       AutoMovieLoftCapRead.phase(chain, s);
     if (cap !== null) return (t: number): [number, number, number] => cap(t).p;
-    const source: ReturnType<typeof AutoMovieLoftSection.phase> =
+    const source: ((phi: number) => IAutoMovieLoftSectionPhase) | null =
       AutoMovieLoftSection.phase(chain, s);
     const c: number[] | null =
       source === null ? AutoMovieLoftChain.coefficients(chain, s) : null;
-    const f: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(chain, s);
+    const f: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(chain, s);
 
     // A lifted section leaves its plane along the frame normal by the
     // spline of its lift values, evaluated as the x block of a section
@@ -132,18 +140,15 @@ export namespace AutoMovieLoftPoint {
   export function phaseSampler(
     chain: IAutoMovieLoftChain,
     s: number,
-  ): (t: number) => {
-    p: [number, number, number];
-    t: [number, number, number];
-  } {
-    const cap: ReturnType<typeof AutoMovieLoftCapRead.phase> =
+  ): IAutoMovieLoftChain.IPhaseSamplerResult {
+    const cap: ((phi: number) => IAutoMovieLoftPhaseReading) | null =
       AutoMovieLoftCapRead.phase(chain, s);
     if (cap !== null) return cap;
-    const source: ReturnType<typeof AutoMovieLoftSection.phase> =
+    const source: ((phi: number) => IAutoMovieLoftSectionPhase) | null =
       AutoMovieLoftSection.phase(chain, s);
     const c: number[] | null =
       source === null ? AutoMovieLoftChain.coefficients(chain, s) : null;
-    const f: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(chain, s);
+    const f: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(chain, s);
     const n: [number, number, number] = normal(f);
     const l: number[] | null = AutoMovieLoftChain.lift(chain, s);
     const lifted: number[] | null = l === null ? null : [...l, ...l];
@@ -194,7 +199,7 @@ export namespace AutoMovieLoftPoint {
     const b: IAutoMovieLoftChain.ILayer = layers[hi]!;
     const H: number = b.y - a.y;
     const u: number = Math.min(1, Math.max(0, (s - a.y) / H));
-    const f: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(chain, s);
+    const f: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(chain, s);
     const n: [number, number, number] = normal(f);
     const N: number = chain.order;
 
@@ -224,7 +229,7 @@ export namespace AutoMovieLoftPoint {
       return (k: number): number =>
         h00 * av(k) + h10 * H * am(k) + h01 * bv(k) + h11 * H * bm(k);
     };
-    const source: AutoMovieLoftCoefficientSource.IControls | null =
+    const source: IAutoMovieLoftCoefficientSource.IControls | null =
       AutoMovieLoftCoefficientSource.controls(chain, s);
     const weights: readonly number[] | undefined =
       source === null
@@ -308,8 +313,8 @@ export namespace AutoMovieLoftPoint {
 
   /** One coefficient in the unchanged left-associated Hermite combination order. */
   function scalar(
-    a: AutoMovieStationHermite.IEnd,
-    b: AutoMovieStationHermite.IEnd,
+    a: IAutoMovieStationHermite.IEnd,
+    b: IAutoMovieStationHermite.IEnd,
     w: readonly number[],
     k: number,
   ): number {
@@ -324,7 +329,7 @@ export namespace AutoMovieLoftPoint {
   }
 
   /** Unit normal `v x u` of a section frame: up for a horizontal frame. */
-  function normal(f: AutoMovieLoftFrame.IFrame): [number, number, number] {
+  function normal(f: IAutoMovieLoftSectionFrame): [number, number, number] {
     return [
       f.v[1] * f.u[2] - f.v[2] * f.u[1],
       f.v[2] * f.u[0] - f.v[0] * f.u[2],

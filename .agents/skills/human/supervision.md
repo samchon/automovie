@@ -27,6 +27,8 @@ For every active worker, mark each item pass, fail or unobserved, with evidence 
 
 Keep one compact inspection record containing those times, evidence paths, findings and orders. Reuse unchanged evidence by recorded version.
 
+## The cycle
+
 If late, inspect immediately, record the gap and retain the next fixed deadline. If unable to supervise, stop workers rather than leave them unattended. On a user stop, stop workers and alarms; preserve work and evidence.
 
 ## Stop conditions

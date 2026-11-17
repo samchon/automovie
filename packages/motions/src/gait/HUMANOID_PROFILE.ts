@@ -1,4 +1,4 @@
-import { IAutoMovieProfile } from "@automovie/interface";
+import type { IAutoMovieProfile } from "@automovie/interface";
 
 import { HUMANOID_GAITS } from "./HUMANOID_GAITS";
 

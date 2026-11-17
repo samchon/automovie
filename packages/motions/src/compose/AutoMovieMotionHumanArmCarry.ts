@@ -1,102 +1,46 @@
 import type {
-  AutoMovieHumanoidBone,
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmCarry,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanArmTrajectory,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
   IAutoMoviePose,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmClearing } from "../posture/HumanArmClearing";
-import type { HumanColliders } from "../posture/HumanColliders";
-import { HumanHand } from "../posture/HumanHand";
 import { HumanHandAttitude } from "../posture/HumanHandAttitude";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { AutoMovieMotionHumanArmKeyed } from "./AutoMovieMotionHumanArmKeyed";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
+import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
+import { AutoMovieMotionHumanArmFollow } from "./AutoMovieMotionHumanArmFollow";
+import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 
 /**
- * An arm carried in joint space: its angles read off a pose, the carry
- * between held angles and a goal, and the primitive that writes it, the
- * members `AutoMovieMotionHumanArm` names.
+ * An arm carried toward a goal: the joint-space carry between held angles
+ * (`AutoMovieMotionHumanArmAngles`) and a goal, and the primitive that
+ * writes an arm, planned over its action (`AutoMovieMotionHumanArmPlanned`)
+ * or carried, the members `AutoMovieMotionHumanArm` names.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the three things the file holds and who names them.
+ * @evidence contracts/development/common.md#meaningful-documentation States the two things the file holds, what the primitive delegates to and who names them.
  * @evidence contracts/development/design.md#principled-representation A free arm movement is described by its joint angles (Soechting and Lacquaniti 1981), so the carry reads and writes triples and solves a goal only to read its angles.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The angles record, its reader, the carry and its primitive; `AutoMovieMotionHumanArm` re-exports each by name.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The carry, its record and its primitive; `AutoMovieMotionHumanArm` re-exports each by name.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The blend and the clearing are their owners' (`blendHumanJoint`, `HumanArmClearing`), not restated.
  */
 export namespace AutoMovieMotionHumanArmCarry {
   /**
-   * One arm's joint angles: the clinical flexion, abduction and twist of the
-   * upper arm, the forearm and the hand, degrees.
+   * Deprecated: a carry's path is the planner's, so a law moves its arm with
+   * `carried` over its clock's span (`ICarry.span`), its goal's point and
+   * contact the site, and this share-only carry and its clearing course
+   * (`HumanArmClearing.course`) are retired once the last law has moved.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States which joints are held, the order of each triple and the unit.
-   * @evidence contracts/development/design.md#principled-representation An arm that travels freely is described by its joint angles, the coordinates a free arm movement is smooth in (Soechting and Lacquaniti 1981).
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, the three joints the arm channel owns; read by `angles` and `carry`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Each triple is the posture's own joint triple, so it is written back without conversion.
-   */
-  export interface IAngles {
-    /** The upper arm's flexion, abduction and twist. */
-    upper: readonly [number, number, number];
-
-    /** The forearm's flexion, abduction and twist. */
-    lower: readonly [number, number, number];
-
-    /** The hand's flexion, abduction and twist. */
-    hand: readonly [number, number, number];
-
-    /** The fingers' joints of that hand as the arm holds them, read off the pose with the arm; the posture's own when absent. */
-    fingers?: Readonly<
-      Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
-    >;
-  }
-
-  /**
-   * An arm's joint angles read off a solved pose.
-   *
-   * @param pose The pose.
-   * @param side The arm.
-   * @returns The angles; a joint the pose does not carry reads zero.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and what a missing joint reads.
-   * @evidence contracts/development/implementation.md#principled-implementation The pose already holds each joint's clinical triple, so the angles are read and never re-derived from bone directions.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three lookups.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing joint is the rest angle, zero, the value the resolver gives an unset joint.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three scans of the pose's joints with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing computed twice.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function angles(pose: IAutoMoviePose, side: HumanHand.Side): IAngles {
-    const read = (
-      bone: AutoMovieHumanoidBone,
-    ): readonly [number, number, number] => {
-      const joint = pose.joints.find((j): boolean => j.bone === bone);
-      return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];
-    };
-    const fingers: Partial<
-      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-    > = {};
-    for (const joint of pose.joints)
-      if (
-        HumanArmClearance.DIGITS.test(joint.bone) &&
-        joint.bone.startsWith(side)
-      )
-        fingers[joint.bone] = [
-          joint.flexion ?? 0,
-          joint.abduction ?? 0,
-          joint.twist ?? 0,
-        ];
-    return {
-      upper: read(`${side}UpperArm`),
-      lower: read(`${side}LowerArm`),
-      hand: read(`${side}Hand`),
-      fingers,
-    };
-  }
-
-  /**
    * A posture whose arms are carried in joint space between held angles and
    * their goals' solution: at share 0 each named arm holds the given angles,
    * at 1 the posture is returned as it is, and between them each joint is the
@@ -111,7 +55,7 @@ export namespace AutoMovieMotionHumanArmCarry {
    * may return either; the elbow and the wrist, which lack a freedom, angle
    * by angle so they stay on their axes. The blended forearm is then kept
    * clear of the trunk, the thighs, the other arm and the bodies its goal
-   * names (`IHumanPosture.IGoal.clear`) by the shoulder's abduction and the
+   * names (`HumanPosture.IGoal.clear`) by the shoulder's abduction and the
    * elbow's flexion (`HumanArmClearance.cleared`), each end keeping its room.
    *
    * @param body The body.
@@ -130,15 +74,17 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function carry(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    from: Partial<Record<HumanHand.Side, IAngles>>,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    from: Partial<
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
+    >,
     share: number,
-    planned?: IHumanPosture,
-  ): IHumanPosture {
+    planned?: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture {
     const s: number = Math.min(1, Math.max(0, share));
-    const sides: HumanHand.Side[] = (["left", "right"] as const).filter(
-      (side: HumanHand.Side): boolean => from[side] !== undefined,
+    const sides: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
+      (side: AutoMovieHumanSide): boolean => from[side] !== undefined,
     );
     if (s >= 1 || sides.length === 0) return posture;
     const solved: IAutoMoviePose | null =
@@ -150,21 +96,28 @@ export namespace AutoMovieMotionHumanArmCarry {
       solved === null || planned === undefined
         ? solved
         : resolveHumanPosture(body, planned);
-    const joints: IHumanPosture["joints"] = { ...posture.joints };
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     // Each carried arm at a share of the carry: the plain blend of its two
     // ends, and its course, the blend kept clear. An arm's course at a share
     // is solved in the pose every other carried arm has at that same share
     // (an earlier arm on its course, a later one on its plain blend), so two
     // arms that travel together keep clear of each other as they are shown,
     // and a course does not depend on the instant it is read at.
-    type Arm = (share: number) => HumanArmClearance.IArm;
-    const plains: Partial<Record<HumanHand.Side, Arm>> = {};
-    const courses: Partial<Record<HumanHand.Side, Arm>> = {};
+    type Arm = (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
+    const plains: Partial<Record<AutoMovieHumanSide, Arm>> = {};
+    const courses: Partial<Record<AutoMovieHumanSide, Arm>> = {};
     for (const side of sides) {
-      const held: IAngles = from[side]!;
-      const goal: IAngles = solved === null ? held : angles(solved, side);
-      const plain: Arm = (share: number): HumanArmClearance.IArm => ({
+      const held: IAutoMovieMotionHumanArmAngles.IAngles = from[side]!;
+      const goal: IAutoMovieMotionHumanArmAngles.IAngles =
+        solved === null
+          ? held
+          : AutoMovieMotionHumanArmAngles.angles(solved, side);
+      const plain: Arm = (
+        share: number,
+      ): IAutoMovieMotionHumanArmClearance.IArm => ({
         upper: blendHumanJoint(
           body,
           `${side}UpperArm`,
@@ -182,8 +135,13 @@ export namespace AutoMovieMotionHumanArmCarry {
         hand: blendHumanJoint(body, `${side}Hand`, held.hand, goal.hand, share),
       });
       plains[side] = plain;
-      const aimed: IAngles = planning === null ? held : angles(planning, side);
-      const plan: Arm = (share: number): HumanArmClearance.IArm => ({
+      const aimed: IAutoMovieMotionHumanArmAngles.IAngles =
+        planning === null
+          ? held
+          : AutoMovieMotionHumanArmAngles.angles(planning, side);
+      const plan: Arm = (
+        share: number,
+      ): IAutoMovieMotionHumanArmClearance.IArm => ({
         upper: blendHumanJoint(
           body,
           `${side}UpperArm`,
@@ -210,7 +168,7 @@ export namespace AutoMovieMotionHumanArmCarry {
         courses[side] = plain;
         continue;
       }
-      const others: readonly HumanColliders.IPlaced[] =
+      const others: readonly IAutoMovieMotionHumanColliders.IPlaced[] =
         posture.limbs[`${side}Arm`]?.clear ?? [];
       const posed: Map<number, IAutoMoviePose> = new Map();
       const pose = (share: number): IAutoMoviePose => {
@@ -237,10 +195,10 @@ export namespace AutoMovieMotionHumanArmCarry {
       // two ends: the depth an end's upper arm lies in the chest is not
       // room for the forearm on the way.
       const reading = (
-        of: HumanArmClearance.IArm,
+        of: IAutoMovieMotionHumanArmClearance.IArm,
         share: number,
-        which: keyof HumanArmClearance.IBaseline,
-        fingers?: IAngles["fingers"],
+        which: keyof IAutoMovieMotionHumanArmClearance.IBaseline,
+        fingers?: IAutoMovieMotionHumanArmAngles.IAngles["fingers"],
       ): number =>
         HumanArmClearance.room(
           body,
@@ -256,25 +214,32 @@ export namespace AutoMovieMotionHumanArmCarry {
           },
         );
       let ends:
-        | Record<keyof HumanArmClearance.IBaseline, readonly [number, number]>
+        | Record<
+            keyof IAutoMovieMotionHumanArmClearance.IBaseline,
+            readonly [number, number]
+          >
         | undefined;
-      const known: Map<number, HumanArmClearance.IArm> = new Map();
+      const known: Map<number, IAutoMovieMotionHumanArmClearance.IArm> =
+        new Map();
       // Between two arms that clear the body the blended one may not, so its
       // elbow is let out by as much as the forearm lacks; each end keeps the
       // room it holds, so the carry leaves and joins them without a step.
       // The turn is one course over the carry (`HumanArmClearing.course`),
       // so two neighbouring instants read neighbouring arms.
-      courses[side] = (share: number): HumanArmClearance.IArm => {
-        let arm: HumanArmClearance.IArm | undefined = known.get(share);
+      courses[side] = (
+        share: number,
+      ): IAutoMovieMotionHumanArmClearance.IArm => {
+        let arm: IAutoMovieMotionHumanArmClearance.IArm | undefined =
+          known.get(share);
         if (arm === undefined) {
           arm = HumanArmClearing.course({
             plain,
             planned: plan,
             share,
             clear: (
-              of: HumanArmClearance.IArm,
+              of: IAutoMovieMotionHumanArmClearance.IArm,
               key: number,
-            ): HumanArmClearance.IArm => {
+            ): IAutoMovieMotionHumanArmClearance.IArm => {
               ends ??= {
                 forearm: [
                   reading(held, 0, "forearm", held.fingers),
@@ -306,7 +271,7 @@ export namespace AutoMovieMotionHumanArmCarry {
       };
     }
     for (const side of sides) {
-      const arm: HumanArmClearance.IArm = courses[side]!(s);
+      const arm: IAutoMovieMotionHumanArmClearance.IArm = courses[side]!(s);
       joints[`${side}UpperArm`] = arm.upper;
       joints[`${side}LowerArm`] = arm.lower;
       joints[`${side}Hand`] = arm.hand;
@@ -316,170 +281,146 @@ export namespace AutoMovieMotionHumanArmCarry {
   }
 
   /**
-   * One arm carried in joint space toward a goal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, its unit and the range of the weight.
-   * @evidence contracts/development/design.md#principled-representation The span the arm is written over, the angles it holds at weight 0, the goal it solves to at weight 1 and the weight between them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Nine members, all read by `carried`: seven that every carry needs, the clearing's `arrival` and the hand's `attitude`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The goal is the posture's own goal type as a function of the posture so far, so any owner of arm goals fits.
-   */
-  export interface ICarry {
-    /** The body. */
-    body: IHumanBody;
-
-    /** The arm. */
-    side: HumanHand.Side;
-
-    /** Seconds since the action's start from which the arm is written. */
-    from: number;
-
-    /** Seconds since the action's start until which the arm is written. */
-    to: number;
-
-    /** The angles the arm holds at weight 0. */
-    rest: IAngles;
-
-    /**
-     * The goal the arm solves to at weight 1.
-     *
-     * @param posture The posture so far at this second.
-     * @param seconds Seconds since the action's start.
-     * @returns The goal.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States each argument and when the function is called.
-     * @evidence contracts/development/implementation.md#principled-implementation A goal that rides on the trunk is a function of the posture so far, evaluated when the row is written.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `carried`.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is used as returned, with no second form for a fixed goal.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    goal(posture: IHumanPosture, seconds: number): IHumanPosture.IGoal;
-
-    /**
-     * How far the arm is from its held angles to its goal.
-     *
-     * @param seconds Seconds since the action's start.
-     * @returns A value in [0, 1].
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, and that the result is a share in [0, 1].
-     * @evidence contracts/development/implementation.md#principled-implementation The share is a pure function of the seconds, so any time course fits one member and the reader evaluates it at each second it needs.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `carried`.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `carry` clamps the result to [0, 1] instead of trusting the member.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    weight(seconds: number): number;
-
-    /**
-     * The stretch a second lies in, from its held end (weight 0) to its
-     * arrival (weight 1): the goal's end inside it is read off fits at fixed
-     * seconds (`AutoMovieMotionHumanArmKeyed.at`) and the clearing course is
-     * planned against the arrival's goal. The second's own fit when absent.
-     *
-     * @param seconds Seconds since the action's start.
-     * @returns The held end's and the arrival's seconds since the action's start.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the result, what reads it and the default.
-     * @evidence contracts/development/implementation.md#principled-implementation Fits at fixed instants and a course planned against a fixed arrival are constants of the carry (as a `reference` is a constant of a fit), so the carried arm is a pure function of time that moves continuously, however a fit chooses between two near-equal arms.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `carried`.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is read at the keyed seconds on the posture of the current one, so nothing is remembered between seconds.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
-     */
-    stretch?(seconds: number): readonly [number, number];
-
-    /**
-     * The hand's world rotation on the way, for a hand that holds an object
-     * whose attitude matters (a glass kept upright), solved at the wrist on the
-     * arm the blend places (`HumanHandAttitude.held`); the blend when absent.
-     * Read only between the ends, it must meet the held end's hand at weight
-     * 0 and the goal's at 1, or the hand steps as the carry leaves or joins.
-     *
-     * @param posture The posture so far at this second.
-     * @param seconds Seconds since the action's start.
-     * @param hand The hand's world rotation the blend gives.
-     * @param start The hand's world rotation the held end (weight 0) shows at this second.
-     * @param end The hand's world rotation the goal's end (weight 1) shows at this second: the goal as its fit reaches it.
-     * @param weight The carry's weight at this second, in (0, 1).
-     * @returns The hand's world rotation.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what is solved, where, and the default.
-     * @evidence contracts/development/implementation.md#principled-implementation A blend of the wrist's angles does not hold a world attitude, since the forearm turns under it; solving the hand on the arm as carried does.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `carried`.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither end is touched, so the carry still starts at the held angles and arrives at the goal.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
-     */
-    attitude?(
-      posture: IHumanPosture,
-      seconds: number,
-      hand: IAutoMovieQuaternion,
-      start: IAutoMovieQuaternion,
-      end: IAutoMovieQuaternion,
-      weight: number,
-    ): IAutoMovieQuaternion;
-  }
-
-  /**
-   * An arm carried in joint space between held angles and a goal by a weight:
-   * a reflex's or a gesture's transport, from whatever the body held.
+   * An arm carried toward a goal by a weight: the arm's whole action planned
+   * once as one trajectory with the other arms of its group
+   * (`AutoMovieMotionHumanArmPlanned.planned`), read off the posture so far
+   * the composer gives, over the span the caller states in its clock's
+   * instants, or the span its weight states
+   * (`AutoMovieMotionHumanArmPlanned.stated`). Without a span the arm keeps
+   * the deprecated joint-space carry (`carry`), each law's until it states
+   * its span. A
+   * planned arm that follows a person (`ICarry.tracked`) is the plan with a
+   * bounded correction toward the goal read at each second of the hold
+   * (`AutoMovieMotionHumanArmFollow.follower`).
    *
    * @param props The carry.
    * @returns The primitive, on the arm's channel.
+   * @throws {HumanRefusal} When a planned arm has no trajectory that meets its constraints: when its action is composed (`prepare`), or at the first second written where nothing composes it.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is carried, by what, and the channel claimed.
-   * @evidence contracts/development/implementation.md#principled-implementation The goal is written on the posture so far and `carry` blends its solved angles with the held ones, the goal's end between the ends read off its fits at the stretch's keys (`AutoMovieMotionHumanArmKeyed.at`) when a stretch is given; with an attitude, the hand between the ends is solved to it on the carried arm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The goal's end (the second's goal, or `AutoMovieMotionHumanArmKeyed.at` inside a stretch), the arrival's goal with a stretch, one call of `carry`, then one hand solve with an attitude.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hand's fingers are not claimed, so a row that shapes them composes with this one.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Per written second `carry`'s posture solves (one, two with a stretch), none at weight 0 or 1, and inside a stretch `AutoMovieMotionHumanArmKeyed.at`'s two fits in place of the second's own; between the ends an attitude adds the hand's forward kinematics on the blend, on the held end (the arm written as joints, no limb fit) and on the goal's end (the arm written as joints, or the goal's fit, which `carry`'s solve has just asked the resolver for), the attitude's own reading and `HumanHandAttitude.held` (one posture solve and at most three resolves of the arm written as joints).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanArmKeyed.at`, `carry` and `HumanHandAttitude.held`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
+   * @evidence contracts/development/common.md#meaningful-documentation States the two ways an arm is carried, what each reads, the channel claimed and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A reach that lays a hand on a site is a motion-planning problem, solved as one trajectory over the action against the very postures it is written on (TrajOpt), so the plan is a constant of the action; a transport with no site keeps the joint-space carry (Soechting and Lacquaniti 1981). With an attitude, the hand between the ends is solved to it on the carried arm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The group joined once; per second the planned arm or one `carry`, then one hand solve with an attitude.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The group is solved once, when its first member is prepared on the posture before it, and a member asked while it is being solved throws instead of solving twice; the hand's fingers are not claimed, so a row that shapes them composes with this one.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One trajectory solve per group and action; per written second one cubic read of it, or `carry`'s posture solve, none at weight 0 or 1; between the ends an attitude adds the hand's forward kinematics on the arm, the held end and the goal's end (a planned arm's own held hand, one more read of its plan), and `HumanHandAttitude.held`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanArmPlanned.planned`, `carry` and `HumanHandAttitude.held`.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props and its group, which keeps the group's one solution.
    */
-  export function carried(props: ICarry): IAutoMovieMotionHumanPrimitive {
+  export function carried(
+    props: IAutoMovieMotionHumanArmCarry.ICarry,
+  ): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
+    const span: IAutoMovieMotionHumanArmPlanned.ISpan | undefined = props.span;
+
+    // The arm's whole action, solved once over its span, with the other
+    // arms of its group.
+    const group: IAutoMovieMotionHumanArmPlanned.ITogether =
+      props.together ?? AutoMovieMotionHumanArmPlanned.together();
+    group.carries.push(props);
+    const planned = (
+      before: (seconds: number) => IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanArmTrajectory.Trajectory => {
+      if (group.solved === undefined) {
+        if (group.solving === true)
+          throw new Error(
+            "Two arms moved together are solved from the first of them",
+          );
+        group.solving = true;
+        group.solved = AutoMovieMotionHumanArmPlanned.planned(
+          props.body,
+          span!,
+          group.carries,
+          before,
+        );
+        group.solving = false;
+      }
+      return group.solved.get(props.side)!;
+    };
+    let follow:
+      | ((seconds: number) => IAutoMovieMotionHumanArmClearance.IArm)
+      | undefined;
     return {
       channels: [limb],
       from: props.from,
       to: props.to,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+      // The group is planned when the action is, on the posture so far
+      // before its first member, which leaves every member's arm out.
+      ...(span === undefined
+        ? {}
+        : {
+            prepare: (
+              before: (seconds: number) => IAutoMovieMotionHumanPosture,
+            ): void => void planned(before),
+          }),
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+        before?: (seconds: number) => IAutoMovieMotionHumanPosture,
+      ): IAutoMovieMotionHumanPosture => {
         const weight: number = props.weight(seconds);
-        const goal = (at: number): IHumanPosture => ({
-          ...posture,
-          limbs: { ...posture.limbs, [limb]: props.goal(posture, at) },
-        });
-        const stretch: readonly [number, number] | undefined =
-          props.stretch?.(seconds);
-        const aimed: IHumanPosture =
-          stretch === undefined || !(weight > 0 && weight < 1)
-            ? goal(seconds)
-            : AutoMovieMotionHumanArmKeyed.at(
+        let out: IAutoMovieMotionHumanPosture;
+        // The plan holds over its span, and on past its end where the hand
+        // stays on its site to the end (`ISpan.relax` at `end`), as nothing
+        // returns it. An arm that follows a person is the plan with a bounded
+        // correction toward the goal read at each second of the hold.
+        const so: (seconds: number) => IAutoMovieMotionHumanPosture =
+          before ?? ((): IAutoMovieMotionHumanPosture => posture);
+        const arm = (at: number): IAutoMovieMotionHumanArmClearance.IArm =>
+          props.tracked === true
+            ? (follow ??= AutoMovieMotionHumanArmFollow.follower(
                 props.body,
-                posture,
-                props.side,
-                (at: number): IAngles =>
-                  angles(resolveHumanPosture(props.body, goal(at)), props.side),
-                stretch,
-                seconds,
-              );
-        const out: IHumanPosture = carry(
-          props.body,
-          aimed,
-          { [props.side]: props.rest },
-          weight,
-          stretch === undefined ? undefined : goal(stretch[1]),
-        );
+                props,
+                span!,
+                planned(so),
+                so,
+              ))(at)
+            : planned(so)(at);
+        const placed = (
+          on: IAutoMovieMotionHumanArmClearance.IArm,
+        ): IAutoMovieMotionHumanPosture => {
+          const joints: IAutoMovieMotionHumanPosture["joints"] = {
+            ...posture.joints,
+          };
+          const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+            ...posture.limbs,
+          };
+          joints[`${props.side}UpperArm`] = on.upper;
+          joints[`${props.side}LowerArm`] = on.lower;
+          joints[`${props.side}Hand`] = on.hand;
+          delete limbs[limb];
+          return { ...posture, joints, limbs };
+        };
+        const onPlan: boolean =
+          span !== undefined &&
+          seconds > span.start &&
+          (seconds < span.end || span.relax >= span.end);
+        if (onPlan) out = placed(arm(seconds));
+        else
+          out = carry(
+            props.body,
+            {
+              ...posture,
+              limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds) },
+            },
+            { [props.side]: props.rest },
+            weight,
+          );
         if (props.attitude === undefined || !(weight > 0 && weight < 1))
           return out;
-        // The hand held to its attitude on the arm the blend places
-        // (`HumanHandAttitude`), between the hands its two ends show.
-        const hand = (at: IHumanPosture): IAutoMovieQuaternion =>
+
+        // The hand held to its attitude on the arm as written
+        // (`HumanHandAttitude`), between the hands its two ends show: weight 1
+        // writes a planned arm's own hand, so its end is the plan's at the
+        // hold's nearer edge, carried on the trunk now; the goal's fit else.
+        const hand = (at: IAutoMovieMotionHumanPosture): IAutoMovieQuaternion =>
           poseBones(props.body, resolveHumanPosture(props.body, at)).get(
             `${props.side}Hand`,
           )!.worldRotation;
+        const ended: IAutoMovieMotionHumanPosture = onPlan
+          ? placed(arm(seconds <= span!.ready ? span!.ready : span!.relax))
+          : {
+              ...posture,
+              limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds) },
+            };
         return HumanHandAttitude.held(
           props.body,
           out,
@@ -489,7 +430,7 @@ export namespace AutoMovieMotionHumanArmCarry {
             seconds,
             hand(out),
             hand(carry(props.body, posture, { [props.side]: props.rest }, 0)),
-            hand(aimed),
+            hand(ended),
             weight,
           ),
         );

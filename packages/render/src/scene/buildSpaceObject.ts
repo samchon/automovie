@@ -1,5 +1,9 @@
-import { type ITessellation, tessellateSurface } from "@automovie/engine";
-import type { IAutoMovieSpace, IAutoMovieSurface } from "@automovie/interface";
+import { tessellateSurface } from "@automovie/engine";
+import type {
+  IAutoMovieSpace,
+  IAutoMovieSurface,
+  IAutoMovieTessellation,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import { SPACE_GROUP_NAME } from "./SPACE_GROUP_NAME.js";
@@ -81,7 +85,7 @@ const buildSurfaceGeometry: (
 ) => THREE.BufferGeometry | null = (
   surface: IAutoMovieSurface,
 ): THREE.BufferGeometry | null => {
-  const mesh: ITessellation | null = tessellateSurface(surface);
+  const mesh: IAutoMovieTessellation | null = tessellateSurface(surface);
   if (mesh === null) return null;
   const geometry: THREE.BufferGeometry<
     THREE.NormalBufferAttributes,

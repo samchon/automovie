@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -25,22 +26,28 @@ const PAPER: string =
 const PEN: string =
   "BIC Cristal, 14.45 cm without and 14.9 cm with its cap (Wikipedia, Bic Cristal, https://en.wikipedia.org/wiki/Bic_Cristal); barrel inside the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf)";
 
+/** Michelin's folded road map: its folded size read at the maker, its thickness and mass seen only in listings. */
+const MAP: string =
+  "Michelin regional map, folded 11 x 25 cm (https://boutique.laventure.michelin.com/en/product/ouest-france-map-of-calvados-michelin/); 0.7 cm thick and 89 to 90 g, Michelin maps 333, 585 and 707 seen only in search results";
+
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createStationery.Kind, string>> = {
   book: "book",
   paper: "sheet of paper",
   pen: "pen",
+  clipboard: "clipboard",
+  map: "folded map",
 };
 
 /**
- * A book, a sheet of paper or a pen.
+ * A book, a sheet of paper, a pen, a clipboard or a folded road map.
  *
- * A book lies closed on its back cover at the origin, its spine along `+Z` on the `-X` side; its front half is a part on the `hinge` along the spine, so opening the book turns it. A sheet lies flat at the origin, its long side along `+Z`. A pen lies along `+Z` from its end at the origin to its tip.
+ * A book lies closed on its back cover at the origin, its spine along `+Z` on the `-X` side; its front half is a part on the `hinge` along the spine, so opening the book turns it. A sheet, a clipboard and a folded map lie flat at the origin, their long side along `+Z`; a clipboard's and a map's `grip` is their whole `+Z` edge, pinched across their thickness, and their `face` their upper side. A clipboard's clip waits for a source of its size, and a map does not unfold.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The book, the sheet or the pen.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each thing lies and what opens.
  * @evidence contracts/development/implementation.md#principled-implementation Dimensioned boxes and a rod; the book's two halves share the spine as a hinge axis, turning about `+Z` so a positive travel lifts the front cover over toward `-X`.
@@ -54,28 +61,42 @@ export function createStationery(
   params: createStationery.IParams,
   seed?: number | string,
 ): Archetype<createStationery.Affordance, createStationery.Dimension> {
+  const draw: ArchetypeDrawSession<createStationery.Dimension> =
+    new ArchetypeDrawSession<createStationery.Dimension>(
+      "stationery",
+      createStationery.UNITS,
+      seed,
+      params,
+    );
   const kind: createStationery.Kind = ArchetypeDraw.choice(
     "stationery",
     "kind",
     params.kind,
     createStationery.KINDS,
   );
-  const d: Partial<Record<createStationery.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "stationery",
-      createStationery.BANDS[kind],
-      seed,
-      params,
-      createStationery.BANDS,
-    );
+  const drawn: Partial<Record<createStationery.Dimension, number>> =
+    draw.dimensions(createStationery.BANDS[kind], createStationery.BANDS);
+  // A clipboard is one of Esselte's two models whole.
+  const model: {
+    name: createStationery.Model | undefined;
+    figures: createStationery.Figures;
+  } = draw.model<createStationery.Model>(
+    "model",
+    params.model,
+    createStationery.MODELS[kind],
+  );
+  const d: Partial<Record<createStationery.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+  };
   const builder: ArchetypeBuilder<
     createStationery.Affordance,
     createStationery.Dimension
   > = new ArchetypeBuilder({
-    archetype: "stationery",
+    material: kind === "paper" || kind === "map" ? "paper" : "composite",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const width: number = d.width!;
   const length: number = d.length!;
@@ -92,6 +113,7 @@ export function createStationery(
     builder.affordance({
       id: "grip",
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, thick / 2, length - 0.03),
         Vector3.create(0, 1, 0),
@@ -104,6 +126,7 @@ export function createStationery(
     builder.affordance({
       id: "face",
       kind: "surface",
+      direction: "along",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, thick / 2, length),
         Vector3.create(0, 0, 1),
@@ -113,18 +136,23 @@ export function createStationery(
     return builder.build(d.mass!);
   }
 
-  if (kind === "paper") {
+  if (kind === "paper" || kind === "clipboard" || kind === "map") {
     builder.box(
-      "sheet",
+      kind === "paper" ? "sheet" : kind === "clipboard" ? "board" : "map",
       Vector3.create(width, thick, length),
       Vector3.create(0, thick / 2, 0),
-      { color: "#f4f2ec" },
+      { color: kind === "clipboard" ? "#8a6a4a" : "#f4f2ec" },
     );
     builder.affordance({
       id: "grip",
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
-        Vector3.create(0, thick / 2, length / 2 - 0.02),
+        Vector3.create(
+          0,
+          thick / 2,
+          length / 2 - (kind === "paper" ? 0.02 : 0),
+        ),
         Vector3.create(0, 1, 0),
         Vector3.create(1, 0, 0),
       ),
@@ -136,6 +164,7 @@ export function createStationery(
     builder.affordance({
       id: "face",
       kind: "surface",
+      direction: "normal",
       frame: ArchetypeFrame.upright(Vector3.create(0, thick, 0)),
       extent: null,
       width,
@@ -174,6 +203,7 @@ export function createStationery(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(
       Vector3.create(-width / 2, thick / 2, 0),
       Vector3.create(0, 1, 0),
@@ -187,6 +217,7 @@ export function createStationery(
   builder.affordance({
     id: "face",
     kind: "surface",
+    direction: "normal",
     frame: ArchetypeFrame.upright(Vector3.create(0, thick, 0)),
     extent: null,
     width,
@@ -196,6 +227,7 @@ export function createStationery(
   builder.affordance({
     id: "edge",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(
       Vector3.create(width / 2, (3 * thick) / 4, 0),
       Vector3.create(1, 0, 0),
@@ -219,16 +251,22 @@ export function createStationery(
  */
 export namespace createStationery {
   /** The kinds. */
-  export type Kind = "book" | "paper" | "pen";
+  export type Kind = "book" | "paper" | "pen" | "clipboard" | "map";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["book", "paper", "pen"];
+  export const KINDS: readonly Kind[] = [
+    "book",
+    "paper",
+    "pen",
+    "clipboard",
+    "map",
+  ];
 
   /**
    * The affordance ids:
    *
-   * - `grip`: the hold: a book by the middle of its spine, the hand closing across its thickness (the frame's `+Y` is up, out of the cover) along the spine's length; a sheet pinched from above at its near edge, a pen pinched 30 mm from its tip (an estimate).
-   * - `face`: the working face: a book's front cover, which rides the hinge; a sheet's upper side; a pen's tip, facing along the pen.
+   * - `grip`: the hold: a book by the middle of its spine, the hand closing across its thickness (the frame's `+Y` is up, out of the cover) along the spine's length; a sheet pinched from above at its near edge, a clipboard or a map pinched at its `+Z` edge, a pen pinched 30 mm from its tip (an estimate).
+   * - `face`: the working face: a book's front cover, which rides the hinge; a sheet's, a clipboard's or a map's upper side; a pen's tip, facing along the pen.
    * - `hinge`: a book's spine, turning the front half up to 180 degrees.
    * - `edge`: the fore-edge of a book's front half, pinched to open it; it rides the hinge.
    */
@@ -244,16 +282,43 @@ export namespace createStationery {
    */
   export type Dimension = "width" | "length" | "thickness" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    length: "m",
+    thickness: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which thing. */
     kind: Kind;
 
+    /** A clipboard's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `stationery` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The clipboards read: Esselte's 56055 and 604037, both A4. */
+  export type Model = "56055" | "604037";
+
+  /** Each kind's models whole, the default first: Esselte's 232 x 3 x 349 mm clipboards (W x H x D), 168 g for the 56055 and 190 g for the 604037 (https://docs.rs-online.com/6055/A700000015150044.pdf, https://docs.rs-online.com/86b9/A700000015142764.pdf). */
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
+  > = {
+    clipboard: {
+      "56055": { width: 0.232, length: 0.349, thickness: 0.003, mass: 0.168 },
+      "604037": { width: 0.232, length: 0.349, thickness: 0.003, mass: 0.19 },
+    },
+  };
+
+  /** The band of each free dimension, by kind; a clipboard's are its model's. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
@@ -296,6 +361,13 @@ export namespace createStationery {
         ArchetypeBand.TYPICAL_MASS,
         true,
       ),
+    },
+    clipboard: {},
+    map: {
+      width: ArchetypeBand.metres(0.11, 0.11, MAP),
+      length: ArchetypeBand.metres(0.25, 0.25, MAP),
+      thickness: ArchetypeBand.metres(0.007, 0.007, MAP, true),
+      mass: ArchetypeBand.of("kg", 0.089, 0.09, MAP, true),
     },
   };
 }

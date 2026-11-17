@@ -1,4 +1,4 @@
-import type { IHumanProp } from "@automovie/motions";
+import type { IAutoMovieMotionHumanProp } from "@automovie/interface";
 import * as motions from "@automovie/motions";
 
 import { SceneArchetype } from "../../scenes/package/SceneArchetype";
@@ -19,19 +19,24 @@ export namespace PlaygroundObjects {
   /** `HumanObject` as this module calls it, present only where the installed package has it. */
   interface IHumanObject {
     /** The prop of a model placed in the world. */
-    prop(subject: string, model: object, placement: IPlacement): IHumanProp;
+    prop(
+      subject: string,
+      model: object,
+      placement: IPlacement,
+    ): IAutoMovieMotionHumanProp;
 
     /** The seat of a model placed in the world. */
     seat(model: object, placement: IPlacement, id?: string): unknown;
   }
 
-  /** A placement as `HumanObject.Placement` takes it: a heading on a floor point, or a world frame. */
-  type IPlacement =
+  /** A placement as `HumanObject.Placement` takes it: a heading on a floor point, or a world frame, either as a fixture or not. */
+  type IPlacement = (
     | { at: { x: number; y: number; z: number }; yaw: number }
     | {
         position: { x: number; y: number; z: number };
         rotation: IPlaygroundComposition.IQuaternion;
-      };
+      }
+  ) & { fixed?: boolean };
 
   /** The packages' exports by name, for the members only some releases have. */
   const MOTIONS: Readonly<Record<string, unknown>> = motions as Readonly<
@@ -56,21 +61,23 @@ export namespace PlaygroundObjects {
    */
   export function props(
     objects: readonly IPlaygroundComposition.IObject[],
-  ): IHumanProp[] | undefined {
+  ): IAutoMovieMotionHumanProp[] | undefined {
     if (objects.length === 0) return undefined;
     const human: IHumanObject = attach();
     // An object worn at the start rides the wearer's bone until a hand
-    // draws it, as `IHumanProp.worn` says.
-    return objects.map((object: IPlaygroundComposition.IObject): IHumanProp => {
-      const made: IHumanProp = human.prop(
-        object.subject,
-        model(object),
-        placement(object),
-      );
-      return object.worn === undefined
-        ? made
-        : ({ ...made, worn: object.worn } as IHumanProp);
-    });
+    // draws it, as `IAutoMovieMotionHumanProp.worn` says.
+    return objects.map(
+      (object: IPlaygroundComposition.IObject): IAutoMovieMotionHumanProp => {
+        const made: IAutoMovieMotionHumanProp = human.prop(
+          object.subject,
+          model(object),
+          placement(object),
+        );
+        return object.worn === undefined
+          ? made
+          : ({ ...made, worn: object.worn } as IAutoMovieMotionHumanProp);
+      },
+    );
   }
 
   /**
@@ -181,16 +188,20 @@ export namespace PlaygroundObjects {
     return MOTIONS["HumanObject"] as IHumanObject;
   }
 
-  /** Where an object rests: a heading on its floor point, or its whole rotation as a world frame, the two forms `HumanObject.Placement` takes. */
+  /** Where an object rests: a heading on its floor point, or its whole rotation as a world frame, the two forms `HumanObject.Placement` takes, and whether it is a fixture. */
   function placement(object: IPlaygroundComposition.IObject): IPlacement {
+    const fixed: { fixed?: boolean } =
+      object.fixed === true ? { fixed: true } : {};
     return object.rotation === undefined
       ? {
           at: { x: object.x, y: object.y ?? 0, z: object.z },
           yaw: object.yaw,
+          ...fixed,
         }
       : {
           position: { x: object.x, y: object.y ?? 0, z: object.z },
           rotation: object.rotation,
+          ...fixed,
         };
   }
 }

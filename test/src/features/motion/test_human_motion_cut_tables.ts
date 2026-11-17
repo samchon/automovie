@@ -1,9 +1,8 @@
-import {
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  type IHumanBody,
-} from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+} from "@automovie/interface";
+import { HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -36,8 +35,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, what it made stageable and the 4 scenarios.
  */
 export function test_human_motion_cut_tables(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const outcome = (chain: HumanChain): unknown => {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const outcome = (chain: IAutoMovieMotionHumanChain): unknown => {
     try {
       new HumanPerformance({
         seed: "cuts",
@@ -58,16 +57,16 @@ export function test_human_motion_cut_tables(): void {
     return null;
   };
   const complaints: string[] = [];
-  const plans = (label: string, chain: HumanChain): void => {
+  const plans = (label: string, chain: IAutoMovieMotionHumanChain): void => {
     const thrown: unknown = outcome(chain);
     if (thrown !== null)
       complaints.push(
         `${label}: expected to plan, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
       );
   };
-  const standing = (): HumanChain =>
+  const standing = (): IAutoMovieMotionHumanChain =>
     HumanChain.subject("a").stand({ seconds: 3 }).until({ share: 0.3 });
-  const waving = (): HumanChain =>
+  const waving = (): IAutoMovieMotionHumanChain =>
     HumanChain.subject("a").gesture({ kind: "wave" }).until({ share: 0.5 });
 
   // 1. Standing yields to anything.

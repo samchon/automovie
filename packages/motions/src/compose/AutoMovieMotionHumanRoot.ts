@@ -1,9 +1,12 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * Root primitives: the whole body moved and turned on the floor, in the
@@ -22,54 +25,6 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  */
 export namespace AutoMovieMotionHumanRoot {
   /**
-   * A displacement of the body from where its posture has it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame, axes, unit and sign.
-   * @evidence contracts/development/design.md#principled-representation A rigid move on the floor: a translation in the body's own frame and a turn about the vertical.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members; pitch and roll belong to the trunk channel and are not here.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the vector type; the turn is a signed number of degrees like the posture's yaw.
-   */
-  export interface IOffset {
-    /** The root's move in its own floor frame; `x` left, `y` up, `z` forward, metres. */
-    point: IAutoMovieVector3;
-
-    /** The heading's turn about +Y, degrees; positive toward the performer's left. */
-    yaw: number;
-  }
-
-  /**
-   * A displacement over a window.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The span the root is written over and the displacement at each second.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all read by `travel`; `excursion` fills them from a clock.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The offset is a function of seconds and not a pair of ends with a named easing.
-   */
-  export interface ITravel {
-    /** Seconds since the action's start from which the root is written. */
-    from: number;
-
-    /** Seconds since the action's start until which the root is written. */
-    to: number;
-
-    /**
-     * Where the body is from where the posture so far has it.
-     *
-     * @param seconds Seconds since the action's start.
-     * @returns The displacement.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin and that the result is a displacement in the posture's own floor frame.
-     * @evidence contracts/development/implementation.md#principled-implementation The displacement is a pure function of the seconds in the frame of the heading the posture had, so a root travels without a world coordinate.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `travel`; `excursion` fills it from a clock.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts place applies the displacement as returned, with no clamp of its own, so its range is the movement's own.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    offset(seconds: number): IOffset;
-  }
-
-  /**
    * A posture displaced in its own floor frame: the root moved along the
    * heading it had, then the heading turned.
    *
@@ -86,9 +41,9 @@ export namespace AutoMovieMotionHumanRoot {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function place(
-    posture: IHumanPosture,
-    offset: IOffset,
-  ): IHumanPosture {
+    posture: IAutoMovieMotionHumanPosture,
+    offset: IAutoMovieMotionHumanRoot.IOffset,
+  ): IAutoMovieMotionHumanPosture {
     return {
       ...posture,
       root: HumanFrame.point(
@@ -114,7 +69,10 @@ export namespace AutoMovieMotionHumanRoot {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function scale(offset: IOffset, share: number): IOffset {
+  export function scale(
+    offset: IAutoMovieMotionHumanRoot.IOffset,
+    share: number,
+  ): IAutoMovieMotionHumanRoot.IOffset {
     return {
       point: {
         x: offset.point.x * share,
@@ -139,13 +97,17 @@ export namespace AutoMovieMotionHumanRoot {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function travel(props: ITravel): IAutoMovieMotionHumanPrimitive {
+  export function travel(
+    props: IAutoMovieMotionHumanRoot.ITravel,
+  ): IAutoMovieMotionHumanPrimitive {
     return {
       channels: ["root"],
       from: props.from,
       to: props.to,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture =>
-        place(posture, props.offset(seconds)),
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => place(posture, props.offset(seconds)),
     };
   }
 
@@ -170,15 +132,15 @@ export namespace AutoMovieMotionHumanRoot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function excursion(
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     rise: readonly [string, string],
     fall: readonly [string, string],
-    to: IOffset,
+    to: IAutoMovieMotionHumanRoot.IOffset,
   ): IAutoMovieMotionHumanPrimitive {
     return travel({
       from: clock.at(rise[0]),
       to: clock.at(fall[1]),
-      offset: (seconds: number): IOffset =>
+      offset: (seconds: number): IAutoMovieMotionHumanRoot.IOffset =>
         scale(to, clock.envelope(rise, fall, seconds)),
     });
   }
@@ -202,14 +164,14 @@ export namespace AutoMovieMotionHumanRoot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function shift(
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     window: readonly [string, string],
     by: IAutoMovieVector3,
   ): IAutoMovieMotionHumanPrimitive {
     return travel({
       from: clock.at(window[0]),
       to: clock.duration,
-      offset: (seconds: number): IOffset =>
+      offset: (seconds: number): IAutoMovieMotionHumanRoot.IOffset =>
         scale(
           { point: by, yaw: 0 },
           clock.progress(window[0], window[1], seconds),
@@ -235,14 +197,14 @@ export namespace AutoMovieMotionHumanRoot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function face(
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     window: readonly [string, string],
     yaw: number,
   ): IAutoMovieMotionHumanPrimitive {
     return travel({
       from: clock.at(window[0]),
       to: clock.duration,
-      offset: (seconds: number): IOffset =>
+      offset: (seconds: number): IAutoMovieMotionHumanRoot.IOffset =>
         scale(
           { point: { x: 0, y: 0, z: 0 }, yaw },
           clock.progress(window[0], window[1], seconds),

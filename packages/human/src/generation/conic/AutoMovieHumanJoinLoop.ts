@@ -1,7 +1,11 @@
-import { type AutoMovieLoftFrame, AutoMovieLoftViewFullSource as Full, type IAutoMovieViewPart } from "@automovie/engine";
-import type { IAutoMovieConstructionPort } from "@automovie/interface";
-
 import { AutoMovieHumanSkinCutLoop } from "./AutoMovieHumanSkinCutLoop";
+import { AutoMovieLoftViewFullSource as Full } from "@automovie/engine";
+import type {
+  IAutoMovieConstructionPortLoop,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * The loop of a part that stands on a host's side, generated for the person: both skins cut by the surface that divides them.
@@ -30,7 +34,7 @@ export namespace AutoMovieHumanJoinLoop {
    */
   export interface IContact {
     /** The loop on the host's chart, `count` shares about its own centre. */
-    loop: IAutoMovieConstructionPort.ILoop;
+    loop: IAutoMovieConstructionPortLoop;
 
     /** The part's chart point `[station m, phase rad]` of the loop's point at clock 0. */
     part: [number, number];
@@ -98,8 +102,8 @@ export namespace AutoMovieHumanJoinLoop {
    */
   export function address(part: IAutoMovieViewPart, domain: readonly [number, number], p: readonly number[], guess: number): [number, number] {
     // The signed distance of the point ahead of the section plane at a station, and the point in that station's frame.
-    const read = (station: number): { ahead: number; frame: AutoMovieLoftFrame.IFrame; q: V } => {
-      const frame: AutoMovieLoftFrame.IFrame = part.axis.at(station);
+    const read = (station: number): { ahead: number; frame: IAutoMovieLoftSectionFrame; q: V } => {
+      const frame: IAutoMovieLoftSectionFrame = part.axis.at(station);
       const q: V = [p[0]! - frame.origin[0], p[1]! - frame.origin[1], p[2]! - frame.origin[2]];
       const normal: V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
       return { ahead: q[0] * normal[0] + q[1] * normal[1] + q[2] * normal[2], frame, q };
@@ -140,7 +144,7 @@ export namespace AutoMovieHumanJoinLoop {
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs' premises, the units and each refusal.
    */
   export function create(host: IAutoMovieViewPart, part: IAutoMovieViewPart, count: number, side: (p: readonly number[]) => number): IContact {
-    const [onto, from]: Full.IReader[] = [Full.create(host), Full.create(part)];
+    const [onto, from]: IAutoMovieLoftViewFullSource.IReader[] = [Full.create(host), Full.create(part)];
 
     const chart = (p: readonly number[], guess: number): [number, number] => address(host, onto!.domain, p, guess);
 

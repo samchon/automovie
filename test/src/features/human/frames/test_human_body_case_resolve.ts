@@ -1,7 +1,10 @@
-import type { AutoMovieHumanF1NativeLaw as Law } from "@automovie/human";
-
-import { FamilyConicBodyCaseResolve as Resolve } from "../../../reference-conics/FamilyConicBodyCaseResolve";
-import { FamilyConicBodyCases as Cases } from "../../../reference-conics/FamilyConicBodyCases";
+import {
+  FamilyConicBodyCaseResolve as Resolve,
+} from "../../../reference-conics/FamilyConicBodyCaseResolve";
+import {
+  FamilyConicBodyCases as Cases,
+} from "../../../reference-conics/FamilyConicBodyCases";
+import type { IAutoMovieHumanF1NativeLaw } from "@automovie/interface";
 
 /**
  * The body round's case table resolves into native fields for the rows the fields can state, and says why for the rest.
@@ -28,7 +31,7 @@ import { FamilyConicBodyCases as Cases } from "../../../reference-conics/FamilyC
 export function test_human_body_case_resolve(): void {
   const failures: string[] = [];
   const size = (): { depth: number; breadth: number } => ({ depth: 100, breadth: 80 });
-  const made = (): Law.IFields => ({
+  const made = (): IAutoMovieHumanF1NativeLaw.IFields => ({
     hipJointCentreBreadth: 190,
     wall: { hipSkin: size(), omphalionWall: size(), underbustWall: size(), bustWall: size(), neckSkin: size(), headSkin: size() },
     roots: { arm: size(), leg: size(), breast: size(), nose: size() },
@@ -38,8 +41,8 @@ export function test_human_body_case_resolve(): void {
     extremities: { hand: size(), foot: size(), finger: size(), toe: size() },
     lengths: { upperArm: 200, forearm: 200, thigh: 200, shank: 200, pelvisToThorax: 200, thoraxToHead: 200, handLength: 200, handBreadth: 200, footLength: 200, footBreadth: 200, phalanges: { index: [30, 30, 30], thumb: [30, 30, 30] } },
   });
-  const calipers = (fields: Law.IFields): number[] => [fields.wall, fields.roots, fields.arm, fields.leg, fields.extremities].flatMap((group: object): number[] => Object.values(group as Record<string, { depth: number; breadth: number }>).flatMap((s: { depth: number; breadth: number }): number[] => [s.depth, s.breadth]));
-  const lengths = (fields: Law.IFields): number[] => [...Object.entries(fields.lengths).flatMap(([key, value]: [string, unknown]): number[] => (key === "phalanges" ? [] : [value as number])), ...Object.values(fields.lengths.phalanges).flat()];
+  const calipers = (fields: IAutoMovieHumanF1NativeLaw.IFields): number[] => [fields.wall, fields.roots, fields.arm, fields.leg, fields.extremities].flatMap((group: object): number[] => Object.values(group as Record<string, { depth: number; breadth: number }>).flatMap((s: { depth: number; breadth: number }): number[] => [s.depth, s.breadth]));
+  const lengths = (fields: IAutoMovieHumanF1NativeLaw.IFields): number[] => [...Object.entries(fields.lengths).flatMap(([key, value]: [string, unknown]): number[] => (key === "phalanges" ? [] : [value as number])), ...Object.values(fields.lengths.phalanges).flat()];
   const changed = (now: readonly number[], before: readonly number[]): number[] => now.map((x: number, k: number): number => x / before[k]!).filter((r: number): boolean => r !== 1);
 
   // 1. The table.
@@ -47,7 +50,7 @@ export function test_human_body_case_resolve(): void {
   const count = (kind: Cases.Kind): number => Cases.CASES.filter((row: Cases.ICase): boolean => row.kind === kind).length;
   if (count("girth") !== 28 || count("breadth") !== 28 || count("depth") !== 28 || count("bust") !== 2 || count("tissue") !== 2 || count("length") !== 20 || count("f1") !== 1) failures.push("the table's kinds are not 28, 28, 28, 2, 2, 20 and 1");
 
-  const base: Law.IFields = made();
+  const base: IAutoMovieHumanF1NativeLaw.IFields = made();
   const [baseCalipers, baseLengths]: [number[], number[]] = [calipers(base), lengths(base)];
   let resolved: number = 0;
   for (const row of Cases.CASES) {
@@ -62,7 +65,7 @@ export function test_human_body_case_resolve(): void {
     }
     if (unresolvable) failures.push(row.id + " was resolved, though the native fields cannot state it");
     ++resolved;
-    const fields: Law.IFields = outcome.resolved.fields;
+    const fields: IAutoMovieHumanF1NativeLaw.IFields = outcome.resolved.fields;
     const [sizes, bones]: [number[], number[]] = [changed(calipers(fields), baseCalipers), changed(lengths(fields), baseLengths)];
     const all = (list: readonly number[], n: number): boolean => list.length === n && list.every((r: number): boolean => Math.abs(r - row.ratio) < 1e-12);
 

@@ -1,14 +1,20 @@
+import type {
+  IAutoMovieConstructionWidth,
+  IAutoMovieLoftContract,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidRail,
+  IAutoMovieSolidSharedCurve,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import {
   AutoMovieConstructionWidths,
-  type AutoMovieLoftContract,
   AutoMovieSolidBody,
   AutoMovieSolidIntersection,
   AutoMovieSolidJoin,
-  type AutoMovieSolidRail,
   AutoMovieSolidSharedCurve,
-  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
-import type { AutoMovieConstructionWidth } from "@automovie/interface";
 
 import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 import { ConstructionMound } from "../../../internal/construction/ConstructionMound";
@@ -47,8 +53,8 @@ const { build, height, point, smoothstep, LEVEL }: typeof ConstructionMound = Co
 export function test_construction_operator_mixed_join_cases(): void {
   const failures: string[] = [];
   const T: number = Math.tan(0.88);
-  const circle = (a: number, cx: number = 0, cy: number = 0): AutoMovieSolidSharedCurve.Loop =>
-    (t: number): ReturnType<AutoMovieSolidSharedCurve.Loop> => ({
+  const circle = (a: number, cx: number = 0, cy: number = 0): IAutoMovieSolidSharedCurve.Loop =>
+    (t: number): ReturnType<IAutoMovieSolidSharedCurve.Loop> => ({
       point: [cx + a * Math.cos(t), cy + a * Math.sin(t)],
       first: [-a * Math.sin(t), a * Math.cos(t)],
       second: [-a * Math.cos(t), -a * Math.sin(t)],
@@ -102,13 +108,13 @@ export function test_construction_operator_mixed_join_cases(): void {
       };
     },
   });
-  const narrow: AutoMovieConstructionWidth = { type: "fold", radius: 0.003, cap: 0.02, reach: 0.0005 };
+  const narrow: IAutoMovieConstructionWidth = { type: "fold", radius: 0.003, cap: 0.02, reach: 0.0005 };
   const cleft: ICase = compose(lean(2.4), wall, circle(80), narrow, "outside", [0, 0]);
   failures.push(...admitted(cleft, "cleft"));
   if (cleft.join !== null) {
     const w: number = Math.hypot(0.5, 3 * Math.tan(1.2));
     for (const p of cleft.shared!.curve.points) {
-      const rail: AutoMovieSolidRail.IRail | null = cleft.join.rail(p.t);
+      const rail: IAutoMovieSolidRail.IRail | null = cleft.join.rail(p.t);
       if (rail === null) {
         failures.push(`cleft: no rail at clock ${p.t}`);
         continue;
@@ -130,7 +136,7 @@ export function test_construction_operator_mixed_join_cases(): void {
   if (armpit.join !== null) {
     const w: number = Math.hypot(0.5, 3 * Math.tan(1.4));
     for (const p of armpit.shared!.curve.points) {
-      const rail: AutoMovieSolidRail.IRail | null = armpit.join.rail(p.t);
+      const rail: IAutoMovieSolidRail.IRail | null = armpit.join.rail(p.t);
       if (rail === null) {
         failures.push(`armpit turn: no rail at clock ${p.t}`);
         continue;
@@ -145,13 +151,13 @@ export function test_construction_operator_mixed_join_cases(): void {
   // 4. A cut: the mound mirrored under its wall.
   const mound: ConstructionMound.IMound = { frame: LEVEL, a: 80, slope: smoothstep(T, 0), q: 0, c: 2e-4, lift: 0 };
   const pit: ConstructionMound.IMound = { ...mound, slope: (phi: number): [number, number, number] => smoothstep(-T, 0)(phi), c: -2e-4 };
-  const mixed: AutoMovieConstructionWidth = { type: "fold", radius: 0.011, cap: 0.02, reach: 0.0015 };
+  const mixed: IAutoMovieConstructionWidth = { type: "fold", radius: 0.011, cap: 0.02, reach: 0.0015 };
   const cut: ICase = compose({ ...build(pit).part, name: "pit", orientation: 1 }, build(pit).host, circle(80), mixed, "inside", [0, 0]);
   failures.push(...admitted(cut, "cut"));
   if (cut.join !== null)
     for (const p of cut.shared!.curve.points) {
       const w: number = Math.hypot(1.5, 11 * Math.tan(Math.atan(mound.slope(p.t)[0]) / 2));
-      const rail: AutoMovieSolidRail.IRail | null = cut.join.rail(p.t);
+      const rail: IAutoMovieSolidRail.IRail | null = cut.join.rail(p.t);
       const law: { host: number; part: number | null } = cut.join.widths(p.t);
       if (rail === null || law.part === null) {
         failures.push(`cut: no rail at clock ${p.t}`);
@@ -172,7 +178,7 @@ export function test_construction_operator_mixed_join_cases(): void {
 
   // 5. A root that leaves the loop over the folded arc only.
   const moved: ICase = compose(build({ ...mound, frame: { ...LEVEL, origin: [0, 0.3, 0] } }).part, wall, circle(80), mixed, "outside", [0, 0], 1e-3);
-  const told: AutoMovieLoftContract.IDiagnostic | undefined = moved.diagnostics.find((x: AutoMovieLoftContract.IDiagnostic): boolean => x.contract === "shared loop");
+  const told: IAutoMovieLoftContract.IDiagnostic | undefined = moved.diagnostics.find((x: IAutoMovieLoftContract.IDiagnostic): boolean => x.contract === "shared loop");
   const range: RegExpMatchArray | null = told === undefined ? null : told.detail.match(/clocks \[([0-9.]+), ([0-9.]+)\]/);
   if (range === null) failures.push(`moved mound: expected a shared loop refusal naming its clocks, got ${describe(moved)}`);
   else if (!(Number(range[1]) > Math.PI && Number(range[1]) < 1.5 * Math.PI && Number(range[2]) > 1.5 * Math.PI && Number(range[2]) < 2 * Math.PI))
@@ -189,7 +195,7 @@ export function test_construction_operator_mixed_join_cases(): void {
       ["cutter", "diff"],
       ["second mound", "mixed"],
     ] as [string, "merge" | "diff" | "mixed"][]) {
-      const body: AutoMovieSolidBody.IBody = AutoMovieSolidBody.create("made", [{ surface: wall, stations: range2(-200, 200, 8), phases: range2(-200, 200, 8) }]);
+      const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create("made", [{ surface: wall, stations: range2(-200, 200, 8), phases: range2(-200, 200, 8) }]);
       const base: ReturnType<typeof AutoMovieSolidBody.merge> = AutoMovieSolidBody.merge(body, {
         name: "blend.mound",
         kind: "merge",
@@ -199,7 +205,7 @@ export function test_construction_operator_mixed_join_cases(): void {
         rows: 4,
       });
       if (base.blend === null) {
-        failures.push(`${label}: the first mound did not merge: ${base.diagnostics.map((x: AutoMovieLoftContract.IDiagnostic): string => x.detail.slice(0, 160)).join("; ")}`);
+        failures.push(`${label}: the first mound did not merge: ${base.diagnostics.map((x: IAutoMovieLoftContract.IDiagnostic): string => x.detail.slice(0, 160)).join("; ")}`);
         continue;
       }
       let later: ReturnType<typeof AutoMovieSolidBody.merge>;
@@ -228,7 +234,7 @@ export function test_construction_operator_mixed_join_cases(): void {
         if (later.blend !== null && !(new Set(later.blend.host.faces ?? []).size > 1)) failures.push(`${label}: its host rail stays on one face, so the case does not cross a seam`);
       }
       if (later.blend === null || later.diagnostics.length !== 0)
-        failures.push(`${label}: ${later.blend === null ? "no blend" : "diagnostics"}: ${later.diagnostics.map((x: AutoMovieLoftContract.IDiagnostic): string => `${x.contract}: ${x.detail.slice(0, 220)}`).join("; ")}`);
+        failures.push(`${label}: ${later.blend === null ? "no blend" : "diagnostics"}: ${later.diagnostics.map((x: IAutoMovieLoftContract.IDiagnostic): string => `${x.contract}: ${x.detail.slice(0, 220)}`).join("; ")}`);
     }
   }
   if (failures.length !== 0) throw new Error(`${failures.length} mixed join case failures:\n${failures.join("\n")}`);
@@ -237,10 +243,10 @@ export function test_construction_operator_mixed_join_cases(): void {
 /** One composed case. */
 interface ICase {
   part: IAutoMovieSolidSurface;
-  shared: AutoMovieSolidSharedCurve.IShared | null;
-  width: AutoMovieSolidJoin.IInput["width"] | string | null;
-  join: AutoMovieSolidJoin.IJoin | null;
-  diagnostics: AutoMovieLoftContract.IDiagnostic[];
+  shared: IAutoMovieSolidSharedCurve.IShared | null;
+  width: IAutoMovieSolidJoin.IInput["width"] | string | null;
+  join: IAutoMovieSolidJoin.IJoin | null;
+  diagnostics: IAutoMovieLoftContract.IDiagnostic[];
 }
 
 /** The distance between two points. */
@@ -252,13 +258,13 @@ function distance(a: readonly number[], b: readonly number[]): number {
 function compose(
   part: IAutoMovieSolidSurface,
   host: Parameters<typeof AutoMovieSolidSharedCurve.create>[0]["host"],
-  loop: AutoMovieSolidSharedCurve.Loop,
-  width: AutoMovieConstructionWidth,
-  keep: AutoMovieSolidRail.Keep,
+  loop: IAutoMovieSolidSharedCurve.Loop,
+  width: IAutoMovieConstructionWidth,
+  keep: IAutoMovieSolidRail.Keep,
   start: [number, number],
   tolerance: number = 1e-6,
 ): ICase {
-  const made: AutoMovieSolidSharedCurve.IResult = AutoMovieSolidSharedCurve.create({ part, host, loop, count: 64, tolerance, grazing: 0.05, keep, start });
+  const made: IAutoMovieSolidSharedCurve.IResult = AutoMovieSolidSharedCurve.create({ part, host, loop, count: 64, tolerance, grazing: 0.05, keep, start });
   const out: ICase = { part, shared: made.shared, width: null, join: null, diagnostics: [...made.diagnostics] };
   if (made.shared === null) return out;
   out.width = AutoMovieConstructionWidths.create(width, width, false, { curve: made.shared.curve, part, host: AutoMovieSolidIntersection.atlas(host), diff: keep === "inside" });
@@ -266,16 +272,16 @@ function compose(
     out.diagnostics.push({ producer: "test", level: 6, contract: "width", detail: out.width });
     return out;
   }
-  const result: AutoMovieSolidJoin.IResult = AutoMovieSolidJoin.create({ ...input(out), part, host }, keep);
+  const result: IAutoMovieSolidJoin.IResult = AutoMovieSolidJoin.create({ ...input(out), part, host }, keep);
   out.join = result.join;
   out.diagnostics.push(...result.diagnostics);
   return out;
 }
 
 /** A composed case's kernel join input. */
-function input(c: ICase): Omit<AutoMovieSolidJoin.IInput, "part" | "host"> {
+function input(c: ICase): Omit<IAutoMovieSolidJoin.IInput, "part" | "host"> {
   if (c.shared === null || c.width === null || typeof c.width === "string") throw new Error("the case has no contact or no width law");
-  const first: AutoMovieSolidIntersection.IPoint = c.shared.curve.points[0]!;
+  const first: IAutoMovieSolidIntersection.IPoint = c.shared.curve.points[0]!;
   return {
     seed: { phi: first.phi, s: first.s, y: first.y, theta: first.theta },
     parameter: { kind: "arc" },
@@ -290,7 +296,7 @@ function input(c: ICase): Omit<AutoMovieSolidJoin.IInput, "part" | "host"> {
 
 /** The case's diagnostics, for a message. */
 function describe(c: ICase): string {
-  return c.diagnostics.map((x: AutoMovieLoftContract.IDiagnostic): string => `${x.contract}: ${x.detail.slice(0, 220)}`).join("; ") || "no diagnostic";
+  return c.diagnostics.map((x: IAutoMovieLoftContract.IDiagnostic): string => `${x.contract}: ${x.detail.slice(0, 220)}`).join("; ") || "no diagnostic";
 }
 
 /** The join is admitted with no diagnostic. */
@@ -301,14 +307,14 @@ function admitted(c: ICase, label: string): string[] {
 /** The case is refused under the named premise, in its contract or at the head of its detail. */
 function refused(c: ICase, label: string, name: string): string[] {
   if (c.join !== null) return [`${label}: admitted, expected the ${name} refusal`];
-  return c.diagnostics.some((x: AutoMovieLoftContract.IDiagnostic): boolean => x.contract === name || x.detail.startsWith(name)) ? [] : [`${label}: expected the ${name} refusal, got ${describe(c)}`];
+  return c.diagnostics.some((x: IAutoMovieLoftContract.IDiagnostic): boolean => x.contract === name || x.detail.startsWith(name)) ? [] : [`${label}: expected the ${name} refusal, got ${describe(c)}`];
 }
 
 /** Both laws at every stored clock against their closed forms. */
 function chords(c: ICase, label: string, want: (t: number) => { host: number; part: number }): string[] {
   if (c.join === null || c.shared === null) return [];
-  const join: AutoMovieSolidJoin.IJoin = c.join;
-  return c.shared.curve.points.flatMap((p: AutoMovieSolidIntersection.IPoint): string[] => {
+  const join: IAutoMovieSolidJoin.IJoin = c.join;
+  return c.shared.curve.points.flatMap((p: IAutoMovieSolidIntersection.IPoint): string[] => {
     const law: { host: number; part: number | null } = join.widths(p.t);
     const expected: { host: number; part: number } = want(p.t);
     return Math.abs(law.host - expected.host) <= 1e-8 && law.part !== null && Math.abs(law.part - expected.part) <= 1e-8

@@ -1,19 +1,29 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { createPullUpBar } from "@automovie/archetypes";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
+  HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertSportSaltoFlight } from "../internal/assertSportSaltoFlight";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
@@ -51,7 +61,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    side of the hips.
  * 5. Deadlift: at `bottom1` the ankles are within 5 mm of where they stood
  *    and the wrists are below the knees.
- * 6. Pull-up: between `hang1` and `top1` the wrists' middle stays within
+ * 6. Pull-up, on a pull-up bar (`createPullUpBar`) 0.3 m ahead: between
+ *    `hang1` and `top1` the fists' middle (the grip sockets) stays within
  *    5 mm, the feet are off the floor at `hang1`, and at `top1` the head's
  *    joint is no lower than 2 % of the stature under the wrists.
  * 7. Turn: at `half1` the hips face the way opposite to the entry's, and
@@ -59,15 +70,18 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 8. Forward salto: a quarter into the flight the head is ahead of the
  *    hips, at its middle below them, three quarters in behind them, and at
  *    `settled` above them.
- * 9. A salto that cannot turn: with an apex of 0.15 m the flight is shorter
- *    than one turn at the salto's bound, so one turn is refused on `turns`
- *    with no feasible range; with the default apex, three turns are refused
- *    on `turns` with a whole range from 1.
+ * 9. The original 0.15 m apex and three-turn requests are judged by the
+ *    body's conserved-momentum flight, which replaced the provisional
+ *    constant-rate bound. Each is either refused on `turns` without an
+ *    invented scalar feasible range, or its displayed root completes the
+ *    requested turns and lands upright within 0.02 revolution (the existing
+ *    airborne-signature bound). Twenty turns exceed the take-off and are
+ *    refused, as the independent core-flight case also requires.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds a performance through the public input on real bodies and reads displayed bones at named events; each failure names the row, the body and the measured millimetres.
  * @evidence contracts/development/testing.md#independent-expectations Expected values are the cited descriptions and the campaign's bounds; none is read from the law.
  * @evidence contracts/development/testing.md#distinguishing-cases One row per support family (hands and toes, back and feet, side, straddle, flat feet under a hinge, a bar, a pivot) and the salto, on two bodies of opposite build.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and one film each, without props; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and one film each, a gym's pull-up bar its only prop; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the sources, why two bodies and single repetitions suffice, and the 9 scenarios.
  */
 export function test_human_motion_sport_workout(): void {
@@ -77,22 +91,30 @@ export function test_human_motion_sport_workout(): void {
     ["sidePlank", { hold: 1 }],
     ["triangle", { hold: 1 }],
     ["deadlift", { reps: 1 }],
-    ["pullUp", { reps: 1 }],
+    ["pullUp", { reps: 1, on: { prop: "bar", affordance: "bar" } }],
     ["spin", {}],
     ["frontSalto", { to: { x: 0, y: 0, z: 0.8 } }],
   ];
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
-    let chain: HumanChain = HumanChain.subject("a").stand({ seconds: 0.3 });
+    let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({
+      seconds: 0.3,
+    });
     for (const [row, given] of rows)
       chain = chain.registered(row, given).stand({ seconds: 0.3 });
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "workout",
         laws: Object.values(HUMAN_LEXICON).flat(),
+        props: [
+          HumanObject.prop("bar", createPullUpBar({ kind: "gym" }), {
+            at: { x: 0, y: 0, z: 0.3 },
+            yaw: 0,
+          }),
+        ],
         performers: [
           {
             subject: "a",
@@ -110,18 +132,18 @@ export function test_human_motion_sport_workout(): void {
       );
       continue;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       film,
       "a",
       body,
       0,
     );
-    const segment = (row: string): HumanSegment.ISegment =>
+    const segment = (row: string): IAutoMovieMotionHumanSegment =>
       film
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === row)!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
     const when = (row: string, event: string): number => {
-      const found: HumanSegment.ISegment = segment(row);
+      const found: IAutoMovieMotionHumanSegment = segment(row);
       const share: number | undefined = found.plan.events.find(
         (e): boolean => e.name === event,
       )?.share;
@@ -273,10 +295,31 @@ export function test_human_motion_sport_workout(): void {
     // 6. Pull-up.
     const hang: number = when("pullUp", "hang1");
     const chin: number = when("pullUp", "top1");
+    // The fists' middle: the hands' grip sockets, closed on the bar.
+    const fists = (seconds: number): IAutoMovieVector3 => {
+      const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+        film.bones("a", seconds);
+      return Vector3.scale(
+        [body.surfaces.sockets.gripLeft, body.surfaces.sockets.gripRight]
+          .map(
+            (
+              socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripLeft"],
+            ): IAutoMovieVector3 =>
+              resolveAutoMovieHumanoidSurfaces.place(
+                socket,
+                bones.get(socket.bone)!,
+              ).point,
+          )
+          .reduce(Vector3.add),
+        0.5,
+      );
+    };
+    const held: number =
+      1000 * Vector3.length(Vector3.subtract(fists(chin), fists(hang)));
     expect(
-      "the pull-up keeps the hands' middle within 5 mm",
-      moved(hang, chin, "leftHand", "rightHand") <= 5,
-      mm(moved(hang, chin, "leftHand", "rightHand")),
+      "the pull-up keeps the fists' middle within 5 mm",
+      held <= 5,
+      mm(held),
     );
     const clear: number =
       joint(hang, "leftFoot", "rightFoot").y -
@@ -337,11 +380,20 @@ export function test_human_motion_sport_workout(): void {
     expect("the salto lands upright", standing > 0, m(standing));
 
     // 9. A salto that cannot turn.
-    const refusal: (params: object) => HumanRefusal | string = (
+    // This test distinguishes actual constructor identities with instanceof.
+    const attempt: (
       params: object,
-    ): HumanRefusal | string => {
+    ) =>
+      | InstanceType<typeof HumanPerformance>
+      | InstanceType<typeof HumanRefusal>
+      | string = (
+      params: object,
+    ):
+      | InstanceType<typeof HumanPerformance>
+      | InstanceType<typeof HumanRefusal>
+      | string => {
       try {
-        new HumanPerformance({
+        return new HumanPerformance({
           seed: "salto",
           laws: Object.values(HUMAN_LEXICON).flat(),
           performers: [
@@ -358,7 +410,6 @@ export function test_human_motion_sport_workout(): void {
             .registered("frontSalto", { to: { x: 0, y: 0, z: 0.8 }, ...params })
             .node,
         });
-        return "planned";
       } catch (error) {
         return error instanceof HumanRefusal
           ? error
@@ -367,27 +418,48 @@ export function test_human_motion_sport_workout(): void {
             : String(error);
       }
     };
-    const short: HumanRefusal | string = refusal({ apex: 0.15 });
+    for (const [label, params, turns] of [
+      ["one turn at a 0.15 m apex", { apex: 0.15 }, 1],
+      ["three turns at the default apex", { turns: 3 }, 3],
+    ] as const) {
+      const result:
+        | InstanceType<typeof HumanPerformance>
+        | InstanceType<typeof HumanRefusal>
+        | string = attempt(params);
+      if (result instanceof HumanPerformance) {
+        const observed: string[] = assertSportSaltoFlight(result, "a", turns);
+        expect(
+          `${label} meets its displayed turns and landing`,
+          observed.length === 0,
+          observed.join("; "),
+        );
+      } else
+        expect(
+          `${label} is physically refused on turns`,
+          result instanceof HumanRefusal &&
+            result.axis === "turns" &&
+            result.feasible === null,
+          result instanceof HumanRefusal
+            ? `${result.axis}, ${JSON.stringify(result.feasible)}`
+            : result,
+        );
+    }
+    const many:
+      | InstanceType<typeof HumanPerformance>
+      | InstanceType<typeof HumanRefusal>
+      | string = attempt({
+      turns: 20,
+    });
     expect(
-      "a flight shorter than one turn is refused on turns with no feasible range",
-      short instanceof HumanRefusal &&
-        short.axis === "turns" &&
-        short.feasible === null,
-      short instanceof HumanRefusal
-        ? `${short.axis}, ${JSON.stringify(short.feasible)}`
-        : short,
-    );
-    const many: HumanRefusal | string = refusal({ turns: 3 });
-    expect(
-      "three turns are refused on turns with a whole range from 1",
+      "twenty turns are refused by the take-off's momentum ceiling",
       many instanceof HumanRefusal &&
         many.axis === "turns" &&
-        many.feasible?.kind === "range" &&
-        many.feasible.minimum === 1 &&
-        many.feasible.whole === true,
+        many.feasible === null,
       many instanceof HumanRefusal
         ? `${many.axis}, ${JSON.stringify(many.feasible)}`
-        : many,
+        : many instanceof HumanPerformance
+          ? "planned"
+          : many,
     );
   }
   TestValidator.equals("every workout is on its support", complaints, []);

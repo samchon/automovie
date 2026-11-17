@@ -1,6 +1,18 @@
-import { AutoMovieNaturalSpline, type AutoMovieViewAxis, AutoMovieViewAxisJet, AutoMovieViewChain } from "@automovie/engine";
-
 import { AutoMovieHumanConicSection as S } from "./AutoMovieHumanConicSection";
+import {
+  AutoMovieNaturalSpline,
+  AutoMovieViewAxisJet,
+  AutoMovieViewChain,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieHumanConicRecentre,
+  IAutoMovieHumanConicSection,
+  IAutoMovieNaturalCubicSpline,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewChain,
+} from "@automovie/interface";
 
 /**
  * A conic family re-expressed about another origin line in its own section planes: the same skin, read from a course point moved within
@@ -27,35 +39,8 @@ import { AutoMovieHumanConicSection as S } from "./AutoMovieHumanConicSection";
  * about the course point, so a re-centred tip is another cap.
  */
 export namespace AutoMovieHumanConicRecentre {
-  /**
-   * An origin line as its shift from the base course at each knot, in the section chart, mm.
-   *
-   * @evidence contracts/development/design.md#principled-representation One `u` and one `v` shift per knot, the same support as the family's fields, so the line and the fields share one interpolation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two arrays.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No out-of-plane component: the section planes are never changed.
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame and unit.
-   */
-  export interface ILine {
-    /** The new origin's `u` at each knot, mm from the base course point. */
-    u: readonly number[];
 
-    /** The new origin's `v` at each knot, mm from the base course point. */
-    v: readonly number[];
-  }
-
-  /** The part of a family this module reads. */
-  export interface IFields {
-    /** Shared station knots, mm. */
-    knots: readonly number[];
-
-    /** Knot values by section field then knot. */
-    values: readonly (readonly number[])[];
-
-    /** The anchors every section is read through. */
-    layout: S.ILayout;
-  }
-
-  const spline = (knots: readonly number[], values: readonly number[]): AutoMovieNaturalSpline.ISpline => AutoMovieNaturalSpline.create(knots, values);
+  const spline = (knots: readonly number[], values: readonly number[]): IAutoMovieNaturalCubicSpline => AutoMovieNaturalSpline.create(knots, values);
 
   /**
    * The family's knot values about the new origin line: every extreme's `u` less the line's `u` and its `v` less the line's `v`; shares,
@@ -68,14 +53,14 @@ export namespace AutoMovieHumanConicRecentre {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure re-expression coordinates no shared work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh rows.
    */
-  export function shift(family: IFields, line: ILine): number[][] {
+  export function shift(family: IAutoMovieHumanConicRecentre.IFields, line: IAutoMovieHumanConicRecentre.ILine): number[][] {
     const { knots, layout } = family;
     if (line.u.length !== knots.length || line.v.length !== knots.length) throw new Error("recentre: the origin line needs one shift per knot");
-    const median: boolean = layout.mirror || layout.anchors.some((anchor: S.IAnchor): boolean => anchor.mid === true);
+    const median: boolean = layout.mirror || layout.anchors.some((anchor: IAutoMovieHumanConicSection.IAnchor): boolean => anchor.mid === true);
     if (median && line.v.some((x: number): boolean => x !== 0)) throw new Error("recentre: a family on its median line moves its origin along u only");
     const { at }: { at: number[] } = S.offsets(layout);
     const values: number[][] = family.values.map((row: readonly number[]): number[] => [...row]);
-    layout.anchors.forEach((anchor: S.IAnchor, k: number): void => {
+    layout.anchors.forEach((anchor: IAutoMovieHumanConicSection.IAnchor, k: number): void => {
       if (anchor.kind !== "u" && anchor.kind !== "v") return;
       values[at[k]!] = values[at[k]!]!.map((x: number, m: number): number => x - line.u[m]!);
       if (anchor.mid !== true) values[at[k]! + 1] = values[at[k]! + 1]!.map((x: number, m: number): number => x - line.v[m]!);
@@ -84,15 +69,15 @@ export namespace AutoMovieHumanConicRecentre {
     // The two families must read the same chain: admit both at every knot and halfway between neighbours.
     const stations: number[] = knots.flatMap((s: number, m: number): number[] => (m === 0 ? [s] : [(knots[m - 1]! + s) / 2, s]));
     const read = (rows: readonly (readonly number[])[]): ((s: number) => number[]) => {
-      const fields: AutoMovieNaturalSpline.ISpline[] = rows.map((row: readonly number[]): AutoMovieNaturalSpline.ISpline => spline(knots, row));
-      return (s: number): number[] => fields.map((field: AutoMovieNaturalSpline.ISpline): number => AutoMovieNaturalSpline.evaluate(field, s));
+      const fields: IAutoMovieNaturalCubicSpline[] = rows.map((row: readonly number[]): IAutoMovieNaturalCubicSpline => spline(knots, row));
+      return (s: number): number[] => fields.map((field: IAutoMovieNaturalCubicSpline): number => AutoMovieNaturalSpline.evaluate(field, s));
     };
     const [before, after] = [read(family.values), read(values)];
     const [cu, cv] = [spline(knots, line.u), spline(knots, line.v)];
     for (const s of stations) {
       const [old, own] = [before(s), after(s)];
       const [a, b] = [S.resolve(old, layout).input, S.resolve(own, layout).input];
-      const move: S.P = [AutoMovieNaturalSpline.evaluate(cu, s), AutoMovieNaturalSpline.evaluate(cv, s)];
+      const move: AutoMovieVector2Tuple = [AutoMovieNaturalSpline.evaluate(cu, s), AutoMovieNaturalSpline.evaluate(cv, s)];
       const same: boolean = a.points.every((p: readonly number[], k: number): boolean => {
         const q: readonly number[] = b.points[k]!;
         const scale: number = Math.max(1, Math.abs(p[0]!), Math.abs(p[1]!));
@@ -122,13 +107,13 @@ export namespace AutoMovieHumanConicRecentre {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both callbacks share the two prepared splines.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The axis retains the base and two knot-sized splines.
    */
-  export function axis(base: AutoMovieViewAxis.IAxis, knots: readonly number[], line: ILine): AutoMovieViewAxis.IAxis {
+  export function axis(base: IAutoMovieViewAxis.IAxis, knots: readonly number[], line: IAutoMovieHumanConicRecentre.ILine): IAutoMovieViewAxis.IAxis {
     const [cu, cv] = [spline(knots, line.u), spline(knots, line.v)];
     type V = [number, number, number];
     const mix = (terms: readonly (readonly [number, readonly number[]])[]): V =>
       [0, 1, 2].map((c: number): number => terms.reduce((sum: number, [k, vector]: readonly [number, readonly number[]]): number => sum + k * vector[c]!, 0)) as V;
-    const at = (station: number): ReturnType<AutoMovieViewAxis.IAxis["at"]> => {
-      const frame: ReturnType<AutoMovieViewAxis.IAxis["at"]> = base.at(station);
+    const at = (station: number): ReturnType<IAutoMovieViewAxis.IAxis["at"]> => {
+      const frame: ReturnType<IAutoMovieViewAxis.IAxis["at"]> = base.at(station);
       return {
         ...frame,
         origin: mix([[1, frame.origin], [AutoMovieNaturalSpline.evaluate(cu, station), frame.u], [AutoMovieNaturalSpline.evaluate(cv, station), frame.v]]),
@@ -137,12 +122,12 @@ export namespace AutoMovieHumanConicRecentre {
     if (base.jet === undefined) return { at };
     return {
       at,
-      jet: (station: number, parameter?: Parameters<NonNullable<AutoMovieViewAxis.IAxis["jet"]>>[1]): AutoMovieViewAxisJet.IJet | null => {
-        const j: AutoMovieViewAxisJet.IJet | null = base.jet!(station);
+      jet: (station: number, parameter?: Parameters<NonNullable<IAutoMovieViewAxis.IAxis["jet"]>>[1]): IAutoMovieViewAxisJet.IJet | null => {
+        const j: IAutoMovieViewAxisJet.IJet | null = base.jet!(station);
         if (j === null) return null;
         const [u0, v0] = [AutoMovieNaturalSpline.evaluate(cu, station), AutoMovieNaturalSpline.evaluate(cv, station)];
         const [[u1, u2], [v1, v2]] = [AutoMovieNaturalSpline.derivative(cu, station), AutoMovieNaturalSpline.derivative(cv, station)];
-        const moved: AutoMovieViewAxisJet.IJet = {
+        const moved: IAutoMovieViewAxisJet.IJet = {
           value: { ...j.value, origin: mix([[1, j.value.origin], [u0, j.value.u], [v0, j.value.v]]) },
           first: { ...j.first, origin: mix([[1, j.first.origin], [u1, j.value.u], [u0, j.first.u], [v1, j.value.v], [v0, j.first.v]]) },
           second: {
@@ -166,9 +151,9 @@ export namespace AutoMovieHumanConicRecentre {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call serves one address.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
    */
-  export function phase(family: IFields, line: ILine, station: number, phase: number): number {
+  export function phase(family: IAutoMovieHumanConicRecentre.IFields, line: IAutoMovieHumanConicRecentre.ILine, station: number, phase: number): number {
     const values: number[] = family.values.map((row: readonly number[]): number => AutoMovieNaturalSpline.evaluate(spline(family.knots, row), station));
-    const section: AutoMovieViewChain.ISection = S.chain(values, family.layout);
+    const section: IAutoMovieViewChain.ISection = S.chain(values, family.layout);
     if (section.fault !== null) throw new Error("recentre: the base section at " + station + " is not admitted: " + section.fault);
     const r: number = AutoMovieViewChain.radius(section, phase);
     const [cu, cv] = [

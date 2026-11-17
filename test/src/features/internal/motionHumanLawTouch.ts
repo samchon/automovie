@@ -1,24 +1,28 @@
 import {
   AutoMovieChain,
-  type IAutoMovieResolvedBone,
   Quaternion,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
-  AutoMovieMotionTarget,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchForm,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditDifference,
+  AutoMovieMotionHumanAuditMotion,
   AutoMovieMotionHumanTouchEffector,
   AutoMovieMotionHumanTouchForm,
   HumanChain,
   HumanColliders,
-  IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
   touch,
 } from "@automovie/motions";
 
@@ -60,16 +64,12 @@ import { motionHumanLaw } from "./motionHumanLaw";
  *    from `ready` to `relax` it holds within 10 mm of where it is at
  *    `ready` in that frame, the bound a held effector keeps (6).
  * 8. A one-hand row performed by the left hand on the mirrored region is
- *    the mirror image of the right hand's film within 5 mm, read 4 times a
- *    second. On a partner the claim is about the performer's act, not the
- *    scene: the partner's seeded postural sway is the same in both films, so
- *    it is never mirrored, and a hand that rides its region follows it. So
- *    on a partner row, while the hand lies on the region (from `ready` to
- *    `relax`), the acting hand and its digits are read from the touched
- *    region's point in each film (the partner's region the hand touches
- *    there); outside that span, and for every other bone of `a`, in the
- *    world as before. This corrects the comparison's frame; the bound is the
- *    same 5 mm.
+ *    the mirror image of the right hand's film within 5 mm on every bone of
+ *    `a`, in the world, read 4 times a second. A mirror relation holds only
+ *    when the whole input is mirrored, and a partner's seeded postural sway
+ *    is a draw no seed mirrors, so both films of a partner row are performed
+ *    with the partner standing exactly still (`stand`'s `sway` 0), a scene
+ *    that is its own mirror.
  *
  * The counts default as the law documents: 3 for a tap, a pat, a rub or a
  * scratch and 1 otherwise. The lift and the travel are the kind's shares of
@@ -92,14 +92,21 @@ import { motionHumanLaw } from "./motionHumanLaw";
  */
 export function motionHumanLawTouch(
   label: string,
-  params: touch.IParams,
+  params: IAutoMovieMotionHumanTouch.IParams,
   part: motionHumanLaw.AuditPart | "film" | "mirror",
   partner?: { facing: boolean; gap: number },
   name: motionHumanBody.Name = "m-average",
 ): string[] {
-  const body: IHumanBody = motionHumanBody(name);
-  const perform = (row: touch.IParams): motionHumanLaw.IFilm => {
-    const a: HumanChain = HumanChain.subject("a").act("touch", row);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+  // The partner stands still for a mirror (8), with its own sway otherwise.
+  const perform = (
+    row: IAutoMovieMotionHumanTouch.IParams,
+    still: boolean = false,
+  ): motionHumanLaw.IFilm => {
+    const a: IAutoMovieMotionHumanChain = HumanChain.subject("a").act(
+      "touch",
+      row,
+    );
     return partner === undefined
       ? motionHumanLaw.perform(label, [{ subject: "a", body }], a)
       : motionHumanLaw.perform(
@@ -115,16 +122,21 @@ export function motionHumanLawTouch(
           ],
           new AutoMovieChain({
             kind: "parallel",
-            parts: [HumanChain.subject("b").stand({ seconds: 8 }).node, a.node],
+            parts: [
+              HumanChain.subject("b").stand(
+                still ? { seconds: 8, sway: 0 } : { seconds: 8 },
+              ).node,
+              a.node,
+            ],
           }).node,
         );
   };
-  const film: motionHumanLaw.IFilm = perform(params);
-  const kind: AutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
-  const form: AutoMovieMotionHumanTouchForm.IForm =
+  const film: motionHumanLaw.IFilm = perform(params, part === "mirror");
+  const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
+  const form: IAutoMovieMotionHumanTouchForm.IForm =
     AutoMovieMotionHumanTouchForm.FORMS[kind];
   // The effector as the law reads it: curled as the kind curls the fingers.
-  const effector: AutoMovieMotionHumanTouchEffector.IEffector =
+  const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
     AutoMovieMotionHumanTouchForm.curled(
       touch.EFFECTORS[params.with ?? "palm"],
       kind,
@@ -140,10 +152,10 @@ export function motionHumanLawTouch(
   ): IAutoMovieVector3 => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
   const wrist = (side: "left" | "right", t: number): IAutoMovieVector3 =>
     film.bones("a", t).get(`${side}Hand`)!.worldPosition;
-  const owner = (target: AutoMovieMotionTarget): string =>
+  const owner = (target: IAutoMovieMotionTarget): string =>
     target.kind === "person" ? target.subject : "a";
   const region = (
-    target: AutoMovieMotionTarget,
+    target: IAutoMovieMotionTarget,
     t: number,
   ): IAutoMovieVector3 => {
     const frame =
@@ -166,7 +178,7 @@ export function motionHumanLawTouch(
     );
   const gap = (
     side: "left" | "right",
-    target: AutoMovieMotionTarget,
+    target: IAutoMovieMotionTarget,
     t: number,
   ): number =>
     Math.abs(
@@ -175,7 +187,7 @@ export function motionHumanLawTouch(
     );
   const offset = (
     side: "left" | "right",
-    target: AutoMovieMotionTarget,
+    target: IAutoMovieMotionTarget,
     t: number,
   ): IAutoMovieVector3 =>
     minus(
@@ -190,7 +202,7 @@ export function motionHumanLawTouch(
   const ready: number = motionHumanLaw.event(film, "ready");
   const strokeStart: number = motionHumanLaw.event(film, "strokeStart");
   const relax: number = motionHumanLaw.event(film, "relax");
-  const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
+  const times: number[] = AutoMovieMotionHumanAuditMotion.grid(
     0,
     film.duration,
     24,
@@ -211,73 +223,25 @@ export function motionHumanLawTouch(
     ];
   if (part === "mirror") {
     if (params.other !== undefined) return out;
-    const flip = (target: AutoMovieMotionTarget): AutoMovieMotionTarget =>
+    const flip = (target: IAutoMovieMotionTarget): IAutoMovieMotionTarget =>
       ({
         ...target,
         region: (target as { region: string }).region.replace(
           /Left|Right/,
           (found: string): string => (found === "Left" ? "Right" : "Left"),
         ),
-      }) as AutoMovieMotionTarget;
-    const left: motionHumanLaw.IFilm = perform({
-      ...params,
-      target: flip(params.target),
-      side: "left",
-    });
-
-    // On a partner, the acting hand read from the region it touches in its
-    // own film, so the partner's unmirrored sway is not counted as the act's.
-    const acted = (
-      shown: motionHumanLaw.IFilm,
-      side: "left" | "right",
-      target: AutoMovieMotionTarget,
-    ): IAutoMovieMotionHumanAuditMotion => {
-      if (target.kind !== "person") return shown;
-      const frame = body.surfaces.regions[target.region];
-      const shownReady: number = motionHumanLaw.event(shown, "ready");
-      const shownRelax: number = motionHumanLaw.event(shown, "relax");
-      const hand: RegExp = new RegExp(
-        `^${side}(Hand|Thumb|Index|Middle|Ring|Little)`,
-      );
-      return {
-        duration: shown.duration,
-        segments: (
-          subject: string,
-        ): readonly IAutoMovieMotionHumanAuditMotion.ISpan[] =>
-          shown.segments(subject),
-        bones: (
-          subject: string,
-          t: number,
-        ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-          const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-            shown.bones(subject, t);
-          if (subject !== "a" || t < shownReady || t > shownRelax) return bones;
-          const at: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
-            frame,
-            shown.bones(target.subject, t).get(frame.bone)!,
-          ).point;
-          return new Map(
-            [...bones].map(
-              ([bone, resolved]: [
-                AutoMovieHumanoidBone,
-                IAutoMovieResolvedBone,
-              ]): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
-                bone,
-                hand.test(bone)
-                  ? {
-                      ...resolved,
-                      worldPosition: minus(resolved.worldPosition, at),
-                    }
-                  : resolved,
-              ],
-            ),
-          );
-        },
-      };
-    };
+      }) as IAutoMovieMotionTarget;
+    const left: motionHumanLaw.IFilm = perform(
+      {
+        ...params,
+        target: flip(params.target),
+        side: "left",
+      },
+      true,
+    );
     const mirrored = AutoMovieMotionHumanAuditDifference.measure(
-      acted(film, params.side ?? "right", params.target),
-      acted(left, "left", flip(params.target)),
+      film,
+      left,
       "a",
       { mirror: 0, rate: 4 },
     );
@@ -333,11 +297,11 @@ export function motionHumanLawTouch(
     );
   }
 
-  const hands: ["left" | "right", AutoMovieMotionTarget][] = [
+  const hands: ["left" | "right", IAutoMovieMotionTarget][] = [
     ["right", params.target],
     ...(params.other === undefined
       ? []
-      : [["left", params.other] as ["left", AutoMovieMotionTarget]]),
+      : [["left", params.other] as ["left", IAutoMovieMotionTarget]]),
   ];
   for (const [side, target] of hands) {
     for (const [event, t] of [

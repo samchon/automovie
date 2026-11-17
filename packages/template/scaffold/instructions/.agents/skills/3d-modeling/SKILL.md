@@ -1,32 +1,36 @@
 ---
 name: 3d-modeling
-description: Defines the form each subject of a production takes, namely the polygon man for a person, an installed archetype for an object people use, a coarse form of a few primitives for anything else, and on the user's request a generated, crafted or recovered form with its rig. Use before building or changing a subject's form; judging any picture belongs to the visual-debugging skill and body motion to the motion skill.
+description: Prepares a subject's form and attachments.
 ---
 
 # 3D modeling
 
-A production's film is a hint for video diffusion, which supplies the appearance, so each subject takes the least form that serves the hint. Read [project context](../production/project-context.md) first for the representation the production adopted.
+Prepare each subject's form and attachments from its production record.
 
 ## Default form
 
-A subject the hint does not need takes no form and stays a description in the generation prompt. A person is the polygon man that [entity work](../development/entities.md#people) prepares. An object a person holds, uses, sits on or rides is an [installed archetype](../development/entities.md#objects) where one offers it. Anything else a scene shows or touches is a [coarse form](coarse-forms.md), a few primitives that are just enough to tell what it is.
+Use [entity work](../development/entities.md#coarse-first) for people and provided objects. A needed subject without a provided model takes a coarse form, and a subject the hint does not need stays a description in the generation prompt.
 
-## Requested detail
-
-Go further only when the user asks for it, as a [detail option](../development/entities.md#detail), or when primitives cannot make a form identifiable. The user chooses its source: a diffusion model's output, code that shapes it in detail, or an existing mesh. When the user chooses a diffusion model, give it the subject's turnaround views, made under [image](../image/SKILL.md) as the model's [request](diffusion.md#request) sets.
-
-Build only what the request names and the subject's visible role needs. Finer geometry than that takes the time motion needed, and diffusion repaints it anyway.
-
-| Task | Read |
+| Read | To |
 | --- | --- |
-| Generate the form with a diffusion model | [Diffusion](diffusion.md) |
-| Shape it in code from dimensions and formulas | [Crafting](crafting.md) |
-| Build or fit it from sections and guides | [Lofting](lofting.md) |
-| Find an existing mesh, material, environment map or motion clip | [Sources](sources.md) |
-| Take a found or generated mesh into the production, or vary it by a parameter | [Conditioning](conditioning.md) |
-| Rebuild a fixed mesh as curves or surfaces | [Recovery](recovery.md) |
-| Define parts, groups, placements or shared boundaries | [Modularization](modularization.md) |
-| Add or change a skeleton, skin, attachment or deformation control | [Rigging](rigging.md) |
-| Inspect a form's measures, coverage, construction or light | [Inspecting a form](inspection.md) |
+| [Coarse forms](coarse-forms.md) | Build a subject no package provides from a few primitives |
+| [Modularization](modularization.md) | Define parts, groups, placements or shared boundaries |
+| [Inspecting a form](inspection.md) | Inspect a form's measures, coverage or light |
 
-Whatever its source, a form is reproducible, rigged when it moves and judged on screen under [visual debugging](../visual-debugging/SKILL.md): a completed generation, fit, compilation or test establishes no visual result. The installed packages' documentation owns data formats and callable behavior.
+Commissioned detail uses modularization and form inspection too.
+
+A coarse form that reads poorly gets a better choice of primitives, never finer geometry.
+
+## Commissioned detail
+
+A [detail option](../development/entities.md#detail) is made on the user's commission, such as for a direct 3D film. The user chooses a generated, crafted or existing mesh, and the detail covers only its requested views and controls.
+
+| Read | To |
+| --- | --- |
+| [Diffusion](diffusion/SKILL.md) | Generate the form with a diffusion model |
+| [Crafting](crafting/SKILL.md) | Shape it in code from dimensions and formulas |
+| [Lofting](crafting/lofting.md) | Build or fit it from sections and guides |
+| [Sources](sources.md) | Find an existing mesh, material, environment map or motion clip |
+| [Conditioning](conditioning.md) | Take a found or generated mesh into the production, or vary it by a parameter |
+| [Mesh recovery](crafting/recovery.md) | Rebuild a fixed mesh as curves or surfaces |
+| [Rigging](rigging.md) | Add or change a skeleton, skin, attachment or deformation control |

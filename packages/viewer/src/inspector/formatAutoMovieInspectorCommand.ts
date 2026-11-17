@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieCapturePlanRequest,
-  formatAutoMovieCapturePlanRequest,
-} from "@automovie/render";
+import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
+import { formatAutoMovieCapturePlanRequest } from "@automovie/render";
 
 /** An argument a POSIX shell passes through unquoted. */
 const PLAIN: RegExp = /^[\w%+,./:=@-]+$/u;

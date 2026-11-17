@@ -1,9 +1,9 @@
 import {
   IAutoMovieMesh,
   IAutoMovieMeshPhysicalVertices,
+  type IAutoMovieResolvedPhysicalVertices,
 } from "@automovie/interface";
 
-import { IAutoMovieResolvedPhysicalVertices } from "./IAutoMovieResolvedPhysicalVertices";
 import { weldMeshVertices } from "./weldMeshVertices";
 
 /**

@@ -1,0 +1,114 @@
+import type { IAutoMovieConstructionView } from "../../../construction/IAutoMovieConstructionView";
+import type { IAutoMovieLoftContract } from "../../../construction/IAutoMovieLoftContract";
+import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
+import type { IAutoMovieHumanTrunkSectionFamily } from "./IAutoMovieHumanTrunkSectionFamily";
+
+/**
+ * Whole-source tape trials and coupled parent cuts, preserving source provenance and refusal results.
+ *
+ * The interface package owns these declarations; AutoMovieHumanTrunkTape in Human supplies their runtime values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Whole-source tape trials and coupled parent cuts, preserving source provenance and refusal results. Member comments specify the individual units, frames and optional-value meanings.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IInput, IMass, IResult, ParentRecords declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+ * @evidence contracts/development/design.md#principled-representation IInput, IMass, IResult, ParentRecords separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanTrunkTape exchanges the named IInput, IMass, IResult, ParentRecords contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+ */
+export namespace IAutoMovieHumanTrunkTape {
+  /** What the solve reads.
+   *
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation What the solve reads.
+   * @evidence contracts/development/design.md#principled-representation `producer`: Producer and site, for the diagnostic. `plane`: Actual common world-Y section family, authored before the attached originals. `masses`: The original masses whose common-level side cuts the tape also wraps.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanTrunkLegs.trial, AutoMovieHumanTrunkTape.parent. Read by AutoMovieHumanTrunkTape.solve.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts `parents`: Actual horizontal cuts of other original parents, retaining their source names and explicit unavailability.
+   */
+  export interface IInput {
+    /** Producer and site, for the diagnostic. */
+    producer: string;
+
+    /** Actual common world-Y section family, authored before the attached originals. */
+    plane: IAutoMovieHumanTrunkSectionFamily.IPlane;
+
+    /** The original masses whose common-level side cuts the tape also wraps. */
+    masses: IMass[];
+    /** Actual horizontal cuts of other original parents, retaining their source names and explicit unavailability. These are not AP-chart masses. */
+    parents?: readonly {
+      /** Stable source or geometric-part identity used to join the record to its consumer. */
+      name: string;
+      /** Ordered chart points in calibration millimetres, or a refusal explanation when the source curve could not be read. */
+      points: readonly [number, number][] | string;
+      /** Original station/phase address of each retained tape point, millimetres and radians. */
+      provenance?: readonly {
+        /** Physical station along this part's declared source axis, millimetres. */
+        station: number;
+        /** Section phase in radians, increasing according to the source curve's orientation. */
+        phase: number;
+      }[];
+    }[];
+    /**
+     * Coupled original-parent cuts for this actual shoulder trial; failures remain explicit and the final caller retains that source pair.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Coupled original-parent cuts for this actual shoulder trial; failures remain explicit and the final caller retains that source pair.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanTrunkTape and the callback provider must satisfy the documented parentsAt contract.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanTrunkTape and its callback provider own the cost of each parentsAt invocation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanTrunkTape and the callback provider determine when the inputs to parentsAt describe equivalent work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanTrunkTape and the callback provider own any captured source data and the callable's lifetime.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanTrunkTape.IInput.parentsAt callable contract, without an implementation body. AutoMovieHumanTrunkTape and its supplied callbacks own the numerical method and admission of the documented arguments.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanTrunkTape.IInput.parentsAt declares only the invocation boundary; decomposition belongs to AutoMovieHumanTrunkTape and the callback provider.
+     */
+    parentsAt?(shoulder: number): NonNullable<IInput["parents"]>;
+
+    /** The tape, mm. */
+    tape: number;
+  }
+
+  /** A mass at the site.
+   *
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation A mass at the site.
+   * @evidence contracts/development/design.md#principled-representation `part`: Identical original source, calibration mm. `view`: Its actual production declaration, used to admit the fixed AP chart.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by AutoMovieHumanTrunkTape.cut.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `part`, `view`; callers supply the complete record.
+   */
+  export interface IMass {
+    /** Identical original source, calibration mm. */
+    part: IAutoMovieViewPart;
+    /** Its actual production declaration, used to admit the fixed AP chart. */
+    view: IAutoMovieConstructionView;
+  }
+
+  /** The solved shoulder and its diagnostics.
+   *
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The solved shoulder and its diagnostics.
+   * @evidence contracts/development/design.md#principled-representation `shoulder`: The base's common shoulder, or null when its source/reach/root is not admitted. `diagnostics`: One diagnostic for a tape outside the reach or a box without a valid section.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanTrunkTape.solve. Also types AutoMovieHumanTrunkBuild.tape, AutoMovieHumanTrunkTape.parentError.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `shoulder`, `diagnostics`; callers supply the complete record.
+   */
+  export interface IResult {
+    /** The base's common shoulder, or null when its source/reach/root is not admitted. */
+    shoulder: number | null;
+
+    /** One diagnostic for a tape outside the reach or a box without a valid section. */
+    diagnostics: IAutoMovieLoftContract.IDiagnostic[];
+  }
+
+  /** The records argument of AutoMovieHumanTrunkTape.parent. Project one actual parent cut into tape points and matching provenance without solving or constructing the parent again.
+   *
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Project one actual parent cut into tape points and matching provenance without solving or constructing the parent again.
+   * @evidence contracts/development/design.md#principled-representation Project one actual parent cut into tape points and matching provenance without solving or constructing the parent again. Alternatives are readonly { point: [number, number]; station: number; phase: number; }[]; string.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanTrunkTape.ParentRecords is the canonical exchange used by AutoMovieHumanTrunkTape.parent.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanTrunkTape.parent for project one actual parent cut into tape points and matching provenance without solving or constructing the parent again.
+   */
+  export type ParentRecords =
+    | readonly {
+        /** Sampled position in the curve's source frame, millimetres. */
+        point: [number, number];
+        /** Physical station along this part's declared source axis, millimetres. */
+        station: number;
+        /** Section phase in radians, increasing according to the source curve's orientation. */
+        phase: number;
+      }[]
+    | string;
+}

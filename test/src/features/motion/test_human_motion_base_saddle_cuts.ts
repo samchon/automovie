@@ -1,14 +1,19 @@
 import { createHorse } from "@automovie/archetypes";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanFrame,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
-  type seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -51,17 +56,22 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_base_saddle_cuts(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("f-small");
-  const seat: seated.ISeat = HumanObject.seat(createHorse({}), {
-    at: { x: 0, y: 0, z: -0.6 },
-    yaw: 0,
-  });
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
+  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    createHorse({}),
+    {
+      at: { x: 0, y: 0, z: -0.6 },
+      yaw: 0,
+    },
+  );
   const beside = (x: number, z: number): { x: number; y: number; z: number } =>
     HumanFrame.point(
       { origin: { ...seat.at, y: 0 }, yaw: seat.yaw },
       { x, y: 0, z },
     );
-  const perform = (then: (chain: HumanChain) => HumanChain): HumanPerformance =>
+  const perform = (
+    then: (chain: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "cuts",
       performers: [
@@ -78,10 +88,10 @@ export function test_human_motion_base_saddle_cuts(): void {
     });
   const check = (
     what: string,
-    then: (chain: HumanChain) => HumanChain,
+    then: (chain: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChain,
     ends: "standing" | "seated",
   ): void => {
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = perform(then);
     } catch (error) {
@@ -90,13 +100,13 @@ export function test_human_motion_base_saddle_cuts(): void {
       );
       return;
     }
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
       seat.yaw,
     );
-    const segments: readonly HumanSegment.ISegment[] =
+    const segments: readonly IAutoMovieMotionHumanSegment[] =
       performance.segments("a");
     const end: number = segments[segments.length - 1]!.end;
     const hips = (t: number): number =>
@@ -125,13 +135,13 @@ export function test_human_motion_base_saddle_cuts(): void {
   // 1. Thinking better of it, while the feet are still on the floor.
   check(
     "sit cut by stand at 0.02",
-    (chain: HumanChain): HumanChain =>
+    (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
       chain.until({ share: 0.02 }).stand({ seconds: 1 }),
     "standing",
   );
   check(
     "sit cut by stand at commit",
-    (chain: HumanChain): HumanChain =>
+    (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
       chain.until({ event: "commit" }).stand({ seconds: 1 }),
     "standing",
   );
@@ -139,13 +149,13 @@ export function test_human_motion_base_saddle_cuts(): void {
   // 2. Half on, off again.
   check(
     "sit cut by rise at seatContact",
-    (chain: HumanChain): HumanChain =>
+    (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
       chain.until({ event: "seatContact" }).rise({ to: "left" }),
     "standing",
   );
   check(
     "sit cut by rise at 0.95",
-    (chain: HumanChain): HumanChain =>
+    (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
       chain.until({ share: 0.95 }).rise({ to: "left" }),
     "standing",
   );
@@ -153,7 +163,7 @@ export function test_human_motion_base_saddle_cuts(): void {
   // 3. Settling back.
   check(
     "rise cut by sit at 0.05",
-    (chain: HumanChain): HumanChain =>
+    (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
       chain
         .rise({ to: "left" })
         .until({ share: 0.05 })
@@ -164,7 +174,7 @@ export function test_human_motion_base_saddle_cuts(): void {
   // 4. Off and away, to the side the body got off on.
   check(
     "rise cut by walk at standing",
-    (chain: HumanChain): HumanChain =>
+    (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
       chain
         .rise({ to: "left" })
         .until({ event: "standing" })
@@ -175,18 +185,18 @@ export function test_human_motion_base_saddle_cuts(): void {
   // 5. Cuts sit does not declare: a walk, and a stand once a foot is off the floor.
   const forbidden: readonly (readonly [
     string,
-    (chain: HumanChain) => HumanChain,
+    (chain: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChain,
   ])[] = [
     [
       "sit cut by walk at 0.5",
-      (chain: HumanChain): HumanChain =>
+      (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
         chain
           .until({ share: 0.5 })
           .walk({ to: { x: 0, y: 0, z: seat.at.z + 3 } }),
     ],
     [
       "sit cut by stand at 0.5",
-      (chain: HumanChain): HumanChain =>
+      (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
         chain.until({ share: 0.5 }).stand({ seconds: 1 }),
     ],
   ];

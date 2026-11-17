@@ -1,9 +1,8 @@
-import type { AutoMovieHumanF1Engineering } from "@automovie/human";
-import fs from "node:fs/promises";
-import path from "node:path";
-
 import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
 import { FamilyConicCaseSelection as Selection } from "./FamilyConicCaseSelection";
+import type { IAutoMovieHumanF1Engineering } from "@automovie/interface";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /** Read the immutable production case handoff without a converter or geometry solve. */
 export namespace FamilyConicCaptureInput {
@@ -104,7 +103,7 @@ export namespace FamilyConicCaptureInput {
     /** Absolute repository root. */
     root: string;
     /** Exact producer record; resolution is not shape acceptance. */
-    selected: AutoMovieHumanF1Engineering.IResolvedCase;
+    selected: IAutoMovieHumanF1Engineering.IResolvedCase;
     /** Artifact bytes and canonical selected-field identity. */
     artifact: IFile;
     /** Exact canonical field JSON hash, without rounding numbers. */
@@ -226,7 +225,7 @@ export namespace FamilyConicCaptureInput {
     });
     Selection.sourcePaths(artifact.sourceHashes);
     const current: Record<string, string> = { ...artifact.sourceHashes };
-    const selected: AutoMovieHumanF1Engineering.IResolvedCase =
+    const selected: IAutoMovieHumanF1Engineering.IResolvedCase =
       Selection.select(artifact, id, current);
     if (
       selected.fields === null ||

@@ -1,19 +1,20 @@
 import type {
-  AutoMovieComposition,
-  IAutoMovieResolvedBone,
-} from "@automovie/engine";
-import type {
   AutoMovieHumanoidBone,
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanAudit,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion as IAutoMovieMotionHumanAuditMotionType,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAudit,
-  type HumanChain,
+  AutoMovieMotionHumanAuditMotion,
   HumanPerformance,
-  type IAutoMovieMotionHumanAuditMeasure,
-  IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 
 /**
@@ -41,9 +42,9 @@ export namespace motionHumanLaw {
   export type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
   /** A performance with its remembered frames. */
-  export interface IFilm extends IAutoMovieMotionHumanAuditMotion {
+  export interface IFilm extends IAutoMovieMotionHumanAuditMotionType {
     /** The performance itself. */
-    performance: HumanPerformance;
+    performance: IAutoMovieMotionHumanPerformance;
   }
 
   /**
@@ -59,12 +60,12 @@ export namespace motionHumanLaw {
     seed: string,
     performers: readonly {
       subject: string;
-      body: IHumanBody;
+      body: IAutoMovieMotionHumanBody;
       at?: IAutoMovieVector3;
       yaw?: number;
     }[],
-    composition: AutoMovieComposition | HumanChain,
-    props: readonly IHumanProp[] = [],
+    composition: IAutoMovieComposition | IAutoMovieMotionHumanChain,
+    props: readonly IAutoMovieMotionHumanProp[] = [],
   ): IFilm {
     return film(
       new HumanPerformance({
@@ -88,7 +89,7 @@ export namespace motionHumanLaw {
    * @param performance The performance.
    * @returns The film.
    */
-  export function film(performance: HumanPerformance): IFilm {
+  export function film(performance: IAutoMovieMotionHumanPerformance): IFilm {
     const known: Map<string, Bones> = new Map();
     return {
       performance,
@@ -144,7 +145,7 @@ export namespace motionHumanLaw {
     bone: AutoMovieHumanoidBone,
     rate: number = 24,
   ): IAutoMovieMotionHumanAuditMeasure {
-    const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
+    const times: number[] = AutoMovieMotionHumanAuditMotion.grid(
       0,
       film.duration,
       rate,
@@ -177,13 +178,13 @@ export namespace motionHumanLaw {
    * @returns One complaint per finding; empty when clean.
    */
   export function audit(
-    film: IAutoMovieMotionHumanAuditMotion,
+    film: IAutoMovieMotionHumanAuditMotionType,
     label: string,
     subject: string,
-    body: IHumanBody,
-    options: AutoMovieMotionHumanAudit.IOptions = {},
+    body: IAutoMovieMotionHumanBody,
+    options: IAutoMovieMotionHumanAudit.IOptions = {},
   ): string[] {
-    const report: AutoMovieMotionHumanAudit.IReport =
+    const report: IAutoMovieMotionHumanAudit.IReport =
       AutoMovieMotionHumanAudit.run(film, subject, body, options);
     return report.findings.length === 0
       ? []
@@ -229,10 +230,10 @@ export namespace motionHumanLaw {
    * @returns One complaint per finding of the part; empty when clean.
    */
   export function auditPart(
-    film: IAutoMovieMotionHumanAuditMotion,
+    film: IAutoMovieMotionHumanAuditMotionType,
     label: string,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     part: AuditPart,
   ): string[] {
     if (part === "tangle")
@@ -261,15 +262,15 @@ export namespace motionHumanLaw {
       film.duration,
       meet(sixth + 1) + (sixth < PARTS - 1 ? 2 / rate : 0),
     );
-    const view: IAutoMovieMotionHumanAuditMotion = {
+    const view: IAutoMovieMotionHumanAuditMotionType = {
       duration: to - from,
       bones: (who: string, seconds: number): Bones =>
         film.bones(who, from + seconds),
-      segments: (who: string): IAutoMovieMotionHumanAuditMotion.ISpan[] =>
+      segments: (who: string): IAutoMovieMotionHumanAuditMotionType.ISpan[] =>
         film.segments(who).map(
           (
-            span: IAutoMovieMotionHumanAuditMotion.ISpan,
-          ): IAutoMovieMotionHumanAuditMotion.ISpan => ({
+            span: IAutoMovieMotionHumanAuditMotionType.ISpan,
+          ): IAutoMovieMotionHumanAuditMotionType.ISpan => ({
             ...span,
             start: span.start - from,
             entryTime: span.entryTime - from,

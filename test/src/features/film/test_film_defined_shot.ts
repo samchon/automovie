@@ -1,10 +1,10 @@
 import {
-  type IAutoMovieAuthoringDiagnostic,
   compileDefinedShot,
   defineShot,
   suggestCollisionResponse,
 } from "@automovie/engine";
 import {
+  type IAutoMovieAuthoringDiagnostic,
   IAutoMovieBeatEndActorState,
   IAutoMovieCompiledContractRealization,
   IAutoMovieDefinedShot,

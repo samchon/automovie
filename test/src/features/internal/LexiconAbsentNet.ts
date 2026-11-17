@@ -1,11 +1,13 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HUMAN_LEXICON_SCHEMAS,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  type IHumanActionLaw,
-  type IHumanBody,
 } from "@automovie/motions";
 
 import { LexiconRowNet } from "./LexiconRowNet";
@@ -31,10 +33,10 @@ export namespace LexiconAbsentNet {
   export const NOWHERE: string = "chest";
 
   /** The average man, prepared at the first cast and kept for the test process. */
-  let body: IHumanBody | undefined;
+  let body: IAutoMovieMotionHumanBody | undefined;
 
   /** Every row of the lexicon, in family order. */
-  const rows = (): IHumanActionLaw<never>[] =>
+  const rows = (): IAutoMovieMotionHumanActionLaw<never>[] =>
     Object.values(HUMAN_LEXICON).flat();
 
   /** A value with every `region` in it replaced by {@link NOWHERE}; null when it holds none. */
@@ -93,8 +95,8 @@ export namespace LexiconAbsentNet {
    */
   export function cast(part: readonly [number, number]): string[] {
     const complaints: string[] = [];
-    const chosen: IHumanActionLaw<never>[] = rows().filter(
-      (_: IHumanActionLaw<never>, index: number): boolean =>
+    const chosen: IAutoMovieMotionHumanActionLaw<never>[] = rows().filter(
+      (_: IAutoMovieMotionHumanActionLaw<never>, index: number): boolean =>
         index % part[1] === part[0],
     );
     if (chosen.length === 0)
@@ -107,7 +109,7 @@ export namespace LexiconAbsentNet {
           `${law.name} has no entry in HUMAN_LEXICON_SCHEMAS, so its parameters are not checked at its entry`,
         );
     body ??= motionHumanBody("m-average");
-    const laws: IHumanActionLaw<never>[] = rows();
+    const laws: IAutoMovieMotionHumanActionLaw<never>[] = rows();
     for (const law of chosen) {
       let caught: unknown = null;
       try {

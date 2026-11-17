@@ -1,22 +1,23 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMoviePhysicalShape,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../../body/IHumanBody";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanColliders } from "../../posture/HumanColliders";
-import type { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import type { humanPolygonMan } from "../humanPolygonMan";
 
@@ -41,7 +42,7 @@ export namespace TouchVerdicts {
     subject: string;
 
     /** That performer's body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The region. */
     region: AutoMovieHumanoidRegion;
@@ -56,7 +57,7 @@ export namespace TouchVerdicts {
    * @returns The point and normal.
    */
   export function place(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     region: IRegion,
     seconds: number,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
@@ -83,11 +84,11 @@ export namespace TouchVerdicts {
    * @returns Metres.
    */
   export function miss(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
-    body: IHumanBody,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     region: IRegion,
     standoff: number,
     seconds: number,
@@ -126,11 +127,11 @@ export namespace TouchVerdicts {
    * @returns Metres.
    */
   export function off(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
-    body: IHumanBody,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     region: IRegion,
     standoff: number,
     seconds: number,
@@ -202,11 +203,11 @@ export namespace TouchVerdicts {
    * @returns The least gap, metres, and its second.
    */
   export function entry(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
-    body: IHumanBody,
-    side: HumanHand.Side,
-    other: { subject: string; body: IHumanBody },
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    other: { subject: string; body: IAutoMovieMotionHumanBody },
     from: number,
     to: number,
   ): { gap: number; at: number } {
@@ -301,7 +302,7 @@ export namespace TouchVerdicts {
    * @returns The figure.
    */
   export function figure(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     man: humanPolygonMan.IPolygonMan,
     color?: number,
@@ -325,7 +326,7 @@ export namespace TouchVerdicts {
    * @returns Film seconds.
    */
   export function event(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     name: string,
     index: number = 0,
@@ -365,7 +366,7 @@ export namespace TouchVerdicts {
 }
 
 /** Surface points of a collider shape in its own frame: a hull's vertices, a box's corners, and the six axis ends of a sphere or of each end and the middle of a capsule. */
-const skin = (shape: IAutoMoviePhysicalProfile.IShape): IAutoMovieVector3[] => {
+const skin = (shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] => {
   if (shape.kind === "hull") return shape.points;
   if (shape.kind === "box") {
     const h: IAutoMovieVector3 = shape.halfExtents;

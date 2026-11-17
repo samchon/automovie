@@ -3,7 +3,10 @@ import {
   getConstraint,
   validateJointRom,
 } from "@automovie/engine";
-import { IAutoMovieConstraintViolation } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint } from "../internal/fixtures";
@@ -14,7 +17,7 @@ const romItems: (
 ) => IAutoMovieConstraintViolation[] = (
   axes: Parameters<typeof joint>[1],
 ): IAutoMovieConstraintViolation[] => {
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: joint("leftLowerArm", axes),
     constraint: getConstraint("leftLowerArm", null)!,

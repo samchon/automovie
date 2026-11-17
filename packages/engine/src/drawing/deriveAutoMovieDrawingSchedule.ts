@@ -7,7 +7,9 @@ import {
   IAutoMovieBuiltSpace,
   IAutoMovieConnectorLanding,
   IAutoMovieConnectorSection,
+  type IAutoMovieDeriveDrawingSchedule,
   IAutoMovieDrawingConnectorPlace,
+  type IAutoMovieDrawingDesignIndex,
   IAutoMovieDrawingGap,
   IAutoMovieDrawingOpeningPlace,
   IAutoMovieDrawingSchedule,
@@ -15,6 +17,7 @@ import {
   IAutoMovieDrawingSchedulePlace,
   IAutoMovieDrawingScheduleRow,
   IAutoMovieSubjectBox,
+  type IAutoMovieValidation,
 } from "@automovie/interface";
 
 import { builtEnvironmentAdjacentSpaces } from "../architecture/builtEnvironmentAdjacentSpaces";
@@ -27,7 +30,6 @@ import { validateBuiltEnvironment } from "../architecture/validateBuiltEnvironme
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
-import { IAutoMovieDrawingDesignIndex } from "./IAutoMovieDrawingDesignIndex";
 import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { autoMovieDrawingSpaceBox } from "./autoMovieDrawingSpaceBox";
 import { autoMovieOpeningFillExtent } from "./autoMovieOpeningFillExtent";
@@ -73,16 +75,11 @@ interface IOccurrence {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The opening subject builds one design index that shares id lookups, world matrices and part tessellations across opening rows. Room queries keep their own request-local work and connector rows need no index; no cross-call cache can conceal a mutable environment edit.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The index, occurrences and grouping map are owned by the call and released on return, bounded by the design's size; only the returned schedule, owned by the caller, survives.
  */
-export const deriveAutoMovieDrawingSchedule: (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  subject: AutoMovieDrawingScheduleSubject;
-}) => IAutoMovieDrawingSchedule = (props: {
-  /** Design the schedule is derived from. */
-  environment: IAutoMovieBuiltEnvironment;
-
-  /** What to count. */
-  subject: AutoMovieDrawingScheduleSubject;
-}): IAutoMovieDrawingSchedule => {
+export const deriveAutoMovieDrawingSchedule: (
+  props: IAutoMovieDeriveDrawingSchedule.IProps,
+) => IAutoMovieDrawingSchedule = (
+  props: IAutoMovieDeriveDrawingSchedule.IProps,
+): IAutoMovieDrawingSchedule => {
   const {
     environment,
     subject,
@@ -90,8 +87,9 @@ export const deriveAutoMovieDrawingSchedule: (props: {
     environment: IAutoMovieBuiltEnvironment;
     subject: AutoMovieDrawingScheduleSubject;
   } = props;
-  const validated: ReturnType<typeof validateBuiltEnvironment> =
-    validateBuiltEnvironment({ environment });
+  const validated: IAutoMovieValidation = validateBuiltEnvironment({
+    environment,
+  });
   if (validated.success === false) {
     const first: (typeof validated.violations)[number] =
       validated.violations[0]!;

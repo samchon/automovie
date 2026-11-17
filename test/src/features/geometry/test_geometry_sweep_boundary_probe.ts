@@ -1,9 +1,9 @@
-import {
-  type IAutoMovieSweep,
-  type IAutoMovieSweepRig,
-  type IAutoMovieSweepSurface,
-  rigAutoMovieSweep,
-} from "@automovie/engine";
+import { rigAutoMovieSweep } from "@automovie/engine";
+import type {
+  IAutoMovieSweep,
+  IAutoMovieSweepRig,
+  IAutoMovieSweepSurface,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

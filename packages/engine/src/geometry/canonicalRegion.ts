@@ -1,6 +1,9 @@
-import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
-import { IAutoMovieRegionRing } from "./IAutoMovieRegionRing";
-import { IAutoMovieRegionTriangulation } from "./IAutoMovieRegionTriangulation";
+import type {
+  IAutoMovieProfilePoint,
+  IAutoMovieRegionRing,
+  IAutoMovieRegionTriangulation,
+} from "@automovie/interface";
+
 import { autoMoviePlanarRegionFailure } from "./autoMoviePlanarRegionFailure";
 import { signedArea } from "./signedArea";
 

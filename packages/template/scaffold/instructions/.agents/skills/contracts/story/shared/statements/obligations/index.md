@@ -1,7 +1,5 @@
 # Settings index population statements
 
-Contract: [obligations/index.md](../../obligations/index.md).
-
 ## Canonical navigation
 
 Navigation:
@@ -14,4 +12,4 @@ Order:
 
 4. Work promises and prerequisites precede dependent detail and synthesis, with an overview and exact routes for circular dependencies.
 5. The top level is scannable, and depth is justified by readers' questions. Section, file and fact are a useful default, not a compulsory schema or group count.
-6. Reference order does not change audience event or reveal order.
+6. The index's reference order does not change the audience's event or reveal order.

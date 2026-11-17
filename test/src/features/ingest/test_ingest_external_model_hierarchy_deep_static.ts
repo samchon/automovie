@@ -1,3 +1,4 @@
+import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -37,7 +38,7 @@ export function test_ingest_external_model_hierarchy_deep_static(): void {
   TestValidator.predicate(
     "deep static cycle retains its cause",
     throwsError(
-      (): import("@automovie/ingest").IAutoMovieExternalModelInspection =>
+      (): IAutoMovieExternalModelInspection =>
         inspectExternalModelHierarchyFixture(fixture, "gltf-static-v1"),
       "nodes[0] belongs to a parent cycle.",
     ),

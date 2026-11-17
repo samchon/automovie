@@ -1,10 +1,10 @@
 import {
-  type IAutoMovieDialogueExpressionLayers,
-  type IAutoMovieDialogueVisemeCompilation,
   joinAutoMovieDialogueVisemes,
   sampleAutoMovieDialogueExpression,
 } from "@automovie/engine";
 import type {
+  IAutoMovieDialogueExpressionLayers,
+  IAutoMovieDialogueVisemeCompilation,
   IAutoMovieExpression,
   IAutoMovieProductionDialogueLine,
   IAutoMovieProductionViseme,

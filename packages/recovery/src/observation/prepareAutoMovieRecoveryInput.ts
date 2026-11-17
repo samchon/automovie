@@ -1,11 +1,10 @@
 import type {
   IAutoMovieRecoveryInput,
+  IAutoMovieRecoveryPreparedInput,
+  IAutoMovieRecoveryRegisteredInput,
   IAutoMovieRecoveryRegistration,
+  IAutoMovieRecoveryResult,
 } from "@automovie/interface";
-
-import type { IAutoMovieRecoveryPreparedInput } from "../structures/mesh/IAutoMovieRecoveryPreparedInput";
-import type { IAutoMovieRecoveryRegisteredInput } from "../structures/mesh/IAutoMovieRecoveryRegisteredInput";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
 
 /**
  * Admit already evaluated, registered indexed triangles for the observation API.

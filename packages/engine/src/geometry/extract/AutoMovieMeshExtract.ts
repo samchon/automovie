@@ -1,5 +1,19 @@
+import type {
+  AutoMovieVector2Tuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionProfileSource,
+  IAutoMovieMeshExtract,
+  IAutoMovieMeshSectionChain,
+  IAutoMovieMeshSectionCut,
+  IAutoMovieMeshSectionFrame,
+  IAutoMovieMillimeterMesh,
+  IAutoMovieNaturalCubicSpline,
+  IAutoMoviePlanarHermiteKnot,
+  IAutoMovieScalarHermiteKnot,
+  IAutoMovieStationHermiteLoop,
+} from "@automovie/interface";
+
 import { AutoMovieNaturalSpline } from "../construction/AutoMovieNaturalSpline";
-import type { IAutoMovieConstructionProfileSource } from "../construction/IAutoMovieConstructionProfileSource";
 
 /**
  * Reverse extraction of sparse 2D lines from a dense triangle mesh: exact
@@ -22,178 +36,6 @@ import type { IAutoMovieConstructionProfileSource } from "../construction/IAutoM
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieMeshExtract {
-  /**
-   * A point, millimetres.
-   *
-   * @evidence contracts/development/design.md#principled-representation Three Cartesian coordinates in the mesh's own frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A plain tuple, matching the flat position arrays it is read from.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries no admission; finite values are a producer premise.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the unit.
-   */
-  export type V3 = [number, number, number];
-
-  /**
-   * A triangle mesh in millimetres: flat xyz positions, three indices per triangle.
-   *
-   * @evidence contracts/development/design.md#principled-representation The indexed triangle list every mesh producer here emits.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two flat arrays, borrowed, so a loader's typed arrays pass without copying.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries no admission; indices in range are a producer premise.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the unit and the array layout.
-   */
-  export interface IMesh {
-    /** Flat positions, three numbers per vertex, millimetres. */
-    positions: ArrayLike<number>;
-
-    /** Flat triangle indices, three per triangle. */
-    indices: ArrayLike<number>;
-  }
-
-  /**
-   * An orthonormal frame: origin and three unit axes.
-   *
-   * @evidence contracts/development/design.md#principled-representation Sections are cut normal to one axis; the next two axes in cyclic order span the section plane.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface An origin and an axis triple, the whole of a rigid frame.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Orthonormality is a producer premise and is not re-checked.
-   * @evidence contracts/development/common.md#meaningful-documentation States the in-plane axis convention at outline.
-   */
-  export interface IFrame {
-    /** Origin, millimetres. */
-    origin: V3;
-
-    /** The three unit axes. */
-    axes: [V3, V3, V3];
-  }
-
-  /**
-   * One extreme point of a section along an in-plane direction.
-   *
-   * @evidence contracts/development/design.md#principled-representation The support point of the section polygon, which is always one of its vertices.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The point and its reach, nothing derived further.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reports the cut's own vertex; no smoothing.
-   * @evidence contracts/development/common.md#meaningful-documentation States what the reach is measured from.
-   */
-  export interface IExtreme {
-    /** The extreme section point, world millimetres. */
-    point: V3;
-
-    /** Its reach along the direction from the station's axis point, millimetres. */
-    reach: number;
-  }
-
-  /**
-   * One chained piece of a section: the crossings of consecutive triangles in order.
-   *
-   * @evidence contracts/development/design.md#principled-representation Crossings are chained through the mesh edges they lie on, which two adjacent triangles share on a manifold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface In-plane coordinates ready for reduceLoop, with a closed flag.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts An open chain stays open; no gap is bridged.
-   * @evidence contracts/development/common.md#meaningful-documentation States the coordinates' axes and origin.
-   */
-  export interface ILoop {
-    /**
-     * The chain's points as `[a, b]` millimetres about the station's axis
-     * point, `a` and `b` the section's in-plane axes (see {@link ISection.extremes});
-     * coincident consecutive crossings are merged, a closed loop's last point
-     * is not repeated.
-     */
-    points: [number, number][];
-
-    /** Whether the chain closes on itself; an open chain is a hole, gap or broken slice. */
-    closed: boolean;
-  }
-
-  /**
-   * The section at one station.
-   *
-   * @evidence contracts/development/design.md#principled-representation Holds the exact cut's crossing count, chained loops, eight extremes and flags.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One record per station, in station order.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Flags report artifacts; nothing is excluded on the caller's behalf.
-   * @evidence contracts/development/common.md#meaningful-documentation States the direction names and every flag.
-   */
-  export interface ISection {
-    /** The station along the frame axis, millimetres from the origin. */
-    station: number;
-
-    /** Intersection points found (zero when the plane misses the mesh). */
-    count: number;
-
-    /** The cut's chained pieces, closed loops and open chains alike, each oriented by the triangles' winding. */
-    loops: ILoop[];
-
-    /**
-     * The cut's outer boundaries, largest enclosed area first: the closed
-     * pieces after open chains were joined end to end across gaps up to the
-     * bridge (each bridged gap flagged), less every piece enclosed by another
-     * (eyes, teeth, a mouth bag). Disjoint bodies (two legs) give one each; a
-     * reference with holes and slits still gives its outer contour here.
-     */
-    outer: ILoop[];
-
-    /**
-     * Extremes along `+a`, `-a`, `+b`, `-b` (a and b the two in-plane frame
-     * axes after the station axis in cyclic order: for axis 1 they are axes 2
-     * and 0), and the quarter diagonals `(+a+b)`, `(+a-b)`, `(-a+b)`, `(-a-b)`
-     * over the square root of two; null when the plane misses.
-     */
-    extremes: Record<
-      "+a" | "-a" | "+b" | "-b" | "+a+b" | "+a-b" | "-a+b" | "-a-b",
-      IExtreme
-    > | null;
-
-    /**
-     * Why this sample cannot be trusted as it stands, empty when sound: "open"
-     * when the cut leaves dangling crossings (a hole, a gap or a broken slice
-     * of the mesh; the flag names the dangling crossings and broken chains),
-     * "jump <direction>" when an extreme leaves the mean of its two
-     * neighbouring stations' by more than the tolerance (a spike or saw
-     * tooth). A flagged sample is to be checked in the viewer or excluded.
-     */
-    flags: string[];
-  }
-
-  /**
-   * One knot of a reduced run: station, value and slope.
-   *
-   * @evidence contracts/development/design.md#principled-representation A cubic Hermite knot; consecutive knots define one span through hermite.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The dense index beside the knot's data lets a caller trace it to its sample and flags.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The value is the dense sample's own; the slope is fitted.
-   * @evidence contracts/development/common.md#meaningful-documentation States which members are measured and which fitted.
-   */
-  export interface IKnot {
-    /** Index of the dense point it sits on, in the caller's array (excluded samples counted). */
-    index: number;
-
-    /** Station. */
-    s: number;
-
-    /** Value: the dense sample's own. */
-    value: number;
-
-    /** Slope d value / d station, fitted to the dense samples of its two spans; zero at a prominent extremum. */
-    slope: number;
-  }
-
-  /**
-   * One knot of a reduced loop: point, tangent and chord parameter.
-   *
-   * @evidence contracts/development/design.md#principled-representation A planar cubic Hermite knot on the dense loop's chord-length parameter.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The dense index and parameter beside the point and tangent.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The point is the dense sample's own; the tangent is fitted.
-   * @evidence contracts/development/common.md#meaningful-documentation States the parameter and which members are fitted.
-   */
-  export interface ILoopKnot {
-    /** Index of the dense point it sits on, in the caller's array (excluded samples counted). */
-    index: number;
-
-    /** Cumulative chord length of the dense loop (excluded samples left out) at the knot. */
-    t: number;
-
-    /** Point: the dense sample's own. */
-    point: [number, number];
-
-    /** Tangent d point / d t, fitted to the dense samples of its two spans; its axis component is zero at an axis extreme. */
-    tangent: [number, number];
-  }
-
   /**
    * The exact plane sections of a mesh at stations along one frame axis: each
    * triangle edge crossing the plane `dot(p - origin, axis) = station` gives
@@ -226,22 +68,25 @@ export namespace AutoMovieMeshExtract {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-station maps are released after the station; only the returned sections remain.
    */
   export function outline(
-    mesh: IMesh,
-    frame: IFrame,
+    mesh: IAutoMovieMillimeterMesh,
+    frame: IAutoMovieMeshSectionFrame,
     stations: readonly number[],
     axis: 0 | 1 | 2,
     tolerance: number = 0.5,
     bridge: number = 25,
-  ): ISection[] {
-    const n: V3 = frame.axes[axis];
-    const a: V3 = frame.axes[((axis + 1) % 3) as 0 | 1 | 2];
-    const b: V3 = frame.axes[((axis + 2) % 3) as 0 | 1 | 2];
+  ): IAutoMovieMeshSectionCut[] {
+    const n: AutoMovieVector3Tuple = frame.axes[axis];
+    const a: AutoMovieVector3Tuple = frame.axes[((axis + 1) % 3) as 0 | 1 | 2];
+    const b: AutoMovieVector3Tuple = frame.axes[((axis + 2) % 3) as 0 | 1 | 2];
     const count: number = Math.floor(mesh.indices.length / 3);
     const height: Float64Array = new Float64Array(mesh.positions.length / 3);
     for (let v: number = 0; v < height.length; ++v)
       height[v] = dot(sub(at(mesh, v), frame.origin), n);
     const r2: number = Math.SQRT1_2;
-    const directions: [keyof NonNullable<ISection["extremes"]>, V3][] = [
+    const directions: [
+      keyof NonNullable<IAutoMovieMeshSectionCut["extremes"]>,
+      AutoMovieVector3Tuple,
+    ][] = [
       ["+a", a],
       ["-a", scale(a, -1)],
       ["+b", b],
@@ -251,106 +96,120 @@ export namespace AutoMovieMeshExtract {
       ["-a+b", scale(sub(b, a), r2)],
       ["-a-b", scale(add(a, b), -r2)],
     ];
-    const sections: ISection[] = stations.map((station: number): ISection => {
-      // Crossing points by the edge they lie on, and each triangle's segment between two edges.
-      const point: Map<string, V3> = new Map();
-      const segments: [string, string][] = [];
-      // A vertex on the plane counts as above it (simulation of simplicity).
-      const above: (v: number) => boolean = (v: number): boolean =>
-        height[v]! - station >= 0;
-      for (let t: number = 0; t < count; ++t) {
-        const ids: number[] = [
-          mesh.indices[3 * t]!,
-          mesh.indices[3 * t + 1]!,
-          mesh.indices[3 * t + 2]!,
-        ];
-        const nodes: string[] = [];
-        for (let k: number = 0; k < 3; ++k) {
-          const i: number = ids[k]!;
-          const j: number = ids[(k + 1) % 3]!;
-          if (above(i) === above(j)) continue;
-          const key: string = i < j ? `${i},${j}` : `${j},${i}`;
-          if (!point.has(key)) {
-            const di: number = height[i]! - station;
-            const dj: number = height[j]! - station;
-            const p: V3 = at(mesh, i);
-            const q: V3 = at(mesh, j);
-            const w: number = di / (di - dj);
-            point.set(key, [
-              p[0] + w * (q[0] - p[0]),
-              p[1] + w * (q[1] - p[1]),
-              p[2] + w * (q[2] - p[2]),
-            ]);
+    const sections: IAutoMovieMeshSectionCut[] = stations.map(
+      (station: number): IAutoMovieMeshSectionCut => {
+        // Crossing points by the edge they lie on, and each triangle's segment between two edges.
+        const point: Map<string, AutoMovieVector3Tuple> = new Map();
+        const segments: [string, string][] = [];
+        // A vertex on the plane counts as above it (simulation of simplicity).
+        const above: (v: number) => boolean = (v: number): boolean =>
+          height[v]! - station >= 0;
+        for (let t: number = 0; t < count; ++t) {
+          const ids: number[] = [
+            mesh.indices[3 * t]!,
+            mesh.indices[3 * t + 1]!,
+            mesh.indices[3 * t + 2]!,
+          ];
+          const nodes: string[] = [];
+          for (let k: number = 0; k < 3; ++k) {
+            const i: number = ids[k]!;
+            const j: number = ids[(k + 1) % 3]!;
+            if (above(i) === above(j)) continue;
+            const key: string = i < j ? `${i},${j}` : `${j},${i}`;
+            if (!point.has(key)) {
+              const di: number = height[i]! - station;
+              const dj: number = height[j]! - station;
+              const p: AutoMovieVector3Tuple = at(mesh, i);
+              const q: AutoMovieVector3Tuple = at(mesh, j);
+              const w: number = di / (di - dj);
+              point.set(key, [
+                p[0] + w * (q[0] - p[0]),
+                p[1] + w * (q[1] - p[1]),
+                p[2] + w * (q[2] - p[2]),
+              ]);
+            }
+            nodes.push(key);
           }
-          nodes.push(key);
+          // Under the perturbation a triangle crosses on zero or two edges. The
+          // segment runs along n x N (N the triangle's winding normal), so on a
+          // consistently wound closed surface every piece of the cut turns the
+          // same way round the solid and its ends meet tail to head.
+          if (nodes.length === 2) {
+            const winding: AutoMovieVector3Tuple = cross(
+              sub(at(mesh, ids[1]!), at(mesh, ids[0]!)),
+              sub(at(mesh, ids[2]!), at(mesh, ids[0]!)),
+            );
+            const along: number = dot(
+              sub(point.get(nodes[1]!)!, point.get(nodes[0]!)!),
+              cross(n, winding),
+            );
+            segments.push(
+              along >= 0 ? [nodes[0]!, nodes[1]!] : [nodes[1]!, nodes[0]!],
+            );
+          }
         }
-        // Under the perturbation a triangle crosses on zero or two edges. The
-        // segment runs along n x N (N the triangle's winding normal), so on a
-        // consistently wound closed surface every piece of the cut turns the
-        // same way round the solid and its ends meet tail to head.
-        if (nodes.length === 2) {
-          const winding: V3 = cross(
-            sub(at(mesh, ids[1]!), at(mesh, ids[0]!)),
-            sub(at(mesh, ids[2]!), at(mesh, ids[0]!)),
-          );
-          const along: number = dot(
-            sub(point.get(nodes[1]!)!, point.get(nodes[0]!)!),
-            cross(n, winding),
-          );
-          segments.push(
-            along >= 0 ? [nodes[0]!, nodes[1]!] : [nodes[1]!, nodes[0]!],
-          );
+        if (point.size === 0)
+          return {
+            station,
+            count: 0,
+            loops: [],
+            outer: [],
+            extremes: null,
+            flags: [],
+          };
+        const centre: AutoMovieVector3Tuple = add(
+          frame.origin,
+          scale(n, station),
+        );
+        const extremes: Partial<
+          NonNullable<IAutoMovieMeshSectionCut["extremes"]>
+        > = {};
+        for (const [name, d] of directions) {
+          let best: IAutoMovieMeshExtract.IExtreme | null = null;
+          for (const p of point.values()) {
+            const reach: number = dot(sub(p, centre), d);
+            if (best === null || reach > best.reach) best = { point: p, reach };
+          }
+          extremes[name] = best!;
         }
-      }
-      if (point.size === 0)
+        const { loops, dangling } = chain(
+          segments,
+          (key: string): [number, number] => {
+            const p: AutoMovieVector3Tuple = sub(point.get(key)!, centre);
+            return [dot(p, a), dot(p, b)];
+          },
+        );
+        const broken: number = loops.filter(
+          (l: IAutoMovieMeshSectionChain): boolean => !l.closed,
+        ).length;
+        const envelope: {
+          outer: IAutoMovieMeshSectionChain[];
+          gaps: string[];
+          unclosed: number;
+        } = enclose(loops, bridge);
+        const flags: string[] =
+          dangling === 0
+            ? []
+            : [
+                `open: ${dangling} dangling crossings in ${broken} broken chains`,
+              ];
+        flags.push(...envelope.gaps);
+        if (envelope.unclosed !== 0)
+          flags.push(
+            `unclosed: ${envelope.unclosed} chains left open past the ${bridge} mm bridge`,
+          );
         return {
           station,
-          count: 0,
-          loops: [],
-          outer: [],
-          extremes: null,
-          flags: [],
+          count: point.size,
+          loops,
+          outer: envelope.outer,
+          extremes: extremes as NonNullable<
+            IAutoMovieMeshSectionCut["extremes"]
+          >,
+          flags,
         };
-      const centre: V3 = add(frame.origin, scale(n, station));
-      const extremes: Partial<NonNullable<ISection["extremes"]>> = {};
-      for (const [name, d] of directions) {
-        let best: IExtreme | null = null;
-        for (const p of point.values()) {
-          const reach: number = dot(sub(p, centre), d);
-          if (best === null || reach > best.reach) best = { point: p, reach };
-        }
-        extremes[name] = best!;
-      }
-      const { loops, dangling } = chain(
-        segments,
-        (key: string): [number, number] => {
-          const p: V3 = sub(point.get(key)!, centre);
-          return [dot(p, a), dot(p, b)];
-        },
-      );
-      const broken: number = loops.filter(
-        (l: ILoop): boolean => !l.closed,
-      ).length;
-      const envelope: { outer: ILoop[]; gaps: string[]; unclosed: number } =
-        enclose(loops, bridge);
-      const flags: string[] =
-        dangling === 0
-          ? []
-          : [`open: ${dangling} dangling crossings in ${broken} broken chains`];
-      flags.push(...envelope.gaps);
-      if (envelope.unclosed !== 0)
-        flags.push(
-          `unclosed: ${envelope.unclosed} chains left open past the ${bridge} mm bridge`,
-        );
-      return {
-        station,
-        count: point.size,
-        loops,
-        outer: envelope.outer,
-        extremes: extremes as NonNullable<ISection["extremes"]>,
-        flags,
-      };
-    });
+      },
+    );
     for (let i: number = 1; i + 1 < sections.length; ++i) {
       const [p, c, q] = [
         sections[i - 1]!.extremes,
@@ -377,7 +236,7 @@ export namespace AutoMovieMeshExtract {
   function chain(
     segments: readonly [string, string][],
     place: (key: string) => [number, number],
-  ): { loops: ILoop[]; dangling: number } {
+  ): { loops: IAutoMovieMeshSectionChain[]; dangling: number } {
     const incident: Map<string, number[]> = new Map();
     for (let s: number = 0; s < segments.length; ++s)
       for (const key of segments[s]!) {
@@ -388,7 +247,7 @@ export namespace AutoMovieMeshExtract {
     let dangling: number = 0;
     for (const list of incident.values()) if (list.length !== 2) dangling += 1;
     const used: Uint8Array = new Uint8Array(segments.length);
-    const loops: ILoop[] = [];
+    const loops: IAutoMovieMeshSectionChain[] = [];
     const walk: (start: string) => void = (start: string): void => {
       const keys: string[] = [start];
       let node: string = start;
@@ -449,15 +308,24 @@ export namespace AutoMovieMeshExtract {
    * point, even-odd) are dropped; the rest return, largest area first.
    */
   function enclose(
-    pieces: readonly ILoop[],
+    pieces: readonly IAutoMovieMeshSectionChain[],
     bridge: number,
-  ): { outer: ILoop[]; gaps: string[]; unclosed: number } {
+  ): {
+    outer: IAutoMovieMeshSectionChain[];
+    gaps: string[];
+    unclosed: number;
+  } {
     const closed: [number, number][][] = pieces
-      .filter((l: ILoop): boolean => l.closed)
-      .map((l: ILoop): [number, number][] => l.points);
+      .filter((l: IAutoMovieMeshSectionChain): boolean => l.closed)
+      .map((l: IAutoMovieMeshSectionChain): [number, number][] => l.points);
     const open: [number, number][][] = pieces
-      .filter((l: ILoop): boolean => !l.closed && l.points.length >= 1)
-      .map((l: ILoop): [number, number][] => l.points.slice());
+      .filter(
+        (l: IAutoMovieMeshSectionChain): boolean =>
+          !l.closed && l.points.length >= 1,
+      )
+      .map((l: IAutoMovieMeshSectionChain): [number, number][] =>
+        l.points.slice(),
+      );
     const gaps: string[] = [];
     const distance: (
       p: readonly [number, number],
@@ -535,7 +403,7 @@ export namespace AutoMovieMeshExtract {
     loops.sort(
       (x: { area: number }, y: { area: number }): number => y.area - x.area,
     );
-    const outer: ILoop[] = [];
+    const outer: IAutoMovieMeshSectionChain[] = [];
     for (let k: number = 0; k < loops.length; ++k) {
       const probe: [number, number] = loops[k]!.points[0]!;
       let inside: boolean = false;
@@ -624,7 +492,7 @@ export namespace AutoMovieMeshExtract {
     tolerance: number = 0.5,
     pinned: readonly number[] = [],
     excluded: readonly number[] = [],
-  ): { knots: IKnot[]; error: number } {
+  ): IAutoMovieMeshExtract.IReduceResult {
     const kept: number[] = keptIndices(all.length, excluded);
     const points: (readonly [number, number])[] = kept.map(
       (i: number): readonly [number, number] => all[i]!,
@@ -703,7 +571,7 @@ export namespace AutoMovieMeshExtract {
     });
     return {
       knots: alive.map(
-        (i: number): IKnot => ({
+        (i: number): IAutoMovieScalarHermiteKnot => ({
           index: kept[i]!,
           s: s[i]!,
           value: v[i]!,
@@ -748,7 +616,7 @@ export namespace AutoMovieMeshExtract {
     tolerance: number = 0.5,
     pinned: readonly number[] = [],
     excluded: readonly number[] = [],
-  ): { knots: ILoopKnot[]; length: number; error: number } {
+  ): IAutoMovieMeshExtract.IReduceLoopResult {
     const kept: number[] = keptIndices(all.length, excluded);
     const points: (readonly [number, number])[] = kept.map(
       (i: number): readonly [number, number] => all[i]!,
@@ -860,7 +728,7 @@ export namespace AutoMovieMeshExtract {
     });
     return {
       knots: alive.map(
-        (i: number): ILoopKnot => ({
+        (i: number): IAutoMoviePlanarHermiteKnot => ({
           index: kept[i]!,
           t: t[i]!,
           point: [values[0][i]!, values[1][i]!],
@@ -870,23 +738,6 @@ export namespace AutoMovieMeshExtract {
       length,
       error: worstSpan({ t, period: length, values, slopes }, alive),
     };
-  }
-
-  /**
-   * One station's reduced closed loop, as {@link reduceLoop} returns it, at
-   * its station: the input of {@link profileCurve}.
-   *
-   * @evidence contracts/development/design.md#principled-representation Pairs a periodic Hermite knot loop with the station of the plane it lies in.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The reduceLoop result is taken as it is, so a modeler's corrected knots pass in the same shape.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries no admission; profileCurve checks the station order and knot count.
-   * @evidence contracts/development/common.md#meaningful-documentation States the coordinates the points are in.
-   */
-  export interface IStationLoop {
-    /** The station, millimetres along the frame axis. */
-    station: number;
-
-    /** The loop's knots (points in the section's `[a, b]` millimetres about the station's axis point) and its chord length. */
-    loop: { knots: readonly ILoopKnot[]; length: number };
   }
 
   /**
@@ -919,7 +770,7 @@ export namespace AutoMovieMeshExtract {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned curve retains the normalised loops and S cardinal splines for its owner's lifetime.
    */
   export function profileCurve(
-    stations: readonly IStationLoop[],
+    stations: readonly IAutoMovieStationHermiteLoop[],
   ): IAutoMovieConstructionProfileSource.ICurve {
     if (stations.length < 2)
       throw new Error("A profile curve needs loops at two stations at least");
@@ -928,17 +779,19 @@ export namespace AutoMovieMeshExtract {
         throw new Error(
           "Profile loops must be in strictly increasing station order",
         );
-    const xs: number[] = stations.map((s: IStationLoop): number => s.station);
+    const xs: number[] = stations.map(
+      (s: IAutoMovieStationHermiteLoop): number => s.station,
+    );
     // Cardinal natural splines: weight i is 1 at station i and 0 at the others.
-    const cardinal: AutoMovieNaturalSpline.ISpline[] = xs.map(
-      (_: number, i: number): AutoMovieNaturalSpline.ISpline =>
+    const cardinal: IAutoMovieNaturalCubicSpline[] = xs.map(
+      (_: number, i: number): IAutoMovieNaturalCubicSpline =>
         AutoMovieNaturalSpline.create(
           xs,
           xs.map((__: number, j: number): number => (i === j ? 1 : 0)),
         ),
     );
     const loops: IClockLoop[] = stations.map(
-      (s: IStationLoop): IClockLoop => clockLoop(s.loop),
+      (s: IAutoMovieStationHermiteLoop): IClockLoop => clockLoop(s.loop),
     );
     const sum: (
       station: number,
@@ -974,10 +827,8 @@ export namespace AutoMovieMeshExtract {
       domain: [xs[0]!, xs.at(-1)!],
       clock: [0, 1],
       period: 1,
-      point: (
-        station: number,
-        clock: number,
-      ): IAutoMovieConstructionProfileSource.Vector => sum(station, clock).p,
+      point: (station: number, clock: number): AutoMovieVector2Tuple =>
+        sum(station, clock).p,
       phase: (
         station: number,
         clock: number,
@@ -1004,7 +855,7 @@ export namespace AutoMovieMeshExtract {
 
   /** Turns a reduced loop counter-clockwise, starts it at its +a extreme knot and rescales it to the unit clock. */
   function clockLoop(loop: {
-    knots: readonly ILoopKnot[];
+    knots: readonly IAutoMoviePlanarHermiteKnot[];
     length: number;
   }): IClockLoop {
     const k: number = loop.knots.length;
@@ -1015,7 +866,7 @@ export namespace AutoMovieMeshExtract {
       tangent: [number, number];
     }[] = loop.knots.map(
       (
-        x: ILoopKnot,
+        x: IAutoMoviePlanarHermiteKnot,
       ): { t: number; point: [number, number]; tangent: [number, number] } => ({
         t: x.t,
         point: x.point,
@@ -1030,23 +881,21 @@ export namespace AutoMovieMeshExtract {
       ) < 0
     )
       // Reversed travel: the parameter runs back from the loop's length and the tangents flip.
-      knots = knots
-        .reverse()
-        .map(
-          (x: {
-            t: number;
-            point: [number, number];
-            tangent: [number, number];
-          }): {
-            t: number;
-            point: [number, number];
-            tangent: [number, number];
-          } => ({
-            t: loop.length - x.t,
-            point: x.point,
-            tangent: [-x.tangent[0], -x.tangent[1]],
-          }),
-        );
+      knots = knots.reverse().map(
+        (x: {
+          t: number;
+          point: [number, number];
+          tangent: [number, number];
+        }): {
+          t: number;
+          point: [number, number];
+          tangent: [number, number];
+        } => ({
+          t: loop.length - x.t,
+          point: x.point,
+          tangent: [-x.tangent[0], -x.tangent[1]],
+        }),
+      );
     let first: number = 0;
     for (let i: number = 1; i < k; ++i)
       if (knots[i]!.point[0] > knots[first]!.point[0]) first = i;
@@ -1573,7 +1422,10 @@ export namespace AutoMovieMeshExtract {
     return out;
   }
 
-  function at(mesh: IMesh, v: number): V3 {
+  function at(
+    mesh: IAutoMovieMillimeterMesh,
+    v: number,
+  ): AutoMovieVector3Tuple {
     return [
       mesh.positions[3 * v]!,
       mesh.positions[3 * v + 1]!,
@@ -1581,19 +1433,28 @@ export namespace AutoMovieMeshExtract {
     ];
   }
 
-  function add(a: V3, b: V3): V3 {
+  function add(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
-  function sub(a: V3, b: V3): V3 {
+  function sub(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
-  function scale(a: V3, k: number): V3 {
+  function scale(a: AutoMovieVector3Tuple, k: number): AutoMovieVector3Tuple {
     return [a[0] * k, a[1] * k, a[2] * k];
   }
 
-  function cross(a: V3, b: V3): V3 {
+  function cross(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
@@ -1601,7 +1462,7 @@ export namespace AutoMovieMeshExtract {
     ];
   }
 
-  function dot(a: V3, b: V3): number {
+  function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 }

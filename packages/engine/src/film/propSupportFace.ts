@@ -1,8 +1,11 @@
 import {
   IAutoMovieAffordance,
   IAutoMovieBuiltEnvironment,
+  type IAutoMovieFootprint,
+  type IAutoMovieHeightSurface,
   IAutoMoviePropRelationTarget,
   IAutoMoviePropSpec,
+  type IAutoMoviePropSupportFace,
   IAutoMovieStageSetPiece,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -10,12 +13,9 @@ import {
 import { Matrix4 } from "../math/Matrix4";
 import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/convexHull2D";
-import { IAutoMovieFootprint } from "../space/IAutoMovieFootprint";
-import { IAutoMovieHeightSurface } from "../space/IAutoMovieHeightSurface";
 import { footprintConvexPieces } from "../space/footprintConvexPieces";
 import { footprintRing } from "../space/footprintRing";
 import { surfaceFootprint } from "../space/surfaceFootprint";
-import { IAutoMoviePropSupportFace } from "./IAutoMoviePropSupportFace";
 import { setPieceMatrix } from "./staging/setPieceMatrix";
 
 /** Relative tolerance below which a face normal counts as horizontal. */
@@ -41,21 +41,9 @@ const EDGE_ON_TOLERANCE: number = 1e-9;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Resolves one relation per call and caches nothing; the caller measures the face immediately and drops it.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; a patch face references the authored surface record as its height rule, and a prop face owns a fresh ring and plane rule, both released with the caller's measurement.
  */
-export function propSupportFace(props: {
-  /** The `on-support` relation's target: a patch, or another prop's contact. */
-  target:
-    | IAutoMoviePropRelationTarget.ISurface
-    | IAutoMoviePropRelationTarget.IPropAffordance;
-
-  /** Every built environment a patch citation may resolve against. */
-  environments: readonly IAutoMovieBuiltEnvironment[];
-
-  /** The prop registry a `prop-affordance` citation resolves against. */
-  props?: readonly IAutoMoviePropSpec[];
-
-  /** The staged set that gives a cited host prop its world transform. */
-  set?: readonly IAutoMovieStageSetPiece[];
-}): IAutoMoviePropSupportFace | null {
+export function propSupportFace(
+  props: IAutoMoviePropSupportFace.IProps,
+): IAutoMoviePropSupportFace | null {
   const target:
     | IAutoMoviePropRelationTarget.ISurface
     | IAutoMoviePropRelationTarget.IPropAffordance = props.target;

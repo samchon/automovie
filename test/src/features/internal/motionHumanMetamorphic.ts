@@ -1,5 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanChain, type IHumanBody } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { HumanChain } from "@automovie/motions";
 
 import { MOTION_HUMAN_LAW_STAGES } from "./MOTION_HUMAN_LAW_STAGES";
 import { motionHumanBody } from "./motionHumanBody";
@@ -44,7 +47,10 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  */
 export namespace motionHumanMetamorphic {
   /**
-   * The mirror relation over one family of laws.
+   * The mirror relation over one family of laws: a sided law is
+   * mirror-equivariant for every seed. Its precondition is that sideless
+   * staging carries no lateral seeded variation in mirror stages
+   * (`MOTION_HUMAN_LAW_STAGES`).
    *
    * @param family The family of `MOTION_HUMAN_LAW_STAGES`.
    * @returns The findings.
@@ -90,8 +96,8 @@ export namespace motionHumanMetamorphic {
         Object.entries(o).map(([k, v]: [string, unknown]) => [k, moved(v, k)]),
       );
     };
-    const a: IHumanBody = motionHumanBody("m-average");
-    const b: IHumanBody = motionHumanBody("f-small");
+    const a: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+    const b: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
     const at: number = row.indexOf("=");
     const pick = (p: string): string | undefined =>
       at >= 0 && p === row.slice(0, at) ? row.slice(at + 1) : undefined;
@@ -193,7 +199,7 @@ export namespace motionHumanMetamorphic {
    * @returns The findings.
    */
   export function tempo(law: string, params: object): string[] {
-    const body: IHumanBody = motionHumanBody("m-average");
+    const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
     const film = (pace: number): motionHumanLaw.IFilm =>
       motionHumanLaw.perform(
         "metamorphic",

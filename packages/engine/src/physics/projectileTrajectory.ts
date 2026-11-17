@@ -1,12 +1,12 @@
 import type {
   IAutoMovieClip,
+  IAutoMovieProjectile,
+  IAutoMovieProjectileState,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { aimRotation } from "../kinematics/aimRotation";
-import { IAutoMovieProjectile } from "./IAutoMovieProjectile";
-import type { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
 import { projectileAt } from "./projectileAt";
 
 /** A projectile model faces +Z; its trajectory rotates that onto the flight. */
@@ -66,13 +66,14 @@ export const projectileTrajectory: (
   const rot: number[] = [];
   for (let i: number = 0; i <= count; ++i) {
     const t: number = (i / count) * duration;
-    const { position, velocity }: IAutoMovieProjectileState = projectileAt(
-      p,
-      t,
-    );
+    const { position, velocity, rotation }: IAutoMovieProjectileState =
+      projectileAt(p, t);
     times.push(t);
     pos.push(position.x, position.y, position.z);
-    const q: IAutoMovieQuaternion = aimRotation(PROJECTILE_FORWARD, velocity);
+
+    // A stated attitude turns the body; without one the nose follows the arc.
+    const q: IAutoMovieQuaternion =
+      rotation ?? aimRotation(PROJECTILE_FORWARD, velocity);
     rot.push(q.x, q.y, q.z, q.w);
   }
   return {

@@ -1,5 +1,7 @@
-import { type IAutoMovieSubdivisionSurface } from "@automovie/engine";
-import { type IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieSubdivisionSurface,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { subdivisionPoint } from "./subdivisionPoint";
 

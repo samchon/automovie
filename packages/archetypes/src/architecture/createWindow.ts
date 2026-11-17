@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -6,9 +6,13 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeRefusal,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
+import { ADA_RANGES } from "./ADA_RANGES";
 
 /** Window sizes, for which no standard was read. */
 const SIZE: string = "window opening size, not read at a source";
@@ -17,25 +21,28 @@ const SIZE: string = "window opening size, not read at a source";
 const SILL: string =
   "sill below the 36 in (914 mm) at which IBC 2021 1015.8 requires fall protection (https://up.codes/s/window-openings) and above the 24 in of IRC R312.2.1, which was not read";
 
-/** The reach range for operable parts. */
-const REACH: string =
-  "2010 ADA Standards 309.3 and 308.2.1, operable parts 15 to 48 in above the floor (https://www.access-board.gov/ada/chapter/ch03/)";
+/** Authored sash construction, metres; these are geometry conventions, not measured window specifications. */
+const SASH: Readonly<{ rail: number; depth: number; pane: number }> = {
+  rail: 0.08,
+  depth: 0.03,
+  pane: 0.003175,
+};
 
 /**
  * A window in a piece of wall: a casement that swings out, or a sash that slides up or sideways.
  *
- * The window stands in the `XY` plane, its wall's foot at the origin and the room on the `+Z` side. The sash is a part on its articulation and carries its handle: a casement's and a sliding sash's on the stile that leaves the frame, at the drawn handle height, and a hung sash's on its bottom rail. The `sill` is the ledge under the opening, facing into the room, and the `aperture` is the opening itself.
+ * The window stands in the `XY` plane, its wall's foot at the origin and the room on the `+Z` side. Four sash rails surround a separate pane and carry the handle: a casement's and a sliding sash's on the stile that leaves the frame, at the drawn handle height, and a hung sash's on its bottom rail. They move together on `sash`. The `sill` is the ledge under the opening and the `aperture` is the opening itself. Only an explicitly authored `fractureEnergy` enables breakage: the pane leaves as one `shards` fragment while the rails, handle and their articulation remain. Without that calibration the pane's failure energy is unknown.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The window.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a fixed dimension outside its band or a nonpositive or non-finite fracture calibration.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the window's plane, which side the room is on and what moves.
- * @evidence contracts/development/implementation.md#principled-implementation A wall panel below the sill, two jambs and a head round a sash box; a casement's hinge axis points down on its `+X` edge so a positive travel swings the sash out toward `-Z`, and a sliding sash runs along its slider's `+X`, up or toward `-X`. The handle is a short level bar at the edge of the sash a hand opens it by, and a slider's frame stands at it.
+ * @evidence contracts/development/implementation.md#principled-implementation A wall panel below the sill, two jambs and a head surround two full-height stiles and two rails between them, with a nonoverlapping pane in their clear opening. Named authored rail width, sash depth and pane thickness determine those solids. A casement's downward hinge axis on `+X` swings it toward `-Z`; sliders run up or toward `-X`. The parent articulation binds all sash geometry, and fracture retains its surviving rails and handle.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the surround and the sash, place the handle, then the articulation and the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One sash, no glazing bars; the fixed half of a sliding window is left out.
- * @evidence contracts/development/implementation.md#efficient-algorithms Six parts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One sash, no glazing bars or fixed sliding half. Rail construction and equal-density volume-based mass allocation are authored approximations. The pane leaves whole, without an invented shard pattern. No bag-impact reference or universal glass threshold is substituted for the author's specimen calibration.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Ten primitive parts and four affordances; work and storage are constant per window.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -43,20 +50,37 @@ export function createWindow(
   params: createWindow.IParams,
   seed?: number | string,
 ): Archetype<createWindow.Affordance, createWindow.Dimension> {
+  if (
+    params.fractureEnergy !== undefined &&
+    !(Number.isFinite(params.fractureEnergy) && params.fractureEnergy > 0)
+  )
+    throw new ArchetypeRefusal({
+      kind: "parameter",
+      archetype: "window",
+      axis: "fractureEnergy",
+      value: params.fractureEnergy,
+      feasible: null,
+      reason:
+        "a pane's authored fracture calibration must be finite and positive",
+      fix: "supply a measured or explicitly authored positive energy in joules, or leave it unknown",
+    });
+  const draw: ArchetypeDrawSession<createWindow.Dimension> =
+    new ArchetypeDrawSession<createWindow.Dimension>(
+      "window",
+      createWindow.UNITS,
+      seed,
+      params,
+    );
   const kind: createWindow.Kind = ArchetypeDraw.choice(
     "window",
     "kind",
     params.kind,
     createWindow.KINDS,
   );
-  const d: Partial<Record<createWindow.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "window",
-      createWindow.BANDS[kind],
-      seed,
-      params,
-      createWindow.BANDS,
-    );
+  const d: Partial<Record<createWindow.Dimension, number>> = draw.dimensions(
+    createWindow.BANDS[kind],
+    createWindow.BANDS,
+  );
   const width: number = d.width!;
   const height: number = d.height!;
   const sill: number = d.sillHeight!;
@@ -65,10 +89,10 @@ export function createWindow(
     createWindow.Affordance,
     createWindow.Dimension
   > = new ArchetypeBuilder({
-    archetype: "window",
     id: params.id,
     name: `${kind} window`,
-    dimensions: d,
+    material: "composite",
+    draw,
   });
   builder.box(
     "wall",
@@ -89,9 +113,27 @@ export function createWindow(
     Vector3.create(0, sill + height + 0.05, 0),
     { color: "#d8d2c4" },
   );
+  for (const side of [-1, 1] as const) {
+    builder.box(
+      side < 0 ? "sash-left" : "sash-right",
+      Vector3.create(SASH.rail, height, SASH.depth),
+      Vector3.create((side * (width - SASH.rail)) / 2, sill + height / 2, 0),
+      { color: "#d8d2c4" },
+    );
+    builder.box(
+      side < 0 ? "sash-bottom" : "sash-top",
+      Vector3.create(width - 2 * SASH.rail, SASH.rail, SASH.depth),
+      Vector3.create(
+        0,
+        sill + height / 2 + (side * (height - SASH.rail)) / 2,
+        0,
+      ),
+      { color: "#d8d2c4" },
+    );
+  }
   builder.box(
-    "sash",
-    Vector3.create(width, height, 0.03),
+    "pane",
+    Vector3.create(width - 2 * SASH.rail, height - 2 * SASH.rail, SASH.pane),
     Vector3.create(0, sill + height / 2, 0),
     { color: "#a9c8d8" },
   );
@@ -116,7 +158,14 @@ export function createWindow(
   builder.affordance({
     id: "sash",
     extent: null,
-    parts: ["sash", "handle"],
+    parts: [
+      "sash-left",
+      "sash-right",
+      "sash-bottom",
+      "sash-top",
+      "pane",
+      "handle",
+    ],
     ...(kind === "casement"
       ? {
           kind: "hinge",
@@ -142,6 +191,7 @@ export function createWindow(
   builder.affordance({
     id: "handle",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(
       grasp,
       Vector3.create(0, 0, 1),
@@ -176,7 +226,15 @@ export function createWindow(
     width,
     height,
   });
-  return builder.build(d.mass!);
+
+  builder.fracture([{ id: "shards", parts: ["pane"] }]);
+  return builder.build(d.mass!, {
+    ...(params.fractureEnergy === undefined
+      ? {}
+      : {
+          outcome: { fracture: params.fractureEnergy },
+        }),
+  });
 }
 
 /**
@@ -188,6 +246,10 @@ export function createWindow(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts `sash` is a hinge on one kind and a slider on the others, the articulation each really has, under one id an opening act names. A hung sash's handle sits on its bottom rail, so its height follows the sill and that kind declares no `handleHeight` it would not use; sill plus rail stays inside the cited reach range.
  */
 export namespace createWindow {
+  /** Historical bag-impact reference, joules: 25 ft-lbf was the first drop breaking through two of five new annealed panes in Meshulam's IIBEC 2019 test (https://iibec.org/publication-post/on-the-weakening-of-weathered-window-glass-and-its-effect-on-human-impact-resistance-two-fatality-case-studies/). It is neither a universal glass threshold nor a sash-release measurement, and is never applied automatically; `fractureEnergy` is an independent authored calibration. */
+  export const BREAKING: number =
+    25 * ArchetypeUnits.FOOT * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD;
+
   /** The kinds of window: a side-hung casement, a vertically sliding hung sash, a horizontally sliding sash. */
   export type Kind = "casement" | "hung" | "sliding";
 
@@ -223,6 +285,17 @@ export namespace createWindow {
     | "travel"
     | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    sillHeight: "m",
+    handleHeight: "m",
+    swing: "degrees",
+    travel: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which window. */
@@ -230,21 +303,29 @@ export namespace createWindow {
 
     /** The model's id, unique in a scene; `window` when absent. */
     id?: string;
+
+    /** An explicit specimen or authored pane-failure calibration, joules, finite and positive; absent means unknown and does not enable fracture. */
+    fractureEnergy?: number;
   }
 
   /** The bands every window shares. */
   const SHARED: Readonly<Partial<Record<Dimension, IArchetypeBand>>> = {
     width: ArchetypeBand.metres(0.6, 1.2, SIZE, true),
     height: ArchetypeBand.metres(0.9, 1.2, SIZE, true),
-    sillHeight: ArchetypeBand.metres(0.61, 0.914, SILL, true),
+    sillHeight: ArchetypeBand.metres(
+      24 * ArchetypeUnits.INCH,
+      0.914,
+      SILL,
+      true,
+    ),
     mass: ArchetypeBand.of("kg", 40, 90, ArchetypeBand.TYPICAL_MASS, true),
   };
 
   /** The band of a handle that stands at a height of its own, on a stile. */
   const HANDLE: IArchetypeBand = ArchetypeBand.metres(
     0.95,
-    1.22,
-    `${REACH}; the part of the range above the sill`,
+    ADA_RANGES.reach.high,
+    `${ADA_RANGES.reach.source}; the part of the range above the sill`,
   );
 
   /** The band of each free dimension, by kind. */

@@ -1,4 +1,4 @@
-import { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary";
+import type { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary";
 
 /**
  * Aggregate geometry usage and prototype-selection consequence of one structural subject change.

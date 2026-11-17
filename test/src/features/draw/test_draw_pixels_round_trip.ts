@@ -1,5 +1,5 @@
+import type { IAutoMovieRasterImage } from "@automovie/interface";
 import {
-  type IAutoMovieRasterImage,
   decodeAutoMovieDrawPixels,
   encodeAutoMovieDrawPixels,
 } from "@automovie/render";

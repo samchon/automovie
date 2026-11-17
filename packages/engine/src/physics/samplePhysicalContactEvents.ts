@@ -1,6 +1,6 @@
 import type {
+  IAutoMovieContactReceipt,
   IAutoMovieVector3,
-  IAutoMovieContactReceipt as Receipt,
 } from "@automovie/interface";
 
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
@@ -17,9 +17,9 @@ import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 16 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function samplePhysicalContactEvents(
-  receipt: Receipt,
+  receipt: IAutoMovieContactReceipt,
   seconds: number = Infinity,
-): Receipt[] {
+): IAutoMovieContactReceipt[] {
   const point: (value: IAutoMovieVector3) => boolean = (
     value: IAutoMovieVector3,
   ): boolean => !!value && [value.x, value.y, value.z].every(Number.isFinite);
@@ -27,8 +27,8 @@ export function samplePhysicalContactEvents(
     value: IAutoMovieVector3,
   ): boolean =>
     point(value) && Math.abs(Math.hypot(value.x, value.y, value.z) - 1) <= 1e-5;
-  const identity: (value: Receipt["a"]) => boolean = (
-    value: Receipt["a"],
+  const identity: (value: IAutoMovieContactReceipt["a"]) => boolean = (
+    value: IAutoMovieContactReceipt["a"],
   ): boolean =>
     !!value &&
     [value.body, value.bone, value.shape, value.material].every(
@@ -74,7 +74,7 @@ export function samplePhysicalContactEvents(
     return receipt.seconds <= seconds ? [receipt] : [];
   if (!Array.isArray(receipt.samples))
     throw new Error("Invalid completed contact samples");
-  const events: Receipt[] = [];
+  const events: IAutoMovieContactReceipt[] = [];
   let previous: number = receipt.seconds;
   for (const sample of receipt.samples) {
     if (

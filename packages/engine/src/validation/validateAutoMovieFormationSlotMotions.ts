@@ -5,6 +5,7 @@ import {
   IAutoMovieFormationSlotMotion,
   IAutoMovieShotContract,
   IAutoMovieShotParticipant,
+  type IAutoMovieValidateFormationSlotMotions,
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
@@ -38,25 +39,13 @@ export const validateAutoMovieFormationSlotMotions: (
     IAutoMovieShotContract,
     "id" | "participants" | "durationSeconds"
   >,
-  value: {
-    formations: readonly Pick<
-      IAutoMovieCompiledFormation,
-      "id" | "count" | "heroes"
-    >[];
-    formationSlotMotions: readonly IAutoMovieFormationSlotMotion[];
-  },
+  value: IAutoMovieValidateFormationSlotMotions.IValue,
 ) => IAutoMovieDiagnostic[] = (
   contract: Pick<
     IAutoMovieShotContract,
     "id" | "participants" | "durationSeconds"
   >,
-  value: {
-    formations: readonly Pick<
-      IAutoMovieCompiledFormation,
-      "id" | "count" | "heroes"
-    >[];
-    formationSlotMotions: readonly IAutoMovieFormationSlotMotion[];
-  },
+  value: IAutoMovieValidateFormationSlotMotions.IValue,
 ): IAutoMovieDiagnostic[] => {
   const diagnostics: IAutoMovieDiagnostic[] = [];
   const fail: (field: string, expectation: string) => void = (

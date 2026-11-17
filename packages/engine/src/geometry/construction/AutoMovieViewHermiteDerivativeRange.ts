@@ -1,5 +1,5 @@
+import type { IAutoMovieViewHermite } from "@automovie/interface";
 import { adjacentAutoMovieFloat64 as adjacent } from "../../math/adjacentAutoMovieFloat64";
-import type { AutoMovieViewHermite } from "./AutoMovieViewHermite";
 
 /** A closed outward binary64 enclosure; every endpoint must remain finite. */
 type Interval = readonly [number, number];
@@ -41,7 +41,7 @@ type Interval = readonly [number, number];
  * @evidence contracts/development/common.md#meaningful-documentation States units, immutable actual coefficient/span ownership, valid negative results, Bernstein and literal-reader proof scope, additive subnormal weights and named representability limits.
  */
 export function AutoMovieViewHermiteDerivativeRange(
-  curve: AutoMovieViewHermite.ICurve,
+  curve: IAutoMovieViewHermite.ICurve,
 ): readonly [number, number] | string {
   let stage: string = "input";
   try {

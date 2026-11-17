@@ -1,20 +1,22 @@
-import { type IAutoMovieRandom, minimumJerk } from "@automovie/engine";
+import { minimumJerk } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanGaze,
+  IAutoMovieMotionHumanLook,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieRandom,
+  IAutoMovieReactionTimeDistribution,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { tags } from "typia";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanGaze } from "./HumanGaze";
 
@@ -53,10 +55,10 @@ import { HumanGaze } from "./HumanGaze";
  */
 export namespace look {
   /** The action's name. */
-  export const name: HumanActionName = "look";
+  export const name: AutoMovieMotionHumanActionName = "look";
 
   /** Cancel table: a look holds no contact beyond the stand, so it can be cut anywhere. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
     walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
     look: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
@@ -64,29 +66,6 @@ export namespace look {
 
   /** A look may be performed over a carrier: it claims the head, and the trunk when the shift recruits it. */
   export const overlay: boolean = true;
-
-  /**
-   * Parameters of a look: the target, which segments may join, the cue that
-   * drew the look and how long the action lasts.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each field states its meaning, unit and the default an absent value takes, including that an absent cue means an immediate willed look.
-   * @evidence contracts/development/design.md#principled-representation The target is the shared motion target union, tracked every instant; the recruitment is HumanGaze's closed union; the cue is a closed union of the two sensory channels whose reaction times differ; the duration is seconds, and a non-positive one is refused at plan time.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the target and recruitment types are imported from their owners.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No field names a scene or body; the one invalid combination, an uncued target outside the attended field, depends on where the target is at the start and is refused at plan time.
-   */
-  export interface IParams {
-    /** What to look at. */
-    target: AutoMovieMotionTarget;
-
-    /** Which segments may join; `auto` when absent. */
-    with?: HumanGaze.Recruit;
-
-    /** What drew the look; an immediate, willed look when absent. */
-    cue?: "seen" | "signal";
-
-    /** How long the action lasts, seconds; 0.6 s after `settled` when absent. */
-    seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
-  }
 
   /** Half the attended field ahead, degrees. */
   export const FIELD: number = 60;
@@ -110,9 +89,10 @@ export namespace look {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's context, timing and stand base, released with the performance; nothing grows per call.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const recruit: HumanGaze.Recruit = context.params.with ?? "auto";
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLook.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const recruit: IAutoMovieMotionHumanGaze.Recruit =
+      context.params.with ?? "auto";
     const at = (seconds: number): IAutoMovieVector3 =>
       context.aim(context.params.target, context.start + seconds).point;
     const first: { yaw: number; pitch: number } = HumanGaze.direction(
@@ -137,7 +117,7 @@ export namespace look {
             context.random("reaction"),
             context.params.cue,
           );
-    const parts: HumanGaze.ISplit = HumanGaze.split(
+    const parts: IAutoMovieMotionHumanGaze.ISplit = HumanGaze.split(
       first.yaw,
       first.pitch,
       recruit,
@@ -155,7 +135,7 @@ export namespace look {
 
     // The body under the look: the carrier's when the look is an overlay,
     // otherwise the stand law's.
-    const base: IHumanActionPlan =
+    const base: IAutoMovieMotionHumanActionPlan =
       context.carrier === undefined
         ? stand.plan({ ...context, params: { seconds: duration } })
         : AutoMovieMotionHumanBase.under(context, duration);
@@ -179,7 +159,7 @@ export namespace look {
                 ? (["head"] as const)
                 : (["trunk", "head"] as const),
           }),
-      posture: (seconds: number): IHumanPosture =>
+      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
         HumanGaze.aim(
           context.body,
           base.posture(seconds),
@@ -212,20 +192,44 @@ export namespace look {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reaction(
-    skill: HumanSkill.ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     random: IAutoMovieRandom,
     cue: "seen" | "signal",
   ): number {
-    const mu: number =
-      HumanSkill.quantity(skill, "reaction", 0.26, 0.22) -
-      (cue === "signal" ? 0.04 : 0);
-    const sigma: number = HumanSkill.quantity(skill, "reaction", 0.035, 0.025);
-    const tau: number = HumanSkill.quantity(skill, "reaction", 0.07, 0.04);
-    const exponential: number =
-      -tau * Math.log(Math.max(1e-12, 1 - random.float(2)));
     return Math.max(
       0.1,
-      mu + sigma * HumanSkill.normal(random, 0) + exponential,
+      HumanSkill.reaction(reactionLaw(skill, cue), random, 0),
     );
+  }
+
+  /**
+   * The ex-Gaussian parameters of an orienting reaction, seconds: mu 0.26 s
+   * to 0.22 s, sigma 35 ms to 25 ms and tau 70 ms to 40 ms on the
+   * `reaction` axis (provisional), mu 40 ms lower for an acoustic cue
+   * (Welford 1980).
+   *
+   * @param skill The skill; its `reaction` axis scales the parameters.
+   * @param cue Visual or acoustic.
+   * @returns The parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each parameter's range, the acoustic advantage and that the values are provisional.
+   * @evidence contracts/development/implementation.md#principled-implementation Each parameter read on the reaction axis between its novice and elite values.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three quantity reads.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function reactionLaw(
+    skill: IAutoMovieMotionHumanSkill,
+    cue: "seen" | "signal",
+  ): IAutoMovieReactionTimeDistribution {
+    return {
+      mu:
+        HumanSkill.quantity(skill, "reaction", 0.26, 0.22) -
+        (cue === "signal" ? 0.04 : 0),
+      sigma: HumanSkill.quantity(skill, "reaction", 0.035, 0.025),
+      tau: HumanSkill.quantity(skill, "reaction", 0.07, 0.04),
+    };
   }
 }

@@ -1,24 +1,34 @@
-import { minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanTypeText,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { handGoals } from "./handGoals";
 
 /**
  * Typing a text on a keyboard from the posture the performer is in (seated
  * at a desk, or standing at a counter), pressing each key with an index
- * fingertip.
+ * fingertip. The keyboard is the scene's prop: its `homeRow` contact places
+ * the keys, its `keys` field must span the letter rows, and the typist faces
+ * it from its `+Z` side (`createKeyboard`).
  *
  * Each key press is a goal: the index fingertip of the hand on that key's
  * side comes down onto the key's centre by the key's travel and lifts again,
@@ -57,22 +67,85 @@ import { handGoals } from "./handGoals";
  */
 export namespace typeText {
   /** The action's name. */
-  export const name: HumanActionName = "typeText";
+  export const name: AutoMovieMotionHumanActionName = "typeText";
 
   /** Cancel table: typing may stop between presses. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {};
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /** Parameters. */
-  export interface IParams {
-    /** The keyboard: the middle of its home row, world metres, and the heading its user faces. */
-    keyboard: { at: IAutoMovieVector3; yaw: number };
-
-    /** The text, of keys the layout has (letters and spaces). */
-    text: string;
+  /**
+   * The keyboard a prop declares, where it stands at the action's start: its
+   * `homeRow` contact's place, and the heading that faces it from its `+Z`
+   * side, where `createKeyboard` puts the typist.
+   *
+   * @param context The action's context.
+   * @param subject The keyboard's prop subject.
+   * @returns The home row's middle and the typist's heading.
+   * @throws {HumanRefusal} When the prop declares no `homeRow` or `keys`, or its key field is narrower than the letter rows.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The contact's translation carried into the world by the prop's frame; the heading the prop's `-Z` on the floor.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one transform.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A keyboard without a home row is refused with its contacts, never typed on at a guessed place.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the prop's affordances.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function board(
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    subject: string,
+  ): IAutoMovieMotionHumanTypeText.IBoard {
+    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
+    const affordances: readonly IAutoMovieAffordance[] =
+      read.prop.affordances ?? [];
+    const declared = (id: string): IAutoMovieAffordance => {
+      const found: IAutoMovieAffordance | undefined = affordances.find(
+        (a: IAutoMovieAffordance): boolean => a.id === id,
+      );
+      if (found === undefined)
+        throw new HumanRefusal({
+          kind: "affordance",
+          axis: "keyboard",
+          value: subject,
+          feasible: {
+            kind: "alternatives",
+            values: affordances.map((a: IAutoMovieAffordance): string => a.id),
+          },
+          reason: `${subject} declares no ${id}`,
+          fix: `give the keyboard a ${id} contact, as createKeyboard does`,
+        });
+      return found;
+    };
+    const found: IAutoMovieAffordance = declared("homeRow");
+    const keys: IAutoMovieAffordance = declared("keys");
+    if (!((keys.width ?? 0) >= WIDTH))
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: "keyboard",
+        value: keys.width ?? null,
+        feasible: { kind: "range", minimum: WIDTH, maximum: null, unit: "m" },
+        reason: `${subject}'s key field is ${(keys.width ?? 0).toFixed(3)} m wide, narrower than the ${WIDTH.toFixed(3)} m its letter rows span`,
+        fix: "type on a keyboard whose key field spans the letter rows",
+      });
+    const frame: IAutoMovieRigidTransform = read.frame(context.start);
+    const away: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+      x: 0,
+      y: 0,
+      z: -1,
+    });
+    return {
+      at: Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(frame.rotation, found.frame.translation),
+      ),
+      yaw: (Math.atan2(away.x, away.z) * 180) / Math.PI,
+    };
   }
 
   /** Key pitch, metres (ISO/IEC 9995). */
   export const PITCH: number = 0.01905;
+
+  /** The width the letter rows span, metres: the top row's ten keys, staggered a quarter key left of the home row's middle, kept symmetric about it. */
+  export const WIDTH: number = 2 * 5.25 * 0.01905;
 
   /** Key travel, metres (provisional). */
   export const TRAVEL: number = 0.004;
@@ -95,10 +168,7 @@ export namespace typeText {
    * @returns The centre and the hand that presses it.
    * @throws {HumanRefusal} When the layout has no such key.
    */
-  export function key(key: string): {
-    at: IAutoMovieVector3;
-    side: HumanHand.Side;
-  } {
+  export function key(key: string): IAutoMovieMotionHumanTypeText.IKeyResult {
     const k: string = key.toLowerCase();
     if (k === " ")
       return { at: { x: -1.5 * PITCH, y: 0, z: -2 * PITCH }, side: "right" };
@@ -128,11 +198,15 @@ export namespace typeText {
    * @throws {HumanRefusal} On an unknown key, an empty text, or a keyboard too high, low or far for the body.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTypeText.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
-    const { keyboard, text } = context.params;
+    const { text } = context.params;
+    const keyboard: IAutoMovieMotionHumanTypeText.IBoard = board(
+      context,
+      context.params.keyboard,
+    );
     if (text.length === 0)
       throw new HumanRefusal({
         kind: "parameter",
@@ -142,8 +216,11 @@ export namespace typeText {
         fix: "give a text of at least one letter",
       });
     const keys = [...text].map(typeText.key);
-    const hold: IHumanPosture = context.entry.posture;
-    const frame: HumanFrame.IFrame = { origin: keyboard.at, yaw: keyboard.yaw };
+    const hold: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const frame: IAutoMovieMotionHumanFrame = {
+      origin: keyboard.at,
+      yaw: keyboard.yaw,
+    };
     const world = (local: IAutoMovieVector3, lift: number): IAutoMovieVector3 =>
       HumanFrame.point(frame, { ...local, y: lift });
 
@@ -201,14 +278,14 @@ export namespace typeText {
       );
     }
     const duration: number = clock;
-    const home: Record<HumanHand.Side, IAutoMovieVector3> = {
+    const home: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: typeText.key("f").at,
       right: typeText.key("j").at,
     };
 
     // Where each fingertip is at a second: on its current key, travelling
     // between keys in the hover plane, or pressing.
-    const tipAt = (side: HumanHand.Side, t: number): IAutoMovieVector3 => {
+    const tipAt = (side: AutoMovieHumanSide, t: number): IAutoMovieVector3 => {
       let from: IAutoMovieVector3 = home[side];
       let fromTime: number = 0;
       for (let i: number = 0; i < keys.length; i++) {
@@ -236,7 +313,7 @@ export namespace typeText {
       return world(from, HOVER);
     };
 
-    const contacts: IHumanContactWindow[] = [
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         part: "leftFoot",
         kind: "plant",
@@ -259,13 +336,13 @@ export namespace typeText {
         share: t / duration,
       })),
       contacts,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const fingers: IAutoMovieVector3 = HumanFrame.point(
           { origin: { x: 0, y: 0, z: 0 }, yaw: keyboard.yaw },
           { x: 0, y: -0.5, z: 1 },
         );
-        const joints: IHumanPosture["joints"] = {
+        const joints: IAutoMovieMotionHumanPosture["joints"] = {
           ...hold.joints,
           ...HumanHand.shape("left", "point"),
           ...HumanHand.shape("right", "point"),

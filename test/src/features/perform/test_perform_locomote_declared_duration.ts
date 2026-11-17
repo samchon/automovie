@@ -1,10 +1,7 @@
-import {
-  IAutoMovieActorContext,
-  compilePerformance,
-  makeActorSynthesizer,
-} from "@automovie/engine";
+import { compilePerformance, makeActorSynthesizer } from "@automovie/engine";
 import {
   IAutoMovieActionCall,
+  type IAutoMovieActorContext,
   IAutoMovieGait,
   IAutoMovieKeyframe,
   IAutoMovieMotion,

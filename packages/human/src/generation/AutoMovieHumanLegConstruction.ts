@@ -1,6 +1,11 @@
-import type { AutoMovieLoftContract, IAutoMovieLoftChain } from "@automovie/engine";
-import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+import type {
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanCalibrationBone,
+  IAutoMovieHumanLegConstruction,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftContract,
+} from "@automovie/interface";
+
 import { AutoMovieHumanLegChain } from "./leg/AutoMovieHumanLegChain";
 import { AutoMovieHumanLegStand } from "./leg/AutoMovieHumanLegStand";
 
@@ -31,41 +36,6 @@ import { AutoMovieHumanLegStand } from "./leg/AutoMovieHumanLegStand";
  * - {@link AutoMovieHumanLegStand}: the feet moved under the stance.
  */
 export namespace AutoMovieHumanLegConstruction {
-  /** Tape measures a leg reads, in the same millimetres as the calibration. */
-  export interface IInputs {
-    /** Calf tape. */
-    calf: number;
-
-    /** Knee tape. */
-    knee: number;
-
-    /** Thigh tape. */
-    thigh: number;
-
-    /** Hip tape, which spreads the legs. */
-    hip: number;
-
-    /** Masculine-feminine control, which brings the knees in as it rises. */
-    sex: number;
-
-    /** Fat control. */
-    fat: number;
-
-    /** Muscularity control. */
-    muscularity: number;
-
-    /** Calibration millimetres per world millimetre. */
-    scale: number;
-
-    /**
-     * Gluteal furrow height, the gluteal fold's lowest point over the floor
-     * (ANSUR 1988), in calibration millimetres: the thigh tape's station (ISO
-     * 8559-1 5.3.20, just below the fold) and the infragluteal fold's centre.
-     * Absent, both stand at their declared places on the thigh.
-     */
-    furrow?: number;
-  }
-
   /**
    * Calibration whose legs are generated from its own foot and trunk.
    *
@@ -75,19 +45,32 @@ export namespace AutoMovieHumanLegConstruction {
    */
   export function apply(
     calibration: IAutoMovieHumanBodyCalibration,
-    inputs: IInputs,
-    skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[],
+    inputs: IAutoMovieHumanLegConstruction.IInputs,
+    skeleton: readonly IAutoMovieHumanCalibrationBone[],
   ): IAutoMovieHumanBodyCalibration {
     // The body law's shared list: a leg records where it degrades.
-    const found: AutoMovieLoftContract.IDiagnostic[] = calibration.diagnostics ?? [];
+    const found: IAutoMovieLoftContract.IDiagnostic[] =
+      calibration.diagnostics ?? [];
     return {
       ...calibration,
       chains: calibration.chains.map(
         (c: IAutoMovieLoftChain): IAutoMovieLoftChain =>
           c.name === "leg.left"
-            ? AutoMovieHumanLegChain.of(calibration, "left", inputs, skeleton, found)
+            ? AutoMovieHumanLegChain.of(
+                calibration,
+                "left",
+                inputs,
+                skeleton,
+                found,
+              )
             : c.name === "leg.right"
-              ? AutoMovieHumanLegChain.of(calibration, "right", inputs, skeleton, found)
+              ? AutoMovieHumanLegChain.of(
+                  calibration,
+                  "right",
+                  inputs,
+                  skeleton,
+                  found,
+                )
               : c,
       ),
     };
@@ -102,8 +85,8 @@ export namespace AutoMovieHumanLegConstruction {
    */
   export function stand(
     calibration: IAutoMovieHumanBodyCalibration,
-    inputs: IInputs,
-    skeleton?: readonly AutoMovieHumanSkeletonLaw.IBone[],
+    inputs: IAutoMovieHumanLegConstruction.IInputs,
+    skeleton?: readonly IAutoMovieHumanCalibrationBone[],
   ): IAutoMovieHumanBodyCalibration {
     return AutoMovieHumanLegStand.of(calibration, inputs, skeleton);
   }
@@ -117,11 +100,12 @@ export namespace AutoMovieHumanLegConstruction {
    */
   export function add(
     calibration: IAutoMovieHumanBodyCalibration,
-    inputs: IInputs,
-    skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[],
+    inputs: IAutoMovieHumanLegConstruction.IInputs,
+    skeleton: readonly IAutoMovieHumanCalibrationBone[],
   ): IAutoMovieHumanBodyCalibration {
     // The body law's shared list: a leg records where it degrades.
-    const found: AutoMovieLoftContract.IDiagnostic[] = calibration.diagnostics ?? [];
+    const found: IAutoMovieLoftContract.IDiagnostic[] =
+      calibration.diagnostics ?? [];
     const chains: IAutoMovieLoftChain[] = [
       AutoMovieHumanLegChain.of(calibration, "right", inputs, skeleton, found),
       AutoMovieHumanLegChain.of(calibration, "left", inputs, skeleton, found),

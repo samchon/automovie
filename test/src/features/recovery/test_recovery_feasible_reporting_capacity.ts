@@ -1,7 +1,9 @@
+import type {
+  IAutoMovieRecoveryFeasibleJointOptions,
+  IAutoMovieRecoveryMapLandmark,
+  IAutoMovieRecoverySceneWork,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryFeasibleJointOptions,
-  type IAutoMovieRecoveryMapLandmark,
-  type IAutoMovieRecoverySceneWork,
   RecoveryFeasibleCapacityError,
   admitRecoveryCameraScene,
   prepareRecoveryCheckpointReportCapacity,

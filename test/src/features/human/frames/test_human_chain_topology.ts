@@ -2,6 +2,7 @@ import {
   AutoMovieHumanChainTopology,
   AutoMovieHumanSegmentFrame as F,
 } from "@automovie/human";
+import type { IAutoMovieHumanSegmentJoint } from "@automovie/interface";
 
 /**
  * A topology-bound handoff accepts changed offsets/rotations but refuses a
@@ -18,7 +19,7 @@ import {
  * @evidence contracts/development/common.md#meaningful-documentation States the accepted variation and the numbered graph admission scenarios.
  */
 export function test_human_chain_topology(): void {
-  const reference: F.IJoint[] = [
+  const reference: IAutoMovieHumanSegmentJoint[] = [
     { name: "root", parent: null, offset: [0, 0, 0], rotation: F.IDENTITY },
     { name: "parent", parent: "root", offset: [1, 0, 0], rotation: F.IDENTITY },
     {
@@ -28,13 +29,13 @@ export function test_human_chain_topology(): void {
       rotation: F.IDENTITY,
     },
   ];
-  const candidate: F.IJoint[] = reference.map(
-    (joint: F.IJoint): F.IJoint => ({ ...joint, offset: [2, 3, 4] }),
+  const candidate: IAutoMovieHumanSegmentJoint[] = reference.map(
+    (joint: IAutoMovieHumanSegmentJoint): IAutoMovieHumanSegmentJoint => ({ ...joint, offset: [2, 3, 4] }),
   );
   const failures: string[] = [];
   if (AutoMovieHumanChainTopology(reference, candidate) !== candidate)
     failures.push("valid graph did not retain its candidate");
-  const cases: { name: string; chain: F.IJoint[]; message: string }[] = [
+  const cases: { name: string; chain: IAutoMovieHumanSegmentJoint[]; message: string }[] = [
     { name: "missing", chain: candidate.slice(0, 2), message: "missing child" },
     {
       name: "additional",

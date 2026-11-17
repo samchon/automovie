@@ -2,14 +2,16 @@ import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSwimStroke,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { ExerciseKey } from "../exercise/ExerciseKey";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * The swimming strokes written as keyed postures on the water plane
@@ -49,21 +51,6 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The plane is the author's and the depth the body's; speeds are named provisional.
  */
 export namespace SwimStroke {
-  /** A keyed stroke's name. */
-  export type Name = "breaststroke" | "backstroke" | "float";
-
-  /** One stroke: its keys with the seconds taken to reach each from the one before, the first reached from the last, and its speed. */
-  export interface IStroke {
-    /** The keys of one cycle and the seconds to reach each. */
-    keys: readonly (readonly [ExerciseKey.IKey, number])[];
-
-    /** The hips' speed, metres a second, along the way the stroke travels (provisional). */
-    speed: number;
-
-    /** Whether the swimmer lies on the back and so travels head first, the way the back faced. */
-    supine: boolean;
-  }
-
   /** The hip joints, which the plane carries. */
   const HIPS: readonly AutoMovieHumanoidBone[] = [
     "leftUpperLeg",
@@ -72,93 +59,122 @@ export namespace SwimStroke {
 
   /** A backstroke key: one arm's shoulder flexion and abduction, the other's, and which leg is up. */
   const back = (
+    body: IAutoMovieMotionHumanBody,
     right: readonly [number, number],
     left: readonly [number, number],
     kick: number,
-  ): ExerciseKey.IKey =>
-    ExerciseKey.of(
+  ): IAutoMovieMotionHumanExerciseKey.IKey =>
+    ExerciseKey.from(
+      body,
       { pitch: -90, neck: 10 },
       { ankle: -40, elbow: 5 },
       { shoulder: left[0], raise: left[1], hip: 10 * kick, knee: 10 },
       { shoulder: right[0], raise: right[1], hip: -10 * kick, knee: 10 },
     );
 
-  /** The strokes (provisional angles, seconds and speeds). */
-  export const STROKES: Readonly<Record<Name, IStroke>> = {
-    breaststroke: {
-      supine: false,
-      speed: 0.9,
-      keys: [
-        [
-          ExerciseKey.of(
-            { pitch: 90, neck: -10 },
-            { ankle: -40, shoulder: 175, raise: 0, elbow: 3 },
-          ),
-          0.4,
+  /**
+   * The strokes on a body (provisional angles, seconds and speeds).
+   *
+   * @param body The body.
+   * @returns Each stroke.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input and that the values are provisional.
+   * @evidence contracts/development/implementation.md#principled-implementation Exercise keys on the body (`ExerciseKey.from`), so what a key leaves unstated is the body's own standing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One table.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function strokes(
+    body: IAutoMovieMotionHumanBody,
+  ): Readonly<
+    Record<
+      IAutoMovieMotionHumanSwimStroke.Name,
+      IAutoMovieMotionHumanSwimStroke.IStroke
+    >
+  > {
+    return {
+      breaststroke: {
+        supine: false,
+        speed: 0.9,
+        keys: [
+          [
+            ExerciseKey.from(
+              body,
+              { pitch: 90, neck: -10 },
+              { ankle: -40, shoulder: 175, raise: 0, elbow: 3 },
+            ),
+            0.4,
+          ],
+          [
+            ExerciseKey.from(
+              body,
+              { pitch: 82, neck: -35 },
+              { ankle: -40, shoulder: 95, raise: 70, elbow: 70 },
+            ),
+            0.35,
+          ],
+          [
+            ExerciseKey.from(
+              body,
+              { pitch: 84, neck: -25 },
+              {
+                hip: 45,
+                spread: 20,
+                knee: 115,
+                ankle: 15,
+                shoulder: 60,
+                raise: 10,
+                elbow: 140,
+              },
+            ),
+            0.3,
+          ],
+          [
+            ExerciseKey.from(
+              body,
+              { pitch: 90, neck: -10 },
+              {
+                hip: 15,
+                spread: 30,
+                knee: 30,
+                ankle: 10,
+                shoulder: 165,
+                raise: 0,
+                elbow: 10,
+              },
+            ),
+            0.3,
+          ],
         ],
-        [
-          ExerciseKey.of(
-            { pitch: 82, neck: -35 },
-            { ankle: -40, shoulder: 95, raise: 70, elbow: 70 },
-          ),
-          0.35,
+      },
+      backstroke: {
+        supine: true,
+        speed: 1,
+        keys: [
+          [back(body, [178, 5], [0, 5], 1), 0.35],
+          [back(body, [20, 85], [90, 5], -1), 0.35],
+          [back(body, [0, 5], [178, 5], 1), 0.35],
+          [back(body, [90, 5], [20, 85], -1), 0.35],
         ],
-        [
-          ExerciseKey.of(
-            { pitch: 84, neck: -25 },
-            {
-              hip: 45,
-              spread: 20,
-              knee: 115,
-              ankle: 15,
-              shoulder: 60,
-              raise: 10,
-              elbow: 140,
-            },
-          ),
-          0.3,
+      },
+      float: {
+        supine: true,
+        speed: 0,
+        keys: [
+          [
+            ExerciseKey.from(
+              body,
+              { pitch: -90, neck: 5 },
+              { spread: 15, ankle: -30, raise: 70, elbow: 10 },
+            ),
+            2,
+          ],
         ],
-        [
-          ExerciseKey.of(
-            { pitch: 90, neck: -10 },
-            {
-              hip: 15,
-              spread: 30,
-              knee: 30,
-              ankle: 10,
-              shoulder: 165,
-              raise: 0,
-              elbow: 10,
-            },
-          ),
-          0.3,
-        ],
-      ],
-    },
-    backstroke: {
-      supine: true,
-      speed: 1,
-      keys: [
-        [back([178, 5], [0, 5], 1), 0.35],
-        [back([20, 85], [90, 5], -1), 0.35],
-        [back([0, 5], [178, 5], 1), 0.35],
-        [back([90, 5], [20, 85], -1), 0.35],
-      ],
-    },
-    float: {
-      supine: true,
-      speed: 0,
-      keys: [
-        [
-          ExerciseKey.of(
-            { pitch: -90, neck: 5 },
-            { spread: 15, ankle: -30, raise: 70, elbow: 10 },
-          ),
-          2,
-        ],
-      ],
-    },
-  };
+      },
+    };
+  }
 
   /**
    * Plan a keyed stroke.
@@ -174,18 +190,17 @@ export namespace SwimStroke {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exercise keys' blend and pin.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the stroke's table row.
    */
-  export function plan(props: {
-    body: IHumanBody;
-    entry: IHumanPosture;
-    stroke: Name;
-    water: number;
-    cycles: number;
-    tempo: number;
-  }): IHumanActionPlan {
-    const stroke: IStroke = STROKES[props.stroke];
+  export function plan(
+    props: IAutoMovieMotionHumanSwimStroke.IPlanProps,
+  ): IAutoMovieMotionHumanActionPlan {
+    const stroke: IAutoMovieMotionHumanSwimStroke.IStroke = strokes(props.body)[
+      props.stroke
+    ];
     const spans: readonly number[] = stroke.keys.map(
-      ([, seconds]: readonly [ExerciseKey.IKey, number]): number =>
-        seconds * props.tempo,
+      ([, seconds]: readonly [
+        IAutoMovieMotionHumanExerciseKey.IKey,
+        number,
+      ]): number => seconds * props.tempo,
     );
     const period: number = spans.reduce(
       (sum: number, seconds: number): number => sum + seconds,
@@ -211,7 +226,7 @@ export namespace SwimStroke {
       duration,
       events,
       contacts: [],
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         let within: number = t - Math.floor(t / period) * period;
         if (t >= duration) within = 0;
@@ -228,7 +243,7 @@ export namespace SwimStroke {
           within -= span;
         }
         const u: number = minimumJerk(within).s;
-        const from: ExerciseKey.IKey =
+        const from: IAutoMovieMotionHumanExerciseKey.IKey =
           stroke.keys[
             (index + stroke.keys.length - 1) % stroke.keys.length
           ]![0];

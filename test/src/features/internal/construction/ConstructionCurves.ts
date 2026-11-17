@@ -1,7 +1,7 @@
 import type {
   IAutoMovieConstructionCurve,
   IAutoMovieSolidSurface,
-} from "@automovie/engine";
+} from "@automovie/interface";
 
 /**
  * Readings and expectations of a construction curve sampling, and the stub

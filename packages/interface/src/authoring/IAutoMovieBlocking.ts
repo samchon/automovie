@@ -1,6 +1,6 @@
-import { IAutoMovieBlockingActor } from "./IAutoMovieBlockingActor";
-import { IAutoMovieBlockingCamera } from "./IAutoMovieBlockingCamera";
-import { IAutoMovieBlockingCoverage } from "./IAutoMovieBlockingCoverage";
+import type { IAutoMovieBlockingActor } from "./IAutoMovieBlockingActor";
+import type { IAutoMovieBlockingCamera } from "./IAutoMovieBlockingCamera";
+import type { IAutoMovieBlockingCoverage } from "./IAutoMovieBlockingCoverage";
 
 /**
  * One shot's plan before any dense motion is synthesized.

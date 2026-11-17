@@ -1,8 +1,13 @@
-import { IAutoMovieSurfaceLayout } from "./IAutoMovieSurfaceLayout";
-import { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
-import { IAutoMovieSurfaceRegistry } from "./IAutoMovieSurfaceRegistry";
-import { IAutoMovieSurfaceSample } from "./IAutoMovieSurfaceSample";
-import { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
+import type {
+  IAutoMoviePlanSurfaceRigPatches,
+  IAutoMoviePlanSurfaceRigPatchesOutput,
+  IAutoMovieSurfaceCoordinate,
+  IAutoMovieSurfaceLayout,
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSurfaceRegistry,
+  IAutoMovieSurfaceSample,
+} from "@automovie/interface";
+
 import { layoutAutoMovieSurfacePatches } from "./layoutAutoMovieSurfacePatches";
 import { layoutAutoMovieSurfaceTransition } from "./layoutAutoMovieSurfaceTransition";
 import { reachAutoMovieSurfaceCell } from "./reachAutoMovieSurfaceCell";
@@ -24,21 +29,9 @@ import { rigAutoMovieSurfaceCoons } from "./rigAutoMovieSurfaceCoons";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The supplied registry deduplicates shared vertices; each patch's topology is emitted once.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Transfers layout arrays and the blend index Set to the owning rig; temporary edge samples are released on return.
  */
-export function planAutoMovieSurfaceRigPatches(props: {
-  network: IAutoMovieSurfaceNetwork;
-  registry: IAutoMovieSurfaceRegistry;
-  sweepRig: (name: string) => IAutoMovieSweepRig;
-  count: (counts: IAutoMovieSurfaceNetwork.ICounts, what: string) => number;
-  sweepKey: (name: string, u: number, v: number) => string;
-  sample: (
-    edge: IAutoMovieSurfaceNetwork.IEdge,
-    what: string,
-  ) => IAutoMovieSurfaceSample[];
-  loop: (
-    edges: IAutoMovieSurfaceNetwork.IEdge[],
-    what: string,
-  ) => IAutoMovieSurfaceSample[];
-}): IOutput {
+export function planAutoMovieSurfaceRigPatches(
+  props: IAutoMoviePlanSurfaceRigPatches.IProps,
+): IAutoMoviePlanSurfaceRigPatchesOutput {
   const {
     network,
     registry,
@@ -132,14 +125,26 @@ export function planAutoMovieSurfaceRigPatches(props: {
       const quads: Array<Array<[number, number, number]>> =
         layoutAutoMovieSurfaceTransition(start, end, rows).map(
           (
-            quad: ReturnType<typeof layoutAutoMovieSurfaceTransition>[number],
+            quad: Array<
+              [
+                Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+              ]
+            >[number],
           ): Array<[number, number, number]> =>
             quad.map(
               ({
                 s,
                 t,
-              }: ReturnType<
-                typeof layoutAutoMovieSurfaceTransition
+              }: Array<
+                [
+                  Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                  Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                  Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                  Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                ]
               >[number][number]): [number, number, number] => {
                 const u: number = t === 1 ? u1 : u0 + (u1 - u0) * t;
                 const v: number = s === 1 ? v1 : v0 + (v1 - v0) * s;
@@ -321,13 +326,4 @@ export function planAutoMovieSurfaceRigPatches(props: {
 
   layout.check();
   return { layout, blend };
-}
-
-/** The checked face layout and the blend-control indices transferred to the owning rig. */
-interface IOutput {
-  /** Faces, UVs, chart coordinates and patch grids. */
-  layout: IAutoMovieSurfaceLayout;
-
-  /** Indices whose samples remain blend controls in the limit fit. */
-  blend: Set<number>;
 }

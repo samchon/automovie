@@ -1,16 +1,19 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { HumanFootOutline } from "./HumanFootOutline";
 
 /**
  * A foot on the floor as a rigid rocker: where its ankle and its sole points
@@ -37,29 +40,12 @@ import type { IHumanBody } from "../body/IHumanBody";
  * lifting them; `heading` is the foot's yaw about +Y in degrees (0 faces +Z).
  */
 export namespace HumanFoot {
-  /** A foot's world placement. */
-  export interface IPlacement {
-    /** The ankle joint, world metres. */
-    ankle: IAutoMovieVector3;
-
-    /** The foot's world rotation from its rest. */
-    rotation: IAutoMovieQuaternion;
-  }
-
-  /** A sole socket that bears on the floor. */
-  export type Socket = (typeof SOCKETS)[number];
-
   /** The sole sockets of {@link Socket}, as data. */
-  export const SOCKETS = ["heel", "ball", "toe"] as const;
-
-  /** A sole socket's place on a displayed foot. */
-  export interface ISocket {
-    /** Which socket. */
-    socket: Socket;
-
-    /** Where it is, world metres. */
-    point: IAutoMovieVector3;
-  }
+  export const SOCKETS = [
+    "heel",
+    "ball",
+    "toe",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanFoot.Socket>[];
 
   /**
    * A foot's three sole sockets on displayed bones, heel first, each placed
@@ -72,61 +58,187 @@ export namespace HumanFoot {
    * @returns The heel, the ball and the toe.
    */
   export function sockets(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: "left" | "right",
-  ): ISocket[] {
-    return (["heel", "ball", "toe"] as const).map((socket: Socket): ISocket => {
-      const frame =
-        body.surfaces.sockets[`${socket}${side === "left" ? "Left" : "Right"}`];
-      return {
-        socket,
-        point: resolveAutoMovieHumanoidSurfaces.place(
-          frame,
-          bones.get(frame.bone)!,
-        ).point,
-      };
-    });
-  }
-
-  /**
-   * The base of support of displayed bones: the sole sockets of both feet,
-   * the points whose convex hull a margin of stability is measured to (Hof,
-   * Gazendam and Sinke 2005).
-   *
-   * @param body The body.
-   * @param bones The displayed bones.
-   * @returns The left foot's heel, ball and toe, then the right foot's, world metres.
-   */
-  export function base(
-    body: IHumanBody,
-    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): IAutoMovieVector3[] {
-    return (["left", "right"] as const).flatMap(
-      (side: "left" | "right"): IAutoMovieVector3[] =>
-        sockets(body, bones, side).map(
-          (s: ISocket): IAutoMovieVector3 => s.point,
-        ),
+  ): IAutoMovieMotionHumanFoot.ISocket[] {
+    return (["heel", "ball", "toe"] as const).map(
+      (
+        socket: IAutoMovieMotionHumanFoot.Socket,
+      ): IAutoMovieMotionHumanFoot.ISocket => {
+        const frame =
+          body.surfaces.sockets[
+            `${socket}${side === "left" ? "Left" : "Right"}`
+          ];
+        return {
+          socket,
+          point: resolveAutoMovieHumanoidSurfaces.place(
+            frame,
+            bones.get(frame.bone)!,
+          ).point,
+        };
+      },
     );
   }
 
   /**
-   * The foot's rotation from rest for a heading and a pitch.
+   * The height above a foot's lowest sole point within which a part of the
+   * sole is on the floor, metres: under half the 12.9 mm mean minimum toe
+   * clearance of the swinging foot in normal walking (Winter 1992, Foot
+   * trajectory in human gait, Physical Therapy 72(1):45-53), so a foot at
+   * the lowest point of a normal swing is not read as on the floor.
+   */
+  export const BEARING: number = 0.006;
+
+  /**
+   * The base of support of displayed bones: the area within the outlines of
+   * the feet where they bear on the floor (Winter, Biomechanics and Motor
+   * Control of Human Movement, 4th ed., ch. 4: the base of support is the
+   * area bounded by the outline of the feet in contact with the ground), the
+   * points whose convex hull a margin of stability is measured to (Hof,
+   * Gazendam and Sinke 2005).
+   *
+   * Each foot's outline is its sole sockets and the corners of the outline
+   * of its colliders seen from below (`outline`), placed on the displayed
+   * bones; of these, the points within `BEARING` of the foot's lowest one
+   * bear, so a heel lifted off the floor leaves the base to the forefoot.
+   *
+   * @param body The body.
+   * @param bones The displayed bones.
+   * @param sides The feet that bear; both when absent.
+   * @returns The left foot's bearing points, then the right foot's, world metres.
+   */
+  export function base(
+    body: IAutoMovieMotionHumanBody,
+    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    sides: readonly ("left" | "right")[] = ["left", "right"],
+  ): IAutoMovieVector3[] {
+    return sides.flatMap((side: "left" | "right"): IAutoMovieVector3[] => {
+      const points: IAutoMovieVector3[] = [
+        ...sockets(body, bones, side).map(
+          (s: IAutoMovieMotionHumanFoot.ISocket): IAutoMovieVector3 => s.point,
+        ),
+        ...outline(body, side).map(
+          (frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
+            resolveAutoMovieHumanoidSurfaces.place(
+              frame,
+              bones.get(frame.bone)!,
+            ).point,
+        ),
+      ];
+      let low: number = Infinity;
+      for (const p of points) low = Math.min(low, p.y);
+      return points.filter(
+        (p: IAutoMovieVector3): boolean => p.y <= low + BEARING,
+      );
+    });
+  }
+
+  /**
+   * The points a placed foot stands on, flat with its toes flat: its sole
+   * sockets and the corners of its outline (`outline`), world metres.
+   *
+   * @param body The body.
+   * @param side The foot.
+   * @param foot The foot's placement.
+   * @returns The heel, the ball and the toe, then the outline's corners.
+   */
+  export function sole(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+    foot: IAutoMovieMotionHumanFoot.IPlacement,
+  ): IAutoMovieVector3[] {
+    const ankle: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
+    return [
+      ...SOCKETS.map(
+        (socket: IAutoMovieMotionHumanFoot.Socket): IAutoMovieVector3 =>
+          point(body, side, socket, foot),
+      ),
+      ...outline(body, side).map(
+        (frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
+          Vector3.add(
+            foot.ankle,
+            Quaternion.rotateVector(
+              foot.rotation,
+              frame.bone === `${side}Foot`
+                ? frame.point
+                : Vector3.add(
+                    Vector3.subtract(body.rest.get(frame.bone)!, ankle),
+                    frame.point,
+                  ),
+            ),
+          ),
+      ),
+    ];
+  }
+
+  /**
+   * A foot's outline on its sole, the corners of its colliders seen from
+   * below as frames on its bones (`HumanFootOutline`).
+   */
+  export const outline: typeof HumanFootOutline.of = HumanFootOutline.of;
+
+  /**
+   * A placement turned on the floor about its ankle's vertical.
+   *
+   * @param foot The placement.
+   * @param degrees The turn about +Y, degrees.
+   * @returns The turned placement; the same one for no turn.
+   */
+  export function turned(
+    foot: IAutoMovieMotionHumanFoot.IPlacement,
+    degrees: number,
+  ): IAutoMovieMotionHumanFoot.IPlacement {
+    if (degrees === 0) return foot;
+    return {
+      ankle: foot.ankle,
+      rotation: Quaternion.normalize(
+        Quaternion.multiply(
+          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees),
+          foot.rotation,
+        ),
+      ),
+    };
+  }
+
+  /**
+   * The foot's rotation from rest for a heading, a pitch and a roll.
    *
    * @param heading Degrees about +Y.
    * @param pitch Degrees, positive toes up.
+   * @param roll Degrees about the foot's forward axis, positive lifting its outer border on the left foot's side (+X at rest); none when absent.
    * @returns The rotation.
    */
   export function rotation(
     heading: number,
     pitch: number,
+    roll: number = 0,
   ): IAutoMovieQuaternion {
     return Quaternion.normalize(
       Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
+        Quaternion.multiply(
+          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
+          Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, roll),
+        ),
         Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -pitch),
       ),
     );
+  }
+
+  /**
+   * The roll of a foot's rotation about its forward axis, degrees, as
+   * `rotation` takes it: the rise of its lateral axis.
+   *
+   * @param rotation The foot's rotation.
+   * @returns Degrees.
+   */
+  export function roll(rotation: IAutoMovieQuaternion): number {
+    const lateral: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 1,
+      y: 0,
+      z: 0,
+    });
+    return (Math.asin(Math.max(-1, Math.min(1, lateral.y))) * 180) / Math.PI;
   }
 
   /**
@@ -178,7 +290,7 @@ export namespace HumanFoot {
    * @returns The offset, metres.
    */
   export function offset(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     point: "heel" | "ball" | "toe" | "sole" | "mtp",
     toes: number = 0,
@@ -211,18 +323,29 @@ export namespace HumanFoot {
    * @param at Where that point is, world metres.
    * @param heading The foot's heading, degrees.
    * @param pitch The pitch, degrees, positive toes up.
+   * @param toes The toe joint flexion, degrees; zero when absent.
+   * @param roll The foot roll, degrees; zero when absent.
    * @returns The foot's placement.
+   * @evidence contracts/development/common.md#meaningful-documentation States the pivot and every angular convention.
+   * @evidence contracts/development/implementation.md#principled-implementation The ankle is the fixed world pivot minus its rotated bone-local offset, including a socket carried by the toe joint.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation and one rigid-point translation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses offset as the sole owner of toe articulation.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses rotation and offset.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pivot(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     pivot: "heel" | "ball" | "toe" | "sole" | "mtp",
     at: IAutoMovieVector3,
     heading: number,
     pitch: number,
-  ): IPlacement {
-    const r: IAutoMovieQuaternion = rotation(heading, pitch);
-    const local: IAutoMovieVector3 = offset(body, side, pivot);
+    toes: number = 0,
+    roll: number = 0,
+  ): IAutoMovieMotionHumanFoot.IPlacement {
+    const r: IAutoMovieQuaternion = rotation(heading, pitch, roll);
+    const local: IAutoMovieVector3 = offset(body, side, pivot, toes);
     return {
       ankle: Vector3.subtract(at, Quaternion.rotateVector(r, local)),
       rotation: r,
@@ -249,7 +372,7 @@ export namespace HumanFoot {
     reached: IAutoMovieQuaternion,
     anchor: IAutoMovieVector3,
     contact: IAutoMovieVector3,
-  ): { ankle: IAutoMovieVector3; toes: number } {
+  ): IAutoMovieMotionHumanFoot.IHeelOffResult {
     return {
       ankle: Vector3.subtract(
         anchor,
@@ -270,10 +393,10 @@ export namespace HumanFoot {
    * @returns The point, world metres.
    */
   export function point(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     point: "heel" | "ball" | "toe" | "sole" | "mtp",
-    foot: IPlacement,
+    foot: IAutoMovieMotionHumanFoot.IPlacement,
     toes: number = 0,
   ): IAutoMovieVector3 {
     return Vector3.add(

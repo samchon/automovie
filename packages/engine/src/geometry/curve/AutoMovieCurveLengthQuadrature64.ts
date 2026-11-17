@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieCurveLengthQuadrature64,
+  IAutoMovieMeasureCurveLength64,
+} from "@automovie/interface";
+
 /**
  * Internal shared GL8 computation for original curve derivatives, with numeric
  * observations separated from each public length owner's admission policy.
@@ -27,28 +32,10 @@ export namespace AutoMovieCurveLengthQuadrature64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows callbacks and domains synchronously and returns scalar observations only; fixed module constants are the sole retained population.
    */
   export function measure(
-    pieces: readonly {
-      /** Original finite closed parameter interval, admitted by the caller. */
-      domain: readonly [number, number];
-      /** Original world derivative in mm per interval-parameter unit. */
-      derivative: (parameter: number) => readonly [number, number, number];
-    }[],
+    pieces: IAutoMovieMeasureCurveLength64.IPieces,
     subdivisions: number,
     endpoints: boolean,
-  ): {
-    /** K-panel computed sum, mm. */
-    coarseMm: number;
-    /** K*2-panel computed sum, mm. */
-    fineMm: number;
-    /** A requested derivative component or its norm was nonfinite. */
-    nonfiniteDerivative: boolean;
-    /** A positive speed produced a zero weighted contribution. */
-    underflowingContribution: boolean;
-    /** A weighted contribution was nonfinite. */
-    nonfiniteContribution: boolean;
-    /** A mapped node was not strictly inside its panel. */
-    collapsedNode: boolean;
-  } {
+  ): IAutoMovieCurveLengthQuadrature64.IMeasureResult {
     let nonfiniteDerivative: boolean = false;
     let underflowingContribution: boolean = false;
     let nonfiniteContribution: boolean = false;

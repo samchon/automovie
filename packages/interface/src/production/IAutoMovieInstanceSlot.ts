@@ -1,5 +1,5 @@
-import { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * One exactly regenerated member of a non-formation instance set.

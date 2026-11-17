@@ -1,4 +1,4 @@
-import { IAutoMovieStorySyncPoint } from "./IAutoMovieStorySyncPoint";
+import type { IAutoMovieStorySyncPoint } from "./IAutoMovieStorySyncPoint";
 
 /**
  * Measured verdict of one cross-shot story-clock simultaneity claim.

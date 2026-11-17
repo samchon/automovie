@@ -2,17 +2,22 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   AutoMovieHumanoidSocket,
+  IAutoMovieHumanoidSurfaceRays,
+  IAutoMovieHumanoidSurfaceRegions,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { AutoMovieHumanoidDigitSurfaces } from "./AutoMovieHumanoidDigitSurfaces";
 import { AutoMovieHumanoidSurfaceExtents } from "./AutoMovieHumanoidSurfaceExtents";
 import { AutoMovieHumanoidSurfaceRays } from "./AutoMovieHumanoidSurfaceRays";
 import { AutoMovieHumanoidSurfaceRegions } from "./AutoMovieHumanoidSurfaceRegions";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 
 /**
  * Resolve every anatomical region and contact socket of a canonical humanoid
@@ -34,9 +39,9 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
  * placed on character physics bodies in game engines (a bone plus a local
  * offset on its collider), generalised so the offset comes from the body's
  * own shapes and fits any size. The palm, sole, heel and seat regions share
- * their sockets' points, and the index fingertip region is the exit of a ray
- * along the finger through the distal phalanx's colliders (the hand's when the
- * profile has no phalanx segment), riding the distal phalanx.
+ * their sockets' points, and every digit's tip and pad ride its distal
+ * phalanx (`AutoMovieHumanoidDigitSurfaces`): the tip the exit of a ray along
+ * the phalanx, the pad that of a ray from its middle toward the palm.
  * Sockets of the foot, seat and back are read
  * from the exact axis bounds of their segment's colliders at rest (heel at
  * the back of the sole, ball under the toe joint, toe at the front, sole at
@@ -54,6 +59,11 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
  * frame under any pose is the bone's world position plus its world rotation
  * applied to them.
  *
+ * The left side is the mirror of the right: a left region or socket (and the
+ * spleen, the liver's twin) is its right twin's frame mirrored in the median
+ * plane (`mirrored`), on the opposite bone, so a left act reads a frame that
+ * is the mirror of the right one to the bit, as the rig's own rest is.
+ *
  * @param skeleton The canonical rig.
  * @param profile Its physical profile, segments keyed by rig bones.
  * @returns Every region and socket.
@@ -69,23 +79,23 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
  */
 export function resolveAutoMovieHumanoidSurfaces(
   skeleton: IAutoMovieSkeleton,
-  profile: P,
-): resolveAutoMovieHumanoidSurfaces.ISurfaces {
+  profile: IAutoMoviePhysicalProfile,
+): IAutoMovieHumanoidSurfaces.ISurfaces {
   const { at, bounds, local, station, exit, surface } =
     AutoMovieHumanoidSurfaceRays.tools(skeleton, profile);
 
   const regions = {} as Record<
     AutoMovieHumanoidRegion,
-    resolveAutoMovieHumanoidSurfaces.IFrame
+    IAutoMovieHumanoidSurfaces.IFrame
   >;
   for (const [name, def] of Object.entries(
     AutoMovieHumanoidSurfaceRegions.TABLE,
   ) as [
     AutoMovieHumanoidRegion,
-    AutoMovieHumanoidSurfaceRegions.IDefinition,
+    IAutoMovieHumanoidSurfaceRegions.IDefinition,
   ][]) {
     const origin: IAutoMovieVector3 = station(def.station);
-    const hit: AutoMovieHumanoidSurfaceRays.ISurfacePoint = surface(
+    const hit: IAutoMovieHumanoidSurfaceRays.ISurfacePoint = surface(
       def.station.bone,
       origin,
       def.direction,
@@ -95,7 +105,7 @@ export function resolveAutoMovieHumanoidSurfaces(
 
   const sockets = {} as Record<
     AutoMovieHumanoidSocket,
-    resolveAutoMovieHumanoidSurfaces.IFrame
+    IAutoMovieHumanoidSurfaces.IFrame
   >;
   const down: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
   const forward: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
@@ -141,7 +151,7 @@ export function resolveAutoMovieHumanoidSurfaces(
     const ankle: IAutoMovieVector3 = at(bone("Foot")).worldPosition;
     const toes: IAutoMovieVector3 = at(bone("Toes")).worldPosition;
     const jointed: boolean = profile.segments.some(
-      (x: P.ISegment): boolean => x.bone === bone("Toes"),
+      (x: IAutoMoviePhysicalSegment): boolean => x.bone === bone("Toes"),
     );
     const front = jointed ? bounds(bone("Toes")) : foot;
     const sole = (z: number): IAutoMovieVector3 => ({
@@ -183,14 +193,10 @@ export function resolveAutoMovieHumanoidSurfaces(
   );
 
   // Contact points the body presents are regions too: the palm, the sole,
-  // the heel and the seat take their sockets' points, and the index
-  // fingertip is where a ray along the finger leaves the hand's colliders,
-  // riding the distal phalanx.
+  // the heel and the seat take their sockets' points, and each digit's tip
+  // and pad ride its distal phalanx.
   regions.seat = { ...sockets.seat };
   for (const Side of ["Left", "Right"] as const) {
-    const side: string = Side.toLowerCase();
-    const bone = (name: string): AutoMovieHumanoidBone =>
-      `${side}${name}` as AutoMovieHumanoidBone;
     regions[`palm${Side}` as AutoMovieHumanoidRegion] = {
       ...sockets[`palm${Side}` as AutoMovieHumanoidSocket],
     };
@@ -200,27 +206,11 @@ export function resolveAutoMovieHumanoidSurfaces(
     regions[`heel${Side}` as AutoMovieHumanoidRegion] = {
       ...sockets[`heel${Side}` as AutoMovieHumanoidSocket],
     };
-    const distal: IAutoMovieVector3 = at(bone("IndexDistal")).worldPosition;
-    const along: IAutoMovieVector3 = Vector3.subtract(
-      distal,
-      at(bone("IndexIntermediate")).worldPosition,
-    );
-    const phalanx: AutoMovieHumanoidBone = profile.segments.some(
-      (x: P.ISegment): boolean => x.bone === bone("IndexDistal"),
-    )
-      ? bone("IndexDistal")
-      : bone("Hand");
-    const tip: AutoMovieHumanoidSurfaceRays.ISurfacePoint = surface(
-      phalanx,
-      distal,
-      along,
-    );
-    regions[`indexTip${Side}` as AutoMovieHumanoidRegion] = local(
-      bone("IndexDistal"),
-      tip.point,
-      tip.normal,
-    );
   }
+  Object.assign(
+    regions,
+    AutoMovieHumanoidDigitSurfaces({ at, local, surface }, profile),
+  );
   const thorax = bounds("chest");
   sockets.back = local(
     "chest",
@@ -233,6 +223,29 @@ export function resolveAutoMovieHumanoidSurfaces(
     AutoMovieHumanoidSurfaceExtents(regions, at, bounds);
   for (const name of Object.keys(regions) as AutoMovieHumanoidRegion[])
     regions[name] = { ...regions[name], radius: radii[name] };
+  // The body's left is the mirror of its right: each left region and socket
+  // is its right twin's frame mirrored, so the two sides are mirror images
+  // to the bit, whatever the rounding of the rays that placed the right.
+  for (const name of Object.keys(regions) as AutoMovieHumanoidRegion[]) {
+    const right: AutoMovieHumanoidRegion | undefined =
+      resolveAutoMovieHumanoidSurfaces.twin(name);
+    if (right !== undefined)
+      regions[name] = resolveAutoMovieHumanoidSurfaces.mirrored(regions[right]);
+  }
+  for (const name of Object.keys(sockets) as AutoMovieHumanoidSocket[])
+    if (name.endsWith("Left"))
+      sockets[name] = resolveAutoMovieHumanoidSurfaces.mirrored(
+        sockets[name.replace(/Left$/, "Right") as AutoMovieHumanoidSocket],
+      );
+  // A median frame is its own mirror image, so its lateral components are
+  // nought to the bit: a left act mirrored to the right reads the very
+  // frame a right act does, whatever the rounding of the rays.
+  for (const name of Object.keys(regions) as AutoMovieHumanoidRegion[])
+    if (resolveAutoMovieHumanoidSurfaces.median(name))
+      regions[name] = resolveAutoMovieHumanoidSurfaces.centred(regions[name]);
+  for (const name of Object.keys(sockets) as AutoMovieHumanoidSocket[])
+    if (!name.endsWith("Left") && !name.endsWith("Right"))
+      sockets[name] = resolveAutoMovieHumanoidSurfaces.centred(sockets[name]);
   return { regions, sockets };
 }
 
@@ -245,33 +258,6 @@ export function resolveAutoMovieHumanoidSurfaces(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Keys are the interface's closed unions, not strings.
  */
 export namespace resolveAutoMovieHumanoidSurfaces {
-  /** A bone-local surface frame. */
-  export interface IFrame {
-    /** The bone it rides. */
-    bone: AutoMovieHumanoidBone;
-
-    /** Point relative to the bone's joint, in its rest frame, metres. */
-    point: IAutoMovieVector3;
-
-    /** Outward unit normal in the bone's rest frame. */
-    normal: IAutoMovieVector3;
-
-    /** A socket's forward unit direction in the bone's rest frame. */
-    forward?: IAutoMovieVector3;
-
-    /** A region's extent, metres: the radius about its point that is still the region (`AutoMovieHumanoidSurfaceExtents`); absent for a socket and for a point beside a region (`offset`). */
-    radius?: number;
-  }
-
-  /** Every region and socket of one body. */
-  export interface ISurfaces {
-    /** Regions by name. */
-    regions: Record<AutoMovieHumanoidRegion, IFrame>;
-
-    /** Sockets by name. */
-    sockets: Record<AutoMovieHumanoidSocket, IFrame>;
-  }
-
   /**
    * A surface frame's world point and normal under a posed bone.
    *
@@ -280,13 +266,9 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * @returns World point (metres) and unit normal.
    */
   export function place(
-    frame: IFrame,
+    frame: IAutoMovieHumanoidSurfaces.IFrame,
     bone: Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">,
-  ): {
-    point: IAutoMovieVector3;
-    normal: IAutoMovieVector3;
-    forward?: IAutoMovieVector3;
-  } {
+  ): IAutoMovieHumanoidSurfaces.IPlaceResult {
     return {
       point: Vector3.add(
         bone.worldPosition,
@@ -301,20 +283,11 @@ export namespace resolveAutoMovieHumanoidSurfaces {
     };
   }
 
-  /** A point of a region's tangent plane, measured from the region's own point. */
-  export interface ITangent {
-    /** Toward the head, metres: the rest frame's +Y made perpendicular to the region's direction, or +Z when that direction is within 26 degrees of vertical. */
-    up: number;
-
-    /** Across `up` and the region's direction, metres: toward the body's left for a region that faces forward. */
-    out: number;
-  }
-
   /**
    * Whether a region is placed by a ray, so `offset` accepts it.
    *
    * @param region The region.
-   * @returns False for the palms, soles, heels, seat and index fingertips, which take a socket's point or a finger's line.
+   * @returns False for the palms, soles, heels, seat and the digits' tips and pads, which take a socket's point or a phalanx's line.
    */
   export function rayed(region: AutoMovieHumanoidRegion): boolean {
     return AutoMovieHumanoidSurfaceRegions.TABLE[region] !== undefined;
@@ -332,21 +305,28 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    *
    * @param skeleton The canonical rig.
    * @param profile Its physical profile, segments keyed by rig bones.
-   * @param region A region placed by a ray: every region but the palms, soles, heels, seat and index fingertips.
+   * @param region A region placed by a ray: every region but the palms, soles, heels, seat and the digits' tips and pads.
    * @param tangent The offset on the region's tangent plane.
    * @returns The bone-local frame of the surface point.
    * @throws {Error} When the region is not placed by a ray, or a bone or segment it needs is missing.
    */
   export function offset(
     skeleton: IAutoMovieSkeleton,
-    profile: P,
+    profile: IAutoMoviePhysicalProfile,
     region: AutoMovieHumanoidRegion,
-    tangent: ITangent,
-  ): IFrame {
-    const def: AutoMovieHumanoidSurfaceRegions.IDefinition | undefined =
+    tangent: IAutoMovieHumanoidSurfaces.ITangent,
+  ): IAutoMovieHumanoidSurfaces.IFrame {
+    const def: IAutoMovieHumanoidSurfaceRegions.IDefinition | undefined =
       AutoMovieHumanoidSurfaceRegions.TABLE[region];
     if (def === undefined)
       throw new Error(`The region ${region} is not placed by a ray`);
+    // A left region's surface point is its right twin's mirrored, the twin's
+    // `out` the mirror of this one's, so the two sides stay mirror images.
+    const right: AutoMovieHumanoidRegion | undefined = twin(region);
+    if (right !== undefined)
+      return mirrored(
+        offset(skeleton, profile, right, { up: tangent.up, out: -tangent.out }),
+      );
     const { local, station, exit, surface } =
       AutoMovieHumanoidSurfaceRays.tools(skeleton, profile);
     const origin: IAutoMovieVector3 = station(def.station);
@@ -368,12 +348,99 @@ export namespace resolveAutoMovieHumanoidSurfaces {
       origin,
     );
     const toward: IAutoMovieVector3 = Vector3.length(ray) > BOUNDARY ? ray : d;
-    const hit: AutoMovieHumanoidSurfaceRays.ISurfacePoint = surface(
+    const hit: IAutoMovieHumanoidSurfaceRays.ISurfacePoint = surface(
       def.station.bone,
       origin,
       toward,
     );
     return local(def.station.bone, hit.point, hit.normal);
+  }
+
+  /**
+   * The right twin a left region is the mirror of: the same name on the
+   * right, and the liver for the spleen; none for a right or median region.
+   *
+   * @param region The region.
+   * @returns Its right twin, when it is a left region.
+   */
+  export function twin(
+    region: AutoMovieHumanoidRegion,
+  ): AutoMovieHumanoidRegion | undefined {
+    if (region === "spleen") return "liver";
+    return region.endsWith("Left")
+      ? (region.replace(/Left$/, "Right") as AutoMovieHumanoidRegion)
+      : undefined;
+  }
+
+  /**
+   * Whether a region lies on the median plane, its own mirror image: neither
+   * sided nor one of the liver and spleen pair.
+   *
+   * @param region The region.
+   * @returns Whether it is median.
+   */
+  export function median(region: AutoMovieHumanoidRegion): boolean {
+    return (
+      !region.endsWith("Left") &&
+      !region.endsWith("Right") &&
+      region !== "liver" &&
+      region !== "spleen"
+    );
+  }
+
+  /**
+   * A median frame on the median plane to the bit: its point's, normal's and
+   * forward's lateral components nought, the frame and its mirror image
+   * averaged.
+   *
+   * @param frame The frame.
+   * @returns The frame, its own mirror image.
+   */
+  export function centred(
+    frame: IAutoMovieHumanoidSurfaces.IFrame,
+  ): IAutoMovieHumanoidSurfaces.IFrame {
+    const plane = (v: IAutoMovieVector3): IAutoMovieVector3 => ({
+      x: 0,
+      y: v.y,
+      z: v.z,
+    });
+    return {
+      ...frame,
+      point: plane(frame.point),
+      normal: plane(frame.normal),
+      ...(frame.forward === undefined ? {} : { forward: plane(frame.forward) }),
+    };
+  }
+
+  /**
+   * A frame's mirror image in the median plane: on the other side's bone,
+   * its point, normal and forward with their lateral component negated. A
+   * rest frame mirrored across the median plane (`M R M`) maps a bone-local
+   * vector to the same vector with its lateral component negated, so the
+   * mirror is exact.
+   *
+   * @param frame The frame.
+   * @returns Its mirror image.
+   */
+  export function mirrored(
+    frame: IAutoMovieHumanoidSurfaces.IFrame,
+  ): IAutoMovieHumanoidSurfaces.IFrame {
+    const flip = (v: IAutoMovieVector3): IAutoMovieVector3 => ({
+      x: -v.x,
+      y: v.y,
+      z: v.z,
+    });
+    return {
+      ...frame,
+      bone: (frame.bone.startsWith("left")
+        ? `right${frame.bone.slice(4)}`
+        : frame.bone.startsWith("right")
+          ? `left${frame.bone.slice(5)}`
+          : frame.bone) as AutoMovieHumanoidBone,
+      point: flip(frame.point),
+      normal: flip(frame.normal),
+      ...(frame.forward === undefined ? {} : { forward: flip(frame.forward) }),
+    };
   }
 }
 

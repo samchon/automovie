@@ -1,8 +1,10 @@
+import type {
+  IAutoMovieRecoveryMapJointFit,
+  IAutoMovieRecoveryMapLandmark,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoverySceneWork,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryMapJointFit,
-  type IAutoMovieRecoveryMapLandmark,
-  type IAutoMovieRecoveryMapPose,
-  type IAutoMovieRecoverySceneWork,
   RecoveryFeasibleCapacityError,
   admitRecoveryCameraScene,
   completeRecoverySceneCheckpoint,

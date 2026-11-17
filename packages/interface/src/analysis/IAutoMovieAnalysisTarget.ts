@@ -1,4 +1,4 @@
-import { AutoMovieAnalysisComparison } from "./AutoMovieAnalysisComparison";
+import type { AutoMovieAnalysisComparison } from "./AutoMovieAnalysisComparison";
 
 /**
  * One numeric target the production declares for one metric.

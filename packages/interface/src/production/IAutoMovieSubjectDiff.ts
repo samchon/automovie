@@ -1,5 +1,5 @@
-import { IAutoMovieSubjectChange } from "./IAutoMovieSubjectChange";
-import { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary";
+import type { IAutoMovieSubjectChange } from "./IAutoMovieSubjectChange";
+import type { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary";
 
 /**
  * Stable-identity structural comparison of two compiled subject inventories without rendering.

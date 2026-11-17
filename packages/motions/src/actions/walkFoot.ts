@@ -1,11 +1,13 @@
 import { carriedRate, minimumJerk, wrapDegrees } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanWalkFoot,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditContact } from "../audit/AutoMovieMotionHumanAuditContact";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 
 /**
@@ -26,7 +28,7 @@ import { HumanFoot } from "../posture/HumanFoot";
  * ends, so the lift adds no velocity at toe-off and the foot meets the floor
  * at rest (the heel's vertical velocity at contact is near zero, Winter
  * 1992), and raised
- * further wherever the toe or heel would come within 12 mm of the floor. The
+ * further wherever the toe or heel would come within `CLEARANCE` of the floor. The
  * travel, the turn and the descent of the placements end early, at the share
  * of the swing where the lift has fallen to the contact height of the floor
  * (`AutoMovieMotionHumanAuditContact.HEIGHT`, half the minimum toe
@@ -37,26 +39,6 @@ import { HumanFoot } from "../posture/HumanFoot";
  * landing's flexion over the second.
  */
 export namespace walkFoot {
-  /** A foot's placement and toes at an instant. */
-  export interface IFoot {
-    /** Its placement. */
-    placement: HumanFoot.IPlacement;
-
-    /** The toes' flexion from the foot, degrees, positive lifting them. */
-    toes: number;
-  }
-
-  /**
-   * A foot as its schedule has it at an instant: the stance it stands in, or
-   * for a swinging foot the stance that claims the pelvis, the one it left at
-   * its toe-off over the first half of the swing and the one it lands in at
-   * its heel strike over the second.
-   */
-  export interface IScheduled extends IFoot {
-    /** A swinging foot's share of its swing and the swing's two ends, seconds. */
-    swing?: { u: number; off: number; on: number };
-  }
-
   /** What a stance ends or begins with, which a swing joins. */
   export interface IEnd {
     /** The ankle, world metres. */
@@ -81,13 +63,13 @@ export namespace walkFoot {
    * @returns The pitched placement.
    */
   export function rocked(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    flat: HumanFoot.IPlacement,
+    flat: IAutoMovieMotionHumanFoot.IPlacement,
     heading: number,
     degrees: number,
     about: "heel" | "mtp",
-  ): HumanFoot.IPlacement {
+  ): IAutoMovieMotionHumanFoot.IPlacement {
     return HumanFoot.pivot(
       body,
       side,
@@ -111,21 +93,54 @@ export namespace walkFoot {
    * @param t The instant, seconds.
    * @param push The pitch at toe-off, degrees, negative.
    * @param raised How far the heel is held off the floor through the stance, degrees about the toes' joint; 0 for a flat foot that lands heel first. A raised foot lands on its ball with no heel rocker; the starting stance rises to it and the closing stance settles from it over `RISE` seconds.
+   * @param backward Whether the stance is a backward step's: the forward stance played backward, the foot landing on its ball pitched toes-down and settling flat over the forefoot rocker's share, and leaving rolled toes-up about its heel over the heel rocker's share (provisional: the time reversal backward walking is described as, not read from a measurement of its rockers). False when absent.
    * @returns The planted foot.
    */
   export function stance(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    flat: HumanFoot.IPlacement,
+    flat: IAutoMovieMotionHumanFoot.IPlacement,
     heading: number,
     strike: number,
     toeOff: number,
     t: number,
     push: number,
     raised: number = 0,
-  ): IFoot {
+    backward: boolean = false,
+  ): IAutoMovieMotionHumanWalkFoot.IFoot {
     const length: number =
       Number.isFinite(strike) && Number.isFinite(toeOff) ? toeOff - strike : 1;
+    if (backward && !(raised > 0)) {
+      // The forward rockers in reverse: down from the ball after the strike,
+      // up about the heel before the toe-off.
+      const settle: number = 0.4 * (Number.isFinite(toeOff) ? length : 0.6);
+      if (Number.isFinite(strike) && t < strike + settle) {
+        const degrees: number =
+          push * (1 - minimumJerk((t - strike) / settle).s);
+        return {
+          placement: rocked(body, side, flat, heading, degrees, "mtp"),
+          toes: -degrees,
+        };
+      }
+      if (Number.isFinite(toeOff) && t > toeOff - HEEL_SHARE * length) {
+        const degrees: number =
+          STRIKE *
+          minimumJerk(
+            (t - (toeOff - HEEL_SHARE * length)) / (HEEL_SHARE * length),
+          ).s;
+        return {
+          placement: rocked(body, side, flat, heading, degrees, "heel"),
+          toes: 0,
+        };
+      }
+      return {
+        placement: {
+          ankle: flat.ankle,
+          rotation: HumanFoot.rotation(heading, 0),
+        },
+        toes: 0,
+      };
+    }
     if (raised > 0) {
       // On the ball throughout: the heel's height, eased up from a flat start and down to a flat stop, and the forefoot rocker's pitch where it is steeper.
       const held: number =
@@ -190,7 +205,7 @@ export namespace walkFoot {
    * @returns The swinging foot.
    */
   export function swing(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     props: {
       from: IEnd;
@@ -203,7 +218,7 @@ export namespace walkFoot {
       stiff?: boolean;
       settles?: boolean;
     },
-  ): IFoot {
+  ): IAutoMovieMotionHumanWalkFoot.IFoot {
     const u: number = Math.min(1, Math.max(0, props.u));
     const stiff: boolean = props.stiff === true;
 
@@ -255,13 +270,17 @@ export namespace walkFoot {
       props.from.toes * (1 - minimumJerk(Math.min(1, 2 * u)).s) +
       props.to.toes * minimumJerk(Math.max(0, 2 * u - 1)).s +
       (props.rates?.toes ?? 0) * turning;
-    const placement: HumanFoot.IPlacement = {
+    // A foot that leaves or lands on its edge rolls between the two as its
+    // pitch does.
+    const rolled: number = HumanFoot.roll(props.from.rotation);
+    const placement: IAutoMovieMotionHumanFoot.IPlacement = {
       ankle,
       rotation: HumanFoot.rotation(
         heading,
         left +
           (HumanFoot.pitch(props.to.rotation) - left) * level +
           (props.rates?.pitch ?? 0) * turning,
+        rolled + (HumanFoot.roll(props.to.rotation) - rolled) * level,
       ),
     };
     const low: number = Math.min(
@@ -294,6 +313,14 @@ export namespace walkFoot {
   /** The share of a stance its heel rocker takes (provisional; loading response is the first 10 to 12 % of the cycle, Perry and Burnfield). */
   const HEEL_SHARE: number = 0.12;
 
-  /** The least clearance of a swinging foot's toe and heel at mid-swing, metres (minimum toe clearance is 10 to 20 mm, Winter 1992). */
-  const CLEARANCE: number = 0.012;
+  /**
+   * The least clearance of a swinging foot's toe and heel at mid-swing,
+   * metres: the mean minimum toe clearance of level walking, 15.0 mm (SD
+   * 4.0 mm, 121 adults of 20 to 79 years on a treadmill; 15.1 +- 0.5 mm SEM
+   * for the 41 aged 20 to 39), the second metatarsal head's lowest height in
+   * swing over its height in stance (Killeen et al. 2017, Sci Rep 7:1922,
+   * read in its PMC full text, PMC5432520). Winter 1992's 1.29 cm (Phys
+   * Ther 72:45) agrees; only its abstract was reachable.
+   */
+  export const CLEARANCE: number = 0.015;
 }

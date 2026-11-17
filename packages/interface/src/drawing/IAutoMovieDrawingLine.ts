@@ -1,5 +1,5 @@
-import { AutoMovieDrawingRole } from "./AutoMovieDrawingRole";
-import { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
+import type { AutoMovieDrawingRole } from "./AutoMovieDrawingRole";
+import type { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
 
 /**
  * One drafted straight segment and the design record that owns it.

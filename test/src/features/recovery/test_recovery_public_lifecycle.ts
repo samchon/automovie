@@ -1,3 +1,7 @@
+import type {
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryResult,
+} from "@automovie/interface";
 import {
   observeAutoMovieRecovery,
   reconstructAutoMovieRecoveryModel,
@@ -15,12 +19,14 @@ import { TestValidator } from "@nestia/e2e";
  * 4. Cancellation accepted at a progress point returns no generated value.
  * 5. Valid cube observation retains saved courses and borrows its input unchanged.
  * 6. Undeclared caller mesh payloads never enter saved policy.
+ * 7. Cancellation predicates fail on exceptions or nonboolean results, without being called again during failure classification.
+ * 8. A progress callback that requests cancellation and then throws remains failed, and malformed predicates refuse before progress.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls only the public memory operations and observes terminal tags, diagnostics, value absence, callback population, retained courses and input nonmutation; cancellation or a thrown observer must not appear as successful completion.
- * @evidence contracts/development/testing.md#independent-expectations Caller-owned AbortController state and a literal observer error independently determine cancellation and failure. The cube has closed interior cuts, so a usable observation must retain section courses; no fitting residual, triangle snapshot or appearance oracle is inferred from this test.
+ * @evidence contracts/development/testing.md#independent-expectations Caller-owned abort state read through a predicate, literal callback errors and counted callback invocations independently determine cancellation/failure precedence. The cube has closed interior cuts, so a usable observation must retain section courses; no fitting residual, triangle snapshot or appearance oracle is inferred from this test.
  * @evidence contracts/development/testing.md#distinguishing-cases Separates pre-work cancellation, missing continuation refusal, admitted callback failure, cooperative cancellation and valid observation carrying extra caller metadata. Reconstruction geometry, local unsupported-domain preservation and physical area belong to test_recovery_source_free; Node publication has separate host coverage.
  * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_public_lifecycle entry owns all cases, uses resident general arrays and synchronous callbacks, and starts no process, filesystem operation, timer, renderer or native build. Central validation reports its elapsed time without a duration acceptance limit.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Pre-aborted observation and reconstruction return no value or progress.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists cancellation, refusal, callback failure and ownership scenarios, including failure precedence and one-time failing predicate observation.
  */
 export function test_recovery_public_lifecycle(): void {
   const input: Parameters<typeof observeAutoMovieRecovery>[0] = {
@@ -93,13 +99,13 @@ export function test_recovery_public_lifecycle(): void {
   };
   const cancelledObservation: ReturnType<typeof observeAutoMovieRecovery> =
     observeAutoMovieRecovery(input, {
-      signal: controller.signal,
+      cancelled: (): boolean => controller.signal.aborted,
       onProgress: observeProgress,
     });
   const cancelledReconstruction: ReturnType<
     typeof reconstructAutoMovieRecoveryModel
   > = reconstructAutoMovieRecoveryModel(empty, {
-    signal: controller.signal,
+    cancelled: (): boolean => controller.signal.aborted,
     onProgress: observeProgress,
   });
   for (const result of [cancelledObservation, cancelledReconstruction]) {
@@ -156,7 +162,7 @@ export function test_recovery_public_lifecycle(): void {
   const during: AbortController = new AbortController();
   const cancelledDuring: ReturnType<typeof reconstructAutoMovieRecoveryModel> =
     reconstructAutoMovieRecoveryModel(empty, {
-      signal: during.signal,
+      cancelled: (): boolean => during.signal.aborted,
       onProgress: (): void => {
         progress++;
         during.abort();
@@ -172,6 +178,125 @@ export function test_recovery_public_lifecycle(): void {
     !("value" in cancelledDuring),
   );
   TestValidator.equals("cancellation stops further callbacks", progress, 2);
+
+  // Predicate failures are execution failures, not cancellation or retry requests.
+  const operations: readonly ((
+    options: IAutoMovieRecoveryOptions,
+  ) => IAutoMovieRecoveryResult<unknown>)[] = [
+    (options: IAutoMovieRecoveryOptions): IAutoMovieRecoveryResult<unknown> =>
+      observeAutoMovieRecovery(input, options),
+    (options: IAutoMovieRecoveryOptions): IAutoMovieRecoveryResult<unknown> =>
+      reconstructAutoMovieRecoveryModel(empty, options),
+  ];
+  for (const run of operations) {
+    for (const afterProgress of [false, true]) {
+      let entered: boolean = false;
+      let failures: number = 0;
+      let notifications: number = 0;
+      const result: IAutoMovieRecoveryResult<unknown> = run({
+        cancelled: (): boolean => {
+          if (!afterProgress || entered) {
+            failures++;
+            throw new Error("predicate failure");
+          }
+          return false;
+        },
+        onProgress: (): void => {
+          entered = true;
+          notifications++;
+        },
+      });
+      TestValidator.equals(
+        "predicate exception fails",
+        result.status,
+        "failed",
+      );
+      TestValidator.equals(
+        "failing predicate is not re-read in catch",
+        failures,
+        1,
+      );
+      TestValidator.equals(
+        "failure stops progress",
+        notifications,
+        afterProgress ? 1 : 0,
+      );
+      TestValidator.equals("predicate exception survives", result.diagnostics, [
+        "predicate failure",
+      ]);
+      TestValidator.predicate(
+        "predicate failure has no value",
+        !("value" in result),
+      );
+    }
+    let cancellation: boolean = false;
+    let probes: number = 0;
+    let probesAtFailure: number = 0;
+    const progressFailure: IAutoMovieRecoveryResult<unknown> = run({
+      cancelled: (): boolean => {
+        probes++;
+        return cancellation;
+      },
+      onProgress: (): void => {
+        cancellation = true;
+        probesAtFailure = probes;
+        throw new Error("progress failure after cancellation request");
+      },
+    });
+    TestValidator.equals(
+      "progress exception outranks unobserved cancellation",
+      progressFailure.status,
+      "failed",
+    );
+    TestValidator.equals(
+      "failure classification does not invoke predicate",
+      probes,
+      probesAtFailure,
+    );
+    TestValidator.predicate(
+      "progress failure has no value",
+      !("value" in progressFailure),
+    );
+    for (const invalidResult of [undefined, null, "yes", 1]) {
+      let callbacks: number = 0;
+      const invalid: IAutoMovieRecoveryOptions = Object.defineProperty(
+        {
+          onProgress: (): void => {
+            callbacks++;
+          },
+        },
+        "cancelled",
+        { value: (): unknown => invalidResult },
+      );
+      const result: IAutoMovieRecoveryResult<unknown> = run(invalid);
+      TestValidator.equals(
+        "nonboolean predicate result fails",
+        result.status,
+        "failed",
+      );
+      TestValidator.equals(
+        "invalid predicate result precedes progress",
+        callbacks,
+        0,
+      );
+      TestValidator.predicate(
+        "invalid predicate result has no value",
+        !("value" in result),
+      );
+    }
+    const invalidPredicate: IAutoMovieRecoveryResult<unknown> = run(
+      JSON.parse('{"cancelled":null}'),
+    );
+    TestValidator.equals(
+      "invalid predicate refuses",
+      invalidPredicate.status,
+      "refused",
+    );
+    TestValidator.predicate(
+      "invalid predicate has no value",
+      !("value" in invalidPredicate),
+    );
+  }
 
   const observed: ReturnType<typeof observeAutoMovieRecovery> =
     observeAutoMovieRecovery(input);

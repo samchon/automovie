@@ -1,10 +1,12 @@
+import type {
+  IAutoMovieRecoveryMapCurvatureBlocks,
+  IAutoMovieRecoveryMapLandmark,
+  IAutoMovieRecoveryMapMetricScales,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoveryMapState,
+  IAutoMovieRecoveryUntiltedEstimate,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryMapCurvatureBlocks,
-  type IAutoMovieRecoveryMapLandmark,
-  type IAutoMovieRecoveryMapMetricScales,
-  type IAutoMovieRecoveryMapPose,
-  type IAutoMovieRecoveryMapState,
-  type IAutoMovieRecoveryUntiltedEstimate,
   admitRecoveryMapCurvature,
   assembleRecoveryMapCurvature,
   copyRecoveryUntiltedEstimate,

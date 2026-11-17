@@ -1,4 +1,8 @@
-import { type AutoMovieViewAxis, AutoMovieViewJointedCourse } from "@automovie/engine";
+import { AutoMovieViewJointedCourse } from "@automovie/engine";
+import type {
+  IAutoMovieViewAxis,
+  IAutoMovieViewJointedCourse,
+} from "@automovie/interface";
 
 /**
  * The runs of a family's course and the material map that carries a station from one person's course to another's by its run.
@@ -51,15 +55,15 @@ export namespace AutoMovieHumanCourseRuns {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one array.
    */
   export function joints(centres: readonly V3[], halves: readonly number[]): number[] {
-    const course: AutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(
+    const course: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(
       centres.map((c: V3): [number, number, number] => [c[0]!, c[1]!, c[2]!]),
       halves,
     );
     if (typeof course === "string") throw new Error("course runs: " + course);
-    const turns: AutoMovieViewJointedCourse.ITurn[] = course.turns;
-    const last: AutoMovieViewJointedCourse.ITurn | undefined = turns.at(-1);
+    const turns: IAutoMovieViewJointedCourse.ITurn[] = course.turns;
+    const last: IAutoMovieViewJointedCourse.ITurn | undefined = turns.at(-1);
     const end: number = last === undefined ? course.lengths[0]! : last.start + 2 * last.half + course.lengths.at(-1)! - last.setback;
-    return [0, ...turns.map((turn: AutoMovieViewJointedCourse.ITurn): number => turn.start + turn.half), end];
+    return [0, ...turns.map((turn: IAutoMovieViewJointedCourse.ITurn): number => turn.start + turn.half), end];
   }
 
   /** The quintic smoothstep's integral from 0: `5 t^4 / 2 - 3 t^5 + t^6`, which is 5/64 at a half and 1/2 at one. */
@@ -170,7 +174,7 @@ export namespace AutoMovieHumanCourseRuns {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure query coordinates no shared work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond its scalar result.
    */
-  export function nearest(axis: AutoMovieViewAxis.IAxis, to: number, p: V3): number {
+  export function nearest(axis: IAutoMovieViewAxis.IAxis, to: number, p: V3): number {
     if (![to, p[0], p[1], p[2]].every((x: number | undefined): boolean => Number.isFinite(x)))
       throw new Error("nearest course station needs a finite point and length");
     const d = (s: number): number => {
@@ -200,7 +204,7 @@ export namespace AutoMovieHumanCourseRuns {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading coordinates no shared work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one bounded array.
    */
-  export function ends(axis: AutoMovieViewAxis.IAxis, centres: readonly V3[]): number[] {
+  export function ends(axis: IAutoMovieViewAxis.IAxis, centres: readonly V3[]): number[] {
     const total: number = length(centres);
     const out: number[] = centres.map((c: V3, k: number): number =>
       k === 0 ? 0 : k === centres.length - 1 ? total : nearest(axis, total, c),

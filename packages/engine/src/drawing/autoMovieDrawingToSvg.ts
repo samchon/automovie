@@ -1,6 +1,5 @@
 import {
   AutoMovieDrawingRole,
-  IAutoMovieDrawing,
   IAutoMovieDrawingAnnotation,
   IAutoMovieDrawingDimension,
   IAutoMovieDrawingExtent,
@@ -9,7 +8,7 @@ import {
   IAutoMovieDrawingOpeningMark,
   IAutoMovieDrawingPoint,
   IAutoMovieDrawingRegion,
-  IAutoMovieDrawingView,
+  type IAutoMovieDrawingToSvg,
 } from "@automovie/interface";
 
 import { AUTOMOVIE_DRAWING_ROLES } from "./constants/AUTOMOVIE_DRAWING_ROLES";
@@ -54,12 +53,9 @@ type Attribute = [string, string];
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure serializer called once per sheet; nothing equivalent repeats within a call.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Builds the body strings for one call and returns one string owned by the caller; nothing is retained.
  */
-export const autoMovieDrawingToSvg = (props: {
-  /** Drawing to serialize. */
-  drawing: IAutoMovieDrawing;
-  /** View the drawing was derived from; supplies the pen. */
-  view: IAutoMovieDrawingView;
-}): string => {
+export const autoMovieDrawingToSvg = (
+  props: IAutoMovieDrawingToSvg.IProps,
+): string => {
   const { drawing, view } = props;
   if (view.id !== drawing.view)
     throw new Error(

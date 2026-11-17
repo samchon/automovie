@@ -1,12 +1,19 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanStrikingRoll,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
+import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "./StrikingHeld";
@@ -40,9 +47,6 @@ export namespace StrikingRoll {
   /** How many of the candidate frames, the nearest by the arm's two-segment reach, are fitted before one is chosen. */
   export const TRIED: number = 16;
 
-  /** How near a fitted hand's miss must be to none for a pose to count as held exactly, metres, and the margin a later candidate must win by. */
-  export const EXACT: number = 1e-4;
-
   /**
    * How far the arm, fitted to a tool's pose, leaves the tool from where the
    * pose asks it.
@@ -52,24 +56,24 @@ export namespace StrikingRoll {
    * @param frame The hand frame asked.
    * @param back The point of the tool the pose keeps, metres behind its working point.
    * @param posture The body as it stands at the decisive instant.
-   * @returns The greater of the kept point's and the working point's displacement, metres.
+   * @returns The greater of the kept point's and the working point's displacement, metres; a pose that keeps the working point itself reads the line at the tool's own length in place of the kept point.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is fitted, on which body and what is measured.
    * @evidence contracts/development/implementation.md#principled-implementation The plan's own goal for the pose is resolved by the posture resolver, the fitted hand's grip frame is read by forward kinematics, and the tool's two points are carried by it: the displacement a viewer would see.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal, one resolution, one read-back.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both the kept point and the working point are read, so a tool that keeps its point and points elsewhere is counted.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both the kept point and the working point are read, so a tool that keeps its point and points elsewhere is counted; when the kept point is the working point, the line is read at the tool's length, so the count holds there too.
    * @evidence contracts/development/implementation.md#efficient-algorithms One elbow search and one posture resolution.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each pose is fitted once.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function miss(
-    context: Pick<IHumanActionContext, "body">,
-    tool: StrikingHeld.ITool,
-    frame: StrikingHeld.IHandFrame,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     back: number,
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
   ): number {
-    const goal: IHumanPosture.IGoal = StrikingHeld.goal(
+    const goal: IAutoMovieHumanLimbGoal = StrikingHeld.goal(
       context,
       tool,
       frame,
@@ -84,32 +88,23 @@ export namespace StrikingRoll {
           ...posture.limbs,
           [`${tool.side}Arm`]: {
             ...goal,
-            bend: AutoMovieMotionHumanBend.solve({
-              body: context.body,
+
+            // The goal leaves the elbow to the body (`StrikingHeld.goal`);
+            // the hanging arm's place serves where nothing is legal.
+            bend: AutoMovieMotionHumanBend.hang(
+              context.body,
               posture,
-              side: tool.side,
-              point: goal.point,
-              ...(goal.rotation === undefined
-                ? {}
-                : { rotation: goal.rotation }),
-              fallback: "hang",
-            }),
+              tool.side,
+            ),
           },
         },
       }),
     );
-    const fitted: StrikingHeld.IHandFrame = {
+    const fitted: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
       point: HumanHand.frame(context.body, bones, tool.side, "grip").point,
       rotation: bones.get(`${tool.side}Hand`)!.worldRotation,
     };
-    const off = (behind: number): number =>
-      Vector3.length(
-        Vector3.subtract(
-          StrikingHeld.point(tool, fitted, behind),
-          StrikingHeld.point(tool, frame, behind),
-        ),
-      );
-    return Math.max(off(back), off(0));
+    return StrikingHeld.strayed(tool, fitted, frame, back);
   }
 
   /**
@@ -135,71 +130,100 @@ export namespace StrikingRoll {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function hand(
-    context: Pick<IHumanActionContext, "body">,
-    tool: StrikingHeld.ITool,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
     back: number,
     at: IAutoMovieVector3,
     axis: IAutoMovieVector3,
     cone: number,
-    posture: IHumanPosture,
-  ): StrikingHeld.IHandFrame {
+    posture:
+      | IAutoMovieMotionHumanPosture
+      | ((
+          frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+        ) => IAutoMovieMotionHumanPosture),
+  ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
     const along: IAutoMovieVector3 = Vector3.normalize(axis);
-    const from: IAutoMovieVector3 = shoulder(context, tool.side, posture);
+    const from: IAutoMovieVector3 | undefined =
+      typeof posture === "function"
+        ? undefined
+        : shoulder(context, tool.side, posture);
     const aside: IAutoMovieVector3 = Vector3.normalize(
       Vector3.cross(
         along,
         Math.abs(along.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 },
       ),
     );
-    const candidates: { frame: StrikingHeld.IHandFrame; rank: number }[] = [];
+    // A frame of the line leaned `tilt` toward `around` and turned `turn`
+    // about itself, degrees.
+    const frame = (
+      values: readonly number[],
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
+      const [tilt, around, turn] = values as readonly [number, number, number];
+      const run: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.fromAxisAngle(along, around),
+        Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), along),
+      );
+      return StrikingHeld.hand(
+        tool,
+        back,
+        at,
+        run,
+        Quaternion.rotateVector(
+          Quaternion.fromAxisAngle(run, turn),
+          Vector3.cross(run, aside),
+        ),
+      );
+    };
+    // A candidate whose companion contact cannot be reached has infinite
+    // cost in this constrained search; it must not abort the other poses.
+    const rank = (values: readonly number[]): number => {
+      const posed: IAutoMovieMotionHumanStrikingHeld.IHandFrame = frame(values);
+      try {
+        return strained(
+          context,
+          tool,
+          posed,
+          from ??
+            shoulder(
+              context,
+              tool.side,
+              typeof posture === "function" ? posture(posed) : posture,
+            ),
+        );
+      } catch (error) {
+        if (error instanceof HumanRefusal) return Infinity;
+        throw error;
+      }
+    };
+    const candidates: { values: number[]; rank: number }[] = [];
     for (let tilt: number = 0; tilt <= cone + 1e-9; tilt += 10)
       for (let around: number = 0; around < 360; around += 45) {
-        const run: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.fromAxisAngle(along, around),
-          Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), along),
-        );
-        for (let turn: number = 0; turn < 360; turn += 30) {
-          const frame: StrikingHeld.IHandFrame = StrikingHeld.hand(
-            tool,
-            back,
-            at,
-            run,
-            Quaternion.rotateVector(
-              Quaternion.fromAxisAngle(run, turn),
-              Vector3.cross(run, aside),
-            ),
-          );
+        for (let turn: number = 0; turn < 360; turn += 30)
           candidates.push({
-            frame,
-            rank:
-              strained(context, tool, frame, from) +
-              (0.1 * tilt * Math.PI) / 180,
+            values: [tilt, around, turn],
+            rank: rank([tilt, around, turn]) + (0.1 * tilt * Math.PI) / 180,
           });
-        }
         if (tilt === 0) break;
       }
     candidates.sort(
       (
-        a: { frame: StrikingHeld.IHandFrame; rank: number },
-        b: { frame: StrikingHeld.IHandFrame; rank: number },
+        a: { values: number[]; rank: number },
+        b: { values: number[]; rank: number },
       ): number => a.rank - b.rank,
     );
-    let best: StrikingHeld.IHandFrame = candidates[0]!.frame;
-    let least: number = Infinity;
-    for (const candidate of candidates.slice(0, TRIED)) {
-      const missed: number = miss(
-        context,
-        tool,
-        candidate.frame,
-        back,
-        posture,
-      );
-      if (missed < least - EXACT) {
-        least = missed;
-        best = candidate.frame;
-      }
-    }
-    return best;
+    return chosen(context, tool, {
+      frame,
+      tried: candidates
+        .slice(0, TRIED)
+        .map((c: { values: number[]; rank: number }): number[] => c.values),
+      freedoms: [
+        { kind: "bounded", step: cone > 0 ? 5 : 0, least: 0, greatest: cone },
+        { kind: "wrapped", step: 22.5, period: 360 },
+        { kind: "wrapped", step: 15, period: 360 },
+      ],
+      back,
+      posture,
+    });
   }
 
   /**
@@ -224,16 +248,73 @@ export namespace StrikingRoll {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function strain(
-    context: Pick<IHumanActionContext, "body">,
-    tool: StrikingHeld.ITool,
-    frame: StrikingHeld.IHandFrame,
-    posture: IHumanPosture,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    posture: IAutoMovieMotionHumanPosture,
   ): number {
     return strained(
       context,
       tool,
       frame,
       shoulder(context, tool.side, posture),
+    );
+  }
+
+  /**
+   * The tool pose the arm holds, chosen from the freedoms a law leaves it.
+   *
+   * A law states a pose by values (a roll about the tool's line, a lean of
+   * the line inside a cone, an offset of the placed point inside a region)
+   * and the frame those values give; the shared chooser
+   * (`HumanFreedomChoice.chosen`) tries them in the law's order and refines
+   * the least missed, each judged at the decisive instant by `miss`.
+   * `reachable` then judges the result, so a pose no freedom lets the arm
+   * hold is still refused.
+   *
+   * @param context The action's context.
+   * @param tool The tool.
+   * @param props The pose's frame by its values, the tried values in order of preference, each freedom, the point of the tool the pose keeps and the body at the decisive instant.
+   * @returns The chosen hand frame.
+   * @throws {Error} When no values are tried.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States who chooses, by which judge, and who judges the result.
+   * @evidence contracts/development/implementation.md#principled-implementation Each pose is judged by `miss`, the fit that counts the shoulder's, the forearm's and the wrist's ranges, so the angle chosen is one the wrist can make.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation with a one-instant judge, then the frame of the chosen values.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The freedoms are the law's; the result is still judged by `reachable`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The chooser's: lazy fits that stop at the first exact hold, a refinement within `HumanFreedomChoice.FITS`.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function chosen(
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    props: IAutoMovieMotionHumanStrikingRoll.IChoice,
+  ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
+    const { frame, tried, freedoms, back, posture } = props;
+    return frame(
+      HumanFreedomChoice.chosen({
+        tried,
+        freedoms,
+        judge: (values: readonly number[]): number[] => {
+          const posed: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+            frame(values);
+          try {
+            return [
+              miss(
+                context,
+                tool,
+                posed,
+                back,
+                typeof posture === "function" ? posture(posed) : posture,
+              ),
+            ];
+          } catch (error) {
+            if (error instanceof HumanRefusal) return [Infinity];
+            throw error;
+          }
+        },
+      }).values,
     );
   }
 
@@ -259,19 +340,19 @@ export namespace StrikingRoll {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function best(
-    context: Pick<IHumanActionContext, "body">,
-    tool: StrikingHeld.ITool,
-    candidates: readonly (() => StrikingHeld.IHandFrame)[],
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    candidates: readonly (() => IAutoMovieMotionHumanStrikingHeld.IHandFrame)[],
     back: number,
-    posture: IHumanPosture,
-  ): StrikingHeld.IHandFrame {
-    let chosen: StrikingHeld.IHandFrame | undefined;
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
+    let chosen: IAutoMovieMotionHumanStrikingHeld.IHandFrame | undefined;
     let least: number = Infinity;
     for (const candidate of candidates) {
-      if (least <= EXACT) break;
-      const frame: StrikingHeld.IHandFrame = candidate();
+      if (least <= HumanFreedomChoice.EXACT) break;
+      const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = candidate();
       const missed: number = miss(context, tool, frame, back, posture);
-      if (missed < least - EXACT) {
+      if (missed < least - HumanFreedomChoice.EXACT) {
         least = missed;
         chosen = frame;
       }
@@ -301,11 +382,11 @@ export namespace StrikingRoll {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reachable(
-    context: Pick<IHumanActionContext, "body">,
-    tool: StrikingHeld.ITool,
-    frame: StrikingHeld.IHandFrame,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     back: number,
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     fix: string,
   ): void {
     const wrist: IAutoMovieVector3 = Vector3.subtract(
@@ -343,18 +424,18 @@ export namespace StrikingRoll {
 
   /** The holding arm's shoulder joint on a posture, world metres. */
   const shoulder = (
-    context: Pick<IHumanActionContext, "body">,
-    side: HumanHand.Side,
-    posture: IHumanPosture,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    side: AutoMovieHumanSide,
+    posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 =>
     HumanTrunk.resolve(context.body, posture).get(`${side}UpperArm`)!
       .worldPosition;
 
   /** `strain` from a shoulder already read. */
   const strained = (
-    context: Pick<IHumanActionContext, "body">,
-    tool: StrikingHeld.ITool,
-    frame: StrikingHeld.IHandFrame,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     from: IAutoMovieVector3,
   ): number => {
     const grip: IAutoMovieVector3 = HumanHand.offset(

@@ -1,21 +1,24 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTouchEffector,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
-import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * An act performed with the prop the hand already holds: the prop's own
@@ -47,25 +50,6 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  */
 export namespace HumanHeld {
   /**
-   * What an act states of how it uses a held prop.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and the meaning of its absence.
-   * @evidence contracts/development/design.md#principled-representation The hand's attitude as an effector, whether the prop stands upright, and the prop's point by its id.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all read by `effector`; a hand-to-face row satisfies it as it is.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The point is the prop's own id, never coordinates.
-   */
-  export interface IUse {
-    /** The hand's attitude without a prop: its surface and shape are kept, and its facing and along directions say which side of the prop meets the region. */
-    effector: AutoMovieMotionHumanTouchEffector.IEffector;
-
-    /** `true` when the prop stands on the world's up at the region, as a vessel does. */
-    upright?: boolean;
-
-    /** The prop's point that meets the region; the caller names it when absent. */
-    point?: string;
-  }
-
-  /**
    * The effector that lays a held prop's point on the act's region.
    *
    * @param context The action's context; the prop is read in the hand at the action's entry (`AutoMovieMotionHumanHeld.of`).
@@ -86,15 +70,18 @@ export namespace HumanHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function effector(
-    context: Pick<IHumanActionContext, "body" | "entry" | "prop">,
-    row: IUse,
-    side: HumanHand.Side,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop"
+    >,
+    row: IAutoMovieMotionHumanHeld.IUse,
+    side: AutoMovieHumanSide,
     subject: string,
     point?: string,
     turn: number = 0,
-  ): AutoMovieMotionHumanTouchEffector.IEffector {
-    const body: IHumanBody = context.body;
-    const held: AutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  ): IAutoMovieMotionHumanTouchEffector.IEffector {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
       context,
       side,
       subject,
@@ -145,8 +132,8 @@ export namespace HumanHeld {
       return Vector3.normalize(flat(spare));
     };
     const own = (
-      direction: AutoMovieMotionHumanTouchEffector.Direction | undefined,
-      otherwise: AutoMovieMotionHumanTouchEffector.Axis,
+      direction: IAutoMovieMotionHumanTouchEffector.Direction | undefined,
+      otherwise: IAutoMovieMotionHumanTouchEffector.Axis,
     ): IAutoMovieVector3 =>
       AutoMovieMotionHumanTouchEffector.direction(side, direction ?? otherwise);
 
@@ -250,16 +237,19 @@ export namespace HumanHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function steadiest(
-    context: Pick<IHumanActionContext, "body" | "entry" | "prop">,
-    row: IUse,
-    side: HumanHand.Side,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop"
+    >,
+    row: IAutoMovieMotionHumanHeld.IUse,
+    side: AutoMovieHumanSide,
     subject: string,
     point: string | undefined,
-    posture: IHumanPosture,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    posture: IAutoMovieMotionHumanPosture,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     leans: boolean = false,
-  ): AutoMovieMotionHumanTouchEffector.IEffector {
-    let best: AutoMovieMotionHumanTouchEffector.IEffector = effector(
+  ): IAutoMovieMotionHumanTouchEffector.IEffector {
+    let best: IAutoMovieMotionHumanTouchEffector.IEffector = effector(
       context,
       row,
       side,
@@ -269,7 +259,7 @@ export namespace HumanHeld {
     if (row.upright !== true) return best;
     let least: number = Infinity;
     for (const turn of SIDES) {
-      const candidate: AutoMovieMotionHumanTouchEffector.IEffector = effector(
+      const candidate: IAutoMovieMotionHumanTouchEffector.IEffector = effector(
         context,
         row,
         side,
@@ -356,12 +346,15 @@ export namespace HumanHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the plan it wraps and nothing else.
    */
   export function kept(
-    context: Pick<IHumanActionContext, "body" | "entry" | "prop">,
-    plan: IHumanActionPlan,
-    side: HumanHand.Side,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop"
+    >,
+    plan: IAutoMovieMotionHumanActionPlan,
+    side: AutoMovieHumanSide,
     subject: string,
-  ): IHumanActionPlan {
-    const held: AutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  ): IAutoMovieMotionHumanActionPlan {
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
       context,
       side,
       subject,

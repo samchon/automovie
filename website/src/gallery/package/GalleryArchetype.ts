@@ -1,10 +1,11 @@
 import {
   type Archetype,
   ArchetypeArticulation,
+  type ArchetypeDrawSession,
   ArchetypeMarks,
   type IArchetypeBand,
 } from "@automovie/archetypes";
-import type { IAutoMovieMark } from "@automovie/engine";
+import type { IAutoMovieMark } from "@automovie/interface";
 
 import type { IGalleryRequest } from "../structures/IGalleryRequest";
 import type { IGalleryView } from "../structures/IGalleryView";
@@ -12,7 +13,8 @@ import { GalleryCatalogue } from "./GalleryCatalogue";
 
 /**
  * Builds one archetype for the gallery and reads off what the page lists:
- * the dimensions its seed drew with their bands, and its affordances with
+ * the dimensions its seed drew with their bands or the model they belong to,
+ * as the archetype records them, and its affordances with
  * the range each articulation moves through.
  */
 export namespace GalleryArchetype {
@@ -39,8 +41,13 @@ export namespace GalleryArchetype {
       throw new Error(`No archetype producer is named ${request.subject}`);
 
     const key: string = GalleryCatalogue.variants(producer).key;
-    const params: Record<string, unknown> =
-      key === "" ? {} : { [key]: request.variant };
+    // A dispatcher inherits the selected factory's reference only. A dog's
+    // authored specimen mass therefore cannot override an equid's derived mass.
+    const params: Record<string, unknown> = {
+      ...producer.REFERENCE,
+      ...producer.PRODUCERS?.[request.variant]?.REFERENCE,
+      ...(key === "" ? {} : { [key]: request.variant }),
+    };
     const rest: Archetype<string, string> = producer(
       params,
       request.seed === "" ? undefined : request.seed,
@@ -56,22 +63,12 @@ export namespace GalleryArchetype {
     const archetype: Archetype<string, string> =
       Object.keys(state).length === 0 ? rest : rest.articulate(state);
 
-    // The row of the producer's band table this form is drawn from. Without
-    // a seed every dimension takes the middle of its band, so the row is the
-    // one whose middles are the seedless dimensions.
-    const middle: Readonly<Partial<Record<string, number>>> =
-      request.seed === "" ? rest.dimensions : producer(params).dimensions;
-    const bands: Record<string, IArchetypeBand> =
-      GalleryCatalogue.bands(producer).find(
-        (row: Record<string, IArchetypeBand>): boolean =>
-          Object.entries(middle).every(
-            ([name, value]: [string, number | undefined]): boolean =>
-              row[name] !== undefined &&
-              value !== undefined &&
-              Math.abs(value - (row[name].minimum + row[name].maximum) / 2) <=
-                1e-9,
-          ),
-      ) ?? {};
+    // Each dimension is listed from the archetype's own record of where it came
+    // from: a drawn one with the band it was drawn in, a picked model's figure
+    // as that fixed value in its dimension's unit, named by the model it
+    // belongs to.
+    const provenance: ArchetypeDrawSession.IProvenance<string> =
+      rest.provenance;
     const drawn: Readonly<Partial<Record<string, number>>> =
       archetype.dimensions;
     return {
@@ -80,25 +77,40 @@ export namespace GalleryArchetype {
         name: archetype.name ?? request.subject,
         dimensions: Object.entries(drawn).flatMap(
           ([name, value]): IGalleryView.IDimension[] => {
-            const band: IArchetypeBand | undefined = bands[name];
-            return value === undefined || band === undefined
+            if (value === undefined) return [];
+            const band: IArchetypeBand | undefined = provenance.bands[name];
+            if (band !== undefined)
+              return [
+                {
+                  name,
+                  value,
+                  minimum: band.minimum,
+                  maximum: band.maximum,
+                  unit: band.unit,
+                  source: band.source,
+                  provisional: band.provisional === true,
+                },
+              ];
+            const axis: string | undefined = provenance.figures[name];
+            return axis === undefined
               ? []
               : [
                   {
                     name,
                     value,
-                    minimum: band.minimum,
-                    maximum: band.maximum,
-                    unit: band.unit,
-                    source: band.source,
-                    provisional: band.provisional === true,
+                    minimum: value,
+                    maximum: value,
+                    unit: provenance.units[name] ?? "",
+                    source: `${axis} ${provenance.models[axis]}`,
+                    provisional: false,
                   },
                 ];
           },
         ),
 
         // The rest archetype states each articulation's range; the posed one
-        // carries the same travel.
+        // carries the same travel. A follower is set by its leader, so it
+        // offers no travel of its own.
         affordances: rest.affordances.map(
           (affordance): IGalleryView.IAffordance => {
             const range: { minimum: number | null; maximum: number | null } =
@@ -115,6 +127,7 @@ export namespace GalleryArchetype {
               color: color(affordance.kind),
               travel:
                 ArchetypeArticulation.KINDS.has(affordance.kind) &&
+                affordance.follows === undefined &&
                 range.minimum !== null &&
                 range.maximum !== null &&
                 range.maximum > range.minimum

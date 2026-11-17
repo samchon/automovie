@@ -1,4 +1,8 @@
 import { AutoMovieHumanSegmentFrame as F } from "./AutoMovieHumanSegmentFrame";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanSegmentFrame,
+} from "@automovie/interface";
 
 /**
  * A surface feature with its own centre as a template in its bone's frame: a bone end, a tendon, a pad, a plate's bed.
@@ -42,13 +46,13 @@ export namespace AutoMovieHumanFeatureTemplate {
     segment: string;
 
     /** Its centre in that frame, mm. */
-    centre: F.V3;
+    centre: AutoMovieVector3Tuple;
 
     /** The unit direction of its long extent in that frame. */
-    along: F.V3;
+    along: AutoMovieVector3Tuple;
 
     /** The unit direction of its short extent in that frame, square to `along`. */
-    across: F.V3;
+    across: AutoMovieVector3Tuple;
 
     /** Its half extents along and across, mm. */
     extent: [number, number];
@@ -78,16 +82,16 @@ export namespace AutoMovieHumanFeatureTemplate {
   /** A template placed in the figure's frame. */
   export interface IPlaced {
     /** The centre, mm. */
-    centre: F.V3;
+    centre: AutoMovieVector3Tuple;
 
     /** The unit direction of the long extent. */
-    along: F.V3;
+    along: AutoMovieVector3Tuple;
 
     /** The unit direction of the short extent. */
-    across: F.V3;
+    across: AutoMovieVector3Tuple;
 
     /** The unit direction the height stands along, `along x across`. */
-    normal: F.V3;
+    normal: AutoMovieVector3Tuple;
   }
 
   /** What a feature between two landmarks is given besides them. */
@@ -102,7 +106,7 @@ export namespace AutoMovieHumanFeatureTemplate {
     segment: string;
 
     /** The direction out of the skin near the feature, in that frame; it need not be unit nor square to the span. */
-    outward: F.V3;
+    outward: AutoMovieVector3Tuple;
 
     /** The feature's half width across the span, mm. */
     half: number;
@@ -144,12 +148,12 @@ export namespace AutoMovieHumanFeatureTemplate {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure map coordinates no shared work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one record.
    */
-  export function between(from: F.V3, to: F.V3, span: ISpan): ITemplate {
-    const line: F.V3 = F.sub(to, from);
+  export function between(from: AutoMovieVector3Tuple, to: AutoMovieVector3Tuple, span: ISpan): ITemplate {
+    const line: AutoMovieVector3Tuple = F.sub(to, from);
     const length: number = Math.hypot(line[0], line[1], line[2]);
     if (!(length > 0)) throw new Error("feature template: the landmarks of " + span.name + " coincide");
-    const along: F.V3 = F.scale(line, 1 / length);
-    const side: F.V3 = F.cross(span.outward, along);
+    const along: AutoMovieVector3Tuple = F.scale(line, 1 / length);
+    const side: AutoMovieVector3Tuple = F.cross(span.outward, along);
     const breadth: number = Math.hypot(side[0], side[1], side[2]);
     if (!(breadth > 1e-9 * Math.hypot(span.outward[0], span.outward[1], span.outward[2]))) throw new Error("feature template: the outward direction of " + span.name + " runs along its span");
     const template: ITemplate = {
@@ -187,7 +191,7 @@ export namespace AutoMovieHumanFeatureTemplate {
     admit(template);
     const { along, across }: ITemplate = template;
     const [a, b]: [number, number] = [F.dot(template.centre, along), F.dot(template.centre, across)];
-    const centre: F.V3 = F.add(template.centre, F.add(F.scale(along, (change.along - 1) * a), F.scale(across, (change.across - 1) * b)));
+    const centre: AutoMovieVector3Tuple = F.add(template.centre, F.add(F.scale(along, (change.along - 1) * a), F.scale(across, (change.across - 1) * b)));
     return {
       ...template,
       centre,
@@ -210,9 +214,9 @@ export namespace AutoMovieHumanFeatureTemplate {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure map coordinates no shared work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one record.
    */
-  export function place(template: ITemplate, frame: F.IFrame): IPlaced {
-    const along: F.V3 = F.toWorldDirection(frame, template.along);
-    const across: F.V3 = F.toWorldDirection(frame, template.across);
+  export function place(template: ITemplate, frame: IAutoMovieHumanSegmentFrame): IPlaced {
+    const along: AutoMovieVector3Tuple = F.toWorldDirection(frame, template.along);
+    const across: AutoMovieVector3Tuple = F.toWorldDirection(frame, template.across);
     return { centre: F.toWorld(frame, template.centre), along, across, normal: F.cross(along, across) };
   }
 

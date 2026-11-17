@@ -1,7 +1,11 @@
 import { createPell, createSword } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -9,12 +13,10 @@ import {
   HumanChain,
   HumanObject,
   HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { motionBladeReach } from "../internal/motionBladeReach";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
@@ -28,7 +30,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * novice's between 2.08 and 3.12 m/s, the novice below the elite.
  *
  * Scenarios, on the average man and the small woman lunging with an arming
- * sword at a pell 0.91 of the stature away:
+ * sword at a pell that needs a full lunge, standing at the sword's own reach
+ * (`motionBladeReach`), since a lunge goes only as far as its target requires
+ * and the cited speeds are a full lunge's:
  * 1. Elite and novice: the point's peak speed over the lunge, read from its
  *    displayed place every 1/48 s of its last 0.5 s, lies in its band, and the novice's is
  *    lower than the elite's.
@@ -51,22 +55,20 @@ export function test_human_motion_blade_skill(): void {
   const tip: IAutoMovieVector3 = sword.affordance("point").frame.translation;
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
-    const place: { at: IAutoMovieVector3; yaw: number } = {
-      at: { x: 0, y: 0, z: 0.91 * stature },
-      yaw: 180,
-    };
+    const place: { at: IAutoMovieVector3; yaw: number } =
+      motionBladeReach.lunge(body, sword, pell, 0, 1);
     const stage = (
       level: "novice" | "trained" | "elite",
       seed: string,
     ): {
       point: (seconds: number) => IAutoMovieVector3;
-      film: HumanPerformance;
-      act: HumanSegment.ISegment;
+      film: IAutoMovieMotionHumanPerformance;
+      act: IAutoMovieMotionHumanSegment;
       at: number;
     } => {
-      const film: HumanPerformance = new HumanPerformance({
+      const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed,
         laws: Object.values(HumanBlade),
         performers: [
@@ -102,15 +104,17 @@ export function test_human_motion_blade_skill(): void {
             target: { kind: "prop", subject: "pell", point: "target" },
           }).node,
       });
-      const act: HumanSegment.ISegment = film
+      const act: IAutoMovieMotionHumanSegment = film
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === "lunge")!;
+        .find(
+          (s: IAutoMovieMotionHumanSegment): boolean => s.name === "lunge",
+        )!;
       return {
         film,
         act,
         at: act.start + (act.plan.contact ?? Number.NaN),
         point: (seconds: number): IAutoMovieVector3 => {
-          const frame: IHumanProp.IFrame = film.prop("sword", seconds);
+          const frame: IAutoMovieRigidTransform = film.prop("sword", seconds);
           return Vector3.add(
             frame.position,
             Quaternion.rotateVector(frame.rotation, tip),
@@ -122,7 +126,10 @@ export function test_human_motion_blade_skill(): void {
     // What a jump of the point is read against at an instant: the right
     // arm's joint angles, how far the shown hand is turned from the asked
     // one, and how far the asked one is turned from the world's axes.
-    const shown = (film: HumanPerformance, seconds: number): string => {
+    const shown = (
+      film: IAutoMovieMotionHumanPerformance,
+      seconds: number,
+    ): string => {
       const turn = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number =>
         (2 *
           Math.acos(

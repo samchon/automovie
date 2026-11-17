@@ -1,14 +1,14 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
-import { AutoMovieHumanF1 } from "@automovie/human";
-import fs from "node:fs/promises";
-import path from "node:path";
-
 import { FamilyConicCaptureContext as Capture } from "./FamilyConicCaptureContext";
 import { FamilyConicCaptureFrame as Frame } from "./FamilyConicCaptureFrame";
 import { FamilyConicCaptureViews as Views } from "./FamilyConicCaptureViews";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieHumanF1 } from "@automovie/human";
+import type { IAutoMovieHumanF1 } from "@automovie/interface";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /**
  * The whole generated f1 beside its reference: the figure comes from
@@ -61,14 +61,14 @@ export namespace FamilyConicFigureCapture {
 
     // Generation first, timed, before any reference byte is read.
     const started: number = performance.now();
-    const pieces: AutoMovieHumanF1.IPiece[] =
+    const pieces: IAutoMovieHumanF1.IPiece[] =
       context?.pieces ?? AutoMovieHumanF1.create();
     const generationMs: number =
       context?.generationMs ?? performance.now() - started;
     const diagnosticCount: number | null = context !== null
       ? context.diagnostics.length
       : pieces.length === 0 ? null : pieces.reduce(
-          (count: number, piece: AutoMovieHumanF1.IPiece): number => count + piece.diagnostics.length,
+          (count: number, piece: IAutoMovieHumanF1.IPiece): number => count + piece.diagnostics.length,
           0,
         );
 
@@ -164,12 +164,12 @@ export namespace FamilyConicFigureCapture {
         })();
     const faults: { name: string; diagnostics: unknown }[] = pieces
       .filter(
-        (piece: AutoMovieHumanF1.IPiece): boolean =>
+        (piece: IAutoMovieHumanF1.IPiece): boolean =>
           piece.diagnostics.length > 0,
       )
       .map(
         (
-          piece: AutoMovieHumanF1.IPiece,
+          piece: IAutoMovieHumanF1.IPiece,
         ): { name: string; diagnostics: unknown } => ({
           name: piece.name,
           diagnostics: piece.diagnostics,
@@ -177,10 +177,10 @@ export namespace FamilyConicFigureCapture {
       );
     const generated: N.Mesh[] = pieces
       .filter(
-        (piece: AutoMovieHumanF1.IPiece): boolean => piece.positions.length > 0,
+        (piece: IAutoMovieHumanF1.IPiece): boolean => piece.positions.length > 0,
       )
       .map(
-        (piece: AutoMovieHumanF1.IPiece): N.Mesh => ({
+        (piece: IAutoMovieHumanF1.IPiece): N.Mesh => ({
           id: piece.name,
           positions: piece.positions,
           indices: piece.indices,
@@ -463,7 +463,7 @@ export namespace FamilyConicFigureCapture {
       generationMs: Math.round(generationMs),
       pieces: pieces.map(
         (
-          piece: AutoMovieHumanF1.IPiece,
+          piece: IAutoMovieHumanF1.IPiece,
         ): { name: string; vertices: number; triangles: number } => ({
           name: piece.name,
           vertices: piece.positions.length / 3,

@@ -1,7 +1,5 @@
-import {
-  type AutoMovieMotionHumanTarget,
-  AutoMovieMotionHumanVariationPlace,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanTarget } from "@automovie/interface";
+import { AutoMovieMotionHumanVariationPlace } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { MOTION_VARIATION_BODIES } from "../internal/MOTION_VARIATION_BODIES";
@@ -25,7 +23,7 @@ import { motionVariationSource } from "../internal/motionVariationSource";
  * @evidence contracts/development/common.md#meaningful-documentation Names the base keys and lists the 2 scenarios.
  */
 export function test_motion_compose_variation_keyed(): void {
-  const ahead: AutoMovieMotionHumanTarget.IDefault = {
+  const ahead: IAutoMovieMotionHumanTarget.IDefault = {
     height: 0.72,
     range: 0.8,
     facing: "performer",
@@ -33,7 +31,7 @@ export function test_motion_compose_variation_keyed(): void {
   const place = (
     props: Parameters<typeof motionVariationSource>[0],
     key: string = "place",
-  ): AutoMovieMotionHumanTarget.IDefault =>
+  ): IAutoMovieMotionHumanTarget.IDefault =>
     AutoMovieMotionHumanVariationPlace.vary(
       motionVariationSource(props),
       key,
@@ -42,7 +40,7 @@ export function test_motion_compose_variation_keyed(): void {
       ahead,
     );
   const base = place({});
-  const differs = (other: AutoMovieMotionHumanTarget.IDefault): boolean =>
+  const differs = (other: IAutoMovieMotionHumanTarget.IDefault): boolean =>
     other.height !== base.height &&
     other.range !== base.range &&
     other.lateral !== base.lateral;

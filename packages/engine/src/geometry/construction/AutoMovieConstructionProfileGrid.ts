@@ -1,8 +1,11 @@
-import type { IAutoMovieConstructionProfile } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionProfileGrid,
+  IAutoMovieConstructionProfileLoop,
+  IAutoMoviePreparedConstructionProfile,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
-import type { AutoMovieConstructionProfile } from "./AutoMovieConstructionProfile";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** World millimetres, copied before a cached source reading is retained. */
 type Point = [number, number, number];
@@ -28,28 +31,11 @@ const DEPTH: number = 16;
  * copies finite results; foreign source exceptions propagate unchanged.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States mm tolerance, original guide marks, copied point-cache lifetime, sampled criterion and explicit resource/depth failures.
- * @evidence contracts/development/design.md#principled-representation Represents Source-owned piece grids for the existing mesh consumer, without a fitted curve: companion namespace of 2 members (`IGrid`, `create`). It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConstructionProfileGrid` in packages/engine/src/geometry/construction/AutoMovieConstructionProfileGrid.ts; its surface is the 2 members listed and the text shows 2 other files naming it, mostly packages/engine (1), packages/human (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * @evidence contracts/development/design.md#principled-representation The create operation derives IAutoMovieConstructionProfileGrid.IGrid records from prepared original Point0 readers under a positive millimetre chord tolerance.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime grid derivation stays here; interface owns the grid consumed by body assembly and Human source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The public surface reuses canonical prepared-profile and grid contracts; tessellation samples do not replace original curves or certify whole-domain geometry.
  */
 export namespace AutoMovieConstructionProfileGrid {
-  /**
-   * Tessellation marks of one actual loop; true collapsed rows stay separate from regular face grids.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Tessellation marks of one actual loop; true collapsed rows stay separate from regular face grids.
-   * @evidence contracts/development/design.md#principled-representation Represents Tessellation marks of one actual loop; true collapsed rows stay separate from regular face grids: interface of 3 members (`loop`, `stations`, `phases`). It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IGrid` in packages/engine/src/geometry/construction/AutoMovieConstructionProfileGrid.ts; its surface is the 3 members listed and the text shows 5 other files naming it, mostly packages/human (4), packages/engine (1), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
-  export interface IGrid {
-    /** Same copied declaration whose original functions were sampled. */
-    loop: IAutoMovieConstructionProfile.ILoop;
-    /** Regular station rows, physical millimetres; declared collapsed endpoints are omitted. */
-    stations: number[];
-    /** Inclusive normalized piece coordinates, retaining all original guides. */
-    phases: ReadonlyMap<string, number[]>;
-  }
-
   /**
    * Derive grids from original Point0; malformed or unresolved requests produce no partial output.
    *
@@ -62,14 +48,14 @@ export namespace AutoMovieConstructionProfileGrid {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
    */
   export function create(
-    prepared: AutoMovieConstructionProfile.IPrepared,
+    prepared: IAutoMoviePreparedConstructionProfile.IPrepared,
     tolerance: number,
-  ): IGrid[] {
+  ): IAutoMovieConstructionProfileGrid.IGrid[] {
     if (!(Number.isFinite(tolerance) && tolerance > 0))
       fail(
         "Original profile tessellation needs a finite positive millimetre chord tolerance.",
       );
-    const result: IGrid[] = [];
+    const result: IAutoMovieConstructionProfileGrid.IGrid[] = [];
     for (const loop of prepared.definition.loops)
       result.push(grid(prepared, loop, tolerance));
     return result;
@@ -78,10 +64,10 @@ export namespace AutoMovieConstructionProfileGrid {
 
 /** Prepare one loop independently, so scratch dies before the next component. */
 function grid(
-  prepared: AutoMovieConstructionProfile.IPrepared,
-  loop: IAutoMovieConstructionProfile.ILoop,
+  prepared: IAutoMoviePreparedConstructionProfile.IPrepared,
+  loop: IAutoMovieConstructionProfileLoop,
   tolerance: number,
-): AutoMovieConstructionProfileGrid.IGrid {
+): IAutoMovieConstructionProfileGrid.IGrid {
   const first: number = 1000 * loop.domain[0];
   const last: number = 1000 * loop.domain[1];
   if (![first, last, last - first].every(Number.isFinite))

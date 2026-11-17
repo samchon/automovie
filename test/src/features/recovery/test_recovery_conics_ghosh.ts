@@ -1,3 +1,9 @@
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieConicApproximation,
+  IAutoMoviePlanarCurveSource,
+  IAutoMovieRegisteredConicArc,
+} from "@automovie/interface";
 import {
   AutoMovieRecoveryConicApproximation as C,
   approximateAutoMovieRecoveryConicsGhosh as approximate,
@@ -26,7 +32,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership The central runner discovers this synchronous portable unit test; no private F1 data, host, process, filesystem or rendering is involved.
  */
 export function test_recovery_conics_ghosh(): void {
-  const options: C.IOptions = {
+  const options: IAutoMovieConicApproximation.IOptions = {
     toleranceMm: 0.0001,
     maximumArcs: 128,
     maximumDepth: 14,
@@ -36,30 +42,36 @@ export function test_recovery_conics_ghosh(): void {
   for (const direction of [1, -1]) {
     const rx: number = direction === 1 ? 40 : 25;
     const ry: number = direction === 1 ? 20 : 25;
-    const ellipse: C.ICurve = {
+    const ellipse: IAutoMoviePlanarCurveSource = {
       domain: [0, Math.PI / 2],
       breaks: [],
       closed: false,
-      evaluate(t: number): C.Point {
+      evaluate(t: number): Readonly<AutoMovieVector2Tuple> {
         return [rx * Math.cos(t), direction * ry * Math.sin(t)];
       },
-      derivative(t: number, order: 1 | 2 | 3 | 4 | 5): C.Point {
+      derivative(
+        t: number,
+        order: 1 | 2 | 3 | 4 | 5,
+      ): Readonly<AutoMovieVector2Tuple> {
         return [
           rx * Math.cos(t + (order * Math.PI) / 2),
           direction * ry * Math.sin(t + (order * Math.PI) / 2),
         ];
       },
     };
-    const result: C.IResult = approximate(ellipse, options);
+    const result: IAutoMovieConicApproximation.IResult = approximate(
+      ellipse,
+      options,
+    );
     TestValidator.equals("ellipse admitted", result.status, "complete");
     TestValidator.equals("ellipse one bitangent conic", result.arcs.length, 1);
-    const arc: C.IArc = result.arcs[0]!;
+    const arc: IAutoMovieRegisteredConicArc = result.arcs[0]!;
     TestValidator.predicate(
       "analytic quarter-conic weight",
       nclose(arc.weight, Math.SQRT1_2, 1e-6),
     );
     for (let i: number = 0; i <= 97; ++i) {
-      const p: C.Point = C.evaluate(arc, i / 97);
+      const p: Readonly<AutoMovieVector2Tuple> = C.evaluate(arc, i / 97);
       TestValidator.predicate(
         "analytic implicit conic",
         nclose((p[0] / rx) ** 2 + (p[1] / ry) ** 2, 1, 1e-6),
@@ -73,19 +85,25 @@ export function test_recovery_conics_ghosh(): void {
   }
 
   // k_affine(t)=-2*exp(-2t/3)/9 is strictly increasing on this graph.
-  const exponential: C.ICurve = {
+  const exponential: IAutoMoviePlanarCurveSource = {
     domain: [0, 0.8],
     breaks: [0.3],
     closed: false,
-    evaluate(t: number): C.Point {
+    evaluate(t: number): Readonly<AutoMovieVector2Tuple> {
       return [t, Math.exp(t)];
     },
-    derivative(t: number, order: 1 | 2 | 3 | 4 | 5): C.Point {
+    derivative(
+      t: number,
+      order: 1 | 2 | 3 | 4 | 5,
+    ): Readonly<AutoMovieVector2Tuple> {
       return [order === 1 ? 1 : 0, Math.exp(t)];
     },
   };
   const before: string = JSON.stringify(exponential.breaks);
-  const fit: C.IResult = approximate(exponential, options);
+  const fit: IAutoMovieConicApproximation.IResult = approximate(
+    exponential,
+    options,
+  );
   TestValidator.equals("affine spiral admitted", fit.status, "complete");
   TestValidator.equals(
     "deterministic coefficients",
@@ -100,12 +118,13 @@ export function test_recovery_conics_ghosh(): void {
   TestValidator.predicate(
     "preserved hard source break",
     fit.arcs.every(
-      (arc: C.IArc): boolean => !(arc.domain[0] < 0.3 && arc.domain[1] > 0.3),
+      (arc: IAutoMovieRegisteredConicArc): boolean =>
+        !(arc.domain[0] < 0.3 && arc.domain[1] > 0.3),
     ),
   );
   for (const arc of fit.arcs) {
     for (let i: number = 1; i < 73; ++i) {
-      const p: C.Point = C.evaluate(arc, i / 73);
+      const p: Readonly<AutoMovieVector2Tuple> = C.evaluate(arc, i / 73);
       let left: number = arc.domain[0];
       let right: number = arc.domain[1];
 
@@ -126,14 +145,17 @@ export function test_recovery_conics_ghosh(): void {
       );
     }
   }
-  const inflected: C.ICurve = {
+  const inflected: IAutoMoviePlanarCurveSource = {
     domain: [-1, 1],
     breaks: [],
     closed: false,
-    evaluate(t: number): C.Point {
+    evaluate(t: number): Readonly<AutoMovieVector2Tuple> {
       return [t, t ** 3];
     },
-    derivative(t: number, order: 1 | 2 | 3 | 4 | 5): C.Point {
+    derivative(
+      t: number,
+      order: 1 | 2 | 3 | 4 | 5,
+    ): Readonly<AutoMovieVector2Tuple> {
       return order === 1
         ? [1, 3 * t * t]
         : order === 2
@@ -143,7 +165,7 @@ export function test_recovery_conics_ghosh(): void {
             : [0, 0];
     },
   };
-  const limited: C.IResult = approximate(inflected, {
+  const limited: IAutoMovieConicApproximation.IResult = approximate(inflected, {
     ...options,
     maximumArcs: 8,
     maximumDepth: 3,
@@ -152,9 +174,9 @@ export function test_recovery_conics_ghosh(): void {
     "inflection cannot claim complete admission",
     limited.status !== "complete",
   );
-  const stationary: C.ICurve = {
+  const stationary: IAutoMoviePlanarCurveSource = {
     ...inflected,
-    derivative(): C.Point {
+    derivative(): Readonly<AutoMovieVector2Tuple> {
       return [0, 0];
     },
   };
@@ -168,18 +190,24 @@ export function test_recovery_conics_ghosh(): void {
     approximate(exponential, { ...options, maximumArcs: 0 }).status,
     "refused",
   );
-  const straight: C.ICurve = {
+  const straight: IAutoMoviePlanarCurveSource = {
     domain: [0, 2],
     breaks: [],
     closed: false,
-    evaluate(t: number): C.Point {
+    evaluate(t: number): Readonly<AutoMovieVector2Tuple> {
       return [3 * t, 4 * t];
     },
-    derivative(_t: number, order: 1 | 2 | 3 | 4 | 5): C.Point {
+    derivative(
+      _t: number,
+      order: 1 | 2 | 3 | 4 | 5,
+    ): Readonly<AutoMovieVector2Tuple> {
       return order === 1 ? [3, 4] : [0, 0];
     },
   };
-  const line: C.IResult = approximate(straight, options);
+  const line: IAutoMovieConicApproximation.IResult = approximate(
+    straight,
+    options,
+  );
   TestValidator.equals("line extension admitted", line.status, "complete");
   TestValidator.predicate(
     "line extension is explicit",
@@ -188,16 +216,22 @@ export function test_recovery_conics_ghosh(): void {
     ),
   );
   for (const scale of [1e-6, 1e6]) {
-    const transformed: C.ICurve = {
+    const transformed: IAutoMoviePlanarCurveSource = {
       ...straight,
-      evaluate(t: number): C.Point {
+      evaluate(t: number): Readonly<AutoMovieVector2Tuple> {
         return [scale * (30 + 3 * t), scale * (-40 + 4 * t)];
       },
-      derivative(_t: number, order: 1 | 2 | 3 | 4 | 5): C.Point {
+      derivative(
+        _t: number,
+        order: 1 | 2 | 3 | 4 | 5,
+      ): Readonly<AutoMovieVector2Tuple> {
         return order === 1 ? [3 * scale, 4 * scale] : [0, 0];
       },
     };
-    const transformedResult: C.IResult = approximate(transformed, options);
+    const transformedResult: IAutoMovieConicApproximation.IResult = approximate(
+      transformed,
+      options,
+    );
     TestValidator.equals(
       "scaled and translated line admitted",
       transformedResult.status,
@@ -211,18 +245,18 @@ export function test_recovery_conics_ghosh(): void {
   }
 
   // The callback's ordinary value at t=1 deliberately selects the right chart.
-  const corner: C.ICurve = {
+  const corner: IAutoMoviePlanarCurveSource = {
     domain: [0, 2],
     breaks: [1],
     closed: false,
-    evaluate(t: number): C.Point {
+    evaluate(t: number): Readonly<AutoMovieVector2Tuple> {
       return [t, t <= 1 ? t * t : 1 + 3 * (t - 1) + (t - 1) ** 2];
     },
     derivative(
       t: number,
       order: 1 | 2 | 3 | 4 | 5,
       side?: "left" | "right",
-    ): C.Point {
+    ): Readonly<AutoMovieVector2Tuple> {
       const left: boolean = t < 1 || (t === 1 && side === "left");
       return order === 1
         ? [1, left ? 2 * t : 3 + 2 * (t - 1)]
@@ -231,7 +265,10 @@ export function test_recovery_conics_ghosh(): void {
           : [0, 0];
     },
   };
-  const cornerResult: C.IResult = approximate(corner, options);
+  const cornerResult: IAutoMovieConicApproximation.IResult = approximate(
+    corner,
+    options,
+  );
   TestValidator.equals(
     "both incident parabola charts admitted",
     cornerResult.status,
@@ -244,7 +281,7 @@ export function test_recovery_conics_ghosh(): void {
   );
   for (const arc of cornerResult.arcs)
     for (let i: number = 0; i <= 41; ++i) {
-      const p: C.Point = C.evaluate(arc, i / 41);
+      const p: Readonly<AutoMovieVector2Tuple> = C.evaluate(arc, i / 41);
       const expected: number =
         arc.domain[0] === 0 ? p[0] ** 2 : 1 + 3 * (p[0] - 1) + (p[0] - 1) ** 2;
       TestValidator.predicate(
@@ -255,18 +292,21 @@ export function test_recovery_conics_ghosh(): void {
   for (const corrupt of [
     {
       ...exponential,
-      evaluate(): C.Point {
+      evaluate(): Readonly<AutoMovieVector2Tuple> {
         throw new Error("source unavailable");
       },
     },
     {
       ...exponential,
-      evaluate(): C.Point {
+      evaluate(): Readonly<AutoMovieVector2Tuple> {
         return [NaN, 0];
       },
     },
   ]) {
-    const failure: C.IResult = approximate(corrupt, options);
+    const failure: IAutoMovieConicApproximation.IResult = approximate(
+      corrupt,
+      options,
+    );
     TestValidator.equals("corrupt callback refused", failure.status, "refused");
     TestValidator.equals(
       "corrupt callback leaves no coefficients",
@@ -281,20 +321,26 @@ export function test_recovery_conics_ghosh(): void {
     );
   }
   const scratch: [number, number] = [0, 0];
-  const reusable: C.ICurve = {
+  const reusable: IAutoMoviePlanarCurveSource = {
     ...exponential,
-    evaluate(t: number): C.Point {
+    evaluate(t: number): Readonly<AutoMovieVector2Tuple> {
       scratch[0] = t;
       scratch[1] = Math.exp(t);
       return scratch;
     },
-    derivative(t: number, order: 1 | 2 | 3 | 4 | 5): C.Point {
+    derivative(
+      t: number,
+      order: 1 | 2 | 3 | 4 | 5,
+    ): Readonly<AutoMovieVector2Tuple> {
       scratch[0] = order === 1 ? 1 : 0;
       scratch[1] = Math.exp(t);
       return scratch;
     },
   };
-  const copied: C.IResult = approximate(reusable, options);
+  const copied: IAutoMovieConicApproximation.IResult = approximate(
+    reusable,
+    options,
+  );
   TestValidator.equals(
     "scratch source matches ordinary source",
     JSON.stringify(copied.arcs),
@@ -311,15 +357,18 @@ export function test_recovery_conics_ghosh(): void {
 
   // x=t/(e+(1-e)t) clusters ordinary interior source points near t=0.
   // Its exact geometric parabola must not depend on an interior-contact inset.
-  const clustered: C.ICurve = {
+  const clustered: IAutoMoviePlanarCurveSource = {
     domain: [0, 1],
     breaks: [],
     closed: false,
-    evaluate(t: number): C.Point {
+    evaluate(t: number): Readonly<AutoMovieVector2Tuple> {
       const x: number = t / (0.01 + 0.99 * t);
       return [x, x * x];
     },
-    derivative(t: number, order: 1 | 2 | 3 | 4 | 5): C.Point {
+    derivative(
+      t: number,
+      order: 1 | 2 | 3 | 4 | 5,
+    ): Readonly<AutoMovieVector2Tuple> {
       const d: number = 0.01 + 0.99 * t;
       const x: number = t / d;
       const factorial: readonly number[] = [1, 1, 2, 6, 24, 120];
@@ -343,10 +392,13 @@ export function test_recovery_conics_ghosh(): void {
       return [v[order]!, y];
     },
   };
-  const clusteredResult: C.IResult = approximate(clustered, {
-    ...options,
-    maximumArcs: 8,
-  });
+  const clusteredResult: IAutoMovieConicApproximation.IResult = approximate(
+    clustered,
+    {
+      ...options,
+      maximumArcs: 8,
+    },
+  );
   TestValidator.equals(
     "clustered exact conic admitted",
     clusteredResult.status,

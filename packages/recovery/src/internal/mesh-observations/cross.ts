@@ -1,4 +1,4 @@
-import { V3 } from "./V3";
+import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
 /**
  * Right-handed cross product in the operands' common Cartesian frame.
@@ -11,7 +11,13 @@ import { V3 } from "./V3";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call depends directly on its arguments; no retained cache or effectful shared work exists.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh triple and retains no references.
  */
-export const cross: (a: V3, b: V3) => V3 = (a: V3, b: V3): V3 => [
+export const cross: (
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+) => AutoMovieVector3Tuple = (
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple => [
   a[1] * b[2] - a[2] * b[1],
   a[2] * b[0] - a[0] * b[2],
   a[0] * b[1] - a[1] * b[0],

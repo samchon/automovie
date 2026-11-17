@@ -1,5 +1,7 @@
-import type { IAutoMovieRasterComparison } from "./IAutoMovieRasterComparison.js";
-import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
+import type {
+  IAutoMovieRasterComparison,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
 
 /**
  * Compare two pictures of one size pixel by pixel, for reading what a

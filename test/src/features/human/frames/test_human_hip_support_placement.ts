@@ -1,9 +1,12 @@
+import { nclose, vclose } from "../../internal/predicates";
 import {
   AutoMovieHumanHipSupportPlacement,
   AutoMovieHumanSegmentFrame as F,
 } from "@automovie/human";
-
-import { nclose, vclose } from "../../internal/predicates";
+import type {
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
+} from "@automovie/interface";
 
 /**
  * A provided mechanical support breadth determines only its signed half-span.
@@ -19,7 +22,7 @@ import { nclose, vclose } from "../../internal/predicates";
  * @evidence contracts/development/common.md#meaningful-documentation Names the supplied field's precise geometric effect, preserved inputs and two numbered scenarios.
  */
 export function test_human_hip_support_placement(): void {
-  const chain: F.IJoint[] = [
+  const chain: IAutoMovieHumanSegmentJoint[] = [
     { name: "pelvis", parent: null, offset: [10, 20, 0], rotation: F.IDENTITY },
     {
       name: "support",
@@ -39,20 +42,20 @@ export function test_human_hip_support_placement(): void {
     },
   ];
   const failures: string[] = [];
-  const unchanged: readonly F.IJoint[] = AutoMovieHumanHipSupportPlacement(
+  const unchanged: readonly IAutoMovieHumanSegmentJoint[] = AutoMovieHumanHipSupportPlacement(
     { hipJointCentreBreadth: 60 },
     chain,
     "support",
   );
   if (unchanged !== chain)
     failures.push("the unchanged B60 chain lost identity");
-  const placed: readonly F.IJoint[] = AutoMovieHumanHipSupportPlacement(
+  const placed: readonly IAutoMovieHumanSegmentJoint[] = AutoMovieHumanHipSupportPlacement(
     { hipJointCentreBreadth: 80 },
     chain,
     "support",
   );
-  const support: F.IJoint | undefined = placed.find(
-    (joint: F.IJoint): boolean => joint.name === "support",
+  const support: IAutoMovieHumanSegmentJoint | undefined = placed.find(
+    (joint: IAutoMovieHumanSegmentJoint): boolean => joint.name === "support",
   );
   if (
     support === undefined ||
@@ -69,11 +72,11 @@ export function test_human_hip_support_placement(): void {
     placed[2] !== chain[2]
   )
     failures.push("independent frames/offset records changed");
-  const frames: Map<string, F.IFrame> = F.world(
+  const frames: Map<string, IAutoMovieHumanSegmentFrame> = F.world(
     placed,
     (): undefined => undefined,
   );
-  const frame: F.IFrame | undefined = frames.get("support");
+  const frame: IAutoMovieHumanSegmentFrame | undefined = frames.get("support");
   if (
     frame === undefined ||
     !vclose(
@@ -84,7 +87,7 @@ export function test_human_hip_support_placement(): void {
     !nclose(F.mirror(frame).origin[2], -40, 1e-12)
   )
     failures.push("world or twin support half-span differs");
-  const distal: F.IFrame | undefined = frames.get("distal");
+  const distal: IAutoMovieHumanSegmentFrame | undefined = frames.get("distal");
   if (
     distal === undefined ||
     !vclose(

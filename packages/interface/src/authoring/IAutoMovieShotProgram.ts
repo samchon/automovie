@@ -1,8 +1,8 @@
-import { IAutoMovieScript } from "../harness/IAutoMovieScript";
-import { IAutoMovieBlocking } from "./IAutoMovieBlocking";
-import { IAutoMoviePerformance } from "./IAutoMoviePerformance";
-import { IAutoMovieShotActorProgram } from "./IAutoMovieShotActorProgram";
-import { IAutoMovieStage } from "./IAutoMovieStage";
+import type { IAutoMovieScript } from "../harness/IAutoMovieScript";
+import type { IAutoMovieBlocking } from "./IAutoMovieBlocking";
+import type { IAutoMoviePerformance } from "./IAutoMoviePerformance";
+import type { IAutoMovieShotActorProgram } from "./IAutoMovieShotActorProgram";
+import type { IAutoMovieStage } from "./IAutoMovieStage";
 
 /**
  * Context-free shot program returned by a registered source builder.

@@ -1,4 +1,4 @@
-import { AutoMovieProductionPngColor } from "./AutoMovieProductionPngColor";
+import type { AutoMovieProductionPngColor } from "./AutoMovieProductionPngColor";
 
 /**
  * Parser-observed PNG picture facts after datastream framing and image decode.

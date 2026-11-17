@@ -1,65 +1,45 @@
-import type { IAutoMovieHumanPose } from "../structures/pose/IAutoMovieHumanPose";
+import type {
+  AutoMovieHumanJointName,
+  AutoMovieHumanPoseChannel,
+  AutoMovieHumanPoseDegreeChannel,
+  AutoMovieHumanPoseMillimetreChannel,
+  IAutoMovieHumanAnatomicalChain,
+  IAutoMovieHumanPose,
+  IAutoMovieHumanPoseClamp,
+  IAutoMovieHumanRigControls,
+} from "@automovie/interface";
+
 import { AutoMovieHumanPoseChannels } from "./AutoMovieHumanPoseChannels";
-import type { AutoMovieHumanSkeleton } from "./AutoMovieHumanSkeleton";
 
 /** Typed clinical controls derived from the public pose and the canonical joint/channel table. */
 export namespace AutoMovieHumanRigControls {
-  /** A person's own side, independent of scene facing or camera. */
-  export type Side = "left" | "right";
-  /** Every numeric leaf in the existing public pose; jaw leaves use millimetres. */
-  export type Channel = NumericPath<IAutoMovieHumanPose>;
-  /** Angular clinical paths accepted by IK; jaw translations/opening are excluded. */
-  export type DegreeChannel = Exclude<Channel, `head.jaw.${string}`>;
-  /** Canonical jaw translation/opening paths, whose scalar unit is millimetres. */
-  export type MillimetreChannel = Extract<Channel, `head.jaw.${string}`>;
-  /** Canonical table spelling before own-side expansion. */
-  export type ChannelTemplate = Template<Channel>;
-  /** Exact Human FK joint identities, including original custom finger/foot joints. */
-  export type Joint = Expand<(typeof AutoMovieHumanPoseChannels)[number][1]>;
-  /** Metres in a prepared Human evaluator's registered +X forward/+Y up/+Z left frame. */
-  export type MetrePoint = [xMetres: number, yMetres: number, zMetres: number];
-  /** Unit rigid quaternion from the bind, in x/y/z/w component order. */
-  export type Rotation = [x: number, y: number, z: number, w: number];
-  /** Reusable anatomical chain selection; no activity or film catalogue. */
-  export type Chain =
-    | { region: "arm" | "leg" | "eyes"; side: Side }
-    | { region: "spine" | "neck" | "pelvis" }
-    | {
-        region: "finger";
-        side: Side;
-        digit: "thumb" | "index" | "middle" | "ring" | "little";
-      }
-    | {
-        region: "toe";
-        side: Side;
-        digit: "hallux" | "second" | "third" | "fourth" | "fifth";
-      };
-
   /** Admit a drawing/asset string at the explicit canonical Human-joint boundary. */
-  export function joint(value: string): Joint {
+  export function joint(value: string): AutoMovieHumanJointName {
     if (!isJoint(value))
       throw new Error(`Unknown canonical Human joint: ${value}`);
     return value;
   }
   /** Check exact canonical Human joint identity without preparing a body. */
-  export function isJoint(value: string): value is Joint {
+  export function isJoint(value: string): value is AutoMovieHumanJointName {
     return JOINTS.has(value);
   }
   /** Admit an angular channel from untyped input; jaw millimetres remain a distinct API. */
-  export function channel(value: string): DegreeChannel {
+  export function channel(value: string): AutoMovieHumanPoseDegreeChannel {
     if (!isChannel(value))
       throw new Error(`Unknown Human degree channel: ${value}`);
     return value;
   }
   /** Check exact registered angular pose paths; no spelling aliases or invented knobs. */
-  export function isChannel(value: string): value is DegreeChannel {
+  export function isChannel(
+    value: string,
+  ): value is AutoMovieHumanPoseDegreeChannel {
     return ANGLES.has(value);
   }
   /** Read the canonical degree interval; an optional current pose applies FK's flexion-dependent tibial interval. */
   export function bounds(
-    path: DegreeChannel,
+    path: AutoMovieHumanPoseDegreeChannel,
     pose?: IAutoMovieHumanPose,
-  ): { minimum: number; maximum: number } {
+  ): IAutoMovieHumanRigControls.IBoundsResult {
     const row: CompiledChannel | undefined = ANGLES.get(path);
     if (!row) throw new Error(`Unknown Human degree channel: ${path}`);
     const flexion: CompiledChannel | undefined =
@@ -82,10 +62,9 @@ export namespace AutoMovieHumanRigControls {
     return { minimum: row.minimum * scale, maximum: row.maximum * scale };
   }
   /** Read canonical jaw millimetre bounds without admitting a jaw path as degrees. */
-  export function millimetreBounds(path: MillimetreChannel): {
-    minimum: number;
-    maximum: number;
-  } {
+  export function millimetreBounds(
+    path: AutoMovieHumanPoseMillimetreChannel,
+  ): IAutoMovieHumanRigControls.IMillimetreBoundsResult {
     const row: CompiledChannel | undefined = MILLIMETRES.get(path);
     if (!row) throw new Error(`Unknown Human millimetre channel: ${path}`);
     return { minimum: row.minimum, maximum: row.maximum };
@@ -105,8 +84,8 @@ export namespace AutoMovieHumanRigControls {
    */
   export function readApplied(
     pose: IAutoMovieHumanPose,
-    path: Channel,
-    clamped: readonly AutoMovieHumanSkeleton.IClamp[],
+    path: AutoMovieHumanPoseChannel,
+    clamped: readonly IAutoMovieHumanPoseClamp[],
   ): number {
     const selected: CompiledChannel | undefined =
       ANGLES.get(path) ?? MILLIMETRES.get(path);
@@ -140,7 +119,9 @@ export namespace AutoMovieHumanRigControls {
    * have separate bounded chains. Returns owned paths and validates unknown
    * JavaScript requests rather than silently selecting a default side.
    */
-  export function chain(selection: Chain): DegreeChannel[] {
+  export function chain(
+    selection: IAutoMovieHumanAnatomicalChain,
+  ): AutoMovieHumanPoseDegreeChannel[] {
     if (
       "side" in selection &&
       selection.side !== "left" &&
@@ -176,9 +157,11 @@ export namespace AutoMovieHumanRigControls {
       default:
         throw new Error("Unknown Human anatomical chain");
     }
-    const paths: DegreeChannel[] = [...ANGLES.keys()].filter(isChannel);
-    const result: DegreeChannel[] = paths.filter(
-      (path: DegreeChannel): boolean =>
+    const paths: AutoMovieHumanPoseDegreeChannel[] = [...ANGLES.keys()].filter(
+      isChannel,
+    );
+    const result: AutoMovieHumanPoseDegreeChannel[] = paths.filter(
+      (path: AutoMovieHumanPoseDegreeChannel): boolean =>
         path.startsWith(prefix) &&
         !(
           selection.region === "arm" &&
@@ -307,22 +290,3 @@ const MILLIMETRES: ReadonlyMap<string, CompiledChannel> = new Map(
 const JOINTS: ReadonlySet<string> = new Set(
   CATALOGUE.map((row: CompiledChannel): string => row.bone),
 );
-
-/** Public numeric leaves remain the sole channel-schema authority. */
-type NumericPath<T> = {
-  [K in keyof T & string]-?: NonNullable<T[K]> extends number
-    ? K
-    : NonNullable<T[K]> extends object
-      ? `${K}.${NumericPath<NonNullable<T[K]>>}`
-      : never;
-}[keyof T & string];
-/** Resolve the canonical table's side placeholder to the public own-side union. */
-type Expand<T extends string> = T extends `${infer Before}<side>${infer After}`
-  ? `${Before}${AutoMovieHumanRigControls.Side}${After}`
-  : T;
-/** Resolve either public side spelling into one canonical row template. */
-type Template<T extends string> = T extends
-  | `${infer Before}.left.${infer After}`
-  | `${infer Before}.right.${infer After}`
-  ? `${Before}.<side>.${After}`
-  : T;

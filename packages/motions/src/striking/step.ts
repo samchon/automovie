@@ -1,19 +1,18 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieMotionHumanActionName,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStep,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { tags } from "typia";
 
-import type { HumanActionName } from "../HumanActionName";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -41,35 +40,16 @@ import { StrikingTarget } from "./StrikingTarget";
  */
 export namespace step {
   /** The action's name. */
-  export const name: HumanActionName = "step";
+  export const name: AutoMovieMotionHumanActionName = "step";
 
   /** Cancel table: footwork chains into strikes, defences and more footwork at any time. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     step: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
     guard: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
     punch: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
     kick: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
     defend: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
   };
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame, unit and default.
-   * @evidence contracts/development/design.md#principled-representation A closed union of directions in the stance's frame, a whole step count and a length in metres, both checked when planning.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IParams {
-    /** The direction in the stance's own frame. */
-    direction: "forward" | "back" | "left" | "right";
-
-    /** How many steps; 1 when absent. */
-    steps?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
-
-    /** Each step's length, metres; half a stance length when absent. */
-    length?: number;
-  }
 
   /** Seconds per step (provisional). */
   export const PERIOD: number = 0.35;
@@ -93,9 +73,9 @@ export namespace step {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Its closures hold only the instance's own inputs and are released with the plan.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStep.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanStep.IParams = context.params;
     const count: number = p.steps ?? 1;
     HumanBound.whole("steps", count);
     const body = context.body;
@@ -109,7 +89,7 @@ export namespace step {
       "minimum",
     );
     const duration: number = count * PERIOD;
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const rear: "left" | "right" = StrikingStance.rear({ lead });
 
@@ -137,7 +117,7 @@ export namespace step {
           : p.direction === "left"
             ? "left"
             : "right";
-    const feet: Record<"left" | "right", HumanFoot.IPlacement> =
+    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
     const lift: number = 0.015 * body.measure.stature;
     const windows: Record<"left" | "right", readonly [number, number]> =
@@ -160,7 +140,7 @@ export namespace step {
         s,
       };
     };
-    const contacts: IHumanContactWindow[] = [];
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
     for (let k: number = 0; k < count; k++)
       for (const side of ["left", "right"] as const) {
         const [a, b] = windows[side];
@@ -192,9 +172,12 @@ export namespace step {
       duration,
       events,
       contacts,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const placed = {} as Record<"left" | "right", HumanFoot.IPlacement>;
+        const placed = {} as Record<
+          "left" | "right",
+          IAutoMovieMotionHumanFoot.IPlacement
+        >;
         const down = {} as Record<"left" | "right", boolean>;
         for (const side of ["left", "right"] as const) {
           const g = progress(side, t);
@@ -209,7 +192,7 @@ export namespace step {
           down[side] = !g.swinging;
         }
         const carried: number = count * length * minimumJerk(t / duration).s;
-        const posture: IHumanPosture = resolveHumanPosture.lower(
+        const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
           body,
           {
             root: Vector3.add(entry.root, Vector3.scale(unit, carried)),

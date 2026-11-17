@@ -1,12 +1,12 @@
 import {
-  IAutoMovieBodyCollisionResult,
-  IAutoMovieCollisionActor,
   detectBodyCollision,
   validateBalanceSupport,
   validateFootSkate,
   validateSelfIntersection,
 } from "@automovie/engine";
 import {
+  type IAutoMovieBodyCollisionResult,
+  type IAutoMovieCollisionActor,
   IAutoMovieConstraintViolation,
   IAutoMovieKeyframe,
   IAutoMovieMotion,

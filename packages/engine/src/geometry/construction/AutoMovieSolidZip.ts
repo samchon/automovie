@@ -1,3 +1,5 @@
+import type { IAutoMovieSolidZip } from "@automovie/interface";
+
 /**
  * The two closed vertex sequences a trimmed face meets its trim along, joined
  * by one band of triangles: the edge of a face's kept grid cells nearest a
@@ -11,22 +13,6 @@
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieSolidZip {
-  /**
-   * Matching vertex and cyclic-parameter arrays in their boundary order.
-   *
-   * @evidence contracts/development/design.md#principled-representation Vertex labels and a one-turn scalar correspondence describe one boundary for monotone zipper traversal.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two parallel arrays preserve mesh identity without copying world positions into this operator.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not enforce equal lengths, finite monotone parameters, distinct vertices or compatible geometry with another boundary.
-   * @evidence contracts/development/common.md#meaningful-documentation Names vertex/parameter correspondence and the parameter's 2pi periodic convention.
-   */
-  export interface ISequence {
-    /** Vertex indices of the mesh. */
-    vertices: number[];
-
-    /** Cyclic parameter with period 2pi, any branch; mesh callers commonly use normalized arclength. */
-    angles: number[];
-  }
-
   /**
    * The band of triangles between two closed sequences.
    *
@@ -43,9 +29,12 @@ export namespace AutoMovieSolidZip {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses already supplied cyclic parameters and vertex indices instead of recomputing arclength or evaluating geometry.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Reordered arrays are call-local; only the fresh triangle-index triples escape, retaining no input arrays or world geometry.
    */
-  export function band(a: ISequence, b: ISequence): [number, number, number][] {
-    const x: ISequence = increasing(a);
-    const y: ISequence = increasing(b);
+  export function band(
+    a: IAutoMovieSolidZip.ISequence,
+    b: IAutoMovieSolidZip.ISequence,
+  ): [number, number, number][] {
+    const x: IAutoMovieSolidZip.ISequence = increasing(a);
+    const y: IAutoMovieSolidZip.ISequence = increasing(b);
     const n: number = x.vertices.length;
     const m: number = y.vertices.length;
 
@@ -94,7 +83,9 @@ export namespace AutoMovieSolidZip {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The same order table is used for both vertex and parameter copying, preserving their pairing.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns new vertex/angle arrays and releases its local order table; the supplied sequence is not mutated or retained.
    */
-  export function increasing(s: ISequence): ISequence {
+  export function increasing(
+    s: IAutoMovieSolidZip.ISequence,
+  ): IAutoMovieSolidZip.ISequence {
     const n: number = s.vertices.length;
 
     // The turning sense from the summed wrapped steps.

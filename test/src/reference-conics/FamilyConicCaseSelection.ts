@@ -1,6 +1,5 @@
-import type { AutoMovieHumanF1Engineering } from "@automovie/human";
-
 import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
+import type { IAutoMovieHumanF1Engineering } from "@automovie/interface";
 
 /** Pure case admission shared by figure and deviation capture inputs. */
 export namespace FamilyConicCaseSelection {
@@ -14,7 +13,7 @@ export namespace FamilyConicCaseSelection {
    */
   export interface IArtifact<
     T extends { id: string; resolution: { status: string } } =
-      AutoMovieHumanF1Engineering.IResolvedCase,
+      IAutoMovieHumanF1Engineering.IResolvedCase,
   > {
     /** Exact serialized handoff version. */
     schema: string;

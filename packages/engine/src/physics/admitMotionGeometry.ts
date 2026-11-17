@@ -1,6 +1,7 @@
 import type {
-  IAutoMovieMotionGeometry as Geometry,
-  IAutoMoviePhysicalProfile as P,
+  IAutoMovieMotionGeometry,
+  IAutoMoviePhysicalHullFaces,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
@@ -17,7 +18,7 @@ import { physicalHullFaces } from "./physicalHullFaces";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 21 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function admitMotionGeometry(geometry: Geometry): void {
+export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
   const name: (value: string) => boolean = (value: string): boolean =>
     typeof value === "string" && value.trim().length > 0;
   const positive: (value: number) => boolean = (value: number): boolean =>
@@ -27,8 +28,8 @@ export function admitMotionGeometry(geometry: Geometry): void {
     Number.isFinite(Math.fround(1 / value));
   const nonnegative: (value: number) => boolean = (value: number): boolean =>
     scalar(value) && value >= 0 && (value === 0 || Math.fround(value) > 0);
-  const transform: (value: P.ITransform) => boolean = (
-    value: P.ITransform,
+  const transform: (value: IAutoMovieRigidTransform) => boolean = (
+    value: IAutoMovieRigidTransform,
   ): boolean =>
     !!value?.position &&
     !!value.rotation &&
@@ -56,7 +57,8 @@ export function admitMotionGeometry(geometry: Geometry): void {
     (geometry.witnesses !== undefined && !Array.isArray(geometry.witnesses))
   )
     throw new Error("Invalid motion geometry population");
-  const materials: Map<string, Geometry["materials"][number]> = new Map();
+  const materials: Map<string, IAutoMovieMotionGeometry["materials"][number]> =
+    new Map();
   for (const material of geometry.materials) {
     if (
       !material ||
@@ -83,9 +85,9 @@ export function admitMotionGeometry(geometry: Geometry): void {
     bones.add(segment.bone);
     const ids: Set<string> = new Set();
     for (const shape of segment.shapes) {
-      const material: Geometry["materials"][number] | undefined = materials.get(
-        shape?.material,
-      );
+      const material:
+        | IAutoMovieMotionGeometry["materials"][number]
+        | undefined = materials.get(shape?.material);
       if (
         !shape ||
         !name(shape.id) ||
@@ -128,7 +130,9 @@ export function admitMotionGeometry(geometry: Geometry): void {
           )
         )
           throw new Error("Invalid motion geometry hull");
-        const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
+        const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
+          shape.points,
+        );
         // Convex by contract: the points span a volume and none lies inside.
         if (hull.faces.length < 4 || hull.buried > hull.tolerance)
           throw new Error("Invalid motion geometry hull");

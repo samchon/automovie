@@ -1,5 +1,6 @@
+import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
+
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
 import { admitPhysicalSupportPattern } from "./admitPhysicalSupportPattern";
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 import { resolvePhysicalPerformanceMode } from "./resolvePhysicalPerformanceMode";
@@ -16,8 +17,8 @@ import { resolvePhysicalPerformanceMode } from "./resolvePhysicalPerformanceMode
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 28 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function admitPhysicalBody(
-  input: Simulation.IInput,
-  body: Simulation.IBody,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  body: IAutoMoviePhysicalSimulationInput.IBody,
 ): void {
   const positive: (value: number) => boolean = (value: number): boolean =>
     scalar(value) && Math.fround(value) > 0;
@@ -95,12 +96,12 @@ export function admitPhysicalBody(
       body.profile.joints.reduce(
         (
           sum: number,
-          joint: Simulation.IBody["profile"]["joints"][number],
+          joint: IAutoMoviePhysicalSimulationInput.IBody["profile"]["joints"][number],
         ): number =>
           sum +
           joint.axes.filter(
             (
-              axis: Simulation.IBody["profile"]["joints"][number]["axes"][number],
+              axis: IAutoMoviePhysicalSimulationInput.IBody["profile"]["joints"][number]["axes"][number],
             ): boolean => axis.maximum > axis.minimum,
           ).length,
         0,
@@ -108,7 +109,7 @@ export function admitPhysicalBody(
       body.profile.segments.reduce(
         (
           sum: number,
-          segment: Simulation.IBody["profile"]["segments"][number],
+          segment: IAutoMoviePhysicalSimulationInput.IBody["profile"]["segments"][number],
         ): number => sum + segment.shapes.length,
         0,
       ) > 40)
@@ -156,8 +157,9 @@ export function admitPhysicalBody(
   )
     throw new Error(`${body.id}: invalid released articulation quality budget`);
   if (body.supportTracking) {
-    const policy: NonNullable<Simulation.IBody["supportTracking"]> =
-      body.supportTracking;
+    const policy: NonNullable<
+      IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
+    > = body.supportTracking;
     admitPhysicalSupportPattern(body.profile, policy.pattern, false);
     if (
       ![policy.stiffness, policy.damping, policy.maximumForce].every(
@@ -172,7 +174,9 @@ export function admitPhysicalBody(
       throw new Error(`${body.id}: invalid planted support actuator policy`);
   }
   if (body.balance) {
-    const policy: NonNullable<Simulation.IBody["balance"]> = body.balance;
+    const policy: NonNullable<
+      IAutoMoviePhysicalSimulationInput.IBody["balance"]
+    > = body.balance;
     admitPhysicalSupportPattern(body.profile, policy.pattern, true);
     if (
       !(Math.abs(Math.fround(input.gravity.y * gravity)) > 0) ||

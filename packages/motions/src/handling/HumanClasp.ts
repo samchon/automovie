@@ -1,24 +1,25 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  clampJointToSkeleton,
-  type curlChainUntilContact,
-} from "@automovie/engine";
+import { Quaternion, Vector3, clampJointToSkeleton } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieCurlChainUntilContact,
   IAutoMovieJointPose,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanGrip,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePhysicalShape,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
@@ -84,10 +85,10 @@ export namespace HumanClasp {
     subject: string;
 
     /** The person's body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The standing posture the arm is fitted in. */
-    posture: IHumanPosture;
+    posture: IAutoMovieMotionHumanPosture;
 
     /** Where the palm faces, world unit vector. */
     palm: IAutoMovieVector3;
@@ -99,10 +100,10 @@ export namespace HumanClasp {
   /** The clasp both partners take. */
   export interface IChoice {
     /** This person's grip: its turn, its wrist goal, its shown hand and its arm. */
-    mine: HumanGrasp.IReach;
+    mine: IAutoMovieMotionHumanGrasp.IReach;
 
     /** The partner's grip, as the partner will take it. */
-    theirs: HumanGrasp.IReach;
+    theirs: IAutoMovieMotionHumanGrasp.IReach;
 
     /** The least gap of either open hand's phalanges to the other's forearm, metres. */
     clearance: number;
@@ -117,10 +118,10 @@ export namespace HumanClasp {
    * @returns Clinical degrees of every digit bone of that hand.
    */
   export function open(
-    body: IHumanBody,
-    side: HumanHand.Side,
-  ): IHumanPosture["joints"] {
-    const joints: IHumanPosture["joints"] = {
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanPosture["joints"] {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
       ...HumanHand.shape(side, "flat"),
     };
     for (const part of ["Metacarpal", "Proximal", "Distal"] as const) {
@@ -182,14 +183,14 @@ export namespace HumanClasp {
    * @returns Both grips and their clearance.
    */
   export function choose(
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
     meet: IAutoMovieVector3,
     amplitude: number,
     mine: IHand,
     theirs: IHand,
   ): IChoice {
-    const fits = (hand: IHand): HumanGrasp.IReach[] => {
-      const posture: IHumanPosture = {
+    const fits = (hand: IHand): IAutoMovieMotionHumanGrasp.IReach[] => {
+      const posture: IAutoMovieMotionHumanPosture = {
         ...hand.posture,
         joints: { ...hand.posture.joints, ...open(hand.body, side) },
       };
@@ -203,13 +204,13 @@ export namespace HumanClasp {
         palm: hand.palm,
       });
       return TURNS.map(
-        (turn: number): HumanGrasp.IReach =>
+        (turn: number): IAutoMovieMotionHumanGrasp.IReach =>
           HumanGrasp.reachable(
             hand.body,
             posture,
             side,
             bend,
-            (angle: number): HumanHand.IWrist =>
+            (angle: number): IAutoMovieMotionHumanHand.IWrist =>
               HumanHand.place(
                 hand.body,
                 side,
@@ -224,9 +225,11 @@ export namespace HumanClasp {
                 "flat",
               ),
             [0],
-            (wrist: HumanHand.IWrist): HumanGrasp.IKey[] =>
+            (
+              wrist: IAutoMovieMotionHumanHand.IWrist,
+            ): IAutoMovieMotionHumanGrasp.IKey[] =>
               [-amplitude, amplitude].map(
-                (lift: number): HumanGrasp.IKey => ({
+                (lift: number): IAutoMovieMotionHumanGrasp.IKey => ({
                   posture,
                   wrist: {
                     point: { ...wrist.point, y: wrist.point.y + lift },
@@ -245,19 +248,21 @@ export namespace HumanClasp {
     const [one, two]: [IHand, IHand] = swapped
       ? [theirs, mine]
       : [mine, theirs];
-    const a: HumanGrasp.IReach[] = fits(one);
-    const b: HumanGrasp.IReach[] = fits(two);
+    const a: IAutoMovieMotionHumanGrasp.IReach[] = fits(one);
+    const b: IAutoMovieMotionHumanGrasp.IReach[] = fits(two);
     type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     const aBones: Bones[] = a.map(
-      (r: HumanGrasp.IReach): Bones => poseBones(one.body, r.pose),
+      (r: IAutoMovieMotionHumanGrasp.IReach): Bones =>
+        poseBones(one.body, r.pose),
     );
     const bBones: Bones[] = b.map(
-      (r: HumanGrasp.IReach): Bones => poseBones(two.body, r.pose),
+      (r: IAutoMovieMotionHumanGrasp.IReach): Bones =>
+        poseBones(two.body, r.pose),
     );
     // Each arm's admissible turns: those it reaches through the pump, and of
     // those the ones in the lowest upper-arm band any of them attains.
     const admitted = (
-      reaches: HumanGrasp.IReach[],
+      reaches: IAutoMovieMotionHumanGrasp.IReach[],
       bones: Bones[],
     ): number[] => {
       const band = (index: number): number => {
@@ -277,7 +282,7 @@ export namespace HumanClasp {
         return found === -1 ? BANDS.length : found;
       };
       const all: number[] = reaches.map(
-        (_: HumanGrasp.IReach, index: number): number => index,
+        (_: IAutoMovieMotionHumanGrasp.IReach, index: number): number => index,
       );
       const reached: number[] = all.filter(
         (index: number): boolean => reaches[index]!.miss <= REACHED,
@@ -305,8 +310,8 @@ export namespace HumanClasp {
           (clear < 0 && best.clear < 0 && clear > best.clear);
         if (better) best = { i, j, clear, cost };
       }
-    const first: HumanGrasp.IReach = a[best!.i]!;
-    const second: HumanGrasp.IReach = b[best!.j]!;
+    const first: IAutoMovieMotionHumanGrasp.IReach = a[best!.i]!;
+    const second: IAutoMovieMotionHumanGrasp.IReach = b[best!.j]!;
     return {
       mine: swapped ? second : first,
       theirs: swapped ? first : second,
@@ -328,18 +333,18 @@ export namespace HumanClasp {
    * @returns Metres, negative inside.
    */
   export function clearance(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    other: IHumanBody,
+    other: IAutoMovieMotionHumanBody,
     others: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
   ): number {
     const forearm: AutoMovieHumanoidBone = `${side}LowerArm`;
     const only: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       new Map([[forearm, others.get(forearm)!]]);
     let least: number = Infinity;
     for (const digit of HumanGrip.CLOSING.power) {
-      const chain: curlChainUntilContact.IChain = HumanGrip.chain(
+      const chain: IAutoMovieCurlChainUntilContact.IChain = HumanGrip.chain(
         body,
         side,
         digit,
@@ -380,19 +385,20 @@ export namespace HumanClasp {
    * @returns This person's closed digit angles, clinical degrees.
    */
   export function close(
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
     choice: IChoice,
     mine: IHand,
     theirs: IHand,
-  ): IHumanPosture["joints"] {
+  ): IAutoMovieMotionHumanPosture["joints"] {
     const swapped: boolean = theirs.subject < mine.subject;
     const [one, two]: [IHand, IHand] = swapped
       ? [theirs, mine]
       : [mine, theirs];
-    const [a, b]: [HumanGrasp.IReach, HumanGrasp.IReach] = swapped
-      ? [choice.theirs, choice.mine]
-      : [choice.mine, choice.theirs];
-    const first: IHumanPosture["joints"] = HumanGrip.close(
+    const [a, b]: [
+      IAutoMovieMotionHumanGrasp.IReach,
+      IAutoMovieMotionHumanGrasp.IReach,
+    ] = swapped ? [choice.theirs, choice.mine] : [choice.mine, choice.theirs];
+    const first: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.close(
       one.body,
       side,
       "power",
@@ -442,32 +448,35 @@ export namespace HumanClasp {
    * @returns The placed colliders.
    */
   export function colliders(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: HumanHand.Side,
-  ): curlChainUntilContact.ICollider[] {
+    side: AutoMovieHumanSide,
+  ): IAutoMovieCurlChainUntilContact.ICollider[] {
     const digits: Set<AutoMovieHumanoidBone> = new Set(
       HumanGrip.CLOSING.power.flatMap(
-        (digit: HumanGrip.Digit): AutoMovieHumanoidBone[] =>
+        (digit: IAutoMovieMotionHumanGrip.Digit): AutoMovieHumanoidBone[] =>
           HumanGrip.bones(side, digit),
       ),
     );
     return HumanColliders.placed(body, bones)
       .filter(
-        (p: HumanColliders.IPlaced): boolean =>
+        (p: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
           p.bone === `${side}Hand` ||
           p.bone === `${side}LowerArm` ||
           digits.has(p.bone),
       )
-      .flatMap((p: HumanColliders.IPlaced): curlChainUntilContact.ICollider[] =>
-        p.shapes.map(
-          (
-            shape: IAutoMoviePhysicalProfile.IShape,
-          ): curlChainUntilContact.ICollider => ({
-            shape,
-            frame: { position: p.pose.position, rotation: p.pose.rotation },
-          }),
-        ),
+      .flatMap(
+        (
+          p: IAutoMovieMotionHumanColliders.IPlaced,
+        ): IAutoMovieCurlChainUntilContact.ICollider[] =>
+          p.shapes.map(
+            (
+              shape: IAutoMoviePhysicalShape,
+            ): IAutoMovieCurlChainUntilContact.ICollider => ({
+              shape,
+              frame: { position: p.pose.position, rotation: p.pose.rotation },
+            }),
+          ),
       );
   }
 }

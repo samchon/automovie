@@ -1,8 +1,11 @@
-import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionSplitSeam,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
-/** World point or direction, mm. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
+
 const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
 
 /**
@@ -11,64 +14,11 @@ const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
  * The curve is the clamped cubic spline, on chord-length parameters (mm) between its knots, so it is parameterized by its own course and may run out along the host before it turns across the end, through the seam's first end (the host's end ring at phase `a`), the authored knots and its second end (phase `b`). At each end its unit tangent is the line where the host's tangent plane meets the seam plane: out of the host at the first end, into it at the second. The seam therefore leaves both forks along the host's own surface. Columns read it at equal arclength shares.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the plane, the curve, its end tangents, its parameter and its refusals.
- * @evidence contracts/development/design.md#principled-representation Represents A split's curved seam (`IAutoMovieConstructionSplit.IProfile`): the curve both bands start from in place of the straight chord, in the seam plane that holds the chord and the host end's outward normal: companion namespace of 4 members (`IPoint`, `ISeam`, `create`, `GAUSS`); units and frames named in its text: second, radians, world. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#principled-representation Represents A split's curved seam (`IAutoMovieConstructionSplit.IProfile`): the curve both bands start from in place of the straight chord, in the seam plane that holds the chord and the host end's outward normal: companion namespace of 4 members (`IAutoMovieConstructionSplitSeam.IPoint`, `ISeam`, `create`, `GAUSS`); units and frames named in its text: second, radians, world. It has no optional member, so no absent-value state combines with another.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConstructionSplitSeam` in packages/engine/src/geometry/construction/AutoMovieConstructionSplitSeam.ts; its surface is the 4 members listed and the text shows 4 other files naming it, mostly packages/engine (3), test (1), so no member is declared for a presumed future need.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieConstructionSplitSeam {
-  /**
-   * One reading of the seam.
-   *
-   * @evidence contracts/development/design.md#principled-representation A point and its unit tangent fix a column's start and the seam's direction there.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two vectors.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only.
-   * @evidence contracts/development/common.md#meaningful-documentation States units and orientation.
-   */
-  export interface IPoint {
-    /** The seam's point, mm. */
-    point: Vec3;
-
-    /** Its unit tangent, toward the seam's second end. */
-    tangent: Vec3;
-
-    /** Its curvature vector, the second derivative in its arclength, per mm: what a band's edge carried onto the seam needs between columns. */
-    bend: Vec3;
-  }
-
-  /**
-   * The built seam.
-   *
-   * @evidence contracts/development/design.md#principled-representation Its ends, plane normal and arclength reading are all a band needs to place its chord columns and rule them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Ends, one normal, one length and one reader.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The reader evaluates the solved spline; it never resamples.
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and orientation.
-   */
-  export interface ISeam {
-    /** The first end (host phase `a`) and the second (phase `b`), mm. */
-    ends: [Vec3, Vec3];
-
-    /** The seam plane's unit normal, `e1 x e2` (`e1` along the chord from the first end, `e2` the end normal square to it); unoriented toward either band. */
-    normal: Vec3;
-
-    /** The seam's arclength, mm. */
-    length: number;
-
-    /**
-     * The seam at an arclength share.
-     *
-     * @param t The share of the length from the first end, in `[0, 1]`.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: The seam at an arclength share.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: The seam at an arclength share.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
-     */
-    at(t: number): IPoint;
-  }
-
   /**
    * Build the seam, or the reason it cannot be built.
    *
@@ -89,15 +39,9 @@ export namespace AutoMovieConstructionSplitSeam {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The two end jets serve both the ends and their tangents.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned seam retains its arrays.
    */
-  export function create(input: {
-    host: IAutoMovieSolidSurface;
-    station: number;
-    into: 1 | -1;
-    seam: [number, number];
-    normal: Vec3;
-    knots: readonly (readonly [number, number])[];
-    heading?: Vec3;
-  }): ISeam | string {
+  export function create(
+    input: IAutoMovieConstructionSplitSeam.ICreateInput,
+  ): IAutoMovieConstructionSplitSeam.ISeam | string {
     const first: IAutoMovieSolidSurface.IJet = input.host.jet(
       input.station,
       input.seam[0],
@@ -106,18 +50,23 @@ export namespace AutoMovieConstructionSplitSeam {
       input.station,
       input.seam[1],
     );
-    const A: Vec3 = [first.p[0]!, first.p[1]!, first.p[2]!];
-    const B: Vec3 = [second.p[0]!, second.p[1]!, second.p[2]!];
+    const A: AutoMovieVector3Tuple = [first.p[0]!, first.p[1]!, first.p[2]!];
+    const B: AutoMovieVector3Tuple = [second.p[0]!, second.p[1]!, second.p[2]!];
     const chord: number = norm(sub(B, A));
-    const e1: Vec3 | null = unit(sub(B, A));
+    const e1: AutoMovieVector3Tuple | null = unit(sub(B, A));
     if (e1 === null) return "the seam's ends coincide";
     // The plane's second axis: the declared heading, or the end normal, square to the chord and out of the host.
-    const toward: Vec3 = input.heading ?? input.normal;
-    const square: Vec3 | null = unit(sub(toward, scale(e1, dot(toward, e1))));
+    const toward: AutoMovieVector3Tuple = input.heading ?? input.normal;
+    const square: AutoMovieVector3Tuple | null = unit(
+      sub(toward, scale(e1, dot(toward, e1))),
+    );
     if (square === null)
-      return input.heading === undefined ? "the host end's normal runs along the chord, so no seam plane stands" : "the seam's heading runs along the chord, so no seam plane stands";
-    const e2: Vec3 = dot(square, input.normal) < 0 ? scale(square, -1) : square;
-    const normal: Vec3 = cross(e1, e2);
+      return input.heading === undefined
+        ? "the host end's normal runs along the chord, so no seam plane stands"
+        : "the seam's heading runs along the chord, so no seam plane stands";
+    const e2: AutoMovieVector3Tuple =
+      dot(square, input.normal) < 0 ? scale(square, -1) : square;
+    const normal: AutoMovieVector3Tuple = cross(e1, e2);
 
     // Knots in the plane's coordinates: (along e1 from A, along e2), mm. The
     // spline below is parameterized by chord length between knots, so a knot
@@ -143,13 +92,15 @@ export namespace AutoMovieConstructionSplitSeam {
       j: IAutoMovieSolidSurface.IJet,
       sign: 1 | -1,
     ): [number, number] | null => {
-      const u: Vec3 = [j.u[0]!, j.u[1]!, j.u[2]!];
-      const v: Vec3 = [j.v[0]!, j.v[1]!, j.v[2]!];
-      const along: Vec3 | null = unit(cross(cross(u, v), normal));
+      const u: AutoMovieVector3Tuple = [j.u[0]!, j.u[1]!, j.u[2]!];
+      const v: AutoMovieVector3Tuple = [j.v[0]!, j.v[1]!, j.v[2]!];
+      const along: AutoMovieVector3Tuple | null = unit(
+        cross(cross(u, v), normal),
+      );
       // A direction square to the station derivative runs along the end
       // ring: it cannot leave the host.
       if (along === null || !(Math.abs(dot(along, u)) > 0)) return null;
-      const out: Vec3 = scale(
+      const out: AutoMovieVector3Tuple = scale(
         along,
         Math.sign(dot(along, u)) * input.into * sign,
       );
@@ -269,13 +220,14 @@ export namespace AutoMovieConstructionSplitSeam {
       (x: number, y: number): number => x + y,
       0,
     );
-    const world: (p: [number, number]) => Vec3 = (p: [number, number]): Vec3 =>
-      add(A, add(scale(e1, p[0]), scale(e2, p[1])));
+    const world: (p: [number, number]) => AutoMovieVector3Tuple = (
+      p: [number, number],
+    ): AutoMovieVector3Tuple => add(A, add(scale(e1, p[0]), scale(e2, p[1])));
     return {
       ends: [A, B],
       normal,
       length,
-      at: (t: number): IPoint => {
+      at: (t: number): IAutoMovieConstructionSplitSeam.IPoint => {
         let target: number = Math.min(1, Math.max(0, t)) * length;
         let i: number = 0;
         while (i < lengths.length - 1 && target > lengths[i]!)
@@ -291,7 +243,7 @@ export namespace AutoMovieConstructionSplitSeam {
           i,
           (lo + hi) / 2,
         );
-        const d: Vec3 | null = unit(
+        const d: AutoMovieVector3Tuple | null = unit(
           add(scale(e1, at.d[0]), scale(e2, at.d[1])),
         );
         // The curvature vector: the span's second derivative less its part along the tangent, over the squared speed.
@@ -306,7 +258,7 @@ export namespace AutoMovieConstructionSplitSeam {
         ) as [number, number];
         const speed: number = at.d[0] * at.d[0] + at.d[1] * at.d[1];
         const turn: number = speed > 0 ? (dd[0] * at.d[0] + dd[1] * at.d[1]) / speed : 0;
-        const bend: Vec3 =
+        const bend: AutoMovieVector3Tuple =
           speed > 0
             ? add(scale(e1, (dd[0] - turn * at.d[0]) / speed), scale(e2, (dd[1] - turn * at.d[1]) / speed))
             : [0, 0, 0];
@@ -334,20 +286,22 @@ export namespace AutoMovieConstructionSplitSeam {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The two end jets serve both ends and the plane.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains two ends and one normal.
    */
-  export function straight(input: { host: IAutoMovieSolidSurface; station: number; seam: [number, number]; normal: Vec3; heading?: Vec3 }): ISeam | string {
+  export function straight(
+    input: IAutoMovieConstructionSplitSeam.IStraightInput,
+  ): IAutoMovieConstructionSplitSeam.ISeam | string {
     const pa: readonly number[] = input.host.jet(input.station, input.seam[0]).p;
     const pb: readonly number[] = input.host.jet(input.station, input.seam[1]).p;
-    const A: Vec3 = [pa[0]!, pa[1]!, pa[2]!];
-    const B: Vec3 = [pb[0]!, pb[1]!, pb[2]!];
-    const e1: Vec3 | null = unit(sub(B, A));
+    const A: AutoMovieVector3Tuple = [pa[0]!, pa[1]!, pa[2]!];
+    const B: AutoMovieVector3Tuple = [pb[0]!, pb[1]!, pb[2]!];
+    const e1: AutoMovieVector3Tuple | null = unit(sub(B, A));
     if (e1 === null) return "the seam's ends coincide";
     // The plane's second axis, as `create` takes it: a composed end's bisector when one is given, else the end normal.
-    const toward: Vec3 = input.heading ?? input.normal;
-    const square: Vec3 | null = unit(sub(toward, scale(e1, dot(toward, e1))));
+    const toward: AutoMovieVector3Tuple = input.heading ?? input.normal;
+    const square: AutoMovieVector3Tuple | null = unit(sub(toward, scale(e1, dot(toward, e1))));
     if (square === null) return input.heading === undefined ? "the host end's normal runs along the chord, so no seam plane stands" : "the seam's heading runs along the chord, so no seam plane stands";
-    const e2: Vec3 = dot(square, input.normal) < 0 ? scale(square, -1) : square;
+    const e2: AutoMovieVector3Tuple = dot(square, input.normal) < 0 ? scale(square, -1) : square;
     const length: number = norm(sub(B, A));
-    return { ends: [A, B], normal: cross(e1, e2), length, at: (t: number): IPoint => ({ point: add(A, scale(e1, Math.min(1, Math.max(0, t)) * length)), tangent: e1, bend: [0, 0, 0] }) };
+    return { ends: [A, B], normal: cross(e1, e2), length, at: (t: number): IAutoMovieConstructionSplitSeam.IPoint => ({ point: add(A, scale(e1, Math.min(1, Math.max(0, t)) * length)), tangent: e1, bend: [0, 0, 0] }) };
   }
 
   /** 8-point Gauss-Legendre nodes and weights on [-1, 1]. */

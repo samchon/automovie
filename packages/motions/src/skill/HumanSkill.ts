@@ -1,10 +1,10 @@
-import {
-  type IAutoMovieRandom,
-  createAutoMovieRandom,
-  deriveAutoMovieSeed,
-} from "@automovie/engine";
-
-import type { IAutoMovieProficiency } from "./IAutoMovieProficiency";
+import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieProficiency,
+  IAutoMovieRandom,
+  IAutoMovieReactionTimeDistribution,
+} from "@automovie/interface";
 
 /**
  * A performer's skill as numbers laws read: each proficiency axis resolved
@@ -36,18 +36,6 @@ import type { IAutoMovieProficiency } from "./IAutoMovieProficiency";
  * another's draws. Skill never raises a range of motion.
  */
 export namespace HumanSkill {
-  /** A resolved skill. */
-  export interface ISkill {
-    /** The overall value in [0, 1]. */
-    p: number;
-
-    /** Each axis's value in [0, 1]. */
-    axes: Readonly<Record<IAutoMovieProficiency.Axis, number>>;
-
-    /** The chain seed every draw starts from. */
-    seed: string;
-  }
-
   /** The named levels' values. */
   export const LEVELS: Readonly<
     Record<"novice" | "amateur" | "trained" | "elite", number>
@@ -82,7 +70,7 @@ export namespace HumanSkill {
   export function resolve(
     proficiency: IAutoMovieProficiency,
     seed: string,
-  ): ISkill {
+  ): IAutoMovieMotionHumanSkill {
     const p: number =
       "level" in proficiency ? LEVELS[proficiency.level] : proficiency.p;
     if (!(p >= 0 && p <= 1)) throw new Error("A proficiency lies in [0, 1]");
@@ -106,7 +94,7 @@ export namespace HumanSkill {
    * @returns `lerp(novice, elite, smoothstep(axis))`.
    */
   export function quantity(
-    skill: ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     axis: IAutoMovieProficiency.Axis,
     novice: number,
     elite: number,
@@ -127,7 +115,7 @@ export namespace HumanSkill {
    * @returns The stream.
    */
   export function stream(
-    skill: ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     subject: string,
     action: string,
     instance: number,
@@ -155,7 +143,7 @@ export namespace HumanSkill {
    * @returns The stream.
    */
   export function series(
-    skill: ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     subject: string,
     action: string,
     channel: string,
@@ -179,6 +167,29 @@ export namespace HumanSkill {
   }
 
   /**
+   * One simple reaction time drawn from an ex-Gaussian, the distribution
+   * simple reaction times follow (Hohle 1965): a normal of mean `mu` and
+   * standard deviation `sigma` plus an exponential of mean `tau`. The family
+   * that reacts gives the three parameters from its own studies (orienting in
+   * `look`, combat in `StrikingSkill`, a command's answer in
+   * `HumanResponse`) and its own floor or band; this is the one draw.
+   *
+   * @param law The ex-Gaussian's parameters, seconds.
+   * @param random The stream; reads indices `index`, `index + 1` (the normal) and `index + 2` (the exponential).
+   * @param index The first index read; 0 when absent.
+   * @returns Seconds, unfloored.
+   */
+  export function reaction(
+    law: IAutoMovieReactionTimeDistribution,
+    random: IAutoMovieRandom,
+    index: number = 0,
+  ): number {
+    const exponential: number =
+      -law.tau * Math.log(Math.max(1e-12, 1 - random.float(index + 2)));
+    return law.mu + law.sigma * normal(random, index) + exponential;
+  }
+
+  /**
    * Endpoint scatter of a movement, metres: impulse variability's
    * `k D / T` (Schmidt et al. 1979), k from 0.012 s (novice) to 0.004 s
    * (elite) on the `path` axis, provisional constants.
@@ -189,7 +200,7 @@ export namespace HumanSkill {
    * @returns The standard deviation of the endpoint, metres.
    */
   export function scatter(
-    skill: ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     distance: number,
     seconds: number,
   ): number {
@@ -203,7 +214,7 @@ export namespace HumanSkill {
    * @param skill The skill.
    * @returns The factor on a family's sway amplitude.
    */
-  export function sway(skill: ISkill): number {
+  export function sway(skill: IAutoMovieMotionHumanSkill): number {
     return quantity(skill, "balance", 1.6, 1);
   }
 
@@ -218,7 +229,7 @@ export namespace HumanSkill {
    * @returns The realised duration.
    */
   export function jitter(
-    skill: ISkill,
+    skill: IAutoMovieMotionHumanSkill,
     random: IAutoMovieRandom,
     seconds: number,
   ): number {

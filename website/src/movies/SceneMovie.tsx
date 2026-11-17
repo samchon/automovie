@@ -18,13 +18,15 @@ import { TransportKeys } from "../components/stage/TransportKeys";
 import { formatArchetypeLabel } from "../gallery/formatArchetypeLabel";
 import { PlaygroundAddress } from "../playground/PlaygroundAddress";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
+import type { IPlaygroundTimeline } from "../playground/structures/IPlaygroundTimeline";
 import type { SceneClock } from "../scenes/SceneClock";
 import { SceneFacts } from "../scenes/SceneFacts";
+import { computeSceneTake } from "../scenes/computeSceneTake";
 import { formatSceneChain } from "../scenes/formatSceneChain";
 import type { IScene } from "../scenes/structures/IScene";
 import type { ISceneChainNames } from "../scenes/structures/ISceneChainNames";
-import type { ISceneManifest } from "../scenes/structures/ISceneManifest";
 import type { IScenePlayer } from "../scenes/structures/IScenePlayer";
+import type { TakeClient } from "../takes/TakeClient";
 
 /** The panels under the player. */
 type Panel = "variations" | "made";
@@ -51,21 +53,25 @@ const VIEWS: readonly IScene.ICamera["view"][] = [
  * side by side on the same clock, or how the scene is made. Customise opens
  * the scene's composition in the playground, with every parameter.
  *
- * A scene the build did not bake, because it waits on a release or is
+ * Every take is computed in the page when its view comes into the window,
+ * and the clock runs as long as the longest take computed so far; the
+ * transport appears with the first take that plays, and How is this made?
+ * computes the takes in order until one plays to show its timeline. A scene
+ * the installed packages cannot compute, because it waits on a release or is
  * planned, shows what it will compose and the issues it waits on. A scene
  * whose every take the packages refuse shows each refusal in place of its
  * take, with no transport and no timeline, since nothing plays.
  *
- * @param props The scene's record, its baked takes if any, the reference page of each action by name, and the exported names its code refers to.
+ * @param props The scene's record, whether the installed packages compute its takes, the reference page of each action by name, and the exported names its code refers to.
  * @returns The page.
  */
 export default function SceneMovie(props: {
   scene: IScene;
-  baked: ISceneManifest.IScene | null;
+  computes: boolean;
   pages: Record<string, string>;
   names: ISceneChainNames | null;
 }): ReactElement {
-  const { scene, baked }: typeof props = props;
+  const { scene, computes }: typeof props = props;
   const clock: SceneClock = useSceneClock();
   const [panel, setPanel]: [Panel, Dispatch<SetStateAction<Panel>>] =
     useState<Panel>("variations");
@@ -83,17 +89,49 @@ export default function SceneMovie(props: {
     if (window.location.hash === "#made") setPanel("made");
   }, []);
 
-  // The clock runs as long as the longest take.
-  useEffect((): void => {
-    if (baked === null) return;
-    clock.duration = Math.max(
-      ...baked.takes.map((t: ISceneManifest.ITake): number => t.duration),
-    );
-    clock.fps = baked.takes[0]?.fps ?? 12;
+  const [plays, setPlays]: [boolean, Dispatch<SetStateAction<boolean>>] =
+    useState<boolean>(false);
+  const [timeline, setTimeline]: [
+    IPlaygroundTimeline | null | "none",
+    Dispatch<SetStateAction<IPlaygroundTimeline | null | "none">>,
+  ] = useState<IPlaygroundTimeline | null | "none">(null);
+
+  // The clock runs as long as the longest take computed so far.
+  const extend: (take: IScenePlayer) => void = (take: IScenePlayer): void => {
+    clock.duration = Math.max(clock.duration, take.duration);
+    clock.fps = take.fps;
 
     // A seek tells the transport, which reads the film's length from the clock.
     clock.seek(clock.time);
-  }, [baked, clock]);
+    setPlays(true);
+  };
+
+  // How is this made? shows the timeline of the first take that plays; the
+  // takes are asked in order, and one the player computed is read from the
+  // page's cache.
+  useEffect((): (() => void) | undefined => {
+    if (panel !== "made" || !computes || timeline !== null) return undefined;
+    let alive: boolean = true;
+    const find: () => Promise<IPlaygroundTimeline | "none"> = async (): Promise<
+      IPlaygroundTimeline | "none"
+    > => {
+      for (let index: number = 0; index < scene.takes.length; index++) {
+        const result: TakeClient.Result = await computeSceneTake(scene, index);
+        if (result.kind === "take") return result.take.timeline;
+      }
+      return "none";
+    };
+    find()
+      .then((found: IPlaygroundTimeline | "none"): void => {
+        if (alive) setTimeline(found);
+      })
+      .catch((): void => {
+        if (alive) setTimeline("none");
+      });
+    return (): void => {
+      alive = false;
+    };
+  }, [panel, computes, scene, timeline]);
 
   const head: ReactElement = (
     <header className="am-app-head">
@@ -114,7 +152,7 @@ export default function SceneMovie(props: {
     </header>
   );
 
-  if (baked === null || scene.composition === null)
+  if (!computes || scene.composition === null)
     return (
       <main className="am-app" data-pagefind-body>
         {head}
@@ -175,12 +213,6 @@ export default function SceneMovie(props: {
     );
 
   const composition: IPlaygroundComposition = scene.composition;
-
-  // The first take that plays gives the timeline; none plays when the
-  // packages refuse every take.
-  const timed: ISceneManifest.ITake | undefined = baked.takes.find(
-    (t: ISceneManifest.ITake): boolean => t.refusal === undefined,
-  );
   const roles: Record<string, string> = Object.fromEntries(
     scene.cast.map((c: IScene.ICast): [string, string] => [c.subject, c.role]),
   );
@@ -223,11 +255,12 @@ export default function SceneMovie(props: {
             take={0}
             clock={clock}
             orbit
-            onLoad={(take: IScenePlayer, redraw: () => void): void =>
-              setPlayer({ take, redraw })
-            }
+            onLoad={(take: IScenePlayer, redraw: () => void): void => {
+              extend(take);
+              setPlayer({ take, redraw });
+            }}
           />
-          {timed === undefined ? null : <Transport clock={clock} />}
+          {plays ? <Transport clock={clock} /> : null}
         </TransportKeys>
 
         <aside className="am-scene-aside" aria-label="About the scene">
@@ -339,18 +372,19 @@ export default function SceneMovie(props: {
       {panel === "variations" ? (
         <section aria-label="Variations" className="am-stack">
           <p className="am-muted">
-            The same composition in {baked.takes.length} takes, played on the
+            The same composition in {scene.takes.length} takes, played on the
             player&apos;s clock: each changes one choice and keeps the rest.
           </p>
           <ul className="am-take-grid">
-            {baked.takes.map(
-              (take: ISceneManifest.ITake, index: number): ReactElement => (
+            {scene.takes.map(
+              (take: IScene.ITake, index: number): ReactElement => (
                 <li key={index} className="am-take">
                   <SceneView
                     scene={scene}
                     take={index}
                     clock={clock}
                     label={take.label}
+                    onLoad={extend}
                   />
                   <span className="am-take-label">{take.label}</span>
                 </li>
@@ -370,10 +404,16 @@ export default function SceneMovie(props: {
           <pre className="am-code">
             <code>{formatSceneChain(composition, props.names!)}</code>
           </pre>
-          {timed === undefined ? null : (
+          {timeline === "none" ? null : (
             <>
               <h2>Timeline</h2>
-              <SceneTimeline take={timed} roles={roles} />
+              {timeline === null ? (
+                <p className="am-status" role="status">
+                  Computing the timeline.
+                </p>
+              ) : (
+                <SceneTimeline timeline={timeline} roles={roles} />
+              )}
             </>
           )}
         </section>

@@ -1,4 +1,4 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * Axis-aligned box in the coordinate frame of its owning result.

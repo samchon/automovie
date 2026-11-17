@@ -1,19 +1,22 @@
-import type { AutoMovieConstructionWidth } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionWidth,
+  IAutoMovieConstructionWidths,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieSolidFoldContact } from "./AutoMovieSolidFoldContact";
-import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
-import type { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
-import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { cross, dot, norm, scale } = AutoMovieSolidVector;
 
 /**
- * A join's width records as the kernel's width laws in millimetres (`AutoMovieSolidJoin.IInput.width`).
+ * A join's width records as the kernel's width laws in millimetres (`IAutoMovieSolidJoin.IInput.width`).
  *
  * A fold's radius is one value or, with `radii`, the periodic cubic through a table of values round the loop. With a `reach` the ball's term is each side's own chord to the ball's contact on its wall's circle of curvature across the curve (`AutoMovieSolidFoldContact`), exact on planes, spheres and cylinders cut square to their axes and equal to `R tan(beta / 2)` on a wedge, and a ball whose tangent length passes the cap is refused as `cleft` instead of being cut at it.
  *
@@ -22,33 +25,11 @@ const { cross, dot, norm, scale } = AutoMovieSolidVector;
  * A constant chord is one value; a chord table is the periodic cubic B-spline through its values at uniform curve parameters from 0. The two laws read from the surfaces, the fold's `R tan(beta / 2)` and the curvature's `share / max(|k|, kappa_g)` (`kappa_g` the curve's geodesic curvature toward a square-offset rail, `toward`), are evaluated at every point of the traced curve and read between them by the periodic cubic B-spline through those values from the seed's parameter, so every law is C2 round the loop. A `station` width is the part's fixed rail station under the phase parameter and is refused anywhere else.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each kind's law, where it is evaluated and how it is interpolated.
- * @evidence contracts/development/design.md#principled-representation Represents A join's width records as the kernel's width laws in millimetres (`AutoMovieSolidJoin.IInput.width`): companion namespace of 7 members (`ITraced`, `traced`, `create`, `law`, `turn`, `across`, ...); units and frames named in its text: metre, local, radians, second. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#principled-representation Represents A join's width records as the kernel's width laws in millimetres (`IAutoMovieSolidJoin.IInput.width`): companion namespace of 7 members (`IAutoMovieConstructionWidths.ITraced`, `traced`, `create`, `law`, `turn`, `across`, ...); units and frames named in its text: metre, local, radians, second. It has no optional member, so no absent-value state combines with another.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConstructionWidths` in packages/engine/src/geometry/construction/AutoMovieConstructionWidths.ts; its surface is the 7 members listed and the text shows 2 other files naming it, mostly packages/engine (2), so no member is declared for a presumed future need.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConstructionWidths {
-  /**
-   * The retained trace and surfaces from which fold/curvature laws read their knots.
-   *
-   * @evidence contracts/development/design.md#principled-representation Connects each traced chart point/tangent to the actual part/host jets and the merge/diff orientation convention.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One context shares the existing curve and sides across both width-law builders.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record does not validate curve closure, uniform parameters, nondegenerate jets or face indices; it relies on the trace owner's admitted output.
-   * @evidence contracts/development/common.md#meaningful-documentation Names part versus host atlas and the diff flag's inward kept-wall meaning.
-   */
-  export interface ITraced {
-    /** The traced curve. */
-    curve: AutoMovieSolidIntersection.ICurve;
-
-    /** The part's surface. */
-    part: IAutoMovieSolidSurface;
-
-    /** The host's faces. */
-    host: IAutoMovieSolidAtlas;
-
-    /** Whether the join is a diff, whose kept part wall faces into the part. */
-    diff: boolean;
-  }
-
   /**
    * Whether a width is read from the traced curve.
    *
@@ -63,7 +44,7 @@ export namespace AutoMovieConstructionWidths {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This kind predicate coordinates no trace or law cache itself.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returning a boolean retains no width record or resource.
    */
-  export function traced(width: AutoMovieConstructionWidth): boolean {
+  export function traced(width: IAutoMovieConstructionWidth): boolean {
     return width.type === "fold" || width.type === "curvature";
   }
 
@@ -83,7 +64,7 @@ export namespace AutoMovieConstructionWidths {
    *
    * A curvature law also keeps every square-offset rail a regular offset of the curve (`toward`): the host's rail always, the part's unless the
    * curve uses its phase, whose station rail does not offset square. A constant chord or table gets no such bound: a chord past that radius
-   * folds the blend and the join refuses it (`AutoMovieConstructionWidth`).
+   * folds the blend and the join refuses it (`IAutoMovieConstructionWidth`).
    *
    * @evidence contracts/development/implementation.md#principled-implementation Converts authored metre lengths to kernel mm and prepares the selected constant, periodic chord, fold-angle or curvature law; the curvature law bounds the chord by the tighter of the surface's normal-curvature radius across the curve and, on a square-offset side, the curve's geodesic radius toward the rail (offset regularity, Farouki and Neff 1990; the curvature vector from the trace's exact implicit second derivative, Ye and Maekawa 1999). Traced values are uniformly parameterized over one turn by the trace producer.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared law dispatch handles both sides, with a distinct part-station representation only when the curve uses part phase.
@@ -94,11 +75,11 @@ export namespace AutoMovieConstructionWidths {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned periodic closures own O(N) coefficients/start/count for the join's lifetime; chord closures borrow their input record/scale, and local sampled values/context are released after preparation.
    */
   export function create(
-    part: AutoMovieConstructionWidth,
-    host: AutoMovieConstructionWidth,
+    part: IAutoMovieConstructionWidth,
+    host: IAutoMovieConstructionWidth,
     phase: boolean,
-    curve: ITraced | null,
-  ): AutoMovieSolidJoin.IInput["width"] | string {
+    curve: IAutoMovieConstructionWidths.ITraced | null,
+  ): IAutoMovieSolidJoin.IInput["width"] | string {
     if (host.type === "station")
       return "a station width is the part's only, never the host's";
     if (part.type === "station" && !phase)
@@ -119,10 +100,10 @@ export namespace AutoMovieConstructionWidths {
 
   /** One side's law in millimetres; `square` says whether that side's rail offsets square to the curve, where the curvature law also bounds the chord by the curve's own bend toward the rail (`bend`). */
   function law(
-    width: Exclude<AutoMovieConstructionWidth, { type: "station" }>,
+    width: Exclude<IAutoMovieConstructionWidth, { type: "station" }>,
     side: "part" | "host",
     square: boolean,
-    curve: ITraced | null,
+    curve: IAutoMovieConstructionWidths.ITraced | null,
   ): ((t: number) => number) | string {
     const S: number = AutoMovieConstructionViews.SCALE;
     switch (width.type) {
@@ -192,7 +173,7 @@ export namespace AutoMovieConstructionWidths {
           return `the ${side} curvature end share ${width.end} must lie inside (0, 1)`;
         if (curve === null) return "the curvature width has no traced curve";
         const values: number[] = curve.curve.points.map(
-          (p: AutoMovieSolidIntersection.IPoint): number => {
+          (p: IAutoMovieSolidIntersection.IPoint): number => {
             const k: number =
               side === "part"
                 ? across(curve.part.jet(p.s, p.phi), p.tangent)
@@ -232,7 +213,10 @@ export namespace AutoMovieConstructionWidths {
    * @param p The point.
    * @returns The angle, radians in `[0, pi]`.
    */
-  function turn(curve: ITraced, p: AutoMovieSolidIntersection.IPoint): number {
+  function turn(
+    curve: IAutoMovieConstructionWidths.ITraced,
+    p: IAutoMovieSolidIntersection.IPoint,
+  ): number {
     const face: IAutoMovieSolidSurface = curve.host.faces[p.face]!;
     const h: IAutoMovieSolidSurface.IJet = face.jet(p.y, p.theta);
     const q: IAutoMovieSolidSurface.IJet = curve.part.jet(p.s, p.phi);
@@ -260,7 +244,7 @@ export namespace AutoMovieConstructionWidths {
    * @param side Which surface.
    * @returns The curvature, 1 per mm; 0 or less where the surface turns away from the fold in every direction or its chart degenerates.
    */
-  function concave(curve: ITraced, p: AutoMovieSolidIntersection.IPoint, side: "part" | "host"): number {
+  function concave(curve: IAutoMovieConstructionWidths.ITraced, p: IAutoMovieSolidIntersection.IPoint, side: "part" | "host"): number {
     const face: IAutoMovieSolidSurface = curve.host.faces[p.face]!;
     const j: IAutoMovieSolidSurface.IJet = side === "part" ? curve.part.jet(p.s, p.phi) : face.jet(p.y, p.theta);
     const sign: number = side === "part" ? curve.part.orientation * (curve.diff ? -1 : 1) : face.orientation;
@@ -299,7 +283,7 @@ export namespace AutoMovieConstructionWidths {
    * @param side Which surface's rail.
    * @returns The curvature, 1 per mm; 0 where the speed, the normal or the side vanishes, where the rail solve refuses too.
    */
-  function toward(curve: ITraced, p: AutoMovieSolidIntersection.IPoint, side: "part" | "host"): number {
+  function toward(curve: IAutoMovieConstructionWidths.ITraced, p: IAutoMovieSolidIntersection.IPoint, side: "part" | "host"): number {
     const face: IAutoMovieSolidSurface = curve.host.faces[p.face]!;
     const a: IAutoMovieSolidSurface.IJet = curve.part.jet(p.s, p.phi);
     const b: IAutoMovieSolidSurface.IJet = face.jet(p.y, p.theta);

@@ -1,8 +1,13 @@
-import type { AutoMovieComposition } from "./AutoMovieComposition";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+  IAutoMovieScheduleCue,
+  IAutoMovieScheduleEntry,
+  IAutoMovieScheduleLaws,
+  IAutoMovieScheduleWalk,
+} from "@automovie/interface";
+
 import { AutoMovieScheduleError } from "./AutoMovieScheduleError";
-import type { IAutoMovieIntent } from "./IAutoMovieIntent";
-import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
-import type { resolveAutoMovieSchedule } from "./resolveAutoMovieSchedule";
 
 /**
  * The state of one walk of a composition (`resolveAutoMovieSchedule`) and the
@@ -17,34 +22,6 @@ import type { resolveAutoMovieSchedule } from "./resolveAutoMovieSchedule";
  */
 export namespace AutoMovieScheduleWalk {
   /**
-   * What one walk keeps.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member, its keys and its unit.
-   * @evidence contracts/development/design.md#principled-representation The placed entries, the anchors' instants, the cuts' successors, the anchored entries and the cue tracks are the five things a later placement reads of an earlier one.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, all read by the cut, the placements and the walk.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No composition is named and nothing outlives the walk.
-   */
-  export interface IWalk {
-    /** The production's pure laws. */
-    laws: resolveAutoMovieSchedule.ILaws;
-
-    /** Entries placed so far, in walk order. */
-    entries: IAutoMovieSchedule.IEntry[];
-
-    /** Each anchor's contact instant, or its start when it has none, film seconds. */
-    anchors: Map<string, number>;
-
-    /** The index an entry's cut is followed by, by the cut entry's index. */
-    interrupted: Map<number, number>;
-
-    /** The entry each anchor names. */
-    anchored: Map<string, IAutoMovieSchedule.IEntry>;
-
-    /** The cue tracks of the laws. */
-    tracks: Map<string, readonly resolveAutoMovieSchedule.ICue[]>;
-  }
-
-  /**
    * A walk with nothing placed.
    *
    * @param laws The production's laws.
@@ -58,7 +35,9 @@ export namespace AutoMovieScheduleWalk {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The record lives as long as the walk.
    */
-  export function create(laws: resolveAutoMovieSchedule.ILaws): IWalk {
+  export function create(
+    laws: IAutoMovieScheduleLaws,
+  ): IAutoMovieScheduleWalk.IWalk {
     return {
       laws,
       entries: [],
@@ -86,16 +65,18 @@ export namespace AutoMovieScheduleWalk {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function instants(
-    walk: IWalk,
+    walk: IAutoMovieScheduleWalk.IWalk,
     of: string,
-  ): readonly resolveAutoMovieSchedule.ICue[] | undefined {
-    const entry: IAutoMovieSchedule.IEntry | undefined = walk.anchored.get(of);
-    if (entry === undefined) return walk.tracks.get(of);
-    const events: readonly resolveAutoMovieSchedule.ICue[] = entry.events ?? [];
+  ): readonly IAutoMovieScheduleCue[] | undefined {
+    const entry: IAutoMovieScheduleEntry | undefined = walk.anchored.get(of);
+
+    // A name that is no anchor and no fixed track may be a track the laws
+    // compute from what is placed so far (a struck person's hits).
+    if (entry === undefined)
+      return walk.tracks.get(of) ?? walk.laws.instants?.(of, walk.entries);
+    const events: readonly IAutoMovieScheduleCue[] = entry.events ?? [];
     const named: (name: string) => boolean = (name: string): boolean =>
-      events.some(
-        (e: resolveAutoMovieSchedule.ICue): boolean => e.name === name,
-      );
+      events.some((e: IAutoMovieScheduleCue): boolean => e.name === name);
     return [
       ...(named("start") ? [] : [{ name: "start", seconds: entry.start }]),
       ...events,
@@ -117,7 +98,7 @@ export namespace AutoMovieScheduleWalk {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function placed(walk: IWalk): string[] {
+  export function placed(walk: IAutoMovieScheduleWalk.IWalk): string[] {
     return [...walk.anchored.keys(), ...walk.tracks.keys()];
   }
 
@@ -142,18 +123,16 @@ export namespace AutoMovieScheduleWalk {
    */
   export function instant(
     of: string,
-    events: readonly resolveAutoMovieSchedule.ICue[],
+    events: readonly IAutoMovieScheduleCue[],
     name: string,
     index: number,
     by: IAutoMovieIntent | undefined,
   ): number {
-    const same: resolveAutoMovieSchedule.ICue[] = events.filter(
-      (e: resolveAutoMovieSchedule.ICue): boolean => e.name === name,
+    const same: IAutoMovieScheduleCue[] = events.filter(
+      (e: IAutoMovieScheduleCue): boolean => e.name === name,
     );
     const names: string[] = [
-      ...new Set(
-        events.map((e: resolveAutoMovieSchedule.ICue): string => e.name),
-      ),
+      ...new Set(events.map((e: IAutoMovieScheduleCue): string => e.name)),
     ];
     if (same.length === 0)
       throw new AutoMovieScheduleError(
@@ -167,7 +146,7 @@ export namespace AutoMovieScheduleWalk {
           alternatives: names,
         },
       );
-    const found: resolveAutoMovieSchedule.ICue | undefined = same[index];
+    const found: IAutoMovieScheduleCue | undefined = same[index];
     if (found === undefined)
       throw new AutoMovieScheduleError(
         `${of} has ${same.length} ${name} events, so index ${index} names none (the first is 0)`,
@@ -178,7 +157,7 @@ export namespace AutoMovieScheduleWalk {
           of,
           value: index,
           alternatives: same.map(
-            (_: resolveAutoMovieSchedule.ICue, i: number): string => String(i),
+            (_: IAutoMovieScheduleCue, i: number): string => String(i),
           ),
         },
       );
@@ -200,7 +179,7 @@ export namespace AutoMovieScheduleWalk {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function leading(
-    node: AutoMovieComposition,
+    node: IAutoMovieComposition,
   ): IAutoMovieIntent | undefined {
     return node.kind === "intent"
       ? node.intent

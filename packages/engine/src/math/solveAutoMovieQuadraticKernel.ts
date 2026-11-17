@@ -1,5 +1,9 @@
-import { IAutoMovieQuadraticConicProgram } from "./IAutoMovieQuadraticConicProgram";
-import { IAutoMovieQuadraticHeap } from "./IAutoMovieQuadraticHeap";
+import type {
+  IAutoMovieQuadraticConicProgram,
+  IAutoMovieQuadraticHeap,
+  IAutoMovieSolveQuadraticKernel,
+} from "@automovie/interface";
+
 import { createAutoMovieQuadraticConicProgram } from "./createAutoMovieQuadraticConicProgram";
 import { createAutoMovieQuadraticMemory } from "./createAutoMovieQuadraticMemory";
 import { equilibrateAutoMovieQuadraticProgram } from "./equilibrateAutoMovieQuadraticProgram";
@@ -27,25 +31,9 @@ import { solveAutoMovieQuadraticInterior } from "./solveAutoMovieQuadraticInteri
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Every mutable input receives its own cold state; only one solve's symbolic structure and current factors are reused by the interior owner.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One synchronous workspace borrow ends on success or exception and result arrays copy out; all numerical arrays and factors are call-owned, with no module, native memory, handle or cache retained across calls.
  */
-export function solveAutoMovieQuadraticKernel(input: {
-  diagonal: readonly number[];
-  linear: readonly number[];
-  columns: readonly number[];
-  rowIndices: readonly number[];
-  values: readonly number[];
-  lower: readonly number[];
-  upper: readonly number[];
-  initial?: readonly number[];
-}): {
-  status: number;
-  iterations: number;
-  primalResidual: number;
-  dualResidual: number;
-  objective: number;
-  dualObjective: number;
-  primal: number[];
-  dual: number[];
-} {
+export function solveAutoMovieQuadraticKernel(
+  input: IAutoMovieSolveQuadraticKernel.IInput,
+): IAutoMovieSolveQuadraticKernel.IResult {
   if (input.diagonal.length === 0)
     return {
       status: -1,
@@ -62,9 +50,7 @@ export function solveAutoMovieQuadraticKernel(input: {
   equilibrateAutoMovieQuadraticProgram(data);
   return createAutoMovieQuadraticMemory().withWorkspace(
     8 * (data.n + 2 * data.m),
-    (
-      heap: IAutoMovieQuadraticHeap,
-    ): ReturnType<typeof solveAutoMovieQuadraticKernel> =>
+    (heap: IAutoMovieQuadraticHeap): IAutoMovieSolveQuadraticKernel.IResult =>
       solveAutoMovieQuadraticInterior(data, heap.floats, input.lower.length),
   );
 }

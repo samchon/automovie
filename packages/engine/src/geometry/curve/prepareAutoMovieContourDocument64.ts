@@ -1,39 +1,14 @@
-import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
-import type { IAutoMovieContourLoft64 } from "./IAutoMovieContourLoft64";
-import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
-import { admitAutoMovieContourEvents64 } from "./admitAutoMovieContourEvents64";
+import type {
+  IAutoMovieAdmitContourEvents64,
+  IAutoMovieContourLoft64,
+  IAutoMoviePrepareContourDocument64Document,
+  IAutoMoviePrepareContourDocument64Observation,
+  IAutoMoviePrepareContourDocument64Slice,
+  IAutoMoviePreparedContourEvent64,
+} from "@automovie/interface";
 
-type V3 = M.V;
-interface Observation {
-  curve: IAutoMovieCurve64.Cubic;
-  winding: number;
-}
-interface Slice {
-  y: number;
-  loops: Observation[];
-}
-interface Incident {
-  loop: number;
-  winding: number;
-}
-interface Critical {
-  y: number;
-  y0: number;
-  y1: number;
-  point: V3 | null;
-  below: Incident[];
-  above: Incident[];
-  lowerLinkComponents: number;
-  upperLinkComponents: number;
-  manifoldLink: boolean;
-  equalHeightNeighbour: boolean;
-  unsupported?: string;
-}
-interface Document {
-  declaredEvents: IAutoMovieContourLoft64.IEvent[];
-  slices: Slice[];
-  events: Critical[];
-}
+import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
+import { admitAutoMovieContourEvents64 } from "./admitAutoMovieContourEvents64";
 
 /**
  * Admit saved contour events and build the local physical section document.
@@ -48,7 +23,7 @@ interface Document {
  */
 export function prepareAutoMovieContourDocument64(
   input: IAutoMovieContourLoft64,
-): Document {
+): IAutoMoviePrepareContourDocument64Document {
   if (!Number.isFinite(input.chordToleranceMm) || input.chordToleranceMm <= 0)
     throw new Error("Positive physical curve chord tolerance required");
   if (
@@ -59,10 +34,10 @@ export function prepareAutoMovieContourDocument64(
     )
   )
     throw new Error("Finite increasing section coordinates required");
-  const admittedEvents: ReturnType<typeof admitAutoMovieContourEvents64> =
+  const admittedEvents: IAutoMovieAdmitContourEvents64.IResult =
     admitAutoMovieContourEvents64(input);
   const events: IAutoMovieContourLoft64.IEvent[] = admittedEvents.events;
-  const document: Document = {
+  const document: IAutoMoviePrepareContourDocument64Document = {
     declaredEvents: events,
     slices: input.sections
       .filter(
@@ -75,23 +50,31 @@ export function prepareAutoMovieContourDocument64(
           ),
       )
       .map(
-        (section: IAutoMovieContourLoft64.ISection): Slice => ({
+        (
+          section: IAutoMovieContourLoft64.ISection,
+        ): IAutoMoviePrepareContourDocument64Slice => ({
           y: section.coordinateMm,
           loops: section.loops.map(
             (
               loop: IAutoMovieContourLoft64.ISection["loops"][number],
-            ): Observation => ({ curve: loop.curve, winding: loop.winding }),
+            ): IAutoMoviePrepareContourDocument64Observation => ({
+              curve: loop.curve,
+              winding: loop.winding,
+            }),
           ),
         }),
       ),
     events: events.map(
-      (event: IAutoMovieContourLoft64.IEvent, i: number): Critical => ({
+      (
+        event: IAutoMovieContourLoft64.IEvent,
+        i: number,
+      ): IAutoMoviePreparedContourEvent64 => ({
         y: event.coordinateMm,
         y0: event.beforeMm,
         y1: event.afterMm,
         point: event.terminal === null ? null : M.clone(event.terminal),
         below: event.before.map(
-          (loop: number): Incident => ({
+          (loop: number): IAutoMoviePreparedContourEvent64.IIncident => ({
             loop,
             winding: input.sections.find(
               (section: IAutoMovieContourLoft64.ISection): boolean =>
@@ -100,7 +83,7 @@ export function prepareAutoMovieContourDocument64(
           }),
         ),
         above: event.after.map(
-          (loop: number): Incident => ({
+          (loop: number): IAutoMoviePreparedContourEvent64.IIncident => ({
             loop,
             winding: input.sections.find(
               (section: IAutoMovieContourLoft64.ISection): boolean =>

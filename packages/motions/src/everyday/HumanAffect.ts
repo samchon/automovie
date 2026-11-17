@@ -1,11 +1,12 @@
 import { minimumJerk } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
-import type { tags } from "typia";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAffect,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanLayer } from "../law/IHumanLayer";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * Affect displays as an additive layer: laughing, sighing, yawning,
@@ -50,40 +51,10 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shortcut present: no consumer or body is special-cased, and the layer type is the shared `IHumanLayer`.
  */
 export namespace HumanAffect {
-  /**
-   * A display, one of the six affect patterns the namespace documents.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the closed set of displays; each one's pattern is documented on the namespace.
-   * @evidence contracts/development/design.md#principled-representation A string union over the six displays, so an unknown display cannot be written; `angles` switches over it exhaustively.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; read by `IDisplay`, `LENGTH`, `angles` and the affect test.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No shortcut present: one discriminant for all displays, no per-consumer member.
-   */
-  export type Kind = "laugh" | "sigh" | "yawn" | "cough" | "sneeze" | "shiver";
-
-  /**
-   * One display at a film time, as the affect layer schedules it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents each member's unit (film seconds, seconds, a scale) and the meaning of an absent length or intensity.
-   * @evidence contracts/development/design.md#principled-representation A display's kind, its start on the film timebase, its length in seconds and an amplitude scale; positive length is validated at runtime by `angles`, intensity is not range-checked.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; read by `layer` and the affect test; the optional length and intensity default to `LENGTH` and 1.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No shortcut present: the optional members default independently and combine into no meaningless state.
-   */
-  export interface IDisplay {
-    /** The display. */
-    kind: Kind;
-
-    /** Film second it starts. */
-    at: number;
-
-    /** How long, seconds; the display's own length when absent. */
-    seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
-
-    /** Amplitude scale; 1 when absent. */
-    intensity?: number;
-  }
-
   /** Each display's own length, seconds. */
-  export const LENGTH: Readonly<Record<Kind, number>> = {
+  export const LENGTH: Readonly<
+    Record<IAutoMovieMotionHumanAffect.Kind, number>
+  > = {
     laugh: 1.5,
     sigh: 3.5,
     yawn: 6,
@@ -114,7 +85,7 @@ export namespace HumanAffect {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates one small record per call and retains nothing.
    */
   export function angles(
-    kind: Kind,
+    kind: IAutoMovieMotionHumanAffect.Kind,
     t: number,
     seconds: number,
     intensity: number = 1,
@@ -214,15 +185,22 @@ export namespace HumanAffect {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; nothing is cached between seconds.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer retains only the caller's display list for its lifetime and allocates one joint record per posture.
    */
-  export function layer(displays: readonly IDisplay[]): IHumanLayer {
+  export function layer(
+    displays: readonly IAutoMovieMotionHumanAffect.IDisplay[],
+  ): IAutoMovieMotionHumanLayer {
     return {
       name: "affect",
 
       // The jaw and the head, and the spine, the chest and the shoulder
       // girdles: every display's pulse is on those joints.
       channels: ["head", "trunk"],
-      apply: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const joints: IHumanPosture["joints"] = { ...posture.joints };
+      apply: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
+        const joints: IAutoMovieMotionHumanPosture["joints"] = {
+          ...posture.joints,
+        };
         for (const d of displays) {
           const length: number = d.seconds ?? LENGTH[d.kind];
           for (const [bone, a] of Object.entries(

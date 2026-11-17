@@ -1,9 +1,13 @@
-import { type AutoMovieLoftFrame, AutoMovieLoftViewFullSource as Full, type IAutoMovieViewPart } from "@automovie/engine";
-import type { IAutoMovieConstructionPort } from "@automovie/interface";
-
 import { AutoMovieHumanJoinLoop } from "../conic/AutoMovieHumanJoinLoop";
 import { AutoMovieHumanLandmarkSurface } from "../conic/AutoMovieHumanLandmarkSurface";
-import type { AutoMovieHumanSegmentFrame } from "../frame/AutoMovieHumanSegmentFrame";
+import { AutoMovieLoftViewFullSource as Full } from "@automovie/engine";
+import type {
+  IAutoMovieConstructionPortLoop,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * The armscye's loop, generated for the person from the two fields that meet there: where the arm's wall, carried inward of its first
@@ -70,7 +74,7 @@ export namespace AutoMovieHumanF1Armscye {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the surface's own closure only.
    * @evidence contracts/development/common.md#meaningful-documentation States frames and units.
    */
-  export function surface(thorax: AutoMovieHumanSegmentFrame.IFrame, shoulder: readonly number[], elbow: readonly number[]): AutoMovieHumanLandmarkSurface.ISurface {
+  export function surface(thorax: IAutoMovieHumanSegmentFrame, shoulder: readonly number[], elbow: readonly number[]): AutoMovieHumanLandmarkSurface.ISurface {
     const world = (local: readonly number[]): [number, number, number] => [0, 1, 2].map((k: number): number => thorax.origin[k]! + local[0]! * thorax.axes[0][k]! + local[1]! * thorax.axes[1][k]! + local[2]! * thorax.axes[2][k]!) as [number, number, number];
     return AutoMovieHumanLandmarkSurface.create(shoulder, LANDMARKS_MM.map(world), elbow);
   }
@@ -96,7 +100,7 @@ export namespace AutoMovieHumanF1Armscye {
    */
   export interface IContact {
     /** The loop on the trunk's chart, `count` shares about its own centre. */
-    loop: IAutoMovieConstructionPort.ILoop;
+    loop: IAutoMovieConstructionPortLoop;
 
     /** The arm's chart point `[station m, phase rad]` of the loop's point at clock 0. */
     part: [number, number];
@@ -147,7 +151,7 @@ export namespace AutoMovieHumanF1Armscye {
   export function create(trunk: IAutoMovieViewPart, arm: IAutoMovieViewPart, count: number, rule: IRule = { type: "ring", ring: RING_MM, near: NEAR_MM }): IContact {
     // By the dividing surface the loop is both skins cut by it, which is one generator for every part on a host's side.
     if (rule.type === "surface") return AutoMovieHumanJoinLoop.create(trunk, arm, count, rule.side);
-    const [host, part]: Full.IReader[] = [Full.create(trunk), Full.create(arm)];
+    const [host, part]: IAutoMovieLoftViewFullSource.IReader[] = [Full.create(trunk), Full.create(arm)];
     const outermost: number | undefined = rule.type === "outermost" ? rule.within : undefined;
     const [ring, near]: [number, number] = rule.type === "ring" ? [rule.ring, rule.near] : [NaN, NaN];
     if (rule.type === "ring" && part!.domain[0] > ring - near)
@@ -156,7 +160,7 @@ export namespace AutoMovieHumanF1Armscye {
     const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
 
     // The trunk's chart of a world point: its course is straight and its frame constant, which is checked at both ends of its domain.
-    const [foot, head]: AutoMovieLoftFrame.IFrame[] = [trunk.axis.at(host!.domain[0]), trunk.axis.at(host!.domain[1])];
+    const [foot, head]: IAutoMovieLoftSectionFrame[] = [trunk.axis.at(host!.domain[0]), trunk.axis.at(host!.domain[1])];
     const along: V = sub(head!.origin, foot!.origin);
     const length: number = Math.hypot(along[0], along[1], along[2]);
     const tangent: V = [along[0] / length, along[1] / length, along[2] / length];

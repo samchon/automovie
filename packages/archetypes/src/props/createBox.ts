@@ -4,9 +4,10 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -36,6 +37,13 @@ export function createBox(
   params: createBox.IParams = {},
   seed?: number | string,
 ): Archetype<createBox.Affordance, createBox.Dimension> {
+  const draw: ArchetypeDrawSession<createBox.Dimension> =
+    new ArchetypeDrawSession<createBox.Dimension>(
+      "box",
+      createBox.UNITS,
+      seed,
+      params,
+    );
   const load: number = params.load ?? 0;
   if (!(load >= 0 && load <= createBox.LOAD))
     throw new ArchetypeRefusal({
@@ -52,22 +60,18 @@ export function createBox(
       reason: `${load} kg is more than a person lifts close to the body`,
       fix: "give a load of at most 25 kg, or split it over several boxes",
     });
-  const d: Record<createBox.Dimension, number> =
-    ArchetypeDraw.dimensions<createBox.Dimension>(
-      "box",
-      createBox.BANDS,
-      seed,
-      params,
-    );
+  const d: Record<createBox.Dimension, number> = draw.dimensions(
+    createBox.BANDS,
+  );
   const width: number = d.width;
   const height: number = d.height;
   const depth: number = d.depth;
   const builder: ArchetypeBuilder<createBox.Affordance, createBox.Dimension> =
     new ArchetypeBuilder({
-      archetype: "box",
+      material: "paper",
       id: params.id,
       name: "cardboard box",
-      dimensions: d,
+      draw,
     });
   builder.box(
     "box",
@@ -82,6 +86,7 @@ export function createBox(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         Vector3.create((sign * width) / 2, height / 2, 0),
         Vector3.create(sign, 0, 0),
@@ -146,6 +151,14 @@ export namespace createBox {
    */
   export type Dimension = "width" | "height" | "depth" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    depth: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the load, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** The model's id, unique in a scene; `box` when absent. */
@@ -157,9 +170,27 @@ export namespace createBox {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.of("m", 0.416, 0.46, CARTON, true),
-    height: ArchetypeBand.of("m", 0.321, 0.61, CARTON, true),
-    depth: ArchetypeBand.of("m", 0.321, 0.457, CARTON, true),
+    width: ArchetypeBand.of(
+      "m",
+      (16 + 3 / 8) * ArchetypeUnits.INCH,
+      18 * ArchetypeUnits.INCH,
+      CARTON,
+      true,
+    ),
+    height: ArchetypeBand.of(
+      "m",
+      (12 + 5 / 8) * ArchetypeUnits.INCH,
+      24 * ArchetypeUnits.INCH,
+      CARTON,
+      true,
+    ),
+    depth: ArchetypeBand.of(
+      "m",
+      (12 + 5 / 8) * ArchetypeUnits.INCH,
+      18 * ArchetypeUnits.INCH,
+      CARTON,
+      true,
+    ),
     mass: ArchetypeBand.of("kg", 0.4, 0.9, ArchetypeBand.TYPICAL_MASS, true),
   };
 }

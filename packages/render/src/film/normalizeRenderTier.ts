@@ -1,4 +1,4 @@
-import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier.js";
+import type { IAutoMovieProductionRenderTier } from "@automovie/interface";
 
 /** The tier an omitted declaration means: exact final output. */
 const FINAL_TIER: Readonly<IAutoMovieProductionRenderTier> = {

@@ -1,11 +1,9 @@
 # Answering
 
-Source declarations and tests answer their [development contracts](../contracts/development/SKILL.md) in their own doc comments. Read the question and the complete declaration with its callers, inputs and consumers before answering.
+Source declarations and tests answer their [development contracts](../contracts/development/SKILL.md) in their own doc comments. Before answering, read the question and the complete declaration with its callers, inputs and consumers, and where an item has statements, follow [items and statements](../contracts/SKILL.md#items-and-statements).
 
-Where an item has statements, follow [items and statements](../contracts/SKILL.md#items-and-statements) before answering.
-
-State facts found in the declaration and the references it cites: its method, premises, exact inputs, behavior and remaining limits. Leave out evaluative words such as effective or natural, counts or orders the item does not ask for, and hashes, which belong in generation and handoff records; each goes stale unnoticed when the work changes. Never add text to a declaration only to give an item something to answer, and check every quotation against its file.
+State facts found in the declaration and the references it cites: its method, premises, exact inputs, behavior and remaining limits. Leave out evaluative words such as effective or natural, counts or orders the item does not ask for, and hashes, which belong in generation and handoff records, because each goes stale unnoticed when the work changes. Check every quotation against its file, and never add text to a declaration only to give an item something to answer.
 
 An item that does not apply needs its concrete reason through a permitted exclusion; a missing output or a failure is not inapplicability.
 
-When a check or review finds a defect, repair the code at its owner through [development](../development/SKILL.md) and correct its answers in the same change. An answer explains the work or a remaining limit; it cannot argue an absent implementation into existence.
+When a check or review finds a defect, repair the code at its owner through [development](../development/SKILL.md) and correct its answers in the same change, because an answer cannot stand in for an absent implementation.

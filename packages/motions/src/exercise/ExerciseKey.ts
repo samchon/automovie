@@ -1,13 +1,15 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
-import type { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 
 /**
@@ -26,89 +28,101 @@ import { StrikingBody } from "../striking/StrikingBody";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No key holds a place in metres; the lift is a share of the stature.
  */
 export namespace ExerciseKey {
-  /** A keyed posture. */
-  export interface IKey {
-    /** Forward tilt of the whole body, degrees. */
-    pitch: number;
-
-    /** Tilt toward the right, degrees. */
-    roll: number;
-
-    /** Turn about the vertical from the heading the exercise is entered on, degrees. */
-    yaw: number;
-
-    /** How far the pinned bones are lifted off their place, as a share of the stature: a hop. */
-    lift: number;
-
-    /** Clinical joint angles, degrees. */
-    joints: AutoMovieMotionHumanJoints.Angles;
+  /**
+   * The key of a body's relaxed standing: its arms hanging as the stand law
+   * hangs them (`stand.relaxed`), one record per body so a span can name it.
+   *
+   * @param body The body.
+   * @returns The key.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the key holds and why it is one record per body.
+   * @evidence contracts/development/implementation.md#principled-implementation The stand law's relaxed arms, the one owner of a hanging arm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work after the first call.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One record per body, kept so the workout's spans compare it by identity.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Held weakly by the body, released with it.
+   */
+  export function standing(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
+    const cached: IAutoMovieMotionHumanExerciseKey.IKey | undefined =
+      STANDING.get(body);
+    if (cached !== undefined) return cached;
+    const key: IAutoMovieMotionHumanExerciseKey.IKey = {
+      pitch: 0,
+      roll: 0,
+      yaw: 0,
+      lift: 0,
+      joints: stand.relaxed(body),
+    };
+    STANDING.set(body, key);
+    return key;
   }
 
-  /** The whole body's part of a key; every member is 0 when absent. */
-  export interface ITrunk {
-    /** Forward tilt, degrees. */
-    pitch?: number;
-
-    /** Tilt toward the right, degrees. */
-    roll?: number;
-
-    /** Turn about the vertical, degrees. */
-    yaw?: number;
-
-    /** Lift, a share of the stature. */
-    lift?: number;
-
-    /** The spine's `[flexion, lateral, twist]`, degrees. */
-    spine?: readonly [number, number, number];
-
-    /** The chest's `[flexion, lateral, twist]`, degrees. */
-    chest?: readonly [number, number, number];
-
-    /** The neck's flexion, degrees; negative looks up. */
-    neck?: number;
-  }
-
-  /** One side's limbs in a key; a member absent keeps the value both sides share, or 0, or for the shoulder's abduction and the elbow their relaxed 5 and 12 degrees. */
-  export interface ILimb {
-    /** Hip flexion, degrees. */
-    hip?: number;
-
-    /** Hip abduction, degrees. */
-    spread?: number;
-
-    /** Hip rotation, degrees. */
-    turn?: number;
-
-    /** Knee flexion, degrees. */
-    knee?: number;
-
-    /** Ankle dorsiflexion, degrees; negative points the foot. */
-    ankle?: number;
-
-    /** Toe extension, degrees. */
-    toes?: number;
-
-    /** Shoulder flexion, degrees. */
-    shoulder?: number;
-
-    /** Shoulder abduction, degrees. */
-    raise?: number;
-
-    /** Shoulder rotation, degrees. */
-    twist?: number;
-
-    /** Elbow flexion, degrees. */
-    elbow?: number;
-
-    /** Wrist flexion, degrees; negative bends the hand back, as a palm laid on the floor under a straight arm is. */
-    wrist?: number;
-
-    /** The shoulder girdle's lift, degrees: a shrug. */
-    shrug?: number;
+  /**
+   * A key from the whole body's part and the limbs' angles, on a body: an
+   * arm's unstated abduction and elbow are the body's relaxed ones
+   * (`stand.relaxed`).
+   *
+   * @param body The body.
+   * @param trunk The tilt, the turn, the lift and the spine.
+   * @param both The angles both sides share.
+   * @param left What the left side has instead.
+   * @param right What the right side has instead.
+   * @returns The key.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each input and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation Starts from the body's relaxed standing, so the fingers and every joint not named keep their standing angles.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the two sides and three trunk joints.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An absent member takes the value its type states; nothing is inferred.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the body's relaxed standing (`standing`).
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function from(
+    body: IAutoMovieMotionHumanBody,
+    trunk: IAutoMovieMotionHumanExerciseKey.ITrunk,
+    both: IAutoMovieMotionHumanExerciseKey.ILimb,
+    left: IAutoMovieMotionHumanExerciseKey.ILimb = {},
+    right: IAutoMovieMotionHumanExerciseKey.ILimb = {},
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
+    const rest: IAutoMovieMotionHumanJoints.Angles = standing(body).joints;
+    const joints: IAutoMovieMotionHumanJoints.Angles = { ...rest };
+    for (const side of ["left", "right"] as const) {
+      const a: IAutoMovieMotionHumanExerciseKey.ILimb = {
+        ...both,
+        ...(side === "left" ? left : right),
+      };
+      const arm: readonly [number, number, number] = rest[`${side}UpperArm`]!;
+      const elbow: readonly [number, number, number] = rest[`${side}LowerArm`]!;
+      joints[`${side}UpperLeg`] = [a.hip ?? 0, a.spread ?? 0, a.turn ?? 0];
+      joints[`${side}LowerLeg`] = [a.knee ?? 0, 0, 0];
+      joints[`${side}Foot`] = [a.ankle ?? 0, 0, 0];
+      joints[`${side}Toes`] = [a.toes ?? 0, 0, 0];
+      joints[`${side}UpperArm`] = [
+        a.shoulder ?? 0,
+        a.raise ?? arm[1],
+        a.twist ?? 0,
+      ];
+      joints[`${side}LowerArm`] = [a.elbow ?? elbow[0], 0, 0];
+      joints[`${side}Hand`] = [a.wrist ?? 0, 0, 0];
+      joints[`${side}Shoulder`] = [0, a.shrug ?? 0, 0];
+    }
+    joints.spine = trunk.spine ?? [0, 0, 0];
+    joints.chest = trunk.chest ?? [0, 0, 0];
+    joints.neck = [trunk.neck ?? 0, 0, 0];
+    return {
+      pitch: trunk.pitch ?? 0,
+      roll: trunk.roll ?? 0,
+      yaw: trunk.yaw ?? 0,
+      lift: trunk.lift ?? 0,
+      joints,
+    };
   }
 
   /** The key of relaxed standing. */
-  export const STOOD: IKey = {
+  export const STOOD: IAutoMovieMotionHumanExerciseKey.IKey = {
     pitch: 0,
     roll: 0,
     yaw: 0,
@@ -134,14 +148,17 @@ export namespace ExerciseKey {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    trunk: ITrunk,
-    both: ILimb,
-    left: ILimb = {},
-    right: ILimb = {},
-  ): IKey {
-    const joints: AutoMovieMotionHumanJoints.Angles = { ...stand.RELAXED };
+    trunk: IAutoMovieMotionHumanExerciseKey.ITrunk,
+    both: IAutoMovieMotionHumanExerciseKey.ILimb,
+    left: IAutoMovieMotionHumanExerciseKey.ILimb = {},
+    right: IAutoMovieMotionHumanExerciseKey.ILimb = {},
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
+    const joints: IAutoMovieMotionHumanJoints.Angles = { ...stand.RELAXED };
     for (const side of ["left", "right"] as const) {
-      const a: ILimb = { ...both, ...(side === "left" ? left : right) };
+      const a: IAutoMovieMotionHumanExerciseKey.ILimb = {
+        ...both,
+        ...(side === "left" ? left : right),
+      };
       joints[`${side}UpperLeg`] = [a.hip ?? 0, a.spread ?? 0, a.turn ?? 0];
       joints[`${side}LowerLeg`] = [a.knee ?? 0, 0, 0];
       joints[`${side}Foot`] = [a.ankle ?? 0, 0, 0];
@@ -181,7 +198,11 @@ export namespace ExerciseKey {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function stood(pitch: number, knee: number, shank: number): ILimb {
+  export function stood(
+    pitch: number,
+    knee: number,
+    shank: number,
+  ): IAutoMovieMotionHumanExerciseKey.ILimb {
     return { hip: pitch + knee - shank, knee, ankle: shank };
   }
 
@@ -201,8 +222,12 @@ export namespace ExerciseKey {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function blend(a: IKey, b: IKey, u: number): IKey {
-    const joints: AutoMovieMotionHumanJoints.Angles = {};
+  export function blend(
+    a: IAutoMovieMotionHumanExerciseKey.IKey,
+    b: IAutoMovieMotionHumanExerciseKey.IKey,
+    u: number,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
+    const joints: IAutoMovieMotionHumanJoints.Angles = {};
     for (const bone of new Set([
       ...Object.keys(a.joints),
       ...Object.keys(b.joints),
@@ -238,8 +263,10 @@ export namespace ExerciseKey {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function mirror(key: IKey): IKey {
-    const joints: AutoMovieMotionHumanJoints.Angles = {};
+  export function mirror(
+    key: IAutoMovieMotionHumanExerciseKey.IKey,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
+    const joints: IAutoMovieMotionHumanJoints.Angles = {};
     for (const [bone, angles] of Object.entries(key.joints) as [
       AutoMovieHumanoidBone,
       readonly [number, number, number],
@@ -253,11 +280,11 @@ export namespace ExerciseKey {
   }
 
   /**
-   * The mean place of bones' origins on a posture.
+   * The mean place of bones' origins, or of grip sockets, on a posture.
    *
    * @param body The body.
    * @param posture The posture.
-   * @param bones The bones.
+   * @param bones The bones or grip sockets.
    * @returns World metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the unit.
@@ -269,20 +296,54 @@ export namespace ExerciseKey {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function mean(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    bones: readonly AutoMovieHumanoidBone[],
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    bones: readonly IAutoMovieMotionHumanExerciseKey.Pin[],
   ): IAutoMovieVector3 {
     const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       StrikingBody.trunk(body, posture);
     let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    for (const bone of bones) {
-      const at: IAutoMovieVector3 | undefined =
-        resolved.get(bone)?.worldPosition;
-      if (at === undefined) throw new Error(`The rig has no bone ${bone}`);
-      sum = Vector3.add(sum, at);
-    }
+    for (const bone of bones) sum = Vector3.add(sum, at(body, resolved, bone));
     return Vector3.scale(sum, 1 / bones.length);
+  }
+
+  /**
+   * A pin's place on resolved bones: a bone's origin, or a grip socket's
+   * point on its hand.
+   *
+   * @param body The body.
+   * @param resolved The resolved bones.
+   * @param pin The bone or grip socket.
+   * @returns World metres.
+   * @throws {Error} When the rig has no such bone.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two kinds of pin and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A socket is placed on its bone by the body's own surfaces, as a held prop's grip is.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A bone the rig lacks throws with its name.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function at(
+    body: IAutoMovieMotionHumanBody,
+    resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    pin: IAutoMovieMotionHumanExerciseKey.Pin,
+  ): IAutoMovieVector3 {
+    if (pin === "gripLeft" || pin === "gripRight") {
+      const socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripLeft"] =
+        body.surfaces.sockets[pin];
+      const bone: IAutoMovieResolvedBone | undefined = resolved.get(
+        socket.bone,
+      );
+      if (bone === undefined)
+        throw new Error(`The rig has no bone ${socket.bone}`);
+      return resolveAutoMovieHumanoidSurfaces.place(socket, bone).point;
+    }
+    const found: IAutoMovieVector3 | undefined =
+      resolved.get(pin)?.worldPosition;
+    if (found === undefined) throw new Error(`The rig has no bone ${pin}`);
+    return found;
   }
 
   /**
@@ -300,7 +361,10 @@ export namespace ExerciseKey {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function posed(key: IKey, yaw: number): IHumanPosture {
+  export function posed(
+    key: IAutoMovieMotionHumanExerciseKey.IKey,
+    yaw: number,
+  ): IAutoMovieMotionHumanPosture {
     return {
       root: { x: 0, y: 0, z: 0 },
       yaw: yaw + key.yaw,
@@ -318,8 +382,8 @@ export namespace ExerciseKey {
    * @param body The body.
    * @param key The key.
    * @param yaw The heading the exercise is entered on, degrees.
-   * @param pin The bones that bear.
-   * @param at Where their mean stays, world metres.
+   * @param pin The bones, or the grip sockets, that bear.
+   * @param place Where their mean stays, world metres.
    * @returns The posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and what the result keeps.
@@ -331,21 +395,27 @@ export namespace ExerciseKey {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pinned(
-    body: IHumanBody,
-    key: IKey,
+    body: IAutoMovieMotionHumanBody,
+    key: IAutoMovieMotionHumanExerciseKey.IKey,
     yaw: number,
-    pin: readonly AutoMovieHumanoidBone[],
-    at: IAutoMovieVector3,
-  ): IHumanPosture {
-    const free: IHumanPosture = posed(key, yaw);
+    pin: readonly IAutoMovieMotionHumanExerciseKey.Pin[],
+    place: IAutoMovieVector3,
+  ): IAutoMovieMotionHumanPosture {
+    const free: IAutoMovieMotionHumanPosture = posed(key, yaw);
     const offset: IAutoMovieVector3 = mean(body, free, pin);
     return {
       ...free,
       root: {
-        x: at.x - offset.x,
-        y: at.y - offset.y + key.lift * body.measure.stature,
-        z: at.z - offset.z,
+        x: place.x - offset.x,
+        y: place.y - offset.y + key.lift * body.measure.stature,
+        z: place.z - offset.z,
       },
     };
   }
 }
+
+/** Each body's relaxed standing key (`ExerciseKey.standing`). */
+const STANDING: WeakMap<
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey.IKey
+> = new WeakMap();

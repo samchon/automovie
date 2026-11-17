@@ -1,6 +1,6 @@
-import type { IAutoMovieFormationPlacement } from "@automovie/engine";
 import type {
   IAutoMovieFormationMotion,
+  IAutoMovieFormationPlacement,
   IAutoMovieSpace,
 } from "@automovie/interface";
 

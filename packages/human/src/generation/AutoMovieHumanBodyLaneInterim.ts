@@ -1,19 +1,22 @@
-import type { AutoMovieLoftContract } from "@automovie/engine";
+import type {
+  IAutoMovieHumanBodyFrame,
+  IAutoMovieHumanBodyLane,
+  IAutoMovieHumanBodyLaneInterim,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanLegWalk,
+  IAutoMovieHumanLimbSources,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanTrunkLaws,
+  IAutoMovieHumanTrunkSolution,
+  IAutoMovieHumanTrunkViewLaws,
+  IAutoMovieLoftContract,
+} from "@automovie/interface";
 
-import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
-import type { AutoMovieHumanBodyFrame } from "./AutoMovieHumanBodyFrame";
-import type { AutoMovieHumanBodyLane } from "./AutoMovieHumanBodyLane";
 import { AutoMovieHumanLimbSources } from "./AutoMovieHumanLimbSources";
-import type { AutoMovieHumanTrunkConstruction } from "./AutoMovieHumanTrunkConstruction";
 import { AutoMovieHumanTrunkRows } from "./AutoMovieHumanTrunkRows";
-import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
-import type { IAutoMovieHumanTrunkSolution } from "./IAutoMovieHumanTrunkSolution";
 import { AutoMovieHumanFootInterim } from "./foot/AutoMovieHumanFootInterim";
-import type { AutoMovieHumanLegWalk } from "./leg/AutoMovieHumanLegWalk";
-import type { AutoMovieHumanSiteViewPart } from "./limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanMassInterim } from "./trunk/AutoMovieHumanMassInterim";
-import type { AutoMovieHumanTrunkConnection } from "./trunk/AutoMovieHumanTrunkConnection";
 import { AutoMovieHumanTrunkInterim } from "./trunk/AutoMovieHumanTrunkInterim";
 import { AutoMovieHumanTrunkLaws } from "./trunk/AutoMovieHumanTrunkLaws";
 import { AutoMovieHumanTrunkViews } from "./trunk/AutoMovieHumanTrunkViews";
@@ -37,44 +40,16 @@ import { AutoMovieHumanTrunkViews } from "./trunk/AutoMovieHumanTrunkViews";
  * the foot's instep and ball lengths.
  */
 export namespace AutoMovieHumanBodyLaneInterim {
-  /** What the interim lane reads. */
-  export interface IInput {
-    /** The same canonical solved placement, including its actual neck owner. */
-    solution: IAutoMovieHumanTrunkSolution;
-
-    /** The public input. */
-    params: IAutoMovieHumanParameters;
-
-    /** Calibration millimetres per world millimetre. */
-    scale: number;
-
-    /** Calibration stature, mm. */
-    stature: number;
-
-    /** The crotch's height, calibration mm. */
-    crotch: number;
-
-    /** The old trunk's inputs (`AutoMovieHumanBodyLaw` column). */
-    trunk: AutoMovieHumanTrunkConstruction.IInputs;
-
-    /** Common original neck definition, captured before raw lofting. */
-    neckConnection: AutoMovieHumanTrunkConnection.IDefinition;
-
-    /** Same invocation's direct source factories, also consumed by scoped originals. */
-    sources: AutoMovieHumanLimbSources.IOutput;
-
-    /** Direct common skin-based AP frame, distinct from the nominal skeletal ankle. */
-    frame: AutoMovieHumanBodyFrame.IOutput;
-  }
-
   /**
    * The lane's input.
    *
    * @param input The person, the old constructions and the skeleton.
    * @returns The body lane's input.
    */
-  export function of(input: IInput): AutoMovieHumanBodyLane.IInput {
-    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
+  export function of(
+    input: IAutoMovieHumanBodyLaneInterim.IInput,
+  ): IAutoMovieHumanBodyLane.IInput {
+    const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     const measures: IAutoMovieHumanBodyMeasures =
       AutoMovieHumanBodyAnatomy.resolve(input.params);
     const solution: IAutoMovieHumanTrunkSolution = input.solution;
@@ -82,18 +57,18 @@ export namespace AutoMovieHumanBodyLaneInterim {
 
     // The same input-derived frame places head/S00 and the remaining legacy
     // trunk. A skeletal ankle offset must not be added to its skin priors again.
-    const placed: AutoMovieHumanBodyFrame.IOutput = input.frame;
+    const placed: IAutoMovieHumanBodyFrame.IOutput = input.frame;
     const pending: (
-      upper: AutoMovieHumanTrunkViews.ILaws["upper"],
-    ) => AutoMovieHumanTrunkLaws.IPending = (
-      upper: AutoMovieHumanTrunkViews.ILaws["upper"],
-    ): AutoMovieHumanTrunkLaws.IPending => ({
+      upper: IAutoMovieHumanTrunkViewLaws.ILaws["upper"],
+    ) => IAutoMovieHumanTrunkLaws.IPending = (
+      upper: IAutoMovieHumanTrunkViewLaws.ILaws["upper"],
+    ): IAutoMovieHumanTrunkLaws.IPending => ({
       chest: solution.landmarks.bustPoint[1],
       cervicale: placed.cervicale,
       perineum: placed.perineum,
       upper,
     });
-    const laws: AutoMovieHumanTrunkViews.ILaws = AutoMovieHumanTrunkLaws.of(
+    const laws: IAutoMovieHumanTrunkViewLaws.ILaws = AutoMovieHumanTrunkLaws.of(
       measures,
       input.scale,
       input.crotch,
@@ -109,24 +84,27 @@ export namespace AutoMovieHumanBodyLaneInterim {
       ),
     );
 
-    const side: (name: "left" | "right") => AutoMovieHumanBodyLane.ISide = (
+    const side: (name: "left" | "right") => IAutoMovieHumanBodyLane.ISide = (
       name: "left" | "right",
-    ): AutoMovieHumanBodyLane.ISide => {
-      const fold: (from: number, to: number) => AutoMovieHumanBodyLane.IFold = (
+    ): IAutoMovieHumanBodyLane.ISide => {
+      const fold: (
         from: number,
         to: number,
-      ): AutoMovieHumanBodyLane.IFold => ({
+      ) => IAutoMovieHumanBodyLane.IFold = (
+        from: number,
+        to: number,
+      ): IAutoMovieHumanBodyLane.IFold => ({
         search: { phi: 0, from, to },
         radius,
       });
       return {
-        get leg(): AutoMovieHumanBodyLane.ISide["leg"] {
-          const own: ReturnType<AutoMovieHumanLimbSources.IOutput["leg"]> =
+        get leg(): IAutoMovieHumanBodyLane.ISide["leg"] {
+          const own: ReturnType<IAutoMovieHumanLimbSources.IOutput["leg"]> =
             input.sources.leg(name);
           return {
             bones: own.bones,
             law: own.law,
-            get definition(): AutoMovieHumanLegWalk.IDefinition {
+            get definition(): IAutoMovieHumanLegWalk.IDefinition {
               return own.leg.current();
             },
             bind: own.leg.bind,
@@ -134,33 +112,33 @@ export namespace AutoMovieHumanBodyLaneInterim {
             foot: fold(1, 0.85),
           };
         },
-        get arm(): AutoMovieHumanBodyLane.ISide["arm"] {
+        get arm(): IAutoMovieHumanBodyLane.ISide["arm"] {
           return { ...input.sources.arm(name).arm(), trunk: fold(0, 0.4) };
         },
-        get foot(): AutoMovieHumanBodyLane.ISide["foot"] {
+        get foot(): IAutoMovieHumanBodyLane.ISide["foot"] {
           return input.sources.leg(name).foot();
         },
-        get footDefinition(): AutoMovieHumanSiteViewPart.IDefinition {
+        get footDefinition(): IAutoMovieHumanSourceDefinition {
           return input.sources.leg(name).definition();
         },
-        get fingers(): AutoMovieHumanBodyLane.IDigit[] {
+        get fingers(): IAutoMovieHumanBodyLane.IDigit[] {
           return input.sources.arm(name).fingers();
         },
         digitNames: AutoMovieHumanLimbSources.names().filter(
           (key: string): boolean =>
             key === "thumb." + name || key.startsWith("finger." + name + "."),
         ),
-        digit(key: string): AutoMovieHumanBodyLane.IDigit | undefined {
+        digit(key: string): IAutoMovieHumanBodyLane.IDigit | undefined {
           return input.sources.arm(name).digit(key);
         },
-        get toes(): AutoMovieHumanBodyLane.IToe[] {
+        get toes(): IAutoMovieHumanBodyLane.IToe[] {
           return input.sources.leg(name).toes();
         },
         toeNames: AutoMovieHumanFootInterim.names(name),
       };
     };
 
-    const sides: Record<"left" | "right", AutoMovieHumanBodyLane.ISide> = {
+    const sides: Record<"left" | "right", IAutoMovieHumanBodyLane.ISide> = {
       left: side("left"),
       right: side("right"),
     };
@@ -168,7 +146,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
       diagnostics,
       trunk: {
         get legs(): NonNullable<
-          AutoMovieHumanBodyLane.IInput["trunk"]["legs"]
+          IAutoMovieHumanBodyLane.IInput["trunk"]["legs"]
         > {
           return {
             left: sides.left.leg.definition,
@@ -177,9 +155,9 @@ export namespace AutoMovieHumanBodyLaneInterim {
         },
         bindLeg(
           side: "left" | "right",
-          parent: AutoMovieHumanSiteViewPart.IDefinition,
+          parent: IAutoMovieHumanSourceDefinition,
           station: number,
-        ): AutoMovieHumanLegWalk.IDefinition {
+        ): IAutoMovieHumanLegWalk.IDefinition {
           return sides[side].leg.bind(parent, station);
         },
         views: AutoMovieHumanTrunkViews.of(

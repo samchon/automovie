@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanEffort } from "@automovie/interface";
 import { HumanEffort, HumanProxemics } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -99,8 +100,8 @@ export function test_motion_everyday_proxemics_effort(): void {
   );
   const levels: number[] = [-1, -0.5, 0, 0.5, 1];
   const series = (
-    factor: keyof HumanEffort.IEffort,
-    read: (m: HumanEffort.IModifiers) => number,
+    factor: keyof IAutoMovieMotionHumanEffort.IEffort,
+    read: (m: IAutoMovieMotionHumanEffort.IModifiers) => number,
   ): number[] =>
     levels.map((v: number): number =>
       read(HumanEffort.modifiers({ [factor]: v })),

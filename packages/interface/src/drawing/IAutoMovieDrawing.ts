@@ -1,12 +1,12 @@
-import { AutoMovieDrawingProjection } from "./AutoMovieDrawingProjection";
-import { IAutoMovieDrawingAnnotation } from "./IAutoMovieDrawingAnnotation";
-import { IAutoMovieDrawingDimension } from "./IAutoMovieDrawingDimension";
-import { IAutoMovieDrawingExtent } from "./IAutoMovieDrawingExtent";
-import { IAutoMovieDrawingFrame } from "./IAutoMovieDrawingFrame";
-import { IAutoMovieDrawingGap } from "./IAutoMovieDrawingGap";
-import { IAutoMovieDrawingLine } from "./IAutoMovieDrawingLine";
-import { IAutoMovieDrawingOpeningMark } from "./IAutoMovieDrawingOpeningMark";
-import { IAutoMovieDrawingRegion } from "./IAutoMovieDrawingRegion";
+import type { AutoMovieDrawingProjection } from "./AutoMovieDrawingProjection";
+import type { IAutoMovieDrawingAnnotation } from "./IAutoMovieDrawingAnnotation";
+import type { IAutoMovieDrawingDimension } from "./IAutoMovieDrawingDimension";
+import type { IAutoMovieDrawingExtent } from "./IAutoMovieDrawingExtent";
+import type { IAutoMovieDrawingFrame } from "./IAutoMovieDrawingFrame";
+import type { IAutoMovieDrawingGap } from "./IAutoMovieDrawingGap";
+import type { IAutoMovieDrawingLine } from "./IAutoMovieDrawingLine";
+import type { IAutoMovieDrawingOpeningMark } from "./IAutoMovieDrawingOpeningMark";
+import type { IAutoMovieDrawingRegion } from "./IAutoMovieDrawingRegion";
 
 /**
  * One drawing record derived from a built-environment snapshot and a view.

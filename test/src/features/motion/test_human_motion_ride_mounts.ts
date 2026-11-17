@@ -7,6 +7,14 @@ import {
 import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -17,11 +25,7 @@ import {
   HumanPerformance,
   HumanRefusal,
   HumanRide,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
-  type seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -94,7 +98,7 @@ export function test_human_motion_ride_mounts(): void {
   );
   const mounts: readonly {
     name: string;
-    model: HumanObject.IModel;
+    model: IAutoMovieMotionHumanObject.IModel;
     duration: number;
     at: (seconds: number) => IAutoMovieTransform;
   }[] = [
@@ -118,28 +122,31 @@ export function test_human_motion_ride_mounts(): void {
   const names: readonly ["m-average", "f-small"] = ["m-average", "f-small"];
   for (let b: number = 0; b < names.length; ++b) {
     const name: "m-average" | "f-small" = names[b]!;
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const mount of [mounts[b]!]) {
       const label: string = `${name} on ${mount.name}`;
 
       // The mount stands for the first seconds, while the rider gets on.
-      const known: Map<number, IHumanProp.IFrame> = new Map();
-      const placed = (seconds: number): IHumanProp.IFrame => {
-        const kept: IHumanProp.IFrame | undefined = known.get(seconds);
+      const known: Map<number, IAutoMovieRigidTransform> = new Map();
+      const placed = (seconds: number): IAutoMovieRigidTransform => {
+        const kept: IAutoMovieRigidTransform | undefined = known.get(seconds);
         if (kept !== undefined) return kept;
         const placement: IAutoMovieTransform = mount.at(
           Math.max(0, seconds - WAIT),
         );
-        const frame: IHumanProp.IFrame = {
+        const frame: IAutoMovieRigidTransform = {
           position: placement.translation,
           rotation: placement.rotation,
         };
         known.set(seconds, frame);
         return frame;
       };
-      const seat: seated.ISeat = HumanObject.seat(mount.model, placed(0));
-      const perform = (waving: boolean): HumanPerformance => {
-        const riding: HumanChain = HumanChain.subject("a")
+      const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+        mount.model,
+        placed(0),
+      );
+      const perform = (waving: boolean): IAutoMovieMotionHumanPerformance => {
+        const riding: IAutoMovieMotionHumanChain = HumanChain.subject("a")
           .sit({ seat, seconds: 0.5 })
           .registered("ride", { on: "mount", seconds: WAIT + mount.duration });
         return new HumanPerformance({
@@ -160,7 +167,8 @@ export function test_human_motion_ride_mounts(): void {
           ],
           composition: (waving
             ? riding.over(
-                (o: HumanChain): HumanChain => o.gesture({ kind: "wave" }),
+                (o: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+                  o.gesture({ kind: "wave" }),
               )
             : riding
           ).rise().node,
@@ -175,7 +183,7 @@ export function test_human_motion_ride_mounts(): void {
           `${label}, waving: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = perform(false);
       } catch (error) {
@@ -184,9 +192,9 @@ export function test_human_motion_ride_mounts(): void {
         );
         continue;
       }
-      const ride: HumanSegment.ISegment = performance.segments("a")[1]!;
-      const off: HumanSegment.ISegment = performance.segments("a")[2]!;
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const ride: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
+      const off: IAutoMovieMotionHumanSegment = performance.segments("a")[2]!;
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
         body,
@@ -198,7 +206,7 @@ export function test_human_motion_ride_mounts(): void {
         region: AutoMovieHumanoidRegion,
         seconds: number,
       ): IAutoMovieVector3 => {
-        const frame: IHumanProp.IFrame = placed(seconds);
+        const frame: IAutoMovieRigidTransform = placed(seconds);
         const world: IAutoMovieVector3 = HumanSignature.region(
           reader,
           region,
@@ -231,7 +239,7 @@ export function test_human_motion_ride_mounts(): void {
             worst = moved;
             when = seconds;
           }
-          const frame: IHumanProp.IFrame = placed(seconds);
+          const frame: IAutoMovieRigidTransform = placed(seconds);
           const up: IAutoMovieVector3 = Quaternion.rotateVector(
             frame.rotation,
             { x: 0, y: 1, z: 0 },
@@ -269,7 +277,7 @@ export function test_human_motion_ride_mounts(): void {
   }
 
   // 6. A horse is mounted from its left: from the right it is refused, offering the left.
-  const stands: seated.ISeat = HumanObject.seat(horse, {
+  const stands: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(horse, {
     at: { x: 0, y: 0, z: 0 },
     yaw: 0,
   });

@@ -1,27 +1,35 @@
 import { createPell, createSword } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanBlade,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSignature,
   HumanSword,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 
+import { motionBladeReach } from "./motionBladeReach";
 import { motionHumanBody } from "./motionHumanBody";
 
 /**
  * The blade strokes on one body, which the blade stroke specs share: an arming
  * sword taken by its grip for use on the oblique line, then a thrust, the same
- * thrust at a pell 0.1 m aside, a descending diagonal cut and a lunge in one
- * film at four pells, each read at its own decisive instant, and a bare-hand
- * thrust beyond the longest advance, which must be refused. The bounds, their
+ * thrust at a pell 0.1 m aside, a descending diagonal cut, a lunge at a pell
+ * that needs a full one and a lunge at a nearer pell in one film at five
+ * pells, each read at its own decisive instant, and a bare-hand thrust beyond
+ * the longest advance, which must be refused. The lunges' pells stand at the
+ * sword's own reach (`motionBladeReach`), so the distance decides how far each
+ * lunge goes. The bounds, their
  * sources and the scenarios are stated on the specs.
  *
  * @param name The body.
@@ -43,14 +51,14 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
   const pell: ReturnType<typeof createPell> = createPell();
   const complaints: string[] = [];
   const placed = (
-    frame: IHumanProp.IFrame,
+    frame: IAutoMovieRigidTransform,
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
     Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, local));
   const apart = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Vector3.length(Vector3.subtract(a, b));
 
-  const body: IHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const stature: number = body.measure.stature;
 
   // A pell on a bearing (degrees to the performer's left) at a distance,
@@ -77,7 +85,8 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
     ahead: stands(0, near),
     aside: stands(0, near, 0.1),
     left: stands(25, 0.5 * stature),
-    right: stands(-25, near + 0.45 * stature),
+    right: motionBladeReach.lunge(body, sword, pell, -25, 1),
+    close: motionBladeReach.lunge(body, sword, pell, -10, 0.4),
   };
   const target = (id: string): IAutoMovieVector3 =>
     placed(
@@ -88,7 +97,7 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
     blade: "sword",
     target: { kind: "prop", subject: id, point: "target" },
   });
-  const film: HumanPerformance = new HumanPerformance({
+  const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "blade",
     laws: [...Object.values(HumanBlade), HumanSword.cut],
     performers: [
@@ -122,25 +131,31 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
       .registered("thrust", at("ahead"), "first")
       .registered("thrust", at("aside"), "second")
       .registered("swordCut", { ...at("left"), from: "aboveForehand" }, "cut")
-      .registered("lunge", at("right"), "lunge").node,
+      .registered("lunge", at("right"), "lunge")
+      .registered("lunge", at("close"), "short").node,
   });
-  const act = (anchor: string): HumanSegment.ISegment =>
+  const act = (anchor: string): IAutoMovieMotionHumanSegment =>
     film
       .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.id === anchor)!;
-  const decisive = (segment: HumanSegment.ISegment): number =>
+      .find((s: IAutoMovieMotionHumanSegment): boolean => s.id === anchor)!;
+  const decisive = (segment: IAutoMovieMotionHumanSegment): number =>
     segment.start + (segment.plan.contact ?? Number.NaN);
   const point = (seconds: number): IAutoMovieVector3 =>
     placed(
       film.prop("sword", seconds),
       sword.affordance("point").frame.translation,
     );
-  const reader: HumanSignature.IReader = HumanSignature.of(film, "a", body, 0);
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    film,
+    "a",
+    body,
+    0,
+  );
   const toes = (seconds: number, side: "left" | "right"): IAutoMovieVector3 =>
     HumanSignature.joint(reader, seconds, `${side}Toes`);
 
   // 1. A thrust from where they stand.
-  const first: HumanSegment.ISegment = act("first");
+  const first: IAutoMovieMotionHumanSegment = act("first");
   const missed: number = apart(point(decisive(first)), target("ahead"));
   if (!(missed <= 0.015))
     complaints.push(
@@ -191,7 +206,7 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
     );
 
   // 4. A lunge.
-  const lunge: HumanSegment.ISegment = act("lunge");
+  const lunge: IAutoMovieMotionHumanSegment = act("lunge");
   const short: number = apart(point(decisive(lunge)), target("right"));
   if (!(short <= 0.015))
     complaints.push(
@@ -215,7 +230,38 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
       `${name}: after the lunge's recovery the leading foot is ${(back * 1000).toFixed(1)} mm from where it stood, 5 mm at most expected`,
     );
 
-  // 5. Out of reach of the longest advance.
+  // 5. A lunge at a nearer pell goes only as far as its target requires: it
+  // is shorter than a full one and lands with the arm as far out as the full
+  // lunge's, the reach both are measured to, so the target stands as far from
+  // the shoulder.
+  const shorter: IAutoMovieMotionHumanSegment = act("short");
+  const landed: number = decisive(shorter);
+  const close: number = apart(point(landed), target("close"));
+  if (!(close <= 0.015))
+    complaints.push(
+      `${name}: the shorter lunge's point is ${(close * 1000).toFixed(1)} mm from the pell's target at its decisive instant, 15 mm at most expected`,
+    );
+  const stepped: number =
+    apart(
+      { ...toes(landed, "right"), y: 0 },
+      { ...toes(shorter.entryTime, "right"), y: 0 },
+    ) / stature;
+  if (!(stepped < 0.35))
+    complaints.push(
+      `${name}: the lunge at the nearer pell carries the leading foot ${stepped.toFixed(3)} of the stature, under a full lunge's 0.35 expected`,
+    );
+  const reached = (anchor: string, id: string): number =>
+    apart(
+      target(id),
+      HumanSignature.joint(reader, decisive(act(anchor)), "rightUpperArm"),
+    );
+  const out: number = reached("short", "close") - reached("lunge", "right");
+  if (!(Math.abs(out) <= 0.01))
+    complaints.push(
+      `${name}: the lunge at the nearer pell lands with its target ${reached("short", "close").toFixed(3)} m from the shoulder and the full lunge with its own ${reached("lunge", "right").toFixed(3)} m, the same within 10 mm expected`,
+    );
+
+  // 6. Out of reach of the longest advance.
   let refused: unknown = null;
   try {
     new HumanPerformance({

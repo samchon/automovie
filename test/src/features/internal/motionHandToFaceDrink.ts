@@ -1,16 +1,22 @@
 import { createDrinkware } from "@automovie/archetypes";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanDrinkingArm,
+  IAutoMovieMotionHumanHandToFaceRows,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanTouchUpright,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanBend,
   AutoMovieMotionHumanDrinkingArm,
   AutoMovieMotionHumanTouchDrink,
-  type AutoMovieMotionHumanTouchUpright,
   HumanChain,
   HumanObject,
-  type HumanSegment,
   HumanTrunk,
-  type IHumanBody,
-  type IHumanPosture,
   handToFace,
 } from "@automovie/motions";
 
@@ -29,13 +35,16 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  * presents it (`grasp`: only its lean is sought), so the same drink is read
  * however the glass came to the hand.
  *
- * Bound and source: a glass is brought to the mouth with the shoulder raised
- * about 40 to 50 degrees, the elbow low and in front of the body and the
- * forearm near vertical, not saluting at the forehead (Murphy, Willén and
- * Sunnerhagen 2011, Neurorehabil Neural Repair 25:71, drinking from a
- * glass). Bound: the upper arm raised at most 70 degrees from hanging, the
- * elbow at least 50 mm below the shoulder joint, and the wrist within a
- * hand length of the mouth region (provisional limits). The real glass
+ * Bound and source: twenty healthy people drinking from a glass flexed the
+ * shoulder at most 53.5 ± 7.0 degrees and abducted it at most 39.3 ± 13.0
+ * in the drinking phase (Alt Murphy, Sunnerhagen, Johnels and Willén 2006,
+ * J NeuroEng Rehabil 3:18, Table 2), measured as the angle between the
+ * shoulder-to-elbow and shoulder-to-hip vectors in the sagittal and the
+ * frontal plane (`AutoMovieMotionHumanDrinkingArm.measured`, the one owner
+ * of that measure). Bound: at `atMouth` the flexion at most 67.5 degrees
+ * and the abduction at most 65.3, each the mean plus two standard
+ * deviations, about 95 % of a normal population; and the wrist within a
+ * hand length of the mouth region (provisional limit). The real glass
  * stands at waist height before the right shoulder, 0.6 of the arm's length
  * ahead, as `motionPropHeldAttitude` places it.
  *
@@ -60,8 +69,8 @@ export namespace motionHandToFaceDrink {
    */
   export function check(name: motionHumanBody.Name, least: boolean): void {
     const complaints: motionComplaints.IGatherer = motionComplaints();
-    const body: IHumanBody = motionHumanBody(name);
-    const stood: HumanObject.Placement = {
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const stood: IAutoMovieMotionHumanObject.Placement = {
       at: {
         x: -body.measure.shoulderHalfWidth,
         y: body.measure.waistHeight,
@@ -162,33 +171,34 @@ export namespace motionHandToFaceDrink {
     const shoulder: IAutoMovieVector3 = M.joint(s, at, "rightUpperArm");
     const knuckle: IAutoMovieVector3 = M.joint(s, at, "rightLowerArm");
     const hand: IAutoMovieVector3 = M.joint(s, at, "rightHand");
-    const arm: IAutoMovieVector3 = {
-      x: knuckle.x - shoulder.x,
-      y: knuckle.y - shoulder.y,
-      z: knuckle.z - shoulder.z,
-    };
-    const elevation: number =
-      (Math.acos(-arm.y / Math.hypot(arm.x, arm.y, arm.z)) * 180) / Math.PI;
+    // The shoulder's flexion and abduction on the displayed bones, as the
+    // source measures them, read from the one owner of that measure.
+    const { flexion, abduction }: { flexion: number; abduction: number } =
+      AutoMovieMotionHumanDrinkingArm.measured(M.bones(s, at), "right", s.yaw);
     // The arm's goal there, for the fit it came from: the elbow's hint and
     // the reference arm, and where the fitted elbow and the wrist lie.
-    const posture: IHumanPosture = s.film.performance.posture("a", at);
-    const segments: readonly HumanSegment.ISegment[] =
+    const posture: IAutoMovieMotionHumanPosture = s.film.performance.posture(
+      "a",
+      at,
+    );
+    const segments: readonly IAutoMovieMotionHumanSegment[] =
       s.film.performance.segments("a");
-    const entered: IHumanPosture = s.film.performance.posture(
+    const entered: IAutoMovieMotionHumanPosture = s.film.performance.posture(
       "a",
       segments[segments.length - 1]!.start,
     );
     const mouth: IAutoMovieVector3 = M.region(s, "a", s.body, "mouth", at);
-    const goal: IHumanPosture.IGoal | undefined = posture.limbs.rightArm;
+    const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs.rightArm;
     const v = (p: IAutoMovieVector3 | undefined): string =>
       p === undefined
         ? "none"
         : `(${p.x.toFixed(3)}, ${p.y.toFixed(3)}, ${p.z.toFixed(3)})`;
-    const drinks: boolean = elevation <= 70 && shoulder.y - knuckle.y >= 0.05;
+    const drinks: boolean =
+      flexion <= 53.5 + 2 * 7.0 && abduction <= 39.3 + 2 * 13.0;
     // On a miss, what the law's own drinking reader reads for this very
     // posture and goal, so a reader that admits what is not shown is told
     // apart from a goal or posture the plan did not foresee.
-    const reader: AutoMovieMotionHumanDrinkingArm.IArm | undefined =
+    const reader: IAutoMovieMotionHumanDrinkingArm.IArm | undefined =
       drinks || goal === undefined
         ? undefined
         : AutoMovieMotionHumanDrinkingArm.read(
@@ -199,7 +209,7 @@ export namespace motionHandToFaceDrink {
             false,
           );
     complaints.check(
-      `${cell}: at the mouth (${at.toFixed(2)} s) the upper arm is raised ${elevation.toFixed(1)} deg from hanging and the elbow stands ${((shoulder.y - knuckle.y) * 1000).toFixed(0)} mm below the shoulder, at most 70 deg and at least 50 mm below expected (Murphy et al. 2011; provisional); shoulder ${v(shoulder)}, elbow ${v(knuckle)}, wrist ${v(hand)}, the goal's point ${v(goal?.point)}, rotation ${JSON.stringify(goal?.rotation ?? null)}, hint ${v(goal?.bend)}, reference ${JSON.stringify(goal?.reference ?? null)}; the drinking reader reads ${reader === undefined ? "nothing" : `${reader.elevation.toFixed(1)} deg and ${(reader.drop * 1000).toFixed(0)} mm`} on this posture and goal; neck and head ${JSON.stringify([posture.joints.neck, posture.joints.head])} against ${JSON.stringify([entered.joints.neck, entered.joints.head])} at the act's start, mouth ${v(mouth)}`,
+      `${cell}: at the mouth (${at.toFixed(2)} s) the shoulder is flexed ${flexion.toFixed(1)} and abducted ${abduction.toFixed(1)} deg, at most 67.5 and 65.3 expected (Alt Murphy et al. 2006, mean plus two SD); shoulder ${v(shoulder)}, elbow ${v(knuckle)}, wrist ${v(hand)}, the goal's point ${v(goal?.point)}, rotation ${JSON.stringify(goal?.rotation ?? null)}, hint ${v(goal?.bend)}, reference ${JSON.stringify(goal?.reference ?? null)}; the drinking reader reads ${reader === undefined ? "nothing" : `${reader.flexion.toFixed(1)} and ${reader.abduction.toFixed(1)} deg`} on this posture and goal; neck and head ${JSON.stringify([posture.joints.neck, posture.joints.head])} against ${JSON.stringify([entered.joints.neck, entered.joints.head])} at the act's start, mouth ${v(mouth)}`,
       drinks,
     );
     const gap: number = Math.hypot(
@@ -215,7 +225,10 @@ export namespace motionHandToFaceDrink {
 
   /** The drink's least lean, read on the posture its search was given (the act's first second, the head not yet turned): the lean one step below must admit no arm. */
   function below(s: M.IStaged): string[] {
-    const posture: IHumanPosture = s.film.performance.posture("a", 0);
+    const posture: IAutoMovieMotionHumanPosture = s.film.performance.posture(
+      "a",
+      0,
+    );
     const place: ReturnType<typeof HumanTrunk.region> = HumanTrunk.region(
       s.body,
       posture,
@@ -226,9 +239,9 @@ export namespace motionHandToFaceDrink {
       posture,
       "right",
     );
-    const effector: handToFace.IRow["effector"] =
+    const effector: IAutoMovieMotionHumanHandToFaceRows.IRow["effector"] =
       handToFace.ROWS.drink.effector;
-    const found: AutoMovieMotionHumanTouchUpright.IFacing =
+    const found: IAutoMovieMotionHumanTouchUpright.IFacing =
       AutoMovieMotionHumanTouchDrink.drinking(
         s.body,
         posture,

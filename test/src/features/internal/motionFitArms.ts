@@ -2,7 +2,6 @@ import {
   DEFAULT_HUMANOID_ROM,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   fitChainToTarget,
@@ -17,6 +16,7 @@ import type {
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";

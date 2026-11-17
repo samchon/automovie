@@ -1,6 +1,9 @@
-import { AutoMovieHumanNativeGirthClosure as Closure, AutoMovieHumanConicSection as S } from "@automovie/human";
-
 import { nclose } from "../../internal/predicates";
+import {
+  AutoMovieHumanConicSection as S,
+  AutoMovieHumanNativeGirthClosure as Closure,
+} from "@automovie/human";
+import type { IAutoMovieHumanConicSection } from "@automovie/interface";
 
 /**
  * The girth closure measures a section's taut tape and finds the one fullness at which the tape is a given girth, the extremes held.
@@ -42,7 +45,7 @@ export function test_human_native_girth_closure(): void {
   };
   const [a, b]: [number, number] = [100, 60];
   const quarter: number = Math.SQRT2 - 1;
-  const layout: S.ILayout = S.limb(0);
+  const layout: IAutoMovieHumanConicSection.ILayout = S.limb(0);
   const ellipse: number[] = [a, 0, 0, b, -a, 0, 0, -b, quarter, quarter, quarter, quarter];
 
   // The Gauss-Kummer series: the n-th coefficient is the square of C(1/2, n), and C(1/2, n) = C(1/2, n - 1) (3 - 2n) / (2n).
@@ -82,7 +85,7 @@ export function test_human_native_girth_closure(): void {
   refused("a nonpositive girth", (): unknown => Closure.solve(ellipse, layout, 0));
 
   // 5. A bilateral section: front, median, side, median, back, then four shoulders.
-  const half: S.ILayout = S.bilateral(1);
+  const half: IAutoMovieHumanConicSection.ILayout = S.bilateral(1);
   const trunk: number[] = [120, 0.5, 20, 180, 0.5, -90, 0.45, 0.45, 0.45, 0.45];
   const girth: number = 1.02 * Closure.tape(trunk, half);
   const fuller: Closure.IClosed = Closure.solve(trunk, half, girth);

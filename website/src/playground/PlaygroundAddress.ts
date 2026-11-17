@@ -13,11 +13,11 @@ import type { IPlaygroundComposition } from "./structures/IPlaygroundComposition
  * request there and refuses a key it does not know.
  */
 export namespace PlaygroundAddress {
-  /** The newest composition format, which a composition this site writes carries; version 1, which has no objects, is still read. */
-  export const VERSION: IPlaygroundComposition["version"] = 2;
+  /** The newest composition format; versions 1 and 2 remain readable. */
+  export const VERSION: IPlaygroundComposition["version"] = 3;
 
   /** Every version this page reads. */
-  const READS: readonly number[] = [1, 2];
+  const READS: readonly number[] = [1, 2, 3];
 
   /** The fragment key the composition is kept under. */
   const KEY: string = "c";
@@ -27,8 +27,10 @@ export namespace PlaygroundAddress {
    *
    * @param composition The composition.
    * @returns The fragment, with its leading `#`.
+   * @throws {Error} When authored forces are damaged or need version 3.
    */
   export function encode(composition: IPlaygroundComposition): string {
+    admitForces(composition);
     return `#${KEY}=${compressToEncodedURIComponent(JSON.stringify(composition))}`;
   }
 
@@ -77,15 +79,63 @@ export namespace PlaygroundAddress {
       )
     )
       throw new Error("The address carries a composition that cannot be read");
+    admitForces(composition);
     return composition;
   }
 
+  /** Refuse lost force capabilities and malformed impulses before JSON or playback can discard them. */
+  function admitForces(composition: IPlaygroundComposition): void {
+    if (composition.forces === undefined) return;
+    if (composition.version !== 3)
+      throw new Error("Authored impulses require composition version 3");
+    if (
+      !Array.isArray(composition.forces) ||
+      !composition.forces.every(
+        (value: unknown): boolean =>
+          impulse(value) &&
+          record(value) &&
+          composition.performers.some(
+            (person: IPlaygroundComposition.IPerformer): boolean =>
+              person.subject === value.subject,
+          ),
+      )
+    )
+      throw new Error(
+        "The address carries an authored impulse that cannot be read",
+      );
+  }
+
   /** Whether a value is a plain object, which every record of a composition is. */
-  const record = (value: unknown): value is Record<string, unknown> =>
+  const record: (value: unknown) => value is Record<string, unknown> = (
+    value: unknown,
+  ): value is Record<string, unknown> =>
     typeof value === "object" && value !== null && !Array.isArray(value);
 
+  /** Whether a subject or anatomical token names something rather than empty text. */
+  const token: (value: unknown) => boolean = (value: unknown): boolean =>
+    typeof value === "string" && value.trim().length !== 0;
+
+  /** Whether a value is a finite world vector, so damaged impulse data cannot turn into an unforced stance. */
+  const vector: (value: unknown) => boolean = (value: unknown): boolean =>
+    record(value) &&
+    ["x", "y", "z"].every(
+      (axis: string): boolean =>
+        typeof value[axis] === "number" && Number.isFinite(value[axis]),
+    );
+
+  /** Check the serialized shape; the public type owns the authored region and bone vocabulary. */
+  const impulse: (value: unknown) => boolean = (value: unknown): boolean =>
+    record(value) &&
+    value.kind === "impulse" &&
+    token(value.subject) &&
+    typeof value.seconds === "number" &&
+    Number.isFinite(value.seconds) &&
+    (token(value.at) ||
+      (record(value.at) && token(value.at.bone) && vector(value.at.point))) &&
+    vector(value.impulse);
+
   /** Whether a value has the members the editor reads of an action, through the actions performed over it. */
-  const action = (value: unknown): boolean =>
+  const action: (value: unknown) => boolean = (value: unknown): boolean =>
     record(value) &&
     typeof value.name === "string" &&
     record(value.params) &&
@@ -128,10 +178,11 @@ export namespace PlaygroundAddress {
             ).offset.position[k] === "number",
         ) &&
         quaternion(value.worn.offset.rotation))) &&
+    (value.fixed === undefined || typeof value.fixed === "boolean") &&
     typeof value.yaw === "number";
 
   /** Whether a value has the members the editor reads of a performer. */
-  const performer = (value: unknown): boolean =>
+  const performer: (value: unknown) => boolean = (value: unknown): boolean =>
     record(value) &&
     typeof value.subject === "string" &&
     typeof value.body === "string" &&

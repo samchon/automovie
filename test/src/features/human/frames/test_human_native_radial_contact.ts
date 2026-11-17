@@ -1,11 +1,10 @@
-import {
-  AutoMovieLoftViewFullSource as Full,
-} from "@automovie/engine";
+import { AutoMovieLoftViewFullSource as Full } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanF1,
   AutoMovieHumanNativeRadialContact as Radial,
 } from "@automovie/human";
+import type { IAutoMovieLoftViewFullSource } from "@automovie/interface";
 
 /**
  * A cutter's seed is derived where its declared seed line enters a star-shaped host, not copied from an earlier run.
@@ -50,9 +49,9 @@ export function test_human_native_radial_contact(): void {
   }
 
   // 4. f1's stored nostril and nose.
-  const nostril: Full.IReader = Full.create(H.source(AutoMovieHumanF1.CUTTERS[2]!.family));
+  const nostril: IAutoMovieLoftViewFullSource.IReader = Full.create(H.source(AutoMovieHumanF1.CUTTERS[2]!.family));
   const nose = H.source(AutoMovieHumanF1.BODY.nose);
-  const noseReader: Full.IReader = Full.create(nose);
+  const noseReader: IAutoMovieLoftViewFullSource.IReader = Full.create(nose);
   const span: number = nostril.domain[1] - nostril.domain[0];
   const f1: Radial.IResult = Radial.seed(
     (s: number): readonly number[] => nostril.point(s, 0),

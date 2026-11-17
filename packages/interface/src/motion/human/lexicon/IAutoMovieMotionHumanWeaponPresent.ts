@@ -1,0 +1,150 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
+import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
+import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanWeaponTrack } from "./IAutoMovieMotionHumanWeaponTrack";
+
+/**
+ * Handling a firearm with the weapon as the effector: presenting it to an
+ * aim or a ready position, the shot's recoil, and the draw and the return
+ * to a holster.
+ *
+ * The firearm is a prop the hand holds (`HumanObject.prop` of a handgun or a
+ * long gun, taken by its `grip`); presenting and firing are the generalised
+ * launcher laws of `HumanWeaponPresent` under the firearm's names, reading
+ * the gun's `muzzle` and `sight` and aiming from the eye (a handgun) or the
+ * cheek (a long gun) unless a row names another tip, edge or anchor.
+ *
+ * A shot is three actions in a chain: `draw` (a pick up of the holstered
+ * pistol by its grip), `present` (the muzzle brought onto the line from the
+ * eye to the target and held) and `fire` (the trigger's press, the muzzle's
+ * rise about the hand and its return onto the line). `present` with a ready
+ * position lowers the weapon, and `holster` puts it back.
+ *
+ * A handgun is held in both hands unless one is asked, the support hand
+ * wrapped beside the shooting hand; a long gun (a prop that declares a
+ * `foreEnd`) takes the support hand on its fore-end and is refused in one
+ * hand. A target more than `TURN` degrees off the heading is refused: the
+ * performer turns first.
+ *
+ * First pass: the target is read once at the action's start, the holster is
+ * a prop where the scene stands it and does not ride the body, and no
+ * reload is planned. The recoil's size and times are provisional: no
+ * recoil-recovery study was read (#3348 lists it as research to do).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation gun: The held weapon's prop subject id; the bare hand when absent. hand: The shooting hand; `right` when absent. hands: How many hands hold it; 2 when absent.
+ * @evidence contracts/development/design.md#principled-representation gun: The held weapon's prop subject id; the bare hand when absent. hand: The shooting hand; `right` when absent. hands: How many hands hold it; 2 when absent.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanWeaponPose.ts (HumanWeaponPose.of, context); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.present, context); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.present, ahead); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.hand, p); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.held, context); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.setup, context).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionManner, IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ */
+export namespace IAutoMovieMotionHumanWeaponPresent {
+  /**
+   * What every presenting action takes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation gun: The held weapon's prop subject id; the bare hand when absent. hand: The shooting hand; `right` when absent. hands: How many hands hold it; 2 when absent.
+   * @evidence contracts/development/design.md#principled-representation gun: The held weapon's prop subject id; the bare hand when absent. hand: The shooting hand; `right` when absent. hands: How many hands hold it; 2 when absent.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.hand, p); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.held, context); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.setup, context); lexicon/HumanWeaponHeld.ts (HumanWeaponHeld.carried, context); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.fire, context); lexicon/HumanWeaponFirearm.ts (HumanWeaponFirearm.fire).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionHumanWeaponPresent.Anchor, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   */
+  export interface IWield {
+    /** The held weapon's prop subject id; the bare hand when absent. */
+    gun?: string;
+
+    /** The shooting hand; `right` when absent. */
+    hand?: AutoMovieHumanSide;
+
+    /** How many hands hold it; 2 when absent. */
+    hands?: 1 | 2;
+
+    /** The weapon's working point affordance, put on the line; `muzzle` when absent. */
+    tip?: string;
+
+    /** The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies it. */
+    from?: string;
+
+    /** The weapon's sighting affordance, square to its line; `sight` when absent. */
+    edge?: string;
+
+    /** Where the line of aim starts on the body; the eye for a handgun and the cheek for a long gun when absent. */
+    anchor?: IAutoMovieMotionHumanWeaponPresent.Anchor;
+
+    /** How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own. */
+    manner?: IAutoMovieMotionManner;
+
+    /**
+     * What a shot launches (#3488): the prop that flies (a ball the scene
+     * gives), its speed out of the muzzle in m/s (the gun's muzzle
+     * velocity) and the lock's time from the break to the launch in seconds
+     * (the gun's lock time; 0 when absent). Nothing is launched when absent.
+     */
+    shot?: {
+      /** Scene subject id of the projectile launched from the weapon's muzzle. */
+      prop: string;
+      /** Muzzle speed relative to the weapon, metres per second; support velocity is added by the launch planner. */
+      speed: number;
+      /** Lock delay after trigger break, seconds; defaults to zero. */
+      lock?: number;
+    };
+  }
+
+  /**
+   * Where a line of aim starts: the eye, the cheek on a stock, the face a bow's hand draws to, the arm a lance is couched under.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Where a line of aim starts: the eye, the cheek on a stock, the face a bow's hand draws to, the arm a lance is couched under.
+   * @evidence contracts/development/design.md#principled-representation Closed choices "eye", "cheek", "face", "arm" distinguish the admitted cases.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanWeaponPose.ts (HumanWeaponPose.of).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanWeaponPose.of.
+   */
+  export type Anchor = "eye" | "cheek" | "face" | "arm";
+
+  /**
+   * How the weapon is carried: on the line of aim; at a ready position with
+   * the muzzle down or up; or at a long arm's recover, the firelock upright
+   * with its butt at the support side's breast (the 1764 Manual Exercise's
+   * position from which it is cocked); or shouldered, the piece in one hand
+   * against the shoulder, its butt on the hip (the manual's Position of a
+   * Soldier under Arms).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation How the weapon is carried: on the line of aim; at a ready position with the muzzle down or up; or at a long arm's recover, the firelock upright with its butt at the support side's breast (the 1764 Manual Exercise's position from which it is cocked); or shouldered, the piece in one hand against the shoulder, its butt on the hip (the manual's Position of a Soldier under Arms).
+   * @evidence contracts/development/design.md#principled-representation Closed choices "aim", "lowReady", "highReady", "recover", "shoulder" distinguish the admitted cases.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanWeaponPose.ts (HumanWeaponPose); lexicon/HumanWeaponPose.ts (HumanWeaponPose.of).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanWeaponPose.
+   */
+  export type Carriage =
+    | "aim"
+    | "lowReady"
+    | "highReady"
+    | "recover"
+    | "shoulder";
+
+  /**
+   * Parameters of presenting the weapon.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation target: What it is aimed at; a place straight ahead at eye height when absent. A ready position faces it without aiming. carriage: The carriage; `aim` when absent. extended: Whether the presenting arm reaches straight out along the line of aim to its own reach, a bow arm extended to the target; otherwise the working point is held the presentation's own share of the arm out. Not extended when absent.
+   * @evidence contracts/development/design.md#principled-representation target: What it is aimed at; a place straight ahead at eye height when absent. A ready position faces it without aiming. carriage: The carriage; `aim` when absent. extended: Whether the presenting arm reaches straight out along the line of aim to its own reach, a bow arm extended to the target; otherwise the working point is held the presentation's own share of the arm out. Not extended when absent.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanWeaponPose.ts (HumanWeaponPose.of, context); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.present, context); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.present, ahead); lexicon/HumanWeaponFirearm.ts (HumanWeaponFirearm.present); lexicon/HumanWeaponPose.ts (HumanWeaponPose.of); lexicon/HumanWeaponPresent.ts (HumanWeaponPresent.present).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanWeaponPresent.Carriage identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   */
+  export interface IPresent
+    extends
+      IAutoMovieMotionHumanWeaponPresent.IWield,
+      IAutoMovieMotionHumanWeaponTrack.IParams {
+    /** What it is aimed at; a place straight ahead at eye height when absent. A ready position faces it without aiming. */
+    target?: IAutoMovieMotionTarget;
+
+    /** The carriage; `aim` when absent. */
+    carriage?: IAutoMovieMotionHumanWeaponPresent.Carriage;
+
+    /**
+     * Whether the presenting arm reaches straight out along the line of aim
+     * to its own reach, a bow arm extended to the target; otherwise the
+     * working point is held the presentation's own share of the arm out.
+     * Not extended when absent.
+     */
+    extended?: boolean;
+
+    /** Seconds the carriage is held once reached; 1 when absent.
+     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+     */
+    seconds?: number;
+  }
+}

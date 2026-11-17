@@ -1,10 +1,11 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieSoftStiffness } from "./IAutoMovieSoftStiffness";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieSoftCompliance } from "./IAutoMovieSoftCompliance";
+import type { IAutoMovieSoftStiffness } from "./IAutoMovieSoftStiffness";
 
 /**
  * Fixed-step integration settings and declared seek budgets.
  *
- * @evidence contracts/development/design.md#principled-representation The CPU solver predicts velocity with implicit linear drag, applies the selected number of Jacobi stiffness sweeps and integrates only integer absolute steps; validation checks finite values and the authored travel number.
+ * @evidence contracts/development/design.md#principled-representation The CPU solver predicts velocity with implicit linear drag, applies the selected number of Jacobi stiffness sweeps, or of compliant XPBD sweeps when compliance is declared, and integrates only integer absolute steps; validation checks finite values and the authored travel number.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Numerical settings and bounded seek work live beside the domain instead of being inferred from playback frame rate.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts referenceSpeed is an author-supplied design speed used in admission, not a runtime speed clamp or a continuous collision certificate; maxSpeed reports the resulting solve separately.
  * @evidence contracts/development/common.md#meaningful-documentation Members give seconds, acceleration, inverse-second drag, dimensionless stiffness, iteration count and the maximum absolute integration step.
@@ -14,7 +15,7 @@ export interface IAutoMovieSoftSolver {
   fixedStepSeconds: number;
 
   /**
-   * Uniform body acceleration in m/s², normally `{ x: 0, y: -9.81, z: 0 }`. A vector rather than a magnitude so a panel can be solved in a tilted frame without rewriting its rest mesh.
+   * Uniform body acceleration in m/s², normally standard gravity, `{ x: 0, y: -9.80665, z: 0 }`. A vector rather than a magnitude so a panel can be solved in a tilted frame without rewriting its rest mesh.
    */
   gravity: IAutoMovieVector3;
 
@@ -28,8 +29,18 @@ export interface IAutoMovieSoftSolver {
    */
   iterations: number;
 
-  /** How hard each constraint family pulls, each in `[0, 1]`. */
+  /** How hard each constraint family pulls, each in `[0, 1]`: the relaxation weights of the plain position-based sweeps, read only when `compliance` is absent. */
   stiffness: IAutoMovieSoftStiffness;
+
+  /**
+   * Each constraint family's compliance, metres per newton, which switches
+   * the solve to compliant constraints with a Lagrange multiplier each
+   * (XPBD), projected one after another: the stiffness then does not depend
+   * on `iterations` or `fixedStepSeconds`, and the force a held particle
+   * bears can be read. Absent or null keeps the plain position-based solve
+   * with `stiffness`, unchanged.
+   */
+  compliance?: IAutoMovieSoftCompliance | null;
 
   /**
    * Declared design speed in m/s, strictly positive, used in the travel estimate `dt * referenceSpeed / shortestStructuralRestLength`. The solver does not clamp observed speed to this value, and lattice spacing does not establish that a discrete step cannot tunnel through a thinner collider.

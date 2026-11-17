@@ -1,5 +1,9 @@
-import { AutoMovieLoftRelief, AutoMovieViewAxis, type IAutoMovieLoftRelief } from "@automovie/engine";
-import { AutoMovieHumanConicRecentre as Recentre, AutoMovieHumanConicReliefRecentre as Nets } from "@automovie/human";
+import { AutoMovieLoftRelief, AutoMovieViewAxis } from "@automovie/engine";
+import {
+  AutoMovieHumanConicRecentre as Recentre,
+  AutoMovieHumanConicReliefRecentre as Nets,
+} from "@automovie/human";
+import type { IAutoMovieLoftRelief, IAutoMovieViewAxis } from "@automovie/interface";
 
 /**
  * A relief net re-expressed in a re-centred chart leaves the skin where it was.
@@ -37,13 +41,13 @@ export function test_human_conic_relief_recentre(): void {
   const knots: number[] = [0, 10, 20, 30];
   const c = (s: number): number => 6 + 0.05 * s;
   const [origin, u, v]: V3[] = [[1, 2, 3], [1, 0, 0], [0, 0, 1]];
-  const base: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(origin!, u!, v!);
-  const at = (axis: AutoMovieViewAxis.IAxis, s: number, x: number, y: number): V3 => {
+  const base: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(origin!, u!, v!);
+  const at = (axis: IAutoMovieViewAxis.IAxis, s: number, x: number, y: number): V3 => {
     const frame = axis.at(s);
     return [0, 1, 2].map((k: number): number => frame.origin[k]! + x * frame.u[k]! + y * frame.v[k]!) as V3;
   };
   const wall = (shift: (s: number) => number): Nets.ISkin => {
-    const axis: AutoMovieViewAxis.IAxis = Recentre.axis(base, knots, { u: knots.map(shift), v: knots.map((): number => 0) });
+    const axis: IAutoMovieViewAxis.IAxis = Recentre.axis(base, knots, { u: knots.map(shift), v: knots.map((): number => 0) });
     return {
       axis,
       stations: [0, 30],

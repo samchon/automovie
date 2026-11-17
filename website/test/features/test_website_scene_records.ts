@@ -66,7 +66,7 @@ export function test_website_scene_records(): void {
     "a scene that does not play names its issues",
     SCENES.filter(
       (s: IScene): boolean =>
-        !SceneStatus.bakes(SceneStatus.of(s)) && s.needs.length === 0,
+        !SceneStatus.computes(SceneStatus.of(s)) && s.needs.length === 0,
     ).map((s: IScene): string => s.id),
     [],
   );
@@ -74,7 +74,7 @@ export function test_website_scene_records(): void {
     "a scene that plays or is refused waits on nothing",
     SCENES.filter(
       (s: IScene): boolean =>
-        SceneStatus.bakes(SceneStatus.of(s)) && s.needs.length !== 0,
+        SceneStatus.computes(SceneStatus.of(s)) && s.needs.length !== 0,
     ).map((s: IScene): string => s.id),
     [],
   );
@@ -90,12 +90,8 @@ export function test_website_scene_records(): void {
 
   // 4. Coverage of the installed vocabulary.
   const used: Set<string> = new Set(SCENES.flatMap(SceneFacts.actions));
-  TestValidator.equals(
-    "every action is composed by a scene",
-    Object.keys(HUMAN_ACTIONS).filter(
-      (name: string): boolean => !used.has(name),
-    ),
-    [],
+  const missingActions: string[] = Object.keys(HUMAN_ACTIONS).filter(
+    (name: string): boolean => !used.has(name),
   );
   const lexicon: unknown = (motions as Readonly<Record<string, unknown>>)[
     "HUMAN_LEXICON"
@@ -105,12 +101,15 @@ export function test_website_scene_records(): void {
       ? (lexicon as Record<string, { name: string }[]>)
       : {};
   TestValidator.equals(
-    "every family of the lexicon is composed by a scene",
-    Object.entries(families)
-      .filter(([, rows]: [string, { name: string }[]]): boolean =>
-        rows.every((row: { name: string }): boolean => !used.has(row.name)),
-      )
-      .map(([name]: [string, { name: string }[]]): string => name),
-    [],
+    "every action and lexicon family is composed by a scene",
+    {
+      actions: missingActions,
+      families: Object.entries(families)
+        .filter(([, rows]: [string, { name: string }[]]): boolean =>
+          rows.every((row: { name: string }): boolean => !used.has(row.name)),
+        )
+        .map(([name]: [string, { name: string }[]]): string => name),
+    },
+    { actions: [], families: [] },
   );
 }

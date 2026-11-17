@@ -1,15 +1,17 @@
-import {
-  type AutoMovieViewAxis,
-  AutoMovieViewOutline,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import { AutoMovieViewOutline } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
+  AutoMovieHumanConicSection as S,
   AutoMovieHumanNativeFamily as Native,
   AutoMovieHumanNativeScaleProfile as Profile,
   AutoMovieHumanNativeSourceLaw,
-  AutoMovieHumanConicSection as S,
 } from "@automovie/human";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * A native tissue scale about a declared scaling centre holds that centre still and moves every chart coordinate by c + a·(f - c).
@@ -41,9 +43,9 @@ import {
 export function test_human_native_centred_scale(): void {
   const failures: string[] = [];
   const [A, B]: [number, number] = [20, 10];
-  const e: S.P = [3, -2];
+  const e: AutoMovieVector2Tuple = [3, -2];
   const rho: number = Math.SQRT2 - 1;
-  const prior: H.IFamily = {
+  const prior: IAutoMovieHumanConicLoft.IFamily = {
     name: "offset",
     centres: [
       [0, 0, 0],
@@ -59,13 +61,13 @@ export function test_human_native_centred_scale(): void {
   };
   const stations: number[] = Array.from({ length: 51 }, (_: unknown, k: number): number => 2 * k);
   const original: IAutoMovieViewPart = H.part(prior, stations);
-  const axis: AutoMovieViewAxis.IAxis = H.axis(prior);
-  const anchors: [number, S.P][] = [
+  const axis: IAutoMovieViewAxis.IAxis = H.axis(prior);
+  const anchors: [number, AutoMovieVector2Tuple][] = [
     [0, [1, 1]],
     [30, [1.2, 0.9]],
     [100, [1.2, 0.9]],
   ];
-  const fixed = (c: S.P): Profile.ICentre => ({
+  const fixed = (c: AutoMovieVector2Tuple): Profile.ICentre => ({
     jet: (): Profile.IJet => ({ value: [c[0], c[1]], first: [0, 0], second: [0, 0] }),
     breaks: [],
   });
@@ -74,12 +76,12 @@ export function test_human_native_centred_scale(): void {
     breaks: [],
   };
   const create = (
-    scale: (s: number) => S.P,
+    scale: (s: number) => AutoMovieVector2Tuple,
     centre: Profile.ICentre | undefined,
     protection: Native.ISpec["protection"] = [],
-    family: H.IFamily = prior,
+    family: IAutoMovieHumanConicLoft.IFamily = prior,
     source: IAutoMovieViewPart = original,
-  ): H.IFamily =>
+  ): IAutoMovieHumanConicLoft.IFamily =>
     Native.create({
       original: family,
       bone: family,
@@ -133,10 +135,10 @@ export function test_human_native_centred_scale(): void {
     ["touch -v", (part) => touch(part, 3), 0, e[0]],
   ];
   const half: number[] = Array.from({ length: 201 }, (_: unknown, k: number): number => k / 2);
-  const compare = (name: string, part: IAutoMovieViewPart, centre: (s: number) => [S.P, S.P]): void => {
+  const compare = (name: string, part: IAutoMovieViewPart, centre: (s: number) => [AutoMovieVector2Tuple, AutoMovieVector2Tuple]): void => {
     for (const s of half) {
       const k: [number, number, number][] = ratio(s);
-      const [c, c1]: [S.P, S.P] = centre(s);
+      const [c, c1]: [AutoMovieVector2Tuple, AutoMovieVector2Tuple] = centre(s);
       for (const [what, select, d, f] of outlines)
         check(`${name} ${what} at ${s}`, read(select(part), s), [
           c[d] + k[d]![0] * (f - c[d]),
@@ -161,7 +163,7 @@ export function test_human_native_centred_scale(): void {
     failures.push("a junction bound about the same centre was refused: " + String(error));
   }
   if (own !== undefined) {
-    compare("own centre", own, (): [S.P, S.P] => [e, [0, 0]]);
+    compare("own centre", own, (): [AutoMovieVector2Tuple, AutoMovieVector2Tuple] => [e, [0, 0]]);
     for (const q of [0, 1, 2, 3]) {
       const got: [number, number, number] = read(touch(own, q), 30);
       if (!(Math.abs(got[0] - (q % 2 === 0 ? e[1] : e[0])) <= limits[0]!)) failures.push(`the centre moved along touch ${q}: ${got[0]}`);
@@ -169,9 +171,9 @@ export function test_human_native_centred_scale(): void {
   }
 
   // 2. A moving centre off the ellipse's own.
-  const moving: H.IFamily = create(Profile.create(anchors), line);
+  const moving: IAutoMovieHumanConicLoft.IFamily = create(Profile.create(anchors), line);
   const moved: IAutoMovieViewPart = H.source(moving);
-  compare("line centre", moved, (s: number): [S.P, S.P] => [
+  compare("line centre", moved, (s: number): [AutoMovieVector2Tuple, AutoMovieVector2Tuple] => [
     [1 + 0.02 * s, 0.5 - 0.01 * s],
     [0.02, -0.01],
   ]);
@@ -199,12 +201,12 @@ export function test_human_native_centred_scale(): void {
     failures.push("a unit ratio about a centre did not return the original source objects");
 
   // 5. Refusals.
-  const capped: H.IFamily = { ...prior, name: "capped", tips: [null, { from: 100, tip: 120 }] };
-  const bilateral: H.IFamily = { ...prior, name: "bilateral", layout: S.bilateral(0) };
+  const capped: IAutoMovieHumanConicLoft.IFamily = { ...prior, name: "capped", tips: [null, { from: 100, tip: 120 }] };
+  const bilateral: IAutoMovieHumanConicLoft.IFamily = { ...prior, name: "bilateral", layout: S.bilateral(0) };
   for (const [what, word, bad] of [
     ["a centre off the course at a closing pole", "closing pole", (): unknown => H.source(create(Profile.create(anchors), fixed(e), [], capped, H.part(capped, stations)))],
     ["a centre off the median line of a bilateral family", "median line", (): unknown => create(Profile.create(anchors), fixed(e), [], bilateral)],
-    ["a centre under a plain scale function", "jet-carrying", (): unknown => H.source(create((s: number): S.P => Profile.create(anchors)(s), fixed(e)))],
+    ["a centre under a plain scale function", "jet-carrying", (): unknown => H.source(create((s: number): AutoMovieVector2Tuple => Profile.create(anchors)(s), fixed(e)))],
   ] as const) {
     let message: string | null = null;
     try {

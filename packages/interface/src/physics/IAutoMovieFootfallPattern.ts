@@ -1,14 +1,14 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * Contact timing for arbitrary support limbs, independent of the humanoid
- * open-loop gait oscillator. A chain names actual bones; phase and duty are
- * fractions of a cycle. Speed/stride samples use m/s and metres.
+ * Contact timing and support geometry for arbitrary articulated limbs.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Contact timing for arbitrary support limbs, independent of the humanoid open-loop gait oscillator) and documents 3 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents Contact timing for arbitrary support limbs, independent of the humanoid open-loop gait oscillator: interface of 3 members (`id`, `limbs`, `minimumSupports`); units and frames named in its text: local, metres. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAutoMovieFootfallPattern` in packages/interface/src/physics/IAutoMovieFootfallPattern.ts; its surface is the 3 members listed and the text shows 33 other files naming it, mostly packages/engine (16), test (15), packages/human (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * Chains use actual profile bone identities in proximal-to-distal order. Phase and duty are cycle fractions; stride tables map nonnegative metres-per-second speeds to positive metre lengths. admitPhysicalSupportPattern checks finite coordinates, existing distinct carriers, consecutive chains, at most 64 floor witnesses per limb and strictly increasing nonempty stride samples. Its stepping mode requires at least one limb beyond minimumSupports. Omitted localPoint selects the bone origin; omitted contacts selects the endpoint carrier.
+ *
+ * @evidence contracts/development/design.md#principled-representation Each limb combines its chain and support patch with phase, planted duty and a speed-to-stride law; the minimum count expresses whether suspension is permitted.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The physical step planner, balance solver and floor-target planner share this support vocabulary independently of humanoid bone names or an open-loop gait oscillator.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Support endpoints are not inferred from anatomy; the profile-aware admission function checks carrier and chain identities instead of inventing missing bones.
+ * @evidence contracts/development/common.md#meaningful-documentation States time fractions, physical units, ordered stride samples, admission bounds and default endpoint/contact behavior.
  */
 export interface IAutoMovieFootfallPattern {
   /** Stable description identity. */
@@ -39,9 +39,21 @@ export interface IAutoMovieFootfallPattern {
     /** Planted fraction in [0,1]; zero declares no mandatory planted dwell. */
     duty: number;
     /** Neutral support location in the forward/left plane, metres. */
-    offset: { forward: number; left: number };
+    offset: {
+      /** Metres along the body's declared forward direction. */
+      forward: number;
+
+      /** Metres along the body's declared left direction. */
+      left: number;
+    };
     /** Increasing speed samples with positive stride lengths. */
-    stride: { speed: number; length: number }[];
+    stride: {
+      /** Nonnegative travel speed in metres per second. */
+      speed: number;
+
+      /** Positive stride length in metres at that speed. */
+      length: number;
+    }[];
   }[];
   /** Minimum simultaneous planted supports; zero explicitly permits suspension. */
   minimumSupports: number;

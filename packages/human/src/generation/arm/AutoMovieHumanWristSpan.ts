@@ -1,4 +1,8 @@
-import type { IAutoMovieHumanArmPiece } from "./IAutoMovieHumanArmPiece";
+import type {
+  IAutoMovieHumanArmPiece,
+  IAutoMovieHumanArmSpanEnd,
+} from "@automovie/interface";
+
 import { AutoMovieHumanArmRows } from "./AutoMovieHumanArmRows";
 import { AutoMovieHumanForearmBelly } from "./AutoMovieHumanForearmBelly";
 
@@ -34,10 +38,15 @@ export namespace AutoMovieHumanWristSpan {
    *
    * @param inputs The fixed inputs.
    */
-  export function end(inputs: IAutoMovieHumanArmPiece.IInputs): { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } {
+  export function end(
+    inputs: IAutoMovieHumanArmPiece.IInputs,
+  ): IAutoMovieHumanArmSpanEnd {
     const s: number = inputs.axis.fore(inputs.stylion);
 
-    return { row: AutoMovieHumanArmRows.row("f0.95", s), knot: [s, inputs.tapes.wrist] };
+    return {
+      row: AutoMovieHumanArmRows.row("f0.95", s),
+      knot: [s, inputs.tapes.wrist],
+    };
   }
 
   /**
@@ -45,9 +54,13 @@ export namespace AutoMovieHumanWristSpan {
    *
    * @param inputs The fixed inputs.
    */
-  export function piece(inputs: IAutoMovieHumanArmPiece.IInputs): IAutoMovieHumanArmPiece {
-    const near: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } = AutoMovieHumanForearmBelly.end(inputs);
-    const far: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } = end(inputs);
+  export function piece(
+    inputs: IAutoMovieHumanArmPiece.IInputs,
+  ): IAutoMovieHumanArmPiece {
+    const near: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } =
+      AutoMovieHumanForearmBelly.end(inputs);
+    const far: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } =
+      end(inputs);
     const { forearm, wrist } = inputs.tapes;
     const eighty: number = inputs.axis.fore(0.8 * inputs.stylion);
     const flat: number = inputs.axis.fore(0.95 * inputs.stylion);
@@ -57,8 +70,17 @@ export namespace AutoMovieHumanWristSpan {
       from: "musculotendinous junction",
       to: "wrist crease",
       walk: [near.row.s, far.row.s],
-      rows: [near.row, AutoMovieHumanArmRows.row("f0.8", eighty), AutoMovieHumanArmRows.row("f0.95", flat), far.row],
-      knots: [near.knot, [eighty, wrist + FALL_EIGHTY * (forearm - wrist)], far.knot],
+      rows: [
+        near.row,
+        AutoMovieHumanArmRows.row("f0.8", eighty),
+        AutoMovieHumanArmRows.row("f0.95", flat),
+        far.row,
+      ],
+      knots: [
+        near.knot,
+        [eighty, wrist + FALL_EIGHTY * (forearm - wrist)],
+        far.knot,
+      ],
     };
   }
 }

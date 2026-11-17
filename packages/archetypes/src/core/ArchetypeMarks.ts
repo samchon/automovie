@@ -1,16 +1,17 @@
-import type { IAutoMovieMark } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMark,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { ArchetypeArticulation } from "./ArchetypeArticulation";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 
 /**
  * An archetype's affordances as inspection marks, so a still shows where each contact sits, which way it faces and how far it extends.
  *
- * Each affordance gives an arrow from its frame's origin along `+Y`, the way out of the contact, and, where its kind has an extent, the outline of that extent: a line for a `handle`, `bar`, `ledge`, `rein` and `stirrup`, a rectangle for a `seat`, `surface`, `pedal` and `aperture`, a circle for a `wheel`'s rim, a spoke for a `crank`'s arm and a line along its run for a `slider`. The marks are grouped by kind (`affordance/seat`, `affordance/hinge`, ...) so a request selects and colours them by kind, and each is named `<path>/affordance/<id>` so a pattern on the archetype selects them with it.
+ * Each affordance gives an arrow from its frame's origin along `+Y`, the way out of the contact, and, where its kind has an extent, the outline of that extent: a line for a `handle`, `bar`, `ledge`, `rein` and `stirrup`, a rectangle for a `seat`, `surface`, `pedal` and `aperture`, a circle for a `wheel`'s rim, a spoke for a `crank`'s arm and a line along its run for a `slider`, from its other way's end to its forward one. The marks are grouped by kind (`affordance/seat`, `affordance/hinge`, ...) so a request selects and colours them by kind, and each is named `<path>/affordance/<id>` so a pattern on the archetype selects them with it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each mark draws, how marks are grouped and how they are named.
  * @evidence contracts/development/design.md#principled-representation Plain `IAutoMovieMark` data in the model's placed space, the form the shared inspection instrument draws for any owner.
@@ -152,14 +153,18 @@ export namespace ArchetypeMarks {
             points: [...at(0, 0, 0), ...at(affordance.radius, 0, 0)],
           },
         });
-      else if (kind === "slider" && affordance.travel !== undefined)
+      else if (kind === "slider" && affordance.travel !== undefined) {
+        // The run from the other way's end to the forward one, the range the articulation owner states.
+        const run: { minimum: number | null; maximum: number | null } =
+          ArchetypeArticulation.range(affordance);
         marks.push({
           ...base,
           shape: {
             type: "segments",
-            points: [...at(0, 0, 0), ...at(affordance.travel, 0, 0)],
+            points: [...at(run.minimum!, 0, 0), ...at(run.maximum!, 0, 0)],
           },
         });
+      }
     }
     return marks;
   }

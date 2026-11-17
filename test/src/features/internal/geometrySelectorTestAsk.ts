@@ -1,9 +1,9 @@
 import { measureAutoMovieGeometry } from "@automovie/engine";
 import {
-  AutoMovieGeometryQuery,
   IAutoMovieCamera,
   IAutoMovieClip,
   IAutoMovieCompiledShotSource,
+  type IAutoMovieGeometryQuery,
   IAutoMovieGeometryResult,
   IAutoMovieModel,
   IAutoMovieSceneNode,
@@ -207,7 +207,7 @@ const SHOTS = new Map<string, IAutoMovieCompiledShotSource>([
 
 /** Evaluate the existing geometry query against the shared compiled shot records. */
 export const geometrySelectorTestAsk = (
-  request: AutoMovieGeometryQuery,
+  request: IAutoMovieGeometryQuery,
   world: Pick<
     IAutoMovieWorldDesign,
     "landmarks" | "surfaces" | "routes"

@@ -1,11 +1,17 @@
-import type { AutoMovieViewAxis, AutoMovieViewAxisJet } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicPose as Pose,
-  AutoMovieHumanConicRecentre as Recentre,
   AutoMovieHumanConicSection as S,
   AutoMovieHumanF1,
 } from "@automovie/human";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicRecentre,
+  IAutoMovieHumanConicSection,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+} from "@automovie/interface";
 
 /**
  * A family's origin line moves its course's origin in the section chart and nothing else; absent or zero, every reader returns what it
@@ -37,11 +43,11 @@ export function test_human_conic_loft_origin(): void {
     if (!(d <= tolerance)) failures.push(`${what}: [${got.join(", ")}] instead of [${want.join(", ")}]`);
   };
   const same = (a: readonly number[], b: readonly number[]): boolean => a.length === b.length && a.every((x: number, k: number): boolean => Object.is(x, b[k]));
-  const frames = (what: string, a: AutoMovieViewAxis.IAxis, b: AutoMovieViewAxis.IAxis, stations: readonly number[]): void => {
+  const frames = (what: string, a: IAutoMovieViewAxis.IAxis, b: IAutoMovieViewAxis.IAxis, stations: readonly number[]): void => {
     for (const s of stations) {
       const [p, q] = [a.at(s), b.at(s)];
       if (!same(p.origin, q.origin) || !same(p.u, q.u) || !same(p.v, q.v)) failures.push(`${what}: the frame at ${s} differs`);
-      const [i, j]: (AutoMovieViewAxisJet.IJet | null | undefined)[] = [a.jet?.(s), b.jet?.(s)];
+      const [i, j]: (IAutoMovieViewAxisJet.IJet | null | undefined)[] = [a.jet?.(s), b.jet?.(s)];
       if ((i === null || i === undefined) !== (j === null || j === undefined)) failures.push(`${what}: one jet is missing at ${s}`);
       else if (i !== null && i !== undefined && j !== null && j !== undefined)
         for (const order of ["value", "first", "second"] as const)
@@ -51,30 +57,30 @@ export function test_human_conic_loft_origin(): void {
 
   // The made families: ellipses 20 by 10 mm on their course.
   const rho: number = Math.SQRT2 - 1;
-  const layout: S.ILayout = S.limb(0);
+  const layout: IAutoMovieHumanConicSection.ILayout = S.limb(0);
   const knots: number[] = [0, 40, 80, 120, 160, 200];
   const values: number[][] = [20, 0, 0, 10, -20, 0, 0, -10, rho, rho, rho, rho].map((x: number): number[] => knots.map((): number => x));
-  const jointed: H.IFamily = { name: "made", centres: [[0, 0, 30], [0, 100, 30], [40, 190, 60]], halves: [20], up: [1, 0, 0], roll: { knots: [0, 200], values: [0, 0.4] }, layout, knots, values };
-  const zero: Recentre.ILine = { u: knots.map((): number => 0), v: knots.map((): number => 0) };
+  const jointed: IAutoMovieHumanConicLoft.IFamily = { name: "made", centres: [[0, 0, 30], [0, 100, 30], [40, 190, 60]], halves: [20], up: [1, 0, 0], roll: { knots: [0, 200], values: [0, 0.4] }, layout, knots, values };
+  const zero: IAutoMovieHumanConicRecentre.ILine = { u: knots.map((): number => 0), v: knots.map((): number => 0) };
   const dense: number[] = Array.from({ length: 201 }, (_: unknown, k: number): number => k);
 
   // 1. Absent and zero.
   frames("made axis with the zero line", H.axis(jointed), H.axis({ ...jointed, origin: zero }), dense);
-  const [twin, twinZero]: H.IFamily[] = [H.mirror(jointed, "twin"), H.mirror({ ...jointed, origin: zero }, "twin")];
+  const [twin, twinZero]: IAutoMovieHumanConicLoft.IFamily[] = [H.mirror(jointed, "twin"), H.mirror({ ...jointed, origin: zero }, "twin")];
   if (twin!.origin !== undefined) failures.push("a twin of a family without a line has one");
   if (twinZero!.origin === undefined || !same(twinZero!.origin.u, zero.u) || !same(twinZero!.origin.v, zero.v)) failures.push("a twin of a family with the zero line does not carry zeros");
   if (JSON.stringify({ ...twinZero, origin: undefined }) !== JSON.stringify(twin)) failures.push("the zero line changed the twin");
   frames("twin axis with the zero line", H.axis(twin!), H.axis(twinZero!), dense);
-  const posedCentres: H.V3[] = [[0, 0, 30], [0, 100, 30], [70, 170, 60]];
-  const carried = (_: number, direction: H.V3): H.V3 => direction;
-  const plain: H.IFamily = { ...jointed, roll: undefined };
+  const posedCentres: AutoMovieVector3Tuple[] = [[0, 0, 30], [0, 100, 30], [70, 170, 60]];
+  const carried = (_: number, direction: AutoMovieVector3Tuple): AutoMovieVector3Tuple => direction;
+  const plain: IAutoMovieHumanConicLoft.IFamily = { ...jointed, roll: undefined };
   const [posed, posedZero] = [Pose.repose(plain, posedCentres, [1, 0, 0], carried), Pose.repose({ ...plain, origin: zero }, posedCentres, [1, 0, 0], carried)];
   if (posed.family.origin !== undefined) failures.push("a posed family without a line has one");
   if (JSON.stringify({ ...posedZero.family, origin: undefined }) !== JSON.stringify(posed.family)) failures.push("the zero line changed the posed family");
   frames("posed axis with the zero line", H.axis(posed.family), H.axis(posedZero.family), dense);
 
   // 2. The stored families.
-  const stored: H.IFamily[] = [...AutoMovieHumanF1.FAMILIES.map((m: { family: H.IFamily }): H.IFamily => m.family), ...AutoMovieHumanF1.CUTTERS.map((m: { family: H.IFamily }): H.IFamily => m.family)];
+  const stored: IAutoMovieHumanConicLoft.IFamily[] = [...AutoMovieHumanF1.FAMILIES.map((m: { family: IAutoMovieHumanConicLoft.IFamily }): IAutoMovieHumanConicLoft.IFamily => m.family), ...AutoMovieHumanF1.CUTTERS.map((m: { family: IAutoMovieHumanConicLoft.IFamily }): IAutoMovieHumanConicLoft.IFamily => m.family)];
   for (const family of stored) {
     if (family.origin !== undefined) failures.push(`${family.name} carries an origin line`);
     const stations: number[] = [];
@@ -83,9 +89,9 @@ export function test_human_conic_loft_origin(): void {
   }
 
   // 3. A constant line on a straight course, plain and rolled a quarter turn.
-  const line: Recentre.ILine = { u: knots.map((): number => 5), v: knots.map((): number => -3) };
-  const straight: H.IFamily = { name: "straight", centres: [[1, 0, 2], [1, 200, 2]], halves: [], up: [1, 0, 0], layout, knots, values, origin: line };
-  const quarter: H.IFamily = { ...straight, roll: { knots: [0, 200], values: [Math.PI / 2, Math.PI / 2] } };
+  const line: IAutoMovieHumanConicRecentre.ILine = { u: knots.map((): number => 5), v: knots.map((): number => -3) };
+  const straight: IAutoMovieHumanConicLoft.IFamily = { name: "straight", centres: [[1, 0, 2], [1, 200, 2]], halves: [], up: [1, 0, 0], layout, knots, values, origin: line };
+  const quarter: IAutoMovieHumanConicLoft.IFamily = { ...straight, roll: { knots: [0, 200], values: [Math.PI / 2, Math.PI / 2] } };
   for (const s of [0, 37.5, 120, 200]) {
     const frame = H.axis(straight).at(s);
     near(`straight origin at ${s}`, frame.origin, [1 + 5, s, 2 - 3], 1e-12);
@@ -95,8 +101,8 @@ export function test_human_conic_loft_origin(): void {
   }
 
   // 4. The twin's origin is the reflection.
-  const lined: H.IFamily = { ...jointed, origin: { u: knots.map((s: number): number => 2 + 0.01 * s), v: knots.map((s: number): number => -1 + 0.02 * s) } };
-  const [own, mirrored]: AutoMovieViewAxis.IAxis[] = [H.axis(lined), H.axis(H.mirror(lined, "twin"))];
+  const lined: IAutoMovieHumanConicLoft.IFamily = { ...jointed, origin: { u: knots.map((s: number): number => 2 + 0.01 * s), v: knots.map((s: number): number => -1 + 0.02 * s) } };
+  const [own, mirrored]: IAutoMovieViewAxis.IAxis[] = [H.axis(lined), H.axis(H.mirror(lined, "twin"))];
   for (const s of [0, 30, 95, 110, 200]) {
     const p: readonly number[] = own!.at(s).origin;
     near(`twin origin at ${s}`, mirrored!.at(s).origin, [p[0]!, p[1]!, -p[2]!], 1e-9);
@@ -106,8 +112,8 @@ export function test_human_conic_loft_origin(): void {
   const bent = Pose.repose({ ...plain, origin: lined.origin }, posedCentres, [1, 0, 0], carried);
   if (bent.family.origin === undefined || !same(bent.family.origin.u, lined.origin!.u) || !same(bent.family.origin.v, lined.origin!.v)) failures.push("a pose changed the origin line's shifts");
   else {
-    const course: AutoMovieViewAxis.IAxis = H.axis({ ...bent.family, origin: undefined });
-    const moved: AutoMovieViewAxis.IAxis = H.axis(bent.family);
+    const course: IAutoMovieViewAxis.IAxis = H.axis({ ...bent.family, origin: undefined });
+    const moved: IAutoMovieViewAxis.IAxis = H.axis(bent.family);
     bent.family.knots.forEach((s: number, k: number): void => {
       const [f, g] = [course.at(s), moved.at(s)];
       const d: number[] = [0, 1, 2].map((c: number): number => g.origin[c]! - f.origin[c]!);

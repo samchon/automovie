@@ -7,7 +7,9 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
+  IAutoMovieHumanCanonicalSolids,
+  IAutoMoviePhysicalHullFaces,
+  IAutoMovieResolveHumanoidRingModules,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -37,55 +39,15 @@ import type {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No `any`, `unknown`, index signature or cast beyond naming a carrier; ring geometry and hull mathematics stay with their engine owners.
  */
 export namespace AutoMovieHumanCanonicalSolids {
-  /** One drawn joint at the canonical rest. */
-  export interface IJoint {
-    /** Parent Human joint, or null at the root. */
-    parent: string | null;
-
-    /** The rig bone that carries this joint rigidly. */
-    carrier: AutoMovieHumanoidBone;
-
-    /** Rest joint centre, canonical metres. */
-    position: IAutoMovieVector3;
-
-    /** Rest tip of a leaf segment, canonical metres. */
-    tip: IAutoMovieVector3 | null;
-
-    /** Girth radius, metres. */
-    radius: number;
-  }
-
-  /** One convex solid of the body. */
-  export interface ISolid {
-    /** Unique shape id: the module's joint, numbered when the module is cut. */
-    id: string;
-
-    /** The rig bone that carries the solid. */
-    carrier: AutoMovieHumanoidBone;
-
-    /** The solid's centroid, canonical metres. */
-    centre: IAutoMovieVector3;
-
-    /** The hull's points about the centroid, canonical axes, metres. */
-    points: IAutoMovieVector3[];
-
-    /** Volume, cubic metres. */
-    volume: number;
-
-    /** Principal moments of the uniform solid per unit mass, square metres. */
-    inertia: IAutoMovieVector3;
-
-    /** Rotation from the principal frame to the canonical axes. */
-    inertiaRotation: IAutoMovieQuaternion;
-  }
-
   /**
    * Build every solid of the body.
    *
    * @param joints Every drawn Human joint by id, parent before child.
    * @returns The solids in the ring owner's module order.
    */
-  export function build(joints: ReadonlyMap<string, IJoint>): ISolid[] {
+  export function build(
+    joints: ReadonlyMap<string, IAutoMovieHumanCanonicalSolids.IJoint>,
+  ): IAutoMovieHumanCanonicalSolids.ISolid[] {
     const tuple = (p: IAutoMovieVector3): [number, number, number] => [
       p.z,
       p.y,
@@ -101,7 +63,7 @@ export namespace AutoMovieHumanCanonicalSolids {
     // two points can lie on a hull whose surface cuts across between them.
     const convex = (run: IAutoMovieVector3[][]): boolean => {
       const points: IAutoMovieVector3[] = run.flat();
-      const hull: physicalHullFaces.IHull = physicalHullFaces(points);
+      const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
       return (
         hull.buried <= hull.tolerance &&
         run.every((ring: IAutoMovieVector3[]): boolean =>
@@ -115,10 +77,10 @@ export namespace AutoMovieHumanCanonicalSolids {
         )
       );
     };
-    const solids: ISolid[] = [];
+    const solids: IAutoMovieHumanCanonicalSolids.ISolid[] = [];
     for (const module of resolveAutoMovieHumanoidRingModules(
       [...joints.entries()].map(
-        ([bone, joint]): resolveAutoMovieHumanoidRingModules.IBone => ({
+        ([bone, joint]): IAutoMovieResolveHumanoidRingModules.IBone => ({
           bone,
           parent: joint.parent,
           position: tuple(joint.position),
@@ -132,7 +94,7 @@ export namespace AutoMovieHumanCanonicalSolids {
       const layers: IAutoMovieVector3[][] = [
         ...module.rings.map(
           (
-            ring: resolveAutoMovieHumanoidRingModules.IRing,
+            ring: IAutoMovieResolveHumanoidRingModules.IRing,
           ): IAutoMovieVector3[] => ring.points.map(reflect),
         ),
         ...(module.pole === null ? [] : [[reflect(module.pole)]]),

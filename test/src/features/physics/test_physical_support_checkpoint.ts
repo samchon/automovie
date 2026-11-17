@@ -1,4 +1,8 @@
 import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -32,13 +36,13 @@ export async function test_physical_support_checkpoint(): Promise<void> {
       PhysicalModelFixtures.stickman().profile,
       DURATION,
     );
-  const input: Simulation.IInput = PhysicalFixtures.input(
-    [produced.body],
-    DURATION,
-  );
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([produced.body], DURATION);
   input.checkpointEvery = CHECKPOINT;
-  const baseline: Simulation = await Simulation.compute(input);
-  const edited: Simulation.IInput = structuredClone(input);
+  const baseline: IAutoMoviePhysicalSimulation =
+    await Simulation.compute(input);
+  const edited: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(input);
   edited.impulses.push({
     step: EDIT,
     body: produced.body.id,
@@ -46,8 +50,11 @@ export async function test_physical_support_checkpoint(): Promise<void> {
     point: { x: 0, y: 1, z: 0 },
     impulse: { x: 0.2, y: 0, z: 0 },
   });
-  const fresh: Simulation = await Simulation.compute(edited);
-  const resumed: Simulation = await Simulation.compute(edited, baseline);
+  const fresh: IAutoMoviePhysicalSimulation = await Simulation.compute(edited);
+  const resumed: IAutoMoviePhysicalSimulation = await Simulation.compute(
+    edited,
+    baseline,
+  );
   const findings: string[] = [];
   const restart: number = Math.floor(EDIT / CHECKPOINT) * CHECKPOINT;
   if (resumed.recomputedSteps !== input.maximumSteps - restart)

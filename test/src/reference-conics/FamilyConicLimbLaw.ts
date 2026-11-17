@@ -1,14 +1,36 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import { createHash } from "node:crypto";
-import { AutoMovieLoftChain, type AutoMovieViewAxis, AutoMovieViewChain, type AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
-import { AutoMovieHumanConicLoft as H, AutoMovieHumanConicSection as S, AutoMovieHumanF1, AutoMovieHumanF1Placing as T, AutoMovieHumanSegmentFrame as SF } from "@automovie/human";
-import type { AutoMovieConstructionNode } from "@automovie/interface";
 import { FamilyConicFit as F } from "./FamilyConicFit";
 import { FamilyConicLoft as K } from "./FamilyConicLoft";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import {
+  AutoMovieLoftChain,
+  AutoMovieViewChain,
+  realizeAutoMovieConstruction,
+} from "@automovie/engine";
+import {
+  AutoMovieHumanConicLoft as H,
+  AutoMovieHumanConicSection as S,
+  AutoMovieHumanF1,
+  AutoMovieHumanF1Placing as T,
+  AutoMovieHumanSegmentFrame as SF,
+} from "@automovie/human";
+import type {
+  IAutoMovieConstructionNode,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicSection,
+  IAutoMovieHumanF1,
+  IAutoMovieHumanF1Placing,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
+  IAutoMovieViewAxis,
+  IAutoMovieViewChain,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
+import { createHash } from "node:crypto";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /**
  * A provisional limb law on f1 (issue #3151, step 2): the arm's and the leg's walls as functions of their segments' lengths and of the
@@ -66,8 +88,8 @@ import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
  */
 namespace FamilyConicLimbLaw {
   type V3 = [number, number, number];
-  type Family = H.IFamily;
-  type Chain = NonNullable<AutoMovieViewLoft.IResult["chain"]>;
+  type Family = IAutoMovieHumanConicLoft.IFamily;
+  type Chain = NonNullable<IAutoMovieViewLoft.IResult["chain"]>;
 
   /** The least tangent meeting every section keeps, the fit tool's admission margin (`FamilyConicFit.ADMISSIBLE_MARGIN`). */
   const MARGIN: number = F.ADMISSIBLE_MARGIN;
@@ -147,7 +169,7 @@ namespace FamilyConicLimbLaw {
   };
 
   /** The station of a course nearest a point: a scan every millimetre, refined by golden section within the best millimetre. */
-  function nearest(axis: AutoMovieViewAxis.IAxis, length: number, p: readonly number[]): number {
+  function nearest(axis: IAutoMovieViewAxis.IAxis, length: number, p: readonly number[]): number {
     const d = (s: number): number => {
       const o: number[] = axis.at(s).origin as number[];
       return Math.hypot(o[0]! - p[0]!, o[1]! - p[1]!, o[2]! - p[2]!);
@@ -172,7 +194,7 @@ namespace FamilyConicLimbLaw {
 
   /** The stations of a family's course centres: 0 at the first, the course's nearest approach at each turn, the course's length at the last. */
   function joints(family: Family): number[] {
-    const axis: AutoMovieViewAxis.IAxis = H.axis(family);
+    const axis: IAutoMovieViewAxis.IAxis = H.axis(family);
     const length: number = courseLength(family);
     return family.centres.map((c, k: number): number => (k === 0 ? 0 : k === family.centres.length - 1 ? length : nearest(axis, length, c)));
   }
@@ -186,8 +208,8 @@ namespace FamilyConicLimbLaw {
   }
 
   /** A section's girth, mm, from its field vector: the perimeter of its chain read along `GIRTH_PHASES` rays. */
-  function girth(values: readonly number[], layout: S.ILayout): number {
-    const section: AutoMovieViewChain.ISection = S.chain(values, layout);
+  function girth(values: readonly number[], layout: IAutoMovieHumanConicSection.ILayout): number {
+    const section: IAutoMovieViewChain.ISection = S.chain(values, layout);
     if (section.fault !== null) return NaN;
     let total: number = 0;
     let previous: number[] | null = null;
@@ -204,9 +226,9 @@ namespace FamilyConicLimbLaw {
   }
 
   /** The reach fields of a limb layout, by guide: `+u`, `+v`, `-u`, `-v`, each with its offset field and the two reaches across it. */
-  function reaches(layout: S.ILayout): { direction: string; field: number; offset: number; across: [string, string] }[] {
+  function reaches(layout: IAutoMovieHumanConicSection.ILayout): { direction: string; field: number; offset: number; across: [string, string] }[] {
     const at: number[] = S.offsets(layout).at;
-    const guides: number[] = layout.anchors.map((a: S.IAnchor, k: number): number => (a.guide === true ? k : -1)).filter((k: number): boolean => k >= 0);
+    const guides: number[] = layout.anchors.map((a: IAutoMovieHumanConicSection.IAnchor, k: number): number => (a.guide === true ? k : -1)).filter((k: number): boolean => k >= 0);
     if (guides.length !== 4 || layout.mirror) throw new Error("reaches: a limb layout of four guides is expected");
     return [
       { direction: "+u", field: at[guides[0]!]!, offset: at[guides[0]!]! + 1, across: ["+v", "-v"] },
@@ -230,14 +252,14 @@ namespace FamilyConicLimbLaw {
     ];
   }
 
-  function pointUnder(frames: Map<string, SF.IFrame>, name: string): V3 {
-    const placed: T.IPlaced = T.POINTS[name]!;
+  function pointUnder(frames: Map<string, IAutoMovieHumanSegmentFrame>, name: string): V3 {
+    const placed: IAutoMovieHumanF1Placing.IPlaced = T.POINTS[name]!;
     return SF.toWorld(frames.get(placed.frame)!, placed.local);
   }
 
   /** The chain with some segments' lengths scaled: the offset of the joint at each segment's far end. */
-  function chainWith(scales: Record<string, number>, limb: ILimb): SF.IJoint[] {
-    return T.CHAIN.map((joint: SF.IJoint): SF.IJoint => {
+  function chainWith(scales: Record<string, number>, limb: ILimb): IAutoMovieHumanSegmentJoint[] {
+    return T.CHAIN.map((joint: IAutoMovieHumanSegmentJoint): IAutoMovieHumanSegmentJoint => {
       const by: { segment: string; joint: string } | undefined = limb.lengths.find((l): boolean => l.joint === joint.name);
       const k: number = by === undefined ? 1 : (scales[by.segment] ?? 1);
       return { ...joint, offset: SF.scale(joint.offset, k) };
@@ -248,7 +270,7 @@ namespace FamilyConicLimbLaw {
   function sites(limb: ILimb): ISite[] {
     const family: Family = limb.family;
     const J: number[] = joints(family);
-    const axis: AutoMovieViewAxis.IAxis = H.axis(family);
+    const axis: IAutoMovieViewAxis.IAxis = H.axis(family);
     const length: number = courseLength(family);
     const read: (s: number) => number[] = H.reader(family);
     const site = (name: string, definition: string, station: number): ISite => {
@@ -261,7 +283,7 @@ namespace FamilyConicLimbLaw {
       for (let s: number = from; s <= to; s += STEP_MM) if (pick * girth(read(s), family.layout) > pick * girth(read(best), family.layout)) best = s;
       return best;
     };
-    const frames: Map<string, SF.IFrame> = SF.world(T.CHAIN, (): undefined => undefined);
+    const frames: Map<string, IAutoMovieHumanSegmentFrame> = SF.world(T.CHAIN, (): undefined => undefined);
     const mid = (a: string, b: string): V3 => SF.mid(pointUnder(frames, a), pointUnder(frames, b));
     if (limb.name === "arm")
       return [
@@ -359,7 +381,7 @@ namespace FamilyConicLimbLaw {
   function law(limb: ILimb, fields: IFields, f1Sites: ISite[], linear: boolean = false, spline: boolean = false): Family {
     const family: Family = limb.family;
     const J: number[] = joints(family);
-    const frames: Map<string, SF.IFrame> = SF.world(chainWith(fields.lengths, limb), (): undefined => undefined);
+    const frames: Map<string, IAutoMovieHumanSegmentFrame> = SF.world(chainWith(fields.lengths, limb), (): undefined => undefined);
     const centres: V3[] = T.COURSES[family.name]!.map((n: string): V3 => pointUnder(frames, n));
     const moved: Family = { ...family, centres, reliefs: [] };
     const J2: number[] = joints(moved);
@@ -377,7 +399,7 @@ namespace FamilyConicLimbLaw {
       ...moved,
       knots: family.knots.map(map),
       values,
-      ...(family.tips === undefined ? {} : { tips: family.tips.map((t) => (t === null ? null : { ...t, from: map(t.from), tip: map(t.tip) })) as [H.ITip | null, H.ITip | null] }),
+      ...(family.tips === undefined ? {} : { tips: family.tips.map((t) => (t === null ? null : { ...t, from: map(t.from), tip: map(t.tip) })) as [IAutoMovieHumanConicLoft.ITip | null, IAutoMovieHumanConicLoft.ITip | null] }),
     };
   }
 
@@ -602,7 +624,7 @@ namespace FamilyConicLimbLaw {
     const last: number = family.knots[family.knots.length - 1]!;
     const end: number = family.tips?.[1]?.from ?? last;
     for (let s: number = family.knots[0]!; s <= end; s += 1) stations.push(s);
-    const loft: AutoMovieViewLoft.IResult = H.create({ ...family, reliefs: [] }, stations);
+    const loft: IAutoMovieViewLoft.IResult = H.create({ ...family, reliefs: [] }, stations);
     if (loft.chain === null) return null;
     const chain: Chain = loft.chain;
     const M: number = 256;
@@ -1127,12 +1149,12 @@ namespace FamilyConicLimbLaw {
   /** A family's four guide lines (its reach extremes, the view outlines), metres, every 2 mm from its first knot to its end's cap. */
   function guideCurves(family: Family, colour: string, id: string): N.Curve[] {
     const read: (s: number) => number[] = H.reader(family);
-    const axis: AutoMovieViewAxis.IAxis = H.axis(family);
+    const axis: IAutoMovieViewAxis.IAxis = H.axis(family);
     const lastKnot: number = family.knots[family.knots.length - 1]!;
     const end: number = family.tips?.[1]?.from ?? lastKnot;
     const curves: number[][][] = [[], [], [], []];
     for (let s: number = family.knots[0]!; s <= end; s += 2) {
-      const chain: S.IChain = S.resolve(read(s), family.layout);
+      const chain: IAutoMovieHumanConicSection.IChain = S.resolve(read(s), family.layout);
       const frame = axis.at(s);
       chain.guides.forEach((g: number, q: number): void => {
         const p = chain.input.points[g]!;
@@ -1498,13 +1520,13 @@ namespace FamilyConicLimbLaw {
     const out: string = path.join(root, "test/.shots/family-conic-limb-law", "extremities-" + new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
     const lines: string[] = ["The hand, the foot and the digits: every element coupled at their law (issue #3151, step 2's last part); measurement and reading only", ""];
-    const frames: Map<string, SF.IFrame> = SF.world(T.CHAIN, (): undefined => undefined);
+    const frames: Map<string, IAutoMovieHumanSegmentFrame> = SF.world(T.CHAIN, (): undefined => undefined);
     const point = (name: string): V3 => pointUnder(frames, name);
     const dist = (a: readonly number[], b: readonly number[]): number => Math.hypot(a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!);
-    const joint = (name: string): SF.IJoint | undefined => T.CHAIN.find((j: SF.IJoint): boolean => j.name === name);
+    const joint = (name: string): IAutoMovieHumanSegmentJoint | undefined => T.CHAIN.find((j: IAutoMovieHumanSegmentJoint): boolean => j.name === name);
     const pathTo = (frame: string): string[] => {
       const chain: string[] = [];
-      for (let j: SF.IJoint | undefined = joint(frame); j !== undefined; j = joint(j.parent ?? "")) chain.unshift(j.name);
+      for (let j: IAutoMovieHumanSegmentJoint | undefined = joint(frame); j !== undefined; j = joint(j.parent ?? "")) chain.unshift(j.name);
       return chain;
     };
     const source: string = await fs.readFile(path.join(root, "packages/human/src/generation/f1/AutoMovieHumanF1.ts"), "utf8");
@@ -1516,8 +1538,8 @@ namespace FamilyConicLimbLaw {
       const i: number = text.findIndex((l: string): boolean => pattern.test(l));
       return i < 0 ? `${note}: no line matches ${pattern.source}` : `${note}:${i + 1}: ${text[i]!.trim().slice(0, 200)}`;
     };
-    const fingers: AutoMovieHumanF1.IDigit[] = AutoMovieHumanF1.DIGITS.filter((d): boolean => d.limb === "arm");
-    const toes: AutoMovieHumanF1.IDigit[] = AutoMovieHumanF1.DIGITS.filter((d): boolean => d.limb === "leg");
+    const fingers: IAutoMovieHumanF1.IDigit[] = AutoMovieHumanF1.DIGITS.filter((d): boolean => d.limb === "arm");
+    const toes: IAutoMovieHumanF1.IDigit[] = AutoMovieHumanF1.DIGITS.filter((d): boolean => d.limb === "leg");
     const hand: Family = AutoMovieHumanF1.BODY.hand;
     const leg: Family = AutoMovieHumanF1.BODY.leg;
     const arm: Family = AutoMovieHumanF1.BODY.arm;
@@ -1575,7 +1597,7 @@ namespace FamilyConicLimbLaw {
       const J: number[] = joints(f);
       const tag: string = f.name.split(".")[1]!;
       // The digit's chain joints below the hand, each placed by its offset from the one before (the bone before it).
-      const phalanges: string[] = T.CHAIN.filter((j: SF.IJoint): boolean => j.name.startsWith(`${tag}.`) && j.parent !== "hand").map((j: SF.IJoint): string => `${j.parent} ${Math.hypot(...j.offset).toFixed(1)}`);
+      const phalanges: string[] = T.CHAIN.filter((j: IAutoMovieHumanSegmentJoint): boolean => j.name.startsWith(`${tag}.`) && j.parent !== "hand").map((j: IAutoMovieHumanSegmentJoint): string => `${j.parent} ${Math.hypot(...j.offset).toFixed(1)}`);
       const end: number[] = T.POINTS[`${tag}End`]!.local;
       lines.push(
         `    ${f.name}: first joint to tip along the course ${tipStation(f).toFixed(1)} mm (the course's start is the first joint); joint spacings (chain offsets) ${phalanges.join(", ")}, last joint to the course's end ${Math.hypot(...end).toFixed(1)} mm; digit length by Greiner's definition not readable (the base crease is not in f1's table); girth at its first knot ${girthAt(f, f.knots[0]!).toFixed(1)} mm and at the middle of its first run ${girthAt(f, (J[0]! + J[1]!) / 2).toFixed(1)} mm`,
@@ -1587,9 +1609,9 @@ namespace FamilyConicLimbLaw {
       "      finger girths: no source in the repo",
       "  FOOT",
     );
-    const footFrame: SF.IFrame = frames.get("foot")!;
+    const footFrame: IAutoMovieHumanSegmentFrame = frames.get("foot")!;
     const Jl: number[] = joints(leg);
-    const loft: AutoMovieViewLoft.IResult = H.create({ ...leg, reliefs: [] }, Array.from({ length: Math.floor((leg.knots.at(-1)! - (Jl[2]! - 80)) / 2) + 1 }, (_: unknown, i: number): number => Jl[2]! - 80 + 2 * i));
+    const loft: IAutoMovieViewLoft.IResult = H.create({ ...leg, reliefs: [] }, Array.from({ length: Math.floor((leg.knots.at(-1)! - (Jl[2]! - 80)) / 2) + 1 }, (_: unknown, i: number): number => Jl[2]! - 80 + 2 * i));
     let heel: number = Infinity;
     const footBall: number = nearest(H.axis(leg), courseLength(leg), point("footBall"));
     let breadth: number = 0;
@@ -1612,7 +1634,7 @@ namespace FamilyConicLimbLaw {
     for (const d of toes) {
       const f: Family = d.family;
       const tag: string = f.name.split(".")[1]!;
-      const distal: SF.IJoint | undefined = joint(`${tag}toe.distal`);
+      const distal: IAutoMovieHumanSegmentJoint | undefined = joint(`${tag}toe.distal`);
       lines.push(`    ${f.name}: first joint to tip along the course ${tipStation(f).toFixed(1)} mm; proximal joint spacing ${distal === undefined ? "-" : Math.hypot(...distal.offset).toFixed(1)} mm; girth at its first knot ${girthAt(f, f.knots[0]!).toFixed(1)} mm`);
     }
     lines.push("      toe lengths and toe girths: no source in the repo");
@@ -1631,11 +1653,11 @@ namespace FamilyConicLimbLaw {
 
     // (3) The connections, as declared.
     const declared = AutoMovieHumanF1.construction();
-    const found: AutoMovieConstructionNode[] = [];
-    const walk = (node: AutoMovieConstructionNode): void => {
+    const found: IAutoMovieConstructionNode[] = [];
+    const walk = (node: IAutoMovieConstructionNode): void => {
       if ((node.type === "split" && node.name.startsWith("fan.")) || (node.type === "join" && node.name.startsWith("web.")) || node.type === "continue") found.push(node);
-      const n = node as { host?: AutoMovieConstructionNode; part?: AutoMovieConstructionNode; children?: { part: AutoMovieConstructionNode }[] };
-      for (const child of [n.host, n.part, ...(n.children ?? []).map((c): AutoMovieConstructionNode => c.part)]) if (child !== undefined) walk(child);
+      const n = node as { host?: IAutoMovieConstructionNode; part?: IAutoMovieConstructionNode; children?: { part: IAutoMovieConstructionNode }[] };
+      for (const child of [n.host, n.part, ...(n.children ?? []).map((c): IAutoMovieConstructionNode => c.part)]) if (child !== undefined) walk(child);
     };
     walk(declared.root);
     lines.push("(3) THE CONNECTIONS, as `AutoMovieHumanF1.construction` declares them at the reference pose (the +Z side; the twin is its reflection):");
@@ -1714,7 +1736,7 @@ namespace FamilyConicLimbLaw {
    * (the hand's thickness, the foot's height) is kept.
    */
   function extremityAxes(): { hand: [V3, V3]; foot: [V3, V3] } {
-    const offset = (name: string): V3 => T.CHAIN.find((j: SF.IJoint): boolean => j.name === name)!.offset;
+    const offset = (name: string): V3 => T.CHAIN.find((j: IAutoMovieHumanSegmentJoint): boolean => j.name === name)!.offset;
     const handAlong: V3 = unit3(offset("middle.proximal"));
     const indexRoot: V3 = offset("index.proximal");
     const pinkyRoot: V3 = offset("pinky.proximal");
@@ -1735,7 +1757,7 @@ namespace FamilyConicLimbLaw {
    * breadth; each finger's later joints and its end by its bones' ratios; each toe's later joint and its end by the foot's length ratio,
    * the toes following the foot. Returns the frames and a datum's world point and a direction's world vector.
    */
-  function extremityFrames(f: IExtremityFields): { frames: Map<string, SF.IFrame>; point: (name: string) => V3; direction: (name: string) => V3 } {
+  function extremityFrames(f: IExtremityFields): { frames: Map<string, IAutoMovieHumanSegmentFrame>; point: (name: string) => V3; direction: (name: string) => V3 } {
     const axes = extremityAxes();
     const handScale = scaleIn(axes.hand[0], axes.hand[1], f.hand.length, f.hand.breadth);
     const footScale = scaleIn(axes.foot[0], axes.foot[1], f.foot.length, f.foot.breadth);
@@ -1749,16 +1771,16 @@ namespace FamilyConicLimbLaw {
       if (ratios === undefined) return null;
       return digit === "thumb" ? (part === "proximal" ? ratios[0] : part === "distal" ? ratios[1] : null) : part === "middle" ? ratios[0] : part === "distal" ? ratios[1] : null;
     };
-    const chain: SF.IJoint[] = T.CHAIN.map((j: SF.IJoint): SF.IJoint => {
+    const chain: IAutoMovieHumanSegmentJoint[] = T.CHAIN.map((j: IAutoMovieHumanSegmentJoint): IAutoMovieHumanSegmentJoint => {
       if (segments[j.name] !== undefined) return { ...j, offset: SF.scale(j.offset, f.lengths[segments[j.name]!] ?? 1) };
       if (j.parent === "hand") return { ...j, offset: handScale(j.offset) };
       if (j.parent === "foot") return { ...j, offset: footScale(j.offset) };
       const k: number | null = bone(j.name);
       return k === null ? j : { ...j, offset: SF.scale(j.offset, k) };
     });
-    const frames: Map<string, SF.IFrame> = SF.world(chain, (): undefined => undefined);
+    const frames: Map<string, IAutoMovieHumanSegmentFrame> = SF.world(chain, (): undefined => undefined);
     const local = (name: string): V3 => {
-      const placed: T.IPlaced = T.POINTS[name]!;
+      const placed: IAutoMovieHumanF1Placing.IPlaced = T.POINTS[name]!;
       if (placed.frame === "hand") return handScale(placed.local);
       if (placed.frame === "foot") return footScale(placed.local);
       const end: RegExpMatchArray | null = name.match(/^([a-z]+)End$/);
@@ -1793,7 +1815,7 @@ namespace FamilyConicLimbLaw {
       }
     });
     const map = (s: number): number => (s < held ? s : carry(s, J, J2));
-    return { ...moved, knots: family.knots.map(map), values, ...(family.tips === undefined ? {} : { tips: family.tips.map((t) => (t === null ? null : { ...t, from: map(t.from), tip: map(t.tip) })) as [H.ITip | null, H.ITip | null] }) };
+    return { ...moved, knots: family.knots.map(map), values, ...(family.tips === undefined ? {} : { tips: family.tips.map((t) => (t === null ? null : { ...t, from: map(t.from), tip: map(t.tip) })) as [IAutoMovieHumanConicLoft.ITip | null, IAutoMovieHumanConicLoft.ITip | null] }) };
   }
 
   /**
@@ -1853,7 +1875,7 @@ namespace FamilyConicLimbLaw {
    */
   function wristBand(arm: Family, hand: Family, armTo: number, rail: number, count: number): { backward: number; scale: number; least: number; chords: [number, number] } {
     const sampler = (family: Family, at: number): ((s: number, psi: number) => V3) => {
-      const loft: AutoMovieViewLoft.IResult = H.create({ ...family, tips: undefined, reliefs: [] }, [at - 2, at - 1, at - 0.5, at, at + 0.5, at + 1, at + 2]);
+      const loft: IAutoMovieViewLoft.IResult = H.create({ ...family, tips: undefined, reliefs: [] }, [at - 2, at - 1, at - 0.5, at, at + 0.5, at + 1, at + 2]);
       if (loft.chain === null) throw new Error(`${family.name} does not loft at ${at}`);
       const chain: Chain = loft.chain;
       return (s: number, psi: number): V3 => AutoMovieLoftChain.point(chain, s, psi) as V3;
@@ -1957,12 +1979,12 @@ namespace FamilyConicLimbLaw {
     const [first, last] = [-rootMm, tipStation(capsule)];
     const stations: number[] = [];
     for (let s: number = first; s <= last; s += 0.5) stations.push(s);
-    const loft: AutoMovieViewLoft.IResult = H.create(capsule, stations);
+    const loft: IAutoMovieViewLoft.IResult = H.create(capsule, stations);
     if (loft.chain === null) return null;
     const chain: Chain = loft.chain;
-    const handAxis: AutoMovieViewAxis.IAxis = H.axis(hand);
+    const handAxis: IAutoMovieViewAxis.IAxis = H.axis(hand);
     const handLength: number = courseLength(hand);
-    const handLoft: AutoMovieViewLoft.IResult = H.create({ ...hand, tips: undefined, reliefs: [] }, Array.from({ length: Math.floor(hand.knots.at(-1)! - hand.knots[0]!) + 1 }, (_: unknown, i: number): number => hand.knots[0]! + i));
+    const handLoft: IAutoMovieViewLoft.IResult = H.create({ ...hand, tips: undefined, reliefs: [] }, Array.from({ length: Math.floor(hand.knots.at(-1)! - hand.knots[0]!) + 1 }, (_: unknown, i: number): number => hand.knots[0]! + i));
     if (handLoft.chain === null) return null;
     const handChain: Chain = handLoft.chain;
     const inside = (p: V3): boolean => {
@@ -2024,7 +2046,7 @@ namespace FamilyConicLimbLaw {
       Math.max(...a.values.map((field: number[], i: number): number => Math.max(...field.map((x: number, m: number): number => Math.abs(x - b.values[i]![m]!)))), ...a.knots.map((s: number, m: number): number => Math.abs(s - b.knots[m]!)), ...a.centres.map((c, k: number): number => Math.hypot(c[0] - b.centres[k]![0], c[1] - b.centres[k]![1], c[2] - b.centres[k]![2])));
     const stored: Family[] = [AutoMovieHumanF1.BODY.arm, AutoMovieHumanF1.BODY.hand, AutoMovieHumanF1.BODY.leg, ...AutoMovieHumanF1.DIGITS.map((d) => d.family)];
     const back: Family[] = [f1.arm, f1.hand, f1.leg, ...f1.digits.map((d) => d.family)];
-    const f1Frames: Map<string, SF.IFrame> = SF.world(T.CHAIN, (): undefined => undefined);
+    const f1Frames: Map<string, IAutoMovieHumanSegmentFrame> = SF.world(T.CHAIN, (): undefined => undefined);
     const datum: number = Math.max(...Object.keys(T.POINTS).map((n: string): number => {
       const [a, b] = [pointUnder(f1Frames, n), f1.point(n)];
       return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
@@ -2120,7 +2142,7 @@ namespace FamilyConicLimbLaw {
           .filter((s: number): boolean => !own.some((o: number): boolean => Math.abs(o - s) <= 1.5));
         if (added.length > 0) fail(`${fam.name}'s wall: ${added.length} stations newly under the margin (${added[0]} .. ${added.at(-1)} on f1's course)`);
       }
-      const placed = { point: x.point, direction: x.direction, body: { ...AutoMovieHumanF1.BODY, arm: x.arm, hand: x.hand, leg: x.leg }, digits: x.digits } as unknown as AutoMovieHumanF1.IAssembly;
+      const placed = { point: x.point, direction: x.direction, body: { ...AutoMovieHumanF1.BODY, arm: x.arm, hand: x.hand, leg: x.leg }, digits: x.digits } as unknown as IAutoMovieHumanF1.IAssembly;
       for (const [which, fam] of [["arm", x.hand], ["leg", x.leg]] as ["arm" | "leg", Family][]) {
         const t: number[] = H.reader(fam)(fam.knots.at(-1)!);
         const fault: string | null = S.chain(t, fam.layout).fault;
@@ -2169,7 +2191,7 @@ namespace FamilyConicLimbLaw {
       // their domains, the bands' correspondence, columns and ribbons), the thumb's merge on the hand (seed, trace, blend) and the wrist's
       // continuation onto the hand (its band).
       if (engine)
-        for (const [label, node] of [["the hand's fan", declaration.fan("arm", true)], ["the foot's fan", declaration.fan("leg", true)], ["the thumb's merge", declaration.merge()], ["the wrist's band", declaration.wrist(true)]] as [string, AutoMovieConstructionNode][]) {
+        for (const [label, node] of [["the hand's fan", declaration.fan("arm", true)], ["the foot's fan", declaration.fan("leg", true)], ["the thumb's merge", declaration.merge()], ["the wrist's band", declaration.wrist(true)]] as [string, IAutoMovieConstructionNode][]) {
           const real = realizeAutoMovieConstruction({ name: `f1.${label}`, root: node, fills: [] }, { chord: 0.001, sources: declaration.sources });
           if (real.diagnostics.length > 0) fail(`${label} through the engine: ${real.diagnostics.map((d): string => `${d.node} (${d.contract}): ${d.detail.slice(0, 200)}`).join("; ")}`);
         }
@@ -2194,12 +2216,12 @@ namespace FamilyConicLimbLaw {
   }
 
   /** A node of a construction tree by its name. */
-  function findNode(node: AutoMovieConstructionNode, name: string): AutoMovieConstructionNode | null {
+  function findNode(node: IAutoMovieConstructionNode, name: string): IAutoMovieConstructionNode | null {
     if (node.name === name) return node;
-    const n = node as { host?: AutoMovieConstructionNode; part?: AutoMovieConstructionNode; children?: { part: AutoMovieConstructionNode }[] };
-    for (const child of [n.host, n.part, ...(n.children ?? []).map((k): AutoMovieConstructionNode => k.part)]) {
+    const n = node as { host?: IAutoMovieConstructionNode; part?: IAutoMovieConstructionNode; children?: { part: IAutoMovieConstructionNode }[] };
+    for (const child of [n.host, n.part, ...(n.children ?? []).map((k): IAutoMovieConstructionNode => k.part)]) {
       if (child === undefined) continue;
-      const hit: AutoMovieConstructionNode | null = findNode(child, name);
+      const hit: IAutoMovieConstructionNode | null = findNode(child, name);
       if (hit !== null) return hit;
     }
     return null;
@@ -2237,12 +2259,12 @@ namespace FamilyConicLimbLaw {
       const stations: number[] = declared.sources.get(name)!.stations.filter((s: number): boolean => s >= own.knots[0]! - 1e-9).map((s: number): number => carry(s, J1, J2));
       sources.set(name, H.part(fam, stations));
     }
-    const placedOf = (y: ReturnType<typeof extremityAt>): AutoMovieHumanF1.IAssembly => ({ point: y.point, direction: y.direction, body: { ...AutoMovieHumanF1.BODY, arm: y.arm, hand: y.hand, leg: y.leg }, digits: y.digits }) as unknown as AutoMovieHumanF1.IAssembly;
-    const fanNodes: Record<"arm" | "leg", AutoMovieConstructionNode> = { arm: findNode(declared.root, "fan.hand")!, leg: findNode(declared.root, "fan.leg")! };
+    const placedOf = (y: ReturnType<typeof extremityAt>): IAutoMovieHumanF1.IAssembly => ({ point: y.point, direction: y.direction, body: { ...AutoMovieHumanF1.BODY, arm: y.arm, hand: y.hand, leg: y.leg }, digits: y.digits }) as unknown as IAutoMovieHumanF1.IAssembly;
+    const fanNodes: Record<"arm" | "leg", IAutoMovieConstructionNode> = { arm: findNode(declared.root, "fan.hand")!, leg: findNode(declared.root, "fan.leg")! };
     const measure = (y: ReturnType<typeof extremityAt>, which: "arm" | "leg") => {
       const fam: Family = which === "arm" ? y.hand : y.leg;
       const fan = AutoMovieHumanF1.fanSeams(which, placedOf(y));
-      const loft: AutoMovieViewLoft.IResult = H.create({ ...fam, tips: undefined }, fam.knots);
+      const loft: IAutoMovieViewLoft.IResult = H.create({ ...fam, tips: undefined }, fam.knots);
       const chain: Chain = loft.chain!;
       const station: number = fam.knots.at(-1)!;
       const at = (s: number, psi: number): V3 => AutoMovieLoftChain.point(chain, s, psi) as V3;
@@ -2276,18 +2298,18 @@ namespace FamilyConicLimbLaw {
     };
     const seams = Object.fromEntries((["arm", "leg"] as const).map((which) => {
       const [own, here] = [measure(f1x, which), measure(x, which)];
-      const node = fanNodes[which] as Extract<AutoMovieConstructionNode, { type: "split" }>;
+      const node = fanNodes[which] as Extract<IAutoMovieConstructionNode, { type: "split" }>;
       const stored: [number, number][][] = [node.profile?.knots ?? [], ...(node.outer ?? []).map((o): [number, number][] => o.profile?.knots ?? [])];
       return [which, { ...here, f1Chords: own.chords, knots: stored.map((knots: [number, number][], j: number): [number, number][] => knots.map(([along, depth]: [number, number]): [number, number] => [(along * here.chords[j]!) / own.chords[j]!, (depth * here.chords[j]!) / own.chords[j]!])) }];
     })) as Record<"arm" | "leg", ReturnType<typeof measure> & { f1Chords: number[]; knots: [number, number][][] }>;
-    const merge = (): AutoMovieConstructionNode => {
-      const node = findNode(declared.root, "web.finger.thumb") as Extract<AutoMovieConstructionNode, { type: "join" }>;
+    const merge = (): IAutoMovieConstructionNode => {
+      const node = findNode(declared.root, "web.finger.thumb") as Extract<IAutoMovieConstructionNode, { type: "join" }>;
       return { ...node, ...(node.fair === undefined ? {} : { fair: node.fair * f.hand.circumference }) };
     };
-    const fan = (which: "arm" | "leg", alone: boolean): AutoMovieConstructionNode => {
-      const node = fanNodes[which] as Extract<AutoMovieConstructionNode, { type: "split" }>;
+    const fan = (which: "arm" | "leg", alone: boolean): IAutoMovieConstructionNode => {
+      const node = fanNodes[which] as Extract<IAutoMovieConstructionNode, { type: "split" }>;
       const s = seams[which];
-      const host: AutoMovieConstructionNode = alone ? { type: "source", name: node.hostFace, source: node.hostFace } : which === "arm" ? merge() : node.host;
+      const host: IAutoMovieConstructionNode = alone ? { type: "source", name: node.hostFace, source: node.hostFace } : which === "arm" ? merge() : node.host;
       return {
         ...node,
         host,
@@ -2296,8 +2318,8 @@ namespace FamilyConicLimbLaw {
         outer: (node.outer ?? []).map((o, i: number) => ({ ...o, seam: s.seams[i + 1]!, ...(o.profile === undefined ? {} : { profile: { ...o.profile, heading: s.headings[i + 1]!, knots: s.knots[i + 1]! } }) })),
       };
     };
-    const wrist = (alone: boolean): AutoMovieConstructionNode => {
-      const node = findNode(declared.root, "wrist.arm") as Extract<AutoMovieConstructionNode, { type: "continue" }>;
+    const wrist = (alone: boolean): IAutoMovieConstructionNode => {
+      const node = findNode(declared.root, "wrist.arm") as Extract<IAutoMovieConstructionNode, { type: "continue" }>;
       return { ...node, part: alone ? { type: "source", name: "hand", source: "hand" } : fan("arm", false) };
     };
     return { sources, seams, fan, merge, wrist, rootMm };
@@ -2483,23 +2505,23 @@ namespace FamilyConicLimbLaw {
 
     // (2) The realizations.
     const declared = AutoMovieHumanF1.construction();
-    const findNode = (node: AutoMovieConstructionNode, name: string): AutoMovieConstructionNode | null => {
+    const findNode = (node: IAutoMovieConstructionNode, name: string): IAutoMovieConstructionNode | null => {
       if (node.name === name) return node;
-      const n = node as { host?: AutoMovieConstructionNode; part?: AutoMovieConstructionNode; children?: { part: AutoMovieConstructionNode }[] };
-      for (const child of [n.host, n.part, ...(n.children ?? []).map((k): AutoMovieConstructionNode => k.part)]) {
+      const n = node as { host?: IAutoMovieConstructionNode; part?: IAutoMovieConstructionNode; children?: { part: IAutoMovieConstructionNode }[] };
+      for (const child of [n.host, n.part, ...(n.children ?? []).map((k): IAutoMovieConstructionNode => k.part)]) {
         if (child === undefined) continue;
-        const hit: AutoMovieConstructionNode | null = findNode(child, name);
+        const hit: IAutoMovieConstructionNode | null = findNode(child, name);
         if (hit !== null) return hit;
       }
       return null;
     };
-    const wristNode: AutoMovieConstructionNode = findNode(declared.root, "wrist.arm")!;
-    const footNode: AutoMovieConstructionNode = findNode(declared.root, "fan.leg")!;
+    const wristNode: IAutoMovieConstructionNode = findNode(declared.root, "wrist.arm")!;
+    const footNode: IAutoMovieConstructionNode = findNode(declared.root, "fan.leg")!;
     // Each case's subtree as `extremityDeclaration` declares it at the person: the fans' knots scaled with their chords, the thumb's root
     // and fair with the thumb (the corrected law).
-    const realize = (x: ReturnType<typeof extremityAt>, node: AutoMovieConstructionNode, which: "arm" | "leg") => {
+    const realize = (x: ReturnType<typeof extremityAt>, node: IAutoMovieConstructionNode, which: "arm" | "leg") => {
       const declaration = extremityDeclaration(x, f1x, x.fields, extremityFlags(source));
-      const root: AutoMovieConstructionNode = node.name === "wrist.arm" ? declaration.wrist(false) : declaration.fan(which, false);
+      const root: IAutoMovieConstructionNode = node.name === "wrist.arm" ? declaration.wrist(false) : declaration.fan(which, false);
       return realizeAutoMovieConstruction({ name: `f1.${which}`, root, fills: [] }, { chord: 0.001, sources: declaration.sources });
     };
     NodeCanvasRaster.initialize();
@@ -2611,7 +2633,7 @@ namespace FamilyConicLimbLaw {
       const family: Family = limb.family;
       const J: number[] = joints(family);
       const f1Sites: ISite[] = sites(limb);
-      const lengths: Record<string, number> = Object.fromEntries(limb.lengths.map((l): [string, number] => [l.segment, Math.hypot(...T.CHAIN.find((j: SF.IJoint): boolean => j.name === l.joint)!.offset)]));
+      const lengths: Record<string, number> = Object.fromEntries(limb.lengths.map((l): [string, number] => [l.segment, Math.hypot(...T.CHAIN.find((j: IAutoMovieHumanSegmentJoint): boolean => j.name === l.joint)!.offset)]));
       lines.push(`${limb.name.toUpperCase()}: course centres at stations ${J.map(round3).join(", ")}; held before ${round3(limb.held)}; segment lengths ${Object.entries(lengths).map(([k, v]): string => k + " " + v.toFixed(2) + " mm").join(", ")}`);
       const fieldTable = f1Sites.map((site: ISite) => ({ site: site.name, station: round3(site.station!), run: site.run, tau: round3(site.tau), depths: Object.fromEntries(Object.entries(depths(family, site)).map(([d, v]): [string, number] => [d, round3(v)])), girth: round3(girth(H.reader(family)(site.station!), family.layout)), definition: site.definition }));
       for (const row of fieldTable) lines.push(`  site ${row.site}: station ${row.station} (run ${row.run}, tau ${row.tau}), girth ${row.girth} mm, depths ${JSON.stringify(row.depths)}`);

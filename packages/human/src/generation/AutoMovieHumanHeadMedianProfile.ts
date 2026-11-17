@@ -1,6 +1,7 @@
 import { AutoMovieNaturalSpline } from "@automovie/engine";
+import type { IAutoMovieHumanHeadLayout } from "@automovie/interface";
+
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
-import type { IAutoMovieHumanHeadLayout } from "./IAutoMovieHumanHeadLayout";
 
 /**
  * The median front profile P as one curve: the vault's ellipse about the
@@ -14,11 +15,15 @@ export namespace AutoMovieHumanHeadMedianProfile {
    * The midline profile's forward place at a height: the vault's ellipse plus
    * the landmarks' spline.
    */
-  export function profileAt(plan: IAutoMovieHumanHeadLayout, y: number): number {
+  export function profileAt(
+    plan: IAutoMovieHumanHeadLayout,
+    y: number,
+  ): number {
     const g: number = plan.landmarks.glabella[1];
     return (
       plan.centre +
-      (plan.length / 2) * AutoMovieHumanHeadMath.crownShare(y, g, plan.vertex - g) +
+      (plan.length / 2) *
+        AutoMovieHumanHeadMath.crownShare(y, g, plan.vertex - g) +
       AutoMovieNaturalSpline.evaluate(plan.profile, y)
     );
   }

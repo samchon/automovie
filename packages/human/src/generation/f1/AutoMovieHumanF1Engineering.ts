@@ -1,68 +1,13 @@
-import type { AutoMovieHumanF1NativeLaw as Law } from "./AutoMovieHumanF1NativeLaw";
+import type {
+  IAutoMovieHumanF1Engineering,
+  IAutoMovieHumanF1NativeLaw,
+} from "@automovie/interface";
 
 /** Shared source-field conversion for the campaign's explicit engineering falsifiers. */
 export namespace AutoMovieHumanF1Engineering {
-  /**
-   * Five qualified source-tape driver ratios, in declared order rather than a joint population percentile.
-   *
-   * @evidence contracts/development/design.md#principled-representation A closed record keeps hip/omphalion/underbust/bust/neck proxies distinct; one means F1's own tape definition.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface All five ratios drive the declared wall policy or the recorded conditional limb response.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A named ratio is not substituted for an unavailable clinical identity field.
-   * @evidence contracts/development/common.md#meaningful-documentation Names dimensionless ratios and the non-percentile combined interpretation.
-   */
-  export type IRatios = Record<
-    "hip" | "omphalion" | "underbust" | "bust" | "neck",
-    number
-  >;
-  /**
-   * Original bare-source tape readings, physical mm; skin features and final bands are separate checks.
-   *
-   * @evidence contracts/development/design.md#principled-representation The same five tape scopes accompany the bare wall at the current bust level; that candidate-local bare tape is not a global bound for another projection's plane.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Actual girths and the matching candidate-local bare tape enter the shared projection policy.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Unavailable source readings throw at their producer rather than becoming zero or population means.
-   * @evidence contracts/development/common.md#meaningful-documentation Units and bare original-source scope are explicit.
-   */
-  export interface IReading {
-    /** Material-plane source tapes except bust's current anterior-apex horizontal plane. */
-    girths: IRatios;
-    /** Bare trunk tape at that same current bust plane, excluding both breast caps. */
-    bareBust: number;
-  }
-  /**
-   * A resolved field handoff; capture consumes fields without solving or applying ratios again.
-   * A resolved status concerns input/constraint resolution, not geometric acceptance.
-   *
-   * @evidence contracts/development/design.md#principled-representation Carries the exact forward fields, raw drivers, numerical resolution and qualifications separately; infeasible/unavailable cases retain their candidate fields but must not be captured as successful cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface This is the common output consumed by preflight and the real Figure/Deviation case paths.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing/failed constraints remain explicit; capture cannot silently substitute F1 or solve another case.
-   * @evidence contracts/development/common.md#meaningful-documentation Members name source scope, numerical residual units and the boundary between resolved inputs and accepted shape.
-   */
-  export interface IResolvedCase {
-    /** Stable engineering identifier. */
-    id: string;
-    /** Complete same-invocation full fields for assembleNative. */
-    fields: Law.IFields;
-    /** Original hypothesis inputs, with explicit support breadth in mm. */
-    rawDrivers: {
-      mode: "f1" | "bust-only" | "all-site" | "support" | "full-field";
-      ratios: IRatios;
-      hipJointCentreBreadth: number;
-    };
-    /** Numerical resolution; null means the quantity was not requested/available. */
-    resolution: {
-      status: "resolved" | "infeasible" | "unavailable";
-      target: number | null;
-      actual: number | null;
-      residual: number | null;
-      reason: string | null;
-    };
-    /** Actual signed residual of every requested tape, mm; null for direct full fields. */
-    girthResiduals: IRatios | null;
-    /** Protocol/response/scope limits that stay with every artifact and capture. */
-    qualification: string[];
-  }
-  const ONE: IRatios = { hip: 1, omphalion: 1, underbust: 1, bust: 1, neck: 1 };
-  const KEYS: readonly (keyof IRatios)[] = [
+
+  const ONE: IAutoMovieHumanF1Engineering.IRatios = { hip: 1, omphalion: 1, underbust: 1, bust: 1, neck: 1 };
+  const KEYS: readonly (keyof IAutoMovieHumanF1Engineering.IRatios)[] = [
     "hip",
     "omphalion",
     "underbust",
@@ -132,11 +77,11 @@ export namespace AutoMovieHumanF1Engineering {
       beta: [0.6549, -0.2382, 0.1821, 0.0033, 0.1226],
     },
   ];
-  const scale = (size: Law.ISize, k: number): Law.ISize => ({
+  const scale = (size: IAutoMovieHumanF1NativeLaw.ISize, k: number): IAutoMovieHumanF1NativeLaw.ISize => ({
     depth: size.depth * k,
     breadth: size.breadth * k,
   });
-  const copy = (f: Law.IFields): Law.IFields => ({
+  const copy = (f: IAutoMovieHumanF1NativeLaw.IFields): IAutoMovieHumanF1NativeLaw.IFields => ({
     ...f,
     wall: { ...f.wall },
     roots: { ...f.roots },
@@ -186,19 +131,19 @@ export namespace AutoMovieHumanF1Engineering {
   ];
 
   /** The length cases' fields by case id, each a copy of the base with the named lengths scaled. */
-  function lengthCases(base: Law.IFields): [string, Law.IFields][] {
-    const out: [string, Law.IFields][] = [];
+  function lengthCases(base: IAutoMovieHumanF1NativeLaw.IFields): [string, IAutoMovieHumanF1NativeLaw.IFields][] {
+    const out: [string, IAutoMovieHumanF1NativeLaw.IFields][] = [];
     for (const k of LENGTH_RATIOS) {
       for (const key of LIMB_LENGTHS) {
-        const f: Law.IFields = copy(base);
+        const f: IAutoMovieHumanF1NativeLaw.IFields = copy(base);
         f.lengths[key] = base.lengths[key] * k;
         out.push(["length-" + key + "-" + k, f]);
       }
-      const fingers: Law.IFields = copy(base);
+      const fingers: IAutoMovieHumanF1NativeLaw.IFields = copy(base);
       for (const bones of Object.values(fingers.lengths.phalanges))
         for (let b: number = 0; b < 3; ++b) bones[b] = bones[b]! * k;
       out.push(["length-phalanges-" + k, fingers]);
-      const all: Law.IFields = copy(base);
+      const all: IAutoMovieHumanF1NativeLaw.IFields = copy(base);
       for (const key of LIMB_LENGTHS)
         if (key !== "handBreadth" && key !== "footBreadth")
           all.lengths[key] = base.lengths[key] * k;
@@ -211,11 +156,11 @@ export namespace AutoMovieHumanF1Engineering {
 
   /** One explicitly selected converter response, before any part or loft. */
   function fieldsAt(
-    base: Law.IFields,
-    r: IRatios,
+    base: IAutoMovieHumanF1NativeLaw.IFields,
+    r: IAutoMovieHumanF1Engineering.IRatios,
     mode: "bust-only" | "all-site",
-  ): Law.IFields {
-    const f: Law.IFields = copy(base);
+  ): IAutoMovieHumanF1NativeLaw.IFields {
+    const f: IAutoMovieHumanF1NativeLaw.IFields = copy(base);
     if (mode === "all-site") {
       f.wall.hipSkin = scale(base.wall.hipSkin, r.hip);
       f.wall.omphalionWall = scale(base.wall.omphalionWall, r.omphalion);
@@ -276,11 +221,11 @@ export namespace AutoMovieHumanF1Engineering {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the bounded case output and per-solve probes only; no source, reference file, global cache or process is owned.
    */
   export function resolve(
-    base: Law.IFields,
-    baseline: IReading | null,
-    measure: (fields: Law.IFields) => IReading,
+    base: IAutoMovieHumanF1NativeLaw.IFields,
+    baseline: IAutoMovieHumanF1Engineering.IReading | null,
+    measure: (fields: IAutoMovieHumanF1NativeLaw.IFields) => IAutoMovieHumanF1Engineering.IReading,
     tolerance: number,
-  ): IResolvedCase[] {
+  ): IAutoMovieHumanF1Engineering.IResolvedCase[] {
     if (!(Number.isFinite(tolerance) && tolerance > 0))
       throw new Error("source tape tolerance must be positive and finite");
     const qualification: string[] = [
@@ -291,10 +236,10 @@ export namespace AutoMovieHumanF1Engineering {
       "Mixed protocol response P: ANSURII n1986 endpoints except underbust1988, ANSUR1988 n2208 conditional CV/beta; .8483 is a delta-method ratio approximation, not observed correlation or a multivariate held-all inverse. See packages/human/docs/work/provisional-statistical-response-priors.md.",
       "Resolved fields are not operator, anatomical, crack or visual acceptance.",
     ];
-    const out: IResolvedCase[] = [];
+    const out: IAutoMovieHumanF1Engineering.IResolvedCase[] = [];
     const direct = (
       id: string,
-      fields: Law.IFields,
+      fields: IAutoMovieHumanF1NativeLaw.IFields,
       mode: "f1" | "support" | "full-field",
     ): void => {
       out.push({
@@ -323,7 +268,7 @@ export namespace AutoMovieHumanF1Engineering {
       ["allsite5", -1, "all-site"],
       ["allsite95", 1, "all-site"],
     ] as const) {
-      const ratios: IRatios = { ...ONE };
+      const ratios: IAutoMovieHumanF1Engineering.IRatios = { ...ONE };
       if (mode === "bust-only")
         ratios.bust =
           1 + sign * 1.645 * (82.7 / 946.9) * Math.sqrt(1 - 0.8483 ** 2);
@@ -334,10 +279,10 @@ export namespace AutoMovieHumanF1Engineering {
         ratios.bust = 1 + sign * 1.645 * (82.7 / 946.9);
         ratios.neck = 1 + sign * 1.645 * (19.2 / 329.8);
       }
-      const fields: Law.IFields = fieldsAt(base, ratios, mode);
+      const fields: IAutoMovieHumanF1NativeLaw.IFields = fieldsAt(base, ratios, mode);
       const target: number | null =
         baseline === null ? null : baseline.girths.bust * ratios.bust;
-      const item: IResolvedCase = {
+      const item: IAutoMovieHumanF1Engineering.IResolvedCase = {
         id,
         fields,
         rawDrivers: {
@@ -369,13 +314,13 @@ export namespace AutoMovieHumanF1Engineering {
         // builder generates only F1's own projection, so the bust tape stays an unmet, named check.
         const missing: string =
           "bust girth target is unresolved: the breast mound has no single representation yet (trunk tape hull, reliefs and cap), so no projection is solved and the breast stays F1's";
-        const got: IReading = measure(fields);
+        const got: IAutoMovieHumanF1Engineering.IReading = measure(fields);
         const residuals = Object.fromEntries(
           KEYS.map((key) => [
             key,
             got.girths[key] - baseline.girths[key] * ratios[key],
           ]),
-        ) as IRatios;
+        ) as IAutoMovieHumanF1Engineering.IRatios;
         item.girthResiduals = residuals;
         item.qualification.push(missing);
         if (mode === "bust-only")
@@ -426,9 +371,9 @@ export namespace AutoMovieHumanF1Engineering {
         "full-field",
       );
       const f = copy(base);
-      for (const key of Object.keys(f.wall) as (keyof Law.IFields["wall"])[])
+      for (const key of Object.keys(f.wall) as (keyof IAutoMovieHumanF1NativeLaw.IFields["wall"])[])
         if (key !== "headSkin") f.wall[key] = scale(f.wall[key], k);
-      for (const key of Object.keys(f.roots) as (keyof Law.IFields["roots"])[])
+      for (const key of Object.keys(f.roots) as (keyof IAutoMovieHumanF1NativeLaw.IFields["roots"])[])
         if (key !== "nose") f.roots[key] = scale(f.roots[key], k);
       direct("tissue-" + k, f, "full-field");
     }
@@ -437,7 +382,7 @@ export namespace AutoMovieHumanF1Engineering {
       let address: number = 0;
       for (const group of [f.wall, f.roots, f.arm, f.leg, f.extremities])
         for (const key of Object.keys(group)) {
-          const record = group as Record<string, Law.ISize>;
+          const record = group as Record<string, IAutoMovieHumanF1NativeLaw.ISize>;
           const size = record[key]!;
           const delta: number = sign * (0.02 + (0.02 * address++) / 20);
           record[key] = {

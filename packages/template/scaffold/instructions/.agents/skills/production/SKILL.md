@@ -1,45 +1,35 @@
 ---
 name: production
-description: Keeps what belongs to the production as a whole and to no single task, namely its commissioned output, project context, sustained runs, stage caches, media records, reorganization and final assembly and handoff. Use when starting, resuming, restructuring or handing off a production; story, development, motion, image, video, audio and review own their own work.
+description: Keeps a production's scope, workflow, caches, media and assembly.
 ---
 
 # Production
 
-Carry the commission from its adopted scope to the handed-off output. Read the request and [project context](project-context.md) first, because the commissioned output decides which skills run and what completes the work.
+The request and [project context](project-context.md) decide which skills run and what completes the work.
+
+| Read | For |
+| --- | --- |
+| [Project context](project-context.md) | Establishing scope, the delivery profile, decisions and setup authority |
+| [Production workflow](workflow.md) | Planning the path, its branches and each task's handoff |
+| [Sustained runs](sustained-runs.md) | Running, observing or resuming sustained work |
+| [Stage caches](stage-caches.md) | Caching and resuming expensive stages |
+| [Media records](media-records.md) | Saving media and generation requests with their records |
+| [Captions](captions.md) | Writing and timing a film's caption tracks |
+| [Assembly and handoff](assembly.md) | Assembling the film, rendering it once and handing it off |
+| [Reorganization](reorganization.md) | Reorganizing the production |
 
 ## Commissioned outputs
 
 | Output | Complete when |
 | --- | --- |
-| Screenplay | Its text passes the [writing workflow](../story/workflow/SKILL.md#completion); no source or media is owed |
-| Standalone asset | Its views and controls pass the asset part of [delivery review](../review/delivery-review.md); no narrative is owed |
-| Whole motion hint | Every main scene is programmed and the whole timeline is assembled; no generator is owed, and stills or pilot clips do not complete it |
+| Screenplay | Its text passes the writing workflow; no source or media is owed |
+| Standalone asset | Its views and controls pass the asset part of delivery review; no narrative is owed |
+| Whole motion hint | Every main scene is programmed and the whole timeline is assembled; no generator is owed |
 | Direct 3D film | The programmed film is rendered at its commissioned detail; no diffusion is owed |
-| Generated film | Accepted takes of the chosen video model are assembled; the motion hint behind them is a separate output |
+| Generated film | Finished takes of the chosen video model are assembled |
 
-[Delivery review](../review/delivery-review.md) accepts each one, and a report discloses what was not produced.
+The writing workflow passes a screenplay at its [completion](../story/workflow/routes.md#completion). Stills or pilot clips do not complete a whole motion hint, and the motion hint behind a generated film's takes is a separate output.
 
-## Route the work
+A motion hint and a direct 3D film are silent unless the commission asks for sound, and no stage waits on a soundtrack nobody commissioned.
 
-Each task has one owner, in the [writing order](../story/workflow/SKILL.md):
-
-| Work | Owner |
-| --- | --- |
-| Canon, the screenplay and their research | [Story](../story/SKILL.md) |
-| Entities, source, integrations and tests | [Development](../development/SKILL.md) |
-| Performance, staging, camera and the motion hint's control channels | [Motion](../motion/SKILL.md) |
-| Generated images | [Image](../image/SKILL.md) |
-| The video model, its prompts and its takes | [Video](../video/SKILL.md) |
-| Sound | [Audio](../audio/SKILL.md) |
-| Judgment of the work | [Review](../review/SKILL.md) |
-
-This skill keeps what spans them:
-
-| Task | Read |
-| --- | --- |
-| Establish scope, the delivery profile, decisions and setup authority | [Project context](project-context.md) |
-| Run, observe or resume sustained work | [Sustained runs](sustained-runs.md) |
-| Cache and resume expensive stages | [Stage caches](stage-caches.md) |
-| Save generated, acquired and pipeline media with their records | [Media records](media-records.md) |
-| Reorganize the production | [Reorganization](reorganization.md) |
-| Assemble the film, render it once and hand it off | [Assembly and handoff](assembly.md) |
+[Delivery review](../review/delivery-review.md) accepts each output. A rendered file with passing checks is reported as technical completion; the output is complete only when that review's acceptance is recorded.

@@ -1,5 +1,8 @@
 import { Vector3, resolveAutoMovieContactEvents } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -49,7 +52,7 @@ export function test_motion_contact_events_capsule(): void {
     );
     return Vector3.length(Vector3.add(a, Vector3.scale(ab, k)));
   };
-  const forearm: resolveAutoMovieContactEvents.IBody = {
+  const forearm: IAutoMovieResolveContactEvents.IBody = {
     id: "F",
     distance: (p: IAutoMovieVector3): number => Math.hypot(p.x, p.y) - 0.02,
     axis: (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
@@ -96,14 +99,14 @@ export function test_motion_contact_events_capsule(): void {
   type Path = (t: number) => number;
   const held =
     (id: string, x: Path) =>
-    (t: number, stops: resolveAutoMovieContactEvents.IStops): number =>
+    (t: number, stops: IAutoMovieResolveContactEvents.IStops): number =>
       x(Math.min(t, stops.get(id) ?? Infinity));
   const shin = (
     id: string,
     owner: string,
     x: Path,
     low: number,
-  ): resolveAutoMovieContactEvents.IWeapon => ({
+  ): IAutoMovieResolveContactEvents.IWeapon => ({
     id,
     owner,
     radius: 0.1,
@@ -114,18 +117,18 @@ export function test_motion_contact_events_capsule(): void {
     id: string,
     weapon: string,
     x: Path,
-  ): resolveAutoMovieContactEvents.IBody => ({
+  ): IAutoMovieResolveContactEvents.IBody => ({
     id,
     distance: (
       p: IAutoMovieVector3,
       t: number,
-      stops: resolveAutoMovieContactEvents.IStops,
+      stops: IAutoMovieResolveContactEvents.IStops,
     ): number => Math.abs(p.x - held(weapon, x)(t, stops)) - 0.1,
     axis: (
       a: IAutoMovieVector3,
       _b: IAutoMovieVector3,
       t: number,
-      stops: resolveAutoMovieContactEvents.IStops,
+      stops: IAutoMovieResolveContactEvents.IStops,
     ): number => Math.abs(a.x - held(weapon, x)(t, stops)) - 0.1,
   });
   const left: Path = (t) => -1 + 2 * t;

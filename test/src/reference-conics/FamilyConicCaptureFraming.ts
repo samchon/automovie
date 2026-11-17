@@ -1,8 +1,7 @@
-import type { AutoMovieHumanSegmentFrame as F } from "@automovie/human";
-
 import type { FamilyConicCaptureInput as Input } from "./FamilyConicCaptureInput";
 import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import type { IAutoMovieHumanSegmentFrame } from "@automovie/interface";
 
 /** Fixed authored-F1 source and explicitly associated operator-input framing; never a changed-case fit. */
 export namespace FamilyConicCaptureFraming {
@@ -19,7 +18,7 @@ export namespace FamilyConicCaptureFraming {
     file: Input.IFile;
 
     /** Fixed pelvis origin in world mm and unit axes establish the comparison coordinate registration. */
-    frame: F.IFrame;
+    frame: IAutoMovieHumanSegmentFrame;
     /** Fixed F1 original axis/guide samples, in figure-world metres. */
     originals: N.Curve[];
     /** Fixed F1 submitted operator-input samples, in the same world metres. */
@@ -157,7 +156,7 @@ export namespace FamilyConicCaptureFraming {
    */
   export function compatible(
     baseline: IBaseline,
-    actual: F.IFrame | undefined,
+    actual: IAutoMovieHumanSegmentFrame | undefined,
   ): void {
     if (
       actual === undefined ||

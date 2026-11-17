@@ -1,9 +1,9 @@
+import type { IAutoMovieSemanticMaskBinding } from "@automovie/interface";
 import * as THREE from "three";
 
 import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import {
-  type IAutoMovieSemanticMaskBinding,
   type IAutoMovieSemanticMaskHandle,
   applyAutoMovieSemanticMask,
 } from "./semanticMask/index.js";

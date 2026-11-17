@@ -1,5 +1,7 @@
-import type { IAutoMovieSingularDecomposition } from "./IAutoMovieSingularDecomposition";
-import type { IAutoMovieSingularMatrixBudget } from "./IAutoMovieSingularMatrixBudget";
+import type {
+  IAutoMovieSingularDecomposition,
+  IAutoMovieSingularMatrixBudget,
+} from "@automovie/interface";
 
 /**
  * Decompose original rows by cyclic one-sided Jacobi column rotations.

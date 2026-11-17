@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryUntiltedEstimate } from "../structures/internal/IAutoMovieRecoveryUntiltedEstimate";
+import type { IAutoMovieRecoveryUntiltedEstimate } from "@automovie/interface";
 
 /**
  * Copy one selected model's borrowed original dual into fit-owned seed storage.

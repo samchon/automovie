@@ -1,7 +1,7 @@
 import type { Archetype } from "@automovie/archetypes";
 import { physicalShapeSpan } from "@automovie/engine";
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -23,7 +23,7 @@ export function archetypeExtent(
     y: axis === "y" ? 1 : 0,
     z: axis === "z" ? 1 : 0,
   };
-  const origin: IAutoMoviePhysicalProfile.ITransform = {
+  const origin: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };

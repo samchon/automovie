@@ -1,10 +1,14 @@
-import { AutoMovieViewAxis, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
+import { AutoMovieViewAxis, AutoMovieViewSection } from "@automovie/engine";
+import type {
+  IAutoMovieHumanHeadEyeOpening,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadPrior,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
-import type { IAutoMovieHumanHeadEyeOpening } from "../IAutoMovieHumanHeadEyeOpening";
 import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
 
 /**
@@ -34,7 +38,9 @@ export namespace AutoMovieHumanHeadEyeParts {
    * Bekerman 2014 Table 1: axial Group II and sclera-to-sclera rows.
    * The small observed side difference is not a significant population rule.
    */
-  const RADII: Readonly<Record<"left" | "right", readonly [number, number, number]>> = {
+  const RADII: Readonly<
+    Record<"left" | "right", readonly [number, number, number]>
+  > = {
     left: [23.562 / 2, 23.752 / 2, 24.324 / 2],
     right: [23.422 / 2, 23.799 / 2, 24.156 / 2],
   };
@@ -55,35 +61,81 @@ export namespace AutoMovieHumanHeadEyeParts {
    */
   export function of(plan: IAutoMovieHumanHeadLayout): IAutoMovieViewPart[] {
     const k: number = plan.scale;
-    const face: AutoMovieHumanHeadPrior.IFace = AutoMovieHumanHeadPrior.PRIOR.face;
-    const seat: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion) - face.eyeRecess * k;
-    const fissures: { part: IAutoMovieViewPart; pupil: [number, number, number] }[] = openings(plan, seat);
-    const globes: IAutoMovieViewPart[] = (["left", "right"] as const).map((side: "left" | "right", index: number): IAutoMovieViewPart => {
-      const r: readonly [number, number, number] = RADII[side];
-      const pupil: [number, number, number] = fissures[index]!.pupil;
-      const centre: [number, number, number] = [pupil[0] - face.marginForward * k, pupil[1], pupil[2]];
-      const stations: number[] = Array.from({ length: INTERVALS + 1 }, (_: unknown, i: number): number => -r[0] * k * Math.cos((Math.PI * i) / INTERVALS));
-      /** One exact ellipse at its sites, interpolated by the engine in its declared pole parameter. */
-      const outline: (radius: number, sign: 1 | -1) => IAutoMovieViewPart.IOutline = (radius: number, sign: 1 | -1): IAutoMovieViewPart.IOutline => ({
-        knots: stations.map((station: number, i: number): IAutoMovieViewPart.IKnot => ({
-          site: `globe.${side}.${i}`,
-          station,
-          value: i === 0 || i === INTERVALS ? 0 : sign * radius * k * Math.sin((Math.PI * i) / INTERVALS),
-        })),
-      });
-      return {
-        name: `globe.${side}`,
-        axis: AutoMovieViewAxis.straight(centre, [0, 0, 1], [0, 1, 0]),
-        stations,
-        front: { positive: outline(r[2], 1), negative: outline(r[2], -1) },
-        side: { positive: outline(r[1], 1), negative: outline(r[1], -1) },
-        fullness: { kind: "shoulder", shoulder: { knots: [stations[0]!, stations[stations.length - 1]!].map((station: number): IAutoMovieViewPart.IKnot => ({ site: `globe.${side}.ellipse`, station, value: AutoMovieViewSection.ELLIPSE })) } },
-        pole: "both",
-        order: 32,
-        samples: 128,
-      };
-    });
-    return [...globes, ...fissures.map((fissure: { part: IAutoMovieViewPart; pupil: [number, number, number] }): IAutoMovieViewPart => fissure.part)];
+    const face: IAutoMovieHumanHeadPrior.IFace =
+      AutoMovieHumanHeadPrior.PRIOR.face;
+    const seat: number =
+      AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion) -
+      face.eyeRecess * k;
+    const fissures: {
+      part: IAutoMovieViewPart;
+      pupil: [number, number, number];
+    }[] = openings(plan, seat);
+    const globes: IAutoMovieViewPart[] = (["left", "right"] as const).map(
+      (side: "left" | "right", index: number): IAutoMovieViewPart => {
+        const r: readonly [number, number, number] = RADII[side];
+        const pupil: [number, number, number] = fissures[index]!.pupil;
+        const centre: [number, number, number] = [
+          pupil[0] - face.marginForward * k,
+          pupil[1],
+          pupil[2],
+        ];
+        const stations: number[] = Array.from(
+          { length: INTERVALS + 1 },
+          (_: unknown, i: number): number =>
+            -r[0] * k * Math.cos((Math.PI * i) / INTERVALS),
+        );
+        /** One exact ellipse at its sites, interpolated by the engine in its declared pole parameter. */
+        const outline: (
+          radius: number,
+          sign: 1 | -1,
+        ) => IAutoMovieViewPart.IOutline = (
+          radius: number,
+          sign: 1 | -1,
+        ): IAutoMovieViewPart.IOutline => ({
+          knots: stations.map(
+            (station: number, i: number): IAutoMovieViewPart.IKnot => ({
+              site: `globe.${side}.${i}`,
+              station,
+              value:
+                i === 0 || i === INTERVALS
+                  ? 0
+                  : sign * radius * k * Math.sin((Math.PI * i) / INTERVALS),
+            }),
+          ),
+        });
+        return {
+          name: `globe.${side}`,
+          axis: AutoMovieViewAxis.straight(centre, [0, 0, 1], [0, 1, 0]),
+          stations,
+          front: { positive: outline(r[2], 1), negative: outline(r[2], -1) },
+          side: { positive: outline(r[1], 1), negative: outline(r[1], -1) },
+          fullness: {
+            kind: "shoulder",
+            shoulder: {
+              knots: [stations[0]!, stations[stations.length - 1]!].map(
+                (station: number): IAutoMovieViewPart.IKnot => ({
+                  site: `globe.${side}.ellipse`,
+                  station,
+                  value: AutoMovieViewSection.ELLIPSE,
+                }),
+              ),
+            },
+          },
+          pole: "both",
+          order: 32,
+          samples: 128,
+        };
+      },
+    );
+    return [
+      ...globes,
+      ...fissures.map(
+        (fissure: {
+          part: IAutoMovieViewPart;
+          pupil: [number, number, number];
+        }): IAutoMovieViewPart => fissure.part,
+      ),
+    ];
   }
 
   /**
@@ -102,66 +154,171 @@ export namespace AutoMovieHumanHeadEyeParts {
    * the lower residual is a parabola in that parameter, not a photographed
    * lower-lid course.
    */
-  function openings(plan: IAutoMovieHumanHeadLayout, seat: number): { part: IAutoMovieViewPart; pupil: [number, number, number] }[] {
-    const controls: readonly (readonly [number, number])[] = AutoMovieHumanReferenceOutlines.SHIN_UPPER_LID[plan.sex === 1 ? "female" : "male"];
+  function openings(
+    plan: IAutoMovieHumanHeadLayout,
+    seat: number,
+  ): { part: IAutoMovieViewPart; pupil: [number, number, number] }[] {
+    const controls: readonly (readonly [number, number])[] =
+      AutoMovieHumanReferenceOutlines.SHIN_UPPER_LID[
+        plan.sex === 1 ? "female" : "male"
+      ];
     const first: readonly [number, number] = controls[0]!;
     const last: readonly [number, number] = controls[3]!;
     const tilt: number = Math.atan2(first[1] - last[1], last[0] - first[0]);
-    const map: (read: (i: 0 | 1 | 2 | 3) => number) => ICubic = (read: (i: 0 | 1 | 2 | 3) => number): ICubic => [read(0), read(1), read(2), read(3)];
-    const horizontal: ICubic = map((i: 0 | 1 | 2 | 3): number => controls[i]![0]);
-    const share: ICubic = map((i: 0 | 1 | 2 | 3): number => (horizontal[i] - first[0]) / (last[0] - first[0]));
-    const residual: ICubic = [0, controls[1]![1] - ((1 - share[1]) * first[1] + share[1] * last[1]), controls[2]![1] - ((1 - share[2]) * first[1] + share[2] * last[1]), 0];
+    const map: (read: (i: 0 | 1 | 2 | 3) => number) => ICubic = (
+      read: (i: 0 | 1 | 2 | 3) => number,
+    ): ICubic => [read(0), read(1), read(2), read(3)];
+    const horizontal: ICubic = map(
+      (i: 0 | 1 | 2 | 3): number => controls[i]![0],
+    );
+    const share: ICubic = map(
+      (i: 0 | 1 | 2 | 3): number =>
+        (horizontal[i] - first[0]) / (last[0] - first[0]),
+    );
+    const residual: ICubic = [
+      0,
+      controls[1]![1] - ((1 - share[1]) * first[1] + share[1] * last[1]),
+      controls[2]![1] - ((1 - share[2]) * first[1] + share[2] * last[1]),
+      0,
+    ];
 
     // Invert the source's strictly increasing horizontal cubic once. The
     // photo pupil is (u,v)=(0,0), whose full affine image is shared below.
     let lo: number = 0;
     let hi: number = 1;
-    for (let i: number = 0; i < 60; i++) { const mid: number = (lo + hi) / 2; if (bernstein(horizontal, mid) < 0) lo = mid; else hi = mid; }
+    for (let i: number = 0; i < 60; i++) {
+      const mid: number = (lo + hi) / 2;
+      if (bernstein(horizontal, mid) < 0) lo = mid;
+      else hi = mid;
+    }
     const pupil: number = (lo + hi) / 2;
     const pupilShare: number = -first[0] / (last[0] - first[0]);
-    const photoUpper: number = bernstein(map((i: 0 | 1 | 2 | 3): number => controls[i]![1]), pupil);
-    const chordPupil: number = (1 - pupilShare) * first[1] + pupilShare * last[1];
+    const photoUpper: number = bernstein(
+      map((i: 0 | 1 | 2 | 3): number => controls[i]![1]),
+      pupil,
+    );
+    const chordPupil: number =
+      (1 - pupilShare) * first[1] + pupilShare * last[1];
     const ratio: number = 5.2 / 3.5;
-    const lowerControl: number = (chordPupil + photoUpper * ratio) / (3 * pupil * (1 - pupil));
+    const lowerControl: number =
+      (chordPupil + photoUpper * ratio) / (3 * pupil * (1 - pupil));
     const lower: ICubic = [0, lowerControl, lowerControl, 0];
     const knots: readonly number[] = [0, pupil, 1];
-    const commonNasalY: number = plan.eye - ((plan.left.length + plan.right.length) / 4) * Math.sin(tilt);
-    return (["left", "right"] as const).map((side: "left" | "right"): { part: IAutoMovieViewPart; pupil: [number, number, number] } => {
-      const eye: IAutoMovieHumanHeadEyeOpening = plan[side];
-      const sign: 1 | -1 = side === "left" ? 1 : -1;
-      const span: number = eye.length * Math.cos(tilt);
-      const rise: number = eye.length * Math.sin(tilt);
-      const scale: number = eye.height / (photoUpper * (1 + ratio));
-      const chord: ICubic = map((i: 0 | 1 | 2 | 3): number => commonNasalY + (1 - share[i]) * rise);
-      const upper: ICubic = map((i: 0 | 1 | 2 | 3): number => chord[i] + scale * residual[i]);
-      const below: ICubic = map((i: 0 | 1 | 2 | 3): number => chord[i] - scale * lower[i]);
-      const half: ICubic = [0, (upper[1] - below[1]) / 2, (upper[2] - below[2]) / 2, 0];
-      const origin: IOrigin = {
-        x: curve([seat, seat, seat, seat], knots, side, eye.length),
-        y: curve(map((i: 0 | 1 | 2 | 3): number => (upper[i] + below[i]) / 2), knots, side, eye.length),
-        z: curve(map((i: 0 | 1 | 2 | 3): number => sign * (eye.inner + (1 - share[i]) * span)), knots, side, eye.length),
-      };
-      const depth: number = RADII[side][0] * plan.scale;
-      const fractions: number[] = [...Array.from({ length: 33 }, (_: unknown, i: number): number => i / 32), pupil].sort((a: number, b: number): number => a - b);
-      const stations: number[] = fractions.map((t: number): number => station(t, eye.length));
+    const commonNasalY: number =
+      plan.eye - ((plan.left.length + plan.right.length) / 4) * Math.sin(tilt);
+    return (["left", "right"] as const).map(
+      (
+        side: "left" | "right",
+      ): { part: IAutoMovieViewPart; pupil: [number, number, number] } => {
+        const eye: IAutoMovieHumanHeadEyeOpening = plan[side];
+        const sign: 1 | -1 = side === "left" ? 1 : -1;
+        const span: number = eye.length * Math.cos(tilt);
+        const rise: number = eye.length * Math.sin(tilt);
+        const scale: number = eye.height / (photoUpper * (1 + ratio));
+        const chord: ICubic = map(
+          (i: 0 | 1 | 2 | 3): number => commonNasalY + (1 - share[i]) * rise,
+        );
+        const upper: ICubic = map(
+          (i: 0 | 1 | 2 | 3): number => chord[i] + scale * residual[i],
+        );
+        const below: ICubic = map(
+          (i: 0 | 1 | 2 | 3): number => chord[i] - scale * lower[i],
+        );
+        const half: ICubic = [
+          0,
+          (upper[1] - below[1]) / 2,
+          (upper[2] - below[2]) / 2,
+          0,
+        ];
+        const origin: IOrigin = {
+          x: curve([seat, seat, seat, seat], knots, side, eye.length),
+          y: curve(
+            map((i: 0 | 1 | 2 | 3): number => (upper[i] + below[i]) / 2),
+            knots,
+            side,
+            eye.length,
+          ),
+          z: curve(
+            map(
+              (i: 0 | 1 | 2 | 3): number =>
+                sign * (eye.inner + (1 - share[i]) * span),
+            ),
+            knots,
+            side,
+            eye.length,
+          ),
+        };
+        const depth: number = RADII[side][0] * plan.scale;
+        const fractions: number[] = [
+          ...Array.from(
+            { length: 33 },
+            (_: unknown, i: number): number => i / 32,
+          ),
+          pupil,
+        ].sort((a: number, b: number): number => a - b);
+        const stations: number[] = fractions.map((t: number): number =>
+          station(t, eye.length),
+        );
 
-      // Keep the regular-site AP cutter allowance and exact pole zeros;
-      // narrowing that allowance would conceal the separate conic defect.
-      const allowance: (direction: 1 | -1) => IAutoMovieViewPart.IOutline = (direction: 1 | -1): IAutoMovieViewPart.IOutline => ({
-        parameter: { type: "angle", bottom: 0, top: eye.length },
-        knots: stations.map((s: number, i: number): IAutoMovieViewPart.IKnot => ({ site: `fissure.${side}.cutter.${i}`, station: s, value: i === 0 || i === stations.length - 1 ? 0 : direction * depth })),
-      });
-      const part: IAutoMovieViewPart = {
-        name: `fissure.${side}`,
-        axis: AutoMovieHumanHeadSourceAxis.of(origin, [0, 1, 0], [-sign, 0, 0]),
-        stations,
-        front: { positive: curve(half, knots, side, eye.length), negative: curve(map((i: 0 | 1 | 2 | 3): number => -half[i]), knots, side, eye.length) },
-        side: { positive: allowance(1), negative: allowance(-1) },
-        fullness: { kind: "shoulder", shoulder: { knots: [0, eye.length].map((station: number): IAutoMovieViewPart.IKnot => ({ site: "fissure.cutter", station, value: AutoMovieViewSection.ELLIPSE })) } },
-        pole: "both", order: 32, samples: 128,
-      };
-      return { part, pupil: [seat, commonNasalY + (1 - pupilShare) * rise - scale * chordPupil, sign * (eye.inner + (1 - pupilShare) * span)] };
-    });
+        // Keep the regular-site AP cutter allowance and exact pole zeros;
+        // narrowing that allowance would conceal the separate conic defect.
+        const allowance: (direction: 1 | -1) => IAutoMovieViewPart.IOutline = (
+          direction: 1 | -1,
+        ): IAutoMovieViewPart.IOutline => ({
+          parameter: { type: "angle", bottom: 0, top: eye.length },
+          knots: stations.map(
+            (s: number, i: number): IAutoMovieViewPart.IKnot => ({
+              site: `fissure.${side}.cutter.${i}`,
+              station: s,
+              value:
+                i === 0 || i === stations.length - 1 ? 0 : direction * depth,
+            }),
+          ),
+        });
+        const part: IAutoMovieViewPart = {
+          name: `fissure.${side}`,
+          axis: AutoMovieHumanHeadSourceAxis.of(
+            origin,
+            [0, 1, 0],
+            [-sign, 0, 0],
+          ),
+          stations,
+          front: {
+            positive: curve(half, knots, side, eye.length),
+            negative: curve(
+              map((i: 0 | 1 | 2 | 3): number => -half[i]),
+              knots,
+              side,
+              eye.length,
+            ),
+          },
+          side: { positive: allowance(1), negative: allowance(-1) },
+          fullness: {
+            kind: "shoulder",
+            shoulder: {
+              knots: [0, eye.length].map(
+                (station: number): IAutoMovieViewPart.IKnot => ({
+                  site: "fissure.cutter",
+                  station,
+                  value: AutoMovieViewSection.ELLIPSE,
+                }),
+              ),
+            },
+          },
+          pole: "both",
+          order: 32,
+          samples: 128,
+        };
+        return {
+          part,
+          pupil: [
+            seat,
+            commonNasalY + (1 - pupilShare) * rise - scale * chordPupil,
+            sign * (eye.inner + (1 - pupilShare) * span),
+          ],
+        };
+      },
+    );
   }
 
   /** Four source Bernstein controls, scalar values in calibration mm. */
@@ -172,7 +329,12 @@ export namespace AutoMovieHumanHeadEyeParts {
 
   /** Evaluate authored controls only to publish source values; the engine owns every actual interpolated curve. */
   function bernstein(p: ICubic, t: number): number {
-    return (1 - t) ** 3 * p[0] + 3 * (1 - t) ** 2 * t * p[1] + 3 * (1 - t) * t * t * p[2] + t ** 3 * p[3];
+    return (
+      (1 - t) ** 3 * p[0] +
+      3 * (1 - t) ** 2 * t * p[1] +
+      3 * (1 - t) * t * t * p[2] +
+      t ** 3 * p[3]
+    );
   }
 
   /**
@@ -181,7 +343,11 @@ export namespace AutoMovieHumanHeadEyeParts {
    * Z nor arc length. Changing that domain never changes a world control.
    */
   function station(t: number, length: number): number {
-    return t === 0 ? 0 : t === 1 ? length : length * Math.sin(Math.PI * t / 2) ** 2;
+    return t === 0
+      ? 0
+      : t === 1
+        ? length
+        : length * Math.sin((Math.PI * t) / 2) ** 2;
   }
 
   /**
@@ -190,18 +356,32 @@ export namespace AutoMovieHumanHeadEyeParts {
    * changing the polynomial's parameter. The pupil knot is a named site,
    * not a refit; extra evaluation stations do not change any source span.
    */
-  function curve(p: ICubic, sites: readonly number[], side: string, length: number): IAutoMovieViewPart.IOutline {
+  function curve(
+    p: ICubic,
+    sites: readonly number[],
+    side: string,
+    length: number,
+  ): IAutoMovieViewPart.IOutline {
     return {
       parameter: { type: "angle", bottom: 0, top: length },
-      knots: sites.map((t: number, i: number): IAutoMovieViewPart.IKnot => ({
-        site: `fissure.${side}.${i === 0 ? "temporal" : i === sites.length - 1 ? "nasal" : "pupil"}`,
-        station: station(t, length),
-        value: bernstein(p, t),
-        jet: {
-          first: 3 * ((1 - t) ** 2 * (p[1] - p[0]) + 2 * (1 - t) * t * (p[2] - p[1]) + t * t * (p[3] - p[2])),
-          second: 6 * ((1 - t) * (p[2] - 2 * p[1] + p[0]) + t * (p[3] - 2 * p[2] + p[1])),
-        },
-      })),
+      knots: sites.map(
+        (t: number, i: number): IAutoMovieViewPart.IKnot => ({
+          site: `fissure.${side}.${i === 0 ? "temporal" : i === sites.length - 1 ? "nasal" : "pupil"}`,
+          station: station(t, length),
+          value: bernstein(p, t),
+          jet: {
+            first:
+              3 *
+              ((1 - t) ** 2 * (p[1] - p[0]) +
+                2 * (1 - t) * t * (p[2] - p[1]) +
+                t * t * (p[3] - p[2])),
+            second:
+              6 *
+              ((1 - t) * (p[2] - 2 * p[1] + p[0]) +
+                t * (p[3] - 2 * p[2] + p[1])),
+          },
+        }),
+      ),
     };
   }
 }

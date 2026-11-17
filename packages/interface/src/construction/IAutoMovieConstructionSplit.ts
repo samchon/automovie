@@ -1,4 +1,4 @@
-import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
+import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
 
 /**
  * Two or more parts continued from one open end of a host face (`outer` for more than two), the end split into the children's loops along shared seam chords: the pants topology, a trunk's crotch end into both thighs, where a closing pole has no room for two ports of the children's girth.
@@ -9,10 +9,10 @@ import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
  *
  * Engine admission: `hostFace` a view part of the host's subtree; each `partFace` a view part of its child's subtree; the two `band` names unique in the tree; `a < b < a + 2 pi`, both finite; `count` a multiple of 4 of at least 8; `rows` a positive integer; `rail` positive and finite; a crease's bounds finite, `start <= end < start + 2 pi`, and its transition positive.
  *
- * @evidence contracts/development/design.md#principled-representation An open end divided by one chord into two loops gives each child a closed port on the parent's own boundary (construction.md, Connections: end the parent open and split that end into the children's loops along a shared chord), and the bands are the existing join strip between each side's 2-jet across its rail (Hartmann 2001, parametric G^n blending), so the children meet the parent G2 without a Taylor continuation of the parent's field.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One host end, a two-phase seam and two child records with their bands and rails are the whole declaration; column count and rows are the strip's existing sampling inputs.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Declares geometry only: no person, fixture or fitted coefficient; the crease is an authored window, and a refusal leaves the whole split out rather than one child with an open chord.
- * @evidence contracts/development/common.md#meaningful-documentation States both loops and their clocks, the band's sides and continuity, the declared creases, the failure effect, the metre and radian units and the admission rules.
+ * @evidence contracts/development/design.md#principled-representation An open end divided by one chord into two loops gives each child a closed port on the parent's own boundary (construction.md, Connections: end the parent open and split that end into the children's loops along a shared chord), and the bands are the existing join strip between each side's 2-jet across its rail (Hartmann 2001, parametric G^n blending), so the children meet the parent G2 without a Taylor continuation of the parent's field. The members distinguish metre rail and seam geometry from radian loop windows and dimensionless reach shares.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One host end, a two-phase seam and two child records with their bands and rails are the whole declaration; column count and rows are the strip's existing sampling inputs. Split realization reads the shared seam and per-child correspondence records without separate schemas for each child count.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Declares geometry only: no person, fixture or fitted coefficient; the crease is an authored window, and a refusal leaves the whole split out rather than one child with an open chord. Authored forks and child rails remain explicit; absent profile or crease has the documented geometric meaning.
+ * @evidence contracts/development/common.md#meaningful-documentation States both loops and their clocks, the band's sides and continuity, the declared creases, the failure effect, the metre and radian units and the admission rules. Child bands, seam curves and declared crease windows at a split end. Member documentation specifies their units, references and absence behavior.
  */
 export interface IAutoMovieConstructionSplit {
   /** Discriminator. */
@@ -22,7 +22,7 @@ export interface IAutoMovieConstructionSplit {
   name: string;
 
   /** The solid whose face's end is split. */
-  host: AutoMovieConstructionNode;
+  host: IAutoMovieConstructionNode;
 
   /** The host face whose end is split: a view part's name in the host's subtree. */
   hostFace: string;
@@ -56,7 +56,11 @@ export interface IAutoMovieConstructionSplit {
   rows: number;
 
   /** The children in the seams' order, one more than the seams. */
-  children: [IAutoMovieConstructionSplit.IChild, IAutoMovieConstructionSplit.IChild, ...IAutoMovieConstructionSplit.IChild[]];
+  children: [
+    IAutoMovieConstructionSplit.IChild,
+    IAutoMovieConstructionSplit.IChild,
+    ...IAutoMovieConstructionSplit.IChild[],
+  ];
 
   /**
    * The end as the composition of the children's own sections in one declared plane (`ICompose`), so its forks, its seam planes and
@@ -66,6 +70,10 @@ export interface IAutoMovieConstructionSplit {
   compose?: IAutoMovieConstructionSplit.ICompose;
 }
 
+/**
+ * Child bands, seam curves and declared crease windows at a split end.
+ *
+ */
 export namespace IAutoMovieConstructionSplit {
   /**
    * A plane with a kept side: the points `x` with `normal . (x - point) >= 0` are kept.
@@ -238,7 +246,7 @@ export namespace IAutoMovieConstructionSplit {
     band: string;
 
     /** The child's subtree. */
-    part: AutoMovieConstructionNode;
+    part: IAutoMovieConstructionNode;
 
     /** The child face the band reaches: a view part's name in the child's subtree. */
     partFace: string;

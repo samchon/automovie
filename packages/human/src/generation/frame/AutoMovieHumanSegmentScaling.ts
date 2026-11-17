@@ -1,4 +1,8 @@
 import { AutoMovieHumanSegmentFrame as F } from "./AutoMovieHumanSegmentFrame";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanSegmentJoint,
+} from "@automovie/interface";
 
 /**
  * Segment lengths as edits of a chain: a segment's length moves the joint at its far end along the segment, so every joint centre and
@@ -12,7 +16,7 @@ import { AutoMovieHumanSegmentFrame as F } from "./AutoMovieHumanSegmentFrame";
  */
 export namespace AutoMovieHumanSegmentScaling {
   /** One joint's offset edit: a ratio, or an along/across map in the parent's frame. */
-  export type IScale = number | ((offset: F.V3) => F.V3);
+  export type IScale = number | ((offset: AutoMovieVector3Tuple) => AutoMovieVector3Tuple);
 
   /**
    * A local vector scaled along the unit `a` by `along` and along the unit `b`, square to `a`, by `across`; the third direction kept.
@@ -25,15 +29,15 @@ export namespace AutoMovieHumanSegmentScaling {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure map coordinates no shared work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains two axes and two ratios.
    */
-  export function spread(a: F.V3, b: F.V3, along: number, across: number): (p: F.V3) => F.V3 {
+  export function spread(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, along: number, across: number): (p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple {
     if (![along, across].every((k: number): boolean => Number.isFinite(k) && k > 0))
       throw new Error("segment scaling ratios must be finite and positive");
     if (Math.abs(F.dot(a, a) - 1) > 1e-9 || Math.abs(F.dot(b, b) - 1) > 1e-9 || Math.abs(F.dot(a, b)) > 1e-9)
       throw new Error("segment scaling axes must be unit and square");
-    return (p: F.V3): F.V3 => {
+    return (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => {
       if (along === 1 && across === 1) return p;
       const [pa, pb]: number[] = [F.dot(p, a), F.dot(p, b)];
-      return [0, 1, 2].map((c: number): number => p[c]! + (along - 1) * pa! * a[c]! + (across - 1) * pb! * b[c]!) as F.V3;
+      return [0, 1, 2].map((c: number): number => p[c]! + (along - 1) * pa! * a[c]! + (across - 1) * pb! * b[c]!) as AutoMovieVector3Tuple;
     };
   }
 
@@ -49,18 +53,18 @@ export namespace AutoMovieHumanSegmentScaling {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged records and the unchanged chain are borrowed.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A changed result owns one array and the edited records.
    */
-  export function chain(base: readonly F.IJoint[], scales: ReadonlyMap<string, IScale>): readonly F.IJoint[] {
+  export function chain(base: readonly IAutoMovieHumanSegmentJoint[], scales: ReadonlyMap<string, IScale>): readonly IAutoMovieHumanSegmentJoint[] {
     for (const name of scales.keys())
-      if (!base.some((joint: F.IJoint): boolean => joint.name === name))
+      if (!base.some((joint: IAutoMovieHumanSegmentJoint): boolean => joint.name === name))
         throw new Error("segment scaling names a joint the chain lacks: " + name);
     let changed: boolean = false;
-    const out: F.IJoint[] = base.map((joint: F.IJoint): F.IJoint => {
+    const out: IAutoMovieHumanSegmentJoint[] = base.map((joint: IAutoMovieHumanSegmentJoint): IAutoMovieHumanSegmentJoint => {
       const scale: IScale | undefined = scales.get(joint.name);
       if (scale === undefined) return joint;
       if (typeof scale === "number" && !(Number.isFinite(scale) && scale > 0))
         throw new Error("segment length ratio must be finite and positive: " + joint.name);
       if (scale === 1) return joint;
-      const offset: F.V3 = typeof scale === "number" ? F.scale(joint.offset, scale) : scale(joint.offset);
+      const offset: AutoMovieVector3Tuple = typeof scale === "number" ? F.scale(joint.offset, scale) : scale(joint.offset);
       if (offset === joint.offset) return joint;
       changed = true;
       return { ...joint, offset };

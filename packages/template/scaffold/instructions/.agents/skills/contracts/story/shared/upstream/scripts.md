@@ -1,6 +1,6 @@
-# Upstream repair exposed by scripts
+# Upstream questions for scripts
 
-Each script H2 answers about its actual treatment parents and, through them, settings causes. Repair follows the [closed-pass boundary](../../../../story/correction/repair.md#closed-passes).
+Each script H2 answers about its treatment parents and, through them, settings causes. Repair follows the story skill's closed passes rule.
 
 Statements: [statements/upstream/scripts.md](../statements/upstream/scripts.md).
 

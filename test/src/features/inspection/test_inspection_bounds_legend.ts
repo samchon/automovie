@@ -1,6 +1,6 @@
+import type { IAutoMovieInspectionLegendEntry } from "@automovie/interface";
 import {
   type IAutoMovieInspectionHandle,
-  type IAutoMovieInspectionLegendEntry,
   type IAutoMovieViewerSubjectBounds,
   applyAutoMovieInspection,
   measureAutoMovieInspectionBounds,

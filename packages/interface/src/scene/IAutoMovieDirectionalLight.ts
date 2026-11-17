@@ -1,4 +1,4 @@
-import { IAutoMovieLightBase } from "./IAutoMovieLightBase";
+import type { IAutoMovieLightBase } from "./IAutoMovieLightBase";
 
 /**
  * Infinitely distant parallel source whose transform orientation defines direction and whose intensity has no distance falloff.

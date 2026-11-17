@@ -1,25 +1,12 @@
 import {
-  IAutoMovieJointPose,
   IAutoMovieQuaternion,
+  type IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorProps,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
-
-/** Selected clinical joints read through the same prepared chain and frames. */
-interface IResolvedPreparedEffectorProps extends Pick<
-  ISolvePreparedChainPlantProps,
-  "prepared" | "jointAxes" | "restFrames"
-> {
-  /** Candidate root clinical articulation after rig-ROM clamping. */
-  upper: IAutoMovieJointPose;
-
-  /** Candidate mid clinical articulation after the same clamping. */
-  lower: IAutoMovieJointPose;
-}
 
 /**
  * Resolve the effector produced by two candidate clinical joints through a prepared chain, in the same model-metre frame as its target. Clinical axes/rest frames must match preparation and candidate inversion.
@@ -33,9 +20,9 @@ interface IResolvedPreparedEffectorProps extends Pick<
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one newly composed vector and retains no candidate joints, prepared record, handle or search history.
  */
 export const resolvePreparedChainEffector: (
-  props: IResolvedPreparedEffectorProps,
+  props: IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorProps,
 ) => IAutoMovieVector3 = (
-  props: IResolvedPreparedEffectorProps,
+  props: IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorProps,
 ): IAutoMovieVector3 => {
   const upperRotation: IAutoMovieQuaternion = Quaternion.multiply(
     props.prepared.upper.worldRotation,

@@ -2,6 +2,8 @@ import type {
   IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieJointRotationFrame,
+  IAutoMovieSwingTwistBasis,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -9,7 +11,6 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { nearestAngleAlias } from "../math/nearestAngleAlias";
 import { positiveModulo } from "../math/positiveModulo";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { swingConeAngle } from "../rom/swingConeAngle";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
@@ -33,22 +34,6 @@ import { swingTwistBasis } from "./swingTwistBasis";
  */
 export namespace swingTwistRegion {
   /**
-   * The joint's frame the region is read in: its axes and its rest frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that the axes are the joint's clinical basis, that the rest frame lifts its angles and that an absent frame leaves them rest-relative.
-   * @evidence contracts/development/design.md#principled-representation The caller's clinical axis basis and rest frame, the two things that turn a rotation's angles into the joint's clinical ones.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by the table and by the key it is kept under.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No joint or bone is named, and the members are the engine's own types.
-   */
-  export interface IJoint {
-    /** The joint's clinical axes. */
-    axes: IAutoMovieJointAxes;
-
-    /** The rest frame its clinical angles are lifted by. */
-    frame?: IAutoMovieRestFrame | undefined;
-  }
-
-  /**
    * The radius table of a constraint on a joint's frame.
    *
    * @param constraint The constraint.
@@ -65,7 +50,7 @@ export namespace swingTwistRegion {
    */
   export function table(
     constraint: IAutoMovieJointConstraint,
-    joint: IJoint,
+    joint: IAutoMovieJointRotationFrame,
   ): Float64Array {
     let byAxes:
       | WeakMap<IAutoMovieJointAxes, Map<object, Float64Array>>
@@ -110,9 +95,14 @@ const HALVINGS: number = 20;
 /** The region's radius on each ray: reached, widened and raised. */
 function build(
   constraint: IAutoMovieJointConstraint,
-  joint: swingTwistRegion.IJoint,
+  joint: IAutoMovieJointRotationFrame,
 ): Float64Array {
-  return raise(widen(reach(constraint, joint), constraint, joint));
+  // The limb points no farther from rest than its stated reach, which keeps
+  // the rest direction's antipode outside (`ISwingTwist.reach`).
+  const cap: number = constraint.swingTwist?.reach ?? 180;
+  return raise(widen(reach(constraint, joint), constraint, joint)).map(
+    (radius: number): number => Math.min(cap, radius),
+  );
 }
 
 /**
@@ -122,9 +112,11 @@ function build(
  */
 function reach(
   constraint: IAutoMovieJointConstraint,
-  joint: swingTwistRegion.IJoint,
+  joint: IAutoMovieJointRotationFrame,
 ): Float64Array {
-  const basis: swingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
+  const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
+    joint.axes,
+  );
   const table: Float64Array = new Float64Array(swingTwistBasis.RAYS);
   for (let ray: number = 0; ray < swingTwistBasis.RAYS; ++ray) {
     const azimuth: number = (360 * ray) / swingTwistBasis.RAYS;
@@ -164,7 +156,7 @@ function reach(
 function widen(
   table: Float64Array,
   constraint: IAutoMovieJointConstraint,
-  joint: swingTwistRegion.IJoint,
+  joint: IAutoMovieJointRotationFrame,
 ): Float64Array {
   const twist: IAutoMovieAngleRange | null = constraint.twist;
   if (joint.axes.twistPlacement === "distal" || twist === null) return table;
@@ -225,8 +217,8 @@ function raise(table: Float64Array): Float64Array {
  */
 function reached(
   constraint: IAutoMovieJointConstraint,
-  joint: swingTwistRegion.IJoint,
-  basis: swingTwistBasis.IBasis,
+  joint: IAutoMovieJointRotationFrame,
+  basis: IAutoMovieSwingTwistBasis.IBasis,
   direction: IAutoMovieVector3,
 ): boolean {
   const flexion: IAutoMovieAngleRange = constraint.flexion!;

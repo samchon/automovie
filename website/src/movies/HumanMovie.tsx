@@ -13,19 +13,24 @@ import {
 
 import { SceneView } from "../components/scenes/SceneView";
 import type { IHumanEntry } from "../human/structures/IHumanEntry";
+import type { IPlaygroundVocabulary } from "../playground/structures/IPlaygroundVocabulary";
 import { SceneClock } from "../scenes/SceneClock";
 import type { IScene } from "../scenes/structures/IScene";
+import { TakeClient } from "../takes/TakeClient";
 
 /**
  * The polygon man: every body the site performs with, standing side by side,
  * the measures of the chosen one, and the inspector a production uses to look
  * at a figure, opened on request because it prepares the body in the page.
  *
- * @param props The bodies with their measures, as the bake recorded them, and the hidden scene that stands them side by side, handed over alone so the page carries no other scene record.
+ * The lineup is computed in the browser like any scene, and the chosen
+ * body's measures in the take worker when it is chosen.
+ *
+ * @param props The bodies' ids and labels, and the hidden scene that stands them side by side, handed over alone so the page carries no other scene record.
  * @returns The page.
  */
 export default function HumanMovie(props: {
-  bodies: IHumanEntry[];
+  bodies: IPlaygroundVocabulary.IBody[];
   lineup: IScene;
 }): ReactElement {
   const [clock]: [SceneClock, Dispatch<SetStateAction<SceneClock>>] =
@@ -36,9 +41,31 @@ export default function HumanMovie(props: {
     string | null,
     Dispatch<SetStateAction<string | null>>,
   ] = useState<string | null>(null);
-  const body: IHumanEntry | undefined = props.bodies.find(
-    (b: IHumanEntry): boolean => b.id === chosen,
+  const [measured, setMeasured]: [
+    IHumanEntry | string | null,
+    Dispatch<SetStateAction<IHumanEntry | string | null>>,
+  ] = useState<IHumanEntry | string | null>(null);
+  const body: IPlaygroundVocabulary.IBody | undefined = props.bodies.find(
+    (b: IPlaygroundVocabulary.IBody): boolean => b.id === chosen,
   );
+
+  // The chosen body is prepared in the take worker for its measures; a
+  // failure is shown in place of them.
+  useEffect((): (() => void) => {
+    let alive: boolean = true;
+    setMeasured(null);
+    TakeClient.body(chosen)
+      .then((entry: IHumanEntry): void => {
+        if (alive) setMeasured(entry);
+      })
+      .catch((error: unknown): void => {
+        if (alive)
+          setMeasured(error instanceof Error ? error.message : String(error));
+      });
+    return (): void => {
+      alive = false;
+    };
+  }, [chosen]);
 
   return (
     <main className="am-app" data-pagefind-body>
@@ -56,8 +83,10 @@ export default function HumanMovie(props: {
           <SceneView scene={props.lineup} take={0} clock={clock} orbit />
           <p className="am-muted am-small">
             Left to right:{" "}
-            {props.bodies.map((b: IHumanEntry): string => b.label).join("; ")}.
-            Drag or use the arrow keys to turn, and double-click or press 0 to
+            {props.bodies
+              .map((b: IPlaygroundVocabulary.IBody): string => b.label)
+              .join("; ")}
+            . Drag or use the arrow keys to turn, and double-click or press 0 to
             frame again.
           </p>
         </section>
@@ -72,7 +101,7 @@ export default function HumanMovie(props: {
               }
             >
               {props.bodies.map(
-                (b: IHumanEntry): ReactElement => (
+                (b: IPlaygroundVocabulary.IBody): ReactElement => (
                   <option key={b.id} value={b.id}>
                     {b.label}
                   </option>
@@ -82,9 +111,22 @@ export default function HumanMovie(props: {
           </label>
           <details className="am-measures">
             <summary>Measures</summary>
+            {measured === null ? (
+              <p className="am-status" role="status">
+                Preparing the body.
+              </p>
+            ) : typeof measured === "string" ? (
+              <p className="am-danger-text" role="alert">
+                {measured}
+              </p>
+            ) : null}
             <table className="am-table">
               <tbody>
-                {Object.entries(body?.measures ?? {}).map(
+                {Object.entries(
+                  typeof measured === "object" && measured !== null
+                    ? measured.measures
+                    : {},
+                ).map(
                   ([name, value]: [string, number]): ReactElement => (
                     <tr key={name}>
                       <th scope="row" className="am-mono">

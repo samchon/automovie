@@ -1,5 +1,14 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
-import type { IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieBicubicAtlasGeometry,
+  IAutoMovieRecoveryAtlasObservationCreases,
+  IAutoMovieRecoveryAtlasObservationOperation,
+  IAutoMovieRecoveryAtlasObservationSource,
+  IAutoMovieRecoveryChartAssembly,
+  IAutoMovieRecoveryChartBoundary,
+  IAutoMovieRecoveryEventRegion,
+  IAutoMovieRecoveryPendingChartObservation,
+} from "@automovie/interface";
 
 import { RecoveryAtlasObservationChart } from "../internal/RecoveryAtlasObservationChart";
 import { RecoveryAtlasObservationCreases } from "../internal/RecoveryAtlasObservationCreases";
@@ -7,14 +16,9 @@ import { RecoveryAtlasObservationFeatures } from "../internal/RecoveryAtlasObser
 import { RecoveryAtlasObservationNormals } from "../internal/RecoveryAtlasObservationNormals";
 import { RecoveryAtlasObservationPublish } from "../internal/RecoveryAtlasObservationPublish";
 import { RecoveryAtlasObservationSource } from "../internal/RecoveryAtlasObservationSource";
-import type { RecoveryAtlasObservationTypes } from "../internal/RecoveryAtlasObservationTypes";
-import { RecoveryChartAssembly } from "../internal/RecoveryChartAssembly";
 import { RecoveryChartBoundary } from "../internal/RecoveryChartBoundary";
-import { RecoveryEventRegion } from "../internal/RecoveryEventRegion";
-import type { IAutoMovieRecoveryAtlasObservation } from "../structures/observation/IAutoMovieRecoveryAtlasObservation";
-import type { IAutoMovieRecoveryAtlasObservationInput } from "../structures/observation/IAutoMovieRecoveryAtlasObservationInput";
 
-type Pending = RecoveryAtlasObservationTypes["Pending"];
+type Pending = IAutoMovieRecoveryPendingChartObservation;
 
 /**
  * Observe orientable genus-zero source components through private disk charts.
@@ -43,28 +47,28 @@ type Pending = RecoveryAtlasObservationTypes["Pending"];
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All bounded selected private charts remain live through one common boundary-network pass; fits then execute sequentially. The caller owns the bounded selected-chart output and the private cell ledger; unvisited slabs remain explicitly incomplete.
  */
 export function observeAutoMovieRecoveryAtlas(
-  input: IAutoMovieRecoveryAtlasObservationInput,
-  observe?: (record: object) => void,
-): IAutoMovieRecoveryAtlasObservation {
+  input: Parameters<IAutoMovieRecoveryAtlasObservationOperation.Operation>[0],
+  observe?: Parameters<IAutoMovieRecoveryAtlasObservationOperation.Operation>[1],
+): ReturnType<IAutoMovieRecoveryAtlasObservationOperation.Operation> {
   const {
     order,
     selection,
     heights,
     region,
     index,
-  }: ReturnType<typeof RecoveryAtlasObservationSource> =
+  }: ReturnType<IAutoMovieRecoveryAtlasObservationSource.Operation> =
     RecoveryAtlasObservationSource(input);
   const controls: IAutoMovieBicubicAtlasGeometry["controls"] = [],
     patches: IAutoMovieBicubicAtlasGeometry["patches"] = [],
     charts: object[] = [],
     privateLedger: object[] = [];
-  const boundaryOwner: ReturnType<typeof RecoveryChartBoundary> =
+  const boundaryOwner: ReturnType<IAutoMovieRecoveryChartBoundary.Operation> =
     RecoveryChartBoundary({
       toleranceMm: input.toleranceMm,
       maxSpans: input.maxSpans,
       cornerDegrees: input.cornerDegrees,
     });
-  const fittedCharts: Parameters<typeof RecoveryChartAssembly>[0][number][] =
+  const fittedCharts: Parameters<IAutoMovieRecoveryChartAssembly.Operation>[0][number][] =
     [];
   const pending: Pending[] = [],
     failedSelectedComponents: Set<string> = new Set();
@@ -116,9 +120,9 @@ export function observeAutoMovieRecoveryAtlas(
         ...index.cut(afterMm),
       ]),
     ].sort((a: number, b: number): number => a - b);
-    const observed: ReturnType<ReturnType<typeof RecoveryEventRegion>> = region(
-      { beforeMm, afterMm, candidates, ports: [] },
-    );
+    const observed: ReturnType<
+      ReturnType<IAutoMovieRecoveryEventRegion.Operation>
+    > = region({ beforeMm, afterMm, candidates, ports: [] });
     visitedIntervals++;
     visitedIntervalIds.push(interval);
     const byRaw: Map<string, string> = new Map(
@@ -210,7 +214,7 @@ export function observeAutoMovieRecoveryAtlas(
       const {
         creaseFaces,
         featureEdges,
-      }: ReturnType<typeof RecoveryAtlasObservationCreases> =
+      }: ReturnType<IAutoMovieRecoveryAtlasObservationCreases.Operation> =
         RecoveryAtlasObservationCreases({
           input,
           observed,
@@ -289,8 +293,8 @@ export function observeAutoMovieRecoveryAtlas(
           const slots: Map<string, number> = new Map(
             vertexIds.map((id: string, i: number): [string, number] => [id, i]),
           );
-          const positions: C.Vector[] = vertexIds.map(
-            (id: string): C.Vector => {
+          const positions: Readonly<AutoMovieVector3Tuple>[] = vertexIds.map(
+            (id: string): Readonly<AutoMovieVector3Tuple> => {
               const node: (typeof observed.nodes)[number] = nodes.get(id)!;
               if (node.vertices.length === 1)
                 return input.verticesMm[node.vertices[0]!]!;

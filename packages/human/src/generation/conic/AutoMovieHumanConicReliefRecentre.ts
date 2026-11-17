@@ -1,4 +1,5 @@
-import { AutoMovieLoftRelief, type AutoMovieViewAxis, type IAutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieLoftRelief } from "@automovie/engine";
+import type { IAutoMovieLoftRelief, IAutoMovieViewAxis } from "@automovie/interface";
 
 /**
  * A family's relief nets re-expressed in the chart of a family re-centred on another origin line (`AutoMovieHumanConicRecentre`): the
@@ -44,7 +45,7 @@ export namespace AutoMovieHumanConicReliefRecentre {
    */
   export interface ISkin {
     /** The course the wall is charted about: at a station, the chart's origin and its `u` and `v`. */
-    axis: AutoMovieViewAxis.IAxis;
+    axis: IAutoMovieViewAxis.IAxis;
 
     /** The bare wall's world point at a station, mm, and a phase, radians, of that chart. */
     point: (station: number, phase: number) => V3;
@@ -134,7 +135,7 @@ export namespace AutoMovieHumanConicReliefRecentre {
   }
 
   /** The chart angle of a world point about a course's origin at a station, radians. */
-  function angle(axis: AutoMovieViewAxis.IAxis, station: number, p: readonly number[]): number {
+  function angle(axis: IAutoMovieViewAxis.IAxis, station: number, p: readonly number[]): number {
     const frame = axis.at(station);
     const d: V3 = sub(p, frame.origin);
     return Math.atan2(dot(d, frame.v), dot(d, frame.u));

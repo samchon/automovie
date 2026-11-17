@@ -4,6 +4,11 @@ import {
   AutoMovieHumanSegmentFrame as F,
   AutoMovieHumanSegmentScaling as Scaling,
 } from "@automovie/human";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
+} from "@automovie/interface";
 
 /**
  * A segment's length moves its far joint along it; every joint past it follows and keeps its own length.
@@ -31,10 +36,10 @@ import {
  */
 export function test_human_segment_scaling(): void {
   const failures: string[] = [];
-  const at = (what: string, got: F.V3, want: F.V3, tolerance: number = 1e-12): void => {
+  const at = (what: string, got: AutoMovieVector3Tuple, want: AutoMovieVector3Tuple, tolerance: number = 1e-12): void => {
     if (!(Math.hypot(got[0] - want[0], got[1] - want[1], got[2] - want[2]) <= tolerance)) failures.push(`${what}: [${got.join(", ")}] instead of [${want.join(", ")}]`);
   };
-  const chain: F.IJoint[] = [
+  const chain: IAutoMovieHumanSegmentJoint[] = [
     { name: "a", parent: null, offset: [0, 0, 0], rotation: F.IDENTITY },
     { name: "b", parent: "a", offset: [0, -100, 0], rotation: F.IDENTITY },
     { name: "c", parent: "b", offset: [0, -50, 10], rotation: F.about(2, Math.PI / 2) },
@@ -43,8 +48,8 @@ export function test_human_segment_scaling(): void {
   const none = (): undefined => undefined;
 
   // 1 and 2.
-  const scaled: readonly F.IJoint[] = Scaling.chain(chain, new Map([["b", 1.2]]));
-  const frames: Map<string, F.IFrame> = F.world(scaled, none);
+  const scaled: readonly IAutoMovieHumanSegmentJoint[] = Scaling.chain(chain, new Map([["b", 1.2]]));
+  const frames: Map<string, IAutoMovieHumanSegmentFrame> = F.world(scaled, none);
   at("b", frames.get("b")!.origin, [0, -120, 0]);
   at("c", frames.get("c")!.origin, [0, -170, 10]);
   at("d", frames.get("d")!.origin, [30, -170, 10]);
@@ -52,13 +57,13 @@ export function test_human_segment_scaling(): void {
 
   // 3. Identities.
   if (Scaling.chain(chain, new Map([["b", 1]])) !== chain) failures.push("a ratio of one did not return the given chain");
-  const p: F.V3 = [2, 3, 4];
+  const p: AutoMovieVector3Tuple = [2, 3, 4];
   if (Scaling.spread([1, 0, 0], [0, 0, 1], 1, 1)(p) !== p) failures.push("a spread at ones did not return its input");
 
   // 4. The spread and its reflection.
   at("spread", Scaling.spread([1, 0, 0], [0, 0, 1], 1.5, 0.5)(p), [3, 3, 2]);
-  const D = (v: F.V3): F.V3 => [v[0], v[1], -v[2]];
-  const [a, b]: F.V3[] = [[0.6, 0, 0.8], [-0.8, 0, 0.6]];
+  const D = (v: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [v[0], v[1], -v[2]];
+  const [a, b]: AutoMovieVector3Tuple[] = [[0.6, 0, 0.8], [-0.8, 0, 0.6]];
   at("reflected spread", Scaling.spread(D(a!), D(b!), 1.3, 0.7)(D([1, 2, 3])), D(Scaling.spread(a!, b!, 1.3, 0.7)([1, 2, 3])));
 
   // 5. Defects.
@@ -77,23 +82,23 @@ export function test_human_segment_scaling(): void {
   // 6. f1.
   if (Lengths.chain(Lengths.F1) !== T.CHAIN) failures.push("f1's lengths did not return the stored chain");
   for (const name of Object.keys(T.POINTS)) if (Lengths.local(Lengths.F1, name) !== T.POINTS[name]!.local) failures.push("f1's datum " + name + " moved");
-  const longer: readonly F.IJoint[] = Lengths.chain({ ...Lengths.F1, upperArm: Lengths.F1.upperArm * 1.1 });
+  const longer: readonly IAutoMovieHumanSegmentJoint[] = Lengths.chain({ ...Lengths.F1, upperArm: Lengths.F1.upperArm * 1.1 });
   const [before, after] = [F.world(T.CHAIN, none), F.world(longer, none)];
-  const offset: F.V3 = T.CHAIN.find((j: F.IJoint): boolean => j.name === "forearm")!.offset;
-  const move: F.V3 = F.scale(F.toWorldDirection(before.get("humerus")!, offset), 0.1);
+  const offset: AutoMovieVector3Tuple = T.CHAIN.find((j: IAutoMovieHumanSegmentJoint): boolean => j.name === "forearm")!.offset;
+  const move: AutoMovieVector3Tuple = F.scale(F.toWorldDirection(before.get("humerus")!, offset), 0.1);
   at("elbow centre", after.get("forearm")!.origin, F.add(before.get("forearm")!.origin, move), 1e-9);
   at("wrist centre", after.get("hand")!.origin, F.add(before.get("hand")!.origin, move), 1e-9);
 
   // 7. The trunk's upper run and the hand's length.
-  const taller: Map<string, F.IFrame> = F.world(Lengths.chain({ ...Lengths.F1, thoraxToHead: Lengths.F1.thoraxToHead * 1.1 }), none);
-  const neck: F.V3 = T.CHAIN.find((j: F.IJoint): boolean => j.name === "head")!.offset;
+  const taller: Map<string, IAutoMovieHumanSegmentFrame> = F.world(Lengths.chain({ ...Lengths.F1, thoraxToHead: Lengths.F1.thoraxToHead * 1.1 }), none);
+  const neck: AutoMovieVector3Tuple = T.CHAIN.find((j: IAutoMovieHumanSegmentJoint): boolean => j.name === "head")!.offset;
   at("thorax origin", taller.get("thorax")!.origin, before.get("thorax")!.origin, 0);
   at("head origin", taller.get("head")!.origin, F.add(before.get("head")!.origin, F.scale(F.toWorldDirection(before.get("thorax")!, neck), 0.1)), 1e-9);
-  const handed: readonly F.IJoint[] = Lengths.chain({ ...Lengths.F1, handLength: Lengths.F1.handLength * 1.2 });
-  const offsetOf = (joints: readonly F.IJoint[], name: string): F.V3 => joints.find((j: F.IJoint): boolean => j.name === name)!.offset;
+  const handed: readonly IAutoMovieHumanSegmentJoint[] = Lengths.chain({ ...Lengths.F1, handLength: Lengths.F1.handLength * 1.2 });
+  const offsetOf = (joints: readonly IAutoMovieHumanSegmentJoint[], name: string): AutoMovieVector3Tuple => joints.find((j: IAutoMovieHumanSegmentJoint): boolean => j.name === name)!.offset;
   at("third metacarpal head", offsetOf(handed, "middle.proximal"), F.scale(offsetOf(T.CHAIN, "middle.proximal"), 1.2), 1e-9);
-  const along: F.V3 = F.unit(offsetOf(T.CHAIN, "middle.proximal"));
-  const fifth: F.V3 = offsetOf(T.CHAIN, "pinky.proximal");
+  const along: AutoMovieVector3Tuple = F.unit(offsetOf(T.CHAIN, "middle.proximal"));
+  const fifth: AutoMovieVector3Tuple = offsetOf(T.CHAIN, "pinky.proximal");
   at("fifth metacarpal head", offsetOf(handed, "pinky.proximal"), F.add(fifth, F.scale(along, 0.2 * F.dot(fifth, along))), 1e-9);
   at("a finger's own bone", offsetOf(handed, "middle.middle"), offsetOf(T.CHAIN, "middle.middle"), 0);
   if (failures.length !== 0) throw new Error(failures.join("\n"));

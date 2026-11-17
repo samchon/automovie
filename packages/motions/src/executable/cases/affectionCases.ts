@@ -1,8 +1,15 @@
 import { AutoMovieChain, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidRegion } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchForm,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../../compose/AutoMovieMotionHumanTouchForm";
@@ -50,12 +57,12 @@ export function affectionCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = createHumanBody(
       man.body.skeleton,
       man.body.profile,
     );
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
-    const rows: [string, touch.IParams, boolean][] = [
+    const rows: [string, IAutoMovieMotionHumanTouch.IParams, boolean][] = [
       [
         "pat-head",
         {
@@ -101,17 +108,21 @@ export function affectionCases(
     ];
     for (const [label, params, facing] of rows) {
       const name: string = `affection-${label}${suffix}`;
-      const run = (): HumanPerformance =>
+      const run = (): IAutoMovieMotionHumanPerformance =>
         pair(
           body,
           facing,
           HumanChain.subject("a").act("touch", params),
           HumanChain.subject("b").stand({ seconds: 8 }),
         );
-      const performance: HumanPerformance | null = attempt(out, name, run);
+      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
+        out,
+        name,
+        run,
+      );
       if (performance === null) continue;
-      const kind: AutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
-      const effector: AutoMovieMotionHumanTouchEffector.IEffector =
+      const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
+      const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
         touch.EFFECTORS[params.with ?? "palm"];
       const region: TouchVerdicts.IRegion = {
         subject: "b",
@@ -148,7 +159,7 @@ export function affectionCases(
             t,
           ),
         );
-      const form: AutoMovieMotionHumanTouchForm.IForm =
+      const form: IAutoMovieMotionHumanTouchForm.IForm =
         AutoMovieMotionHumanTouchForm.FORMS[kind];
       const verdicts: IMotionCaptureCase.IVerdict[] = [
         ...everydayVerdicts.standard(performance, "a", body),
@@ -231,10 +242,10 @@ export function affectionCases(
 
     for (const region of ["cheekLeft", "forehead"] as const) {
       const name: string = `affection-kiss-${region === "cheekLeft" ? "cheek" : "forehead"}${suffix}`;
-      const performance: HumanPerformance | null = attempt(
+      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
         out,
         name,
-        (): HumanPerformance =>
+        (): IAutoMovieMotionHumanPerformance =>
           pair(
             body,
             true,
@@ -282,10 +293,10 @@ export function affectionCases(
 
     {
       const name: string = `affection-high-five${suffix}`;
-      const performance: HumanPerformance | null = attempt(
+      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
         out,
         name,
-        (): HumanPerformance =>
+        (): IAutoMovieMotionHumanPerformance =>
           new HumanPerformance({
             seed: "affection",
             performers: performers(body, true, 0.7),
@@ -300,7 +311,7 @@ export function affectionCases(
       );
       if (performance !== null) {
         const meet: number = TouchVerdicts.event(performance, "a", "meet");
-        const palm: AutoMovieMotionHumanTouchEffector.IEffector = {
+        const palm: IAutoMovieMotionHumanTouchEffector.IEffector = {
           surface: "palm",
           shape: "flat",
         };
@@ -349,8 +360,8 @@ export function affectionCases(
 function attempt(
   out: IMotionCaptureCase[],
   name: string,
-  run: () => HumanPerformance,
-): HumanPerformance | null {
+  run: () => IAutoMovieMotionHumanPerformance,
+): IAutoMovieMotionHumanPerformance | null {
   try {
     return run();
   } catch (error) {
@@ -368,10 +379,10 @@ function attempt(
 
 /** The two performers: `a` at the origin heading +Z, `b` ahead facing `a` or turned away. */
 function performers(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   facing: boolean,
   gap: number,
-): HumanPerformance.IInput["performers"] {
+): IAutoMovieMotionHumanPerformance.IInput["performers"] {
   return [
     {
       subject: "a",
@@ -392,12 +403,12 @@ function performers(
 
 /** A performance of `b` standing and `a` acting, side by side in time. */
 function pair(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   facing: boolean,
-  a: HumanChain,
-  b: HumanChain,
+  a: IAutoMovieMotionHumanChain,
+  b: IAutoMovieMotionHumanChain,
   gap: number = facing ? 0.55 : 0.45,
-): HumanPerformance {
+): IAutoMovieMotionHumanPerformance {
   return new HumanPerformance({
     seed: "affection",
     performers: performers(body, facing, gap),

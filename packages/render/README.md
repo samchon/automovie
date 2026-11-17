@@ -107,7 +107,7 @@ Every picture a host saves comes from one function that runs in the browser. A p
 
 ## Request keys
 
-Each key a request reader accepts, and each option the `automovie capture`, `inspect`, `render` and `review` commands of the `automovie` package take for themselves, serves a requirement of the [visual-debugging](../../.agents/skills/visual-debugging/SKILL.md), [3d-modeling](../../.agents/skills/3d-modeling/inspection.md) or [motion](../../.agents/skills/motion/verification.md) skill. A page's address and the command line carry the same keys; the command line writes each as `--<key>`, and the options written below with their dashes belong to the commands alone.
+Each key a request reader accepts, and each option the `automovie capture`, `inspect`, `render` and `review` commands of the `automovie` package take for themselves, serves a requirement of the [visual-debugging](../../.agents/skills/visual-debugging/SKILL.md), [3d-modeling](../../.agents/skills/3d-modeling/inspection.md) or [motion](../../.agents/skills/motion/laws/verification.md) skill. A page's address and the command line carry the same keys; the command line writes each as `--<key>`, and the options written below with their dashes belong to the commands alone.
 
 | Key | Asks for | Serves |
 | --- | --- | --- |

@@ -1,6 +1,6 @@
+import type { IAutoMovieInspectionLabel } from "@automovie/interface";
 import {
   type IAutoMovieInspectionHandle,
-  type IAutoMovieInspectionLabel,
   applyAutoMovieInspection,
   placeAutoMovieInspectionLabels,
 } from "@automovie/render";

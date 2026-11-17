@@ -1,8 +1,3 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
-import { AutoMovieHumanF1 } from "@automovie/human";
-import fs from "node:fs/promises";
-import path from "node:path";
-
 import { FamilyConicCaptureContext as Capture } from "./FamilyConicCaptureContext";
 import { FamilyConicCaptureFrame as Frame } from "./FamilyConicCaptureFrame";
 import { FamilyConicCaptureViews as Views } from "./FamilyConicCaptureViews";
@@ -10,6 +5,11 @@ import { FamilyConicNearest as D } from "./FamilyConicNearest";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieHumanF1 } from "@automovie/human";
+import type { IAutoMovieHumanF1 } from "@automovie/interface";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /**
  * Where the generated f1 leaves its reference, as a map: every triangle of the generated skin is painted by how far it stands from the
@@ -114,7 +114,7 @@ export namespace FamilyConicDeviationCapture {
         );
       return { mesh: real.mesh, diagnostics };
     })();
-    const pieces: AutoMovieHumanF1.IPiece[] =
+    const pieces: IAutoMovieHumanF1.IPiece[] =
       context?.pieces ??
       (realized === null
         ? AutoMovieHumanF1.create()
@@ -129,7 +129,7 @@ export namespace FamilyConicDeviationCapture {
     const diagnosticCount: number | null = context !== null
       ? context.diagnostics.length
       : pieces.length === 0 ? null : pieces.reduce(
-          (count: number, piece: AutoMovieHumanF1.IPiece): number => count + piece.diagnostics.length,
+          (count: number, piece: IAutoMovieHumanF1.IPiece): number => count + piece.diagnostics.length,
           0,
         );
     const source: R.ISource = context?.reference ?? (await R.load(root));
@@ -404,7 +404,7 @@ export namespace FamilyConicDeviationCapture {
         shareBeyond1Mm: summary.shareBeyond1Mm,
         pieces: pieces.length,
         diagnostics: pieces.flatMap(
-          (piece: AutoMovieHumanF1.IPiece): string[] => piece.diagnostics,
+          (piece: IAutoMovieHumanF1.IPiece): string[] => piece.diagnostics,
         ),
       }) + "\n",
     );

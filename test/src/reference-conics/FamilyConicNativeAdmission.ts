@@ -1,18 +1,17 @@
+import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
+import { AutoMovieLoftViewSource, AutoMovieViewLoft } from "@automovie/engine";
 import {
-  AutoMovieLoftViewSource,
-  AutoMovieViewLoft,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import {
-  AutoMovieHumanF1Engineering as Engineering,
+  AutoMovieHumanConicLoft as Loft,
   AutoMovieHumanF1 as Figure,
   AutoMovieHumanF1NativeLaw as Law,
-  AutoMovieHumanConicLoft as Loft,
 } from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1Engineering,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-
-import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
 
 /**
  * Deepen the completed native round's actual entry-admission failures.
@@ -24,11 +23,11 @@ namespace FamilyConicNativeAdmission {
   /** Every requested scope is explicit; no failed source is replaced by F1. */
   interface Scope {
     name: string;
-    family: Loft.IFamily;
+    family: IAutoMovieHumanConicLoft.IFamily;
     usage: string;
   }
   /** Actual caller variants that can change native cap/pole bindings. */
-  function scopes(family: Loft.IFamily): Scope[] {
+  function scopes(family: IAutoMovieHumanConicLoft.IFamily): Scope[] {
     return [
       {
         name: "full",
@@ -64,7 +63,7 @@ namespace FamilyConicNativeAdmission {
   }
   /** Retain the actual engine refusal and source parameter/domain/sampling context. */
   function inspect(
-    family: Loft.IFamily,
+    family: IAutoMovieHumanConicLoft.IFamily,
     originals: ReadonlyMap<string, IAutoMovieViewPart>,
   ): unknown[] {
     return scopes(family).map((scope): unknown => {
@@ -177,7 +176,7 @@ namespace FamilyConicNativeAdmission {
     const catalogBytes = await fs.readFile(catalogPath),
       catalog = JSON.parse(catalogBytes.toString()) as {
         sourceHashes: Record<string, string>;
-        cases: Engineering.IResolvedCase[];
+        cases: IAutoMovieHumanF1Engineering.IResolvedCase[];
       };
     for (const [relative, expected] of Object.entries(catalog.sourceHashes)) {
       const file = path.resolve(root, relative);

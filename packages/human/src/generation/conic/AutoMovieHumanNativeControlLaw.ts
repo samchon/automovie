@@ -1,13 +1,17 @@
 import {
-  type AutoMovieLoftFrame,
-  type AutoMovieViewAxis,
   AutoMovieViewAxisJet,
   AutoMovieViewOutline,
   AutoMovieViewParameter,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
-
-import type { AutoMovieHumanConicSection as S } from "./AutoMovieHumanConicSection";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieHumanConicSection,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * Share of an outline's extent E (its largest knot magnitude) within which a junction's bound value, station slope (per mm) and station
@@ -47,11 +51,11 @@ export namespace AutoMovieHumanNativeControlLaw {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned controls belong to the invocation with no retained cache.
    */
   export function section(
-    original: S.IChain,
-    centre: S.P,
-    delta: S.P,
-    scale: S.P,
-  ): S.IChain {
+    original: IAutoMovieHumanConicSection.IChain,
+    centre: AutoMovieVector2Tuple,
+    delta: AutoMovieVector2Tuple,
+    scale: AutoMovieVector2Tuple,
+  ): IAutoMovieHumanConicSection.IChain {
     if (
       ![...centre, ...delta, ...scale].every(Number.isFinite) ||
       !scale.every((value: number): boolean => value > 0)
@@ -64,13 +68,13 @@ export namespace AutoMovieHumanNativeControlLaw {
       input: {
         ...original.input,
         points: original.input.points.map(
-          (point: S.P): S.P => [
+          (point: AutoMovieVector2Tuple): AutoMovieVector2Tuple => [
             point[0] + delta[0] + (scale[0] - 1) * (point[0] - centre[0]),
             point[1] + delta[1] + (scale[1] - 1) * (point[1] - centre[1]),
           ],
         ),
         tangents: original.input.tangents.map(
-          (point: S.P): S.P => [scale[0] * point[0], scale[1] * point[1]],
+          (point: AutoMovieVector2Tuple): AutoMovieVector2Tuple => [scale[0] * point[0], scale[1] * point[1]],
         ),
       },
     };
@@ -88,11 +92,11 @@ export namespace AutoMovieHumanNativeControlLaw {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the weight/axis closure and its two borrowed definitions, without a global cache.
    */
   export function root(
-    skin: AutoMovieViewAxis.IAxis,
-    bone: AutoMovieViewAxis.IAxis,
+    skin: IAutoMovieViewAxis.IAxis,
+    bone: IAutoMovieViewAxis.IAxis,
     rail: number,
     release: number,
-  ): AutoMovieViewAxis.IAxis {
+  ): IAutoMovieViewAxis.IAxis {
     if (!(Number.isFinite(rail) && Number.isFinite(release) && release > rail))
       throw new Error("root release must follow its finite rail");
     if (skin === bone) return skin;
@@ -108,8 +112,8 @@ export namespace AutoMovieHumanNativeControlLaw {
       ];
     };
     const compatible = (
-      a: AutoMovieLoftFrame.IFrame,
-      b: AutoMovieLoftFrame.IFrame,
+      a: IAutoMovieLoftSectionFrame,
+      b: IAutoMovieLoftSectionFrame,
     ): void => {
       if (
         ![...a.origin, ...b.origin, ...a.u, ...a.v, ...b.u, ...b.v].every(
@@ -126,13 +130,13 @@ export namespace AutoMovieHumanNativeControlLaw {
         );
     };
     return {
-      at: (station: number): AutoMovieLoftFrame.IFrame => {
+      at: (station: number): IAutoMovieLoftSectionFrame => {
         // Past the release the course is the bone's alone: the skin course is not read there, so the two need one set of
         // section planes only where both contribute. A person's knee turns at another arclength than the original's, and
         // the two courses' planes differ through that turn although the skin's weight is nothing there.
         if (station >= release) return bone.at(station);
-        const a: AutoMovieLoftFrame.IFrame = skin.at(station);
-        const b: AutoMovieLoftFrame.IFrame = bone.at(station);
+        const a: IAutoMovieLoftSectionFrame = skin.at(station);
+        const b: IAutoMovieLoftSectionFrame = bone.at(station);
         compatible(a, b);
         const h: number = weight(station)[0];
         return {
@@ -143,10 +147,10 @@ export namespace AutoMovieHumanNativeControlLaw {
           v: b.v,
         };
       },
-      jet: (station: number, parameter): AutoMovieViewAxisJet.IJet | null => {
+      jet: (station: number, parameter): IAutoMovieViewAxisJet.IJet | null => {
         if (station >= release) return bone.jet?.(station, parameter) ?? null;
-        const a: AutoMovieViewAxisJet.IJet | null = skin.jet?.(station) ?? null;
-        const b: AutoMovieViewAxisJet.IJet | null = bone.jet?.(station) ?? null;
+        const a: IAutoMovieViewAxisJet.IJet | null = skin.jet?.(station) ?? null;
+        const b: IAutoMovieViewAxisJet.IJet | null = bone.jet?.(station) ?? null;
         if (a === null || b === null) return null;
         compatible(a.value, b.value);
         const [h, h1, h2]: readonly [number, number, number] = weight(station);
@@ -186,8 +190,8 @@ export namespace AutoMovieHumanNativeControlLaw {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the borrowed course lifetime; no extra state is retained.
    */
   export function skinCourse(
-    skin: AutoMovieViewAxis.IAxis,
-  ): AutoMovieViewAxis.IAxis {
+    skin: IAutoMovieViewAxis.IAxis,
+  ): IAutoMovieViewAxis.IAxis {
     return skin;
   }
   /**
@@ -211,8 +215,8 @@ export namespace AutoMovieHumanNativeControlLaw {
     original: IAutoMovieViewPart.IOutline,
     changed: IAutoMovieViewPart.IOutline,
     request: IProtection,
-    originalEnds: AutoMovieViewOutline.IEnds = {},
-    changedEnds: AutoMovieViewOutline.IEnds = {},
+    originalEnds: IAutoMovieViewOutline.IEnds = {},
+    changedEnds: IAutoMovieViewOutline.IEnds = {},
   ): IAutoMovieViewPart.IOutline {
     const held: readonly [number, number] =
       request.type === "interval"
@@ -228,9 +232,9 @@ export namespace AutoMovieHumanNativeControlLaw {
       throw new Error(
         "protected source interval/junction must be finite and ordered",
       );
-    const old: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+    const old: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
       AutoMovieViewOutline.create(original, originalEnds);
-    const next: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure =
+    const next: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
       AutoMovieViewOutline.create(changed, changedEnds);
     if ("contract" in old) throw new Error(old.detail);
     if ("contract" in next) throw new Error(next.detail);
@@ -274,9 +278,9 @@ export namespace AutoMovieHumanNativeControlLaw {
     // a singular parameter endpoint, where no station jet exists, the original's parameter jet is transferred into the changed parameter.
     if (request.type === "junction") {
       const station: number = request.station;
-      const bound: AutoMovieViewOutline.IReading | string =
+      const bound: IAutoMovieViewOutline.IReading | string =
         AutoMovieViewOutline.at(old, station);
-      const free: AutoMovieViewOutline.IReading | string =
+      const free: IAutoMovieViewOutline.IReading | string =
         AutoMovieViewOutline.at(next, station);
       const transfer: [number, number] | null =
         AutoMovieViewParameter.transferJet(
@@ -340,8 +344,8 @@ export namespace AutoMovieHumanNativeControlLaw {
     const knots: IAutoMovieViewPart.IKnot[] = stations.map(
       (station: number): IAutoMovieViewPart.IKnot => {
         const keep: boolean = station >= held[0] && station <= held[1];
-        const owner: AutoMovieViewOutline.IOutline = keep ? old : next;
-        const read: AutoMovieViewOutline.IReading | string =
+        const owner: IAutoMovieViewOutline.IOutline = keep ? old : next;
+        const read: IAutoMovieViewOutline.IReading | string =
           AutoMovieViewOutline.at(owner, station);
         const transfer: [number, number] | null =
           AutoMovieViewParameter.transferJet(

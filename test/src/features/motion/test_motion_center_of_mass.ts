@@ -1,5 +1,5 @@
 import {
-  type IAutoMovieResolvedBone,
+  AutoMovieGravity,
   resolveAutoMovieCenterOfMass,
   resolvePose,
 } from "@automovie/engine";
@@ -7,7 +7,9 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -29,7 +31,7 @@ import { TestValidator } from "@nestia/e2e";
  *    origin the same way. A pose's root translation is added to the rest
  *    root's, so a zero translation keeps the rest height.
  * 3. The extrapolated centre of (0, 1, 0) moving at 1 m/s along +X with a
- *    1 m pendulum lies 1 / sqrt(9.81) m ahead.
+ *    1 m pendulum lies 1 / sqrt(g) m ahead, `g` standard gravity.
  * 4. The margin from a 0.2 m square's centre is +0.1 m, from 0.3 m outside
  *    its +X edge's middle -0.2 m, and from a two-point support it is minus
  *    the distance to the segment.
@@ -69,7 +71,7 @@ export function test_motion_center_of_mass(): void {
     at: IAutoMovieVector3,
     mass: number,
     com: IAutoMovieVector3,
-  ): IAutoMoviePhysicalProfile.ISegment => ({
+  ): IAutoMoviePhysicalSegment => ({
     bone: b,
     neutral: { position: at, rotation: { x: 0, y: 0, z: 0, w: 1 } },
     mass,
@@ -79,7 +81,7 @@ export function test_motion_center_of_mass(): void {
     shapes: [],
   });
   const profile = (
-    segments: IAutoMoviePhysicalProfile.ISegment[],
+    segments: IAutoMoviePhysicalSegment[],
   ): IAutoMoviePhysicalProfile => ({
     id: "pair",
     mass: segments.reduce((s, x) => s + x.mass, 0),
@@ -156,7 +158,7 @@ export function test_motion_center_of_mass(): void {
       { x: 1, y: 0, z: 0 },
       1,
     ),
-    { x: 1 / Math.sqrt(9.81), y: 1, z: 0 },
+    { x: 1 / Math.sqrt(AutoMovieGravity.STANDARD), y: 1, z: 0 },
   );
 
   // 4. Margins.

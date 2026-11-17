@@ -1,13 +1,20 @@
+import {
+  createBall,
+  createTool,
+  createVessel,
+  createWearable,
+} from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanProp,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanFoot,
-  type IHumanBody,
-  type IHumanProp,
+  HumanObject,
   catchObject,
   handshake,
 } from "@automovie/motions";
@@ -41,7 +48,7 @@ const grip = (id: string, y: number, toward: number): IAutoMovieAffordance => ({
 });
 
 /** An upright 70 by 190 mm bottle standing at a point. */
-const bottle = (at: IAutoMovieVector3): IHumanProp => ({
+const bottle = (at: IAutoMovieVector3): IAutoMovieMotionHumanProp => ({
   subject: "bottle",
   frame: { position: at, rotation: Quaternion.identity() },
   points: {},
@@ -66,7 +73,10 @@ const bottle = (at: IAutoMovieVector3): IHumanProp => ({
  * (Grandjean's band for light standing work), its low grip 85 % of the arm's
  * reach from that hand's resting shoulder.
  */
-const place = (a: IHumanBody, hand: string): IAutoMovieVector3 => {
+const place = (
+  a: IAutoMovieMotionHumanBody,
+  hand: string,
+): IAutoMovieVector3 => {
   const shoulder: IAutoMovieVector3 = a.rest.get(
     hand === "left" ? "leftUpperArm" : "rightUpperArm",
   )!;
@@ -81,7 +91,10 @@ const place = (a: IHumanBody, hand: string): IAutoMovieVector3 => {
 };
 
 /** The distance two people shake hands and hand a thing over at. */
-const meeting = (a: IHumanBody, b: IHumanBody): number =>
+const meeting = (
+  a: IAutoMovieMotionHumanBody,
+  b: IAutoMovieMotionHumanBody,
+): number =>
   handshake.gap(a, b) +
   handshake.stance(a).sternum +
   handshake.stance(b).sternum;
@@ -93,8 +106,8 @@ const meeting = (a: IHumanBody, b: IHumanBody): number =>
  */
 const handing = (
   pick: motionHumanLawSweep.Pick,
-  a: IHumanBody,
-  b: IHumanBody,
+  a: IAutoMovieMotionHumanBody,
+  b: IAutoMovieMotionHumanBody,
 ): motionHumanLawSweep.IScene => {
   const hand: string = pick("hand") ?? "right";
   const shoulder: IAutoMovieVector3 = a.rest.get(
@@ -106,9 +119,9 @@ const handing = (
     meeting(a, b),
     HumanChain.pair(
       S.chain()
-        .act("stand", { seconds: 0.3 })
+        .act("stand", { seconds: 0.3, sway: 0 })
         .act("pickUp", { prop: "bottle", handle: "low", hand }),
-      S.chain("b").act("stand", { seconds: 0.3 }),
+      S.chain("b").act("stand", { seconds: 0.3, sway: 0 }),
     ).handOver({
       prop: "bottle",
       handle: "high",
@@ -123,31 +136,47 @@ const handing = (
 
 /** `a` throws to `b`, who catches, over a style's distance. */
 const throwing = (
-  a: IHumanBody,
-  b: IHumanBody,
+  a: IAutoMovieMotionHumanBody,
+  b: IAutoMovieMotionHumanBody,
   style: string,
   thrower: object,
   catcher: object,
 ): motionHumanLawSweep.IScene => {
   const distance: number =
     style === "overarm" ? 6 : style === "underarm" ? 4 : 2.5;
-  return S.duo(a, b, distance, [
-    S.chain().act(
-      "throwObject",
-      {
-        at: S.point(
-          0,
-          b.measure.chestHeight,
-          distance -
-            catchObject.REACH * (b.measure.upperArm + b.measure.forearm),
-        ),
-        style,
-        ...thrower,
-      },
-      "throw",
-    ),
-    S.chain("b").act("catchObject", { from: "throw", ...catcher }),
-  ]);
+  const ball: ReturnType<typeof createBall> = createBall({ kind: "handball" });
+  return S.duo(
+    a,
+    b,
+    distance,
+    [
+      S.chain().act(
+        "throwObject",
+        {
+          at: S.point(
+            0,
+            b.measure.chestHeight,
+            distance -
+              catchObject.REACH * (b.measure.upperArm + b.measure.forearm),
+          ),
+          style,
+          ...thrower,
+        },
+        "throw",
+      ),
+      S.chain("b").act("catchObject", {
+        from: "throw",
+        ball: "ball",
+        ...catcher,
+      }),
+    ],
+    [
+      HumanObject.prop("ball", ball, {
+        at: { x: 0, y: 0, z: 0.3 },
+        yaw: 0,
+      }),
+    ],
+  );
 };
 
 /** A point on a wall facing the performer, on a hand's side. */
@@ -170,13 +199,17 @@ const wall = (
  * over 6 m, an underarm one over 4 m and a toss over 2.5 m at the catcher's
  * chest, short of it by the catching reach; a button at 1.1 m, a knob at
  * 0.95 m turned 90 degrees, a drawer at 0.85 m pulled 0.25 m and a door
- * handle at 1 m swung 35 degrees; a ball of 0.11 m radius 0.15 m ahead of
- * the toes; the work point of each tool; and a table top 0.225 m below the
- * elbow wiped three times.
+ * handle at 1 m swung 35 degrees; a football (`createBall`) 0.15 m ahead of
+ * the toes; each tool taken up from a bench 0.15 m below the elbow and
+ * worked on its work point, a stir in a saucepan on the bench before the
+ * body; and a table top 0.225 m below the
+ * elbow wiped three times; a hat or spectacles (`createWearable`) taken up
+ * from hip height before the right hand and put on; the bottle taken up and
+ * let go of where the hand holds it (`release`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the family and each staging with its numbers.
  * @evidence contracts/development/design.md#principled-representation One stage per law, keyed by the law's name, each asking the row for the parameters it can set.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Twelve laws, the ones that handle a thing or a partner's hand.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Thirteen laws, the ones that handle a thing or a partner's hand.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A left row mirrors the whole staging rather than reaching across the body.
  */
 export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
@@ -184,63 +217,79 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
 > = {
   pickUp: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const hand: string = pick("hand") ?? "right";
     return S.solo(
       a,
       S.chain()
-        .act("stand", { seconds: 0.4 })
+        .act("stand", { seconds: 0.4, sway: 0 })
         .act("pickUp", { prop: "bottle", handle: "low", hand }),
       [bottle(place(a, hand))],
     );
   },
   putDown: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const hand: string = pick("hand") ?? "right";
     const at: IAutoMovieVector3 = place(a, hand);
     return S.solo(
       a,
       S.chain()
-        .act("stand", { seconds: 0.4 })
+        .act("stand", { seconds: 0.4, sway: 0 })
         .act("pickUp", { prop: "bottle", handle: "low", hand })
         .act("putDown", { prop: "bottle", at, yaw: 0, hand }),
       [bottle(at)],
+    );
+  },
+  // The kernel release: the bottle taken up, then let go of where the hand
+  // holds it, so it drops from the open hand (#3479).
+  release: (
+    pick: motionHumanLawSweep.Pick,
+    a: IAutoMovieMotionHumanBody,
+  ): motionHumanLawSweep.IScene => {
+    const hand: string = pick("hand") ?? "right";
+    return S.solo(
+      a,
+      S.chain()
+        .act("stand", { seconds: 0.4, sway: 0 })
+        .act("pickUp", { prop: "bottle", handle: "low", hand })
+        .act("release", { hand }),
+      [bottle(place(a, hand))],
     );
   },
   handOver: handing,
   receive: handing,
   handshake: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.duo(
       a,
       b,
       meeting(a, b),
       HumanChain.pair(
-        S.chain().act("stand", { seconds: 0.4 }),
-        S.chain("b").act("stand", { seconds: 0.4 }),
+        S.chain().act("stand", { seconds: 0.4, sway: 0 }),
+        S.chain("b").act("stand", { seconds: 0.4, sway: 0 }),
       ).handshake(S.set(pick, "hand") as object).node,
     ),
   throwObject: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     throwing(a, b, pick("style") ?? "overarm", S.set(pick, "hand"), {}),
   catchObject: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     throwing(a, b, "toss", {}, S.set(pick, "hands", "side")),
   operate: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const hand: string | undefined = pick("hand");
     const kind: string = pick("mechanism") ?? "button";
@@ -267,48 +316,95 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
   },
   kickBall: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const foot: "left" | "right" = pick("foot") === "left" ? "left" : "right";
     const ankle: IAutoMovieVector3 = a.rest.get(`${foot}Foot`)!;
-    const radius: number = 0.11;
+    const football: ReturnType<typeof createBall> = createBall({
+      kind: "football",
+    });
+    const radius: number = football.affordance("grip").aperture! / 2;
     return S.solo(
       a,
       S.chain().act("kickBall", {
-        ball: S.point(
-          ankle.x,
-          radius,
-          ankle.z + HumanFoot.offset(a, foot, "toe").z + 0.15 + radius,
-        ),
-        radius,
+        ball: "ball",
         ...S.set(pick, "foot"),
       }),
+      [
+        HumanObject.prop("ball", football, {
+          at: {
+            x: ankle.x,
+            y: 0,
+            z: ankle.z + HumanFoot.offset(a, foot, "toe").z + 0.15 + radius,
+          },
+          yaw: 0,
+        }),
+      ],
     );
   },
   useTool: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
-    const hand: string | undefined = pick("hand");
+    const hand: string = pick("hand") ?? "right";
     const tool: string = pick("tool") ?? "hammer";
+    const bench: number = a.measure.shoulderHeight - a.measure.upperArm - 0.15;
+    const props: IAutoMovieMotionHumanProp[] = [
+      HumanObject.prop(
+        "tool",
+        createTool({
+          kind: tool === "stir" ? "spoon" : (tool as createTool.Kind),
+        }),
+        {
+          position: {
+            x: a.rest.get(hand === "left" ? "leftUpperArm" : "rightUpperArm")!
+              .x,
+            y: bench,
+            z: 0.3,
+          },
+          rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+        },
+      ),
+    ];
+    if (tool === "stir")
+      props.push(
+        HumanObject.prop("pot", createVessel({ kind: "saucepan" }), {
+          at: { x: 0, y: bench, z: 0.4 },
+          yaw: 0,
+        }),
+      );
     return S.solo(
       a,
-      S.chain().act("useTool", {
-        tool,
-        on:
-          tool === "stir"
-            ? wall(hand, 0.15, 0.95, 0.4)
-            : tool === "screwdriver"
-              ? wall(hand, 0.2, 1.15, 0.55)
-              : wall(hand, 0.2, 0.85, 0.5),
-        cycles: 3,
-        ...(hand === undefined ? {} : { hand }),
-      }),
+      S.chain()
+        .act("stand", { seconds: 0.3, sway: 0 })
+        .act("pickUp", {
+          prop: "tool",
+          handle: "grip",
+          hand,
+          use: {
+            tip: "face",
+            line:
+              tool === "saw" || tool === "screwdriver" ? "forearm" : "square",
+          },
+        })
+        .act("useTool", {
+          tool,
+          prop: "tool",
+          on:
+            tool === "stir"
+              ? { kind: "prop", subject: "pot", point: "inside" }
+              : tool === "screwdriver"
+                ? wall(hand, 0.2, 1.15, 0.55)
+                : wall(hand, 0.2, 0.85, 0.5),
+          cycles: 3,
+          hand,
+        }),
+      props,
     );
   },
   wipe: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const hand: string | undefined = pick("hand");
     return S.solo(
@@ -326,7 +422,35 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
   },
   dress: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-  ): motionHumanLawSweep.IScene =>
-    S.solo(a, S.chain().act("dress", { item: pick("item") ?? "hat" })),
+    a: IAutoMovieMotionHumanBody,
+  ): motionHumanLawSweep.IScene => {
+    const item: string = pick("item") ?? "hat";
+    return S.solo(
+      a,
+      S.chain()
+        .act("stand", { seconds: 0.3 })
+        .act("pickUp", {
+          prop: "item",
+          handle: "hold",
+          hand: "right",
+          use: {
+            tip: "wear",
+            line: "worn",
+            at: { region: item === "hat" ? "crown" : "noseBridge" },
+            round: item === "hat",
+          },
+        })
+        .act("dress", { item, prop: "item", hand: "right" }),
+      [
+        HumanObject.prop(
+          "item",
+          createWearable({ kind: item === "hat" ? "hat" : "spectacles" }),
+          {
+            at: { x: -0.2, y: a.measure.hipHeight, z: 0.35 },
+            yaw: item === "hat" ? 0 : 180,
+          },
+        ),
+      ],
+    );
+  },
 };

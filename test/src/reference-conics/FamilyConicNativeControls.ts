@@ -1,9 +1,9 @@
 import {
-  AutoMovieHumanSegmentFrame as F,
-  AutoMovieHumanF1 as Figure,
   AutoMovieHumanConicSection as Section,
   AutoMovieHumanF1Placing as T,
+  AutoMovieHumanSegmentFrame as F,
 } from "@automovie/human";
+import type { IAutoMovieHumanF1 } from "@automovie/interface";
 
 /** Existing inventory metadata and actual signed control receipts, without generating geometry. */
 export namespace FamilyConicNativeControls {
@@ -171,8 +171,8 @@ export namespace FamilyConicNativeControls {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Produces plain evidence rows from borrowed immutable inputs, retaining no source reader or global cache.
    */
   export function read(
-    assembly: Figure.IAssembly,
-    original: Figure.IAssembly,
+    assembly: IAutoMovieHumanF1.IAssembly,
+    original: IAutoMovieHumanF1.IAssembly,
     inventory: readonly IRow[],
   ): unknown {
     const indexed = inventory.map((row, id: number) => ({ id, ...row }));

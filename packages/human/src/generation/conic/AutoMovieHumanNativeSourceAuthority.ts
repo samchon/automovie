@@ -1,11 +1,10 @@
 import type {
-  AutoMovieLoftFrame,
-  AutoMovieViewAxis,
-  AutoMovieViewAxisJet,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
   IAutoMovieViewPart,
-} from "@automovie/engine";
-
-import type { AutoMovieHumanConicLoft as H } from "./AutoMovieHumanConicLoft";
+} from "@automovie/interface";
 
 /** Explicit complete native ownership, material sampling bounds and source scope. */
 export namespace AutoMovieHumanNativeSourceAuthority {
@@ -25,22 +24,22 @@ export namespace AutoMovieHumanNativeSourceAuthority {
     sampling?: ISampling;
   }
   /** A right-handed reflected chart reverses its local v as well as phase. */
-  export function reflected(axis: AutoMovieViewAxis.IAxis): AutoMovieViewAxis.IAxis {
+  export function reflected(axis: IAutoMovieViewAxis.IAxis): IAutoMovieViewAxis.IAxis {
     const flip = (
       p: readonly number[],
       sign: number,
     ): [number, number, number] => [sign * p[0]!, sign * p[1]!, -sign * p[2]!];
     const frame = (
-      f: AutoMovieLoftFrame.IFrame,
-    ): AutoMovieLoftFrame.IFrame => ({
+      f: IAutoMovieLoftSectionFrame,
+    ): IAutoMovieLoftSectionFrame => ({
       origin: flip(f.origin, 1),
       u: flip(f.u, 1),
       v: flip(f.v, -1),
     });
     return {
-      at: (s: number): AutoMovieLoftFrame.IFrame => frame(axis.at(s)),
-      jet: (s: number, p: Parameters<NonNullable<AutoMovieViewAxis.IAxis["jet"]>>[1]): AutoMovieViewAxisJet.IJet | null => {
-        const jet: AutoMovieViewAxisJet.IJet | null = axis.jet?.(s, p) ?? null;
+      at: (s: number): IAutoMovieLoftSectionFrame => frame(axis.at(s)),
+      jet: (s: number, p: Parameters<NonNullable<IAutoMovieViewAxis.IAxis["jet"]>>[1]): IAutoMovieViewAxisJet.IJet | null => {
+        const jet: IAutoMovieViewAxisJet.IJet | null = axis.jet?.(s, p) ?? null;
         return jet === null
           ? null
           : {
@@ -73,7 +72,7 @@ export namespace AutoMovieHumanNativeSourceAuthority {
   }
 
   /** Numeric family controls form a binding, independently of display density/features. */
-  export function controls(a: H.IFamily, b: H.IFamily): boolean {
+  export function controls(a: IAutoMovieHumanConicLoft.IFamily, b: IAutoMovieHumanConicLoft.IFamily): boolean {
     return a.values.length === b.values.length &&
       a.values.every((row: number[], f: number): boolean =>
         row.length === b.values[f]!.length && row.every((v: number, k: number): boolean => v === b.values[f]![k])) &&
@@ -83,14 +82,14 @@ export namespace AutoMovieHumanNativeSourceAuthority {
   }
 
   /** Cap shape and material scope are independent of caller pitch, phase and relief visibility. */
-  export function capEqual(a: H.ITip | null | undefined, b: H.ITip | null | undefined): boolean {
+  export function capEqual(a: IAutoMovieHumanConicLoft.ITip | null | undefined, b: IAutoMovieHumanConicLoft.ITip | null | undefined): boolean {
     return a === b || (a !== null && a !== undefined && b !== null && b !== undefined &&
       a.from === b.from && a.tip === b.tip && a.own === b.own && a.covered === b.covered &&
       a.rings === b.rings && a.centre?.[0] === b.centre?.[0] && a.centre?.[1] === b.centre?.[1]);
   }
 
   /** Admit the selected source against the invocation's unchanged material/cap binding. */
-  export function select(spec: ISpec, family: H.IFamily, expected: H.IFamily,
+  export function select(spec: ISpec, family: IAutoMovieHumanConicLoft.IFamily, expected: IAutoMovieHumanConicLoft.IFamily,
     originals: ReadonlyMap<string, IAutoMovieViewPart>): IAutoMovieViewPart {
     const source: IAutoMovieViewPart = named(spec, family.name);
     const original: IAutoMovieViewPart | undefined = originals.get(family.name);

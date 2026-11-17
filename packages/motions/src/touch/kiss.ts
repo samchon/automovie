@@ -1,11 +1,19 @@
 import { Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidRegion,
-  AutoMovieMotionTarget,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanKiss,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRise,
+  IAutoMovieMotionManner,
+  IAutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
@@ -17,12 +25,9 @@ import { AutoMovieMotionHumanRise } from "../compose/AutoMovieMotionHumanRise";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -42,7 +47,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * Sedgewick et al. 2019 did not find, so the side is a parameter. The
  * approach is the free-space transport
  * of the mouth's travel, the kiss holds 0.6 s (provisional) and the return
- * takes the approach's time. The feet stay where they stand; a difference
+ * takes the approach's time. Standing, the hips move back by the static
+ * balance's shift at the solved lean (`HumanBalance.shift`, as a bow's do),
+ * so the centre stays over the feet, and the lean is solved again with them
+ * there. The feet stay where they stand; a difference
  * the lean, the neck and the toes cannot close is left as a miss the verdict
  * reports, and a step in is not drafted yet.
  *
@@ -56,10 +64,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  */
 export namespace kiss {
   /** The action's name. */
-  export const name: HumanActionName = "kiss";
+  export const name: AutoMovieMotionHumanActionName = "kiss";
 
   /** Cancel table. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       touch: ["fromRelax", "smooth"],
@@ -83,56 +91,6 @@ export namespace kiss {
   export const NEAR: number = 0.005;
 
   /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The partner and region as the target union's person case, the turn side as a closed union.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's regions.
-   */
-  export interface IParams {
-    /** The partner. */
-    partner: string;
-
-    /** The partner's region. */
-    region: AutoMovieHumanoidRegion;
-
-    /** Which way the head turns for a cheek or the lips; `right` when absent. */
-    side?: "left" | "right";
-
-    /** Seconds the lips stay; `HOLD` when absent. */
-    hold?: number;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
-
-  /**
-   * A solved kiss: how the body brings the mouth to the point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The four angles the plan raises on its envelope and the distance they leave.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members, all read by the plan or the verdicts.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The miss is a member, so an unreachable target is reported and not hidden.
-   */
-  export interface ISolved {
-    /** The lean forward from the hips, degrees. */
-    pitch: number;
-
-    /** The lean toward the body's right from the hips, degrees. */
-    roll: number;
-
-    /** The neck's and the head's flexion, degrees. */
-    flexion: number;
-
-    /** The heels' raise, degrees. */
-    raise: number;
-
-    /** The mouth's distance to the point, metres. */
-    miss: number;
-  }
-
-  /**
    * The lean, the neck flexion and the heel raise that bring the mouth
    * nearest a point.
    *
@@ -141,10 +99,12 @@ export namespace kiss {
    * @param stance Both feet as they stand.
    * @param twist The head's twist, degrees.
    * @param at The point, world.
+   * @param seated Whether a seat bears the body: no heel is raised then, the lean from the seat being all.
+   * @param behind How far the hips stand back along the heading for balance, metres; none when absent.
    * @returns The angles, degrees, and the miss, metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the unknowns, the grid and the result's units.
-   * @evidence contracts/development/implementation.md#principled-implementation The mouth's distance to the point is minimised one freedom at a time: the forward lean and the neck on a grid, coarse at 5 degrees and refined at 1 degree, then the lean to the side at 1 degree steps, then, only when a miss over `NEAR` remains, the least heel raise that closes it; the lean and the neck are fitted again after each.
+   * @evidence contracts/development/implementation.md#principled-implementation The mouth's distance to the point is minimised one freedom at a time: the forward lean and the neck on a grid, coarse at 5 degrees and refined at 1 degree, then the lean to the side at 1 degree steps, then, only when a miss over `NEAR` remains and a stance bears the body, the least heel raise that closes it; the lean and the neck are fitted again after each.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One miss function, a sagittal grid and two line searches.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The miss is returned, never hidden; the ranges are the lean's, the neck's and the ankle's working ranges (provisional).
    * @evidence contracts/development/implementation.md#efficient-algorithms At most four sagittal grids of 273 forward-kinematics passes and two line searches at plan time.
@@ -152,23 +112,30 @@ export namespace kiss {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function solve(
-    context: Pick<IHumanActionContext, "body">,
-    entry: IHumanPosture,
-    stance: AutoMovieMotionHumanRise.Stance,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    entry: IAutoMovieMotionHumanPosture,
+    stance: IAutoMovieMotionHumanRise.Stance,
     twist: number,
     at: IAutoMovieVector3,
-  ): ISolved {
+    seated: boolean = false,
+    behind: number = 0,
+  ): IAutoMovieMotionHumanKiss.ISolved {
     const body = context.body;
-    const miss = (s: Omit<ISolved, "miss">): number =>
+    const miss = (s: Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">): number =>
       Vector3.length(
         Vector3.subtract(
-          HumanTrunk.region(body, posed(body, entry, stance, s, twist), "mouth")
-            .point,
+          HumanTrunk.region(
+            body,
+            posed(body, entry, stance, s, twist, behind),
+            "mouth",
+          ).point,
           at,
         ),
       );
-    const least = (candidates: Omit<ISolved, "miss">[]): ISolved => {
-      let best: ISolved | null = null;
+    const least = (
+      candidates: Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">[],
+    ): IAutoMovieMotionHumanKiss.ISolved => {
+      let best: IAutoMovieMotionHumanKiss.ISolved | null = null;
       for (const c of candidates) {
         const m: number = miss(c);
         if (best === null || m < best.miss) best = { ...c, miss: m };
@@ -180,8 +147,10 @@ export namespace kiss {
       for (let v: number = from; v <= to; v += step) out.push(v);
       return out;
     };
-    const sagittal = (s: ISolved): ISolved => {
-      const coarse: ISolved = least([
+    const sagittal = (
+      s: IAutoMovieMotionHumanKiss.ISolved,
+    ): IAutoMovieMotionHumanKiss.ISolved => {
+      const coarse: IAutoMovieMotionHumanKiss.ISolved = least([
         s,
         ...span(-10, 45, 5).flatMap((pitch: number) =>
           span(-30, 45, 5).map((flexion: number) => ({ ...s, pitch, flexion })),
@@ -197,7 +166,7 @@ export namespace kiss {
         ),
       ]);
     };
-    let best: ISolved = sagittal({
+    let best: IAutoMovieMotionHumanKiss.ISolved = sagittal({
       pitch: 0,
       roll: 0,
       flexion: 0,
@@ -207,34 +176,48 @@ export namespace kiss {
     best = sagittal(
       least(span(-ROLL, ROLL, 1).map((roll: number) => ({ ...best, roll }))),
     );
-    if (best.miss <= NEAR) return best;
-    const raised: ISolved[] = span(0, RAISE, 1).map(
-      (raise: number): ISolved => {
+    // A seated body has no heels to raise: the lean from the seat is all.
+    if (best.miss <= NEAR || seated) return best;
+    const raised: IAutoMovieMotionHumanKiss.ISolved[] = span(0, RAISE, 1).map(
+      (raise: number): IAutoMovieMotionHumanKiss.ISolved => {
         const c = { ...best, raise };
         return { ...c, miss: miss(c) };
       },
     );
-    const closest: number = Math.min(...raised.map((c: ISolved) => c.miss));
+    const closest: number = Math.min(
+      ...raised.map((c: IAutoMovieMotionHumanKiss.ISolved) => c.miss),
+    );
     return sagittal(
-      raised.find((c: ISolved): boolean => c.miss <= closest + NEAR / 5)!,
+      raised.find(
+        (c: IAutoMovieMotionHumanKiss.ISolved): boolean =>
+          c.miss <= closest + NEAR / 5,
+      )!,
     );
   }
 
-  /** A standing posture risen on its toes, leaned from the hips, the head flexed and turned. */
+  /** A standing posture risen on its toes, its hips moved back along the heading, leaned from the hips, the head flexed and turned. */
   function posed(
-    body: IHumanActionContext["body"],
-    entry: IHumanPosture,
-    stance: AutoMovieMotionHumanRise.Stance,
-    s: Pick<ISolved, "pitch" | "roll" | "flexion" | "raise">,
+    body: IAutoMovieMotionHumanActionContext["body"],
+    entry: IAutoMovieMotionHumanPosture,
+    stance: IAutoMovieMotionHumanRise.Stance,
+    s: Pick<
+      IAutoMovieMotionHumanKiss.ISolved,
+      "pitch" | "roll" | "flexion" | "raise"
+    >,
     twist: number,
-  ): IHumanPosture {
-    const leaned: IHumanPosture = AutoMovieMotionHumanLean.pivot(
+    behind: number,
+  ): IAutoMovieMotionHumanPosture {
+    const yaw: number = (entry.yaw * Math.PI) / 180;
+    const leaned: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
       body,
       {
         ...entry,
         root: Vector3.add(
-          entry.root,
-          AutoMovieMotionHumanRise.lift(body, stance, s.raise),
+          Vector3.add(
+            entry.root,
+            AutoMovieMotionHumanRise.lift(body, stance, s.raise),
+          ),
+          { x: -Math.sin(yaw) * behind, y: 0, z: -Math.cos(yaw) * behind },
         ),
       },
       { pitch: s.pitch, roll: s.roll },
@@ -271,24 +254,24 @@ export namespace kiss {
    * @throws {HumanRefusal} When the hold is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal; the law's doc gives the solve and the timing.
-   * @evidence contracts/development/implementation.md#principled-implementation The lean and the neck solved once against the target at the start, then raised and lowered on the phrase envelope with the head's turn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Target, solve, clock, the body's primitive, the legs' when the heels rise, the head's, composition.
+   * @evidence contracts/development/implementation.md#principled-implementation The lean and the neck solved against the target at the start, standing with the hips moved back by the static balance's shift at the solved lean and solved again there, then raised and lowered on the phrase envelope with the head's turn.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Target, solve, balance, solve, clock, the body's primitive, the legs' when the heels rise, the head's, composition.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The turn and the hold are named provisional constants; an unreachable target leaves a measured miss.
    * @evidence contracts/development/implementation.md#efficient-algorithms One grid solve at plan time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the lean, the rise, the planted legs' lowering, the head share and the joint pulse.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the lean, the rise, the planted legs' lowering, `HumanBalance.shift`, the head share and the joint pulse.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the solved angles, the stance and the clock.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKiss.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanKiss.IParams = context.params;
     const body = context.body;
     const hold: number = p.hold ?? HOLD;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const entry: IHumanPosture = context.entry.posture;
-    const target: AutoMovieMotionTarget = {
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const target: IAutoMovieMotionTarget = {
       kind: "person",
       subject: p.partner,
       region: p.region,
@@ -300,7 +283,7 @@ export namespace kiss {
       p.region.startsWith("jaw");
     const twist: number = turned ? (p.side === "left" ? TURN : -TURN) : 0;
     const at: IAutoMovieVector3 = context.aim(target, context.start).point;
-    const stance: AutoMovieMotionHumanRise.Stance = {
+    const stance: IAutoMovieMotionHumanRise.Stance = {
       left: {
         ankle: context.entry.feet.left.ankle,
         rotation: context.entry.feet.left.rotation,
@@ -310,12 +293,91 @@ export namespace kiss {
         rotation: context.entry.feet.right.rotation,
       },
     };
-    const solved: ISolved = solve(context, entry, stance, twist, at);
+    // Seated, the seat bears the body: the lean pivots about the hips over
+    // it and the legs keep their place, so neither the heels rise nor the
+    // root is lowered onto the feet.
+    const seated: boolean = context.entry.supports.some(
+      (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+        s.kind === "seat",
+    );
+    const forward: IAutoMovieVector3 = {
+      x: Math.sin((entry.yaw * Math.PI) / 180),
+      y: 0,
+      z: Math.cos((entry.yaw * Math.PI) / 180),
+    };
+    // The body at a share of the kiss: risen, leaned from the hips, the hips
+    // moved back by `behind` along the heading, and, standing, lowered onto
+    // the planted legs.
+    const written = (
+      posture: IAutoMovieMotionHumanPosture,
+      s: IAutoMovieMotionHumanKiss.ISolved,
+      k: number,
+      behind: number,
+    ): IAutoMovieMotionHumanPosture => {
+      const leaned: IAutoMovieMotionHumanPosture =
+        AutoMovieMotionHumanLean.pivot(
+          body,
+          {
+            ...posture,
+            root: Vector3.add(
+              Vector3.add(
+                posture.root,
+                AutoMovieMotionHumanRise.lift(body, stance, s.raise * k),
+              ),
+              Vector3.scale(forward, -behind * k),
+            ),
+          },
+          { pitch: s.pitch * k, roll: s.roll * k },
+        );
+      if (seated) return leaned;
+      const goal = (side: "left" | "right") =>
+        AutoMovieMotionHumanLeg.goal(
+          body,
+          leaned,
+          side,
+          AutoMovieMotionHumanRise.foot(body, side, stance[side], s.raise * k),
+          true,
+        );
+      return {
+        ...leaned,
+        root: resolveHumanPosture.lower(body, {
+          ...leaned,
+          limbs: {
+            ...leaned.limbs,
+            leftLeg: goal("left"),
+            rightLeg: goal("right"),
+          },
+        }).root,
+      };
+    };
+    // Standing, the lean carries the centre ahead of the feet, so the hips
+    // move back by the static balance's shift at the solved lean
+    // (`HumanBalance.shift`, as a bow's do), and the lean is solved again
+    // with them there; seated, the seat bears the body.
+    const first: IAutoMovieMotionHumanKiss.ISolved = solve(
+      context,
+      entry,
+      stance,
+      twist,
+      at,
+      seated,
+    );
+    const behind: number = seated
+      ? 0
+      : HumanBalance.shift(
+          body,
+          (back: number): IAutoMovieMotionHumanPosture =>
+            written(entry, first, 1, back),
+        );
+    const solved: IAutoMovieMotionHumanKiss.ISolved =
+      behind === 0
+        ? first
+        : solve(context, entry, stance, twist, at, seated, behind);
     const travel: number = Vector3.length(
       Vector3.subtract(HumanTrunk.region(body, entry, "mouth").point, at),
     );
     const approach: number = AutoMovieMotionHumanTiming.transport(travel);
-    const timed: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: approach,
         attack: 0,
@@ -324,7 +386,7 @@ export namespace kiss {
       }),
       modifiers,
     );
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       timed.duration,
       [
         ...timed.instants,
@@ -344,44 +406,11 @@ export namespace kiss {
           channels: ["root", "trunk"],
           from: 0,
           to: clock.duration,
-          write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-            const k: number = share(seconds);
-            const leaned: IHumanPosture = AutoMovieMotionHumanLean.pivot(
-              body,
-              {
-                ...posture,
-                root: Vector3.add(
-                  posture.root,
-                  AutoMovieMotionHumanRise.lift(body, stance, solved.raise * k),
-                ),
-              },
-              { pitch: solved.pitch * k, roll: solved.roll * k },
-            );
-            const goal = (side: "left" | "right") =>
-              AutoMovieMotionHumanLeg.goal(
-                body,
-                leaned,
-                side,
-                AutoMovieMotionHumanRise.foot(
-                  body,
-                  side,
-                  stance[side],
-                  solved.raise * k,
-                ),
-                true,
-              );
-            return {
-              ...leaned,
-              root: resolveHumanPosture.lower(body, {
-                ...leaned,
-                limbs: {
-                  ...leaned.limbs,
-                  leftLeg: goal("left"),
-                  rightLeg: goal("right"),
-                },
-              }).root,
-            };
-          },
+          write: (
+            posture: IAutoMovieMotionHumanPosture,
+            seconds: number,
+          ): IAutoMovieMotionHumanPosture =>
+            written(posture, solved, share(seconds), behind),
         },
         ...(solved.raise > 0
           ? AutoMovieMotionHumanRise.legs({

@@ -1,4 +1,13 @@
-import { AutoMovieHumanConicLoft as H, AutoMovieHumanConicSection as S, AutoMovieHumanCourseRuns as Runs, AutoMovieHumanKnotRule as Rule } from "@automovie/human";
+import {
+  AutoMovieHumanConicLoft as H,
+  AutoMovieHumanConicSection as S,
+  AutoMovieHumanCourseRuns as Runs,
+  AutoMovieHumanKnotRule as Rule,
+} from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicSection,
+} from "@automovie/interface";
 
 /**
  * A family's station knots at its landmarks, for the fit tool: its run ends, its measurement sites and the extrema of its wall's own
@@ -52,7 +61,7 @@ export namespace FamilyConicLandmarkKnots {
   const SHARE: number = 0.5;
 
   /** A family's knots at its landmarks, in station order. */
-  export function knots(family: H.IFamily, options: IOptions): IKnot[] {
+  export function knots(family: IAutoMovieHumanConicLoft.IFamily, options: IOptions): IKnot[] {
     const read: (s: number) => number[] = H.reader(family);
     const first: number = family.knots[0]!;
     const last: number = Math.min(family.tips?.[1]?.from ?? Infinity, family.knots.at(-1)!, options.to ?? Infinity);
@@ -61,7 +70,7 @@ export namespace FamilyConicLandmarkKnots {
 
     // Each extreme's own coordinate: a `u` anchor's `u`, a `v` anchor's `v`.
     const { at }: { at: number[] } = S.offsets(family.layout);
-    const fields: number[] = family.layout.anchors.flatMap((anchor: S.IAnchor, k: number): number[] => (anchor.kind === "u" ? [at[k]!] : anchor.kind === "v" ? [at[k]! + 1] : []));
+    const fields: number[] = family.layout.anchors.flatMap((anchor: IAutoMovieHumanConicSection.IAnchor, k: number): number[] => (anchor.kind === "u" ? [at[k]!] : anchor.kind === "v" ? [at[k]! + 1] : []));
     const found: Rule.IKnot[] = Rule.knots({
       runs,
       sites: options.sites.filter((s: number): boolean => s >= first && s <= last),

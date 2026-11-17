@@ -1,14 +1,14 @@
 import {
-  type AutoMovieConstructionRealization,
-  type IAutoMovieConstructionCurve,
-  type IAutoMovieLoftChain,
-  type IAutoMovieSolidSurface,
   realizeAutoMovieConstruction,
   sampleAutoMovieConstructionCurves,
 } from "@automovie/engine";
 import type {
+  IAutoMovieConstructionCurve,
   IAutoMovieConstructionDiagnostic,
+  IAutoMovieConstructionRealization,
   IAutoMovieConstructionView,
+  IAutoMovieLoftChain,
+  IAutoMovieSolidSurface,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -19,7 +19,7 @@ import { nclose, throwsError } from "../../internal/predicates";
 
 /** What a sampling reads of a realization. */
 type Source = Pick<
-  AutoMovieConstructionRealization.IRealization,
+  IAutoMovieConstructionRealization.IRealization,
   "chains" | "surfaces" | "diagnostics"
 >;
 
@@ -53,7 +53,7 @@ export function test_sample_construction_curves(): void {
   );
 
   /** Its realization by the public realizer. */
-  const realized: AutoMovieConstructionRealization.IRealization =
+  const realized: IAutoMovieConstructionRealization.IRealization =
     realizeAutoMovieConstruction({ name: "tube", root: view }, { chord: 1e-4 });
 
   /** The default sampling of the realized tube. */

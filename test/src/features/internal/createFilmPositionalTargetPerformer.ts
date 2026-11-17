@@ -1,15 +1,12 @@
-import {
-  type IAutoMoviePerformedShot,
-  type IAutoMovieStagedSet,
-  performShot,
-  stageScene,
-} from "@automovie/engine";
+import { performShot, stageScene } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
+  IAutoMoviePerformedShot,
   IAutoMovieScript,
   IAutoMovieSkeleton,
   IAutoMovieStage,
   IAutoMovieStageActor,
+  IAutoMovieStagedSet,
   IAutoMovieVector3,
 } from "@automovie/interface";
 

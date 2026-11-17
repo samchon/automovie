@@ -1,15 +1,3 @@
-import {
-  AutoMovieConstructionPortCurve,
-  AutoMovieLoftRelief,
-  AutoMovieLoftViewFullSource,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  type AutoMovieViewAxis,
-  AutoMovieViewChain,
-  type IAutoMovieLoftRelief,
-} from "@automovie/engine";
-import type { IAutoMovieConstructionPort } from "@automovie/interface";
-
 import { AutoMovieHumanConicLoft as H } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection as S } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanCourseRuns as Runs } from "../conic/AutoMovieHumanCourseRuns";
@@ -24,6 +12,25 @@ import { AutoMovieHumanF1Placing as T } from "./AutoMovieHumanF1Placing";
 import { AutoMovieHumanF1RootControls } from "./AutoMovieHumanF1RootControls";
 import { AutoMovieHumanF1ToeBig } from "./AutoMovieHumanF1ToeBig";
 import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
+import {
+  AutoMovieConstructionPortCurve,
+  AutoMovieLoftRelief,
+  AutoMovieLoftViewFullSource,
+  AutoMovieLoftViewRead,
+  AutoMovieLoftViewSource,
+  AutoMovieViewChain,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionPortLoop,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicSection,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieLoftRelief,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieViewAxis,
+  IAutoMovieViewChain,
+} from "@automovie/interface";
 
 /**
  * The one owner of the native path's measurement sites: where each tissue field is read on its family's course, by the site's published
@@ -127,19 +134,19 @@ export namespace AutoMovieHumanF1NativeSites {
   /** What a site reads: the person's frames, datums, families and the mammary port loops, as one assembly holds them. */
   export interface IInput {
     /** Every segment's frame at the pose, in the figure's frame. */
-    frames: ReadonlyMap<string, F.IFrame>;
+    frames: ReadonlyMap<string, IAutoMovieHumanSegmentFrame>;
 
     /** A stored datum in the figure's frame, mm. */
-    point: (name: string) => F.V3;
+    point: (name: string) => AutoMovieVector3Tuple;
 
     /** The families whose courses hold sites. */
-    body: Record<"trunk" | "arm" | "hand" | "leg" | "breast", H.IFamily>;
+    body: Record<"trunk" | "arm" | "hand" | "leg" | "breast", IAutoMovieHumanConicLoft.IFamily>;
 
     /** The breast's port loops on the trunk's chart (`AutoMovieHumanF1RootControls.breast`); the first is the stored side's. */
-    roots: { breast: readonly IAutoMovieConstructionPort.ILoop[] };
+    roots: { breast: readonly IAutoMovieConstructionPortLoop[] };
 
     /** The representative finger's and toe's families, the digits whose calipers stand for their hand's and foot's digits. */
-    digits: Record<"finger" | "toe", H.IFamily>;
+    digits: Record<"finger" | "toe", IAutoMovieHumanConicLoft.IFamily>;
   }
 
   /** Angular samples of a section's girth: the limb law's 360, under 0.1 % short of the curve for a 100 mm limb. */
@@ -205,12 +212,12 @@ export namespace AutoMovieHumanF1NativeSites {
    */
   export function runs(input: IInput): ISites["runs"] {
     const { trunk, arm, hand, leg } = input.body;
-    const trunkAxis: AutoMovieViewAxis.IAxis = H.axis(trunk);
+    const trunkAxis: IAutoMovieViewAxis.IAxis = H.axis(trunk);
     const trunkLength: number = Runs.length(trunk.centres);
-    const foot0: F.V3 = [...trunkAxis.at(0).origin] as F.V3;
-    const tangent: F.V3 = F.unit(F.sub([...trunkAxis.at(trunkLength).origin] as F.V3, foot0));
+    const foot0: AutoMovieVector3Tuple = [...trunkAxis.at(0).origin] as AutoMovieVector3Tuple;
+    const tangent: AutoMovieVector3Tuple = F.unit(F.sub([...trunkAxis.at(trunkLength).origin] as AutoMovieVector3Tuple, foot0));
     const origin = (name: string): number => {
-      const found: F.IFrame | undefined = input.frames.get(name);
+      const found: IAutoMovieHumanSegmentFrame | undefined = input.frames.get(name);
       if (found === undefined) throw new Error("native sites need the segment frame " + name);
       return F.dot(F.sub(found.origin, foot0), tangent);
     };
@@ -241,7 +248,7 @@ export namespace AutoMovieHumanF1NativeSites {
     const read: (s: number) => number[] = H.reader(trunk);
     const reach = (s: number): number => {
       if (!(s >= trunk.knots[0]! && s <= trunk.knots.at(-1)!)) return 0;
-      const chain: S.IChain = S.resolve(read(s), trunk.layout);
+      const chain: IAutoMovieHumanConicSection.IChain = S.resolve(read(s), trunk.layout);
       return chain.guides.reduce((sum: number, k: number): number => sum + Math.hypot(chain.input.points[k]![0], chain.input.points[k]![1]), 0) / chain.guides.length;
     };
     return {
@@ -285,21 +292,21 @@ export namespace AutoMovieHumanF1NativeSites {
    */
   export function evaluate(input: IInput): ISites {
     const { trunk, arm, hand, leg, breast } = input.body;
-    const point = (name: string): F.V3 => input.point(name);
+    const point = (name: string): AutoMovieVector3Tuple => input.point(name);
 
     // The trunk course is straight: a point's station is its projection on the course from its first centre.
-    const trunkAxis: AutoMovieViewAxis.IAxis = H.axis(trunk);
+    const trunkAxis: IAutoMovieViewAxis.IAxis = H.axis(trunk);
     const trunkLength: number = Runs.length(trunk.centres);
-    const foot0: F.V3 = [...trunkAxis.at(0).origin] as F.V3;
-    const tangent: F.V3 = F.unit(F.sub([...trunkAxis.at(trunkLength).origin] as F.V3, foot0));
-    const trunkStation = (p: F.V3): number => F.dot(F.sub(p, foot0), tangent);
+    const foot0: AutoMovieVector3Tuple = [...trunkAxis.at(0).origin] as AutoMovieVector3Tuple;
+    const tangent: AutoMovieVector3Tuple = F.unit(F.sub([...trunkAxis.at(trunkLength).origin] as AutoMovieVector3Tuple, foot0));
+    const trunkStation = (p: AutoMovieVector3Tuple): number => F.dot(F.sub(p, foot0), tangent);
     const courses: ISites["runs"] = runs(input);
     const trunkRuns: number[] = courses.trunk;
     const armRuns: number[] = courses.arm;
     const legRuns: number[] = courses.leg;
-    const armAxis: AutoMovieViewAxis.IAxis = H.axis(arm);
-    const handAxis: AutoMovieViewAxis.IAxis = H.axis(hand);
-    const legAxis: AutoMovieViewAxis.IAxis = H.axis(leg);
+    const armAxis: IAutoMovieViewAxis.IAxis = H.axis(arm);
+    const handAxis: IAutoMovieViewAxis.IAxis = H.axis(hand);
+    const legAxis: IAutoMovieViewAxis.IAxis = H.axis(leg);
     const site = (family: ISite["family"], station: number, definition: string, basis: ISite["basis"]): ISite => {
       const ends: number[] = courses[family];
       const names: readonly string[] = ENDS[family];
@@ -334,7 +341,7 @@ export namespace AutoMovieHumanF1NativeSites {
     );
 
     // ISO 8559-1 5.3.8 under bust level, "directly below breast": the lowest trunk station of the stored side's mammary landmark loop.
-    const loop: IAutoMovieConstructionPort.ILoop | undefined = input.roots.breast[0];
+    const loop: IAutoMovieConstructionPortLoop | undefined = input.roots.breast[0];
     if (loop?.shape === undefined) throw new Error("native sites need the mammary loop's column controls");
     const underbust: number = Math.min(
       ...AutoMovieConstructionPortCurve.chart(loop, loop.shape.length).addresses.map(([s]: [number, number]): number => s),
@@ -342,8 +349,8 @@ export namespace AutoMovieHumanF1NativeSites {
 
     // ISO 8559-1 5.3.4 bust point level, the bust's most anterior point (on the bare breast, not in a bra): the breast source's
     // farthest-forward point over 65 stations by 128 phases, on the trunk course.
-    const breastReader: AutoMovieLoftViewFullSource.IReader = AutoMovieLoftViewFullSource.create(H.source(breast));
-    let apex: F.V3 | null = null;
+    const breastReader: IAutoMovieLoftViewFullSource.IReader = AutoMovieLoftViewFullSource.create(H.source(breast));
+    let apex: AutoMovieVector3Tuple | null = null;
     for (let i: number = 0; i <= 64; ++i) {
       const s: number = breastReader.domain[0] + ((breastReader.domain[1] - breastReader.domain[0]) * i) / 64;
       for (let k: number = 0; k < 128; ++k) {
@@ -354,10 +361,10 @@ export namespace AutoMovieHumanF1NativeSites {
     const bust: number = trunkStation(apex!);
 
     // The limbs: ANSUR II and ISO 8559-1 girth sites by their landmarks (the limb law's `sites`).
-    const girth = (family: H.IFamily): ((s: number) => number) => {
+    const girth = (family: IAutoMovieHumanConicLoft.IFamily): ((s: number) => number) => {
       const read: (s: number) => number[] = H.reader(family);
       return (s: number): number => {
-        const section: AutoMovieViewChain.ISection = S.chain(read(s), family.layout);
+        const section: IAutoMovieViewChain.ISection = S.chain(read(s), family.layout);
         if (section.fault !== null) return NaN;
         let total: number = 0;
         let previous: [number, number] | null = null;
@@ -386,7 +393,7 @@ export namespace AutoMovieHumanF1NativeSites {
     // phalanx), so the site is the station of the digit's course at its second centre, the first joint along it past its root. A digit's
     // first knot, where the caliper stood before, is where its fitted skin begins: no joint, and inside the palm's or the foot's envelope
     // once a digit's family starts at its root joint.
-    const digit = (family: H.IFamily, what: string): IDigitSite => ({
+    const digit = (family: IAutoMovieHumanConicLoft.IFamily, what: string): IDigitSite => ({
       family: family.name,
       station: Runs.joints(family.centres, family.halves)[1]!,
       definition: what,
@@ -461,7 +468,7 @@ export namespace AutoMovieHumanF1NativeSites {
   /** f1 as stored, at the reference pose: the families of `AutoMovieHumanF1.BODY`, the placing table and the stored mammary loops. */
   export const F1: IInput = {
     frames: AutoMovieHumanF1Placement.REFERENCE,
-    point: (name: string): F.V3 => AutoMovieHumanF1Placement.point(name),
+    point: (name: string): AutoMovieVector3Tuple => AutoMovieHumanF1Placement.point(name),
     body: {
       trunk: AutoMovieHumanF1Trunk,
       arm: AutoMovieHumanF1Arm,

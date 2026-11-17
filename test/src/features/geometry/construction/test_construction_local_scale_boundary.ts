@@ -1,3 +1,4 @@
+import type { IAutoMovieConstructionLocalScaleMinorant } from "@automovie/interface";
 import { AutoMovieConstructionLocalScaleMinorant as Minorant } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -24,26 +25,26 @@ export function test_construction_local_scale_boundary(): void {
   type Call = { index: number; factor: number; forward: boolean };
 
   /** A completed scalar invocation, including any collected unexpected throw. */
-  type Run = { result: Minorant.Result | undefined; calls: Call[] };
+  type Run = { result: IAutoMovieConstructionLocalScaleMinorant.Result | undefined; calls: Call[] };
 
   /** Exercise the scalar contract and collect input mutation on every path. */
   const run: (
     label: string,
     values: readonly number[],
-    caps: readonly Minorant.ICap[],
-    certificate?: Minorant.Certify,
+    caps: readonly IAutoMovieConstructionLocalScaleMinorant.ICap[],
+    certificate?: IAutoMovieConstructionLocalScaleMinorant.Certify,
   ) => Run = (
     label: string,
     values: readonly number[],
-    caps: readonly Minorant.ICap[],
-    certificate: Minorant.Certify = (): string | null => null,
+    caps: readonly IAutoMovieConstructionLocalScaleMinorant.ICap[],
+    certificate: IAutoMovieConstructionLocalScaleMinorant.Certify = (): string | null => null,
   ): Run => {
     const beforeValues: number[] = [...values];
-    const beforeCaps: Minorant.ICap[] = caps.map(
-      (cap: Minorant.ICap): Minorant.ICap => ({ ...cap }),
+    const beforeCaps: IAutoMovieConstructionLocalScaleMinorant.ICap[] = caps.map(
+      (cap: IAutoMovieConstructionLocalScaleMinorant.ICap): IAutoMovieConstructionLocalScaleMinorant.ICap => ({ ...cap }),
     );
     const calls: Call[] = [];
-    let result: Minorant.Result | undefined = undefined;
+    let result: IAutoMovieConstructionLocalScaleMinorant.Result | undefined = undefined;
     try {
       result = Minorant.create(
         values,
@@ -66,7 +67,7 @@ export function test_construction_local_scale_boundary(): void {
     if (
       caps.length !== beforeCaps.length ||
       !caps.every(
-        (cap: Minorant.ICap, index: number): boolean =>
+        (cap: IAutoMovieConstructionLocalScaleMinorant.ICap, index: number): boolean =>
           Object.is(cap.index, beforeCaps[index]!.index) &&
           Object.is(cap.factor, beforeCaps[index]!.factor) &&
           Object.is(cap.logarithm, beforeCaps[index]!.logarithm),
@@ -80,14 +81,14 @@ export function test_construction_local_scale_boundary(): void {
   const refused: (
     label: string,
     actual: Run,
-    stage: Extract<Minorant.Result, { kind: "refused" }>["stage"],
+    stage: Extract<IAutoMovieConstructionLocalScaleMinorant.Result, { kind: "refused" }>["stage"],
     index: number | null,
     calls: number,
     reason?: string,
   ) => void = (
     label: string,
     actual: Run,
-    stage: Extract<Minorant.Result, { kind: "refused" }>["stage"],
+    stage: Extract<IAutoMovieConstructionLocalScaleMinorant.Result, { kind: "refused" }>["stage"],
     index: number | null,
     calls: number,
     reason?: string,

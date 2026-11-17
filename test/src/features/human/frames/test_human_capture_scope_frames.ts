@@ -1,11 +1,22 @@
-import type { IAutoMovieViewPart as Part } from "@automovie/engine";
-
-import { FamilyConicCaptureFraming as Framing } from "../../../reference-conics/FamilyConicCaptureFraming";
-import { FamilyConicOriginalCatalog as Original } from "../../../reference-conics/FamilyConicOriginalCatalog";
-import { FamilyConicSourceCapture as Source } from "../../../reference-conics/FamilyConicSourceCapture";
-import { NodeCanvasCamera as Camera } from "../../../reference-conics/render/NodeCanvasCamera";
-import { NodeCanvasRaster as Raster } from "../../../reference-conics/render/NodeCanvasRaster";
-import type { NodeCanvasTypes as N } from "../../../reference-conics/render/NodeCanvasTypes";
+import {
+  FamilyConicCaptureFraming as Framing,
+} from "../../../reference-conics/FamilyConicCaptureFraming";
+import {
+  FamilyConicOriginalCatalog as Original,
+} from "../../../reference-conics/FamilyConicOriginalCatalog";
+import {
+  FamilyConicSourceCapture as Source,
+} from "../../../reference-conics/FamilyConicSourceCapture";
+import {
+  NodeCanvasCamera as Camera,
+} from "../../../reference-conics/render/NodeCanvasCamera";
+import {
+  NodeCanvasRaster as Raster,
+} from "../../../reference-conics/render/NodeCanvasRaster";
+import type {
+  NodeCanvasTypes as N,
+} from "../../../reference-conics/render/NodeCanvasTypes";
+import type { IAutoMovieViewPart as Part } from "@automovie/interface";
 
 /**
  * Source availability, fixed connection framing and case attribution remain independent.

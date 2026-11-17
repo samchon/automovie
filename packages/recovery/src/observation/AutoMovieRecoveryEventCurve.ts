@@ -1,24 +1,27 @@
 import {
   AutoMovieBernstein64 as B,
-  type IAutoMovieCurve64 as C,
   AutoMovieCurveMath64 as V,
 } from "@automovie/engine";
+import type {
+  AutoMovieCubicBezierControls3,
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryEventCurveArc,
+  IAutoMovieRecoveryEventCurveCoefficients,
+  IAutoMovieRecoveryEventCurvePiece,
+  IAutoMovieRecoveryEventCurveSource,
+} from "@automovie/interface";
 
 import { readRecoveryEventCurveControls } from "../internal/readRecoveryEventCurveControls";
 import { readRecoveryEventCurveParent } from "../internal/readRecoveryEventCurveParent";
-import type { IAutoMovieRecoveryEventCurveArc } from "../structures/curve/IAutoMovieRecoveryEventCurveArc";
-import type { IAutoMovieRecoveryEventCurveCoefficients } from "../structures/curve/IAutoMovieRecoveryEventCurveCoefficients";
-import type { IAutoMovieRecoveryEventCurvePiece } from "../structures/curve/IAutoMovieRecoveryEventCurvePiece";
-import type { IAutoMovieRecoveryEventCurveSource } from "../structures/curve/IAutoMovieRecoveryEventCurveSource";
 
 /**
  * Named cubic occurrences retain native coefficient owners and oriented parameter intervals.
  * Millimetre coefficients remain independent of source topology and material correspondence.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes parent endpoint identity, occurrence direction, canonical phase and physical millimetres.
- * @evidence contracts/development/design.md#principled-representation Represents Named cubic occurrences retain native coefficient owners and oriented parameter intervals: companion namespace of 13 members (`controls`, `fullparentControls`, `same`, `fromCurve`, `knots`, `endpointAuthority`, ...); units and frames named in its text: degree, local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieRecoveryEventCurve` in packages/recovery/src/observation/AutoMovieRecoveryEventCurve.ts; its surface is the 13 members listed and the text shows 9 other files naming it, mostly packages/recovery (5), test (4), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * @evidence contracts/development/design.md#principled-representation A named cubic occurrence retains its native coefficient owner, physical millimetre chart and directed source-parameter interval.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Occurrence arithmetic uses the common event-curve records and existing engine polynomial operations; no second coefficient representation is published.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Endpoint authority and coefficient equality do not imply source topology, material correspondence or transverse surface continuity.
  */
 export namespace AutoMovieRecoveryEventCurve {
   /**
@@ -35,7 +38,7 @@ export namespace AutoMovieRecoveryEventCurve {
   export function controls(
     piece: IAutoMovieRecoveryEventCurvePiece,
     nativeEndpoints: boolean = false,
-  ): C.Span {
+  ): AutoMovieCubicBezierControls3 {
     return readRecoveryEventCurveControls(piece, nativeEndpoints);
   }
 
@@ -52,7 +55,7 @@ export namespace AutoMovieRecoveryEventCurve {
    */
   export function fullparentControls(
     source: IAutoMovieRecoveryEventCurveSource,
-  ): C.Span {
+  ): AutoMovieCubicBezierControls3 {
     return readRecoveryEventCurveParent(source);
   }
 
@@ -67,9 +70,12 @@ export namespace AutoMovieRecoveryEventCurve {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No comparison result is cached.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No storage is allocated.
    */
-  export const same: (a: C.Vector, b: C.Vector) => boolean = (
-    a: C.Vector,
-    b: C.Vector,
+  export const same: (
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+  ) => boolean = (
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
   ): boolean => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
 
   /**
@@ -97,7 +103,7 @@ export namespace AutoMovieRecoveryEventCurve {
       );
     for (const span of curve.spans)
       if (
-        span.some((point: C.Vector): boolean =>
+        span.some((point: Readonly<AutoMovieVector3Tuple>): boolean =>
           point.some((x: number): boolean => !Number.isFinite(x)),
         )
       )
@@ -113,7 +119,10 @@ export namespace AutoMovieRecoveryEventCurve {
       id: authority,
       closed: curve.closed,
       pieces: curve.spans.map(
-        (net: C.Span, i: number): IAutoMovieRecoveryEventCurvePiece => ({
+        (
+          net: AutoMovieCubicBezierControls3,
+          i: number,
+        ): IAutoMovieRecoveryEventCurvePiece => ({
           width: curve.phaseIntervals[i]!,
           source: {
             authority: `${authority}.span${i}`,
@@ -361,7 +370,7 @@ export namespace AutoMovieRecoveryEventCurve {
   export function evaluate(
     arc: IAutoMovieRecoveryEventCurveArc,
     t: number,
-  ): C.Vector {
+  ): Readonly<AutoMovieVector3Tuple> {
     const q: number[] = knots(arc);
     const index: number = q.findIndex(
       (u: number, i: number): boolean =>
@@ -375,7 +384,11 @@ export namespace AutoMovieRecoveryEventCurve {
           ? 1
           : (t - q[index]!) / (q[index + 1]! - q[index]!);
     return B.value(
-      controls(arc.pieces[index]!).map((point: C.Vector): B.Vec => [...point]),
+      controls(arc.pieces[index]!).map(
+        (point: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [
+          ...point,
+        ],
+      ),
       local,
     );
   }
@@ -431,15 +444,15 @@ export namespace AutoMovieRecoveryEventCurve {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned one-piece arc owns its handles and retains no global state.
    */
   export function line(
-    a: C.Vector,
-    b: C.Vector,
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
     id: string,
   ): IAutoMovieRecoveryEventCurveArc {
     const width: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
     if (!(width > 0 && Number.isFinite(width)))
       throw new Error("A named line needs positive representable length");
-    const ma: V.V = V.clone(a),
-      mb: V.V = V.clone(b);
+    const ma: AutoMovieVector3Tuple = V.clone(a),
+      mb: AutoMovieVector3Tuple = V.clone(b);
     return fromCurve({
       type: "cubicBezier",
       name: id,

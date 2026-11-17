@@ -1,15 +1,20 @@
-import type { IAutoMovieConstructionPort } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionPortCurve,
+  IAutoMovieConstructionPortField,
+  IAutoMovieConstructionPortLoop,
+  IAutoMovieConstructionSplitBand,
+} from "@automovie/interface";
 
-import type { AutoMovieConstructionSplitBand } from "./AutoMovieConstructionSplitBand";
 import { AutoMovieConstructionPortField as Field } from "./AutoMovieConstructionPortField";
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieConstructionPortAddress } from "./AutoMovieConstructionPortAddress";
 
 /** Physical point/vector, mm. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 /** Existing rail-side definition; no new source or surface ownership. */
-type ISide = AutoMovieConstructionSplitBand.ISide;
+type ISide = IAutoMovieConstructionSplitBand.ISide;
 const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
 
 /**
@@ -33,7 +38,7 @@ export namespace AutoMovieConstructionPortCurve {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Both returned arrays belong to the caller; no surface, cache or process is retained.
    */
   export function chart(
-    loop: IAutoMovieConstructionPort.ILoop,
+    loop: IAutoMovieConstructionPortLoop,
     count: number,
   ): { addresses: [number, number][]; inward: [number, number][] } {
     const turn: number = 2 * Math.PI;
@@ -58,85 +63,6 @@ export namespace AutoMovieConstructionPortCurve {
   }
 
   /**
-   * A port curve as one continuous owner of the shared boundary: its chart point at every clock with two derivatives, the band's inward
-   * chart direction with two derivatives, the clock of a chart point's radial foot and the inside test, besides the columns' own
-   * addresses and directions (`chart`).
-   *
-   * @evidence contracts/development/design.md#principled-representation The port curve is the polar curve `centre + r(c) (a cos c, sense b sin c)` in the host chart with `r` the periodic cubic through the loop's shares, so the host's trim, the band's start edge and the crossing between them read one curve.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The readers every consumer of the boundary needs.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No second interpolation of the boundary exists: the columns are this curve's samples.
-   * @evidence contracts/development/common.md#meaningful-documentation States each reader's chart and units.
-   */
-  export interface ICurve {
-    /** The columns' chart points, mm and radians: `AutoMovieConstructionPortAddress` at each clock with its share. */
-    addresses: [number, number][];
-
-    /** The columns' inward chart directions, the ellipse's at each clock. */
-    inward: [number, number][];
-
-    /** Station bounds of the whole curve, mm. */
-    reach: [number, number];
-
-    /** The ellipse's station semi-axis, mm: the largest station component of the inward direction. */
-    semi: number;
-
-    /** The share field `r`. */
-    share: Field.IField;
-
-    /**
-     * The curve's chart point at a clock with its first and second clock derivatives.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the three results and their units.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `curve` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    at: (psi: number) => { point: [number, number]; first: [number, number]; second: [number, number] };
-
-    /**
-     * The band's inward chart direction at a clock, `(-a cos c, -sense b sin c)`, with its first and second clock derivatives.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the direction and its derivatives.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `curve` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    direction: (psi: number) => { d: [number, number]; first: [number, number]; second: [number, number] };
-
-    /**
-     * The clock of a chart point's foot on the curve along the ray from the centre, in `[0, 2 pi)`: the correspondence across the seam.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the foot and the range.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `curve` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    clock: (u: number, v: number) => number;
-
-    /**
-     * Whether a chart point lies strictly inside the curve, on the side the host removes.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the strict inequality.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `curve` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    inside: (u: number, v: number) => boolean;
-  }
-
-  /**
    * The port curve between its columns as well as at them: in the normalized chart `X = (u - y0) / a`, `Y = (v - p0) / (sense b)` it
    * is the polar curve `r(c) (cos c, sin c)`, `r` the periodic cubic through the loop's shares (`AutoMovieConstructionPortField.periodic`),
    * or 1 for the plain ellipse.
@@ -157,12 +83,12 @@ export namespace AutoMovieConstructionPortCurve {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the share field and the column arrays.
    */
   export function curve(
-    loop: IAutoMovieConstructionPort.ILoop,
+    loop: IAutoMovieConstructionPortLoop,
     count: number,
     period: number | undefined,
-  ): ICurve | string {
+  ): IAutoMovieConstructionPortCurve.ICurve | string {
     const columns: { addresses: [number, number][]; inward: [number, number][] } = chart(loop, count);
-    const share: Field.IField = loop.shape === undefined ? Field.constant(1) : Field.periodic(loop.shape);
+    const share: IAutoMovieConstructionPortField.IField = loop.shape === undefined ? Field.constant(1) : Field.periodic(loop.shape);
     if (!(share.bounds[0] > 0))
       return "the port curve's share between columns is not positive everywhere";
     const y0: number = loop.centre[0] * 1000;
@@ -463,4 +389,3 @@ export namespace AutoMovieConstructionPortCurve {
     return out;
   }
 }
-

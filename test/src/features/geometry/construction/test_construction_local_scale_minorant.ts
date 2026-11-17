@@ -1,7 +1,11 @@
+import type {
+  IAutoMovieBlendColumn,
+  IAutoMovieConstructionSplitBand,
+  IAutoMovieConstructionSplitBandTrace,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import {
   AutoMovieConstructionSplitBand as Band,
-  type AutoMovieConstructionSplitBandTrace as BandTrace,
-  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -79,7 +83,7 @@ export function test_construction_local_scale_minorant(): void {
     const name: string = curved
       ? "analytic-minorant-192"
       : "analytic-minorant-normal-192";
-    const events: BandTrace.Event[] = [];
+    const events: IAutoMovieConstructionSplitBandTrace.Event[] = [];
 
     // T(theta)=[sin(N*theta/2)/(N*sin(theta/2))]^2 is a finite
     // trigonometric polynomial, with T(0)=1 and exact cardinal zeros.
@@ -87,15 +91,15 @@ export function test_construction_local_scale_minorant(): void {
     // is regular on |s|<=1/16: G_s.y>=1-exp(eta)/4>0.
     // At s=0 these are its jets composed with normalized cross speed L.
     /** Exact cardinal host jets; L is the actual normalized cross length. */
-    const near: (k: number, length: number) => Band.IColumn["start"] = (
+    const near: (k: number, length: number) => IAutoMovieBlendColumn["start"] = (
       k: number,
       length: number,
-    ): Band.IColumn["start"] => ({
+    ): IAutoMovieBlendColumn["start"] => ({
       point: loop[k]!,
       first: [0, length, 0],
       second: [0, curved && k === 0 ? -bend * length * length : 0, 0],
     });
-    let result: Band.IStrip | string = "strip did not return";
+    let result: IAutoMovieConstructionSplitBand.IStrip | string = "strip did not return";
     try {
       result = Band.strip(
         name,
@@ -107,7 +111,7 @@ export function test_construction_local_scale_minorant(): void {
         "angle",
         "column",
         [],
-        (event: BandTrace.Event): void => {
+        (event: IAutoMovieConstructionSplitBandTrace.Event): void => {
           if (event.kind === "minorant" && event.result.kind === "accepted") {
             events.push({
               kind: "minorant",
@@ -125,35 +129,35 @@ export function test_construction_local_scale_minorant(): void {
     } catch (error) {
       failures.push(name + ": threw " + String(error));
     }
-    const prepared: Extract<BandTrace.Event, { kind: "prepared" }> | undefined =
+    const prepared: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "prepared" }> | undefined =
       events.find(
         (
-          event: BandTrace.Event,
-        ): event is Extract<BandTrace.Event, { kind: "prepared" }> =>
+          event: IAutoMovieConstructionSplitBandTrace.Event,
+        ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "prepared" }> =>
           event.kind === "prepared",
       );
-    const passes: Extract<BandTrace.Event, { kind: "local-pass" }>[] =
+    const passes: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }>[] =
       events.filter(
         (
-          event: BandTrace.Event,
-        ): event is Extract<BandTrace.Event, { kind: "local-pass" }> =>
+          event: IAutoMovieConstructionSplitBandTrace.Event,
+        ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> =>
           event.kind === "local-pass",
       );
-    const adjustments: BandTrace.IAdjustment[] = passes.flatMap(
+    const adjustments: IAutoMovieConstructionSplitBandTrace.IAdjustment[] = passes.flatMap(
       (
-        pass: Extract<BandTrace.Event, { kind: "local-pass" }>,
-      ): BandTrace.IAdjustment[] => pass.adjustments,
+        pass: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }>,
+      ): IAutoMovieConstructionSplitBandTrace.IAdjustment[] => pass.adjustments,
     );
-    const certificates: Extract<BandTrace.Event, { kind: "minorant" }>[] =
+    const certificates: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "minorant" }>[] =
       events.filter(
         (
-          event: BandTrace.Event,
-        ): event is Extract<BandTrace.Event, { kind: "minorant" }> =>
+          event: IAutoMovieConstructionSplitBandTrace.Event,
+        ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "minorant" }> =>
           event.kind === "minorant",
       );
-    const last: Extract<BandTrace.Event, { kind: "local-pass" }> | undefined =
+    const last: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> | undefined =
       passes.at(-1);
-    const lastOwn: BandTrace.Target | undefined = last?.own[0];
+    const lastOwn: IAutoMovieConstructionSplitBandTrace.Target | undefined = last?.own[0];
     const excess: number | null =
       last !== undefined && lastOwn?.kind === "finite"
         ? last.smooth[0]! - lastOwn.value
@@ -167,7 +171,7 @@ export function test_construction_local_scale_minorant(): void {
         backward: prepared?.backward ?? null,
         adjustments: adjustments.length,
         aboveOwnOnly: adjustments.every(
-          (value: BandTrace.IAdjustment): boolean =>
+          (value: IAutoMovieConstructionSplitBandTrace.IAdjustment): boolean =>
             value.reason === "above-own" && value.column === 0,
         ),
         lastLogExcess: excess,
@@ -195,7 +199,7 @@ export function test_construction_local_scale_minorant(): void {
         name + ": common admission differs from independent control bound",
       );
     for (let k: number = 0; k < prepared.columns.length; ++k) {
-      const column: Band.IColumn = prepared.columns[k]!;
+      const column: IAutoMovieBlendColumn = prepared.columns[k]!;
       const chordLength: number = Math.hypot(
         ...column.end.point.map(
           (value: number, axis: number): number =>
@@ -237,7 +241,7 @@ export function test_construction_local_scale_minorant(): void {
         certificates.length !== 1 ||
         certificates[0]!.result.kind !== "accepted" ||
         events.some(
-          (event: BandTrace.Event): boolean => event.kind === "refusal",
+          (event: IAutoMovieConstructionSplitBandTrace.Event): boolean => event.kind === "refusal",
         )
       )
         failures.push(
@@ -245,7 +249,7 @@ export function test_construction_local_scale_minorant(): void {
             ": missing single accepted minorant certificate or premature refusal",
         );
       for (let index: number = 0; index < passes.length; ++index) {
-        const pass: Extract<BandTrace.Event, { kind: "local-pass" }> =
+        const pass: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> =
           passes[index]!;
         if (
           pass.pass !== index ||
@@ -262,7 +266,7 @@ export function test_construction_local_scale_minorant(): void {
         if (
           pass.own.length !== count ||
           pass.own.some(
-            (target: BandTrace.Target, k: number): boolean =>
+            (target: IAutoMovieConstructionSplitBandTrace.Target, k: number): boolean =>
               target.kind !== "finite" ||
               !nclose(target.value, k === 0 ? -eta : 0, tolerance),
           )
@@ -279,7 +283,7 @@ export function test_construction_local_scale_minorant(): void {
       }
     } else {
       const first:
-        | Extract<BandTrace.Event, { kind: "local-pass" }>
+        | Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }>
         | undefined = passes[0];
       if (
         passes.length !== 1 ||
@@ -366,7 +370,7 @@ export function test_construction_local_scale_minorant(): void {
     if (curved && last !== undefined) {
       const alpha: number = factors[0]! / last.field[0]!;
       const certificate:
-        | Extract<BandTrace.Event, { kind: "minorant" }>["result"]
+        | Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "minorant" }>["result"]
         | undefined = certificates[0]?.result;
       if (
         !(alpha > 0 && alpha < 1) ||

@@ -11,7 +11,13 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieCombinePhysicalMassProperties,
+  IAutoMovieHumanCanonicalSolids,
   IAutoMovieJointAxes,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
@@ -53,9 +59,6 @@ import { AutoMovieHumanCanonicalSolids as Solids } from "./AutoMovieHumanCanonic
  * placeholders kinematic motion never reads: 50 N m per downstream kilogram.
  */
 export namespace AutoMovieHumanCanonicalProfile {
-  /** One drawn joint: its canonical rest position, its girth radius and its carrier. */
-  export type IJoint = Solids.IJoint;
-
   /**
    * Build the profile.
    *
@@ -65,12 +68,13 @@ export namespace AutoMovieHumanCanonicalProfile {
    * @returns The profile on the rig's bones.
    */
   export function build(
-    joints: ReadonlyMap<string, IJoint>,
+    joints: ReadonlyMap<string, IAutoMovieHumanCanonicalSolids.IJoint>,
     mass: number,
     id: string,
   ): P {
-    const j = (name: string): IJoint => {
-      const found: IJoint | undefined = joints.get(name);
+    const j = (name: string): IAutoMovieHumanCanonicalSolids.IJoint => {
+      const found: IAutoMovieHumanCanonicalSolids.IJoint | undefined =
+        joints.get(name);
       if (found === undefined)
         throw new Error(`The polygon profile needs the joint ${name}`);
       return found;
@@ -169,7 +173,7 @@ export namespace AutoMovieHumanCanonicalProfile {
       const hand: AutoMovieHumanoidBone[] = [b("Hand")];
       for (const chain of DIGITS)
         chain.forEach((name: string, i: number): void => {
-          const joint: IJoint = j(b(name));
+          const joint: IAutoMovieHumanCanonicalSolids.IJoint = j(b(name));
           const next: string | undefined = chain[i + 1];
           capsule(
             b(name),
@@ -199,7 +203,7 @@ export namespace AutoMovieHumanCanonicalProfile {
       );
     }
 
-    const segments: P.ISegment[] = [];
+    const segments: IAutoMoviePhysicalSegment[] = [];
     for (const group of groups) {
       const members: IPart[][] = group.bones.map(
         (bone: AutoMovieHumanoidBone): IPart[] => {
@@ -216,10 +220,12 @@ export namespace AutoMovieHumanCanonicalProfile {
           .reduce((sum: number, part: IPart): number => sum + part.volume, 0);
       group.bones.forEach(
         (bone: AutoMovieHumanoidBone, index: number): void => {
-          const whole: combinePhysicalMassProperties.IPart =
+          const whole: IAutoMovieCombinePhysicalMassProperties.IPart =
             combinePhysicalMassProperties(
               members[index]!.map(
-                (part: IPart): combinePhysicalMassProperties.IPart => ({
+                (
+                  part: IPart,
+                ): IAutoMovieCombinePhysicalMassProperties.IPart => ({
                   mass: density * part.volume,
                   centerOfMass: part.shape.transform.position,
                   inertia: Vector3.scale(part.inertia, density * part.volume),
@@ -234,7 +240,9 @@ export namespace AutoMovieHumanCanonicalProfile {
             centerOfMass: whole.centerOfMass,
             inertia: whole.inertia,
             inertiaRotation: whole.inertiaRotation,
-            shapes: members[index]!.map((part: IPart): P.IShape => part.shape),
+            shapes: members[index]!.map(
+              (part: IPart): IAutoMoviePhysicalShape => part.shape,
+            ),
           });
         },
       );
@@ -245,14 +253,15 @@ export namespace AutoMovieHumanCanonicalProfile {
         (c: AutoMovieHumanoidBone): boolean => parentOf[c] === bone,
       );
     const downstream = (bone: AutoMovieHumanoidBone): number =>
-      segments.find((s: P.ISegment): boolean => s.bone === bone)!.mass +
+      segments.find((s: IAutoMoviePhysicalSegment): boolean => s.bone === bone)!
+        .mass +
       children(bone).reduce(
         (sum: number, c: AutoMovieHumanoidBone): number => sum + downstream(c),
         0,
       );
-    const links: P.IJoint[] = (
+    const links: IAutoMoviePhysicalJoint[] = (
       Object.keys(parentOf) as AutoMovieHumanoidBone[]
-    ).map((child: AutoMovieHumanoidBone): P.IJoint => {
+    ).map((child: AutoMovieHumanoidBone): IAutoMoviePhysicalJoint => {
       const parent: AutoMovieHumanoidBone = parentOf[child]!;
       return {
         id: child,
@@ -267,14 +276,17 @@ export namespace AutoMovieHumanCanonicalProfile {
       };
     });
     const total: number = segments.reduce(
-      (sum: number, s: P.ISegment): number => sum + s.mass,
+      (sum: number, s: IAutoMoviePhysicalSegment): number => sum + s.mass,
       0,
     );
     return {
       id,
       mass: total,
       centerOfMass: segments.reduce(
-        (sum: IAutoMovieVector3, s: P.ISegment): IAutoMovieVector3 =>
+        (
+          sum: IAutoMovieVector3,
+          s: IAutoMoviePhysicalSegment,
+        ): IAutoMovieVector3 =>
           Vector3.add(
             sum,
             Vector3.scale(
@@ -288,7 +300,9 @@ export namespace AutoMovieHumanCanonicalProfile {
       joints: links,
       collisionExclusions: [
         ...links.map(
-          (jt: P.IJoint): { a: string; b: string; reason: string } => ({
+          (
+            jt: IAutoMoviePhysicalJoint,
+          ): { a: string; b: string; reason: string } => ({
             a: jt.parent,
             b: jt.child,
             reason: "adjacent polygon modules overlap at their shared joint",
@@ -333,7 +347,7 @@ export namespace AutoMovieHumanCanonicalProfile {
 /** One collider of a segment with the uniform solid's properties about its own centre. */
 interface IPart {
   /** The collider, its transform in the segment's frame. */
-  shape: P.IShape;
+  shape: IAutoMoviePhysicalShape;
 
   /** Volume, cubic metres. */
   volume: number;
@@ -359,11 +373,14 @@ const DIGITS: readonly (readonly string[])[] = [
 ];
 
 /** The physical axes of one joint from its clinical ranges, read onto the T-pose rig. */
-function axesOf(bone: AutoMovieHumanoidBone, torque: number): P.IAxis[] {
+function axesOf(
+  bone: AutoMovieHumanoidBone,
+  torque: number,
+): IAutoMoviePhysicalJointAxis[] {
   const rom = DEFAULT_HUMANOID_ROM[bone];
   const axes: IAutoMovieJointAxes =
     HUMANOID_JOINT_AXES[bone] ?? DEFAULT_JOINT_AXES;
-  const out: P.IAxis[] = [];
+  const out: IAutoMoviePhysicalJointAxis[] = [];
   for (const clinical of ["flexion", "abduction", "twist"] as const) {
     const range = rom?.[clinical];
     if (range === null || range === undefined) continue;
@@ -374,7 +391,10 @@ function axesOf(bone: AutoMovieHumanoidBone, torque: number): P.IAxis[] {
         : Math.abs(d.y) >= Math.abs(d.z)
           ? "y"
           : "z";
-    if (out.some((a: P.IAxis): boolean => a.axis === letter)) continue;
+    if (
+      out.some((a: IAutoMoviePhysicalJointAxis): boolean => a.axis === letter)
+    )
+      continue;
     const sign: number = Math.sign(d[letter]);
     const frame = HUMANOID_REST_FRAME[bone]?.[clinical];
     const physical = (c: number): number =>

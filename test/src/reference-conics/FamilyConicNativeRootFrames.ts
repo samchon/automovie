@@ -1,26 +1,31 @@
+import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
 import {
-  type AutoMovieLoftFrame,
   AutoMovieNaturalSpline,
   AutoMovieSolidChain,
-  type AutoMovieViewAxis,
-  type AutoMovieViewAxisJet,
-  AutoMovieViewLoft,
-  type IAutoMovieSolidSurface,
-  type IAutoMovieViewPart,
   AutoMovieSolidVector as V,
+  AutoMovieViewLoft,
 } from "@automovie/engine";
 import {
-  AutoMovieHumanHipSupportPlacement,
-  AutoMovieHumanF1 as Figure,
   AutoMovieHumanConicLoft as H,
+  AutoMovieHumanF1 as Figure,
   AutoMovieHumanF1NativeLaw as Law,
   AutoMovieHumanF1Placing as Placing,
+  AutoMovieHumanHipSupportPlacement,
 } from "@automovie/human";
-import type { IAutoMovieConstructionPort } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionPortLoop,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1,
+  IAutoMovieHumanF1NativeLaw,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-
-import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
 
 /**
  * Read actual root-frame/parent-chart coordinates beside the completed inputs.
@@ -42,7 +47,7 @@ namespace FamilyConicNativeRootFrames {
   /** Narrow saved case values used without replaying its operators. */
   interface Case {
     id: string;
-    fields: Law.IFields;
+    fields: IAutoMovieHumanF1NativeLaw.IFields;
     fieldsHash: string;
     operators: {
       rows: {
@@ -58,16 +63,16 @@ namespace FamilyConicNativeRootFrames {
       event: {
         kind: string;
         childPhases?: number[];
-        columns?: { start: { point: V.Vec3 } }[];
+        columns?: { start: { point: AutoMovieVector3Tuple } }[];
       };
     }[];
   }
 
   /** Finite sample centroid, never an anatomical or supplied datum. */
-  function centroid(points: readonly V.Vec3[]): V.Vec3 {
+  function centroid(points: readonly AutoMovieVector3Tuple[]): AutoMovieVector3Tuple {
     return V.scale(
       points.reduce(
-        (sum: V.Vec3, point: V.Vec3): V.Vec3 => V.add(sum, point),
+        (sum: AutoMovieVector3Tuple, point: AutoMovieVector3Tuple): AutoMovieVector3Tuple => V.add(sum, point),
         [0, 0, 0],
       ),
       1 / points.length,
@@ -76,7 +81,7 @@ namespace FamilyConicNativeRootFrames {
 
   /** Reconstruct a declared original port chart at the same actual column clock. */
   function chart(
-    loop: IAutoMovieConstructionPort.ILoop,
+    loop: IAutoMovieConstructionPortLoop,
     k: number,
     count: number,
   ): [number, number] {
@@ -90,11 +95,11 @@ namespace FamilyConicNativeRootFrames {
 
   /** The actual analytic source-axis frame2, not a finite difference. */
   function frame(
-    axis: AutoMovieViewAxis.IAxis,
+    axis: IAutoMovieViewAxis.IAxis,
     station: number,
   ): {
-    value: AutoMovieLoftFrame.IFrame;
-    actual2: AutoMovieViewAxisJet.IJet | { unavailable: string };
+    value: IAutoMovieLoftSectionFrame;
+    actual2: IAutoMovieViewAxisJet.IJet | { unavailable: string };
   } {
     return {
       value: axis.at(station),
@@ -155,11 +160,11 @@ namespace FamilyConicNativeRootFrames {
         throw new Error("frozen diagnostic generation changed: " + relative);
     await fs.mkdir(output, { recursive: true });
     const started: number = performance.now(),
-      original: Figure.IAssembly = Figure.assemble(),
+      original: IAutoMovieHumanF1.IAssembly = Figure.assemble(),
       originals: ReturnType<typeof Figure.constructionFrom>["sources"] =
         Figure.constructionFrom(original).sources,
-      prepared: Law.IPrepared = Law.prepare(original, originals);
-    const bones: Map<number, Figure.IAssembly> = new Map([
+      prepared: IAutoMovieHumanF1NativeLaw.IPrepared = Law.prepare(original, originals);
+    const bones: Map<number, IAutoMovieHumanF1.IAssembly> = new Map([
         [prepared.fields.hipJointCentreBreadth, original],
       ]),
       summary: unknown[] = [];
@@ -190,7 +195,7 @@ namespace FamilyConicNativeRootFrames {
           saved.fieldsHash !== Identity.dataHash(saved.fields)
         )
           throw new Error("case id/fields hash mismatch");
-        let bone: Figure.IAssembly | undefined = bones.get(
+        let bone: IAutoMovieHumanF1.IAssembly | undefined = bones.get(
           saved.fields.hipJointCentreBreadth,
         );
         if (bone === undefined) {
@@ -204,7 +209,7 @@ namespace FamilyConicNativeRootFrames {
           );
           bones.set(saved.fields.hipJointCentreBreadth, bone);
         }
-        const assembly: Figure.IAssembly =
+        const assembly: IAutoMovieHumanF1.IAssembly =
           id === "f1" ? original : prepared.apply(saved.fields, bone);
         const originalPart: IAutoMovieViewPart | undefined = originals.get(
           original.body.trunk.name,
@@ -229,27 +234,27 @@ namespace FamilyConicNativeRootFrames {
           for (const side of key === "nose" ? [0] : [0, 1]) {
             const owner: string = "band." + key + (side === 1 ? ".mirror" : "");
             try {
-              const made: H.IFamily =
+              const made: IAutoMovieHumanConicLoft.IFamily =
                   side === 0
                     ? assembly.body[key]
                     : H.mirror(
                         assembly.body[key],
                         assembly.body[key].name + ".mirror",
                       ),
-                prior: H.IFamily =
+                prior: IAutoMovieHumanConicLoft.IFamily =
                   side === 0
                     ? original.body[key]
                     : H.mirror(
                         original.body[key],
                         original.body[key].name + ".mirror",
                       );
-              const axis: AutoMovieViewAxis.IAxis = H.axis(made),
-                oldAxis: AutoMovieViewAxis.IAxis = H.axis(prior);
-              const loop: IAutoMovieConstructionPort.ILoop =
+              const axis: IAutoMovieViewAxis.IAxis = H.axis(made),
+                oldAxis: IAutoMovieViewAxis.IAxis = H.axis(prior);
+              const loop: IAutoMovieConstructionPortLoop =
                 key === "nose"
                   ? assembly.roots.nose
                   : assembly.roots[key][side]!;
-              const oldLoop: IAutoMovieConstructionPort.ILoop =
+              const oldLoop: IAutoMovieConstructionPortLoop =
                 key === "nose"
                   ? original.roots.nose
                   : original.roots[key][side]!;
@@ -331,18 +336,18 @@ namespace FamilyConicNativeRootFrames {
                       oldAxis,
                       oldPublished[k]!.child.station,
                     );
-                  const normal: V.Vec3 | null = V.unit(V.cross(host.u, host.v));
+                  const normal: AutoMovieVector3Tuple | null = V.unit(V.cross(host.u, host.v));
                   if (normal === null)
                     throw new Error(
                       "actual parent chart is singular at column " + k,
                     );
-                  const depth: V.Vec3 | null = V.solve3(
+                  const depth: AutoMovieVector3Tuple | null = V.solve3(
                       host.u,
                       host.v,
                       normal,
                       actual.value.u,
                     ),
-                    breadth: V.Vec3 | null = V.solve3(
+                    breadth: AutoMovieVector3Tuple | null = V.solve3(
                       host.u,
                       host.v,
                       normal,
@@ -350,11 +355,11 @@ namespace FamilyConicNativeRootFrames {
                     );
                   const oldHost: IAutoMovieSolidSurface.IJet | undefined =
                     oldPublished[k]!.host.full2;
-                  const oldNormal: V.Vec3 | null =
+                  const oldNormal: AutoMovieVector3Tuple | null =
                     oldHost === undefined
                       ? null
                       : V.unit(V.cross(oldHost.u, oldHost.v));
-                  const oldDepth: V.Vec3 | null =
+                  const oldDepth: AutoMovieVector3Tuple | null =
                       oldHost === undefined || oldNormal === null
                         ? null
                         : V.solve3(
@@ -363,7 +368,7 @@ namespace FamilyConicNativeRootFrames {
                             oldNormal,
                             before.value.u,
                           ),
-                    oldBreadth: V.Vec3 | null =
+                    oldBreadth: AutoMovieVector3Tuple | null =
                       oldHost === undefined || oldNormal === null
                         ? null
                         : V.solve3(
@@ -374,7 +379,7 @@ namespace FamilyConicNativeRootFrames {
                           );
                   if (k === 0) clock0 = host;
                   const q0: [number, number] = chart(loop, 0, count),
-                    linear: V.Vec3 | null =
+                    linear: AutoMovieVector3Tuple | null =
                       clock0 === undefined
                         ? null
                         : V.add(
@@ -384,7 +389,7 @@ namespace FamilyConicNativeRootFrames {
                               [address[1] - q0[1], clock0.v],
                             ]),
                           );
-                  const pointResidual: V.Vec3 = V.sub(
+                  const pointResidual: AutoMovieVector3Tuple = V.sub(
                     host.p,
                     preparedColumns.columns[k]!.start.point,
                   );
@@ -429,12 +434,12 @@ namespace FamilyConicNativeRootFrames {
                   columns.push({ column: k, unavailable: detail });
                 }
               }
-              const parentCentre: V.Vec3 | null =
+              const parentCentre: AutoMovieVector3Tuple | null =
                 hostReadings.length === 0
                   ? null
                   : centroid(
                       hostReadings.map(
-                        (jet: IAutoMovieSolidSurface.IJet): V.Vec3 => jet.p,
+                        (jet: IAutoMovieSolidSurface.IJet): AutoMovieVector3Tuple => jet.p,
                       ),
                     );
               const named: ReturnType<typeof frame> = frame(

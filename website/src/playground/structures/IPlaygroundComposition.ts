@@ -1,18 +1,20 @@
+import type { IAutoMovieMotionHumanImpulse } from "@automovie/interface";
+
 /**
  * A composition as the playground holds it: plain data that the editor
  * changes, the address carries and the adapter turns into a chain of
  * `@automovie/motions`.
  *
- * It names actions and parameters only. Bodies are named by the id of a body
+ * It names actions, parameters and authored impulses. Bodies are named by the id of a body
  * the adapter offers, so an address stays short and never carries a
  * skeleton.
  */
 export interface IPlaygroundComposition {
   /**
-   * The format's version: 1 has people only, 2 adds `objects`.
-   * `PlaygroundAddress` reads both and refuses any other.
+   * The format's version: 1 has people only, 2 adds `objects`, and 3 adds
+   * authored impulses. `PlaygroundAddress` reads all three.
    */
-  version: 1 | 2;
+  version: 1 | 2 | 3;
 
   /** The seed every draw of the performance starts from. */
   seed: string;
@@ -25,6 +27,9 @@ export interface IPlaygroundComposition {
 
   /** The archetypes placed in the scene, which actions name as props; none when absent. */
   objects?: IPlaygroundComposition.IObject[];
+
+  /** Authored impulses in world newton seconds at film seconds, as the public performance input takes them; none when absent. Only the serializable impulse form is offered here, not a sustained force callback. */
+  forces?: IAutoMovieMotionHumanImpulse[];
 }
 export namespace IPlaygroundComposition {
   /** One archetype placed on the floor. */
@@ -61,6 +66,9 @@ export namespace IPlaygroundComposition {
 
     /** The person and bone it is worn on at the start, such as a sword in its scabbard at the hip, until a hand draws it; resting where it is placed when absent. */
     worn?: IPlaygroundComposition.IWorn;
+
+    /** Whether it is a fixture, such as a fixed ladder or a wall bar, which hands grip and never carry (`IAutoMovieMotionHumanProp.fixed`); a free object when absent. */
+    fixed?: boolean;
   }
 
   /** A rotation as a unit quaternion. */
@@ -71,7 +79,7 @@ export namespace IPlaygroundComposition {
     w: number;
   }
 
-  /** Where an object is worn, as `IHumanProp.worn` takes it. */
+  /** Where an object is worn, as `IAutoMovieMotionHumanProp.worn` takes it. */
   export interface IWorn {
     /** The wearer's subject id. */
     subject: string;

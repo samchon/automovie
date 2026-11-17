@@ -1,14 +1,20 @@
 /**
- * The baked placements of one take, and how a pose at any second is read
- * from them. See `ISceneManifest` for the layout.
+ * The placements of one computed take, and how a pose at any second is read
+ * from them.
+ *
+ * The values run frame after frame; in a frame, group after group in
+ * `orders` order; in a group, entry after entry in its order; and for each
+ * entry its world position in metres (x, y, z) then its rotation as a unit
+ * quaternion (x, y, z, w). That is `frames × Σ entries × STRIDE` values.
  *
  * Each value is a signed 16-bit integer: a position in millimetres, which
  * covers ±32.7 m from the origin, and a quaternion component times 32767.
- * That halves a take against 32-bit floats, at an error of half a
- * millimetre and a few thousandths of a degree, which no drawing shows.
+ * That halves what a take holds and moves from the take worker against
+ * 32-bit floats, at an error of half a millimetre and a few thousandths of a
+ * degree, which no drawing shows.
  *
  * Reading between two frames interpolates each position linearly and each
- * rotation along the shorter arc, so a take baked at a low rate still plays
+ * rotation along the shorter arc, so a take posed at a low rate still plays
  * smoothly.
  */
 export namespace SceneTrack {

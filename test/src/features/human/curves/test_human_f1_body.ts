@@ -1,5 +1,6 @@
 import { countAutoMovieMeshComponents } from "@automovie/engine";
 import { AutoMovieHumanF1, AutoMovieHumanF1Joints } from "@automovie/human";
+import type { IAutoMovieHumanF1 } from "@automovie/interface";
 
 /**
  * f1's sewn body as `AutoMovieHumanF1.create()` generates it, against what a body is.
@@ -17,11 +18,11 @@ import { AutoMovieHumanF1, AutoMovieHumanF1Joints } from "@automovie/human";
  */
 export function test_human_f1_body(): void {
   const failures: string[] = [];
-  const pieces: AutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
+  const pieces: IAutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
 
   // 1. One piece, no diagnostic.
-  if (pieces.length !== 1 || pieces[0]!.name !== "body") failures.push(`pieces: ${pieces.map((piece: AutoMovieHumanF1.IPiece): string => piece.name).join(", ")}`);
-  const body: AutoMovieHumanF1.IPiece = pieces[0]!;
+  if (pieces.length !== 1 || pieces[0]!.name !== "body") failures.push(`pieces: ${pieces.map((piece: IAutoMovieHumanF1.IPiece): string => piece.name).join(", ")}`);
+  const body: IAutoMovieHumanF1.IPiece = pieces[0]!;
   if (body.diagnostics.length !== 0) failures.push(`${body.diagnostics.length} diagnostics: ${body.diagnostics.slice(0, 3).join(" | ").slice(0, 600)}`);
   if (body.indices.length === 0) failures.push("the body has no triangle");
 

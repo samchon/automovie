@@ -1,13 +1,19 @@
+import type {
+  IAutoMovieLoftCapRead,
+  IAutoMovieLoftCapSource,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftPhaseReading,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftSectionPhase,
+  IAutoMovieLoftViewRead,
+} from "@automovie/interface";
+
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieLoftReliefCompose } from "./AutoMovieLoftReliefCompose";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-
-/** Fresh world value and phase tangent; no station derivative is asserted. */
-type Phase = { p: [number, number, number]; t: [number, number, number] };
 
 /**
  * Actual original-cap value and independently available physical2 preparation.
@@ -32,15 +38,15 @@ export namespace AutoMovieLoftCapRead {
   export function phase(
     chain: IAutoMovieLoftChain,
     station: number,
-  ): ((phi: number) => Phase) | null {
-    const owner: AutoMovieLoftCapSource.ISource | null =
+  ): ((phi: number) => IAutoMovieLoftPhaseReading) | null {
+    const owner: IAutoMovieLoftCapSource.ISource | null =
       AutoMovieLoftCapSource.at(chain, station);
     if (owner === null) return null;
-    const inputs: AutoMovieLoftViewRead.IValues | string =
+    const inputs: IAutoMovieLoftViewRead.IValues | string =
       AutoMovieLoftViewRead.values(chain.nativeSource!.data, station);
     if (typeof inputs === "string")
       throw new AutoMovieLoftAdmissionError(inputs);
-    const frame: AutoMovieLoftFrame.IFrame = owner.axis.at(station);
+    const frame: IAutoMovieLoftSectionFrame = owner.axis.at(station);
     if (!finite(frame))
       throw new AutoMovieLoftAdmissionError(
         "The original cap axis has no finite frame value.",
@@ -58,9 +64,9 @@ export namespace AutoMovieLoftCapRead {
       throw new AutoMovieLoftAdmissionError(
         "The original cap tip differs from its actual collapsed source.",
       );
-    const local: ReturnType<typeof AutoMovieLoftSectionNative.phase> | null =
+    const local: ((phi: number) => IAutoMovieLoftSectionPhase) | null =
       collapsed ? null : AutoMovieLoftSectionNative.phase(inputs);
-    return (phi: number): Phase => {
+    return (phi: number): IAutoMovieLoftPhaseReading => {
       if (!Number.isFinite(phi))
         throw new AutoMovieLoftAdmissionError("A cap phase must be finite.");
       let p: [number, number, number];
@@ -104,18 +110,15 @@ export namespace AutoMovieLoftCapRead {
   export function jet(
     chain: IAutoMovieLoftChain,
     station: number,
-  ): {
-    native: ReturnType<typeof AutoMovieLoftSectionNative.jet>;
-    f: number[][];
-  } | null {
-    const owner: AutoMovieLoftCapSource.ISource | null =
+  ): IAutoMovieLoftCapRead.IJetResult {
+    const owner: IAutoMovieLoftCapSource.ISource | null =
       AutoMovieLoftCapSource.at(chain, station);
     if (owner === null) return null;
     if (station === owner.station)
       throw new AutoMovieLoftAdmissionError(
         "The collapsed original pole has no regular physical2 chart.",
       );
-    const inputs: AutoMovieLoftViewRead.IJets | string =
+    const inputs: IAutoMovieLoftViewRead.IJets | string =
       AutoMovieLoftViewRead.jets(chain.nativeSource!.data, station);
     if (typeof inputs === "string")
       throw new AutoMovieLoftAdmissionError(inputs);
@@ -135,7 +138,7 @@ export namespace AutoMovieLoftCapRead {
     return {
       native: AutoMovieLoftSectionNative.jet(inputs),
       f: [frame.value, frame.first, frame.second].map(
-        (value: AutoMovieLoftFrame.IFrame): number[] => [
+        (value: IAutoMovieLoftSectionFrame): number[] => [
           ...value.origin,
           ...value.u,
           ...value.v,
@@ -146,7 +149,7 @@ export namespace AutoMovieLoftCapRead {
 }
 
 /** Finite returned frame data is distinct from a callback throwing its own error. */
-function finite(frame: AutoMovieLoftFrame.IFrame): boolean {
+function finite(frame: IAutoMovieLoftSectionFrame): boolean {
   return [frame.origin, frame.u, frame.v].every(
     (row: number[]): boolean => row.length === 3 && row.every(Number.isFinite),
   );

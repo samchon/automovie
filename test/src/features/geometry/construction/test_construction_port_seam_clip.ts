@@ -1,10 +1,14 @@
+import type {
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidClip,
+  IAutoMovieSolidCycle,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import {
   AutoMovieSolidBody,
   AutoMovieSolidClip,
-  type AutoMovieSolidCycle,
   AutoMovieSolidMesh,
-  type IAutoMovieSolidAtlas,
-  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
 
 type V3 = [number, number, number];
@@ -57,7 +61,7 @@ export function test_construction_port_seam_clip(): void {
   };
   const cut: IAutoMovieSolidSurface = { ...host, name: "cut" };
   const grid: { stations: number[]; phases: number[] } = { stations: [0, 1], phases: [0, 1] };
-  const body: AutoMovieSolidBody.IBody = AutoMovieSolidBody.create("made", [
+  const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create("made", [
     { surface: host, ...grid },
     { surface: band, ...grid },
     { surface: cut, ...grid },
@@ -72,7 +76,7 @@ export function test_construction_port_seam_clip(): void {
     kind: "hole",
     vertices: hole,
     chart: hole.map((_: number, k: number): [number, number] => on(R, clock(k))),
-    neighbours: hole.map((_: number, k: number): AutoMovieSolidCycle.INeighbour => ({ face: BAND, from: [0, clock(k)], to: [0, clock(k + 1)] })),
+    neighbours: hole.map((_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({ face: BAND, from: [0, clock(k)], to: [0, clock(k + 1)] })),
     exact: {
       count: N,
       kept: (u: number, v: number): boolean => Math.hypot(u, v) >= R,
@@ -83,7 +87,7 @@ export function test_construction_port_seam_clip(): void {
     kind: "start",
     vertices: hole.slice(),
     chart: hole.map((_: number, k: number): [number, number] => [0, clock(k)]),
-    neighbours: hole.map((_: number, k: number): AutoMovieSolidCycle.INeighbour => ({ face: HOST, from: on(R, clock(k)), to: on(R, clock(k + 1)) })),
+    neighbours: hole.map((_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({ face: HOST, from: on(R, clock(k)), to: on(R, clock(k + 1)) })),
     exact: { count: N, across: (_: number, v: number): [number, number] => on(R, v) },
   });
 
@@ -115,11 +119,11 @@ export function test_construction_port_seam_clip(): void {
   // The made rail: two crossings inside column 0, three points on the host between them and three on the band.
   const [alpha, middle, beta]: [number, number, number] = [Math.PI / N - 0.1, Math.PI / N, Math.PI / N + 0.1];
   const outward: [number, number] = on(1, middle);
-  const single = (face: number, surface: IAutoMovieSolidSurface, c: [number, number], across: [number, number]): AutoMovieSolidClip.IRailPoint =>
+  const single = (face: number, surface: IAutoMovieSolidSurface, c: [number, number], across: [number, number]): IAutoMovieSolidClip.IRailPoint =>
     ({ vertex: vertex(surface, c), phase: 0, faces: [face], chart: new Map([[face, c]]), across });
-  const crossing = (c: number): AutoMovieSolidClip.IRailPoint =>
+  const crossing = (c: number): IAutoMovieSolidClip.IRailPoint =>
     ({ vertex: vertex(host, on(R, c)), phase: 0, faces: [HOST, BAND], chart: new Map([[HOST, on(R, c)], [BAND, [0, c]]]) });
-  const rail: AutoMovieSolidClip.IRailPoint[] = [
+  const rail: IAutoMovieSolidClip.IRailPoint[] = [
     crossing(alpha),
     single(HOST, host, on(R + 1, alpha), outward),
     single(HOST, host, on(R + 1.5, middle), outward),
@@ -129,15 +133,15 @@ export function test_construction_port_seam_clip(): void {
     single(BAND, band, [1.5, middle], [1, 0]),
     single(BAND, band, [1, alpha], [1, 0]),
   ];
-  rail.forEach((p: AutoMovieSolidClip.IRailPoint, k: number): void => void (p.phase = (2 * Math.PI * k) / rail.length));
+  rail.forEach((p: IAutoMovieSolidClip.IRailPoint, k: number): void => void (p.phase = (2 * Math.PI * k) / rail.length));
   const clipped: string | null = AutoMovieSolidClip.trim(body, rail, CUT, "hole");
   if (clipped !== null) failures.push(`the made rail was not clipped: ${clipped}`);
   else {
     seam("after the clip");
 
     // 3. The clip's own bookkeeping and segments.
-    const trimmed: AutoMovieSolidCycle.ICycle = body.faces[HOST]!.cycles[0]!;
-    const exact: number = (trimmed.segments ?? []).filter((s: AutoMovieSolidCycle.IExactSegment | null): boolean => s !== null).length;
+    const trimmed: IAutoMovieSolidCycle.ICycle = body.faces[HOST]!.cycles[0]!;
+    const exact: number = (trimmed.segments ?? []).filter((s: IAutoMovieSolidCycle.IExactSegment | null): boolean => s !== null).length;
     if (trimmed.vertices.length !== N + 5 || trimmed.segments?.length !== N + 5 || exact !== N - 1)
       failures.push(`the host's hole holds ${trimmed.vertices.length} vertices, ${trimmed.segments?.length} segment records and ${exact} exact segments; 21, 21 and 15 are due`);
     const atlas: IAutoMovieSolidAtlas = AutoMovieSolidBody.atlas(body).atlas;

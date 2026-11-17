@@ -1,5 +1,6 @@
 import {
   IAutoMovieBuiltBoundary,
+  type IAutoMovieBuiltEnvelopeFace,
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
   IAutoMoviePlanarPoint,
@@ -9,7 +10,6 @@ import {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
-import { IAutoMovieBuiltEnvelopeFace } from "./IAutoMovieBuiltEnvelopeFace";
 import { builtEnvironmentBuildingOfSpace } from "./builtEnvironmentBuildingOfSpace";
 import { builtSpaceContainsPoint } from "./builtSpaceContainsPoint";
 import { AUTOMOVIE_ENVELOPE_FACADE_LIMIT } from "./constants/AUTOMOVIE_ENVELOPE_FACADE_LIMIT";

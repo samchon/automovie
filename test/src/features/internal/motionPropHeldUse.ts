@@ -1,19 +1,23 @@
 import { createDevice, createDrinkware } from "@automovie/archetypes";
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -62,10 +66,10 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
     kind: "phone",
   });
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
-  const body: IHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
 
   // Before the right shoulder (the body's right is the world's -X at yaw 0).
-  const stood: HumanObject.Placement = {
+  const stood: IAutoMovieMotionHumanObject.Placement = {
     at: {
       x: -body.measure.shoulderHalfWidth,
       y: body.measure.waistHeight,
@@ -74,9 +78,9 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
     yaw: 0,
   };
   const perform = (
-    prop: IHumanProp,
-    composition: HumanChain,
-  ): HumanPerformance =>
+    prop: IAutoMovieMotionHumanProp,
+    composition: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "held",
       props: [prop],
@@ -91,19 +95,22 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
       ],
       composition: composition.node,
     });
-  const instant = (segment: HumanSegment.ISegment, event: string): number =>
+  const instant = (
+    segment: IAutoMovieMotionHumanSegment,
+    event: string,
+  ): number =>
     segment.start +
     (segment.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       segment.plan.duration;
 
   // A point of a prop's own space in the world at a second.
   const world = (
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     seconds: number,
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 => {
-    const frame: IHumanProp.IFrame = performance.prop(subject, seconds);
+    const frame: IAutoMovieRigidTransform = performance.prop(subject, seconds);
     return Vector3.add(
       frame.position,
       Quaternion.rotateVector(frame.rotation, local),
@@ -111,7 +118,10 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
   };
 
   // 3. The prop's origin in the holding hand's frame, from the grip on.
-  const drift = (performance: HumanPerformance, subject: string): number => {
+  const drift = (
+    performance: IAutoMovieMotionHumanPerformance,
+    subject: string,
+  ): number => {
     const from: number = instant(performance.segments("a")[0]!, "gripClosed");
     const seat = (seconds: number): IAutoMovieVector3 => {
       const hand: IAutoMovieResolvedBone = performance
@@ -140,14 +150,14 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
   };
   const tasks: [
     string,
-    IHumanProp,
-    () => HumanChain,
-    (performance: HumanPerformance) => void,
+    IAutoMovieMotionHumanProp,
+    () => IAutoMovieMotionHumanChain,
+    (performance: IAutoMovieMotionHumanPerformance) => void,
   ][] = [
     [
       "glass",
       HumanObject.prop("glass", glass, stood),
-      (): HumanChain =>
+      (): IAutoMovieMotionHumanChain =>
         HumanChain.subject("a")
           .pickUp({
             prop: "glass",
@@ -156,15 +166,12 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
           })
           .handToFace({ task: "drink", prop: "glass" })
           .stand({ seconds: 0.5 }),
-      (performance: HumanPerformance): void => {
+      (performance: IAutoMovieMotionHumanPerformance): void => {
         // 1. The rim at the mouth through the hold.
-        const drink: HumanSegment.ISegment = performance.segments("a")[1]!;
-        const reader: HumanSignature.IReader = HumanSignature.of(
-          performance,
-          "a",
-          body,
-          0,
-        );
+        const drink: IAutoMovieMotionHumanSegment =
+          performance.segments("a")[1]!;
+        const reader: IAutoMovieMotionHumanSignature.IReader =
+          HumanSignature.of(performance, "a", body, 0);
         const lip: IAutoMovieVector3 =
           glass.affordance("lip").frame.translation;
         const radius: number = Math.hypot(lip.x, lip.z);
@@ -202,12 +209,12 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
     [
       "phone",
       HumanObject.prop("phone", phone, stood),
-      (): HumanChain =>
+      (): IAutoMovieMotionHumanChain =>
         HumanChain.subject("a")
           .pickUp({ prop: "phone", handle: "grip" })
           .handToFace({ task: "phone", prop: "phone", seconds: 1 })
           .stand({ seconds: 0.5 }),
-      (performance: HumanPerformance): void => {
+      (performance: IAutoMovieMotionHumanPerformance): void => {
         // 2. The screen at the ear.
         const seconds: number = instant(performance.segments("a")[1]!, "atEar");
         const off: number = Vector3.length(
@@ -239,7 +246,10 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
       label === "glass" || name === "m-average",
   ))
     try {
-      const performance: HumanPerformance = perform(prop, chain());
+      const performance: IAutoMovieMotionHumanPerformance = perform(
+        prop,
+        chain(),
+      );
       read(performance);
       const moved: number = drift(performance, prop.subject);
       if (!(moved <= 0.001))

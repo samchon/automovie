@@ -1,11 +1,11 @@
 import type {
+  AutoMovieRecoveryCurveFormat,
   IAutoMovieRecoveryInput,
+  IAutoMovieRecoveryMeshSections,
   IAutoMovieRecoveryRegistration,
+  IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 import {
-  type AutoMovieRecoveryCurveFormat,
-  type IAutoMovieRecoveryMeshSections,
-  type IAutoMovieRecoveryResult,
   convertAutoMovieRecoveryCurves,
   observeAutoMovieRecovery,
   prepareAutoMovieRecoveryInput,

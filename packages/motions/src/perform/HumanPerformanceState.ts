@@ -1,34 +1,42 @@
-import {
-  type AutoMovieComposition,
-  type IAutoMovieSchedule,
-  checkAutoMovieLegality,
-  resolveAutoMovieSchedule,
-} from "@automovie/engine";
+import { checkAutoMovieLegality } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
+  AutoMovieMotionHumanScheduledInstant,
+  IAutoMovieCheckLegality,
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBlast,
+  IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPerformer,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieMotionMeeting,
+  IAutoMovieMotionTarget,
+  IAutoMovieSchedule,
+  IAutoMovieScheduleCue,
 } from "@automovie/interface";
 
 import { HUMAN_ACTIONS } from "../actions/HUMAN_ACTIONS";
 import { stand } from "../actions/stand";
-import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanLayer } from "../law/IHumanLayer";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
-import type { HumanObstacle } from "./HumanObstacle";
-import type { HumanPerformance } from "./HumanPerformance";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
+import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
+import { HumanPerformanceKey } from "./HumanPerformanceKey";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
+import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
 import { HumanSegment } from "./HumanSegment";
-import type { IHumanPerformer } from "./IHumanPerformer";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * Everything a performance resolves and its readers share: the people with
@@ -54,55 +62,64 @@ export class HumanPerformanceState {
   public readonly duration: number;
 
   /** The people, as the performance was given them. */
-  public readonly performers: readonly IHumanPerformer[];
+  public readonly performers: readonly IAutoMovieMotionHumanPerformer[];
 
   /** The people with their placed actions, holds, layers and pose caches, by subject. */
-  public readonly people: Map<string, HumanSegment.IPerson>;
+  public readonly people: Map<string, IAutoMovieMotionHumanSegment.IPerson>;
 
   /** The props, by subject. */
-  public readonly props: Map<string, IHumanProp>;
+  public readonly props: Map<string, IAutoMovieMotionHumanProp>;
 
   /** The placed actions that carry an anchor, by the anchor, with their performer. */
   public readonly anchors: Map<
     string,
-    HumanSegment.ISegment & { subject: string }
+    IAutoMovieMotionHumanSegment & { subject: string }
   >;
 
   /** The spans in which each prop is held or worn, by the prop: who holds it in which hand or wears it on which bone, from when to when and at which offset from the hand or the bone; found once the performance is placed. */
-  public readonly gripCache: Map<string, HumanPerformanceState.IGrip[]> =
-    new Map();
+  public readonly gripCache: Map<
+    string,
+    IAutoMovieMotionHumanPerformanceState.IGrip[]
+  > = new Map();
 
   /** The meetings of the mutual actions, by their kind, start and performers: the performer who computed each and the meeting every role reads. */
   public readonly meetings: Map<
     string,
-    { subject: string; meeting: AutoMovieMotionMeeting.IMeeting }
+    { subject: string; meeting: IAutoMovieMotionMeeting }
   > = new Map();
 
   /** Every law the performance runs, by name: the vocabulary's and the ones it was given. */
-  public readonly laws: Map<string, IHumanActionLaw<never>>;
+  public readonly laws: Map<string, IAutoMovieMotionHumanActionLaw<never>>;
 
   /** The schedule entries that are overlays, by walk-order index: they ride a carrier and never follow or precede one. */
   public readonly riding: Set<number> = new Set();
 
   /** What stands in the performers' way. */
-  public readonly obstacles: readonly HumanObstacle.IObstacle[];
+  public readonly obstacles: readonly IAutoMovieMotionHumanObstacle[];
+
+  /** The forces on the performers (`HumanPerformance.IInput.forces`). */
+  public readonly forces: readonly IAutoMovieMotionHumanForce[];
 
   /** The cue tracks, by name. */
   public readonly cues: Readonly<
-    Record<string, readonly resolveAutoMovieSchedule.ICue[]>
+    Record<string, readonly IAutoMovieScheduleCue[]>
   >;
 
   /** Where an action aligned into its performer's previous one ended that one, by the previous one's schedule entry. */
   public readonly clipped: Map<number, number> = new Map();
 
   /** The instants of every anchored layer, by its anchor: those known before the schedule from the start, the others once it is placed. */
-  public readonly layered: Map<
-    string,
-    readonly resolveAutoMovieSchedule.ICue[]
-  > = new Map();
+  public readonly layered: Map<string, readonly IAutoMovieScheduleCue[]> =
+    new Map();
 
-  /** How many actions that carry the body the composition gives each person, overlays aside. */
-  public readonly intended: Map<string, number> = new Map();
+  /** The actions that carry the body the composition gives each person, overlays aside, in walk order: a person's placed ones are its first as many as they have placed, and the rest are still to come. */
+  public readonly intended: Map<string, IAutoMovieIntent[]> = new Map();
+
+  /** The scene's blasts (`HumanPerformance.IInput.blasts`). */
+  public readonly blasts: readonly IAutoMovieMotionHumanBlast.IBlast[];
+
+  /** The resolved first contacts of every person's striking weapons, in time order, kept for the hit record (`HumanPerformanceHits`). */
+  public readonly strikes: IAutoMovieMotionHumanPerformanceState.IStrike[] = [];
 
   /** Whether the schedule is still being resolved: until every action is placed, a pose may read people not placed yet, so nothing is kept. */
   public resolving: boolean = true;
@@ -112,16 +129,20 @@ export class HumanPerformanceState {
    *
    * @param input The chain seed, the performers, the props and the composition.
    */
-  public constructor(input: HumanPerformance.IInput) {
+  public constructor(input: IAutoMovieMotionHumanPerformance.IInput) {
     this.props = new Map(
-      (input.props ?? []).map((p: IHumanProp): [string, IHumanProp] => [
-        p.subject,
-        p,
-      ]),
+      (input.props ?? []).map(
+        (p: IAutoMovieMotionHumanProp): [string, IAutoMovieMotionHumanProp] => [
+          p.subject,
+          p,
+        ],
+      ),
     );
     this.performers = [...input.performers];
     this.cues = input.cues ?? {};
     this.obstacles = input.obstacles ?? [];
+    this.forces = input.forces ?? [];
+    this.blasts = input.blasts ?? [];
     this.laws = new Map(Object.entries(HUMAN_ACTIONS));
     for (const law of input.laws ?? []) {
       // A registered name never changes what a vocabulary name means, and
@@ -137,7 +158,7 @@ export class HumanPerformanceState {
               : `two registered laws are named ${law.name}`,
           fix: "register the law under a name of its own",
         });
-      this.laws.set(law.name, law as IHumanActionLaw<never>);
+      this.laws.set(law.name, law as IAutoMovieMotionHumanActionLaw<never>);
     }
     this.people = new Map();
     this.anchors = new Map();
@@ -151,12 +172,12 @@ export class HumanPerformanceState {
           reason: `two performers are named ${performer.subject}`,
           fix: "give every performer its own subject id",
         });
-      const initial: IHumanPosture = stand.posture(
+      const initial: IAutoMovieMotionHumanPosture = stand.posture(
         performer.body,
         performer.at,
         performer.yaw,
       );
-      const skill: HumanSkill.ISkill = HumanSkill.resolve(
+      const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
         performer.proficiency,
         input.seed,
       );
@@ -174,8 +195,10 @@ export class HumanPerformanceState {
         // A windowed layer waits until the schedule gives its instants.
         layers: (input.layers?.[performer.subject] ?? []).flatMap(
           (
-            layer: IHumanLayer | IHumanLayer.IScheduled,
-          ): HumanSegment.ILayered[] =>
+            layer:
+              | IAutoMovieMotionHumanLayer
+              | IAutoMovieMotionHumanLayer.IScheduled,
+          ): IAutoMovieMotionHumanSegment.ILayered[] =>
             "apply" in layer
               ? [{ layer, from: -Infinity, to: Infinity, fade: 0 }]
               : [],
@@ -184,44 +207,44 @@ export class HumanPerformanceState {
           subject: performer.subject,
           body,
           skill,
+          ...(performer.attributes === undefined
+            ? {}
+            : { attributes: performer.attributes }),
           action: () => undefined,
-          aim: (target: AutoMovieMotionTarget, seconds: number) => {
-            const posture: IHumanPosture = HumanPerformanceRead.posture(
+          aim: (target: IAutoMovieMotionTarget, seconds: number) => {
+            const posture: IAutoMovieMotionHumanPosture =
+              HumanPerformanceRead.posture(this, performer.subject, seconds);
+            return HumanPerformanceAim.aim(
               this,
-              performer.subject,
+              target,
               seconds,
+              HumanPerformanceAim.frame(
+                body,
+                posture,
+                () => poseBones(body, resolveHumanPosture(body, posture)),
+                performer.subject,
+              ),
             );
-            return HumanPerformanceAim.aim(this, target, seconds, {
-              root: posture.root,
-              yaw: posture.yaw,
-              heights: {
-                low: body.measure.hipHeight - 0.3 * body.measure.thigh,
-                middle: body.measure.chestHeight,
-                high: body.measure.headHeight - 0.5 * body.measure.headRadius,
-              },
-              range: 0.9 * (body.measure.thigh + body.measure.shank),
-              body,
-              bones: () => poseBones(body, resolveHumanPosture(body, posture)),
-              subject: performer.subject,
-            });
           },
           random: (channel: string) =>
             HumanSkill.stream(skill, performer.subject, "layer", 0, channel),
         },
       });
     }
-    // Counted before anything is placed, so a law that reads another
-    // person's path can tell a finished chain from one still to be placed.
-    const count = (node: AutoMovieComposition): void => {
-      if (node.kind === "at") count(node.part);
-      else if (node.kind !== "intent") node.parts.forEach(count);
-      else if (node.intent.parameters?.over !== true)
-        this.intended.set(
-          node.intent.subject,
-          (this.intended.get(node.intent.subject) ?? 0) + 1,
-        );
+    // Listed before anything is placed, so a law that reads another
+    // person's path can tell a finished chain from one still to be placed,
+    // and an action can read what its performer does next.
+    const list = (node: IAutoMovieComposition): void => {
+      if (node.kind === "at") list(node.part);
+      else if (node.kind !== "intent") node.parts.forEach(list);
+      else if (node.intent.parameters?.over !== true) {
+        const intents: IAutoMovieIntent[] =
+          this.intended.get(node.intent.subject) ?? [];
+        intents.push(node.intent);
+        this.intended.set(node.intent.subject, intents);
+      }
     };
-    count(input.composition);
+    list(input.composition);
 
     // An anchored layer whose window waits for no action has its instants
     // before anything is placed, so actions can be synced to them: they are
@@ -239,7 +262,7 @@ export class HumanPerformanceState {
             fix: "give every anchored layer a name of its own, different from every cue track's",
           });
         const early = (
-          at: IHumanLayer.Instant | undefined,
+          at: AutoMovieMotionHumanScheduledInstant | undefined,
           absent: number | undefined,
         ): number | undefined =>
           at === undefined
@@ -260,7 +283,7 @@ export class HumanPerformanceState {
     // A production's rules (a sport's fouls, a scene's constraints) judge the
     // placed schedule before any contact is resolved: an illegal performance is
     // refused outright, the way an undeclared cut is, instead of being shown.
-    const violations: checkAutoMovieLegality.IViolation[] =
+    const violations: IAutoMovieCheckLegality.IViolation[] =
       input.rules === undefined
         ? []
         : checkAutoMovieLegality(this.schedule, input.rules);
@@ -269,11 +292,11 @@ export class HumanPerformanceState {
         kind: "rule",
         axis: "rules",
         value: violations.map(
-          (v: checkAutoMovieLegality.IViolation): string => v.rule,
+          (v: IAutoMovieCheckLegality.IViolation): string => v.rule,
         ),
         reason: `the performance breaks its rules: ${violations
           .map(
-            (v: checkAutoMovieLegality.IViolation): string =>
+            (v: IAutoMovieCheckLegality.IViolation): string =>
               `${v.rule} at entry ${v.entry}: ${v.detail}`,
           )
           .join("; ")}`,
@@ -282,12 +305,14 @@ export class HumanPerformanceState {
     // The schedule gives every instant, so the windowed layers take their
     // places among the others, in the order given.
     for (const [subject, layers] of Object.entries(input.layers ?? {})) {
-      const person: HumanSegment.IPerson = HumanPerformanceRead.person(
-        this,
-        subject,
-      );
+      const person: IAutoMovieMotionHumanSegment.IPerson =
+        HumanPerformanceRead.person(this, subject);
       person.layers = layers.map(
-        (layer: IHumanLayer | IHumanLayer.IScheduled): HumanSegment.ILayered =>
+        (
+          layer:
+            | IAutoMovieMotionHumanLayer
+            | IAutoMovieMotionHumanLayer.IScheduled,
+        ): IAutoMovieMotionHumanSegment.ILayered =>
           "apply" in layer
             ? { layer, from: -Infinity, to: Infinity, fade: 0 }
             : HumanPerformanceLayers.window(this, person, layer),
@@ -302,18 +327,26 @@ export class HumanPerformanceState {
     for (const person of this.people.values()) HumanSegment.settle(person);
     HumanPerformanceContacts.contacts(this);
     for (const person of this.people.values()) HumanSegment.settle(person);
+
+    // Every flight turns by the composed body's shape once the contacts are
+    // resolved; the turned plans then show their rotation, so the displayed
+    // poses read for it are forgotten.
+    HumanPerformanceFlight.flights(this, this.people.values());
+    for (const person of this.people.values()) HumanSegment.settle(person);
     this.resolving = false;
     for (const entry of this.schedule.entries) {
-      const person: HumanSegment.IPerson = HumanPerformanceRead.person(
-        this,
-        entry.subject,
-      );
-      const segment: HumanSegment.ISegment | undefined = (
+      const person: IAutoMovieMotionHumanSegment.IPerson =
+        HumanPerformanceRead.person(this, entry.subject);
+      const segment: IAutoMovieMotionHumanSegment | undefined = (
         this.riding.has(entry.index) ? person.overlays : person.segments
-      ).find((s: HumanSegment.ISegment): boolean => s.entry === entry.index);
+      ).find(
+        (s: IAutoMovieMotionHumanSegment): boolean => s.entry === entry.index,
+      );
       if (segment !== undefined)
         segment.end = this.clipped.get(entry.index) ?? entry.end;
     }
+    // Every action ends where it is placed, so the props' drives are known.
+    HumanPerformanceObject.admit(this);
     this.duration = this.schedule.duration;
   }
 }
@@ -326,24 +359,56 @@ export class HumanPerformanceState {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A worn span names its bone; a held span leaves it absent, so one list orders both.
  */
 export namespace HumanPerformanceState {
-  /** One span in which a prop is held in a hand or worn on a bone. */
-  export interface IGrip {
-    /** The person who holds or wears it. */
-    subject: string;
+  /**
+   * How many resolved performances a process keeps, the most recently read:
+   * a memory bound no act reads, sized to the most distinct inputs a consumer
+   * reads between two reads of one input, plus that one. Measured at 1: over
+   * nine row families of the touch and hand-to-face laws read in the test
+   * program's order (68 reads of 12 inputs, every reread at most one other
+   * input after its last read), and on the website, where the playground
+   * asks a take's verdicts of the worker that built it right after the take
+   * and a scene page's repeated takes are its own cache's.
+   */
+  export const KEEP: number = 2;
 
-    /** The holding hand; for a worn span, the side of nothing and unread. */
-    side: "left" | "right";
-
-    /** The bone it is worn on; held in the hand when absent. */
-    bone?: AutoMovieHumanoidBone;
-
-    /** The span's first film second. */
-    from: number;
-
-    /** The span's last film second. */
-    to: number;
-
-    /** The prop's frame in the hand's or the bone's frame, kept from the span's start. */
-    offset?: IHumanProp.IFrame;
+  /**
+   * The resolved performance of an input: the one resolved before from an
+   * equal input (`HumanPerformanceKey`) when the process keeps it, the input
+   * resolved afresh otherwise. A resolution is a pure function of its input,
+   * so an equal input reads the same plans, schedule and contacts; what its
+   * readers add later is caches of the same pure functions. A refusal is not
+   * kept, so it is thrown afresh each time.
+   *
+   * @param input The chain seed, the performers, the props and the composition.
+   * @returns The resolved performance.
+   * @throws {HumanRefusal} When the input does not resolve.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read again, why it may be and what is not kept.
+   * @evidence contracts/development/implementation.md#principled-implementation Memoisation of a pure function by its argument's structural key, the least recently read dropped first.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key, one look-up, one resolution where it misses.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The key is the input's content and identities, never a shared reference to a caller's object, so a changed input misses.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One key walk per call; a hit skips the whole resolution.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every performance of an equal input in the process reads one resolution, a website session's reread take as much as a test's.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most `KEEP` resolutions are kept; the least recently read is released first.
+   */
+  export function of(
+    input: IAutoMovieMotionHumanPerformance.IInput,
+  ): IAutoMovieMotionHumanPerformanceState {
+    const key: string = HumanPerformanceKey.of(input);
+    const kept: IAutoMovieMotionHumanPerformanceState | undefined =
+      KEPT.get(key);
+    if (kept !== undefined) {
+      KEPT.delete(key);
+      KEPT.set(key, kept);
+      return kept;
+    }
+    const state: IAutoMovieMotionHumanPerformanceState =
+      new HumanPerformanceState(input);
+    KEPT.set(key, state);
+    if (KEPT.size > KEEP) KEPT.delete(KEPT.keys().next().value!);
+    return state;
   }
+
+  /** The kept resolutions by key, the least recently read first. */
+  const KEPT: Map<string, IAutoMovieMotionHumanPerformanceState> = new Map();
 }

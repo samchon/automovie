@@ -1,8 +1,10 @@
-import { IAutoMovieMesh } from "@automovie/interface";
+import {
+  IAutoMovieMesh,
+  type IAutoMovieResolvedPhysicalVertices,
+} from "@automovie/interface";
 
 import { triangleIndicesOf } from "../geometry/triangleIndicesOf";
 import { weldedDegenerateTriangles } from "../geometry/weldedDegenerateTriangles";
-import { IAutoMovieResolvedPhysicalVertices } from "./IAutoMovieResolvedPhysicalVertices";
 import { resolveAutoMovieMeshPhysicalVertices } from "./resolveAutoMovieMeshPhysicalVertices";
 
 /**

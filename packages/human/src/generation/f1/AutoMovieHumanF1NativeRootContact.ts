@@ -1,15 +1,18 @@
 import {
+  AutoMovieHumanNativeRadialContact as Radial,
+} from "../conic/AutoMovieHumanNativeRadialContact";
+import {
   AutoMovieLoftViewFullSource as Full,
   AutoMovieSolidVector as Vector,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
 import type {
-  AutoMovieConstructionSeed,
+  AutoMovieVector3Tuple,
   IAutoMovieConstructionPointSeed,
+  IAutoMovieConstructionSeed,
+  IAutoMovieHumanF1NativeRoot,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieViewPart,
 } from "@automovie/interface";
-
-import { AutoMovieHumanNativeRadialContact as Radial } from "../conic/AutoMovieHumanNativeRadialContact";
-import type { AutoMovieHumanF1NativeRootTypes as Types } from "./AutoMovieHumanF1NativeRootTypes";
 
 /**
  * The seeds of the native path's dependent cutters (the armpit's slit and the nostrils) once their root or source has changed. A literal
@@ -52,9 +55,9 @@ export namespace AutoMovieHumanF1NativeRootContact {
   /** One emitted seed and detached observations of the input prior's source scope. */
   export interface IResult {
     /** Closed existing engine search/point input, with one mm-to-m conversion. */
-    seed: AutoMovieConstructionSeed;
+    seed: IAutoMovieConstructionSeed;
     /** Source-addressed observations, not proof that Newton finds a contact. */
-    observation: Types.ISeedTransport;
+    observation: IAutoMovieHumanF1NativeRoot.ISeedTransport;
   }
 
   /**
@@ -70,23 +73,23 @@ export namespace AutoMovieHumanF1NativeRootContact {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Readers live for the call; the result holds plain numbers.
    */
   export function create(
-    spec: Types.IRootSpec,
+    spec: IAutoMovieHumanF1NativeRoot.IRootSpec,
     before: IAutoMovieViewPart,
     current: IAutoMovieViewPart,
-    old: Types.ISeed,
+    old: IAutoMovieHumanF1NativeRoot.ISeed,
     hostFace: string,
     host?: IAutoMovieViewPart,
   ): IResult {
     if (spec.unchanged) {
-      const observation: Types.ISeedTransport = spec.seed(before, current, old);
+      const observation: IAutoMovieHumanF1NativeRoot.ISeedTransport = spec.seed(before, current, old);
       if (observation.unchanged)
         return {
           seed: { type: "search", partFace: current.name, hostFace, ...observation.seed },
           observation,
         };
     }
-    const source: Full.IReader = Full.create(current);
-    const oldSource: Full.IReader = Full.create(before);
+    const source: IAutoMovieLoftViewFullSource.IReader = Full.create(current);
+    const oldSource: IAutoMovieLoftViewFullSource.IReader = Full.create(before);
     if (host !== undefined) {
       if (host.name !== hostFace)
         throw new Error("named contact host source identity mismatch");
@@ -97,8 +100,8 @@ export namespace AutoMovieHumanF1NativeRootContact {
       throw new Error("named original contact chart absent or host mismatch: " + current.name);
     if (!(prior.part[0] >= source.domain[0] && prior.part[0] <= source.domain[1]))
       throw new Error("named point prior leaves the current cutter material domain: " + current.name);
-    const point: Types.V = source.point(...prior.part);
-    const target: Types.V = oldSource.point(...prior.part);
+    const point: AutoMovieVector3Tuple = source.point(...prior.part);
+    const target: AutoMovieVector3Tuple = oldSource.point(...prior.part);
     const seed: IAutoMovieConstructionPointSeed = {
       type: "point", partFace: current.name, hostFace,
       part: [prior.part[0] / 1000, prior.part[1]],
@@ -120,15 +123,15 @@ export namespace AutoMovieHumanF1NativeRootContact {
   /** The seed where the cutter's declared seed line, its phase over its material window shares, enters the host source. */
   function derived(
     current: IAutoMovieViewPart,
-    source: Full.IReader,
-    oldSource: Full.IReader,
-    old: Types.ISeed,
+    source: IAutoMovieLoftViewFullSource.IReader,
+    oldSource: IAutoMovieLoftViewFullSource.IReader,
+    old: IAutoMovieHumanF1NativeRoot.ISeed,
     hostFace: string,
     host: IAutoMovieViewPart,
   ): IResult {
     if (!(Number.isFinite(old.phase) && old.from >= 0 && old.to <= 1 && old.to > old.from))
       throw new Error("cutter seed window/phase must be finite and ordered");
-    const hostSource: Full.IReader = Full.create(host);
+    const hostSource: IAutoMovieLoftViewFullSource.IReader = Full.create(host);
     const span: number = source.domain[1] - source.domain[0];
     const found: Radial.IResult = Radial.seed(
       (s: number): readonly number[] => source.point(s, old.phase),
@@ -145,7 +148,7 @@ export namespace AutoMovieHumanF1NativeRootContact {
       part: [found.part / 1000, old.phase],
       host: [found.host[0] / 1000, found.host[1]],
     };
-    const original: Types.V = oldSource.point(found.part, old.phase);
+    const original: AutoMovieVector3Tuple = oldSource.point(found.part, old.phase);
     return {
       seed,
       observation: {

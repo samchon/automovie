@@ -1,12 +1,15 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBallSport,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
 import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { ballSport } from "../../sport/ballSport";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
@@ -47,7 +50,7 @@ export function ballSportCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = createHumanBody(
       man.body.skeleton,
       man.body.profile,
     );
@@ -57,9 +60,9 @@ export function ballSportCases(
       "dig",
       "set",
       "throwIn",
-    ] as ballSport.Kind[]) {
+    ] as IAutoMovieMotionHumanBallSport.Kind[]) {
       const name: string = `team-ball-${kind}${suffix}`;
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "ball",

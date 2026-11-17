@@ -1,12 +1,22 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import { AutoMovieLoftViewFullSource } from "@automovie/engine";
-import { AutoMovieHumanF1FaceCentres as C, AutoMovieHumanConicLoft as H, AutoMovieHumanF1, AutoMovieHumanF1Landmarks as L, AutoMovieHumanF1Placement } from "@automovie/human";
 import { FamilyConicHeadParts } from "./FamilyConicHeadParts";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import { AutoMovieLoftViewFullSource } from "@automovie/engine";
+import {
+  AutoMovieHumanConicLoft as H,
+  AutoMovieHumanF1,
+  AutoMovieHumanF1FaceCentres as C,
+  AutoMovieHumanF1Landmarks as L,
+  AutoMovieHumanF1Placement,
+} from "@automovie/human";
+import type {
+  IAutoMovieHumanF1,
+  IAutoMovieLoftViewFullSource,
+} from "@automovie/interface";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /**
  * Readings of the f1 reference head for `packages/human/docs/techniques/face-one-shot.md`: instruments only, nothing here is read by the
@@ -585,9 +595,9 @@ namespace FamilyConicFace {
    * degree, as a tube of triangles facing outward. Every mode then reads what the reference's modes read, so a round has its value before.
    */
   function lofted(): IMesh {
-    const member: AutoMovieHumanF1.IMember | undefined = AutoMovieHumanF1.FAMILIES.find((m: AutoMovieHumanF1.IMember): boolean => m.family.name === "trunk");
+    const member: IAutoMovieHumanF1.IMember | undefined = AutoMovieHumanF1.FAMILIES.find((m: IAutoMovieHumanF1.IMember): boolean => m.family.name === "trunk");
     if (member === undefined) throw new Error("f1 has no trunk family");
-    const reader: AutoMovieLoftViewFullSource.IReader = AutoMovieLoftViewFullSource.create(H.source(member.family));
+    const reader: IAutoMovieLoftViewFullSource.IReader = AutoMovieLoftViewFullSource.create(H.source(member.family));
     const [from, to]: number[] = numbers("loft", "620,905");
     const rows: number = Math.floor(Math.min(to!, reader.domain[1]) - from!) + 1;
     const cols: number = 720;

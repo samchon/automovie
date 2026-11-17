@@ -1,5 +1,6 @@
+import type { AutoMovieExternalModelIngestProfile } from "@automovie/interface";
+
 import { AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES } from "./AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES";
-import type { AutoMovieExternalModelIngestProfile } from "./AutoMovieExternalModelIngestProfile";
 
 /**
  * Whether an untyped selection, such as a command-line or manifest value, names one supported ingest profile exactly.

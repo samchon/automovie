@@ -1,12 +1,10 @@
-import {
-  type AutoMovieConstructionRealization,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
 import type {
-  AutoMovieConstructionNode,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
   IAutoMovieConstructionSplit,
+  IAutoMovieSolidSurface,
 } from "@automovie/interface";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
 
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
@@ -45,7 +43,7 @@ export function test_construction_split_compose(): void {
   const RAIL: number = 6;
   const fork = (lean: number): number => (15 * Math.cos(lean)) / (1 + Math.cos(lean));
   /** A host whose top end, at station 0.03, is the ellipse of the given half extents, mm. */
-  const trunk = (rx: number, ry: number): AutoMovieConstructionNode =>
+  const trunk = (rx: number, ry: number): IAutoMovieConstructionNode =>
     ConstructionShapes.part(
       "trunk",
       ConstructionShapes.DOWN,
@@ -57,8 +55,8 @@ export function test_construction_split_compose(): void {
       "open",
     );
   /** The host through the three-way composition's forks. */
-  const through = (lean: number): AutoMovieConstructionNode => trunk(24.5, Math.sqrt(81 - fork(lean) ** 2) / Math.sqrt(1 - (fork(lean) / 24.5) ** 2));
-  const finger = (name: string, x: number, lean: number, from: number): AutoMovieConstructionNode =>
+  const through = (lean: number): IAutoMovieConstructionNode => trunk(24.5, Math.sqrt(81 - fork(lean) ** 2) / Math.sqrt(1 - (fork(lean) / 24.5) ** 2));
+  const finger = (name: string, x: number, lean: number, from: number): IAutoMovieConstructionNode =>
     ConstructionShapes.part(
       name,
       { origin: { x, y: 0, z: -0.03 }, u: { x: Math.cos(lean), y: 0, z: Math.sin(lean) }, v: { x: 0, y: 1, z: 0 } },
@@ -70,7 +68,7 @@ export function test_construction_split_compose(): void {
     lean: number;
     spacing?: number;
     from?: number;
-    host?: AutoMovieConstructionNode;
+    host?: IAutoMovieConstructionNode;
     two?: boolean;
     compose?: IAutoMovieConstructionSplit.ICompose | null;
     profile?: IAutoMovieConstructionSplit.IProfile;
@@ -104,7 +102,7 @@ export function test_construction_split_compose(): void {
       ...(o.compose === null ? {} : { compose: o.compose ?? { frame: "host", plane: { point: [0, 0, 0], normal: [0, 0, 1] }, round: 0.001 } }),
     };
   };
-  const realize = (root: AutoMovieConstructionNode): AutoMovieConstructionRealization.IRealization => realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
+  const realize = (root: IAutoMovieConstructionNode): IAutoMovieConstructionRealization.IRealization => realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
   const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
   /** The minimum, smooth with the rounding 1 mm or plain, of plane distances at a point; each plane a point and a kept normal, moved RAIL along an axis. */
   const minimum = (planes: [V3, V3][], axis: V3, p: readonly number[], smooth: boolean): number => {
@@ -120,20 +118,20 @@ export function test_construction_split_compose(): void {
       : minimum([end, [[fork(lean), 0, -30], [-c2, 0, -s2]], [[-fork(lean), 0, -30], [c2, 0, -s2]]], [0, 0, -1], p, smooth);
   };
   const clocks: number[] = Array.from({ length: 2 * n }, (_: unknown, k: number): number => (turn * k) / (2 * n));
-  const end = (r: AutoMovieConstructionRealization.IRealization, name: string, c: number): readonly number[] => {
+  const end = (r: IAutoMovieConstructionRealization.IRealization, name: string, c: number): readonly number[] => {
     const band: IAutoMovieSolidSurface = ConstructionRead.surface(r, name);
     return band.jet(band.domain![1], c).p;
   };
-  const loop = (r: AutoMovieConstructionRealization.IRealization, name: string, k: number): IAutoMovieSolidSurface.IJet => ConstructionRead.surface(r, name).jet(0, (turn * k) / n);
+  const loop = (r: IAutoMovieConstructionRealization.IRealization, name: string, k: number): IAutoMovieSolidSurface.IJet => ConstructionRead.surface(r, name).jet(0, (turn * k) / n);
   const b: number = 0.3;
   const [c2, s2]: [number, number] = [Math.cos(b / 2), Math.sin(b / 2)];
   const apex: number = (9 - fork(b)) / Math.tan(b / 2);
 
   // 1. The composed tree.
-  const real: AutoMovieConstructionRealization.IRealization = realize(split({ lean: b }));
+  const real: IAutoMovieConstructionRealization.IRealization = realize(split({ lean: b }));
   // The authored trees stand on a roomier host, of half extents 27.8 and 12.5 mm, which holds the children's station rings.
-  const roomy: AutoMovieConstructionNode = trunk(27.8, 12.5);
-  const plain: AutoMovieConstructionRealization.IRealization = realize(split({ lean: b, compose: null, host: roomy }));
+  const roomy: IAutoMovieConstructionNode = trunk(27.8, 12.5);
+  const plain: IAutoMovieConstructionRealization.IRealization = realize(split({ lean: b, compose: null, host: roomy }));
   if (plain.diagnostics.length !== 0) failures.push(`without compose: ${ConstructionRead.diagnostics(plain)}`);
   if (real.diagnostics.length !== 0) failures.push(`composed: ${ConstructionRead.diagnostics(real)}`);
   else {
@@ -165,7 +163,7 @@ export function test_construction_split_compose(): void {
 
   // 2-3. Forks, seam planes, rulings and valleys, composed against authored.
   /** A band's seam columns: the greatest distance off the seam plane, off the normal's ruling and inside `f.1`'s cylinder, and the greatest depth. */
-  const seam = (r: AutoMovieConstructionRealization.IRealization, name: string, sign: number): { plane: number; ruling: number; skin: number; depth: number } => {
+  const seam = (r: IAutoMovieConstructionRealization.IRealization, name: string, sign: number): { plane: number; ruling: number; skin: number; depth: number } => {
     const out: { plane: number; ruling: number; skin: number; depth: number } = { plane: 0, ruling: 0, skin: 0, depth: 0 };
     for (let k: number = (3 * n) / 4 + 1; k < n; ++k) {
       const j: IAutoMovieSolidSurface.IJet = loop(r, name, k);
@@ -193,7 +191,7 @@ export function test_construction_split_compose(): void {
   }
 
   // 4. One seam, two bands: band.f.0 reads seam 0 on its columns 24 to 32 from its far fork back, band.f.1 on its columns 8 to 16 forward.
-  const apart = (r: AutoMovieConstructionRealization.IRealization): { point: number; tangent: number } => {
+  const apart = (r: IAutoMovieConstructionRealization.IRealization): { point: number; tangent: number } => {
     const [outer, inner]: [IAutoMovieSolidSurface, IAutoMovieSolidSurface] = [ConstructionRead.surface(r, "band.f.0"), ConstructionRead.surface(r, "band.f.1")];
     const out: { point: number; tangent: number } = { point: 0, tangent: 0 };
     for (let i: number = 0; i < n / 4; ++i) {
@@ -209,7 +207,7 @@ export function test_construction_split_compose(): void {
     if (!(shared.point <= 1e-9 && shared.tangent <= 1e-9)) failures.push(`shared seam: between columns the two bands stand ${shared.point} mm apart and their tangents differ by ${shared.tangent}`);
   }
   const chordHalf: number = Math.sqrt(81 - fork(b) ** 2);
-  const authored: AutoMovieConstructionRealization.IRealization = realize(split({ lean: b, compose: null, host: roomy, profile: { knots: [[0.012, 0.006]], corner: 0.3 } }));
+  const authored: IAutoMovieConstructionRealization.IRealization = realize(split({ lean: b, compose: null, host: roomy, profile: { knots: [[0.012, 0.006]], corner: 0.3 } }));
   if (authored.diagnostics.length !== 0) failures.push(`authored curved seam: ${ConstructionRead.diagnostics(authored)}`);
   else if (!(apart(authored).point > 1e-7)) failures.push(`red control: each band's own interpolation of an authored seam stands only ${apart(authored).point} mm apart between columns`);
 
@@ -230,7 +228,7 @@ export function test_construction_split_compose(): void {
   }
 
   // 6. A hard-edged derived rail.
-  const hard: AutoMovieConstructionRealization.IRealization = realize(split({ lean: b, compose: { frame: "host", plane: { point: [0, 0, 0], normal: [0, 0, 1] } } }));
+  const hard: IAutoMovieConstructionRealization.IRealization = realize(split({ lean: b, compose: { frame: "host", plane: { point: [0, 0, 0], normal: [0, 0, 1] } } }));
   if (hard.diagnostics.length !== 0) failures.push(`hard-edged rail: ${ConstructionRead.diagnostics(hard)}`);
   else {
     const off: number = Math.max(...clocks.map((c: number): number => Math.abs(residual(1, b, end(hard, "band.f.1", c), false))));
@@ -238,7 +236,7 @@ export function test_construction_split_compose(): void {
   }
 
   // 7. A function of the children's frames, the plane in the tree's frame.
-  const wide: AutoMovieConstructionRealization.IRealization = realize(split({ lean: 0.45, compose: { frame: "tree", plane: { point: [0, 0, -0.03], normal: [0, 0, -1] }, round: 0.001 } }));
+  const wide: IAutoMovieConstructionRealization.IRealization = realize(split({ lean: 0.45, compose: { frame: "tree", plane: { point: [0, 0, -0.03], normal: [0, 0, -1] }, round: 0.001 } }));
   if (wide.diagnostics.length !== 0) failures.push(`lean 0.45: ${ConstructionRead.diagnostics(wide)}`);
   else
     for (const [name, sign] of [["band.f.0", 1], ["band.f.2", -1]] as const) {
@@ -247,7 +245,7 @@ export function test_construction_split_compose(): void {
     }
 
   // 8. A profile under compose carries the ribbons only.
-  const turned: AutoMovieConstructionRealization.IRealization = realize(split({ lean: b, profile: { knots: [], corner: 0.3 } }));
+  const turned: IAutoMovieConstructionRealization.IRealization = realize(split({ lean: b, profile: { knots: [], corner: 0.3 } }));
   if (turned.diagnostics.length !== 0) failures.push(`profile without knots: ${ConstructionRead.diagnostics(turned)}`);
   for (const [what, profile] of [["a knot", { knots: [[chordHalf / 1000, 0.006]], corner: 0.3 }], ["a heading", { knots: [], corner: 0.3, heading: [0, 0, -1] }]] as [string, IAutoMovieConstructionSplit.IProfile][])
     try {
@@ -259,7 +257,7 @@ export function test_construction_split_compose(): void {
 
   // 9. Refusals by name.
   const refused = (o: IOptions, word: string, why: string): void => {
-    const r: AutoMovieConstructionRealization.IRealization = realize(split(o));
+    const r: IAutoMovieConstructionRealization.IRealization = realize(split(o));
     const text: string = ConstructionRead.diagnostics(r);
     if (!(r.diagnostics.length === 1 && text.includes(word))) failures.push(`${why}: ${r.diagnostics.length} diagnostics: ${text}`);
     if (r.body.faces.some((f: { chain: string }): boolean => f.chain !== "trunk")) failures.push(`${why}: the refused split left faces beside the host`);
@@ -270,7 +268,7 @@ export function test_construction_split_compose(): void {
   refused({ lean: b, host: trunk(34, 16) }, "from the composed outline", "a host ring off the outline");
 
   // 10. A split in two under compose: the seam plane is x = 0 and f.0's skin meets it where y^2 + (d sin b + 7.5 cos b)^2 = 81.
-  const pair: AutoMovieConstructionRealization.IRealization = realize(split({ lean: b, two: true, host: trunk(17, Math.sqrt(81 - (7.5 * Math.cos(b)) ** 2)) }));
+  const pair: IAutoMovieConstructionRealization.IRealization = realize(split({ lean: b, two: true, host: trunk(17, Math.sqrt(81 - (7.5 * Math.cos(b)) ** 2)) }));
   if (pair.diagnostics.length !== 0) failures.push(`split in two: ${ConstructionRead.diagnostics(pair)}`);
   else {
     const deep: number = (9 - 7.5 * Math.cos(b)) / Math.sin(b);
@@ -289,7 +287,7 @@ export function test_construction_split_compose(): void {
 
   // 12. A composed split whose host is a composed split's child.
   const tip: V3 = [0.0075 + 0.06 * Math.sin(b), 0, -0.03 - 0.06 * Math.cos(b)];
-  const twig = (name: string, side: number): AutoMovieConstructionNode =>
+  const twig = (name: string, side: number): IAutoMovieConstructionNode =>
     ConstructionShapes.part(
       name,
       { origin: { x: tip[0] + side * 0.0035 * Math.cos(b), y: 0, z: tip[2] + side * 0.0035 * Math.sin(b) }, u: { x: Math.cos(b + side * 0.3), y: 0, z: Math.sin(b + side * 0.3) }, v: { x: 0, y: 1, z: 0 } },
@@ -313,7 +311,7 @@ export function test_construction_split_compose(): void {
     ],
     compose: { frame: "host", plane: { point: [0, 0, 0], normal: [0, 0, 1] }, round: 0.001 },
   };
-  const nested: AutoMovieConstructionRealization.IRealization = realize({ ...outer, children: [{ ...outer.children[0], part: inner }, outer.children[1]] });
+  const nested: IAutoMovieConstructionRealization.IRealization = realize({ ...outer, children: [{ ...outer.children[0], part: inner }, outer.children[1]] });
   if (nested.diagnostics.length !== 0) failures.push(`nested split: ${ConstructionRead.diagnostics(nested)}`);
   else {
     const faces: string[] = nested.body.faces.map((f: { chain: string }): string => f.chain);
@@ -334,7 +332,7 @@ export function test_construction_split_compose(): void {
 
   // 11. A declared cut without compose.
   const declared: IAutoMovieConstructionSplit.ICut = { frame: "part", planes: [{ point: [0, 0, 0.018], normal: [0.3, 0, 1] }] };
-  const cut: AutoMovieConstructionRealization.IRealization = realize(split({ lean: b, compose: null, host: roomy, cut: declared }));
+  const cut: IAutoMovieConstructionRealization.IRealization = realize(split({ lean: b, compose: null, host: roomy, cut: declared }));
   // In the kernel's millimetres: f.1's facing end stands 12 mm above the end plane, at z = -18, its third axis -z, so the plane passes
   // through (0, 0, -36) with the normal (0.3, 0, -1) / |.|.
   const away = (p: readonly number[]): number => Math.abs(dot([0.3, 0, -1], [p[0]!, p[1]!, p[2]! + 36])) / Math.hypot(0.3, 1);

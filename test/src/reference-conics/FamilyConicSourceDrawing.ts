@@ -1,19 +1,27 @@
-import type { AutoMovieViewOutline } from "@automovie/engine";
-import { AutoMovieHumanSegmentFrame as F } from "@automovie/human";
-import fs from "node:fs/promises";
-import path from "node:path";
-
 import { FamilyConicCaptureFrame as Frame } from "./FamilyConicCaptureFrame";
 import { FamilyConicCaptureFraming as Framing } from "./FamilyConicCaptureFraming";
 import { FamilyConicCaptureInput as Input } from "./FamilyConicCaptureInput";
-import type { FamilyConicCaptureTransportFiles as TransportFiles } from "./FamilyConicCaptureTransportFiles";
-import type { FamilyConicOriginalCatalog as Original } from "./FamilyConicOriginalCatalog";
+import type {
+  FamilyConicCaptureTransportFiles as TransportFiles,
+} from "./FamilyConicCaptureTransportFiles";
+import type {
+  FamilyConicOriginalCatalog as Original,
+} from "./FamilyConicOriginalCatalog";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import type { FamilyConicSourceCapture as Source } from "./FamilyConicSourceCapture";
-import type { FamilyConicSourceSelection as Selection } from "./FamilyConicSourceSelection";
+import type {
+  FamilyConicSourceSelection as Selection,
+} from "./FamilyConicSourceSelection";
 import { NodeCanvasCamera as Camera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import { AutoMovieHumanSegmentFrame as F } from "@automovie/human";
+import type {
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieViewOutline,
+} from "@automovie/interface";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /** Existing source/reference drawing through fixed cameras, without another source or renderer law. */
 export namespace FamilyConicSourceDrawing {
@@ -68,7 +76,7 @@ export namespace FamilyConicSourceDrawing {
     points: readonly N.Point[],
     width: number,
     height: number,
-    frame?: F.IFrame,
+    frame?: IAutoMovieHumanSegmentFrame,
   ): N.Camera {
     if (frame === undefined) return Camera.fit(view, points, width, height);
     const local: N.Point[] = points.map(
@@ -145,7 +153,7 @@ export namespace FamilyConicSourceDrawing {
     NodeCanvasRaster.initialize();
     const figurePlan: Framing.IPlan = Framing.plan("figure", frameBaseline);
     framingPlans.push(figurePlan);
-    const scopes: { id: string; fixed: N.Point[]; frame?: F.IFrame }[] = [
+    const scopes: { id: string; fixed: N.Point[]; frame?: IAutoMovieHumanSegmentFrame }[] = [
       { id: "figure", fixed: [...bounds, ...figurePlan.points] },
     ];
     for (const part of state.authored.parts) {
@@ -282,14 +290,14 @@ export namespace FamilyConicSourceDrawing {
       }
       const scale: number = scalar.unit === "mm" ? 0.001 : 0.1;
       const points: N.Point[] = scalar.readings.map(
-        (reading: AutoMovieViewOutline.IReading): N.Point => [
+        (reading: IAutoMovieViewOutline.IReading): N.Point => [
           reading.station / 1000,
           0,
           -reading.value * scale,
         ],
       );
       const base: N.Point[] = fixed.readings.map(
-        (reading: AutoMovieViewOutline.IReading): N.Point => [
+        (reading: IAutoMovieViewOutline.IReading): N.Point => [
           reading.station / 1000,
           0,
           -reading.value * scale,

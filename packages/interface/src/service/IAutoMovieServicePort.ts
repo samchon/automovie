@@ -1,7 +1,7 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { AutoMovieServiceMedium } from "./AutoMovieServiceMedium";
-import { AutoMovieServicePortDirection } from "./AutoMovieServicePortDirection";
-import { AutoMovieServiceUnit } from "./AutoMovieServiceUnit";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieServiceMedium } from "./AutoMovieServiceMedium";
+import type { AutoMovieServicePortDirection } from "./AutoMovieServicePortDirection";
+import type { AutoMovieServiceUnit } from "./AutoMovieServiceUnit";
 
 /**
  * One typed connection point on a node.

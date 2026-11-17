@@ -1,6 +1,11 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalBalanceReference,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalTargetInterval,
+  IAutoMovieRigidTransform,
+  IAutoMovieSamplePhysicalTarget,
+} from "@automovie/interface";
 
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
 import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
@@ -19,26 +24,11 @@ import { samplePhysicalTarget } from "./samplePhysicalTarget";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function physicalBalanceReference(input: {
-  /** Body whose authored targets bound the interval. */ body: Simulation.IBody;
-  /** Current interval's authored end target. */ target: Simulation.ITarget;
-  /** The previous fitted plan, if any. */ previous: Interval.IPlan | undefined;
-  /** Enclosing cache interval. */ step: number;
-  /** Replan boundary, seconds on the native tick grid. */ start: number;
-  /** Declared cache frequency, hertz. */ rate: number;
-}):
-  | {
-      /** Fitted placements already delivered at the boundary. */ completed: Record<
-        string,
-        P.ITransform
-      >;
-      /** Authored placements at the same boundary. */ before: Record<
-        string,
-        P.ITransform
-      >;
-    }
-  | undefined {
-  const previous: Interval.IPlan | undefined = input.previous;
+export function physicalBalanceReference(
+  input: IAutoMoviePhysicalBalanceReference.IInput,
+): IAutoMoviePhysicalBalanceReference.IResult {
+  const previous: IAutoMoviePhysicalTargetInterval.IPlan | undefined =
+    input.previous;
   if (previous?.step === input.step - 1)
     return {
       completed: previous.targets,
@@ -52,15 +42,17 @@ export function physicalBalanceReference(input: {
   return {
     completed: Object.fromEntries(
       Object.entries(Interval.sample(previous, input.start, input.rate)).map(
-        ([bone, goal]: [string, ReturnType<typeof samplePhysicalTarget>]): [
+        ([bone, goal]: [string, IAutoMovieSamplePhysicalTarget.IResult]): [
           string,
-          P.ITransform,
+          IAutoMovieRigidTransform,
         ] => [bone, goal.pose],
       ),
     ),
     before: Object.fromEntries(
       input.body.profile.segments.map(
-        (segment: P.ISegment): [string, P.ITransform] => [
+        (
+          segment: IAutoMoviePhysicalSegment,
+        ): [string, IAutoMovieRigidTransform] => [
           segment.bone,
           samplePhysicalTarget(
             input.body.targets[input.step - 1]!.segments[segment.bone]!,

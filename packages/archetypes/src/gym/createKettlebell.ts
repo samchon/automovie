@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -40,6 +41,13 @@ export function createKettlebell(
   params: createKettlebell.IParams,
   seed?: number | string,
 ): Archetype<createKettlebell.Affordance, createKettlebell.Dimension> {
+  const draw: ArchetypeDrawSession<createKettlebell.Dimension> =
+    new ArchetypeDrawSession<createKettlebell.Dimension>(
+      "kettlebell",
+      createKettlebell.UNITS,
+      seed,
+      params,
+    );
   const kind: createKettlebell.Kind = ArchetypeDraw.choice(
     "kettlebell",
     "kind",
@@ -47,13 +55,7 @@ export function createKettlebell(
     createKettlebell.KINDS,
   );
   const d: Partial<Record<createKettlebell.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "kettlebell",
-      createKettlebell.BANDS[kind],
-      seed,
-      params,
-      createKettlebell.BANDS,
-    );
+    draw.dimensions(createKettlebell.BANDS[kind], createKettlebell.BANDS);
   const body: number = d.diameter! / 2;
   const slim: number = d.handleDiameter! / 2;
   const top: number = d.height! - slim;
@@ -62,10 +64,10 @@ export function createKettlebell(
     createKettlebell.Affordance,
     createKettlebell.Dimension
   > = new ArchetypeBuilder({
-    archetype: "kettlebell",
+    material: "steel",
     id: params.id,
     name: "kettlebell",
-    dimensions: d,
+    draw,
   });
   builder.ball("body", body, Vector3.create(0, body, 0), { color: "#2c2f33" });
   builder.rod(
@@ -86,6 +88,7 @@ export function createKettlebell(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, top, 0),
       Vector3.create(0, 1, 0),
@@ -129,6 +132,14 @@ export namespace createKettlebell {
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "diameter" | "handleDiameter" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    diameter: "m",
+    handleDiameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

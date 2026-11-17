@@ -42,6 +42,44 @@ export class WalkPath {
   }
 
   /**
+   * The arc length of the polyline's point nearest a floor point: each
+   * segment's closest point, the nearest of them, the first on a tie.
+   *
+   * @param point The floor point, world metres; `y` is not read.
+   * @returns Arc length, metres.
+   */
+  public nearest(point: IAutoMovieVector3): number {
+    let best: number = 0;
+    let least: number = Infinity;
+    for (let i: number = 1; i < this.points.length; i++) {
+      const a: IAutoMovieVector3 = this.points[i - 1]!;
+      const b: IAutoMovieVector3 = this.points[i]!;
+      const span: number = this.cumulative[i]! - this.cumulative[i - 1]!;
+      const u: number =
+        span < 1e-12
+          ? 0
+          : Math.min(
+              1,
+              Math.max(
+                0,
+                ((point.x - a.x) * (b.x - a.x) +
+                  (point.z - a.z) * (b.z - a.z)) /
+                  (span * span),
+              ),
+            );
+      const d: number = Math.hypot(
+        a.x + (b.x - a.x) * u - point.x,
+        a.z + (b.z - a.z) * u - point.z,
+      );
+      if (d < least) {
+        least = d;
+        best = this.cumulative[i - 1]! + u * span;
+      }
+    }
+    return best;
+  }
+
+  /**
    * The heading of the chord across an arc length's neighbourhood, degrees about +Y (0 faces +Z).
    *
    * @param s Arc length, metres.

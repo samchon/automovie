@@ -1,6 +1,8 @@
+import type {
+  IAutoMovieRecoveryOpenContinuation,
+  IAutoMovieRecoveryTensorFamiliesInput,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryOpenContinuation,
-  type IAutoMovieRecoveryTensorFamiliesInput,
   applyAutoMovieRecoveryAnalyticPublication,
   restoreRecoveryCurveBasis,
 } from "@automovie/recovery";

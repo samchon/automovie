@@ -10,11 +10,11 @@ import type { ISceneChainNames } from "./structures/ISceneChainNames";
  * `with`, each mutual action after them with `next`; the laws the
  * performance registers; each placed archetype as a prop through
  * `HumanObject.prop`, with the person and bone it starts worn on; and the
- * input `HumanPerformance` is built from, as `PlaygroundPerformance` builds
- * it, ending in the one line `const performance = new
+ * authored impulses. It shows the input `HumanPerformance` is built from,
+ * as `PlaygroundPerformance` builds it, ending in the one line `const performance = new
  * HumanPerformance(input);`. A seat is written as `HumanObject.seat` of the
  * archetype that carries it, and an opening as `HumanObstacle.apertures`.
- * Each person's body is read from `bodies`, declared as the `IHumanBody`
+ * Each person's body is read from `bodies`, declared as the `IAutoMovieMotionHumanBody`
  * of each of the site's body ids, since a body is prepared from measures
  * the code does not show.
  *
@@ -75,8 +75,8 @@ export function formatSceneChain(
     body.push(
       `const ${identifier(o.subject)} = archetypes.${o.producer}(${options(o, key)}${o.seed === undefined ? "" : `, ${JSON.stringify(o.seed)}`});`,
       o.rotation === undefined
-        ? `const ${identifier(o.subject)}At = { at: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, yaw: ${o.yaw} };`
-        : `const ${identifier(o.subject)}At = { position: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, rotation: ${literal(o.rotation, imports)} };`,
+        ? `const ${identifier(o.subject)}At = { at: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, yaw: ${o.yaw}${o.fixed === true ? ", fixed: true" : ""} };`
+        : `const ${identifier(o.subject)}At = { position: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, rotation: ${literal(o.rotation, imports)}${o.fixed === true ? ", fixed: true" : ""} };`,
     );
   }
   if (objects.length !== 0) body.push("");
@@ -152,13 +152,12 @@ export function formatSceneChain(
   // The performance is built from the people, the composition, the props
   // and the laws, each list given only where the scene has one.
   imports.add("HumanPerformance");
-  imports.add("IHumanBody");
   body.push(
     "",
-    "// Each body id's `IHumanBody`, prepared by @automovie/human from the site's measures.",
-    "declare const bodies: Record<string, IHumanBody>;",
+    "// Each body id's motion body, prepared from the site's measures.",
+    "declare const bodies: Record<string, IAutoMovieMotionHumanBody>;",
     "",
-    "const input: HumanPerformance.IInput = {",
+    "const input: IAutoMovieMotionHumanPerformance.IInput = {",
     `  seed: ${JSON.stringify(composition.seed)},`,
     "  performers: [",
     ...composition.performers.map(
@@ -167,6 +166,9 @@ export function formatSceneChain(
     ),
     "  ],",
     "  composition: scene.node,",
+    ...(composition.forces === undefined
+      ? []
+      : [`  forces: ${value(composition.forces)},`]),
     ...(objects.length === 0 ? [] : ["  props,"]),
     ...(names.laws.length === 0 ? [] : ["  laws,"]),
     "};",
@@ -174,6 +176,7 @@ export function formatSceneChain(
   );
 
   const header: string[] = [
+    'import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance } from "@automovie/interface";',
     `import { ${[...imports].sort().join(", ")} } from "@automovie/motions";`,
     ...(objects.length === 0
       ? []

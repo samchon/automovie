@@ -3,6 +3,7 @@ import {
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeRide,
+  ArchetypeUnits,
   createBicycle,
   createCar,
   createCart,
@@ -11,7 +12,7 @@ import {
   rideBicycle,
   rideMotorcycle,
 } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -201,7 +202,7 @@ export function test_archetype_ride_course(): void {
     !nclose(plan.at(centres[1]!.seconds).distance, development, 1e-6)
   )
     findings.push("top dead centres are not half a development apart");
-  const lean: number = Math.atan((6 * 6) / (9.80665 * 10));
+  const lean: number = Math.atan((6 * 6) / (AutoMovieGravity.STANDARD * 10));
   const up3: IAutoMovieVector3 = ArchetypeFrame.axis(
     pedalled.at(turning).placement,
     "y",
@@ -235,7 +236,8 @@ export function test_archetype_ride_course(): void {
   )
     findings.push("the motorcycle's lean");
   const balance = (speed: number, limit: number): number =>
-    (speed * speed) / (9.80665 * Math.tan((limit * Math.PI) / 180));
+    (speed * speed) /
+    (AutoMovieGravity.STANDARD * Math.tan(limit * ArchetypeUnits.DEGREE));
   least(
     findings,
     "a motorcycle past 50 degrees",

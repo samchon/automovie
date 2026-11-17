@@ -2,14 +2,15 @@ import {
   IAutoMovieCastMember,
   IAutoMovieForgeEntry,
   IAutoMovieForgePlan,
+  type IAutoMovieForgedCast,
   IAutoMovieModel,
   IAutoMovieScript,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { validateModel } from "../validation/validateModel";
-import { IAutoMovieForgedCast } from "./IAutoMovieForgedCast";
 
 /**
  * A cast member with the index it was first declared at.
@@ -41,7 +42,7 @@ export function forgeCast(
   script: IAutoMovieScript,
   forge: IAutoMovieForgePlan,
 ): IAutoMovieForgedCast {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const cast: Map<string, IDeclaredMember> = new Map();
   script.cast.forEach((member: IAutoMovieCastMember, index: number): void => {
     const existing: IDeclaredMember | undefined = cast.get(member.node);

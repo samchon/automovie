@@ -1,15 +1,15 @@
 import {
-  AutoMovieSolidChain,
-  AutoMovieSplineCurve,
-  type IAutoMovieLoftChain,
-  type IAutoMovieSolidSurface,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import { TestValidator } from "@nestia/e2e";
-
-import { FamilyConicCaptureCatalog as Catalog } from "../../../reference-conics/FamilyConicCaptureCatalog";
+  FamilyConicCaptureCatalog as Catalog,
+} from "../../../reference-conics/FamilyConicCaptureCatalog";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
 import { nclose } from "../../internal/nclose";
+import { AutoMovieSolidChain, AutoMovieSplineCurve } from "@automovie/engine";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 /**
  * Bounded display sampling retains the exact endpoints owned by a real engine surface.

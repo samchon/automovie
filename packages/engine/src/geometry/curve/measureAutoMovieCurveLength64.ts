@@ -1,3 +1,9 @@
+import type {
+  IAutoMovieCurveLengthMeasurement64,
+  IAutoMovieCurveLengthQuadrature64,
+  IAutoMovieMeasureCurveLength64,
+} from "@automovie/interface";
+
 import { AutoMovieCurveLengthQuadrature64 } from "./AutoMovieCurveLengthQuadrature64";
 
 /**
@@ -30,19 +36,9 @@ import { AutoMovieCurveLengthQuadrature64 } from "./AutoMovieCurveLengthQuadratu
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows pieces/callbacks synchronously, retains only fixed 16 quadrature constants globally, and returns two scalars; no source reference, queue or task survives a call or exception.
  */
 export function measureAutoMovieCurveLength64(
-  pieces: readonly {
-    /** Finite increasing bounds in this derivative's own parameter chart. */
-    domain: readonly [number, number];
-    /** Original world derivative in mm per domain-parameter unit. */
-    derivative: (parameter: number) => readonly [number, number, number];
-  }[],
+  pieces: IAutoMovieMeasureCurveLength64.IPieces,
   subdivisions: number = 1,
-): {
-  /** K*2-panel integral of original physical speed, mm. */
-  lengthMm: number;
-  /** Absolute K/K*2 difference, mm; not a bound. */
-  differenceMm: number;
-} {
+): IAutoMovieCurveLengthMeasurement64 {
   if (
     !Number.isSafeInteger(subdivisions) ||
     subdivisions < 1 ||
@@ -67,7 +63,7 @@ export function measureAutoMovieCurveLength64(
         "Curve length needs finite increasing representable domains",
       );
   }
-  const measured: ReturnType<typeof AutoMovieCurveLengthQuadrature64.measure> =
+  const measured: IAutoMovieCurveLengthQuadrature64.IMeasureResult =
     AutoMovieCurveLengthQuadrature64.measure(pieces, subdivisions, true);
   if (measured.nonfiniteDerivative)
     throw new Error(

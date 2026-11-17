@@ -1,12 +1,15 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSocial,
-  type IHumanBody,
   touch,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -40,7 +43,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 4 scenarios with their bounds.
  */
 export function test_human_motion_core_meeting_window(): void {
-  const bodies: Record<"a" | "b", IHumanBody> = {
+  const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
     a: motionHumanBody("m-average"),
     b: motionHumanBody("f-small"),
   };
@@ -48,7 +51,10 @@ export function test_human_motion_core_meeting_window(): void {
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   const gap = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
     Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
-  const perform = (window: { from?: number; to: number }): HumanPerformance =>
+  const perform = (window: {
+    from?: number;
+    to: number;
+  }): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "window",
       laws: [HumanSocial.fistBump],
@@ -69,7 +75,7 @@ export function test_human_motion_core_meeting_window(): void {
       ).node,
     });
 
-  let performance: HumanPerformance;
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
     performance = perform({ from: 2, to: 3 });
   } catch (error) {
@@ -81,7 +87,7 @@ export function test_human_motion_core_meeting_window(): void {
     return;
   }
   const instant = (who: "a" | "b", event: string): number => {
-    const placed: HumanSegment.ISegment = performance.segments(who)[1]!;
+    const placed: IAutoMovieMotionHumanSegment = performance.segments(who)[1]!;
     return (
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === event)?.share ??

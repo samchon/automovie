@@ -1,7 +1,14 @@
-import { AutoMovieViewChain } from "@automovie/engine";
-import { AutoMovieHumanGrooveFade as Fade, AutoMovieHumanConicSection as S } from "@automovie/human";
-
 import { nclose } from "../../internal/predicates";
+import { AutoMovieViewChain } from "@automovie/engine";
+import {
+  AutoMovieHumanConicSection as S,
+  AutoMovieHumanGrooveFade as Fade,
+} from "@automovie/human";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieHumanConicSection,
+  IAutoMovieViewChain,
+} from "@automovie/interface";
 
 /**
  * How a groove on a bilateral wall's back median may end along the wall, on one lined layout with no splice: the premise of fitting
@@ -44,14 +51,14 @@ import { nclose } from "../../internal/predicates";
  */
 export function test_human_conic_lined_fade(): void {
   const failures: string[] = [];
-  const base: S.ILayout = S.bilateral(1);
-  const runs: S.IFeatureRun[] = [{ after: 3, anchors: [{ kind: "f", feature: "convex" }, { kind: "f", feature: "inflection" }] }];
+  const base: IAutoMovieHumanConicSection.ILayout = S.bilateral(1);
+  const runs: IAutoMovieHumanConicSection.IFeatureRun[] = [{ after: 3, anchors: [{ kind: "f", feature: "convex" }, { kind: "f", feature: "inflection" }] }];
   const freed: number[] = [1, 3];
-  const lined: S.ILayout = S.featured(base, runs, freed);
+  const lined: IAutoMovieHumanConicSection.ILayout = S.featured(base, runs, freed);
   const plain: number[] = [120, 0.5, 20, 180, 0.5, -90, 0.45, 0.45, 0.45, 0.45];
   const smooth: number[] = S.convert(plain, base, runs, freed);
-  const radius = (values: readonly number[], layout: S.ILayout, phase: number): number => {
-    const section: AutoMovieViewChain.ISection = S.chain(values, layout);
+  const radius = (values: readonly number[], layout: IAutoMovieHumanConicSection.ILayout, phase: number): number => {
+    const section: IAutoMovieViewChain.ISection = S.chain(values, layout);
     return section.fault === null ? AutoMovieViewChain.radius(section, phase) : NaN;
   };
 
@@ -64,22 +71,22 @@ export function test_human_conic_lined_fade(): void {
   // A grooved section of width share `q`: the freed median before the run keeps its point and heading; the crest, the inflection and
   // the floor are made, the groove's half width `22 q`, its depth `10 q^2` and its inflection's turn `30 q` degrees.
   const { at, shoulders }: { at: number[]; shoulders: number } = S.offsets(lined);
-  const input: AutoMovieViewChain.IInput = S.resolve(smooth, lined).input;
-  const side: S.P = input.points[2] as S.P;
+  const input: IAutoMovieViewChain.IInput = S.resolve(smooth, lined).input;
+  const side: AutoMovieVector2Tuple = input.points[2] as AutoMovieVector2Tuple;
   const full: Fade.IGroove = { half: 22, depth: 10, turn: Math.PI / 6 };
   if (!Fade.admitted(full) || !Fade.holds(full)) failures.push("the made groove (22, 10, 30 degrees) is not admitted at every width: 10 < 22 tan 30 and 10 <= 22 pi / 6");
   const steep: Fade.IGroove = { ...full, depth: 12 };
   if (!Fade.admitted(steep) || Fade.holds(steep) || Fade.admitted(Fade.narrowed(steep, 0.5))) failures.push("a groove 12 mm deep should be admitted whole (12 < 12.7), not held (12 > 11.5) and refused at half width (3 > 11 tan 15)");
-  const groove = (q: number): { values: number[]; floor: S.P; crest: S.P; inflection: S.P } => {
+  const groove = (q: number): { values: number[]; floor: AutoMovieVector2Tuple; crest: AutoMovieVector2Tuple; inflection: AutoMovieVector2Tuple } => {
     const { crest, inflection, heading: turned, floor }: Fade.IAnchors = Fade.anchors(Fade.narrowed(full, q), 90);
     const values: number[] = [...smooth];
     values[at[6]!] = floor[0];
     let previous: number = 0;
     for (const [k, point, heading] of [
-      [3, input.points[3] as S.P, Math.atan2(input.tangents[3]![1], input.tangents[3]![0])],
+      [3, input.points[3] as AutoMovieVector2Tuple, Math.atan2(input.tangents[3]![1], input.tangents[3]![0])],
       [4, crest, -Math.PI / 2],
       [5, inflection, turned],
-    ] as [number, S.P, number][]) {
+    ] as [number, AutoMovieVector2Tuple, number][]) {
       const read: { values: [number, number, number]; t: number } = S.unplace(side, floor, point, heading, previous);
       read.values.forEach((value: number, j: number): void => {
         values[at[k]! + j] = value;
@@ -93,8 +100,8 @@ export function test_human_conic_lined_fade(): void {
   const { values: grooved, floor, crest, inflection }: ReturnType<typeof groove> = groove(1);
 
   // 2. The grooved section stands on its made anchors and its floor.
-  const made: AutoMovieViewChain.IInput = S.resolve(grooved, lined).input;
-  for (const [k, point] of [[4, crest], [5, inflection], [6, floor]] as [number, S.P][])
+  const made: IAutoMovieViewChain.IInput = S.resolve(grooved, lined).input;
+  for (const [k, point] of [[4, crest], [5, inflection], [6, floor]] as [number, AutoMovieVector2Tuple][])
     if (!nclose(made.points[k]![0], point[0], 1e-9) || !nclose(made.points[k]![1], point[1], 1e-9)) failures.push("the grooved section's anchor " + k + " stands at " + JSON.stringify(made.points[k]) + ", not " + JSON.stringify(point));
   if (!nclose(radius(grooved, lined, Math.PI), 80, 1e-9)) failures.push("the groove's floor reaches " + radius(grooved, lined, Math.PI) + " mm, not 80");
   if (!nclose(radius(plain, base, Math.PI), 90, 1e-9)) failures.push("the plain section's back reaches " + radius(plain, base, Math.PI) + " mm, not 90");
@@ -107,7 +114,7 @@ export function test_human_conic_lined_fade(): void {
   const blended: { station: number; fault: string }[] = [];
   for (let s: number = 0; s <= 120; ++s) {
     const values: number[] = smooth.map((x: number, k: number): number => x + (1 - step(s)) * (grooved[k]! - x));
-    const section: AutoMovieViewChain.ISection = S.chain(values, lined);
+    const section: IAutoMovieViewChain.ISection = S.chain(values, lined);
     if (section.fault !== null) blended.push({ station: s, fault: section.fault });
   }
   if (blended.length === 0) failures.push("the blended fade was admitted at every station: the chain no longer refuses a groove whose inflection turns through its neighbour's tangent");
@@ -118,7 +125,7 @@ export function test_human_conic_lined_fade(): void {
   let before: number = 80;
   for (let s: number = 0; s <= 120; ++s) {
     const q: number = Fade.share(s, 60, 120, 0.25);
-    const section: AutoMovieViewChain.ISection = S.chain(groove(q).values, lined);
+    const section: IAutoMovieViewChain.ISection = S.chain(groove(q).values, lined);
     if (section.fault !== null) {
       failures.push("the narrowing fade, station " + s + " (width share " + q.toFixed(3) + "): " + section.fault);
       continue;

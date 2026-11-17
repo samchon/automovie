@@ -1,4 +1,4 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type { IAutoMovieMark } from "@automovie/interface";
 import { applyAutoMovieInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";

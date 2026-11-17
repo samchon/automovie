@@ -1,19 +1,24 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   closestPointsBetweenSegments,
   physicalHullFaces,
   physicalShapeBounds,
+  physicalShapeNearest,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMoviePhysicalShapeNearest,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
 
 /**
  * A posed body's colliders as signed distances: how far a point, or a
@@ -31,13 +36,47 @@ import type { IHumanBody } from "../body/IHumanBody";
  * least, so the searches that call this in loops pay for the near shapes only.
  */
 export namespace HumanColliders {
-  /** A signed distance and the segment it is measured to. */
-  export interface IDistance {
-    /** Metres, negative inside. */
-    distance: number;
-
-    /** The nearest segment's bone. */
-    bone: AutoMovieHumanoidBone;
+  /**
+   * Where a segment comes nearest a posed body: the signed distance and the
+   * bone of `distanceToSegment`, with the point of that bone's colliders
+   * nearest the segment and their outward normal there, read by the engine's
+   * one proximity owner (`physicalShapeNearest`). A flight's contact reads
+   * where it struck and which way the surface faced.
+   *
+   * @param body The body.
+   * @param bones Its posed bones, world frame.
+   * @param a One end, world metres.
+   * @param b The other end, world metres.
+   * @returns The distance, the bone, the surface point and its outward normal.
+   * @throws {Error} When the profile has no shape.
+   */
+  export function nearest(
+    body: IAutoMovieMotionHumanBody,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): IAutoMovieMotionHumanColliders.INearestResult {
+    const found: IAutoMovieMotionHumanColliders.IDistance = distanceToSegment(
+      body,
+      bones,
+      a,
+      b,
+    );
+    let best: IAutoMoviePhysicalShapeNearest.IResult | undefined;
+    for (const { bone, pose, shapes } of placed(body, bones)) {
+      if (bone !== found.bone) continue;
+      for (const shape of shapes) {
+        const near: IAutoMoviePhysicalShapeNearest.IResult =
+          physicalShapeNearest(pose, shape, a, b);
+        if (best === undefined || near.distance < best.distance) best = near;
+      }
+    }
+    return {
+      distance: found.distance,
+      bone: found.bone,
+      point: best!.point,
+      normal: best!.normal,
+    };
   }
 
   /**
@@ -50,10 +89,10 @@ export namespace HumanColliders {
    * @throws {Error} When the profile has no shape.
    */
   export function distance(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     point: IAutoMovieVector3,
-  ): IDistance {
+  ): IAutoMovieMotionHumanColliders.IDistance {
     return distanceToSegment(body, bones, point, point);
   }
 
@@ -74,22 +113,22 @@ export namespace HumanColliders {
    * @throws {Error} When the profile has no shape.
    */
   export function distanceToSegment(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
     taper?: readonly [number, number],
-  ): IDistance {
+  ): IAutoMovieMotionHumanColliders.IDistance {
     const widest: number =
       taper === undefined ? 0 : Math.max(taper[0], taper[1]);
-    let best: IDistance | undefined;
+    let best: IAutoMovieMotionHumanColliders.IDistance | undefined;
     for (const { bone, pose, shapes } of placed(body, bones))
       for (const shape of shapes) {
         // A shape lies inside its bounding sphere, so it is no nearer than
         // the sphere (less the widest of a taper): one that cannot beat the
         // least found is skipped.
         if (best !== undefined) {
-          const ball: IBall = bound(shape);
+          const ball: IAutoMovieMotionHumanColliders.IBall = bound(shape);
           const centre: IAutoMovieVector3 = Vector3.add(
             pose.position,
             Quaternion.rotateVector(
@@ -123,18 +162,6 @@ export namespace HumanColliders {
     return best;
   }
 
-  /** Where a ray meets a posed body. */
-  export interface IHit {
-    /** The point on the collider surface, world metres. */
-    point: IAutoMovieVector3;
-
-    /** The surface's outward unit normal there. */
-    normal: IAutoMovieVector3;
-
-    /** The bone of the segment that was hit. */
-    bone: AutoMovieHumanoidBone;
-  }
-
   /**
    * The first point of a posed body's colliders along a ray, by sphere
    * tracing: the signed distance at a point is how far the ray may advance
@@ -153,12 +180,12 @@ export namespace HumanColliders {
    * @throws {Error} When no tested segment has a shape.
    */
   export function cast(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     from: IAutoMovieVector3,
     direction: IAutoMovieVector3,
     reach: number,
-  ): IHit | undefined {
+  ): IAutoMovieMotionHumanColliders.IHit | undefined {
     const along: IAutoMovieVector3 = Vector3.normalize(direction);
     let travelled: number = 0;
     for (let i: number = 0; i < CAST_STEPS; i++) {
@@ -166,7 +193,11 @@ export namespace HumanColliders {
         from,
         Vector3.scale(along, travelled),
       );
-      const near: IDistance = distance(body, bones, point);
+      const near: IAutoMovieMotionHumanColliders.IDistance = distance(
+        body,
+        bones,
+        point,
+      );
       if (near.distance <= CAST_TOLERANCE) {
         const slope = (axis: IAutoMovieVector3): number =>
           distance(body, bones, Vector3.add(point, axis)).distance -
@@ -200,7 +231,7 @@ export namespace HumanColliders {
    * @throws {Error} When the profile has no shape.
    */
   export function lowest(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number {
     let low: number = Infinity;
@@ -212,63 +243,189 @@ export namespace HumanColliders {
     return low;
   }
 
-  /** One profile segment placed by its posed bone: the parent pose its shapes compose with. */
-  export interface IPlaced {
-    /** The rig bone that carries the segment. */
-    bone: AutoMovieHumanoidBone;
-
-    /** The segment's posed frame, world metres: the bone's world transform applied to the segment's neutral offset from the bone's rest joint. */
-    pose: P.ITransform;
-
-    /** The segment's shapes, each placed by `pose` composed with its own transform. */
-    shapes: readonly P.IShape[];
-  }
-
   /**
    * Every profile segment of a posed body with the frame its shapes are placed
    * in. The canonical rig rests unrotated and a segment's neutral frame is its
    * rest frame, so the posed frame is the bone's world rotation applied to the
-   * neutral offset from the bone's rest joint. This is the single owner of
-   * collider placement; distances and bounds read it.
+   * neutral offset from the bone's rest joint. A left segment is its right
+   * twin's mirror image in the median plane (`mirrored`), its offset, turn and
+   * shapes, point for point, as the surfaces are (8d750b565), so a left-hand
+   * problem mirrored to the right reads the very colliders a right-hand one
+   * does. This is the single owner of collider placement; distances and
+   * bounds read it.
    *
    * @param body The body.
    * @param bones Its posed bones, world frame.
    * @returns The placed segments, in profile order; a segment whose bone the pose does not carry is skipped.
    */
   export function placed(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): IPlaced[] {
+  ): IAutoMovieMotionHumanColliders.IPlaced[] {
     // Profile segments name rig bones by string; reading the posed map by name
     // and taking the bone from the posed entry avoids casting the string.
     const byName: ReadonlyMap<string, IAutoMovieResolvedBone> = bones;
-    const out: IPlaced[] = [];
-    for (const segment of body.profile.segments) {
+    const out: IAutoMovieMotionHumanColliders.IPlaced[] = [];
+    for (const segment of sided(body)) {
       const posed: IAutoMovieResolvedBone | undefined = byName.get(
         segment.bone,
       );
       if (posed === undefined) continue;
-      const rest: IAutoMovieVector3 | undefined = body.rest.get(posed.bone);
-      if (rest === undefined) continue;
       out.push({
         bone: posed.bone,
         pose: {
           position: Vector3.add(
             posed.worldPosition,
-            Quaternion.rotateVector(
-              posed.worldRotation,
-              Vector3.subtract(segment.neutral.position, rest),
-            ),
+            Quaternion.rotateVector(posed.worldRotation, segment.offset),
           ),
-          rotation: Quaternion.multiply(
-            posed.worldRotation,
-            segment.neutral.rotation,
-          ),
+          rotation: Quaternion.multiply(posed.worldRotation, segment.rotation),
         },
         shapes: segment.shapes,
       });
     }
     return out;
+  }
+
+  /**
+   * Builds a body's placed colliders and every hull's faces once, when the
+   * body is prepared, so no action pays for them: the segments as placed
+   * (`placed`) and the faces of each hull (`physicalHullFaces`, which keeps
+   * them by the hull's points), a search cubic to quartic in a hull's
+   * points.
+   *
+   * @param body The body.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is built, when and why.
+   * @evidence contracts/development/implementation.md#principled-implementation The placement and the hull faces every collider query reads, computed by their owners.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the placed segments' shapes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is computed that a query would not.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The hull search runs once per hull's points, at preparation instead of inside the first action.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The placement is kept per body and the faces per points array by their owners, so every later query reads them.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Both are held by weak maps keyed by the body and the points, released with them.
+   */
+  export function prepare(body: IAutoMovieMotionHumanBody): void {
+    for (const segment of sided(body))
+      for (const shape of segment.shapes)
+        if (shape.kind === "hull") physicalHullFaces(shape.points);
+  }
+
+  /**
+   * The sphere about a shape's centre that contains it: a sphere's own
+   * radius, a capsule's half length plus radius, a box's half diagonal, a
+   * hull's vertex radius about its vertex mean. A point outside it is outside
+   * the shape, so a query may skip the shape there.
+   *
+   * @param shape The shape.
+   * @returns The sphere, in the shape's frame.
+   * @throws {Error} On an unknown shape kind.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each kind's sphere, its frame and what it allows.
+   * @evidence contracts/development/implementation.md#principled-implementation Each sphere contains its shape: a capsule's farthest point is its half length plus its radius from its centre, a box's its half diagonal, a hull's a vertex.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One case per kind.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown kind throws.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per shape; a hull reads its faces' cached centre and radius.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A hull's centre and radius come from `physicalHullFaces`, which keeps them by its points.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function bound(
+    shape: IAutoMoviePhysicalShape,
+  ): IAutoMovieMotionHumanColliders.IBall {
+    const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    if (shape.kind === "sphere")
+      return { centre: origin, radius: shape.radius };
+    if (shape.kind === "capsule")
+      return { centre: origin, radius: shape.halfLength + shape.radius };
+    if (shape.kind === "box")
+      return { centre: origin, radius: Vector3.length(shape.halfExtents) };
+    if (shape.kind === "hull") {
+      const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
+        shape.points,
+      );
+      return { centre: hull.centre, radius: hull.radius };
+    }
+    shape satisfies never;
+    throw new Error("Unknown physical shape kind");
+  }
+
+  /** A profile segment as placed: its bone, its offset from the bone's rest joint, its turn and its shapes. */
+  interface ISided {
+    /** The bone. */ bone: string;
+    /** The neutral frame's offset from the bone's rest joint, metres. */ offset: IAutoMovieVector3;
+    /** The neutral frame's rotation. */ rotation: IAutoMovieRigidTransform["rotation"];
+    /** The shapes in the neutral frame. */ shapes: IAutoMoviePhysicalShape[];
+  }
+
+  /** Each body's segments as placed, a left one the mirror of its right twin, built once per body. */
+  const SIDED: WeakMap<IAutoMovieMotionHumanBody, ISided[]> = new WeakMap();
+
+  /** The body's segments as placed (`placed`), in profile order. */
+  function sided(body: IAutoMovieMotionHumanBody): ISided[] {
+    const known: ISided[] | undefined = SIDED.get(body);
+    if (known !== undefined) return known;
+    // The rest joints read by the segments' string names, as `placed` reads
+    // the posed bones.
+    const rests: ReadonlyMap<string, IAutoMovieVector3> = body.rest;
+    const own = (segment: IAutoMoviePhysicalSegment): ISided | null => {
+      const rest: IAutoMovieVector3 | undefined = rests.get(segment.bone);
+      return rest === undefined
+        ? null
+        : {
+            bone: segment.bone,
+            offset: Vector3.subtract(segment.neutral.position, rest),
+            rotation: segment.neutral.rotation,
+            shapes: segment.shapes,
+          };
+    };
+    const out: ISided[] = [];
+    for (const segment of body.profile.segments) {
+      const twin: IAutoMoviePhysicalSegment | undefined =
+        segment.bone.startsWith("left")
+          ? body.profile.segments.find(
+              (s: IAutoMoviePhysicalSegment): boolean =>
+                s.bone === `right${segment.bone.slice(4)}`,
+            )
+          : undefined;
+      const read: ISided | null = own(twin ?? segment);
+      if (read === null) continue;
+      out.push(
+        twin === undefined ? read : { ...mirrored(read), bone: segment.bone },
+      );
+    }
+    SIDED.set(body, out);
+    return out;
+  }
+
+  /** A segment's mirror image in the median plane: x negated in every point and offset, and every turn reflected. */
+  function mirrored(segment: ISided): ISided {
+    const point = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+      x: -p.x,
+      y: p.y,
+      z: p.z,
+    });
+    const turn = (
+      q: IAutoMovieRigidTransform["rotation"],
+    ): IAutoMovieRigidTransform["rotation"] => ({
+      x: q.x,
+      y: -q.y,
+      z: -q.z,
+      w: q.w,
+    });
+    return {
+      bone: segment.bone,
+      offset: point(segment.offset),
+      rotation: turn(segment.rotation),
+      shapes: segment.shapes.map(
+        (shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShape => {
+          const transform: IAutoMovieRigidTransform = {
+            position: point(shape.transform.position),
+            rotation: turn(shape.transform.rotation),
+          };
+          return shape.kind === "hull"
+            ? { ...shape, transform, points: shape.points.map(point) }
+            : { ...shape, transform };
+        },
+      ),
+    };
   }
 }
 
@@ -280,28 +437,3 @@ const CAST_PROBE: number = 1e-4;
 
 /** The most steps a ray is traced for; a ray that needs more only grazes the body. */
 const CAST_STEPS: number = 64;
-
-/** A sphere containing a shape, in the shape's own frame. */
-interface IBall {
-  /** The sphere's centre, shape-local metres. */
-  centre: IAutoMovieVector3;
-
-  /** The sphere's radius, metres. */
-  radius: number;
-}
-
-/** The sphere about a shape's centre that contains it: a sphere's own radius, a capsule's half length plus radius, a box's half diagonal, a hull's vertex radius about its vertex mean. */
-const bound = (shape: P.IShape): IBall => {
-  const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  if (shape.kind === "sphere") return { centre: origin, radius: shape.radius };
-  if (shape.kind === "capsule")
-    return { centre: origin, radius: shape.halfLength + shape.radius };
-  if (shape.kind === "box")
-    return { centre: origin, radius: Vector3.length(shape.halfExtents) };
-  if (shape.kind === "hull") {
-    const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
-    return { centre: hull.centre, radius: hull.radius };
-  }
-  shape satisfies never;
-  throw new Error("Unknown physical shape kind");
-};

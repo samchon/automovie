@@ -1,10 +1,13 @@
+import type {
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanTrunkSolution,
+  IAutoMovieHumanTrunkViewLaws,
+} from "@automovie/interface";
+
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import { AutoMovieHumanTrunkInguinalFold } from "../AutoMovieHumanTrunkInguinalFold";
 import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
-import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
-import type { IAutoMovieHumanTrunkSolution } from "../IAutoMovieHumanTrunkSolution";
 import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
-import type { AutoMovieHumanTrunkViews } from "./AutoMovieHumanTrunkViews";
 
 /**
  * The trunk's interim accessors (#3044's rule for priors the campaign has
@@ -43,14 +46,14 @@ export namespace AutoMovieHumanTrunkInterim {
     crotch: number,
     stature: number,
     cervicale: number,
-  ): AutoMovieHumanTrunkViews.ILaws["upper"] {
+  ): IAutoMovieHumanTrunkViewLaws.ILaws["upper"] {
     const T: typeof AutoMovieHumanReferenceOutlines =
       AutoMovieHumanReferenceOutlines;
     const top: number = measures.cervicaleHeight * scale;
     const table = (
       site: string,
       y: number,
-    ): AutoMovieHumanTrunkViews.ILaws["upper"][number] => {
+    ): IAutoMovieHumanTrunkViewLaws.ILaws["upper"][number] => {
       const share: number = (y - crotch) / (top - crotch);
       const read = (column: string): number => T.at(T.TRUNK, column, share);
       return {
@@ -73,14 +76,14 @@ export namespace AutoMovieHumanTrunkInterim {
     const shoulder: [number, number, number] = solution.landmarks.shoulder;
     const radius: number =
       (measures.upperArmCircumference * scale) / (2 * Math.PI);
-    const upper: AutoMovieHumanTrunkViews.ILaws["upper"] = [
+    const upper: IAutoMovieHumanTrunkViewLaws.ILaws["upper"] = [
       {
         ...table("axilla", measures.axillaHeight * scale),
         half: shoulder[2] - radius,
       },
       { ...table("acromion", shoulder[1]), half: shoulder[2] },
     ].filter(
-      (site: AutoMovieHumanTrunkViews.ILaws["upper"][number]): boolean =>
+      (site: IAutoMovieHumanTrunkViewLaws.ILaws["upper"][number]): boolean =>
         site.y > chest + gap && site.y < seat.y - gap,
     );
     return [

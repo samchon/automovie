@@ -1,6 +1,8 @@
-import { IAutoMovieHalfSpacePlane } from "@automovie/interface";
+import {
+  IAutoMovieHalfSpacePlane,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "./constants/AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES";
 
 /**
@@ -35,12 +37,12 @@ export const validateSolidPlanes: (
   planes: readonly IAutoMovieHalfSpacePlane[],
   path: string,
   label: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   planes: readonly IAutoMovieHalfSpacePlane[],
   path: string,
   label: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   if (planes.length < AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES)
     out.push(

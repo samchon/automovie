@@ -1,13 +1,12 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAudit,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAudit,
-  type IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
-} from "@automovie/motions";
+import { AutoMovieMotionHumanAudit } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditMoved } from "../internal/motionAuditMoved";
@@ -49,7 +48,7 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  */
 export function test_human_motion_audit_run(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const stance: Bones = motionHumanStance(body);
   const film = (
     x: number,
@@ -92,17 +91,17 @@ export function test_human_motion_audit_run(): void {
         },
       ],
     );
-  const checks = (report: AutoMovieMotionHumanAudit.IReport): string[] =>
+  const checks = (report: IAutoMovieMotionHumanAudit.IReport): string[] =>
     report.findings.map(
-      (f: AutoMovieMotionHumanAudit.IFinding): string => f.check,
+      (f: IAutoMovieMotionHumanAudit.IFinding): string => f.check,
     );
-  const read = (report: AutoMovieMotionHumanAudit.IReport): string[] =>
+  const read = (report: IAutoMovieMotionHumanAudit.IReport): string[] =>
     AutoMovieMotionHumanAudit.CHECKS.filter(
-      (check: AutoMovieMotionHumanAudit.Check): boolean =>
+      (check: IAutoMovieMotionHumanAudit.Check): boolean =>
         report.measures[check] !== undefined,
     );
 
-  const clean: AutoMovieMotionHumanAudit.IReport =
+  const clean: IAutoMovieMotionHumanAudit.IReport =
     AutoMovieMotionHumanAudit.run(film(0, 0), "a", body);
   TestValidator.equals(
     "standing still is clean",
@@ -114,14 +113,14 @@ export function test_human_motion_audit_run(): void {
     ...AutoMovieMotionHumanAudit.CHECKS,
   ]);
 
-  const broken: AutoMovieMotionHumanAudit.IReport =
+  const broken: IAutoMovieMotionHumanAudit.IReport =
     AutoMovieMotionHumanAudit.run(film(0.06, -0.02), "a", body);
   TestValidator.equals("the findings in check order", checks(broken), [
     "floor",
     "slip",
     "lift",
   ]);
-  const slip: AutoMovieMotionHumanAudit.IFinding = broken.findings[1]!;
+  const slip: IAutoMovieMotionHumanAudit.IFinding = broken.findings[1]!;
   TestValidator.predicate(
     "a finding carries its reading and its limit",
     Math.abs(slip.value - 0.06) <= 1e-9 &&
@@ -137,7 +136,7 @@ export function test_human_motion_audit_run(): void {
     ),
   );
 
-  const unread: AutoMovieMotionHumanAudit.IReport =
+  const unread: IAutoMovieMotionHumanAudit.IReport =
     AutoMovieMotionHumanAudit.run(film(0.06, -0.02), "a", body, {
       limits: { floor: null, lift: null, tangle: null },
     });
@@ -149,7 +148,7 @@ export function test_human_motion_audit_run(): void {
       unread.measures.slip !== undefined,
   );
   TestValidator.equals("only the read checks find", checks(unread), ["slip"]);
-  const still: AutoMovieMotionHumanAudit.IReport =
+  const still: IAutoMovieMotionHumanAudit.IReport =
     AutoMovieMotionHumanAudit.run(film(0, 0), "a", body, {
       limits: { jump: null, reversal: null, speed: null },
     });
@@ -160,7 +159,7 @@ export function test_human_motion_audit_run(): void {
     "lift",
     "balance",
   ]);
-  const partly: AutoMovieMotionHumanAudit.IReport =
+  const partly: IAutoMovieMotionHumanAudit.IReport =
     AutoMovieMotionHumanAudit.run(film(0, 0), "a", body, {
       limits: { reversal: null },
     });
@@ -171,7 +170,7 @@ export function test_human_motion_audit_run(): void {
       partly.measures.speed !== undefined,
   );
 
-  const only = (slipLimit: number): AutoMovieMotionHumanAudit.IReport =>
+  const only = (slipLimit: number): IAutoMovieMotionHumanAudit.IReport =>
     AutoMovieMotionHumanAudit.run(film(0.06, 0), "a", body, {
       limits: { slip: slipLimit },
     });
@@ -183,11 +182,8 @@ export function test_human_motion_audit_run(): void {
   );
   TestValidator.equals("a tighter limit", checks(only(0.059)), ["slip"]);
 
-  const fast: AutoMovieMotionHumanAudit.IReport = AutoMovieMotionHumanAudit.run(
-    film(40, 0, 0.25),
-    "a",
-    body,
-    {
+  const fast: IAutoMovieMotionHumanAudit.IReport =
+    AutoMovieMotionHumanAudit.run(film(40, 0, 0.25), "a", body, {
       limits: {
         tangle: null,
         floor: null,
@@ -197,8 +193,7 @@ export function test_human_motion_audit_run(): void {
         reversal: null,
         balance: null,
       },
-    },
-  );
+    });
   TestValidator.predicate(
     "a speed finding is described in metres per second",
     checks(fast).length === 1 &&

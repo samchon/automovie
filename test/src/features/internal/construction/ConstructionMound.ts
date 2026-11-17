@@ -1,4 +1,4 @@
-import type { IAutoMovieSolidSurface } from "@automovie/engine";
+import type { IAutoMovieSolidSurface } from "@automovie/interface";
 
 /**
  * A made mound on a flat wall, in millimetres, for the mixed join's operator tests: closed forms on both surfaces along one loop.

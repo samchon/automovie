@@ -1,48 +1,55 @@
-import type { AutoMovieHumanNativeProjectionCourse as Course } from "../conic/AutoMovieHumanNativeProjectionCourse";
-import {
-  type AutoMovieLoftFrame,
-  type AutoMovieViewAxis,
-  type AutoMovieViewAxisJet,
-  type IAutoMovieLoftRelief,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-
 import { AutoMovieHumanConicLoft as H } from "../conic/AutoMovieHumanConicLoft";
-import { AutoMovieHumanConicSection as S } from "../conic/AutoMovieHumanConicSection";
-import { AutoMovieHumanNativeFamily as Native } from "../conic/AutoMovieHumanNativeFamily";
+import {
+  AutoMovieHumanNativeFamily as Native,
+} from "../conic/AutoMovieHumanNativeFamily";
 import { AutoMovieHumanNativeFeatureLaw } from "../conic/AutoMovieHumanNativeFeatureLaw";
 import { AutoMovieHumanNativeSourceLaw } from "../conic/AutoMovieHumanNativeSourceLaw";
 import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
-import type { AutoMovieHumanF1 as Figure } from "./AutoMovieHumanF1";
-import { AutoMovieHumanF1NativeCalibration as Calibration } from "./AutoMovieHumanF1NativeCalibration";
-import { AutoMovieHumanF1NativeCourse as LengthCourse } from "./AutoMovieHumanF1NativeCourse";
-import type { AutoMovieHumanF1NativeFieldTypes as Types } from "./AutoMovieHumanF1NativeFieldTypes";
-import type { AutoMovieHumanF1NativeRootLaw as Root } from "./AutoMovieHumanF1NativeRootLaw";
+import {
+  AutoMovieHumanF1NativeCalibration as Calibration,
+} from "./AutoMovieHumanF1NativeCalibration";
+import {
+  AutoMovieHumanF1NativeCourse as LengthCourse,
+} from "./AutoMovieHumanF1NativeCourse";
 import { AutoMovieHumanF1NativeRoots } from "./AutoMovieHumanF1NativeRoots";
+import type {
+  AutoMovieVector2Tuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1,
+  IAutoMovieHumanF1NativeLaw,
+  IAutoMovieHumanF1NativeRoot,
+  IAutoMovieHumanNativeProjectionCourse,
+  IAutoMovieLoftRelief,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /** Qualified native field/source construction under one immutable original invocation. */
 export namespace AutoMovieHumanF1NativeBuild {
   /** The actual complete-source or two-family tape request, never a padded partial figure. */
   export type Request =
-    | { scope: "all"; fields: Types.IFields }
-    | { scope: "tapes"; fields: Types.ITapeFields };
+    | { scope: "all"; fields: IAutoMovieHumanF1NativeLaw.IFields }
+    | { scope: "tapes"; fields: IAutoMovieHumanF1NativeLaw.ITapeFields };
   /** Complete assembly or the two exact tape-family definitions from that same builder. */
   export type Result =
-    | { scope: "all"; assembly: Figure.IAssembly }
-    | { scope: "tapes"; trunk: H.IFamily; breast: H.IFamily };
-  type IFields = Types.IFields;
-  type ISize = Types.ISize;
+    | { scope: "all"; assembly: IAutoMovieHumanF1.IAssembly }
+    | { scope: "tapes"; trunk: IAutoMovieHumanConicLoft.IFamily; breast: IAutoMovieHumanConicLoft.IFamily };
+  type IFields = IAutoMovieHumanF1NativeLaw.IFields;
+  type ISize = IAutoMovieHumanF1NativeLaw.ISize;
   const { ARM, EXTREMITIES, WALL, profile, ratio, same, translated } = Calibration;
 
   /** Build the shared original source definitions and dependent complete assembly without lofting. */
   export function create(
     request: Request,
-    original: Figure.IAssembly,
-    bone: Figure.IAssembly,
+    original: IAutoMovieHumanF1.IAssembly,
+    bone: IAutoMovieHumanF1.IAssembly,
     originals: ReadonlyMap<string, IAutoMovieViewPart>,
     zero: IFields,
-    rootCalibrations: Map<string, Root.ICalibration>,
-    projectionOwner: Course.IProjectionOwner,
+    rootCalibrations: Map<string, IAutoMovieHumanF1NativeRoot.ICalibration>,
+    projectionOwner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner,
   ): Result {
     const fields: Request["fields"] = request.fields;
     const groups: Record<string, Record<string, ISize>> = request.scope ===
@@ -75,25 +82,25 @@ export namespace AutoMovieHumanF1NativeBuild {
     // Lengths enter through each family's course in material stations (NativeCourse); a trunk length is refused there.
     if (request.scope === "all") LengthCourse.admit(request.fields.lengths, zero.lengths);
     const course: typeof LengthCourse.create = LengthCourse.create;
-    const wall: (station: number) => S.P = profile(
+    const wall: (station: number) => AutoMovieVector2Tuple = profile(
       WALL.map(
         ([name, station]: readonly [keyof IFields["wall"], number]): readonly [
           number,
-          S.P,
+          AutoMovieVector2Tuple,
         ] => [station, ratio(fields.wall[name], zero.wall[name])],
       ),
     );
-    const trunkAxis: AutoMovieViewAxis.IAxis = H.axis(original.body.trunk);
-    const trunkFrame: AutoMovieLoftFrame.IFrame = trunkAxis.at(0);
-    const tangent: F.V3 = F.unit(F.cross(trunkFrame.v, trunkFrame.u));
-    const stationOf: (point: F.V3) => number = (point: F.V3): number =>
+    const trunkAxis: IAutoMovieViewAxis.IAxis = H.axis(original.body.trunk);
+    const trunkFrame: IAutoMovieLoftSectionFrame = trunkAxis.at(0);
+    const tangent: AutoMovieVector3Tuple = F.unit(F.cross(trunkFrame.v, trunkFrame.u));
+    const stationOf: (point: AutoMovieVector3Tuple) => number = (point: AutoMovieVector3Tuple): number =>
       F.dot(F.sub(point, trunkFrame.origin), tangent);
     /** Retained wall-only datum prior for the leg, head appendages and original fill datums. */
-    function skinPoint(point: F.V3): F.V3 {
+    function skinPoint(point: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
       const station: number = stationOf(point);
-      const frame: AutoMovieLoftFrame.IFrame = trunkAxis.at(station);
-      const [a, b]: S.P = wall(station);
-      const local: F.V3 = F.sub(point, frame.origin);
+      const frame: IAutoMovieLoftSectionFrame = trunkAxis.at(station);
+      const [a, b]: AutoMovieVector2Tuple = wall(station);
+      const local: AutoMovieVector3Tuple = F.sub(point, frame.origin);
       return F.add(
         point,
         F.add(
@@ -104,39 +111,39 @@ export namespace AutoMovieHumanF1NativeBuild {
     }
     const maps: Map<string, { forward: (s: number) => number }> = new Map();
     const identity: (s: number) => number = (s: number): number => s;
-    const generated: Map<keyof typeof bone.body, H.IFamily> = new Map();
-    const family: (name: keyof typeof bone.body) => H.IFamily = (
+    const generated: Map<keyof typeof bone.body, IAutoMovieHumanConicLoft.IFamily> = new Map();
+    const family: (name: keyof typeof bone.body) => IAutoMovieHumanConicLoft.IFamily = (
       name: keyof typeof bone.body,
-    ): H.IFamily => {
-      const result: H.IFamily | undefined = generated.get(name);
+    ): IAutoMovieHumanConicLoft.IFamily => {
+      const result: IAutoMovieHumanConicLoft.IFamily | undefined = generated.get(name);
       if (result === undefined)
         throw new Error("native requested source absent: " + name);
       return result;
     };
     /** The declared bilateral chart map carries source axes and physical2 together. */
     function reflectedAxis(
-      axis: AutoMovieViewAxis.IAxis,
-    ): AutoMovieViewAxis.IAxis {
-      const flip: (p: F.V3, sign: number) => F.V3 = (
-        p: F.V3,
+      axis: IAutoMovieViewAxis.IAxis,
+    ): IAutoMovieViewAxis.IAxis {
+      const flip: (p: AutoMovieVector3Tuple, sign: number) => AutoMovieVector3Tuple = (
+        p: AutoMovieVector3Tuple,
         sign: number,
-      ): F.V3 => [sign * p[0], sign * p[1], -sign * p[2]];
+      ): AutoMovieVector3Tuple => [sign * p[0], sign * p[1], -sign * p[2]];
       const frame: (
-        p: AutoMovieLoftFrame.IFrame,
-      ) => AutoMovieLoftFrame.IFrame = (
-        p: AutoMovieLoftFrame.IFrame,
-      ): AutoMovieLoftFrame.IFrame => ({
+        p: IAutoMovieLoftSectionFrame,
+      ) => IAutoMovieLoftSectionFrame = (
+        p: IAutoMovieLoftSectionFrame,
+      ): IAutoMovieLoftSectionFrame => ({
         origin: flip(p.origin, 1),
         u: flip(p.u, 1),
         v: flip(p.v, -1),
       });
       return {
-        at: (s: number): AutoMovieLoftFrame.IFrame => frame(axis.at(s)),
+        at: (s: number): IAutoMovieLoftSectionFrame => frame(axis.at(s)),
         jet: (
           s: number,
-          p: Parameters<NonNullable<AutoMovieViewAxis.IAxis["jet"]>>[1],
-        ): AutoMovieViewAxisJet.IJet | null => {
-          const j: AutoMovieViewAxisJet.IJet | null = axis.jet?.(s, p) ?? null;
+          p: Parameters<NonNullable<IAutoMovieViewAxis.IAxis["jet"]>>[1],
+        ): IAutoMovieViewAxisJet.IJet | null => {
+          const j: IAutoMovieViewAxisJet.IJet | null = axis.jet?.(s, p) ?? null;
           return j === null
             ? null
             : {
@@ -149,17 +156,17 @@ export namespace AutoMovieHumanF1NativeBuild {
     }
     /** Generate one family and register its original physical station map in this invocation. */
     function make(
-      prior: H.IFamily,
-      placed: H.IFamily,
-      scales: (s: number) => S.P,
-      axis: AutoMovieViewAxis.IAxis,
+      prior: IAutoMovieHumanConicLoft.IFamily,
+      placed: IAutoMovieHumanConicLoft.IFamily,
+      scales: (s: number) => AutoMovieVector2Tuple,
+      axis: IAutoMovieViewAxis.IAxis,
       protection: Native.ISpec["protection"] = [],
       forward: (s: number) => number = identity,
-      featureScale: (net: IAutoMovieLoftRelief) => S.P = (
+      featureScale: (net: IAutoMovieLoftRelief) => AutoMovieVector2Tuple = (
         net: IAutoMovieLoftRelief,
-      ): S.P => scales((net.stations[0] + net.stations[1]) / 2),
+      ): AutoMovieVector2Tuple => scales((net.stations[0] + net.stations[1]) / 2),
       resolvedFeatures?: IAutoMovieLoftRelief[],
-    ): H.IFamily {
+    ): IAutoMovieHumanConicLoft.IFamily {
       maps.set(prior.name, { forward });
       const features: IAutoMovieLoftRelief[] =
         resolvedFeatures ??
@@ -169,7 +176,7 @@ export namespace AutoMovieHumanF1NativeBuild {
           featureScale,
           forward,
         );
-      const result: H.IFamily = Native.create({
+      const result: IAutoMovieHumanConicLoft.IFamily = Native.create({
         original: prior,
         bone: placed,
         originals,
@@ -183,9 +190,9 @@ export namespace AutoMovieHumanF1NativeBuild {
     }
     /** Resolve actual complete original root targets with the same fixed feature scope. */
     function targets(
-      prior: H.IFamily,
-      axis: AutoMovieViewAxis.IAxis,
-      scale: S.P,
+      prior: IAutoMovieHumanConicLoft.IFamily,
+      axis: IAutoMovieViewAxis.IAxis,
+      scale: AutoMovieVector2Tuple,
       features: IAutoMovieLoftRelief[],
     ): ReadonlyMap<string, IAutoMovieViewPart> {
       const source: IAutoMovieViewPart | undefined = originals.get(prior.name);
@@ -216,21 +223,21 @@ export namespace AutoMovieHumanF1NativeBuild {
       return sources;
     }
     const measured: (
-      prior: H.IFamily,
-      axis: AutoMovieViewAxis.IAxis,
+      prior: IAutoMovieHumanConicLoft.IFamily,
+      axis: IAutoMovieViewAxis.IAxis,
       features: IAutoMovieLoftRelief[],
-      sites: readonly (readonly [number, S.P])[],
+      sites: readonly (readonly [number, AutoMovieVector2Tuple])[],
     ) => Native.ISpec["protection"] = (
-      prior: H.IFamily,
-      axis: AutoMovieViewAxis.IAxis,
+      prior: IAutoMovieHumanConicLoft.IFamily,
+      axis: IAutoMovieViewAxis.IAxis,
       features: IAutoMovieLoftRelief[],
-      sites: readonly (readonly [number, S.P])[],
+      sites: readonly (readonly [number, AutoMovieVector2Tuple])[],
     ): Native.ISpec["protection"] =>
       sites.map(([station, scale]) => ({
         sources: targets(prior, axis, scale, features),
         requirement: { type: "junction", station },
       }));
-    const crown: H.ITip | null | undefined = original.body.trunk.tips?.[1];
+    const crown: IAutoMovieHumanConicLoft.ITip | null | undefined = original.body.trunk.tips?.[1];
     const crownStation: number =
       crown === undefined || crown === null
         ? original.body.trunk.knots[original.body.trunk.knots.length - 1]!
@@ -245,7 +252,7 @@ export namespace AutoMovieHumanF1NativeBuild {
       "trunk.chin",
     ];
     /** Each named trunk feature keeps its declared anatomical field owner. */
-    function trunkFeature(net: IAutoMovieLoftRelief): S.P {
+    function trunkFeature(net: IAutoMovieLoftRelief): AutoMovieVector2Tuple {
       if (headNets.includes(net.name))
         return ratio(fields.wall.headSkin, zero.wall.headSkin);
       if (net.name.startsWith("trunk.crotch") || net.name === "trunk.low")
@@ -282,7 +289,7 @@ export namespace AutoMovieHumanF1NativeBuild {
         WALL.map(
           ([name, s]: readonly [keyof IFields["wall"], number]): readonly [
             number,
-            S.P,
+            AutoMovieVector2Tuple,
           ] => [s, ratio(fields.wall[name], zero.wall[name])],
         ),
       ),
@@ -340,22 +347,22 @@ export namespace AutoMovieHumanF1NativeBuild {
         breast: family("breast"),
       };
     const fullFields: IFields = request.fields;
-    const handScale: S.P = ratio(
+    const handScale: AutoMovieVector2Tuple = ratio(
       fullFields.extremities.hand,
       zero.extremities.hand,
     );
-    const handProfile: (station: number) => S.P = profile([
+    const handProfile: (station: number) => AutoMovieVector2Tuple = profile([
       [ARM.at(-1)![1], ratio(fullFields.arm.wrist, zero.arm.wrist)],
       [EXTREMITIES.hand, handScale],
     ]);
     const handFeatures: IAutoMovieLoftRelief[] = AutoMovieHumanNativeFeatureLaw(
       original.body.hand.reliefs ?? [],
       bone.body.hand.reliefs ?? [],
-      (net: IAutoMovieLoftRelief): S.P =>
+      (net: IAutoMovieLoftRelief): AutoMovieVector2Tuple =>
         handProfile((net.stations[0] + net.stations[1]) / 2),
       identity,
     );
-    const handCourse: AutoMovieViewAxis.IAxis = course(original.body.hand, bone.body.hand);
+    const handCourse: IAutoMovieViewAxis.IAxis = course(original.body.hand, bone.body.hand);
     generated.set(
       "hand",
       make(
@@ -368,20 +375,20 @@ export namespace AutoMovieHumanF1NativeBuild {
           [EXTREMITIES.hand, handScale],
         ]),
         identity,
-        (net: IAutoMovieLoftRelief): S.P =>
+        (net: IAutoMovieLoftRelief): AutoMovieVector2Tuple =>
           handProfile((net.stations[0] + net.stations[1]) / 2),
         handFeatures,
       ),
     );
-    const headScale: S.P = ratio(fields.wall.headSkin, zero.wall.headSkin);
-    const headGroup: (prior: H.IFamily, placed: H.IFamily) => H.IFamily = (
-      prior: H.IFamily,
-      placed: H.IFamily,
-    ): H.IFamily =>
+    const headScale: AutoMovieVector2Tuple = ratio(fields.wall.headSkin, zero.wall.headSkin);
+    const headGroup: (prior: IAutoMovieHumanConicLoft.IFamily, placed: IAutoMovieHumanConicLoft.IFamily) => IAutoMovieHumanConicLoft.IFamily = (
+      prior: IAutoMovieHumanConicLoft.IFamily,
+      placed: IAutoMovieHumanConicLoft.IFamily,
+    ): IAutoMovieHumanConicLoft.IFamily =>
       make(
         prior,
         placed,
-        (): S.P => headScale,
+        (): AutoMovieVector2Tuple => headScale,
         translated(
           H.axis(placed),
           F.sub(
@@ -391,28 +398,28 @@ export namespace AutoMovieHumanF1NativeBuild {
         ),
       );
     generated.set("ear", headGroup(original.body.ear, bone.body.ear));
-    const helix: H.IFamily = headGroup(original.helix, bone.helix);
-    const antihelix: H.IFamily = headGroup(original.antihelix, bone.antihelix);
-    const concha: H.IFamily = headGroup(original.concha, bone.concha);
-    const axilla: H.IFamily = make(
+    const helix: IAutoMovieHumanConicLoft.IFamily = headGroup(original.helix, bone.helix);
+    const antihelix: IAutoMovieHumanConicLoft.IFamily = headGroup(original.antihelix, bone.antihelix);
+    const concha: IAutoMovieHumanConicLoft.IFamily = headGroup(original.concha, bone.concha);
+    const axilla: IAutoMovieHumanConicLoft.IFamily = make(
       original.axilla,
       bone.axilla,
-      (): S.P => ratio(fullFields.roots.arm, zero.roots.arm),
+      (): AutoMovieVector2Tuple => ratio(fullFields.roots.arm, zero.roots.arm),
       rootPrepared
         .get(original.body.arm.name)!
         .cutterAxis(H.axis(original.axilla)),
     );
-    const nostril: H.IFamily = make(
+    const nostril: IAutoMovieHumanConicLoft.IFamily = make(
       original.nostril,
       bone.nostril,
-      (): S.P => ratio(fullFields.roots.nose, zero.roots.nose),
+      (): AutoMovieVector2Tuple => ratio(fullFields.roots.nose, zero.roots.nose),
       rootPrepared
         .get(original.body.nose.name)!
         .cutterAxis(H.axis(original.nostril)),
     );
-    const digits: Figure.IDigit[] = bone.digits.map(
-      (digit: Figure.IDigit, k: number): Figure.IDigit => {
-        const scale: S.P =
+    const digits: IAutoMovieHumanF1.IDigit[] = bone.digits.map(
+      (digit: IAutoMovieHumanF1.IDigit, k: number): IAutoMovieHumanF1.IDigit => {
+        const scale: AutoMovieVector2Tuple =
           digit.limb === "arm"
             ? ratio(fullFields.extremities.finger, zero.extremities.finger)
             : ratio(fullFields.extremities.toe, zero.extremities.toe);
@@ -421,7 +428,7 @@ export namespace AutoMovieHumanF1NativeBuild {
           family: make(
             original.digits[k]!.family,
             digit.family,
-            (): S.P => scale,
+            (): AutoMovieVector2Tuple => scale,
             course(original.digits[k]!.family, digit.family),
           ),
         };
@@ -436,7 +443,7 @@ export namespace AutoMovieHumanF1NativeBuild {
       nose: family("nose"),
       breast: family("breast"),
     };
-    const roots: Figure.IAssembly["roots"] = {
+    const roots: IAutoMovieHumanF1.IAssembly["roots"] = {
       arm: [rootLoop("arm", 1), rootLoop("arm", -1)],
       breast: [rootLoop("breast", 1), rootLoop("breast", -1)],
       nose: rootLoop("nose", 1),
@@ -444,8 +451,8 @@ export namespace AutoMovieHumanF1NativeBuild {
     // The seam's along coordinate belongs to the AP chord, not the trunk's
     // station map. Its normalized original controls use that same root depth;
     // its new vertical rise is an explicit total-tissue geometric-mean prior.
-    const hip: S.P = ratio(fields.wall.hipSkin, zero.wall.hipSkin);
-    const crotchProfile: Figure.IAssembly["crotchProfile"] =
+    const hip: AutoMovieVector2Tuple = ratio(fields.wall.hipSkin, zero.wall.hipSkin);
+    const crotchProfile: IAutoMovieHumanF1.IAssembly["crotchProfile"] =
       hip[0] === 1 && hip[1] === 1
         ? original.crotchProfile
         : {
@@ -479,7 +486,7 @@ export namespace AutoMovieHumanF1NativeBuild {
           ...Object.values(body),
           helix,
           antihelix,
-          ...digits.map((digit: Figure.IDigit): H.IFamily => digit.family),
+          ...digits.map((digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanConicLoft.IFamily => digit.family),
           axilla,
           concha,
           nostril,
@@ -493,8 +500,8 @@ export namespace AutoMovieHumanF1NativeBuild {
             ? map.forward(from)
             : map.forward(from + length) - map.forward(from);
         },
-        point: (name: string): F.V3 => {
-          const point: F.V3 = bone.point(name);
+        point: (name: string): AutoMovieVector3Tuple => {
+          const point: AutoMovieVector3Tuple = bone.point(name);
           return name === "armpit" || name === "breastFan" ? skinPoint(point) : point;
         },
       },

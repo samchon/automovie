@@ -1,32 +1,32 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  AutoMovieMotionHumanChannel,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRest,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { tags } from "typia";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { handGoals } from "./handGoals";
 import { restGoals } from "./restGoals";
@@ -89,22 +89,10 @@ import { restGoals } from "./restGoals";
  */
 export namespace rest {
   /** The action's name. */
-  export const name: HumanActionName = "rest";
-
-  /** A rest place. */
-  export type Place =
-    | "side"
-    | "pocket"
-    | "hip"
-    | "crossed"
-    | "claspedFront"
-    | "claspedBehind"
-    | "behindHead"
-    | "chinRest"
-    | "elbowSupport";
+  export const name: AutoMovieMotionHumanActionName = "rest";
 
   /** Cancel table: holding a rest place has no stroke, so it can be cut anywhere. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
     walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
     look: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
@@ -115,20 +103,8 @@ export namespace rest {
   /** A rest may be performed over a carrier: it claims the arms it places, with their hands. */
   export const overlay: boolean = true;
 
-  /** Parameters. */
-  export interface IParams {
-    /** The left hand's place; `side` when absent. */
-    left?: Place;
-
-    /** The right hand's place; `side` when absent. */
-    right?: Place;
-
-    /** How long, seconds; 2 when absent. */
-    seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
-  }
-
   /** Places that hold both hands together, so both hands must name them. */
-  export const PAIRED: readonly Place[] = [
+  export const PAIRED: readonly IAutoMovieMotionHumanRest.Place[] = [
     "crossed",
     "claspedFront",
     "claspedBehind",
@@ -143,13 +119,14 @@ export namespace rest {
    * @throws {HumanRefusal} When a paired place names one hand only, or the time is not positive.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
-    const places: Record<HumanHand.Side, Place> = {
-      left: context.params.left ?? "side",
-      right: context.params.right ?? "side",
-    };
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRest.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const places: Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.Place> =
+      {
+        left: context.params.left ?? "side",
+        right: context.params.right ?? "side",
+      };
     for (const place of PAIRED)
       if ((places.left === place) !== (places.right === place))
         throw new HumanRefusal({
@@ -176,31 +153,32 @@ export namespace rest {
 
     // The body under the rest: the carrier's when the rest is an overlay,
     // otherwise the stand law's.
-    const base: IHumanActionPlan =
+    const base: IAutoMovieMotionHumanActionPlan =
       context.carrier === undefined
         ? stand.plan({ ...context, params: { seconds: duration } })
         : AutoMovieMotionHumanBase.under(context, duration);
-    const at0: IHumanPosture = base.posture(0);
-    const frame0: HumanFrame.IFrame = { origin: at0.root, yaw: at0.yaw };
+    const at0: IAutoMovieMotionHumanPosture = base.posture(0);
+    const frame0: IAutoMovieMotionHumanFrame = {
+      origin: at0.root,
+      yaw: at0.yaw,
+    };
 
     // Goals, solved once in the performer's frame and carried by the body.
-    const goals: Partial<Record<HumanHand.Side, IGoal>> = rest.goals(
-      body,
-      at0,
-      places,
-    );
+    const goals: Partial<
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal>
+    > = rest.goals(body, at0, places);
     const entry: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       context.entry.pose,
     );
     const begin: Partial<
       Record<
-        HumanHand.Side,
-        { angles: AutoMovieMotionHumanArm.IAngles; travel: number }
+        AutoMovieHumanSide,
+        { angles: IAutoMovieMotionHumanArmAngles.IAngles; travel: number }
       >
     > = {};
     for (const side of ["left", "right"] as const) {
-      const goal: IGoal | undefined = goals[side];
+      const goal: IAutoMovieMotionHumanRest.IGoal | undefined = goals[side];
       if (goal === undefined) continue;
       const from: IAutoMovieVector3 = HumanHand.frame(
         body,
@@ -218,9 +196,11 @@ export namespace rest {
         ),
       };
     }
-    const local: Partial<Record<HumanHand.Side, IGoal>> = {};
+    const local: Partial<
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal>
+    > = {};
     for (const side of ["left", "right"] as const) {
-      const goal: IGoal | undefined = goals[side];
+      const goal: IAutoMovieMotionHumanRest.IGoal | undefined = goals[side];
       if (goal !== undefined)
         local[side] = {
           ...goal,
@@ -246,28 +226,30 @@ export namespace rest {
       ...(context.carrier === undefined
         ? {}
         : {
-            channels: AutoMovieMotionHumanChannel.ORDER.filter(
+            channels: HumanChannels.ORDER.filter(
               (c: AutoMovieMotionHumanChannel): boolean =>
                 (["left", "right"] as const).some(
-                  (side: HumanHand.Side): boolean =>
+                  (side: AutoMovieHumanSide): boolean =>
                     local[side] !== undefined &&
                     (c === `${side}Arm` || c === `${side}Hand`),
                 ),
             ),
           }),
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const posture: IHumanPosture = base.posture(t);
-        const frame: HumanFrame.IFrame = {
+        const posture: IAutoMovieMotionHumanPosture = base.posture(t);
+        const frame: IAutoMovieMotionHumanFrame = {
           origin: posture.root,
           yaw: posture.yaw,
         };
         const turn: IAutoMovieQuaternion = HumanFrame.turn(frame.yaw);
-        const joints: IHumanPosture["joints"] = { ...posture.joints };
-        const requests: AutoMovieMotionHumanArm.ISided[] = [];
-        const shares: [HumanHand.Side, number][] = [];
+        const joints: IAutoMovieMotionHumanPosture["joints"] = {
+          ...posture.joints,
+        };
+        const requests: IAutoMovieMotionHumanArmTarget.ISided[] = [];
+        const shares: [AutoMovieHumanSide, number][] = [];
         for (const side of ["left", "right"] as const) {
-          const goal: IGoal | undefined = local[side];
+          const goal: IAutoMovieMotionHumanRest.IGoal | undefined = local[side];
           const from = begin[side];
           if (goal === undefined || from === undefined) continue;
           const s: number = minimumJerk(t / from.travel).s;
@@ -300,7 +282,7 @@ export namespace rest {
         // space, Soechting and Lacquaniti 1981), so no instant asks the fit
         // for a hand part way along a nearly straight arm, where the
         // elbow's side is ill-conditioned.
-        let placed: IHumanPosture = handGoals(
+        let placed: IAutoMovieMotionHumanPosture = handGoals(
           body,
           { ...posture, joints },
           requests,
@@ -318,24 +300,6 @@ export namespace rest {
     };
   }
 
-  /** A hand's rest goal in world metres. */
-  export interface IGoal {
-    /** The surface laid on the place. */
-    surface: HumanHand.Surface;
-
-    /** The hand shape. */
-    shape: HumanHand.Shape;
-
-    /** Where the surface goes, world metres. */
-    point: IAutoMovieVector3;
-
-    /** The hand's world rotation from rest. */
-    rotation: IAutoMovieQuaternion;
-
-    /** The elbow's bend hint, world metres. */
-    elbow: IAutoMovieVector3;
-  }
-
   /**
    * Both hands' rest goals on a posture ({@link restGoals}).
    *
@@ -346,10 +310,10 @@ export namespace rest {
    * @throws {HumanRefusal} When the trunk has no surface where a clasp is laid.
    */
   export function goals(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    places: Record<HumanHand.Side, Place>,
-  ): Partial<Record<HumanHand.Side, IGoal>> {
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    places: Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.Place>,
+  ): Partial<Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal>> {
     return restGoals(body, posture, places);
   }
 }

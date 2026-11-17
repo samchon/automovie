@@ -1,6 +1,7 @@
+import type { IAutoMovieFilmEffectCurrentIdentity } from "@automovie/interface";
+
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeError";
-import { IAutoMovieFilmEffectCurrentIdentity } from "./IAutoMovieFilmEffectCurrentIdentity";
 
 /**
  * Refuse a current film-effect identity that cannot address a runtime.

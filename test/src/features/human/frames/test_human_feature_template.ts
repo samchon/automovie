@@ -1,6 +1,12 @@
-import { AutoMovieHumanFeatureTemplate as Template, AutoMovieHumanSegmentFrame as F } from "@automovie/human";
-
 import { nclose } from "../../internal/predicates";
+import {
+  AutoMovieHumanFeatureTemplate as Template,
+  AutoMovieHumanSegmentFrame as F,
+} from "@automovie/human";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanSegmentFrame,
+} from "@automovie/interface";
 
 /**
  * A feature template keeps its place on its bone, follows the skeleton's ratios and takes the tissue's ratio only when it is a pad.
@@ -36,7 +42,7 @@ export function test_human_feature_template(): void {
   const close = (what: string, got: number, expected: number, tolerance: number = 1e-12): void => {
     if (!nclose(got, expected, tolerance)) failures.push(`${what}: ${got} against ${expected}`);
   };
-  const vector = (what: string, got: F.V3, expected: F.V3): void => got.forEach((x: number, k: number): void => close(what + " " + k, x, expected[k]!, 1e-9));
+  const vector = (what: string, got: AutoMovieVector3Tuple, expected: AutoMovieVector3Tuple): void => got.forEach((x: number, k: number): void => close(what + " " + k, x, expected[k]!, 1e-9));
   const refused = (what: string, bad: () => unknown): void => {
     let thrown: boolean = false;
     try {
@@ -69,7 +75,7 @@ export function test_human_feature_template(): void {
   // 3. On a turned frame: the feature rides its bone.
   for (const angle of [0.5, 1.0]) {
     const [c, s]: [number, number] = [Math.cos(angle), Math.sin(angle)];
-    const frame: F.IFrame = { origin: [100, 50, 0], axes: [[c, s, 0], [-s, c, 0], [0, 0, 1]] };
+    const frame: IAutoMovieHumanSegmentFrame = { origin: [100, 50, 0], axes: [[c, s, 0], [-s, c, 0], [0, 0, 1]] };
     const placed: Template.IPlaced = Template.place(made("bone"), frame);
     vector("the placed centre at " + angle, placed.centre, [100 + 30 * c + 200 * s, 50 + 30 * s - 200 * c, 10]);
     vector("the placed long direction at " + angle, placed.along, [s, -c, 0]);

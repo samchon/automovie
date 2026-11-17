@@ -1,4 +1,7 @@
-import { AutoMovieGuidePass } from "@automovie/interface";
+import {
+  AutoMovieGuidePass,
+  type IAutoMovieProductionRenderLayersForPass,
+} from "@automovie/interface";
 
 /**
  * The layers one render pass draws for one film frame.
@@ -18,7 +21,7 @@ import { AutoMovieGuidePass } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned copies, at most the frame's layer count.
  */
 export function productionRenderLayersForPass<Layer extends { weight: number }>(
-  frame: { layers: readonly Layer[] },
+  frame: IAutoMovieProductionRenderLayersForPass.IFrame<Layer>,
   pass: AutoMovieGuidePass,
 ): Array<Omit<Layer, "weight"> & { weight: number }> {
   if (pass === "beauty")

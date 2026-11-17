@@ -1,19 +1,16 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 
 /**
@@ -38,16 +35,16 @@ export namespace HumanSegmentCarry {
    * @returns Each holding arm with its goal.
    */
   export function carries(
-    person: HumanSegment.IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     pose: IAutoMoviePose,
-    holds: readonly HumanSegment.IHeld[],
-  ): ["leftArm" | "rightArm", IHumanPosture.IGoal][] {
+    holds: readonly IAutoMovieMotionHumanSegment.IHeld[],
+  ): ["leftArm" | "rightArm", IAutoMovieHumanLimbGoal][] {
     if (holds.length === 0) return [];
     const chest: IAutoMovieResolvedBone = bones(person, pose).get("chest")!;
     return holds.map(
       (
-        h: HumanSegment.IHeld,
-      ): ["leftArm" | "rightArm", IHumanPosture.IGoal] => {
+        h: IAutoMovieMotionHumanSegment.IHeld,
+      ): ["leftArm" | "rightArm", IAutoMovieHumanLimbGoal] => {
         h.carry ??= capture(person, h);
         return [
           h.side === "left" ? "leftArm" : "rightArm",
@@ -73,7 +70,7 @@ export namespace HumanSegmentCarry {
 
   /** A pose's world bones. */
   function bones(
-    person: HumanSegment.IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     pose: IAutoMoviePose,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     return poseBones(person.performer.body, pose);
@@ -81,9 +78,9 @@ export namespace HumanSegmentCarry {
 
   /** A holding arm relative to the chest at the end of the action that took hold. */
   function capture(
-    person: HumanSegment.IPerson,
-    held: HumanSegment.IHeld,
-  ): HumanSegment.ICarry {
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    held: IAutoMovieMotionHumanSegment.IHeld,
+  ): IAutoMovieMotionHumanSegment.ICarry {
     const at: number = Math.max(held.from, held.source.end);
     const pose: IAutoMoviePose = HumanSegmentPose.of(person, held.source, at);
     const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(

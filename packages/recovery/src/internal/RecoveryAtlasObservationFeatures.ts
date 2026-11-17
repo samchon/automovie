@@ -1,15 +1,16 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryAtlasObservationFeatures,
+  IAutoMovieRecoveryAtlasObservationInput,
+  IAutoMovieRecoveryChartInventory,
+  IAutoMovieRecoveryFeatureChartPreparation,
+  IAutoMovieRecoveryPendingChartObservation,
+  IAutoMovieRecoverySourceComponent,
+  IAutoMovieRecoverySourceCrease,
+} from "@automovie/interface";
 
-import type { RecoveryAtlasObservationTypes } from "./RecoveryAtlasObservationTypes";
 import { RecoveryFeatureChartPreparation } from "./RecoveryFeatureChartPreparation";
 
-type Input = RecoveryAtlasObservationTypes["Input"];
-
-type Pending = RecoveryAtlasObservationTypes["Pending"];
-
-type Component = RecoveryAtlasObservationTypes["Component"];
-type Feature = RecoveryAtlasObservationTypes["Feature"];
-type Inventory = RecoveryAtlasObservationTypes["Inventory"];
 /**
  * Register feature-prepared charts and their original shared outcome records.
  *
@@ -21,25 +22,9 @@ type Inventory = RecoveryAtlasObservationTypes["Inventory"];
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Pending entries and the interval ledger retain the identical outcomes array.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Prepared charts transfer to the observation state; no source registry or fit is duplicated.
  */
-export function RecoveryAtlasObservationFeatures(context: {
-  input: Input;
-  name: string;
-  positions: C.Vector[];
-  triangles: [number, number, number][];
-  vertexIds: string[];
-  slots: Map<string, number>;
-  component: Component;
-  interval: number;
-  beforeMm: number;
-  afterMm: number;
-  pending: Pending[];
-  inventory: Inventory[];
-  outcomes: object[];
-  triangleSourceFaces: number[];
-  featureEdges: Feature[];
-  failedSelectedComponents: Set<string>;
-  incrementUnsupported: () => void;
-}): void {
+export function RecoveryAtlasObservationFeatures(
+  context: Parameters<IAutoMovieRecoveryAtlasObservationFeatures.Operation>[0],
+): ReturnType<IAutoMovieRecoveryAtlasObservationFeatures.Operation> {
   const {
     input,
     name,
@@ -59,25 +44,25 @@ export function RecoveryAtlasObservationFeatures(context: {
     failedSelectedComponents,
     incrementUnsupported,
   }: {
-    input: Input;
+    input: IAutoMovieRecoveryAtlasObservationInput;
     name: string;
-    positions: C.Vector[];
+    positions: Readonly<AutoMovieVector3Tuple>[];
     triangles: [number, number, number][];
     vertexIds: string[];
     slots: Map<string, number>;
-    component: Component;
+    component: IAutoMovieRecoverySourceComponent;
     interval: number;
     beforeMm: number;
     afterMm: number;
-    pending: Pending[];
-    inventory: Inventory[];
+    pending: IAutoMovieRecoveryPendingChartObservation[];
+    inventory: IAutoMovieRecoveryChartInventory[];
     outcomes: object[];
     triangleSourceFaces: number[];
-    featureEdges: Feature[];
+    featureEdges: IAutoMovieRecoverySourceCrease[];
     failedSelectedComponents: Set<string>;
     incrementUnsupported: () => void;
   } = context;
-  const prepared: ReturnType<typeof RecoveryFeatureChartPreparation> =
+  const prepared: ReturnType<IAutoMovieRecoveryFeatureChartPreparation.Operation> =
     RecoveryFeatureChartPreparation({
       name,
       verticesMm: positions,
@@ -90,9 +75,7 @@ export function RecoveryAtlasObservationFeatures(context: {
       featureEdges: featureEdges.map(
         (
           edge: (typeof featureEdges)[number],
-        ): Parameters<
-          typeof RecoveryFeatureChartPreparation
-        >[0]["featureEdges"][number] => ({
+        ): Parameters<IAutoMovieRecoveryFeatureChartPreparation.Operation>[0]["featureEdges"][number] => ({
           a: slots.get(edge.from)!,
           b: slots.get(edge.to)!,
           sourceEdge: edge.sourceEdge,

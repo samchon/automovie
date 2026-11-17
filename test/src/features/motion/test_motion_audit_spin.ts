@@ -1,9 +1,12 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditSpin,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditContinuity,
   AutoMovieMotionHumanAuditSpin,
-  type IAutoMovieMotionHumanAuditMotion,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -72,16 +75,16 @@ export function test_motion_audit_spin(): void {
     at: (t: number) => Angles,
     limit: number = 5,
     rate: number = 24,
-  ): AutoMovieMotionHumanAuditSpin.IResult =>
+  ): IAutoMovieMotionHumanAuditSpin.IResult =>
     AutoMovieMotionHumanAuditSpin.measure(film(at), "a", rate, limit);
-  const show = (r: AutoMovieMotionHumanAuditSpin.IResult): string =>
+  const show = (r: IAutoMovieMotionHumanAuditSpin.IResult): string =>
     JSON.stringify(r);
   const snap = (t: number, at: number, size: number): number =>
     t >= at ? size : 0;
   const final: number = 1 / (24 * 2 ** AutoMovieMotionHumanAuditSpin.LEVELS);
 
   // 1. A steady turn.
-  const steady: AutoMovieMotionHumanAuditSpin.IResult = read(
+  const steady: IAutoMovieMotionHumanAuditSpin.IResult = read(
     (t: number): Angles => ({ head: 90 * t }),
   );
   TestValidator.predicate(
@@ -97,7 +100,7 @@ export function test_motion_audit_spin(): void {
     leftHand: 0,
     leftIndexDistal: snap(t, 0.4321, 20),
   });
-  const finger: AutoMovieMotionHumanAuditSpin.IResult = read(leaf);
+  const finger: IAutoMovieMotionHumanAuditSpin.IResult = read(leaf);
   TestValidator.predicate(
     `a phalanx's 20 degree snap is read, got ${show(finger)}`,
     Math.abs(finger.turn.value - 20) <= 1e-6 &&
@@ -114,7 +117,7 @@ export function test_motion_audit_spin(): void {
   );
 
   // 3. A snap on a turning bone.
-  const turning: AutoMovieMotionHumanAuditSpin.IResult = read(
+  const turning: IAutoMovieMotionHumanAuditSpin.IResult = read(
     (t: number): Angles => ({ rightHand: 200 * t + snap(t, 0.4321, 12) }),
   );
   TestValidator.predicate(
@@ -125,10 +128,10 @@ export function test_motion_audit_spin(): void {
   );
 
   // 4. Either end of the film.
-  const early: AutoMovieMotionHumanAuditSpin.IResult = read(
+  const early: IAutoMovieMotionHumanAuditSpin.IResult = read(
     (t: number): Angles => ({ head: snap(t, 0.02, 8) }),
   );
-  const late: AutoMovieMotionHumanAuditSpin.IResult = read(
+  const late: IAutoMovieMotionHumanAuditSpin.IResult = read(
     (t: number): Angles => ({ head: snap(t, 0.99, 8) }),
   );
   TestValidator.predicate(
@@ -149,14 +152,14 @@ export function test_motion_audit_spin(): void {
     read(small).turn.value,
     0,
   );
-  const tight: AutoMovieMotionHumanAuditSpin.IResult = read(small, 1);
+  const tight: IAutoMovieMotionHumanAuditSpin.IResult = read(small, 1);
   TestValidator.predicate(
     `a limit of 1 reads the 3 degree snap, got ${show(tight)}`,
     Math.abs(tight.turn.value - 3) <= 1e-6 && tight.turn.where === "jaw",
   );
 
   // 6. A smooth start.
-  const smooth: AutoMovieMotionHumanAuditSpin.IResult = read(
+  const smooth: IAutoMovieMotionHumanAuditSpin.IResult = read(
     (t: number): Angles => ({ head: t > 0.5 ? 3000 * (t - 0.5) ** 2 : 0 }),
   );
   TestValidator.predicate(
@@ -165,7 +168,7 @@ export function test_motion_audit_spin(): void {
   );
 
   // 7. Two snaps at once.
-  const both: AutoMovieMotionHumanAuditSpin.IResult = read(
+  const both: IAutoMovieMotionHumanAuditSpin.IResult = read(
     (t: number): Angles => ({
       jaw: snap(t, 0.4321, 10),
       rightToes: snap(t, 0.4321, 25),

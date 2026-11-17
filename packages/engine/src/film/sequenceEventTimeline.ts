@@ -1,12 +1,13 @@
 import {
   IAutoMovieInteractionEvent,
+  type IAutoMoviePlaybackEntry,
+  type IAutoMoviePlaybackEvent,
+  type IAutoMoviePreparePlaybackTimeline,
   IAutoMovieSequence,
   IAutoMovieShot,
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
-import { IAutoMoviePlaybackEvent } from "./IAutoMoviePlaybackEvent";
 import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
 
 /** Seconds within which two clock values count as the same instant. */
@@ -35,7 +36,7 @@ export function sequenceEventTimeline(
   sequence: IAutoMovieSequence,
   shots: IAutoMovieShot[],
 ): IAutoMoviePlaybackEvent[] {
-  const { timeline, shotById }: ReturnType<typeof preparePlaybackTimeline> =
+  const { timeline, shotById }: IAutoMoviePreparePlaybackTimeline.IResult =
     preparePlaybackTimeline(sequence, shots);
   const entriesByShot: Map<string, IAutoMoviePlaybackEntry[]> = new Map();
   for (const entry of timeline.entries) {

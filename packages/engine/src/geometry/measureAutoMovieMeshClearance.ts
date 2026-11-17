@@ -1,6 +1,9 @@
-import { IAutoMovieMesh } from "@automovie/interface";
+import {
+  type IAutoMovieMeasureMeshClearance,
+  IAutoMovieMesh,
+  type IAutoMovieMeshClearanceWitness,
+} from "@automovie/interface";
 
-import { IAutoMovieMeshClearanceWitness } from "./IAutoMovieMeshClearanceWitness";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**
@@ -42,7 +45,7 @@ export function measureAutoMovieMeshClearance(
   back: IAutoMovieMesh,
   axis: "x" | "y" | "z",
   visit?: (witness: IAutoMovieMeshClearanceWitness) => void,
-): { triangle: number; minimum: number }[] {
+): IAutoMovieMeasureMeshClearance.IResult {
   const axes: readonly number[] = depthAxes(axis);
   const fronts: IProjectedTriangle[] = triangles(front, axes);
   const backs: IProjectedTriangle[] = triangles(back, axes);

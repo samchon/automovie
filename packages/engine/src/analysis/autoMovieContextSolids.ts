@@ -1,9 +1,8 @@
 import {
+  type IAutoMovieAnalysisSolid,
   IAutoMovieContextOccluder,
   IAutoMovieEnvironmentContext,
 } from "@automovie/interface";
-
-import { IAutoMovieAnalysisSolid } from "./IAutoMovieAnalysisSolid";
 
 /**
  * Every context occluder as an analysis solid.

@@ -1,8 +1,10 @@
-import type { IAutoMovieRecoveryFeasibleCandidate } from "../structures/internal/IAutoMovieRecoveryFeasibleCandidate";
-import type { IAutoMovieRecoveryFeasibleProblem } from "../structures/internal/IAutoMovieRecoveryFeasibleProblem";
-import type { IAutoMovieRecoveryFeasibleTrialSelection } from "../structures/internal/IAutoMovieRecoveryFeasibleTrialSelection";
-import type { IAutoMovieRecoveryFeasibleTrials } from "../structures/internal/IAutoMovieRecoveryFeasibleTrials";
-import type { IAutoMovieRecoverySqpArc } from "../structures/internal/IAutoMovieRecoverySqpArc";
+import type {
+  IAutoMovieRecoveryFeasibleCandidate,
+  IAutoMovieRecoveryFeasibleProblem,
+  IAutoMovieRecoveryFeasibleTrialSelection,
+  IAutoMovieRecoveryFeasibleTrials,
+  IAutoMovieRecoverySqpArc,
+} from "@automovie/interface";
 
 /**
  * Compare qualified full candidates and one half on the same accelerated arc.

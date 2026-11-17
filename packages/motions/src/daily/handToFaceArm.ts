@@ -1,17 +1,13 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanHandToFaceArm,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchDrink,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import type { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchDrink } from "../compose/AutoMovieMotionHumanTouchDrink";
-import type { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
-import type { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
-import type { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
-import type { HumanGrasp } from "../handling/HumanGrasp";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * The arm a hand-to-face task lays on its place (`handToFace`): how the
@@ -25,65 +21,14 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Delegates the vessel's search, the hint and the reference to their owners.
  */
 export namespace handToFaceArm {
-  /** One hand's arm. */
-  export interface IArm {
-    /** What the effector's along axis lies on. */
-    lay: AutoMovieMotionHumanTouch.ITouch["lay"];
-
-    /** The elbow's hint, world. */
-    bend: IAutoMovieVector3;
-
-    /** The arm laid at the face, which every second's fit is held to. */
-    reference: NonNullable<AutoMovieMotionHumanTouch.ITouch["reference"]>;
-
-    /** A vessel's lean toward the lips, degrees; absent for no vessel. */
-    lean?: number;
-
-    /** The level direction a vessel faces against; absent for no vessel searched. */
-    facing?: IAutoMovieVector3;
-  }
-
-  /** What `of` reads. */
-  export interface IProps {
-    /** The body. */
-    body: IHumanBody;
-
-    /** The entry with the head at the face as the hand arrives. */
-    atFace: IHumanPosture;
-
-    /** The entry with the head turned, as a drinker's is in the drinking phase. */
-    turned: IHumanPosture;
-
-    /** The hand. */
-    side: HumanHand.Side;
-
-    /** The hand's effector. */
-    effector: AutoMovieMotionHumanTouchEffector.IEffector;
-
-    /** The hand's place at a posture and second. */
-    place: (
-      posture: IHumanPosture,
-      seconds: number,
-    ) => Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">;
-
-    /** The row's tangent. */
-    tangent: AutoMovieMotionHumanTouchForm.Tangent;
-
-    /** Whether the row holds its effector upright, a vessel. */
-    upright: boolean;
-
-    /** The grasp a held tool was taken up by, which keeps its turn; null for none. */
-    own: HumanGrasp.IKey | null;
-  }
-
   /**
    * One hand's arm at the face.
    *
    * A held vessel is carried upright and brought to the face as a drinker
    * holds it: leaned toward the lips as little as lets the arm stay low, and
    * turned the way its arm then meets it best. Its elbow is hinted where the
-   * arm hangs, the hint its drinking arm was found with, so the arm shown is
-   * the one admitted. A vessel held as the grasp it was taken up by presents
+   * arm hangs, moved into the drinking range where it lies outside, the hint
+   * its drinking arm was found with, so the arm shown is the one admitted. A vessel held as the grasp it was taken up by presents
    * it (`own`) has its turn in the hand fixed, so only its lean toward the
    * lips is sought, with the grasp's elbow hint: the same drink takes the
    * same arm however the vessel came to the hand.
@@ -99,9 +44,11 @@ export namespace handToFaceArm {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanTouchDrink`, `AutoMovieMotionHumanBend` and `AutoMovieMotionHumanTouchLaid`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function of(props: IProps): IArm {
+  export function of(
+    props: IAutoMovieMotionHumanHandToFaceArm.IProps,
+  ): IAutoMovieMotionHumanHandToFaceArm.IArm {
     const { body, atFace, turned, side, effector, place, tangent, own } = props;
-    const lay: AutoMovieMotionHumanTouch.ITouch["lay"] = props.upright
+    const lay: IAutoMovieMotionHumanTouch.ITouch["lay"] = props.upright
       ? "upright"
       : "tangent";
     const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
@@ -109,7 +56,7 @@ export namespace handToFaceArm {
       atFace,
       side,
     );
-    const vessel: AutoMovieMotionHumanTouchUpright.IFacing | undefined =
+    const vessel: IAutoMovieMotionHumanTouchDrink.IDrink | undefined =
       props.upright && own === null
         ? AutoMovieMotionHumanTouchDrink.drinking(
             body,
@@ -121,7 +68,7 @@ export namespace handToFaceArm {
             { posture: turned, place: place(turned, 0) },
           )
         : undefined;
-    const tipped: AutoMovieMotionHumanTouchDrink.IHeld | undefined =
+    const tipped: IAutoMovieMotionHumanTouchDrink.IHeld | undefined =
       own === null
         ? undefined
         : props.upright
@@ -140,7 +87,7 @@ export namespace handToFaceArm {
     const facing: IAutoMovieVector3 | undefined = vessel?.facing;
     const bend: IAutoMovieVector3 =
       own?.bend ??
-      (vessel !== undefined ? hang : undefined) ??
+      vessel?.bend ??
       AutoMovieMotionHumanTouchLaid.bend(
         body,
         atFace,
@@ -153,7 +100,7 @@ export namespace handToFaceArm {
         "natural",
         vessel?.lean,
       );
-    const reference: IArm["reference"] =
+    const reference: IAutoMovieMotionHumanHandToFaceArm.IArm["reference"] =
       tipped === undefined
         ? AutoMovieMotionHumanTouchLaid.laid(
             body,

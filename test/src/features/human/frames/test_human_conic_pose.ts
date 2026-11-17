@@ -1,5 +1,19 @@
 import { AutoMovieViewAxis, AutoMovieViewJointedCourse } from "@automovie/engine";
-import { AutoMovieHumanConicLoft, AutoMovieHumanConicPose as Q, AutoMovieHumanConicSection, AutoMovieHumanF1, AutoMovieHumanF1Placement as P, AutoMovieHumanF1Placing as T } from "@automovie/human";
+import {
+  AutoMovieHumanConicLoft,
+  AutoMovieHumanConicPose as Q,
+  AutoMovieHumanConicSection,
+  AutoMovieHumanF1,
+  AutoMovieHumanF1Placement as P,
+  AutoMovieHumanF1Placing as T,
+} from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicPose,
+  IAutoMovieHumanF1,
+  IAutoMovieViewAxis,
+  IAutoMovieViewJointedCourse,
+} from "@automovie/interface";
 
 /**
  * A conic family carried to a pose: its turns keep their set-backs, its stations stay on their bones and its chart takes its joints'
@@ -49,8 +63,8 @@ export function test_human_conic_pose(): void {
     const error: number = Math.max(...a.map((x: number, i: number): number => Math.abs(x - b[i]!)));
     if (!(error <= limit) || a.length !== b.length) failures.push(`${label}: ${JSON.stringify(a)} against ${JSON.stringify(b)} (error ${error})`);
   };
-  const prepared = (centres: V3[], halves: number[]): AutoMovieViewJointedCourse.ICourse => {
-    const made: AutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(centres, halves);
+  const prepared = (centres: V3[], halves: number[]): IAutoMovieViewJointedCourse.ICourse => {
+    const made: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(centres, halves);
     if (typeof made === "string") throw new Error("made course refused: " + made);
     return made;
   };
@@ -58,9 +72,9 @@ export function test_human_conic_pose(): void {
 
   // 1: the share is the engine's.
   for (const angle of [0.3, 1.2, 2]) {
-    const engine: AutoMovieViewJointedCourse.ICourse = prepared(bent(angle), [7]);
+    const engine: IAutoMovieViewJointedCourse.ICourse = prepared(bent(angle), [7]);
     near("share at " + angle, [7 * Q.share(angle)], [engine.turns[0]!.setback], 1e-12);
-    const dated: Q.ICourse = Q.course(bent(angle), [7]);
+    const dated: IAutoMovieHumanConicPose.ICourse = Q.course(bent(angle), [7]);
     near("course at " + angle, [dated.angles[0]!, dated.setbacks[0]!, dated.starts[0]!], [engine.turns[0]!.angle, engine.turns[0]!.setback, engine.turns[0]!.start], 1e-9);
   }
   near("share at a straight joint", [Q.share(0)], [1], 0);
@@ -68,13 +82,13 @@ export function test_human_conic_pose(): void {
 
   // 2 to 4: a bend opened and a bend closed.
   const reference: V3[] = bent(0.6);
-  const before: AutoMovieViewJointedCourse.ICourse = prepared(reference, [20]);
+  const before: IAutoMovieViewJointedCourse.ICourse = prepared(reference, [20]);
   near("identity map", [Q.map(Q.course(reference, [20]), Q.course(reference, [20])) === null ? 1 : 0], [1], 0);
   if (Q.halves(reference, [20], reference)[0] !== 20) failures.push("the reference half changed");
   for (const angle of [1.5, 0.1]) {
     const posed: V3[] = bent(angle);
     const halves: number[] = Q.halves(reference, [20], posed);
-    const after: AutoMovieViewJointedCourse.ICourse = prepared(posed, halves);
+    const after: IAutoMovieViewJointedCourse.ICourse = prepared(posed, halves);
     near("set-back kept at " + angle, [after.turns[0]!.setback], [before.turns[0]!.setback], 1e-9);
     if (!(Math.abs(halves[0]! - 20) > 0.1)) failures.push(`the half did not change at ${angle}: ${halves[0]}`);
 
@@ -83,9 +97,9 @@ export function test_human_conic_pose(): void {
       failures.push(`no map at ${angle}`);
       continue;
     }
-    const run: AutoMovieViewAxis.IRun = (AutoMovieViewAxis.runs(reference, [20]) as AutoMovieViewAxis.IRun[])[1]!;
+    const run: IAutoMovieViewAxis.IRun = (AutoMovieViewAxis.runs(reference, [20]) as IAutoMovieViewAxis.IRun[])[1]!;
     const station: number = run.start + (50 - run.from);
-    const axis: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed(posed, halves, [0, 0, 1]) as AutoMovieViewAxis.IAxis;
+    const axis: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed(posed, halves, [0, 0, 1]) as IAutoMovieViewAxis.IAxis;
     near("far bone at " + angle, axis.at(map(station)).origin, [50 * Math.cos(angle), 50 * Math.sin(angle), 0], 1e-9);
 
     const [start, end]: number[] = [before.turns[0]!.start, before.turns[0]!.start + 40];
@@ -99,9 +113,9 @@ export function test_human_conic_pose(): void {
 
   // 5: a made twist.
   const straight: V3[] = [[0, 0, 0], [0, -100, 0], [0, -200, 0]];
-  const family: AutoMovieHumanConicLoft.IFamily = { name: "made", centres: straight, halves: [10], up: [1, 0, 0], layout: AutoMovieHumanConicSection.limb(1), knots: [0, 200], values: [] };
+  const family: IAutoMovieHumanConicLoft.IFamily = { name: "made", centres: straight, halves: [10], up: [1, 0, 0], layout: AutoMovieHumanConicSection.limb(1), knots: [0, 200], values: [] };
   const turned = (run: number, d: V3): V3 => (run === 1 ? [Math.cos(0.8) * d[0] + Math.sin(0.8) * d[2], d[1], -Math.sin(0.8) * d[0] + Math.cos(0.8) * d[2]] : d);
-  const roll: AutoMovieHumanConicLoft.IRoll | undefined = Q.twist(family, family, turned);
+  const roll: IAutoMovieHumanConicLoft.IRoll | undefined = Q.twist(family, family, turned);
   if (roll === undefined) failures.push("the twisted course took no roll");
   else {
     const rolled = AutoMovieHumanConicLoft.axis({ ...family, roll });
@@ -116,11 +130,11 @@ export function test_human_conic_pose(): void {
   if (carried.station !== null || carried.family.knots !== family.knots || carried.family.halves !== family.halves || carried.family.roll !== undefined) failures.push("a family reposed at its own pose is not its own");
 
   // 6: f1 at the reference pose and the leg at neutral.
-  const stored: AutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
+  const stored: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
   for (const placed of stored.families) if ((placed.roll !== undefined) !== (placed.name === "plate")) failures.push(`${placed.name}: a roll at the reference pose`);
   near("reference stations", [stored.station("arm", 445), stored.station("arm", 32, 10), stored.station("leg", 900)], [445, 10, 900], 0);
-  const neutral: AutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble(P.NEUTRAL);
-  const [leg, hung]: Q.ICourse[] = [Q.course(stored.body.leg.centres, stored.body.leg.halves), Q.course(neutral.body.leg.centres, neutral.body.leg.halves)];
+  const neutral: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble(P.NEUTRAL);
+  const [leg, hung]: IAutoMovieHumanConicPose.ICourse[] = [Q.course(stored.body.leg.centres, stored.body.leg.halves), Q.course(neutral.body.leg.centres, neutral.body.leg.halves)];
   near("leg bones at neutral", hung!.lengths, leg!.lengths, 1e-9);
   near("leg set-backs at neutral", hung!.setbacks, leg!.setbacks, 1e-9);
   if (typeof AutoMovieViewJointedCourse.prepare(neutral.body.leg.centres, neutral.body.leg.halves) === "string") failures.push("the engine refuses the neutral leg's course");
@@ -133,11 +147,11 @@ export function test_human_conic_pose(): void {
   const hinged: V3[] = [reference[0]!, reference[1]!, swung];
   const length: number = Math.hypot(swung[0], swung[1]);
   const kept: number[] = Q.halves(reference, [20], hinged);
-  const [stood, hung2]: Q.ICourse[] = [Q.course(reference, [20]), Q.course(hinged, kept)];
+  const [stood, hung2]: IAutoMovieHumanConicPose.ICourse[] = [Q.course(reference, [20]), Q.course(hinged, kept)];
   const carry: ((station: number) => number) | null = Q.map(stood!, hung2!);
   if (carry === null || !(Math.abs(length - 80) > 5)) failures.push(`the hinged course did not change length: ${length}`);
   else {
-    const line: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed(hinged, kept, [0, 0, 1]) as AutoMovieViewAxis.IAxis;
+    const line: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed(hinged, kept, [0, 0, 1]) as IAutoMovieViewAxis.IAxis;
     for (const back of [30, 55]) near("child's run " + back + " mm from its centre", line.at(carry(stood!.total - back)).origin, [swung[0] - (back * swung[0]) / length, swung[1] - (back * swung[1]) / length, 0], 1e-9);
     near("first run kept under the hinge", [carry(0), carry(40), carry(stood!.starts[0]!)], [0, 40, stood!.starts[0]!], 1e-9);
     near("the turn's span takes the difference", [carry(stood!.starts[0]! + 40) - carry(stood!.starts[0]!)], [2 * kept[0]! + (length - 80)], 1e-9);
@@ -154,8 +168,8 @@ export function test_human_conic_pose(): void {
 
   // 9: a distal twist stays distal.
   const three: V3[] = [[0, 0, 0], [0, -100, 0], [0, -200, 0], [0, -300, 0]];
-  const long: AutoMovieHumanConicLoft.IFamily = { name: "made", centres: three, halves: [10, 10], up: [1, 0, 0], layout: AutoMovieHumanConicSection.limb(1), knots: [0, 300], values: [] };
-  const distal: AutoMovieHumanConicLoft.IRoll | undefined = Q.twist(long, long, (run: number, d: V3): V3 => (run === 2 ? [Math.cos(0.1) * d[0] + Math.sin(0.1) * d[2], d[1], -Math.sin(0.1) * d[0] + Math.cos(0.1) * d[2]] : d));
+  const long: IAutoMovieHumanConicLoft.IFamily = { name: "made", centres: three, halves: [10, 10], up: [1, 0, 0], layout: AutoMovieHumanConicSection.limb(1), knots: [0, 300], values: [] };
+  const distal: IAutoMovieHumanConicLoft.IRoll | undefined = Q.twist(long, long, (run: number, d: V3): V3 => (run === 2 ? [Math.cos(0.1) * d[0] + Math.sin(0.1) * d[2], d[1], -Math.sin(0.1) * d[0] + Math.cos(0.1) * d[2]] : d));
   if (distal === undefined) failures.push("the distally twisted course took no roll");
   else {
     const [plain, rolled] = [AutoMovieHumanConicLoft.axis(long), AutoMovieHumanConicLoft.axis({ ...long, roll: distal })];

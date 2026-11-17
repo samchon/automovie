@@ -2,9 +2,9 @@ import {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieBone,
+  type IAutoMovieGazeChainJoints,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
-  IAutoMovieSkeleton,
 } from "@automovie/interface";
 
 import { getConstraint } from "../rom/getConstraint";
@@ -77,15 +77,11 @@ const shareOf: (need: number, range: IAutoMovieAngleRange | null) => number = (
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one aim and rig that coordinates no work across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned joints.
  */
-export const gazeChainJoints: (props: {
-  rig: IAutoMovieSkeleton | null;
-  flexionDeg: number;
-  twistDeg: number;
-}) => IAutoMovieJointPose[] = (props: {
-  rig: IAutoMovieSkeleton | null;
-  flexionDeg: number;
-  twistDeg: number;
-}): IAutoMovieJointPose[] => {
+export const gazeChainJoints: (
+  props: IAutoMovieGazeChainJoints.IProps,
+) => IAutoMovieJointPose[] = (
+  props: IAutoMovieGazeChainJoints.IProps,
+): IAutoMovieJointPose[] => {
   const declared: (bone: AutoMovieHumanoidBone) => IAutoMovieBone | null = (
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieBone | null =>

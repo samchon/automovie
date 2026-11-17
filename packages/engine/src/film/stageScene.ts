@@ -9,18 +9,20 @@ import {
   IAutoMovieStageCamera,
   IAutoMovieStageLight,
   IAutoMovieStageSetPiece,
+  type IAutoMovieStagedSet,
   IAutoMovieValidation,
   IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import { Transform } from "../math/Transform";
 import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { collectNonEmptyId } from "../validation/collectNonEmptyId";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { validateSceneEnvironment } from "../validation/validateSceneEnvironment";
 import { validateSpace } from "../validation/validateSpace";
-import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 import { lookRotation } from "./lookRotation";
 import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
 import { lightTypeOf } from "./staging/lightTypeOf";
@@ -67,7 +69,7 @@ export function stageScene(
   script: IAutoMovieScript,
   staging: IAutoMovieStage,
 ): IAutoMovieStagedSet {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const set: IAutoMovieStageSetPiece[] = staging.set ?? [];
   const cast: Map<string, IAutoMovieScript["cast"][number]> = new Map();
   const castIndex: Map<string, number> = new Map();
@@ -407,11 +409,10 @@ export function stageScene(
       (actor: IAutoMovieStageActor): IAutoMovieSceneNode => ({
         id: actor.node,
         model: cast.get(actor.node)!.modelRef ?? actor.node,
-        transform: {
-          translation: actor.position,
-          rotation: Quaternion.fromAxisAngle(UP, actor.facingDeg),
-          scale: { x: 1, y: 1, z: 1 },
-        },
+        transform: Transform.of(
+          actor.position,
+          Quaternion.fromAxisAngle(UP, actor.facingDeg),
+        ),
         motion: null,
         pose: null,
       }),
@@ -432,11 +433,10 @@ export function stageScene(
     (camera: IAutoMovieStageCamera): IAutoMovieCamera => {
       return {
         id: camera.node,
-        transform: {
-          translation: camera.position,
-          rotation: lookRotation(cameraDirections.get(camera)!),
-          scale: { x: 1, y: 1, z: 1 },
-        },
+        transform: Transform.of(
+          camera.position,
+          lookRotation(cameraDirections.get(camera)!),
+        ),
         fovY: camera.fovDeg,
         near: camera.near,
         far: camera.far,

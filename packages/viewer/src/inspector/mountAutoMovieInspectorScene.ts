@@ -1,11 +1,13 @@
+import type {
+  IAutoMovieCapturePlanRequest,
+  IAutoMovieInspectionLabel,
+  IAutoMovieInspectionView,
+} from "@automovie/interface";
 import {
   type IApplyAutoMovieInspectionProps,
-  type IAutoMovieCapturePlanRequest,
   type IAutoMovieDrawScene,
   type IAutoMovieDrawSubject,
   type IAutoMovieInspectionHandle,
-  type IAutoMovieInspectionLabel,
-  type IAutoMovieInspectionView,
   type IAutoMovieViewerViewpoint,
   applyAutoMovieInspection,
   autoMovieViewerNamedViewpoints,

@@ -1,8 +1,9 @@
-import { type IAutoMovieResolveOutput, resolveFrame } from "@automovie/engine";
+import { resolveFrame } from "@automovie/engine";
 import {
   IAutoMovieCopyDriver,
   IAutoMovieIKDriver,
   IAutoMovieNode,
+  type IAutoMovieResolveOutput,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

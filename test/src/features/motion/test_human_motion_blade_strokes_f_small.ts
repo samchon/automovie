@@ -16,7 +16,7 @@ import { motionBladeStrokes } from "../internal/motionBladeStrokes";
  * Scenarios, on the small woman, read by `motionBladeStrokes` (the opposite
  * build has its own spec). It takes an arming sword that lies point ahead
  * by its grip, for use on the oblique line, once (taking a tool for a use is
- * the costly part of the film), then makes four strokes in one film at four
+ * the costly part of the film), then makes five strokes in one film at five
  * pells, each read at its own decisive instant, so one film holds every
  * claim:
  * 1. A thrust at a pell ahead: the sword's point is within 15 mm of the
@@ -28,21 +28,26 @@ import { motionBladeStrokes } from "../internal/motionBladeStrokes";
  *    cut from straight above: the pell's target is within 15 mm of the blade
  *    between guard and point, and over the frame before, the blade's landing
  *    part comes down more than 50 mm.
- * 4. A lunge at a pell 25 degrees to the right, farther than the thrust's
- *    by 0.45 of the stature, the middle of the band a lunge's leading foot
- *    travels (a pell only a quarter of the stature farther leaves a lunge's
- *    hand at a third of the arm from the shoulder, which is a step's
- *    distance and was refused): the point is within 15 mm of the target, the
- *    leading foot has travelled 0.35 to 0.55 of the stature, and at the end
- *    it is back within 5 mm of where it stood.
- * 5. With the bare hand, a thrust at a point 3 m ahead, beyond the longest
+ * 4. A lunge at a pell 25 degrees to the right that needs a full lunge: the
+ *    pell stands at the sword's own reach, `HumanSword.REACH` of the arm plus
+ *    the sword from its grip to its point, carried by the pelvis's share of a
+ *    full lunge's 0.45 of the stature (`motionBladeReach`). The point is
+ *    within 15 mm of the target, the leading foot has travelled 0.35 to 0.55
+ *    of the stature, and at the end it is back within 5 mm of where it stood.
+ * 5. A lunge at a pell 10 degrees to the right that needs 0.4 of a full
+ *    lunge. A lunge goes only as far as its target requires, as fencing
+ *    distance works: the point is within 15 mm of the target, the leading
+ *    foot travels under 0.35 of the stature, and the arm lands as far out as
+ *    the full lunge's, at the reach both are measured to: the target stands
+ *    as far from the shoulder as the full lunge's, within 10 mm.
+ * 6. With the bare hand, a thrust at a point 3 m ahead, beyond the longest
  *    advance, is refused on the reach with a feasible maximum under 1 m.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds performances through the public chain, props and input and reads the displayed sword and feet; a point or an edge off its target, a foot that slides, a lunge that does not travel or a silent miss fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds performances through the public chain, props and input and reads the displayed sword and feet; a point or an edge off its target, a foot that slides, a lunge that does not travel, one that travels past what its target needs or a silent miss fails.
  * @evidence contracts/development/testing.md#independent-expectations Each target is a pell's own declared contact placed in the world by the test; the bounds are the campaign's contact and slip bounds; the lunge band is stated provisional with what would source it. A wrong law lands the point elsewhere, which the distance catches; the test cannot tell a right landing reached by an ugly arm, which the verdict net owns.
- * @evidence contracts/development/testing.md#distinguishing-cases A thrust, a moved target, a cut and a lunge on three bearings; an unreachable target; this spec and its sibling on the opposite build, which is what a blade's fixed length against a varying arm is sensitive to. Skill and seed are the blade skill test's, two blades meeting the exchange test's.
+ * @evidence contracts/development/testing.md#distinguishing-cases A thrust, a moved target, a cut, a full lunge and a shorter lunge on four bearings; an unreachable target; this spec and its sibling on the opposite build, which is what a blade's fixed length against a varying arm is sensitive to. Skill and seed are the blade skill test's, two blades meeting the exchange test's.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds one film and one refused plan, under a minute alone; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the bounds with their sources, why one film a body is enough and the 5 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, the bounds with their sources, why one film a body is enough and the 6 scenarios.
  */
 export function test_human_motion_blade_strokes_f_small(): void {
   TestValidator.equals(

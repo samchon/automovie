@@ -1,46 +1,46 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
-
-import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
-import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
+import {
+  type IAutoMovieLocateSweepPoint,
+  type IAutoMovieSweepFrame,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /** Even samples of the spine parameter a sign change of the plane distance is bracketed between. */
 const SAMPLES: number = 128;
 /** Bisection steps that place the plane on the point; each halves the bracket. */
 const BISECTIONS: number = 48;
 /**
- * Find where a point lies on a compiled sweep: the spine parameter whose section plane holds it, its polar direction in that plane, and how far it stands outside the surface along that direction.
+ * Locate a point against a direction-correspondence sweep's sampled section planes.
  *
- * The point's signed distance from the section plane at `u` is sampled at 128 even parameters; each sign change is bracketed and bisected 48 times, and among the planes found the one where the point lies nearest the surface is taken, since a bent spine can carry several planes through one point. A point no plane holds, beyond either end of the spine, takes the end whose plane lies nearer. The direction is the polar angle of the point about the spine point from the plane's first axis toward its second, as a turn from 0 to 1, the `v` every other sweep query takes; the offset is the point's distance from the spine point in the plane less the surface's radius in that direction, positive outside.
+ * Signed plane distance is sampled over 128 equal intervals; sign changes are
+ * bisected 48 times and exact sample roots retained. The candidate with smallest
+ * absolute radial offset wins. If no root is detected, the nearer end plane is
+ * used. Tangential roots or multiple roots between probes can be missed, so that
+ * fallback does not prove a point is beyond an end. Polar turns match the
+ * surface parameter only for direction correspondence; parameter correspondence
+ * is rejected. Offset is signed in-plane radial distance, not Euclidean distance
+ * to the surface or a global closest-point certificate.
  *
  * @param props.surface The compiled sweep, only read.
  * @param props.point The point, metres.
  * @returns `u`, the spine parameter of the section plane holding the point, 0 to 1; `v`, the point's polar direction in that plane, a turn from 0 to 1; and `offset`, its distance outside the surface along that direction in metres, negative inside.
- * @throws Error when the point is not finite.
+ * @throws Error when the point is not finite or correspondence is parameter.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Inverting a sweep's section-plane family by bracketing and bisecting the point's signed plane distance along the spine, the standard root finding for a monotone or piecewise monotone scalar, and reading the direction as the polar angle in the plane the forward map uses.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Uses only the surface's own frame and radius queries, so it inverts exactly what the sweep evaluates, fixed or transported orientation and station turns included.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Several candidate planes are resolved by a stated rule, the nearest surface, and a point beyond the spine by the nearer end's plane; non-finite input is refused.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Uses the surface's frame and polar radius queries, including carried orientation and station turns, within the admitted direction-correspondence domain.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Candidate ranking and endpoint fallback are explicit sampled-search policies; nonfinite points and unsupported parameter correspondence throw rather than returning a false inverse.
  * @evidence contracts/development/common.md#meaningful-documentation States the sampling, the bracketing and bisection, the choice among planes, the end rule, the direction convention and the offset's sign.
  * @evidence contracts/development/implementation.md#efficient-algorithms 128 frame queries to bracket, 48 per bracket to refine, and one radius query per candidate; independent of the sweep's resolution.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call locates one point; callers locating many keep the compiled surface.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export const locateAutoMovieSweepPoint: (props: {
-  surface: IAutoMovieSweepSurface;
-  point: IAutoMovieVector3;
-}) => {
-  u: number;
-  v: number;
-  offset: number;
-} = (props: {
-  surface: IAutoMovieSweepSurface;
-  point: IAutoMovieVector3;
-}): {
-  u: number;
-  v: number;
-  offset: number;
-} => {
+export const locateAutoMovieSweepPoint: (
+  props: IAutoMovieLocateSweepPoint.IProps,
+) => IAutoMovieLocateSweepPoint.IResult = (
+  props: IAutoMovieLocateSweepPoint.IProps,
+): IAutoMovieLocateSweepPoint.IResult => {
   const { surface, point }: typeof props = props;
+  if (surface.sweep.correspondence === "parameter")
+    throw new Error("sweep point location requires direction correspondence");
   if (![point.x, point.y, point.z].every(Number.isFinite))
     throw new Error("sweep point to locate is not finite");
   function plane(u: number): number {

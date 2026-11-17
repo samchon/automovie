@@ -1,5 +1,14 @@
-import { AutoMovieLoftViewFullSource, type IAutoMovieViewPart } from "@automovie/engine";
-import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection, AutoMovieHumanJoinLoop } from "@automovie/human";
+import { AutoMovieLoftViewFullSource } from "@automovie/engine";
+import {
+  AutoMovieHumanConicLoft,
+  AutoMovieHumanConicSection,
+  AutoMovieHumanJoinLoop,
+} from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * A world point's address on a part's chart is the station whose section plane holds it and its polar angle there, on a straight
@@ -25,7 +34,7 @@ import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection, AutoMovieHumanJoin
 export function test_human_join_loop_address(): void {
   const failures: string[] = [];
   const full: number = Math.SQRT2 - 1;
-  const tube = (name: string, centres: [number, number, number][], halves: number[], length: number): AutoMovieHumanConicLoft.IFamily => ({
+  const tube = (name: string, centres: [number, number, number][], halves: number[], length: number): IAutoMovieHumanConicLoft.IFamily => ({
     name,
     centres,
     halves,
@@ -45,7 +54,7 @@ export function test_human_join_loop_address(): void {
 
   // 2. A turning host: its own skin points come back at the chart point they were read at.
   const turning: IAutoMovieViewPart = AutoMovieHumanConicLoft.part(tube("turning", [[0, 0, 0], [0, 100, 0], [60, 160, 0]], [20], 120), every(120));
-  const reader: AutoMovieLoftViewFullSource.IReader = AutoMovieLoftViewFullSource.create(turning);
+  const reader: IAutoMovieLoftViewFullSource.IReader = AutoMovieLoftViewFullSource.create(turning);
   for (const station of [30, 95, 105, 118])
     for (let k: number = 0; k < 8; ++k) {
       const phase: number = (2 * Math.PI * (k + 0.3)) / 8;

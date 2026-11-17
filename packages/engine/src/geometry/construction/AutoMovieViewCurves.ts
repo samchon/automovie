@@ -1,7 +1,12 @@
-import type { AutoMovieLoftContract } from "./AutoMovieLoftContract";
-import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
+import type {
+  IAutoMovieLoftContract,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewCurves,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
+
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
-import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /**
  * The four original view edges, evaluated independently of section/fullness admission and of final coefficient interpolation.
@@ -15,64 +20,6 @@ import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
  */
 export namespace AutoMovieViewCurves {
   /**
-   * One source edge, retained even when its preparation fails.
-   *
-   * @evidence contracts/development/design.md#principled-representation Names the original front/side signed edge and the input-frame direction that carries it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Name, direction and nullable admitted outline retain the four independent source identities.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A failed edge remains a named null source instead of borrowing another edge or a section.
-   * @evidence contracts/development/common.md#meaningful-documentation Members state source identity, frame direction and failure state.
-   */
-  export interface ICurve {
-    /** Stable name of the source edge. */
-    name:
-      | "front.positive"
-      | "front.negative"
-      | "side.positive"
-      | "side.negative";
-
-    /** Frame direction carrying this chart coordinate. */
-    direction: "u" | "v";
-
-    /** Admitted scalar source, or null with its diagnostic. */
-    outline: AutoMovieViewOutline.IOutline | null;
-  }
-
-  /**
-   * Every original edge and its source admission failures.
-   *
-   * @evidence contracts/development/design.md#principled-representation Preserves each edge independently of fullness and section admission.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four curve records and explicit diagnostics suffice for source inspection.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A partial failure does not hide the other valid curves.
-   * @evidence contracts/development/common.md#meaningful-documentation States curve order and independence from section diagnostics.
-   */
-  export interface IResult {
-    /** Four records in front positive/negative, side positive/negative order. */
-    curves: ICurve[];
-
-    /** Source failures, independent of section and fullness diagnostics. */
-    diagnostics: AutoMovieLoftContract.IDiagnostic[];
-  }
-
-  /**
-   * Original scalar reading located in its actual source frame.
-   *
-   * @evidence contracts/development/design.md#principled-representation Records a scalar source and its actual input frame, with point o+value*u or o+value*v in world millimetres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Scalar, frame and point expose the quantities needed to distinguish outline and placement defects.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scalar jets are not mislabeled as world jets; no world derivative is invented without an axis derivative contract.
-   * @evidence contracts/development/common.md#meaningful-documentation Documents source-frame identity and world units separately from scalar jets.
-   */
-  export interface IReading {
-    /** Shared source scalar reading and its qualified jets. */
-    scalar: AutoMovieViewOutline.IReading;
-
-    /** Actual input axis frame at the station, world millimetres. */
-    frame: AutoMovieLoftFrame.IFrame;
-
-    /** The source edge's world point, millimetres. */
-    point: [number, number, number];
-  }
-
-  /**
    * Prepare all original edges without reading the fullness owner or emitting a section.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Each original outline uses the same source owner and closing stations as ViewLoft; malformed edges produce their own existing construction diagnostic.
@@ -83,20 +30,22 @@ export namespace AutoMovieViewCurves {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each admitted spline serves all subsequent samples of that source; changed source data requires a fresh preparation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Result owns four copied source curves and their diagnostics, with no retained part or global cache.
    */
-  export function create(part: IAutoMovieViewPart): IResult {
-    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
-    const ends: AutoMovieViewOutline.IEnds = {};
+  export function create(
+    part: IAutoMovieViewPart,
+  ): IAutoMovieViewCurves.IResult {
+    const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
+    const ends: IAutoMovieViewOutline.IEnds = {};
     if (part.pole === "bottom" || part.pole === "both")
       ends.bottom = part.stations[0] ?? NaN;
     if (part.pole === "top" || part.pole === "both")
       ends.top = part.stations[part.stations.length - 1] ?? NaN;
-    const curves: ICurve[] = [];
+    const curves: IAutoMovieViewCurves.ICurve[] = [];
     for (const view of ["front", "side"] as const)
       for (const sign of ["positive", "negative"] as const) {
-        const name: ICurve["name"] = `${view}.${sign}`;
+        const name: IAutoMovieViewCurves.ICurve["name"] = `${view}.${sign}`;
         const prepared:
-          | AutoMovieViewOutline.IOutline
-          | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+          | IAutoMovieViewOutline.IOutline
+          | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
           part[view][sign],
           ends,
         );
@@ -128,16 +77,16 @@ export namespace AutoMovieViewCurves {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fixed-size reading and retains no prior source sample or frame.
    */
   export function at(
-    curve: ICurve,
+    curve: IAutoMovieViewCurves.ICurve,
     axis: IAutoMovieViewPart["axis"],
     station: number,
-  ): IReading | string {
+  ): IAutoMovieViewCurves.IReading | string {
     if (curve.outline === null)
       return `${curve.name} has no admitted source outline`;
-    const scalar: AutoMovieViewOutline.IReading | string =
+    const scalar: IAutoMovieViewOutline.IReading | string =
       AutoMovieViewOutline.at(curve.outline, station);
     if (typeof scalar === "string") return `${curve.name}: ${scalar}`;
-    let frame: AutoMovieLoftFrame.IFrame;
+    let frame: IAutoMovieLoftSectionFrame;
     try {
       frame = axis.at(station);
     } catch (error: unknown) {

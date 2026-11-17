@@ -1,16 +1,18 @@
-import {
-  type AutoMovieLoftFrame,
-  type AutoMovieViewAxis,
-  AutoMovieViewOutline,
-  AutoMovieViewSection,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import { AutoMovieViewOutline, AutoMovieViewSection } from "@automovie/engine";
+import type {
+  IAutoMovieHumanHeadBackProfile,
+  IAutoMovieHumanHeadLandmarks,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadMassSource,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadBackProfile } from "../AutoMovieHumanHeadBackProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import { AutoMovieHumanHeadVault } from "../AutoMovieHumanHeadVault";
-import type { IAutoMovieHumanHeadLandmarks } from "../IAutoMovieHumanHeadLandmarks";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadFrontSource } from "./AutoMovieHumanHeadFrontSource";
 import { AutoMovieHumanHeadMassProfile } from "./AutoMovieHumanHeadMassProfile";
 import { AutoMovieHumanHeadSectionConstraints } from "./AutoMovieHumanHeadSectionConstraints";
@@ -18,20 +20,10 @@ import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
 
 /** Original mass outlines, fullness and placement, retaining the existing source controls before any loft. */
 export namespace AutoMovieHumanHeadMassSource {
-  /** Existing public mass resolution, independent of anatomical dimensions. */
-  export interface IDensity {
-    /** Widest authored station interval in calibration millimetres. */
-    spacing: number;
-    /** Existing periodic compatibility-row order. */
-    order: number;
-    /** Existing display ring population. */
-    samples: number;
-  }
-
   /** Author one mass by explicitly preparing its fixed inputs and evaluating its requested cranial power. */
   export function of(
     plan: IAutoMovieHumanHeadLayout,
-    density: IDensity,
+    density: IAutoMovieHumanHeadMassSource.IDensity,
     faceExponent?: number,
     bottom?: number,
   ): IAutoMovieViewPart {
@@ -46,10 +38,10 @@ export namespace AutoMovieHumanHeadMassSource {
    */
   export function prepare(
     plan: IAutoMovieHumanHeadLayout,
-    density: IDensity,
+    density: IAutoMovieHumanHeadMassSource.IDensity,
     faceExponent?: number,
     bottom?: number,
-  ): (cranialTapePower?: number) => IAutoMovieViewPart {
+  ): IAutoMovieHumanHeadMassSource.PrepareResult {
     const SPACING: number = density.spacing;
     const ORDER: number = density.order;
     const SAMPLES: number = density.samples;
@@ -65,13 +57,13 @@ export namespace AutoMovieHumanHeadMassSource {
     const g: number = m.glabella[1];
     const neck: typeof plan.neck.curves = plan.neck.curves;
     const preparedRadius:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure
       | null =
       neck === undefined ? null : AutoMovieViewOutline.create(neck.radius);
     if (preparedRadius !== null && "detail" in preparedRadius)
       throw new Error(`Head neck radius: ${preparedRadius.detail}`);
-    const radius: AutoMovieViewOutline.IOutline | null = preparedRadius;
+    const radius: IAutoMovieViewOutline.IOutline | null = preparedRadius;
 
     // Preserve the original lower scalar support. The actual part domain
     // starts at the regular shared boundary without refitting that support.
@@ -167,12 +159,12 @@ export namespace AutoMovieHumanHeadMassSource {
         }),
       ),
     });
-    const axis: AutoMovieViewAxis.IAxis = AutoMovieHumanHeadSourceAxis.of(
+    const axis: IAutoMovieViewAxis.IAxis = AutoMovieHumanHeadSourceAxis.of(
       { x: neck?.centre ?? coordinate(0), y: coordinate(1), z: coordinate(2) },
       [1, 0, 0],
       [0, 0, 1],
     );
-    const profile: AutoMovieHumanHeadBackProfile.IProfile =
+    const profile: IAutoMovieHumanHeadBackProfile.IProfile =
       AutoMovieHumanHeadVault.backProfile(plan);
     const named: Map<number, string> = new Map(
       knotted.map(([site, station]: [string, number]): [number, string] => [
@@ -195,8 +187,8 @@ export namespace AutoMovieHumanHeadMassSource {
       radius,
     );
     const preparedFront:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(front, {
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(front, {
       top: last,
     });
     if ("detail" in preparedFront)
@@ -272,9 +264,9 @@ export namespace AutoMovieHumanHeadMassSource {
     const rootSpan: number = Math.sqrt(plan.vertex - first);
     for (const [k, station] of stations.entries()) {
       const site: string = named.get(station) ?? `head.${k}`;
-      const frame: AutoMovieLoftFrame.IFrame = axis.at(station);
+      const frame: IAutoMovieLoftSectionFrame = axis.at(station);
       const atPole: boolean = site === "vertex";
-      const radial: AutoMovieViewOutline.IReading | string | null =
+      const radial: IAutoMovieViewOutline.IReading | string | null =
         radius !== null && station <= neck!.band[1]
           ? AutoMovieViewOutline.at(radius, station)
           : null;

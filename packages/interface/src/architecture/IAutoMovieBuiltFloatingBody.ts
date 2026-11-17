@@ -1,5 +1,5 @@
-import { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
-import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBodyLocator";
+import type { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
+import type { IAutoMovieBuiltPlacementBodyLocator } from "./IAutoMovieBuiltPlacementBodyLocator";
 
 /**
  * One body classified floating by the whole-building proxy support sweep.
@@ -20,7 +20,7 @@ export interface IAutoMovieBuiltFloatingBody {
    * The element or compact population whose underside is above the ground
    * height and within the tolerance of no other body's part.
    */
-  body: AutoMovieBuiltPlacementBodyLocator;
+  body: IAutoMovieBuiltPlacementBodyLocator;
 
   /**
    * How this body's own extent was measured. `element-origin-point` means the
@@ -40,7 +40,7 @@ export interface IAutoMovieBuiltFloatingBody {
    */
   below: {
     /** The body owning the highest part under this one. */
-    body: AutoMovieBuiltPlacementBodyLocator;
+    body: IAutoMovieBuiltPlacementBodyLocator;
 
     /**
      * Vertical distance in metres from that part's top to this body's

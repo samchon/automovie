@@ -1,10 +1,16 @@
-﻿import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Transform, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanTypeText,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { seated } from "../../everyday/seated";
 import { typeText } from "../../everyday/typeText";
-import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { everydayCaseKit } from "./everydayCaseKit";
@@ -32,12 +38,14 @@ export function everydayTypeCases(
   const out: IMotionCaptureCase[] = [];
   const within = everydayVerdicts.within;
   const { figure } = everydayCaseKit;
-  const one = (chain: HumanChain): HumanPerformance =>
-    everydayCaseKit.one(c, chain);
+  const one = (
+    chain: IAutoMovieMotionHumanChain,
+    props: readonly IAutoMovieMotionHumanProp[] = [],
+  ): IAutoMovieMotionHumanPerformance => everydayCaseKit.one(c, chain, props);
   // Seated at a desk: the keyboard at seated elbow height ahead of the
   // shoulders by the forearm (ANSI/HFES 100-2007 posture), the desk top
   // under it; and standing at a standing desk at standing elbow height.
-  const seat: seated.ISeat = {
+  const seat: IAutoMovieMotionHumanSeated.ISeat = {
     at: {
       x: 0,
       y: seated.popliteal(body),
@@ -46,12 +54,12 @@ export function everydayTypeCases(
     yaw: 0,
     depth: 0.45,
   };
-  const sitting: HumanPerformance = one(
+  const sitting: IAutoMovieMotionHumanPerformance = one(
     HumanChain.subject("a").sit({ seat, seconds: 0.2 }),
   );
   const held = sitting.posture("a", sitting.duration);
   const reach: number = body.measure.forearm + 0.5 * body.measure.hand;
-  const setups: [string, HumanChain, IAutoMovieVector3][] = [
+  const setups: [string, IAutoMovieMotionHumanChain, IAutoMovieVector3][] = [
     [
       "seated",
       HumanChain.subject("a").sit({ seat, seconds: 0.2 }),
@@ -72,10 +80,11 @@ export function everydayTypeCases(
     ],
   ];
   for (const [label, start, at] of setups) {
-    const keyboard = { at, yaw: 0 };
+    const keyboard: IAutoMovieMotionHumanTypeText.IBoard = { at, yaw: 0 };
     const text: string = "hello world";
-    const performance: HumanPerformance = one(
-      start.typeText({ keyboard, text }),
+    const performance: IAutoMovieMotionHumanPerformance = one(
+      start.typeText({ keyboard: "keyboard", text }),
+      [board(at)],
     );
     const segment = performance.segments("a").at(-1)!;
     const verdicts: IMotionCaptureCase.IVerdict[] = everydayVerdicts.standard(
@@ -158,4 +167,44 @@ export function everydayTypeCases(
     });
   }
   return out;
+}
+
+/**
+ * A keyboard as a prop: a home row contact at its origin and a key field as
+ * wide as the letter rows, the prop placed
+ * there and turned so its `+Z` side, where a typist sits, faces the typist
+ * at the origin facing `+Z`.
+ *
+ * @param at The home row's middle, world metres.
+ * @returns The keyboard.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the contact, the placement and the turn.
+ * @evidence contracts/development/implementation.md#principled-implementation The `homeRow` and `keys` contacts `createKeyboard` declares, here at the prop's origin, turned half round about `+Y`.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One prop literal.
+ * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The motions package does not depend on the archetypes, so the case declares the keyboard's contact itself.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
+ */
+function board(at: IAutoMovieVector3): IAutoMovieMotionHumanProp {
+  return {
+    subject: "keyboard",
+    frame: { position: at, rotation: { x: 0, y: 1, z: 0, w: 0 } },
+    points: {},
+    affordances: [
+      {
+        id: "homeRow",
+        kind: "surface",
+        frame: Transform.identity(),
+        extent: null,
+      },
+      {
+        id: "keys",
+        kind: "surface",
+        frame: Transform.identity(),
+        extent: null,
+        width: typeText.WIDTH,
+      },
+    ],
+  };
 }

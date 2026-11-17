@@ -1,26 +1,23 @@
 import {
-  AutoMovieHumanoidBone,
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndFootPlant,
-  IAutoMovieBeatEndState,
-  IAutoMovieJointAxes,
+  type IAutoMovieFootPlant,
   IAutoMovieMotion,
+  type IAutoMoviePerformedShot,
+  type IAutoMoviePlantPerformShotStanceFeet,
+  type IAutoMoviePlantedFeet,
   IAutoMovieQuaternion,
   IAutoMovieSceneNode,
   IAutoMovieSkeleton,
+  type IAutoMovieStagedSet,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieFootPlant } from "../motion/IAutoMovieFootPlant";
-import { IAutoMoviePlantedFeet } from "../motion/IAutoMoviePlantedFeet";
 import { plantStanceFeet } from "../motion/plantStanceFeet";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { spaceGround } from "../space/spaceGround";
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { IAutoMoviePerformedShot } from "./IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**
  * Pin the stance feet of every gait-bearing or resumed actor clip, replacing the clip in `motions` and returning the world-space plants a later beat can resume.
@@ -43,26 +40,9 @@ import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each actor's clip is planted once per call; the prior plants are indexed once by node.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The prior-plant index is dropped on return; planted clips are stored into the caller's `motions`, and the caller owns the returned entries.
  */
-export function plantPerformShotStanceFeet(props: {
-  staged: IAutoMovieStagedSet.ISuccess;
-  motions: Record<string, IAutoMovieMotion>;
-  previous: IAutoMovieBeatEndState | null | undefined;
-  skeleton: (node: string) => IAutoMovieSkeleton | null;
-  jointAxes:
-    | ((
-        node: string,
-      ) =>
-        | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
-        | undefined)
-    | undefined;
-  restFrames:
-    | ((
-        node: string,
-      ) =>
-        | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
-        | undefined)
-    | undefined;
-}): IAutoMoviePerformedShot.ISuccess["plants"] {
+export function plantPerformShotStanceFeet(
+  props: IAutoMoviePlantPerformShotStanceFeet.IProps,
+): IAutoMoviePerformedShot.ISuccess["plants"] {
   const plants: IAutoMoviePerformedShot.ISuccess["plants"] = [];
   const previousByNode: Map<string, IAutoMovieBeatEndActorState> = new Map(
     (props.previous?.actors ?? []).map(

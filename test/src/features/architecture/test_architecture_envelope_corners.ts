@@ -1,10 +1,10 @@
 import {
-  type IAutoMovieBuiltEnvelopeCorner,
   builtEnvironmentEnvelopeCorners,
   validateBuiltEnvironment,
 } from "@automovie/engine";
 import type {
   IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltEnvelopeCorner,
   IAutoMovieBuiltEnvironment,
   IAutoMovieQuaternion,
   IAutoMovieTransform,

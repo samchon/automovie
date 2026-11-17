@@ -1,4 +1,5 @@
 import {
+  type IAutoMovieDrawingCellSection,
   IAutoMovieDrawingFrame,
   IAutoMovieDrawingPoint,
   IAutoMovieHalfSpacePlane,
@@ -40,7 +41,7 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON
 export const autoMovieDrawingCellSection = (
   frame: IAutoMovieDrawingFrame,
   planes: readonly IAutoMovieHalfSpacePlane[],
-): { polygon: IAutoMovieDrawingPoint[]; bounded: boolean } => {
+): IAutoMovieDrawingCellSection.IResult => {
   const bound: number = AUTOMOVIE_DRAWING_CELL_BOUND;
   let polygon: IAutoMovieDrawingPoint[] = [
     { x: -bound, y: -bound },

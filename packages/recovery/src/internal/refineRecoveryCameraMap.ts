@@ -1,15 +1,14 @@
 import type {
-  IAutoMovieRecoveryCameraMapBudget,
-  IAutoMovieRecoveryCameraMapPolicy,
+  IAutoMovieRecoveryCameraMapRefinementOperation,
+  IAutoMovieRecoveryMapEvaluation,
+  IAutoMovieRecoveryMapJointBlock,
+  IAutoMovieRecoveryMapJointResult,
+  IAutoMovieRecoveryMapJointStepSolutionOperation,
+  IAutoMovieRecoveryMapLandmark,
+  IAutoMovieRecoveryMapPointProjectionOperation,
+  IAutoMovieRecoveryMapPose,
 } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapLandmark } from "../structures/image/IAutoMovieRecoveryMapLandmark";
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
-import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
-import type { IAutoMovieRecoveryFeasibleReportCapacity } from "../structures/internal/IAutoMovieRecoveryFeasibleReportCapacity";
-import type { IAutoMovieRecoveryMapEvaluation } from "../structures/internal/IAutoMovieRecoveryMapEvaluation";
-import type { IAutoMovieRecoveryMapJointBlock } from "../structures/internal/IAutoMovieRecoveryMapJointBlock";
-import type { IAutoMovieRecoveryMapJointResult } from "../structures/internal/IAutoMovieRecoveryMapJointResult";
 import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
 import { differentiateRecoveryMapTangent } from "./differentiateRecoveryMapTangent";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
@@ -36,16 +35,16 @@ import { stepRecoveryMapSeedPose } from "./stepRecoveryMapSeedPose";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources New pose/landmark arrays and plain reports transfer. Feasible selection admits four candidates and exact increments beside current/checkpoints and factors. Adaptive design and lagged F/S/A reservations are separately admitted; old/new owned duals reset per fit, partial/unused factors expire before direction work, and no borrowed reaction argument or numeric history escapes. Ordinary calls allocate none of the optional curvature or coherent feasible-report state. Feasible calls borrow one reporting scope or admit a direct512 envelope; encoded/raw/previous/trace reporting overlap stays separate from numerical factors.
  */
 export function refineRecoveryCameraMap(
-  initialPoses: readonly IAutoMovieRecoveryMapPose[],
-  initialLandmarks: readonly IAutoMovieRecoveryMapLandmark[],
-  intrinsics: readonly (readonly number[])[],
-  policy: IAutoMovieRecoveryCameraMapPolicy,
-  budget: IAutoMovieRecoveryCameraMapBudget,
-  checkpoint: () => void,
-  charge: (work: number) => void = (): void => {},
-  feasible?: IAutoMovieRecoveryFeasibleJointOptions,
-  reportCapacity?: IAutoMovieRecoveryFeasibleReportCapacity,
-): IAutoMovieRecoveryMapJointResult {
+  initialPoses: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[0],
+  initialLandmarks: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[1],
+  intrinsics: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[2],
+  policy: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[3],
+  budget: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[4],
+  checkpoint: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[5],
+  charge: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[6] = (): void => {},
+  feasible?: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[7],
+  reportCapacity?: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[8],
+): ReturnType<IAutoMovieRecoveryCameraMapRefinementOperation.Operation> {
   if (feasible !== undefined)
     return refineRecoveryCameraMapFeasible(
       initialPoses,
@@ -164,7 +163,7 @@ export function refineRecoveryCameraMap(
       };
       for (const observation of landmark.observations) {
         const view: number = observation.viewIndex;
-        const projected: ReturnType<typeof projectRecoveryMapPoint> =
+        const projected: ReturnType<IAutoMovieRecoveryMapPointProjectionOperation.Operation> =
           projectRecoveryMapPoint(
             cameras[view]!,
             landmark.point,
@@ -228,7 +227,7 @@ export function refineRecoveryCameraMap(
   for (; iterations < budget.maxRefinementIterations; iterations++) {
     checkpoint();
     charge(sweepWork);
-    const solution: ReturnType<typeof solveRecoveryMapJointStep> =
+    const solution: ReturnType<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation> =
       solveRecoveryMapJointStep(
         current.blocks,
         policy.minimumDesignSingularRatio,

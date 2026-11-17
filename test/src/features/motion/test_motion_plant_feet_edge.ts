@@ -1,11 +1,7 @@
-import {
-  IAutoMovieFootLeg,
-  plantStanceFeet,
-  resolvePose,
-  sampleMotion,
-} from "@automovie/engine";
+import { plantStanceFeet, resolvePose, sampleMotion } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
+  type IAutoMovieFootLeg,
   IAutoMovieJointPose,
   IAutoMovieKeyframe,
   IAutoMovieMotion,

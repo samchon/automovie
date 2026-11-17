@@ -1,9 +1,8 @@
-import path from "node:path";
-
 import { FamilyConicCaptureInput as Input } from "./FamilyConicCaptureInput";
 import { FamilyConicDeviationCapture as Deviation } from "./FamilyConicDeviationCapture";
 import { FamilyConicNativeCapture as Native } from "./FamilyConicNativeCapture";
 import { FamilyConicSourceCapture as Source } from "./FamilyConicSourceCapture";
+import path from "node:path";
 
 /**
  * Legacy deviation capture is unchanged when native options are absent.

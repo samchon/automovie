@@ -1,5 +1,11 @@
-import { type AutoMovieViewAxis, type AutoMovieViewLoft as L, realizeAutoMovieConstruction } from "@automovie/engine";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft as H } from "@automovie/human";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieViewAxis,
+  IAutoMovieViewLoft,
+} from "@automovie/interface";
 
 /**
  * The stored conic family of the offline studies: the Human package's own
@@ -8,19 +14,24 @@ import { AutoMovieHumanConicLoft as H } from "@automovie/human";
  */
 export namespace FamilyConicLoft {
   /** A point or direction in absolute reference coordinates. */
-  export type V3 = H.V3;
+  export type V3 = AutoMovieVector3Tuple;
 
   /** The complete authored definition of one part. */
-  export type IStored = H.IFamily;
+  export type IStored = IAutoMovieHumanConicLoft.IFamily;
 
   /** The part's course as the engine reads it. */
-  export const axis: (stored: Pick<IStored, "centres" | "halves" | "up" | "roll">) => AutoMovieViewAxis.IAxis = H.axis;
+  export const axis: (
+    stored: Pick<IStored, "centres" | "halves" | "up" | "roll">,
+  ) => IAutoMovieViewAxis.IAxis = H.axis;
 
   /** The family's field vector at one station. */
   export const reader: (stored: IStored) => (s: number) => number[] = H.reader;
 
   /** Loft a stored family through the engine at the given stations. */
-  export const create: (stored: IStored, stations: number[]) => L.IResult = H.create;
+  export const create: (
+    stored: IStored,
+    stations: number[],
+  ) => IAutoMovieViewLoft.IResult = H.create;
 
   /**
    * The refusals of a stored family realized alone as a construction source, the path the figure is built by, over layers `layer` mm apart.
@@ -33,10 +44,25 @@ export namespace FamilyConicLoft {
     const first: number = stored.knots[0]!;
     const last: number = stored.knots.at(-1)!;
     const count: number = Math.max(2, Math.ceil((last - first) / layer) + 1);
-    const stations: number[] = Array.from({ length: count }, (_: unknown, i: number): number => first + ((last - first) * i) / (count - 1));
+    const stations: number[] = Array.from(
+      { length: count },
+      (_: unknown, i: number): number =>
+        first + ((last - first) * i) / (count - 1),
+    );
     try {
-      const real = realizeAutoMovieConstruction({ name: "probe." + stored.name, root: { type: "source", name: stored.name, source: stored.name } }, { chord: 0.001, sources: new Map([[stored.name, H.part(stored, stations)]]) });
-      return real.diagnostics.map((diagnostic): string => JSON.stringify(diagnostic));
+      const real = realizeAutoMovieConstruction(
+        {
+          name: "probe." + stored.name,
+          root: { type: "source", name: stored.name, source: stored.name },
+        },
+        {
+          chord: 0.001,
+          sources: new Map([[stored.name, H.part(stored, stations)]]),
+        },
+      );
+      return real.diagnostics.map((diagnostic): string =>
+        JSON.stringify(diagnostic),
+      );
     } catch (error) {
       return [String(error)];
     }

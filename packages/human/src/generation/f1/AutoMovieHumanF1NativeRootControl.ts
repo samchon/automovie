@@ -1,16 +1,18 @@
 import {
-  type AutoMovieLoftFrame,
-  type AutoMovieViewAxis,
-  type AutoMovieViewAxisJet,
-  AutoMovieViewAxisJet as AxisJet,
   addAutoMovieQuadraticProduct,
+  AutoMovieViewAxisJet as AxisJet,
 } from "@automovie/engine";
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
-
-import type { AutoMovieHumanF1NativeRootTypes as Types } from "./AutoMovieHumanF1NativeRootTypes";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieHumanF1NativeRoot,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+} from "@automovie/interface";
 
 /** Original world positions in mm, or component derivatives in their named coordinate. */
-type V = Types.V;
+type V = AutoMovieVector3Tuple;
 
 /**
  * Original target arithmetic, affine course origins and qualified chart priors.
@@ -22,9 +24,9 @@ export namespace AutoMovieHumanF1NativeRootControl {
   export interface IAffine {
     /** Transform only the course origin and its actual derivatives; keep original section bases. */
     axis(
-      prior: AutoMovieViewAxis.IAxis,
+      prior: IAutoMovieViewAxis.IAxis,
       translation: V,
-    ): AutoMovieViewAxis.IAxis;
+    ): IAutoMovieViewAxis.IAxis;
   }
 
   /**
@@ -43,7 +45,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
    * accumulation refuses explicitly, with no magnitude cutoff or retry.
    * This is not a claim of correctly rounded sums over all finite inputs.
    */
-  export function targets(input: Types.ITargets): Types.ICurves {
+  export function targets(input: IAutoMovieHumanF1NativeRoot.ITargets): IAutoMovieHumanF1NativeRoot.ICurves {
     if (
       input.parent.length === 0 ||
       input.parent.length !== input.child.length ||
@@ -120,7 +122,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
    * evaluation order; only targets uses compensated addition.
    */
   export function create(
-    basis: AutoMovieLoftFrame.IFrame,
+    basis: IAutoMovieLoftSectionFrame,
     scale: readonly [number, number],
     anchor: V,
   ): IAffine {
@@ -150,12 +152,12 @@ export namespace AutoMovieHumanF1NativeRootControl {
 
     /** Preserve original u/v and their derivatives while transforming the course origin. */
     const axis: (
-      prior: AutoMovieViewAxis.IAxis,
+      prior: IAutoMovieViewAxis.IAxis,
       translation: V,
-    ) => AutoMovieViewAxis.IAxis = (
-      prior: AutoMovieViewAxis.IAxis,
+    ) => IAutoMovieViewAxis.IAxis = (
+      prior: IAutoMovieViewAxis.IAxis,
       translation: V,
-    ): AutoMovieViewAxis.IAxis => {
+    ): IAutoMovieViewAxis.IAxis => {
       if (
         scale[0] === 1 &&
         scale[1] === 1 &&
@@ -165,20 +167,20 @@ export namespace AutoMovieHumanF1NativeRootControl {
 
       /** The actual original frame with only its origin transformed. */
       const frame: (
-        value: AutoMovieLoftFrame.IFrame,
-      ) => AutoMovieLoftFrame.IFrame = (
-        value: AutoMovieLoftFrame.IFrame,
-      ): AutoMovieLoftFrame.IFrame => ({
+        value: IAutoMovieLoftSectionFrame,
+      ) => IAutoMovieLoftSectionFrame = (
+        value: IAutoMovieLoftSectionFrame,
+      ): IAutoMovieLoftSectionFrame => ({
         ...value,
         origin: affine(value.origin, translation),
       });
       return {
-        at: (s: number): AutoMovieLoftFrame.IFrame => frame(prior.at(s)),
+        at: (s: number): IAutoMovieLoftSectionFrame => frame(prior.at(s)),
         jet: (
           s: number,
-          parameter?: AutoMovieConstructionOutlineParameter,
-        ): AutoMovieViewAxisJet.IJet | null => {
-          const value: AutoMovieViewAxisJet.IJet | null =
+          parameter?: IAutoMovieConstructionOutlineParameter,
+        ): IAutoMovieViewAxisJet.IJet | null => {
+          const value: IAutoMovieViewAxisJet.IJet | null =
             prior.jet?.(s) ?? null;
           return value === null
             ? null
@@ -202,12 +204,12 @@ export namespace AutoMovieHumanF1NativeRootControl {
 
   /** Straight-parent bare-coordinate prior, in mm/radians; not a relieved-skin inverse. */
   export function rawParent(
-    axis: AutoMovieViewAxis.IAxis,
+    axis: IAutoMovieViewAxis.IAxis,
     point: V,
   ): [number, number] {
-    const frame: AutoMovieLoftFrame.IFrame = axis.at(0);
+    const frame: IAutoMovieLoftSectionFrame = axis.at(0);
     const normal: V = cross(frame.v, frame.u);
-    const jet: AutoMovieViewAxisJet.IJet | null = axis.jet?.(0) ?? null;
+    const jet: IAutoMovieViewAxisJet.IJet | null = axis.jet?.(0) ?? null;
     if (jet === null)
       throw new Error(
         "parent raw-coordinate prior requires its actual course2",
@@ -224,12 +226,12 @@ export namespace AutoMovieHumanF1NativeRootControl {
 
   /** Same local source-native prior at the original material station, in mm/radians. */
   export function rawChild(
-    axis: AutoMovieViewAxis.IAxis,
+    axis: IAutoMovieViewAxis.IAxis,
     point: V,
     station: number,
   ): [number, number] {
-    const frame: AutoMovieLoftFrame.IFrame = axis.at(station);
-    const jet: AutoMovieViewAxisJet.IJet | null = axis.jet?.(station) ?? null;
+    const frame: IAutoMovieLoftSectionFrame = axis.at(station);
+    const jet: IAutoMovieViewAxisJet.IJet | null = axis.jet?.(station) ?? null;
     if (jet === null)
       throw new Error("child coordinate prior requires its actual course2");
     const normal: V = cross(frame.v, frame.u);
@@ -245,7 +247,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
   }
 
   /** The original caliper-frame construction clock, with no anatomical interpretation. */
-  export function polarAt(frame: AutoMovieLoftFrame.IFrame, point: V): number {
+  export function polarAt(frame: IAutoMovieLoftSectionFrame, point: V): number {
     const q: V = subtract(point, frame.origin);
     const u: number = dot(q, frame.u);
     const v: number = dot(q, frame.v);

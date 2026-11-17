@@ -1,11 +1,10 @@
-import {
-  HumanBreath,
-  HumanChain,
-  HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanLayer,
-} from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanSegment,
+} from "@automovie/interface";
+import { HumanBreath, HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -42,12 +41,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_core_draw_independence(): void {
   const complaints: string[] = [];
-  const bodies: Record<"a" | "b" | "c", IHumanBody> = {
+  const bodies: Record<"a" | "b" | "c", IAutoMovieMotionHumanBody> = {
     a: motionHumanBody("m-average"),
     b: motionHumanBody("f-small"),
     c: motionHumanBody("f-small"),
   };
-  const waving = (subject: string, anchor: string): HumanChain =>
+  const waving = (
+    subject: string,
+    anchor: string,
+  ): IAutoMovieMotionHumanChain =>
     HumanChain.subject(subject)
       .stand({ seconds: 0.3 })
       .gesture({ kind: "wave", manner: { variation: 1 } }, anchor);
@@ -56,23 +58,27 @@ export function test_human_motion_core_draw_independence(): void {
   const read = (
     seed: string,
     subjects: readonly ("a" | "b" | "c")[],
-    composition: { node: HumanChain["node"] },
-    layers?: Record<string, readonly IHumanLayer[]>,
+    composition: { node: IAutoMovieMotionHumanChain["node"] },
+    layers?: Record<string, readonly IAutoMovieMotionHumanLayer[]>,
   ): number[] => {
-    const wave: HumanSegment.ISegment | undefined = new HumanPerformance({
-      seed,
-      performers: subjects.map((subject: "a" | "b" | "c", index: number) => ({
-        subject,
-        body: bodies[subject],
-        at: { x: index * 1.5, y: 0, z: 0 },
-        yaw: 0,
-        proficiency: { level: "trained" as const },
-      })),
-      ...(layers === undefined ? {} : { layers }),
-      composition: composition.node,
-    })
+    const wave: IAutoMovieMotionHumanSegment | undefined = new HumanPerformance(
+      {
+        seed,
+        performers: subjects.map((subject: "a" | "b" | "c", index: number) => ({
+          subject,
+          body: bodies[subject],
+          at: { x: index * 1.5, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" as const },
+        })),
+        ...(layers === undefined ? {} : { layers }),
+        composition: composition.node,
+      },
+    )
       .segments("a")
-      .find((segment: HumanSegment.ISegment): boolean => segment.id === "w");
+      .find(
+        (segment: IAutoMovieMotionHumanSegment): boolean => segment.id === "w",
+      );
     return wave === undefined
       ? []
       : [

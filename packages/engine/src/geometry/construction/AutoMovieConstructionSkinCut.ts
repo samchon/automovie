@@ -1,9 +1,13 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionSkinCut,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** World point or direction, mm. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { dot } = AutoMovieSolidVector;
 
 /**
@@ -24,78 +28,6 @@ const { dot } = AutoMovieSolidVector;
  */
 export namespace AutoMovieConstructionSkinCut {
   /**
-   * A plane in kernel coordinates with its kept side.
-   *
-   * @evidence contracts/development/design.md#principled-representation A point and a unit normal toward the kept half space.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two vectors.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only; the caller resolves the declared frame and normalizes.
-   * @evidence contracts/development/common.md#meaningful-documentation States the units and the kept side.
-   */
-  export interface IPlane {
-    /** A point of the plane, mm. */
-    point: Vec3;
-
-    /** The unit normal toward the kept side. */
-    normal: Vec3;
-  }
-
-  /**
-   * What a cut is built from.
-   *
-   * @evidence contracts/development/design.md#principled-representation The skin, the planes with their rounding, the side the band stands on and the face's own stations determine the curve.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six fields; the stations and the sample count are sampling inputs the caller already owns.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only; admission of the declaration belongs to the caller.
-   * @evidence contracts/development/common.md#meaningful-documentation States each field's unit and role.
-   */
-  export interface IInput {
-    /** The face's skin, chart `(station mm, phase rad)`. */
-    surface: IAutoMovieSolidSurface;
-
-    /** The planes, at least one. */
-    planes: readonly IPlane[];
-
-    /** The rounding length of the planes' edges, mm, positive; absent, the plain minimum. */
-    round?: number;
-
-    /** The station's sign from the end that faces the band into the face's kept side. */
-    into: 1 | -1;
-
-    /** The face's own stations inside its domain, increasing, mm: where the residual's first sign change is bracketed. */
-    stations: readonly number[];
-
-    /** Phases round the face at which the curve is bracketed and admitted when it is built, at least 8. */
-    samples: number;
-  }
-
-  /**
-   * A built cut.
-   *
-   * @evidence contracts/development/design.md#principled-representation The curve's station with two derivatives at any phase, and the stations it spans at its admitted phases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One reader and one interval.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The reader solves the residual on the skin at the phase asked; it interpolates no stored station.
-   * @evidence contracts/development/common.md#meaningful-documentation States the reader's result and the interval's source.
-   */
-  export interface ICut {
-    /**
-     * The rail's station at a phase with its first and second phase derivatives, mm and mm per radian. The same phase always returns the
-     * same numbers. It throws `AutoMovieLoftAdmissionError` at a phase between the admitted ones where the skin does not cross the
-     * surface or is tangent to it.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the result, its determinism and its failure.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `create` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    at: (psi: number) => [number, number, number];
-
-    /** The least and greatest station of the curve at its admitted phases, mm. */
-    reach: [number, number];
-  }
-
-  /**
    * Build a cut, or the reason it cannot be built.
    *
    * At each of `samples` phases the residual is read along the face's own stations from the end that faces the band; the first station
@@ -114,8 +46,8 @@ export namespace AutoMovieConstructionSkinCut {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The admitted roots start every later reading.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the planes, the stations and `samples` roots; no reading is cached.
    */
-  export function create(input: IInput): ICut | string {
-    const { surface, planes, into }: IInput = input;
+  export function create(input: IAutoMovieConstructionSkinCut.IInput): IAutoMovieConstructionSkinCut.ICut | string {
+    const { surface, planes, into }: IAutoMovieConstructionSkinCut.IInput = input;
     const turn: number = 2 * Math.PI;
     const m: number = input.samples;
     if (planes.length === 0) return "the cut has no plane";
@@ -132,7 +64,7 @@ export namespace AutoMovieConstructionSkinCut {
     /** The region's function at a point with each plane's weight in its gradient. */
     const field = (p: readonly number[]): { value: number; weights: number[] } => {
       const g: number[] = planes.map(
-        (plane: IPlane): number =>
+        (plane: IAutoMovieConstructionSkinCut.IPlane): number =>
           plane.normal[0] * (p[0]! - plane.point[0]) +
           plane.normal[1] * (p[1]! - plane.point[1]) +
           plane.normal[2] * (p[2]! - plane.point[2]),
@@ -156,7 +88,7 @@ export namespace AutoMovieConstructionSkinCut {
       const j: IAutoMovieSolidSurface.IJet = surface.jet(u, psi);
       const { value, weights }: { value: number; weights: number[] } = field(j.p);
       let grad: Vec3 = [0, 0, 0];
-      planes.forEach((plane: IPlane, i: number): void => {
+      planes.forEach((plane: IAutoMovieConstructionSkinCut.IPlane, i: number): void => {
         grad = [
           grad[0] + weights[i]! * plane.normal[0],
           grad[1] + weights[i]! * plane.normal[1],
@@ -166,7 +98,7 @@ export namespace AutoMovieConstructionSkinCut {
       const Q = (a: Vec3, b: Vec3): number => {
         if (round === undefined) return 0;
         let sum: number = 0;
-        planes.forEach((plane: IPlane, i: number): void => {
+        planes.forEach((plane: IAutoMovieConstructionSkinCut.IPlane, i: number): void => {
           sum += weights[i]! * dot(plane.normal, a) * dot(plane.normal, b);
         });
         return -(sum - dot(grad, a) * dot(grad, b)) / round;

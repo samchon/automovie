@@ -3,24 +3,24 @@ import type {
   AutoMovieEasing,
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
+  IAutoMovieActionSynthesizer,
+  IAutoMovieCompiledPerformance,
   IAutoMovieExpression,
   IAutoMovieGaitCycle,
   IAutoMovieJointPose,
   IAutoMovieKeyframe,
+  IAutoMovieMaskedContent,
   IAutoMovieMotion,
+  IAutoMovieMotionSample,
+  IAutoMoviePlacement,
   IAutoMoviePose,
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import type { IAutoMovieMotionSample } from "../motion/IAutoMovieMotionSample";
-import { IAutoMoviePlacement } from "../motion/IAutoMoviePlacement";
 import { arrangeMotion } from "../motion/arrangeMotion";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sequenceMotion } from "../motion/sequenceMotion";
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { IAutoMovieActionSynthesizer } from "./IAutoMovieActionSynthesizer";
-import { IAutoMovieCompiledPerformance } from "./IAutoMovieCompiledPerformance";
-import { IAutoMovieMaskedContent } from "./IAutoMovieMaskedContent";
 import { actionRegion } from "./actionRegion";
 import { blendPoses } from "./blendPoses";
 import { bodyRegionBones } from "./bodyRegionBones";

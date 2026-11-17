@@ -1,7 +1,16 @@
-import { createPlyoBox, createPolearm } from "@automovie/archetypes";
+import {
+  createHighJump,
+  createPlyoBox,
+  createPolearm,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -11,9 +20,7 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -35,18 +42,19 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * lying trunk's half depth with room, an estimate) and the head level with
  * them within a quarter of the stature. The landing box is a 0.762 m
  * plyometric box standing in for a mat: only its top's height is read, and
- * whether the body lies within its extent is not. The pole is a 3 m spear,
- * the longest shaft the archetypes make, taken up standing on its butt and
+ * whether the body lies within its extent is not. The pole is a 3 m spear
+ * carrying the longest catalogued head, Met 1989.220's 54 cm, the longest
+ * shaft the archetypes make, taken up standing on its butt and
  * planted by its butt, so it reaches 1.5 m from the hand: a short pole's
  * vault.
  *
  * Scenarios, for each of the two bodies:
- * 1. A flop over a 1.4 m bar onto the box's top 2.5 m ahead, out of
+ * 1. A flop over a high jump's 1.4 m crossbar (`createHighJump`, 1.25 m ahead) onto the box's top 2.5 m ahead, out of
  *    standing: halfway to `apex` the centre falls at 9.81 m/s²; at `apex`
  *    the centre is at 1.4 m within 10 mm, the hips face up (their forward
  *    axis rises 0.7 or more) and the head is level with the hips within a
  *    quarter of the stature; at `settled` the body lies on the box's top.
- * 2. The same flop over a 3 m bar is refused as a `parameter` refusal on
+ * 2. The same flop over a 3 m bar (the high jump at its 2.45 m on a platform) is refused as a `parameter` refusal on
  *    `bar`: from either body's take-off centre, about 1 m high, it needs a
  *    vertical speed near 6 m/s, past the world-class men's measured
  *    4.65 ± 0.20 m/s (Nicholson et al. 2022, Front. Sports Act. Living
@@ -75,22 +83,27 @@ export function test_human_motion_gymnastics_jumps(): void {
   const top: number = 0.762;
   const spear: ReturnType<typeof createPolearm> = createPolearm({
     kind: "spear",
+    model: "met1989",
     length: 3,
-    headLength: 0.6,
   });
   const upright: IAutoMovieQuaternion = Quaternion.identity();
+  // A high jump whose 30 mm crossbar's axis is at a height, up to the
+  // archetype's 2.45 m top.
+  const jump = (bar: number): ReturnType<typeof createHighJump> =>
+    createHighJump({ height: Math.min(bar + 0.015, 2.45), diameter: 0.03 });
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
-    const performer: HumanPerformance.IInput["performers"][number] = {
-      subject: "a",
-      body,
-      at: { x: 0, y: 0, z: 0 },
-      yaw: 0,
-      proficiency: { level: "trained" },
-    };
-    const flop = (bar: number): HumanPerformance =>
+    const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] =
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      };
+    const flop = (bar: number): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "flop",
         laws: [HumanGymnastics.fosburyFlop],
@@ -100,17 +113,28 @@ export function test_human_motion_gymnastics_jumps(): void {
             position: { x: 0, y: 0, z: 2.5 },
             rotation: upright,
           }),
+          // The high jump, its crossbar along X between the take-off and
+          // the box; a bar past the archetype's 2.45 m stands on a
+          // platform under its uprights.
+          HumanObject.prop("bar", jump(bar), {
+            position: {
+              x: 0,
+              y: bar - jump(bar).affordance("bar").frame.translation.y,
+              z: 1.25,
+            },
+            rotation: upright,
+          }),
         ],
         composition: HumanChain.subject("a")
           .stand({ seconds: 0.3 })
           .registered("fosburyFlop", {
             to: { x: 0, y: top, z: 2.5 },
             on: "mat",
-            bar,
+            bar: "bar",
           }).node,
       });
-    const vault = (run: boolean): HumanPerformance => {
-      const taken: HumanChain = HumanChain.subject("a")
+    const vault = (run: boolean): IAutoMovieMotionHumanPerformance => {
+      const taken: IAutoMovieMotionHumanChain = HumanChain.subject("a")
         .stand({ seconds: 0.3 })
         .pickUp({ prop: "pole", handle: "shaft", hand: "right", lift: 0.05 })
         .stand({ seconds: 0.3 });
@@ -134,7 +158,7 @@ export function test_human_motion_gymnastics_jumps(): void {
     };
     const refused = (
       label: string,
-      build: () => HumanPerformance,
+      build: () => IAutoMovieMotionHumanPerformance,
       kind: string,
       axis: string,
     ): void => {
@@ -158,10 +182,10 @@ export function test_human_motion_gymnastics_jumps(): void {
 
     // Read a film's segment by its row.
     const reading = (
-      film: HumanPerformance,
+      film: IAutoMovieMotionHumanPerformance,
       row: string,
     ): {
-      reader: HumanSignature.IReader;
+      reader: IAutoMovieMotionHumanSignature.IReader;
       at: (event: string) => number;
       joint: (
         seconds: number,
@@ -170,15 +194,15 @@ export function test_human_motion_gymnastics_jumps(): void {
       hips: (seconds: number) => IAutoMovieVector3;
       fall: (seconds: number) => number;
     } => {
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         film,
         "a",
         body,
         0,
       );
-      const segment: HumanSegment.ISegment = film
+      const segment: IAutoMovieMotionHumanSegment = film
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === row)!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
       const joint = (
         seconds: number,
         bone: AutoMovieHumanoidBone,
@@ -277,14 +301,14 @@ export function test_human_motion_gymnastics_jumps(): void {
     // 2. A bar out of reach.
     refused(
       "flop over 3 m",
-      (): HumanPerformance => flop(3),
+      (): IAutoMovieMotionHumanPerformance => flop(3),
       "parameter",
       "bar",
     );
 
     // 3. The pole vault.
     try {
-      const film: HumanPerformance = vault(true);
+      const film: IAutoMovieMotionHumanPerformance = vault(true);
       const read: ReturnType<typeof reading> = reading(film, "vaultOnPole");
       const off: number = read.at("takeoff");
       const release: number = read.at("release");
@@ -325,7 +349,7 @@ export function test_human_motion_gymnastics_jumps(): void {
     // 4. A vault from standing.
     refused(
       "pole vault from standing",
-      (): HumanPerformance => vault(false),
+      (): IAutoMovieMotionHumanPerformance => vault(false),
       "base",
       "run",
     );

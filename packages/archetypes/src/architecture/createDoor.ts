@@ -5,10 +5,13 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
+  ArchetypeUnits,
 } from "../core";
 import { DOOR_BANDS } from "./DOOR_BANDS";
+import { DOOR_SIZES } from "./DOOR_SIZES";
 
 /** Radius of a lever arm or a pull bar, metres: a 20 to 25 mm bar, the pull's diameter seen only in a listing. */
 const BAR: number = 0.011;
@@ -20,14 +23,14 @@ const BAR: number = 0.011;
  *
  * `pull` and `push` are where a hand takes the door from the `+Z` and the `-Z` side; `aperture` is the clear opening a body passes through.
  *
- * @param params The kind, the hinge side, the hardware and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the hinge side, the hardware, the leaf's standard sizes, a latch's backset, a lever's style and any dimension the author fixes.
+ * @param seed The seed that draws each size and style not given and every dimension left free inside its band; absent, the first of each list and the middle of each band.
  * @returns The door.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band or one the door's hardware lacks, or hardware named for a sliding door.
+ * @throws {ArchetypeRefusal} For a size or style the standard or the maker does not list, a backset or lever named for hardware without one, a fixed dimension outside its band or one the door's hardware lacks, or hardware named for a sliding door.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the door's plane and origin, which way it opens, what moves with what and what each hand contact is.
  * @evidence contracts/development/implementation.md#principled-implementation A leaf box in a three-piece frame, which a sliding door has without the jamb on the side its leaf runs out past; the hinge axis points down for a left hinge and up for a right one so that a positive travel swings the leaf toward `+Z`, and the latch's axis points so that a positive travel presses the levers down. A left-hinged door is the mirror image of a right-hinged one in the `YZ` plane.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the frame and the leaf with its articulation, then the hardware of each face.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the leaf's standard sizes, a latch's backset and a lever's style, draw the remaining dimensions, then build the frame and the leaf with its articulation, then the hardware of each face.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No latch bolt, closer or panel detail; the opening force is a drawn dimension for an act to read, not simulated. Hardware named for a sliding door is refused, never ignored.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most ten parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -37,6 +40,13 @@ export function createDoor(
   params: createDoor.IParams = {},
   seed?: number | string,
 ): Archetype<createDoor.Affordance, createDoor.Dimension> {
+  const draw: ArchetypeDrawSession<createDoor.Dimension> =
+    new ArchetypeDrawSession<createDoor.Dimension>(
+      "door",
+      createDoor.UNITS,
+      seed,
+      params,
+    );
   const kind: createDoor.Kind = ArchetypeDraw.choice(
     "door",
     "kind",
@@ -70,23 +80,41 @@ export function createDoor(
     ]) === "right"
       ? 1
       : -1;
-  const d: Partial<Record<createDoor.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "door",
-      createDoor.BANDS[kind === "sliding" ? "sliding" : hardware],
-      seed,
-      params,
-      createDoor.BANDS,
-    );
+  const variant: createDoor.Hardware | "sliding" =
+    kind === "sliding" ? "sliding" : hardware;
+  /** One axis of the door's read sizes, given or picked whole. */
+  const axis = <Name extends string>(
+    name: string,
+    given: Name | undefined,
+    models:
+      | Readonly<
+          Partial<
+            Record<
+              Name,
+              Readonly<Partial<Record<createDoor.Dimension, number>>>
+            >
+          >
+        >
+      | undefined,
+  ): Readonly<Partial<Record<createDoor.Dimension, number>>> =>
+    draw.model<Name>(name, given, models).figures;
+  const d: Partial<Record<createDoor.Dimension, number>> = {
+    ...draw.dimensions(createDoor.BANDS[variant], createDoor.BANDS),
+    ...axis("nominalWidth", params.nominalWidth, DOOR_SIZES.width),
+    ...axis("nominalHeight", params.nominalHeight, DOOR_SIZES.height),
+    ...axis("nominalThickness", params.nominalThickness, DOOR_SIZES.thickness),
+    ...axis("latchBackset", params.latchBackset, DOOR_SIZES.backset[variant]),
+    ...axis("lever", params.lever, DOOR_SIZES.lever[variant]),
+  };
   const width: number = d.width!;
   const height: number = d.height!;
   const thick: number = d.thickness!;
   const builder: ArchetypeBuilder<createDoor.Affordance, createDoor.Dimension> =
     new ArchetypeBuilder({
-      archetype: "door",
+      material: "composite",
       id: params.id,
       name: kind === "sliding" ? "sliding door" : "hinged door",
-      dimensions: d,
+      draw,
     });
 
   // The frame: two jambs and a head round the leaf.
@@ -161,6 +189,7 @@ export function createDoor(
       builder.affordance({
         id,
         kind: "handle",
+        symmetry: "none",
         frame:
           hardware === "lever"
             ? ArchetypeFrame.facing(
@@ -219,6 +248,7 @@ export function createDoor(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         Vector3.create(x, y, off),
         out,
@@ -276,6 +306,13 @@ export function createDoor(
       travel: d.swing!,
       parts: moving,
     });
+  // A hinged leaf leaves its frame whole, with its hardware, at the energy a ram breaks an unreinforced softwood frame (`createDoor.BREAKING`); the frame stays.
+  if (kind === "hinged") {
+    builder.fracture([{ id: "leaf", parts: [...moving, ...latched] }]);
+    return builder.build(d.mass!, {
+      outcome: { fracture: createDoor.BREAKING },
+    });
+  }
   return builder.build(d.mass!);
 }
 
@@ -283,11 +320,14 @@ export function createDoor(
  * Companion types and bands of {@link createDoor}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions for the kind, the hinge side and the hardware, and one cited band per dimension per hardware, in metres, degrees and newtons.
+ * @evidence contracts/development/design.md#principled-representation Closed unions for the kind, the hinge side, the hardware, the standard's leaf sizes, the lock's backsets and its lever styles, each picked whole, and one cited band per remaining dimension per hardware, in metres, degrees and newtons.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The dimensions are those a door-opening act reads (#3371): the hardware's height and place, the turn that frees the latch, the swing and the clear opening.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Hardware a door does not have has no band: a plate door has no latch turn.
  */
 export namespace createDoor {
+  /** A hinged leaf's breaking energy, joules: 80 J, the lowest impact level of ASTM F476-14's ram test, at which "a typical softwood door frame without reinforcement will break and allow the door to be forced open", as US patent 11280110 B1 states it (https://patents.google.com/patent/US11280110B1/en); a ram's blow, provisional for a kick, which no source read measures. */
+  export const BREAKING: number = 80;
+
   /** The kinds of door. */
   export type Kind = "hinged" | "sliding";
 
@@ -301,15 +341,15 @@ export namespace createDoor {
   export const HARDWARE: readonly Hardware[] = ["lever", "knob", "plate"];
 
   /** A pull bar's centre above the floor, metres: ANSI/SDI A250.8-2017 Table 5, centreline of grip at 42 in. */
-  export const PULL_HEIGHT: number = 1.067;
+  export const PULL_HEIGHT: number = 42 * ArchetypeUnits.INCH;
 
   /** A push plate's centre above the floor, metres: ANSI/SDI A250.8-2017 Table 5, centreline at 45 in. */
-  export const PLATE_HEIGHT: number = 1.143;
+  export const PLATE_HEIGHT: number = 45 * ArchetypeUnits.INCH;
 
   /** A push plate's width and height, metres: a 4 by 16 in plate, a common catalogue size, not read at a source. */
   export const PLATE: Readonly<{ width: number; height: number }> = {
-    width: 0.102,
-    height: 0.406,
+    width: 4 * ArchetypeUnits.INCH,
+    height: 16 * ArchetypeUnits.INCH,
   };
 
   /** A pull bar's grip length and its clearance from the leaf's face, metres: estimates, not read at a source. */
@@ -341,7 +381,7 @@ export namespace createDoor {
    *
    * - `width`, `height`, `thickness`: the leaf.
    * - `hardwareHeight`: the lever's or knob's axis above the floor.
-   * - `backset`: the lever's or knob's axis from the leaf's latch edge.
+   * - `backset`: the lever's or knob's axis, the push plate's centre or a sliding door's pull from the leaf's latch edge.
    * - `grip`: the length of a lever's arm, or a knob's diameter.
    * - `projection`: how far the lever's arm or the knob's centre stands off the leaf's face.
    * - `latchTurn`: the turn that draws the latch, degrees.
@@ -362,8 +402,64 @@ export namespace createDoor {
     | "force"
     | "mass";
 
-  /** The parameters: the kind, the hinge side, the hardware, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    thickness: "m",
+    hardwareHeight: "m",
+    backset: "m",
+    grip: "m",
+    projection: "m",
+    latchTurn: "degrees",
+    swing: "degrees",
+    force: "N",
+    mass: "kg",
+  };
+
+  /** The leaf's nominal widths, ANSI/SDI A250.8's. */
+  export type Width = "2ft10in" | "3ft0in";
+
+  /** The leaf's nominal heights, ANSI/SDI A250.8's. */
+  export type Height = "6ft8in" | "7ft0in";
+
+  /** The leaf's thicknesses, ANSI/SDI A250.8's. */
+  export type Thickness = "1-3/8in" | "1-3/4in";
+
+  /** A cylindrical lock's backsets, the Schlage ND's. */
+  export type Backset = "2-3/8in" | "2-3/4in";
+
+  /** The Schlage ND lever styles read, each with its own length and projection. */
+  export type Lever =
+    | "ATH"
+    | "BRK"
+    | "BRW"
+    | "LAT"
+    | "LON"
+    | "OME"
+    | "RHO"
+    | "SPA"
+    | "TLR";
+
+  /** The parameters: the kind, the hinge side, the hardware, the picked sizes and style, and any remaining free dimension fixed to a value inside its band. */
+  export interface IParams extends Partial<
+    Record<Exclude<Dimension, "width" | "height" | "thickness">, number>
+  > {
+    /** The leaf's nominal width, which sets its width; drawn from the seed when absent. */
+    nominalWidth?: Width;
+
+    /** The leaf's nominal height, which sets its height; drawn from the seed when absent. */
+    nominalHeight?: Height;
+
+    /** The leaf's nominal thickness, which sets its `thickness`; drawn from the seed when absent. */
+    nominalThickness?: Thickness;
+
+    /** A lever's or knob's backset, or a sliding door's pull's, the same lock's; drawn from the seed when absent. */
+    latchBackset?: Backset;
+
+    /** A lever's style; drawn from the seed when absent. */
+    lever?: Lever;
+
     /** Which door; hinged when absent. */
     kind?: Kind;
 

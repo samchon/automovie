@@ -1,8 +1,3 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
-import { AutoMovieHumanF1 as F1 } from "@automovie/human";
-import fs from "node:fs/promises";
-import path from "node:path";
-
 import { FamilyConicCaptureCatalog as Catalog } from "./FamilyConicCaptureCatalog";
 import { FamilyConicCaptureInput as Input } from "./FamilyConicCaptureInput";
 import { FamilyConicMeshTopology } from "./FamilyConicMeshTopology";
@@ -10,6 +5,11 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
 import { FamilyConicSourceCapture as Source } from "./FamilyConicSourceCapture";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieHumanF1 as F1 } from "@automovie/human";
+import type { IAutoMovieHumanF1 } from "@automovie/interface";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /** One case lifetime shares actual geometry, display curves and cameras across both captures. */
 export namespace FamilyConicCaptureContext {
@@ -70,7 +70,7 @@ export namespace FamilyConicCaptureContext {
     meshTopology: ReturnType<typeof FamilyConicMeshTopology>;
 
     /** Display triangles copied from that same realization, in metres. */
-    pieces: F1.IPiece[];
+    pieces: IAutoMovieHumanF1.IPiece[];
 
     /** All actual engine realization diagnostics; absence of a mesh still fails. */
     diagnostics: string[];
@@ -134,8 +134,8 @@ export namespace FamilyConicCaptureContext {
       throw new Error("Native capture does not omit loose families");
     const before: NodeJS.MemoryUsage = source.memory.before;
     const started: number = performance.now();
-    const assembly: F1.IAssembly = source.assembly;
-    const declared: F1.IConstruction = F1.constructionFrom(assembly);
+    const assembly: IAutoMovieHumanF1.IAssembly = source.assembly;
+    const declared: IAutoMovieHumanF1.IConstruction = F1.constructionFrom(assembly);
     const real: ReturnType<typeof realizeAutoMovieConstruction> =
       realizeAutoMovieConstruction(
         { name: "f1.body", root: declared.root, fills: declared.fills },

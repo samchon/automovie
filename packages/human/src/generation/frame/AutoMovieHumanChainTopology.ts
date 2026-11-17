@@ -1,4 +1,4 @@
-import type { AutoMovieHumanSegmentFrame as F } from "./AutoMovieHumanSegmentFrame";
+import type { IAutoMovieHumanSegmentJoint } from "@automovie/interface";
 
 /**
  * Admit an invocation against an authoritative logical name/parent topology.
@@ -15,12 +15,12 @@ import type { AutoMovieHumanSegmentFrame as F } from "./AutoMovieHumanSegmentFra
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Two call-local indexes die on return or refusal; the admitted chain is borrowed unchanged and no input is cached.
  */
 export function AutoMovieHumanChainTopology(
-  reference: readonly Pick<F.IJoint, "name" | "parent">[],
-  candidate: readonly F.IJoint[],
-): readonly F.IJoint[] {
+  reference: readonly Pick<IAutoMovieHumanSegmentJoint, "name" | "parent">[],
+  candidate: readonly IAutoMovieHumanSegmentJoint[],
+): readonly IAutoMovieHumanSegmentJoint[] {
   const expected: Map<string, string | null> = new Map(
     reference.map(
-      (joint: Pick<F.IJoint, "name" | "parent">): [string, string | null] => [
+      (joint: Pick<IAutoMovieHumanSegmentJoint, "name" | "parent">): [string, string | null] => [
         joint.name,
         joint.parent,
       ],

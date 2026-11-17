@@ -1,4 +1,8 @@
-import { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieComputeModelRestExtentY,
+  IAutoMovieModel,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { computeModelRestExtent } from "./computeModelRestExtent";
 
@@ -19,7 +23,7 @@ import { computeModelRestExtent } from "./computeModelRestExtent";
  */
 export function computeModelRestExtentY(
   model: IAutoMovieModel,
-): { min: number; max: number } | null {
+): IAutoMovieComputeModelRestExtentY.IResult {
   const extent: { min: IAutoMovieVector3; max: IAutoMovieVector3 } | null =
     computeModelRestExtent(model);
   return extent === null ? null : { min: extent.min.y, max: extent.max.y };

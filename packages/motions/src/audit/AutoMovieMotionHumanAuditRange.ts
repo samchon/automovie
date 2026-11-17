@@ -1,11 +1,16 @@
-import { DEFAULT_HUMANOID_ROM, scanJointRom } from "@automovie/engine";
+import {
+  ANKLE_DORSIFLEXION,
+  DEFAULT_HUMANOID_ROM,
+  scanJointRom,
+} from "@automovie/engine";
 import type {
   IAutoMovieJointConstraint,
-  IAutoMoviePose,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditRange,
+  IAutoMovieScanJointRom,
 } from "@automovie/interface";
 
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
  * Whether every joint of a displayed motion stays inside its anatomical
@@ -31,45 +36,6 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  */
 export namespace AutoMovieMotionHumanAuditRange {
   /**
-   * A motion as this audit reads it: a person's displayed pose at any film
-   * second. `HumanPerformance` is one.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and which producer satisfies it.
-   * @evidence contracts/development/design.md#principled-representation Clinical angles live on the pose, not on the resolved bones the other audits read.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, a structural subset of `HumanPerformance`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's pose; no cast or optional member.
-   */
-  export interface IPosed {
-    /** The motion's length, film seconds. */
-    readonly duration: number;
-
-    /**
-     * A person's displayed pose.
-     *
-     * @param subject The person.
-     * @param seconds Film seconds, within the motion.
-     * @returns The pose, joints in clinical degrees.
-     */
-    pose(subject: string, seconds: number): IAutoMoviePose;
-  }
-
-  /**
-   * What the reading found.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and what it is read on.
-   * @evidence contracts/development/design.md#principled-representation The worst overshoot and the one share it cannot tell.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, each asserted by the audit's test.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member.
-   */
-  export interface IResult {
-    /** The farthest a joint stands past its range, degrees, with the bone and the axis (`flexion`, `abduction`, `twist` or `swing`); `Infinity` for a non-finite angle. */
-    overshoot: IAutoMovieMotionHumanAuditMeasure;
-
-    /** The part of the grid's instants at which some joint is past its range, in [0, 1]. */
-    share: number;
-  }
-
-  /**
    * Read one person's joints over a motion.
    *
    * @param motion The motion.
@@ -83,23 +49,19 @@ export namespace AutoMovieMotionHumanAuditRange {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two nested loops and one callback.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A fault without a distance is a non-finite angle and reads as `Infinity`, never as zero.
    * @evidence contracts/development/implementation.md#efficient-algorithms One scan per joint per instant, no allocation beyond the grid.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `IAutoMovieMotionHumanAuditMotion.grid`, the scan the engine's.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `AutoMovieMotionHumanAuditMotion.grid`, the scan the engine's.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function measure(
-    motion: IPosed,
+    motion: IAutoMovieMotionHumanAuditRange.IPosed,
     subject: string,
     rate: number = 24,
-  ): IResult {
-    const out: IResult = {
+  ): IAutoMovieMotionHumanAuditRange.IResult {
+    const out: IAutoMovieMotionHumanAuditRange.IResult = {
       overshoot: { value: 0, seconds: 0, where: "none" },
       share: 0,
     };
-    const frames: number[] = IAutoMovieMotionHumanAuditMotion.grid(
-      0,
-      motion.duration,
-      rate,
-    );
+    const frames: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
     let past: number = 0;
     for (const t of frames) {
       let faulted: boolean = false;
@@ -111,7 +73,7 @@ export namespace AutoMovieMotionHumanAuditRange {
           joint,
           constraint,
           (
-            part: scanJointRom.Part,
+            part: IAutoMovieScanJointRom.Part,
             _actual: number,
             overshoot: number | undefined,
           ): void => {
@@ -125,6 +87,81 @@ export namespace AutoMovieMotionHumanAuditRange {
               };
           },
         );
+      }
+      if (faulted) past++;
+    }
+    out.share = past / frames.length;
+    return out;
+  }
+
+  /**
+   * Read how far a foot that bears no weight dorsiflexes past the unloaded
+   * ankle's limit.
+   *
+   * A foot bearing the body dorsiflexes as far as the loaded limit
+   * (`ANKLE_DORSIFLEXION.loaded`); a foot that bears no weight reaches only
+   * the passive, unloaded one (`ANKLE_DORSIFLEXION.unloaded`), read here
+   * apart from the range table's one limit for the joint. A foot bears weight while a plant window on the ground holds
+   * it, the windows the contact audit reads
+   * (`AutoMovieMotionHumanAuditMotion.windows`), so a foot's load has one
+   * source. At each grid instant each foot outside such a window is read:
+   * its dorsiflexion past the unloaded limit overshoots.
+   *
+   * @param motion The motion's windows.
+   * @param posed The motion's poses.
+   * @param subject The person.
+   * @param rate Grid samples per second.
+   * @returns The reading: the farthest an unloaded ankle dorsiflexes past its limit, degrees, and the share of instants it does.
+   * @throws {Error} When the rate is not positive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two limits, where a foot's load is read from and what overshoots.
+   * @evidence contracts/development/implementation.md#principled-implementation The unloaded limit applies exactly where the declared plants say a foot bears nothing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One walk over the grid and two feet.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-finite angle reads as `Infinity`; no foot or instant is exempt.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One pose and one window test per foot per instant.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid and the windows are `IAutoMovieMotionHumanAuditMotion`'s, the limit the engine's.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function unloaded(
+    motion: IAutoMovieMotionHumanAuditMotion,
+    posed: IAutoMovieMotionHumanAuditRange.IPosed,
+    subject: string,
+    rate: number = 24,
+  ): IAutoMovieMotionHumanAuditRange.IResult {
+    const out: IAutoMovieMotionHumanAuditRange.IResult = {
+      overshoot: { value: 0, seconds: 0, where: "none" },
+      share: 0,
+    };
+    const frames: number[] = HumanAuditMotion.grid(0, posed.duration, rate);
+    const plants: IAutoMovieMotionHumanAuditMotion.IWindow[] =
+      HumanAuditMotion.windows(motion, subject).filter(
+        (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+          w.contact.kind === "plant" && w.contact.support.kind === "ground",
+      );
+    let past: number = 0;
+    for (const t of frames) {
+      let faulted: boolean = false;
+      for (const joint of posed.pose(subject, t).joints) {
+        if (joint.bone !== "leftFoot" && joint.bone !== "rightFoot") continue;
+        const bearing: boolean = plants.some(
+          (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+            w.contact.part === joint.bone &&
+            w.from <= t + 1e-9 &&
+            t <= w.to + 1e-9,
+        );
+        if (bearing) continue;
+        const flexion: number = joint.flexion ?? 0;
+        const value: number = Number.isFinite(flexion)
+          ? flexion - ANKLE_DORSIFLEXION.unloaded
+          : Number.POSITIVE_INFINITY;
+        if (value <= 0) continue;
+        faulted = true;
+        if (value > out.overshoot.value)
+          out.overshoot = {
+            value,
+            seconds: t,
+            where: `${joint.bone} flexion unloaded`,
+          };
       }
       if (faulted) past++;
     }

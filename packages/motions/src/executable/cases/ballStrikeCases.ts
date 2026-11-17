@@ -1,9 +1,12 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Transform, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanKickBall,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { kickBall } from "../../ballStrike/kickBall";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
@@ -46,14 +49,12 @@ export function ballStrikeCases(
       y: radius,
       z: toe + 0.15 + radius,
     };
-    const params: kickBall.IParams = {
-      ball: { kind: "point", at: centre, frame: "world" },
-      radius,
-    };
-    const performance: HumanPerformance = FamilyCaseKit.perform(
+    const params: IAutoMovieMotionHumanKickBall.IParams = { ball: "ball" };
+    const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
       "ball",
       [{ subject: "a", body: who.body }],
       HumanChain.subject("a").act("kickBall", params),
+      [ball(centre, radius)],
     );
     const contact: number = FamilyCaseKit.event(performance, "stroke");
     const instep: IAutoMovieVector3 = performance
@@ -90,4 +91,41 @@ export function ballStrikeCases(
     });
   }
   return out;
+}
+
+/**
+ * A ball as a prop: its `grip` at its centre with its diameter as the
+ * aperture, the contact `createBall` declares.
+ *
+ * @param centre The ball's centre, world metres.
+ * @param radius Its radius, metres.
+ * @returns The ball.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the contact.
+ * @evidence contracts/development/implementation.md#principled-implementation The `grip` contact `createBall` declares, at the prop's origin.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One prop literal.
+ * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The motions package does not depend on the archetypes, so the case declares the ball's contact itself.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
+ */
+function ball(
+  centre: IAutoMovieVector3,
+  radius: number,
+): IAutoMovieMotionHumanProp {
+  return {
+    subject: "ball",
+    frame: { position: centre, rotation: { x: 0, y: 0, z: 0, w: 1 } },
+    points: {},
+    affordances: [
+      {
+        id: "grip",
+        kind: "handle",
+        frame: Transform.identity(),
+        extent: null,
+        grip: "power",
+        aperture: 2 * radius,
+      },
+    ],
+  };
 }

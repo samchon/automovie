@@ -1,19 +1,19 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditTangle,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
+import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
 import { AutoMovieMotionHumanAuditTangleModel } from "./AutoMovieMotionHumanAuditTangleModel";
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 
 /**
  * How deep a displayed body's own parts pass into one another: the tangle a
@@ -79,31 +79,7 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * limit for a tangle. Two colliders deeper in each other than that while
    * the body stands at rest cannot be told apart by their corners.
    */
-  export const BUILT: number = AutoMovieMotionHumanAuditTangleModel.BUILT;
-
-  /** One pair of segments that pass into each other. */
-  export interface IPair {
-    /** The segment whose probe lies deepest. */
-    a: AutoMovieHumanoidBone;
-
-    /** The segment it lies in. */
-    b: AutoMovieHumanoidBone;
-
-    /** How deep beyond the rest pose, metres, positive. */
-    depth: number;
-
-    /** The film second of that depth; zero for a single pose. */
-    seconds: number;
-  }
-
-  /** The reading of {@link measure}. */
-  export interface IResult {
-    /** The deepest pair. */
-    worst: IAutoMovieMotionHumanAuditMeasure;
-
-    /** Every unordered pair that passed into each other at some instant, its deepest instant, deepest first. */
-    pairs: IPair[];
-  }
+  export const BUILT: number = AutoMovieMotionHumanAuditSkin.BUILT;
 
   /**
    * Read a person's self-penetration over the whole motion.
@@ -117,16 +93,13 @@ export namespace AutoMovieMotionHumanAuditTangle {
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
     subject: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     rate: number = 24,
-  ): IResult {
+  ): IAutoMovieMotionHumanAuditTangle.IResult {
     const exempt: IExemption[] = exemptions(motion, subject, body);
-    const deepest: Map<string, IPair> = new Map();
-    for (const t of IAutoMovieMotionHumanAuditMotion.grid(
-      0,
-      motion.duration,
-      rate,
-    )) {
+    const deepest: Map<string, IAutoMovieMotionHumanAuditTangle.IPair> =
+      new Map();
+    for (const t of HumanAuditMotion.grid(0, motion.duration, rate)) {
       const skip: Set<string> = new Set();
       const pressed: Map<string, number> = new Map();
       for (const e of exempt)
@@ -136,13 +109,19 @@ export namespace AutoMovieMotionHumanAuditTangle {
             else pressed.set(key, Math.max(pressed.get(key) ?? 0, e.depth));
       for (const pair of pose(body, motion.bones(subject, t), skip, pressed)) {
         const key: string = unordered(pair.a, pair.b);
-        const known: IPair | undefined = deepest.get(key);
+        const known: IAutoMovieMotionHumanAuditTangle.IPair | undefined =
+          deepest.get(key);
         if (known === undefined || pair.depth > known.depth)
           deepest.set(key, { ...pair, seconds: t });
       }
     }
-    const pairs: IPair[] = [...deepest.values()].sort(
-      (x: IPair, y: IPair): number => y.depth - x.depth,
+    const pairs: IAutoMovieMotionHumanAuditTangle.IPair[] = [
+      ...deepest.values(),
+    ].sort(
+      (
+        x: IAutoMovieMotionHumanAuditTangle.IPair,
+        y: IAutoMovieMotionHumanAuditTangle.IPair,
+      ): number => y.depth - x.depth,
     );
     return {
       worst:
@@ -167,17 +146,21 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * @returns The pairs, each once, with the deeper direction.
    */
   export function pose(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     skip: ReadonlySet<string> = new Set(),
     pressed: ReadonlyMap<string, number> = new Map(),
-  ): IPair[] {
+  ): IAutoMovieMotionHumanAuditTangle.IPair[] {
     const m: AutoMovieMotionHumanAuditTangleModel.IModel =
       AutoMovieMotionHumanAuditTangleModel.model(body);
-    const placed: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
-    const out: IPair[] = [];
+    const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanColliders.placed(body, bones);
+    const out: IAutoMovieMotionHumanAuditTangle.IPair[] = [];
     const centres: IAutoMovieVector3[] = placed.map(
-      (p: HumanColliders.IPlaced, i: number): IAutoMovieVector3 =>
+      (
+        p: IAutoMovieMotionHumanColliders.IPlaced,
+        i: number,
+      ): IAutoMovieVector3 =>
         AutoMovieMotionHumanAuditTangleModel.centre(p, m.parts[i]!),
     );
     for (let i: number = 0; i < placed.length; i++)
@@ -226,21 +209,20 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * @returns The pairs, `a` of `body` in `b` of `other`, with `seconds` zero.
    */
   export function across(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    other: IHumanBody,
+    other: IAutoMovieMotionHumanBody,
     otherBones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): IPair[] {
+  ): IAutoMovieMotionHumanAuditTangle.IPair[] {
     const m: AutoMovieMotionHumanAuditTangleModel.IModel =
       AutoMovieMotionHumanAuditTangleModel.model(body);
     const o: AutoMovieMotionHumanAuditTangleModel.IModel =
       AutoMovieMotionHumanAuditTangleModel.model(other);
-    const mine: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
-    const theirs: HumanColliders.IPlaced[] = HumanColliders.placed(
-      other,
-      otherBones,
-    );
-    const out: IPair[] = [];
+    const mine: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanColliders.placed(body, bones);
+    const theirs: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanColliders.placed(other, otherBones);
+    const out: IAutoMovieMotionHumanAuditTangle.IPair[] = [];
     for (let i: number = 0; i < mine.length; i++)
       for (let j: number = 0; j < theirs.length; j++) {
         const reach: number = m.parts[i]!.radius + o.parts[j]!.radius;
@@ -284,13 +266,14 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The model is the audit's own, held per live body.
    */
   export function arm(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: "left" | "right",
   ): number {
     const m: AutoMovieMotionHumanAuditTangleModel.IModel =
       AutoMovieMotionHumanAuditTangleModel.model(body);
-    const placed: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
+    const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanColliders.placed(body, bones);
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
     )!.worldPosition;
@@ -400,13 +383,10 @@ interface IExemption {
 const exemptions = (
   motion: IAutoMovieMotionHumanAuditMotion,
   subject: string,
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
 ): IExemption[] => {
   const out: IExemption[] = [];
-  for (const window of IAutoMovieMotionHumanAuditMotion.windows(
-    motion,
-    subject,
-  )) {
+  for (const window of HumanAuditMotion.windows(motion, subject)) {
     const support = window.contact.support;
     if (support.kind !== "person" || support.subject !== subject) continue;
     // An arm's segment declared lying on a segment of the same person: read

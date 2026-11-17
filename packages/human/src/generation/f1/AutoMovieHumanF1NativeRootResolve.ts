@@ -1,33 +1,43 @@
 import {
-  AutoMovieSolidVector as Vector,
+  AutoMovieHumanF1NativeRootClock as Clock,
+} from "./AutoMovieHumanF1NativeRootClock";
+import {
+  AutoMovieHumanF1NativeRootControl as Control,
+} from "./AutoMovieHumanF1NativeRootControl";
+import {
+  AutoMovieHumanF1NativeRootLevel as Level,
+} from "./AutoMovieHumanF1NativeRootLevel";
+import {
+  AutoMovieConstructionPortCurve as PortCurve,
   AutoMovieLoftViewFullSource as Full,
   AutoMoviePeriodicCubic,
-  AutoMovieConstructionPortCurve as PortCurve,
-  type AutoMovieConstructionSplitBand,
-  type IAutoMovieSolidSurface,
-  type IAutoMovieViewPart,
+  AutoMovieSolidVector as Vector,
 } from "@automovie/engine";
-
-import { AutoMovieHumanF1NativeRootClock as Clock } from "./AutoMovieHumanF1NativeRootClock";
-import { AutoMovieHumanF1NativeRootControl as Control } from "./AutoMovieHumanF1NativeRootControl";
-import { AutoMovieHumanF1NativeRootLevel as Level } from "./AutoMovieHumanF1NativeRootLevel";
-import type { AutoMovieHumanF1NativeRootTypes as Types } from "./AutoMovieHumanF1NativeRootTypes";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionSplitBand,
+  IAutoMovieHumanF1NativeRoot,
+  IAutoMovieLoftViewFullSource,
+  IAutoMoviePeriodicCubic,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /** Complete current sources from one invocation, before lofting or any band. */
 interface IInput {
   /** Borrowed original control, source and actual-clock calibration. */
-  original: Types.ICalibration;
+  original: IAutoMovieHumanF1NativeRoot.ICalibration;
   /** Current complete parent source and its already prepared reader. */
   parent: IAutoMovieViewPart;
   /** Independent caliper ratios in the original directional basis. */
   scale: readonly [number, number];
   /** Complete current parent, including its source-owned reliefs and shifts. */
-  reader: Full.IReader;
+  reader: IAutoMovieLoftViewFullSource.IReader;
   /** Independently generated complete child root definition. */
   candidate: IAutoMovieViewPart;
 }
 
-type V = Types.V;
+type V = AutoMovieVector3Tuple;
 const turn: number = 2 * Math.PI;
 
 /**
@@ -35,14 +45,14 @@ const turn: number = 2 * Math.PI;
  * their actual operator correspondence. Off-surface affine targets survive
  * only as observations of the discarded hypothesis, never as constraints.
  */
-export function AutoMovieHumanF1NativeRootResolve(input: IInput): Types.IRootSpec {
+export function AutoMovieHumanF1NativeRootResolve(input: IInput): IAutoMovieHumanF1NativeRoot.IRootSpec {
   const { original, parent, scale, reader, candidate }: IInput = input;
-  const child: Full.IReader = Full.create(candidate);
-  const cut: Level.IResult = Level.create({
+  const child: IAutoMovieLoftViewFullSource.IReader = Full.create(candidate);
+  const cut: IAutoMovieHumanF1NativeRoot.ILevelResult = Level.create({
     original, prepared: original.level, parent, reader, candidate, scale,
   });
   const rails: number[] = [...original.input.rails];
-  const periodic: AutoMoviePeriodicCubic.IPrepared | undefined =
+  const periodic: IAutoMoviePeriodicCubic.IPrepared | undefined =
     rails.length === 1 ? undefined : AutoMoviePeriodicCubic.create(rails);
   const range: readonly [number, number] =
     periodic === undefined ? [rails[0]!, rails[0]!] : periodic.range();
@@ -59,7 +69,7 @@ export function AutoMovieHumanF1NativeRootResolve(input: IInput): Types.IRootSpe
     jet: (s: number, t: number): IAutoMovieSolidSurface.IJet =>
       jet(child, candidate.name, "operator-child-ring-physical2", s, t),
   };
-  const side: AutoMovieConstructionSplitBand.ISide = {
+  const side: IAutoMovieConstructionSplitBand.ISide = {
     surface, station: rails[0]!, into: 1, along: railAt,
   };
   const phases: number[] | string = PortCurve.correspondence(
@@ -86,13 +96,13 @@ export function AutoMovieHumanF1NativeRootResolve(input: IInput): Types.IRootSpe
   const wall: V[] = original.charts.map(([s, t]: [number, number]): V =>
     point(reader, parent.name, "discarded-target-original-address", s, t),
   );
-  const diagnostic: Types.ICurves = Control.targets({
+  const diagnostic: IAutoMovieHumanF1NativeRoot.ICurves = Control.targets({
     parent: original.parent, child: original.child, wall,
     basis: original.input.basis, scale,
   });
   const clockParent: ReturnType<typeof Clock.vectorJet> = Clock.vectorJet(diagnostic.parent);
   const clockChild: ReturnType<typeof Clock.vectorJet> = Clock.vectorJet(diagnostic.child);
-  const rows: Types.IRootRow[] = phases.map((phase: number, k: number): Types.IRootRow => {
+  const rows: IAutoMovieHumanF1NativeRoot.IRootRow[] = phases.map((phase: number, k: number): IAutoMovieHumanF1NativeRoot.IRootRow => {
     const address: [number, number] = chart[k]!;
     const station: number = railAt(phase);
 
@@ -114,9 +124,9 @@ export function AutoMovieHumanF1NativeRootResolve(input: IInput): Types.IRootSpe
   });
 
   /** Candidate/final source equality is separate from the discarded-target residual. */
-  const inspect: Types.IRootSpec["inspect"] = (part: IAutoMovieViewPart): Types.IInspection[] => {
-    const final: Full.IReader = Full.create(part);
-    return rows.map((row: Types.IRootRow): Types.IInspection => {
+  const inspect: IAutoMovieHumanF1NativeRoot.IRootSpec["inspect"] = (part: IAutoMovieViewPart): IAutoMovieHumanF1NativeRoot.IInspection[] => {
+    const final: IAutoMovieLoftViewFullSource.IReader = Full.create(part);
+    return rows.map((row: IAutoMovieHumanF1NativeRoot.IRootRow): IAutoMovieHumanF1NativeRoot.IInspection => {
       const [s, phase]: [number, number] = row.targetChildAddress;
       try {
         const parent2: IAutoMovieSolidSurface.IJet = jet(
@@ -152,16 +162,16 @@ export function AutoMovieHumanF1NativeRootResolve(input: IInput): Types.IRootSpe
   };
 
   /** Retain an original search line only under unchanged root and material bindings. */
-  const seed: Types.IRootSpec["seed"] = (
-    beforePart: IAutoMovieViewPart, afterPart: IAutoMovieViewPart, old: Types.ISeed,
-  ): Types.ISeedTransport => {
+  const seed: IAutoMovieHumanF1NativeRoot.IRootSpec["seed"] = (
+    beforePart: IAutoMovieViewPart, afterPart: IAutoMovieViewPart, old: IAutoMovieHumanF1NativeRoot.ISeed,
+  ): IAutoMovieHumanF1NativeRoot.ISeedTransport => {
     if (!(Number.isFinite(old.phase) && old.from >= 0 && old.to <= 1 && old.to > old.from))
       throw new Error("original seed window/phase must be finite and ordered");
-    const before: Full.IReader = Full.create(beforePart);
-    const after: Full.IReader = Full.create(afterPart);
-    const controls: Types.ISeedTransport["controls"] = [
+    const before: IAutoMovieLoftViewFullSource.IReader = Full.create(beforePart);
+    const after: IAutoMovieLoftViewFullSource.IReader = Full.create(afterPart);
+    const controls: IAutoMovieHumanF1NativeRoot.ISeedTransport["controls"] = [
       old.from, (old.from + old.to) / 2, old.to,
-    ].map((share: number): Types.ISeedTransport["controls"][number] => {
+    ].map((share: number): IAutoMovieHumanF1NativeRoot.ISeedTransport["controls"][number] => {
       const s: number = before.domain[0] + share * (before.domain[1] - before.domain[0]);
       const p: V = point(before, beforePart.name, "original-search-material", s, old.phase);
       const q: V = point(after, afterPart.name, "current-search-material", s, old.phase);
@@ -172,7 +182,7 @@ export function AutoMovieHumanF1NativeRootResolve(input: IInput): Types.IRootSpe
     });
     const literal: boolean = unchanged &&
       before.domain[0] === after.domain[0] && before.domain[1] === after.domain[1] &&
-      controls.every((c: Types.ISeedTransport["controls"][number]): boolean =>
+      controls.every((c: IAutoMovieHumanF1NativeRoot.ISeedTransport["controls"][number]): boolean =>
         c.point.every((v: number, j: number): boolean => Object.is(v, c.target[j])),
       );
     const lo: number = controls[0]!.actual[0];
@@ -198,7 +208,7 @@ export function AutoMovieHumanF1NativeRootResolve(input: IInput): Types.IRootSpe
 }
 
 /** Actual normal/tangent projection, preserving singular physical-source data. */
-function components(error: V, jet: IAutoMovieSolidSurface.IJet): Types.IProjection {
+function components(error: V, jet: IAutoMovieSolidSurface.IJet): IAutoMovieHumanF1NativeRoot.IProjection {
   const n: V = Vector.cross(jet.u, jet.v);
   const length: number = Math.hypot(...n);
   if (!(Number.isFinite(length) && length > 0))
@@ -219,7 +229,7 @@ function message(error: unknown): string {
 
 /** Add callsite coordinates to the original Point0 refusal, with one reader call. */
 function point(
-  reader: Full.IReader, source: string, stage: string, s: number, t: number,
+  reader: IAutoMovieLoftViewFullSource.IReader, source: string, stage: string, s: number, t: number,
 ): V {
   try {
     return reader.point(s, t);
@@ -230,7 +240,7 @@ function point(
 
 /** Add physical2 callsite context without evaluating Point0 or another jet. */
 function jet(
-  reader: Full.IReader, source: string, stage: string, s: number, t: number,
+  reader: IAutoMovieLoftViewFullSource.IReader, source: string, stage: string, s: number, t: number,
 ): IAutoMovieSolidSurface.IJet {
   try {
     return reader.jet(s, t);

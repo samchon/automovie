@@ -5,6 +5,10 @@ import {
   samplePhysicalTarget,
   trackPhysicalSupports,
 } from "@automovie/engine";
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -32,7 +36,7 @@ export async function test_physical_native_transfer(): Promise<void> {
     /native vector/,
   );
   for (const compliance of [0, 0.001]) {
-    const body: Simulation.IBody = PhysicalFixtures.body(
+    const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       "solid",
       PhysicalFixtures.sphere(0.1, compliance),
       1 / 120,
@@ -52,16 +56,19 @@ export async function test_physical_native_transfer(): Promise<void> {
       reason:
         "Actual solved impulse products are checked only when transferred",
     };
-    const input: Simulation.IInput = PhysicalFixtures.input([body], 1 / 120);
+    const input: IAutoMoviePhysicalSimulationInput.IInput =
+      PhysicalFixtures.input([body], 1 / 120);
     input.floor = 0;
     input.gravity.y = -9.81;
     input.substeps = 1;
     Simulation.identity(input);
-    const control: Simulation.IInput = structuredClone(input);
+    const control: IAutoMoviePhysicalSimulationInput.IInput =
+      structuredClone(input);
     const controlMode: (typeof control.bodies)[number]["mode"] =
       control.bodies[0]!.mode;
     if (controlMode.kind === "exaggerated") controlMode.impulse = 1;
-    const observed: Simulation = await Simulation.compute(control);
+    const observed: IAutoMoviePhysicalSimulation =
+      await Simulation.compute(control);
     TestValidator.predicate(
       `real positive ${compliance === 0 ? "rigid" : "compliant"} floor transfer precedes the gain boundary`,
       observed.cache.contacts.some(
@@ -73,7 +80,7 @@ export async function test_physical_native_transfer(): Promise<void> {
     );
     await assert.rejects(Simulation.compute(input), /Derived native vector/);
   }
-  const stiff: Simulation.IBody = PhysicalFixtures.body(
+  const stiff: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
     "soft",
     PhysicalFixtures.sphere(0.1, 0.001),
     1 / 120,
@@ -89,11 +96,12 @@ export async function test_physical_native_transfer(): Promise<void> {
     compliance: 1e-297,
     reason: "A finite very stiff Kelvin-Voigt limit",
   };
-  const input: Simulation.IInput = PhysicalFixtures.input([stiff], 1 / 120);
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([stiff], 1 / 120);
   input.floor = 0;
   input.gravity.y = -9.81;
   input.substeps = 1;
-  const run: Simulation = await Simulation.compute(input);
+  const run: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
   TestValidator.predicate(
     "very stiff finite compliance still produces a solved contact",
     run.cache.contacts.some(
@@ -119,7 +127,7 @@ export async function test_physical_native_transfer(): Promise<void> {
   await RAPIER.init();
   const world: World = new RAPIER.World({ x: 0, y: 0, z: 0 });
   try {
-    const body: Simulation.IBody = PhysicalFixtures.body(
+    const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       "large-point",
       PhysicalFixtures.sphere(),
       1 / 120,

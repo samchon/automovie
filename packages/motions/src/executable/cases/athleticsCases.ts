@@ -1,5 +1,14 @@
+import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
 import { HumanPerformance } from "../../perform/HumanPerformance";
@@ -18,9 +27,12 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * It reports foot slip at most 5 mm in the set (the issue's block contact
  * bound before block clearance) and no range-of-motion overshoot; through
  * the hold, the front knee's included angle within 10 degrees of 90 and the
- * rear knee's within 10 degrees of 130 (Harland and Steele 1997), both
- * palms within 10 mm of the floor, and the hips within 5 cm of the
- * shoulders' height (the law's declared level hips).
+ * rear knee's within one standard deviation (11 degrees) of 117 (Cavedon
+ * et al. 2019, table 2, anthropometry-driven setting). Both palms stay
+ * within 10 mm of the floor, and the centre of mass stays 22.9 cm behind
+ * the line within the limb fit's 1 mm (Slawinski et al. 2010, as Valamatos
+ * et al. 2022, section 4.1.2, report it). The block settings determine hip
+ * height; it is not a fixed level relative to the shoulders.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
@@ -39,12 +51,12 @@ export function athleticsCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = createHumanBody(
       man.body.skeleton,
       man.body.profile,
     );
     const name: string = `athletics-set${bodies.length === 1 ? "" : `-${id}`}`;
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "athletics",
@@ -74,9 +86,12 @@ export function athleticsCases(
     const gun: number = TouchVerdicts.event(performance, "a", "gun");
     const window: number[] = [];
     for (let t: number = set; t <= gun + 1e-9; t += 1 / 24) window.push(t);
+    const mass: IAutoMovieResolveCenterOfMass.IModel =
+      resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const knee = (
       side: "left" | "right",
       want: number,
+      limit: number,
     ): IMotionCaptureCase.IVerdict =>
       everydayVerdicts.within(
         `${side} knee's included angle off ${want} deg through the set`,
@@ -94,14 +109,14 @@ export function athleticsCases(
             ),
           ),
         ),
-        10,
+        limit,
         "deg",
       );
     const palm = { surface: "palm", shape: "flat" } as const;
     const verdicts: IMotionCaptureCase.IVerdict[] = [
       ...everydayVerdicts.standard(performance, "a", body),
-      knee("left", athletics.FRONT),
-      knee("right", athletics.REAR),
+      knee("left", athletics.FRONT, 10),
+      knee("right", 117, 11),
     ];
     for (const side of ["left", "right"] as const)
       verdicts.push(
@@ -122,17 +137,20 @@ export function athleticsCases(
       );
     verdicts.push(
       TouchVerdicts.within(
-        "hips level with the shoulders",
+        "centre of mass behind the start line",
         (t: number): number => {
-          const bones = performance.bones("a", t);
-          const shoulders: number =
-            (bones.get("leftUpperArm")!.worldPosition.y +
-              bones.get("rightUpperArm")!.worldPosition.y) /
-            2;
-          return Math.abs(bones.get("hips")!.worldPosition.y - shoulders);
+          const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+            performance.bones("a", t);
+          const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+            mass,
+            bones,
+          );
+          return Math.abs(
+            body.measure.footLength - centre.z - athletics.CENTRE.male,
+          );
         },
         window,
-        0.05,
+        0.001,
       ),
     );
     out.push({

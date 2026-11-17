@@ -1,7 +1,7 @@
-import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
 /**
  * f1's toe.middle tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -19,7 +19,7 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  * all sections). Regenerated through the engine's view loft from these numbers alone, the reference skin's cut vertices lie
  * 0.15 mm from it on average and at most 0.74 mm. 63 independent numbers.
  */
-export const AutoMovieHumanF1ToeMiddle: AutoMovieHumanConicLoft.IFamily = {
+export const AutoMovieHumanF1ToeMiddle: IAutoMovieHumanConicLoft.IFamily = {
   name: "toe.middle",
   centres: [AutoMovieHumanF1Joints.middletoe1, AutoMovieHumanF1Joints.middletoe2, AutoMovieHumanF1Joints.middletoeEnd],
   halves: [5],

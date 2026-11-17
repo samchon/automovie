@@ -1,4 +1,4 @@
-import { IAutoMovieChannel } from "./IAutoMovieChannel";
+import type { IAutoMovieChannel } from "./IAutoMovieChannel";
 
 /**
  * A per-component restriction on one sampled channel. applyChannelLimit validates the values and bounds, clamps crossed components and returns their original values in the same outcome.

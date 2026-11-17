@@ -63,11 +63,7 @@ export const arrangePlantingCluster: (
         continue;
       placed = true;
       if (occupied !== null) {
-        const [cx, cz]: ReturnType<typeof cell> = cell(
-          cluster.minSpacing,
-          x,
-          z,
-        );
+        const [cx, cz]: [number, number] = cell(cluster.minSpacing, x, z);
         const key: string = `${cx},${cz}`;
         const bucket: { x: number; z: number }[] | undefined =
           occupied.get(key);
@@ -152,7 +148,7 @@ const crowded: (
   x: number,
   z: number,
 ): boolean => {
-  const [cx, cz]: ReturnType<typeof cell> = cell(side, x, z);
+  const [cx, cz]: [number, number] = cell(side, x, z);
   for (let dx: number = -1; dx <= 1; ++dx)
     for (let dz: number = -1; dz <= 1; ++dz) {
       const bucket: { x: number; z: number }[] | undefined = occupied.get(

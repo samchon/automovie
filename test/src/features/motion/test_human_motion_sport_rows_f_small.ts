@@ -18,5 +18,5 @@ import { motionSportRows } from "../internal/motionSportRows";
  * @evidence contracts/development/common.md#meaningful-documentation States what the net catches, what it leaves to other tests, where the scenarios are stated and the split.
  */
 export function test_human_motion_sport_rows_f_small(): void {
-  motionSportRows("f-small");
+  motionSportRows.run("f-small");
 }

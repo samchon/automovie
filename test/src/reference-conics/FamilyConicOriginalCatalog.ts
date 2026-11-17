@@ -1,15 +1,12 @@
-import {
-  AutoMovieLoftFrame,
-  AutoMovieViewOutline,
-  type IAutoMovieLoftRelief,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import {
-  type AutoMovieHumanConicLoft as H,
-  AutoMovieHumanConicSection as Section,
-} from "@automovie/human";
-
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import { AutoMovieLoftFrame, AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieHumanConicSection as Section } from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieLoftRelief,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /** Observe original definitions independently of section/mesh admission; no curve is recovered from a skin. */
 export namespace FamilyConicOriginalCatalog {
@@ -35,7 +32,7 @@ export namespace FamilyConicOriginalCatalog {
     reference?: () => IAutoMovieViewPart;
 
     /** Borrowed original control declaration, not a reverse fit to sampled geometry. */
-    family?: H.IFamily;
+    family?: IAutoMovieHumanConicLoft.IFamily;
   }
 
   /**
@@ -60,7 +57,7 @@ export namespace FamilyConicOriginalCatalog {
     definition: IAutoMovieViewPart.IOutline;
 
     /** Existing Outline.at observations, with parameter/station derivative qualifications intact. */
-    readings: AutoMovieViewOutline.IReading[];
+    readings: IAutoMovieViewOutline.IReading[];
 
     /** First failing premise, or null when these scalar observations were available. */
     cause: string | null;
@@ -136,7 +133,7 @@ export namespace FamilyConicOriginalCatalog {
     families: {
       id: string;
       definition: Pick<
-        H.IFamily,
+        IAutoMovieHumanConicLoft.IFamily,
         | "centres"
         | "halves"
         | "up"
@@ -162,7 +159,7 @@ export namespace FamilyConicOriginalCatalog {
   }
 
   /** Reuse the scalar owner's named knots and analytic extrema plus bounded display samples. */
-  function stations(outline: AutoMovieViewOutline.IOutline): number[] {
+  function stations(outline: IAutoMovieViewOutline.IOutline): number[] {
     const [a, b]: readonly [number, number] = outline.domain;
     return [
       ...new Set([
@@ -243,7 +240,7 @@ export namespace FamilyConicOriginalCatalog {
     };
     for (const entry of entries) {
       if (entry.family !== undefined) {
-        const f: H.IFamily = entry.family;
+        const f: IAutoMovieHumanConicLoft.IFamily = entry.family;
         result.families.push({
           id: entry.id,
           definition: {
@@ -320,13 +317,13 @@ export namespace FamilyConicOriginalCatalog {
 
       const first: number = part.stations[0] ?? NaN;
       const last: number = part.stations.at(-1) ?? NaN;
-      const ends: AutoMovieViewOutline.IEnds = {
+      const ends: IAutoMovieViewOutline.IEnds = {
         ...(part.pole === "bottom" || part.pole === "both"
           ? { bottom: first }
           : {}),
         ...(part.pole === "top" || part.pole === "both" ? { top: last } : {}),
       };
-      const prepared: Map<string, AutoMovieViewOutline.IOutline> = new Map();
+      const prepared: Map<string, IAutoMovieViewOutline.IOutline> = new Map();
       const scalar: (
         path: string,
         unit: IScalar["unit"],
@@ -349,15 +346,15 @@ export namespace FamilyConicOriginalCatalog {
         result.scalars.push(row);
         try {
           const source:
-            | AutoMovieViewOutline.IOutline
-            | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+            | IAutoMovieViewOutline.IOutline
+            | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
             definition,
             radial ? ends : {},
           );
           if ("contract" in source) throw new Error(source.detail);
           prepared.set(path, source);
           for (const s of stations(source)) {
-            const value: AutoMovieViewOutline.IReading | string =
+            const value: IAutoMovieViewOutline.IReading | string =
               AutoMovieViewOutline.at(source, s);
             if (typeof value === "string") {
               row.cause ??= value;
@@ -442,7 +439,7 @@ export namespace FamilyConicOriginalCatalog {
         path: string,
         s: number,
       ): number => {
-        const source: AutoMovieViewOutline.IOutline | undefined =
+        const source: IAutoMovieViewOutline.IOutline | undefined =
           prepared.get(path);
         if (source === undefined)
           throw new Error("Original scalar unavailable: " + path);

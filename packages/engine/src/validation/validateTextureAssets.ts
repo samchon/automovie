@@ -1,19 +1,20 @@
 import {
   AutoMovieTextureBinding,
+  type AutoMovieTextureMediaType,
   IAutoMovieAssetProvenance,
   IAutoMovieAssetUse,
   IAutoMovieImage,
   IAutoMovieMaterial,
   IAutoMovieModel,
+  type IAutoMovieSceneEnvironmentUse,
+  type IAutoMovieTextureClosureInput,
+  type IAutoMovieTextureImageFacts,
   IAutoMovieTextureReference,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { AutoMovieTextureMediaType } from "./AutoMovieTextureMediaType";
-import type { IAutoMovieSceneEnvironmentUse } from "./IAutoMovieSceneEnvironmentUse";
-import { IAutoMovieTextureClosureInput } from "./IAutoMovieTextureClosureInput";
-import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
 import { ViolationCollector } from "./ViolationCollector";
 import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
 import { materialTextureSlots } from "./materialTextureSlots";
@@ -49,7 +50,7 @@ export const validateTextureAssets: (
 ) => IAutoMovieValidation = (
   props: IAutoMovieTextureClosureInput,
 ): IAutoMovieValidation => {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const records: Map<string, IAutoMovieAssetProvenance> = new Map(
     props.assets.map(
       (
@@ -250,7 +251,7 @@ const checkAsset: (props: {
   path: string;
   consumer: { kind: "material-texture" | "scene-environment"; id: string };
   media: ReadonlySet<AutoMovieTextureMediaType>;
-  out: ViolationCollector;
+  out: IAutoMovieViolationCollector;
   input: IAutoMovieTextureClosureInput;
   records: ReadonlyMap<string, IAutoMovieAssetProvenance>;
 }) => void = (props: {
@@ -258,7 +259,7 @@ const checkAsset: (props: {
   path: string;
   consumer: { kind: "material-texture" | "scene-environment"; id: string };
   media: ReadonlySet<AutoMovieTextureMediaType>;
-  out: ViolationCollector;
+  out: IAutoMovieViolationCollector;
   input: IAutoMovieTextureClosureInput;
   records: ReadonlyMap<string, IAutoMovieAssetProvenance>;
 }): void => {

@@ -1,35 +1,31 @@
 # Catalog cases
 
-An entity or a motion module is accepted alone, in the catalog, before any film composes it.
+An entity or a motion module is accepted alone, in the catalog, before any film composes it. A motion module is one composed action a scene uses, such as a single exchange between two fighters.
 
-A catalog case plays one module alone: one action against one target, partner response and outcome, one movement, one official or bystander behavior, one fall, or one entity state the screenplay uses. Cases of one module differ only in parameters, so each module has one case composition that takes them, and the [catalog film](../development/source-layout.md#source) lists every case the screenplay uses in its own labeled interval.
+A case isolates one module with its target, partner response and outcome, and its variants are parameters of the same case composition.
+
+The [catalog film](../development/source-layout.md#scenes-and-films) gives each required case a labeled interval and replays every case after a repair, so acceptance happens only there. A composition no registered film plays is scratch.
 
 ## Capture and review
 
-Capture each case's interval with the README's capture command, from the [views](../visual-debugging/capture.md#views) and at the [times](../visual-debugging/capture.md#times) visual debugging sets, with a joint overlay where the capture offers one.
+Capture the case through the README's command, with `joint` marks where available. Apply [motion judgment](judgment.md) against the case's subject records and any study it follows, and repair all findings before recapturing or expanding the case into a segment.
 
-Review every still against the [performance study](../story/planning/research.md#performance-study) and the cast, prop and set records. Repair each failing case at its module by cause and recapture it.
+Resolve the case's performance once when it loads. Run a report or audit of it as a separate check, never during loading, playback or capture, where it delays inspection without checking a different performance. Keep the report with the inputs it checked, and reuse it only while those inputs and package versions remain unchanged.
 
-## A person's case
+## What each case owes
 
-Accept a person's case on three things together:
+Every case is accepted only when no still shows a flaw. What else it owes depends on what it exhibits:
 
-1. The motion vocabulary's own report of its physical bounds is clean for the case.
-2. A unit test asserts the case's studied value through the vocabulary's own measures.
-3. No still shows a flaw.
+| Case of | Also owes |
+| --- | --- |
+| Installed actions, composed as the vocabulary's README shows | Nothing |
+| A row or law the production registered, or a body it moves | Passing motion checks and a clean report |
+| Anything else the production wrote, such as an entity or a retargeted clip | Passing tests |
 
-The vocabulary's README names the report and the measures. Each of the three catches what the others miss: the report knows no intent, the test reads one value, and stills miss a hand a centimetre inside a hip.
+[Testing](../development/testing.md) sets those tests and says why installed actions take none. The report is the vocabulary's own for the case, and its README names the report and its measures.
 
-The studied value comes from the performance study where the production studied the practice, and otherwise from the action's own documentation, which names its sources. A value read back from the composition's own output proves only that the code repeats itself.
-
-A finding that remains in a vocabulary action composed as its README shows is a defect of the package. Hand the user the case and its numbers under [a defect or a gap](../development/reuse.md#a-defect-or-a-gap) rather than correct it with an offset in the production.
-
-## Any other case
-
-Accept any other case when its [tests](../development/testing.md) pass and no still shows a flaw.
+A flaw that remains in an installed action is never corrected in the production; tell the user.
 
 ## Record
 
-Record every accepted case in the catalog's [acceptance record](../review/delivery-review.md#acceptance-record), so the next session knows which cases were accepted at which revision.
-
-A rehearsal module the film registry does not list is scratch for work in progress. Acceptance happens only in the catalog film, because the catalog replays every case after a repair and a rehearsal does not.
+Record every accepted case, with its revision, in the catalog's [acceptance record](../review/delivery-review.md#acceptance-record).

@@ -1,6 +1,6 @@
-import { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMoviePlanarPoint } from "./IAutoMoviePlanarPoint";
+import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMoviePlanarPoint } from "./IAutoMoviePlanarPoint";
 
 /**
  * The located planar face of a boundary and the frame openings are measured in.

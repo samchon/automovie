@@ -1,7 +1,11 @@
-import { type AutoMovieLoftFrame, type AutoMovieViewAxis, AutoMovieViewAxisJet as AxisJet } from "@automovie/engine";
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
-
 import { AutoMovieHumanCourseRuns as Runs } from "./AutoMovieHumanCourseRuns";
+import { AutoMovieViewAxisJet as AxisJet } from "@automovie/engine";
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+} from "@automovie/interface";
 
 /**
  * A person's course read in the reference's material stations: the section of material station `s` stands where the person's course
@@ -39,19 +43,19 @@ export namespace AutoMovieHumanMaterialCourse {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned course retains the given course and map only.
    * @evidence contracts/development/common.md#meaningful-documentation States the composition, its derivatives, the speed's meaning and the identity case.
    */
-  export function create(axis: AutoMovieViewAxis.IAxis, map: Runs.IMap): AutoMovieViewAxis.IAxis {
+  export function create(axis: IAutoMovieViewAxis.IAxis, map: Runs.IMap): IAutoMovieViewAxis.IAxis {
     if (map === Runs.identity) return axis;
-    const base: NonNullable<AutoMovieViewAxis.IAxis["jet"]> | undefined = axis.jet;
+    const base: NonNullable<IAutoMovieViewAxis.IAxis["jet"]> | undefined = axis.jet;
     return {
-      at: (station: number): AutoMovieLoftFrame.IFrame => axis.at(map(station)),
+      at: (station: number): IAutoMovieLoftSectionFrame => axis.at(map(station)),
       ...(base === undefined
         ? {}
         : {
-            jet: (station: number, parameter?: AutoMovieConstructionOutlineParameter): AxisJet.IJet | null => {
+            jet: (station: number, parameter?: IAutoMovieConstructionOutlineParameter): IAutoMovieViewAxisJet.IJet | null => {
               const [to, first, second]: [number, number, number] = map.jet(station);
               if (!(Number.isFinite(first) && first > 0 && Number.isFinite(second)))
                 throw new Error("material course: the map does not rise at station " + station);
-              const jet: AxisJet.IJet | null = base(to);
+              const jet: IAutoMovieViewAxisJet.IJet | null = base(to);
               if (jet === null) return null;
               const moved = (key: "origin" | "u" | "v", order: 1 | 2): [number, number, number] =>
                 [0, 1, 2].map((k: number): number =>

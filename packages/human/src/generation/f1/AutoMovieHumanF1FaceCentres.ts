@@ -1,5 +1,9 @@
 import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
 import { AutoMovieHumanF1FacePriors as P } from "./AutoMovieHumanF1FacePriors";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanSegmentFrame,
+} from "@automovie/interface";
 
 /**
  * The face's centres, frames and dividing surfaces as functions of landmarks: definitions only, with no coordinate of any person.
@@ -12,7 +16,7 @@ import { AutoMovieHumanF1FacePriors as P } from "./AutoMovieHumanF1FacePriors";
  */
 export namespace AutoMovieHumanF1FaceCentres {
   /** A point or a direction, mm. */
-  export type V3 = F.V3;
+  export type V3 = AutoMovieVector3Tuple;
 
   /** A plane: a point on it and its unit normal. */
   export interface IPlane {
@@ -29,7 +33,7 @@ export namespace AutoMovieHumanF1FaceCentres {
   /** The mouth's line with its frame. */
   export interface IMuzzle {
     /** Origin the incisors' front behind stomion; X forward, Y up, Z along the line toward +Z. */
-    frame: F.IFrame;
+    frame: IAutoMovieHumanSegmentFrame;
 
     /** The line's half length, mm: from the median plane to cheilion's station. */
     half: number;
@@ -45,7 +49,7 @@ export namespace AutoMovieHumanF1FaceCentres {
   };
 
   /** A frame from an exact Z and a hint for X: X is the hint made square to Z, Y = Z x X. */
-  function fromZX(origin: V3, z: V3, x: V3): F.IFrame {
+  function fromZX(origin: V3, z: V3, x: V3): IAutoMovieHumanSegmentFrame {
     const Z: V3 = unit(z);
     const X: V3 = unit(along(x, Z, -dot(x, Z)));
     return { origin, axes: [X, cross(Z, X), Z] };
@@ -55,7 +59,7 @@ export namespace AutoMovieHumanF1FaceCentres {
    * An eye's frame: origin the globe's centre, Z the canthal line from endocanthion to exocanthion, X the forward direction made square
    * to it, Y = Z x X. The lids' skin is star-shaped about the line through the origin along Z, and a lid's margin is a phase about it.
    */
-  export function eye(globe: V3, endocanthion: V3, exocanthion: V3, forward: V3): F.IFrame {
+  export function eye(globe: V3, endocanthion: V3, exocanthion: V3, forward: V3): IAutoMovieHumanSegmentFrame {
     return fromZX(globe, sub(exocanthion, endocanthion), forward);
   }
 
@@ -68,7 +72,7 @@ export namespace AutoMovieHumanF1FaceCentres {
    */
   export function muzzle(stomion: V3, cheilion: V3, forward: V3, lateral: V3): IMuzzle {
     const X: V3 = unit(forward);
-    const frame: F.IFrame = fromZX(along(stomion, X, -P.LIP_MARGIN_TISSUE_MM), along(lateral, X, -dot(lateral, X)), X);
+    const frame: IAutoMovieHumanSegmentFrame = fromZX(along(stomion, X, -P.LIP_MARGIN_TISSUE_MM), along(lateral, X, -dot(lateral, X)), X);
     return { frame, half: dot(sub(cheilion, stomion), frame.axes[2]) };
   }
 
@@ -89,7 +93,7 @@ export namespace AutoMovieHumanF1FaceCentres {
    * plane is never the eye's. The measure is the greater of `(rho - 1) sqrt(a b)`, `rho` the point's elliptic radius, and the distance
    * behind that plane: negative inside, where the skin is the eye's.
    */
-  export function orbit(frame: F.IFrame, breadth: number = P.ORBIT_BREADTH_MM, height: number = P.ORBIT_HEIGHT_MM): (p: V3) => number {
+  export function orbit(frame: IAutoMovieHumanSegmentFrame, breadth: number = P.ORBIT_BREADTH_MM, height: number = P.ORBIT_HEIGHT_MM): (p: V3) => number {
     const a: number = breadth / 2;
     const b: number = height / 2;
     return (p: V3): number => {

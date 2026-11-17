@@ -1,7 +1,12 @@
+import type {
+  IAutoMovieRecoveryOrderedCuts,
+  IAutoMovieRecoveryOrderedLineage,
+  IAutoMovieRecoverySavedCurveBinding,
+  IAutoMovieRecoverySectionsInput,
+  IAutoMovieRecoverySourceLineage,
+} from "@automovie/interface";
 import {
   AutoMovieRecoveryOrderedLineage,
-  type IAutoMovieRecoverySectionsInput,
-  type IAutoMovieRecoverySourceLineage,
   observeAutoMovieRecoveryPolyline,
   observeAutoMovieRecoverySections,
 } from "@automovie/recovery";
@@ -58,7 +63,7 @@ export function test_recovery_ordered_observations(): void {
   });
   if (!("value" in observed))
     throw new Error("Tetrahedron must publish a saved section");
-  const input: AutoMovieRecoveryOrderedLineage.Input = {
+  const input: IAutoMovieRecoveryOrderedLineage.Input = {
     ...mesh,
     sourceIdentity: "verified-source",
     sourceSelectionIdentity: "verified-selection",
@@ -75,7 +80,7 @@ export function test_recovery_ordered_observations(): void {
       },
     ],
   };
-  const cuts: AutoMovieRecoveryOrderedLineage.Cuts =
+  const cuts: IAutoMovieRecoveryOrderedCuts =
     AutoMovieRecoveryOrderedLineage.observeCuts(input);
   TestValidator.equals(
     "all three directed source edges retained",
@@ -90,10 +95,10 @@ export function test_recovery_ordered_observations(): void {
       1e-12,
     ),
   );
-  const curve: AutoMovieRecoveryOrderedLineage.Target["curve"] =
+  const curve: IAutoMovieRecoveryOrderedLineage.Target["curve"] =
     observed.value.sections[0]!.loops[0]!.curve;
   const bytes: string = JSON.stringify(curve);
-  const target: AutoMovieRecoveryOrderedLineage.Target = {
+  const target: IAutoMovieRecoveryOrderedLineage.Target = {
     coordinateMm: 1,
     contourIndex: 0,
     observationIdentity: "verified-artifact",
@@ -105,7 +110,7 @@ export function test_recovery_ordered_observations(): void {
       sourceOrientationSign: mesh.sourceOrientationSign,
     },
   };
-  const bound: AutoMovieRecoveryOrderedLineage.Binding =
+  const bound: IAutoMovieRecoverySavedCurveBinding =
     AutoMovieRecoveryOrderedLineage.bindSavedFits(input, cuts, [target])[0]!;
   TestValidator.equals(
     "same saved geometry binds",
@@ -139,7 +144,7 @@ export function test_recovery_ordered_observations(): void {
           : span,
     ),
   };
-  const rejected: AutoMovieRecoveryOrderedLineage.Binding =
+  const rejected: IAutoMovieRecoverySavedCurveBinding =
     AutoMovieRecoveryOrderedLineage.bindSavedFits(input, cuts, [changed])[0]!;
   TestValidator.equals(
     "changed saved geometry remains unavailable",
@@ -189,7 +194,7 @@ export function test_recovery_ordered_observations(): void {
       typeof observeAutoMovieRecoveryPolyline<"hermite">
     > = observeAutoMovieRecoveryPolyline(polyline, {
       curveFormat: "hermite",
-      signal: controller.signal,
+      cancelled: (): boolean => controller.signal.aborted,
       onProgress: (_phase: string, completed: number): void => {
         if (completed === checkpoint) controller.abort();
       },

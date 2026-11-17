@@ -4,7 +4,9 @@ import {
   IAutoMovieModel,
   IAutoMovieModelPart,
   IAutoMovieTextureReference,
+  type IAutoMovieValidateTextureScale,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
@@ -24,13 +26,12 @@ const SCALE_EPSILON: number = 1e-9;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each part's UV span serves all bindings and each model's id map serves all parts.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only diagnostics escape; UVs/materials are borrowed and no world-space fit, UV rewrite or texture resource is acquired.
  */
-export const validateTextureScale: (props: {
-  models: readonly IAutoMovieModel[];
-}) => IAutoMovieValidation = (props: {
-  /** Borrowed current models whose resident mesh UVs and named material bindings supply scale meaning. */
-  models: readonly IAutoMovieModel[];
-}): IAutoMovieValidation => {
-  const out: ViolationCollector = new ViolationCollector();
+export const validateTextureScale: (
+  props: IAutoMovieValidateTextureScale.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateTextureScale.IProps,
+): IAutoMovieValidation => {
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   props.models.forEach((model: IAutoMovieModel, modelIndex: number): void => {
     const materials: Map<string, IAutoMovieMaterial> = new Map(
       model.materials.map(
@@ -130,7 +131,7 @@ const checkBinding: (props: {
   part: IAutoMovieModelPart;
   material: IAutoMovieMaterial;
   path: string;
-  out: ViolationCollector;
+  out: IAutoMovieViolationCollector;
 }) => void = (props: {
   binding: IAutoMovieTextureReference;
 
@@ -140,7 +141,7 @@ const checkBinding: (props: {
   part: IAutoMovieModelPart;
   material: IAutoMovieMaterial;
   path: string;
-  out: ViolationCollector;
+  out: IAutoMovieViolationCollector;
 }): void => {
   const source: AutoMovieTextureCoordinateSource | undefined =
     props.binding.coordinateSource;

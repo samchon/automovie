@@ -12,7 +12,7 @@ export interface IAutoMovieFluidSolver {
   /** Integration step in seconds; strictly positive. */
   fixedStepSeconds: number;
 
-  /** Gravity magnitude in m/s²; strictly positive (Earth is `9.81`). */
+  /** Gravity magnitude in m/s²; strictly positive (standard gravity is `9.80665`). */
   gravity: number;
 
   /**

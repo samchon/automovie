@@ -1,15 +1,22 @@
+import type {
+  IAutoMovieBlendCrossJet,
+  IAutoMovieConstructionWidth,
+  IAutoMovieLoftContract,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidSharedCurve,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import {
   AutoMovieConstructionWidths,
-  type AutoMovieLoftContract,
   AutoMovieSolidBlend,
   AutoMovieSolidBody,
   AutoMovieSolidIntersection,
   AutoMovieSolidJoin,
   AutoMovieSolidRibbon,
   AutoMovieSolidSharedCurve,
-  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
-import type { AutoMovieConstructionWidth } from "@automovie/interface";
 
 import { ConstructionMound } from "../../../internal/construction/ConstructionMound";
 
@@ -60,8 +67,8 @@ export function test_construction_operator_mixed_join(): void {
   const notes: string[] = [];
   const level: IFrame = { origin: [0, 0, 0], e1: [1, 0, 0], e2: [0, 1, 0], e3: [0, 0, 1] };
   const T: number = Math.tan(0.88);
-  const fold: AutoMovieConstructionWidth = { type: "fold", radius: 0.011, cap: 0.02 };
-  const mixed: AutoMovieConstructionWidth = { type: "fold", radius: 0.011, cap: 0.02, reach: 0.0015 };
+  const fold: IAutoMovieConstructionWidth = { type: "fold", radius: 0.011, cap: 0.02 };
+  const mixed: IAutoMovieConstructionWidth = { type: "fold", radius: 0.011, cap: 0.02, reach: 0.0015 };
 
   // 1. The cone: a wedge in every section, so the rails are the rolling ball's contact circles.
   const cone: IMound = { frame: level, a: 80, slope: (): [number, number, number] => [T, 0, 0], q: 0, c: 0, lift: 0 };
@@ -73,7 +80,7 @@ export function test_construction_operator_mixed_join(): void {
   const run: ICase = compose(mound, mixed);
   failures.push(...admitted(run, "mound"), ...arcs(run, "mound"), ...rails(run, "mound", 11, 1.5, 20), ...tangent(run, "mound"));
   if (run.shared !== null) {
-    const smooth: number = run.shared.curve.points.filter((p: AutoMovieSolidIntersection.IPoint): boolean => run.shared!.arc(p) === "smooth").length;
+    const smooth: number = run.shared.curve.points.filter((p: IAutoMovieSolidIntersection.IPoint): boolean => run.shared!.arc(p) === "smooth").length;
     notes.push(`mound: ${smooth} of ${run.shared.curve.points.length} stored points on smooth arcs`);
   }
 
@@ -100,7 +107,7 @@ export function test_construction_operator_mixed_join(): void {
 
   // 5. Controls: what the two existing operators make of the same mound.
   const surfaces: { part: IAutoMovieSolidSurface; host: IAutoMovieSolidSurface } = build(mound);
-  const traced: AutoMovieSolidIntersection.IResult = AutoMovieSolidIntersection.trace({
+  const traced: IAutoMovieSolidIntersection.IResult = AutoMovieSolidIntersection.trace({
     part: surfaces.part,
     host: surfaces.host,
     seed: { phi: -Math.PI / 2, s: 0, y: 0, theta: -mound.a },
@@ -109,7 +116,7 @@ export function test_construction_operator_mixed_join(): void {
     grazing: 0.05,
   });
   notes.push(
-    `trace control: curve ${traced.curve === null ? "null" : "traced"}; ${traced.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => `${d.contract}: ${d.detail.slice(0, 120)}`).join("; ")}`,
+    `trace control: curve ${traced.curve === null ? "null" : "traced"}; ${traced.diagnostics.map((d: IAutoMovieLoftContract.IDiagnostic): string => `${d.contract}: ${d.detail.slice(0, 120)}`).join("; ")}`,
   );
   if (traced.curve !== null && traced.diagnostics.length === 0) failures.push("trace control: the traced join followed a contact that is tangential over half its turn");
   const band: { port: number; mixed: number } | string = control(cone, rolled);
@@ -142,8 +149,8 @@ function embodied(c: ICase): string[] {
   const m: IMound = c.mound;
   const range = (from: number, to: number, step: number): number[] =>
     Array.from({ length: Math.round((to - from) / step) + 1 }, (_: unknown, i: number): number => from + i * step);
-  const first: AutoMovieSolidIntersection.IPoint = c.shared.curve.points[0]!;
-  const body: AutoMovieSolidBody.IBody = AutoMovieSolidBody.create("made", [
+  const first: IAutoMovieSolidIntersection.IPoint = c.shared.curve.points[0]!;
+  const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create("made", [
     { surface: c.surfaces.host, stations: range(-120, 120, 8), phases: range(-120, 120, 8) },
   ]);
   const merged: ReturnType<typeof AutoMovieSolidBody.merge> = AutoMovieSolidBody.merge(body, {
@@ -167,10 +174,10 @@ function embodied(c: ICase): string[] {
     count: 64,
     rows: 4,
   });
-  const told: string = merged.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => `${d.contract}: ${d.detail.slice(0, 200)}`).join("; ");
+  const told: string = merged.diagnostics.map((d: IAutoMovieLoftContract.IDiagnostic): string => `${d.contract}: ${d.detail.slice(0, 200)}`).join("; ");
   if (merged.blend === null || merged.join === null) return [`body: no blend (${told})`];
   const out: string[] = merged.diagnostics.length === 0 ? [] : [`body: diagnostics ${told}`];
-  const join: AutoMovieSolidJoin.IJoin = merged.join;
+  const join: IAutoMovieSolidJoin.IJoin = merged.join;
   if (merged.blend.host.kind !== "hole") out.push(`body: the wall's rail is a ${merged.blend.host.kind}, expected a hole`);
   if (merged.blend.part.kind !== "start") out.push(`body: the mound's rail is a ${merged.blend.part.kind}, expected its start`);
   merged.blend.host.chart.forEach((x: [number, number], k: number): void => {
@@ -217,10 +224,10 @@ function embodied(c: ICase): string[] {
 interface ICase {
   mound: IMound;
   surfaces: { part: IAutoMovieSolidSurface; host: IAutoMovieSolidSurface };
-  shared: AutoMovieSolidSharedCurve.IShared | null;
-  width: AutoMovieSolidJoin.IInput["width"] | string | null;
-  join: AutoMovieSolidJoin.IResult | null;
-  diagnostics: AutoMovieLoftContract.IDiagnostic[];
+  shared: IAutoMovieSolidSharedCurve.IShared | null;
+  width: IAutoMovieSolidJoin.IInput["width"] | string | null;
+  join: IAutoMovieSolidJoin.IResult | null;
+  diagnostics: IAutoMovieLoftContract.IDiagnostic[];
 }
 const add = (a: V3, b: V3): V3 => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 const sub = (a: V3, b: V3): V3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
@@ -231,9 +238,9 @@ const length = (a: V3): number => Math.hypot(a[0], a[1], a[2]);
 const sum = (...terms: [number, V3][]): V3 => terms.reduce((out: V3, [k, v]: [number, V3]): V3 => add(out, mul(v, k)), [0, 0, 0]);
 
 /** Compose the shared contact, its width laws and the join of a mound, both sides under one width record. */
-function compose(m: IMound, width: AutoMovieConstructionWidth): ICase {
+function compose(m: IMound, width: IAutoMovieConstructionWidth): ICase {
   const surfaces: { part: IAutoMovieSolidSurface; host: IAutoMovieSolidSurface } = build(m);
-  const made: AutoMovieSolidSharedCurve.IResult = AutoMovieSolidSharedCurve.create({
+  const made: IAutoMovieSolidSharedCurve.IResult = AutoMovieSolidSharedCurve.create({
     part: surfaces.part,
     host: surfaces.host,
     loop: (t: number): { point: [number, number]; first: [number, number]; second: [number, number] } => ({
@@ -259,7 +266,7 @@ function compose(m: IMound, width: AutoMovieConstructionWidth): ICase {
     out.diagnostics.push({ producer: "test", level: 6, contract: "width", detail: out.width });
     return out;
   }
-  const first: AutoMovieSolidIntersection.IPoint = made.shared.curve.points[0]!;
+  const first: IAutoMovieSolidIntersection.IPoint = made.shared.curve.points[0]!;
   out.join = AutoMovieSolidJoin.create(
     {
       part: surfaces.part,
@@ -281,7 +288,7 @@ function compose(m: IMound, width: AutoMovieConstructionWidth): ICase {
 
 /** The case's diagnostics, for a message. */
 function describe(c: ICase): string {
-  return c.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => `${d.contract}: ${d.detail.slice(0, 200)}`).join("; ") || "no diagnostic";
+  return c.diagnostics.map((d: IAutoMovieLoftContract.IDiagnostic): string => `${d.contract}: ${d.detail.slice(0, 200)}`).join("; ") || "no diagnostic";
 }
 
 /** The join is admitted with no diagnostic. */
@@ -292,7 +299,7 @@ function admitted(c: ICase, label: string): string[] {
 /** The case is refused with a diagnostic of the named premise, in its contract or at the head of its detail. */
 function refused(c: ICase, label: string, name: string): string[] {
   if (c.join !== null && c.join.join !== null) return [`${label}: admitted, expected the ${name} refusal`];
-  return c.diagnostics.some((d: AutoMovieLoftContract.IDiagnostic): boolean => d.contract === name || d.detail.startsWith(name))
+  return c.diagnostics.some((d: IAutoMovieLoftContract.IDiagnostic): boolean => d.contract === name || d.detail.startsWith(name))
     ? []
     : [`${label}: expected the ${name} refusal, got ${describe(c)}`];
 }
@@ -300,8 +307,8 @@ function refused(c: ICase, label: string, name: string): string[] {
 /** Every stored point's arc is `smooth` exactly where the fold's turn `atan(tau)` is under the grazing angle 0.05 rad. */
 function arcs(c: ICase, label: string): string[] {
   if (c.shared === null) return [];
-  const shared: AutoMovieSolidSharedCurve.IShared = c.shared;
-  return shared.curve.points.flatMap((p: AutoMovieSolidIntersection.IPoint): string[] => {
+  const shared: IAutoMovieSolidSharedCurve.IShared = c.shared;
+  return shared.curve.points.flatMap((p: IAutoMovieSolidIntersection.IPoint): string[] => {
     const beta: number = Math.atan(c.mound.slope(p.t)[0]);
     const want: "smooth" | "fold" = beta < 0.05 ? "smooth" : "fold";
     return shared.arc(p) === want ? [] : [`${label}: the point at clock ${p.t} (turn ${beta}) reads ${shared.arc(p)}, expected ${want}`];
@@ -331,7 +338,7 @@ function up(m: IMound, t: number, w: number): number {
  */
 function rails(c: ICase, label: string, radius: number, reach: number, cap: number): string[] {
   if (c.shared === null || c.join === null || c.join.join === null) return [];
-  const join: AutoMovieSolidJoin.IJoin = c.join.join;
+  const join: IAutoMovieSolidJoin.IJoin = c.join.join;
   const m: IMound = c.mound;
   const f: IFrame = m.frame;
   const out: string[] = [];
@@ -348,7 +355,7 @@ function rails(c: ICase, label: string, radius: number, reach: number, cap: numb
       out.push(`${label}: a chord is not positive at clock ${t}: host ${law.host}, part ${law.part}`);
       continue;
     }
-    const rail: ReturnType<AutoMovieSolidJoin.IJoin["rail"]> = join.rail(t);
+    const rail: ReturnType<IAutoMovieSolidJoin.IJoin["rail"]> = join.rail(t);
     if (rail === null) {
       out.push(`${label}: no rail at clock ${t}`);
       continue;
@@ -366,11 +373,11 @@ function rails(c: ICase, label: string, radius: number, reach: number, cap: numb
 /** The cone's rails as the contacts of the ball of the fold's radius: both stand that radius from the ball's centre along their surface's normal. */
 function ball(c: ICase, label: string, radius: number): string[] {
   if (c.shared === null || c.join === null || c.join.join === null) return [];
-  const join: AutoMovieSolidJoin.IJoin = c.join.join;
+  const join: IAutoMovieSolidJoin.IJoin = c.join.join;
   const m: IMound = c.mound;
   const f: IFrame = m.frame;
-  return c.shared.curve.points.flatMap((p: AutoMovieSolidIntersection.IPoint): string[] => {
-    const rail: ReturnType<AutoMovieSolidJoin.IJoin["rail"]> = join.rail(p.t);
+  return c.shared.curve.points.flatMap((p: IAutoMovieSolidIntersection.IPoint): string[] => {
+    const rail: ReturnType<IAutoMovieSolidJoin.IJoin["rail"]> = join.rail(p.t);
     if (rail === null) return [`${label}: no rail at clock ${p.t}`];
     const beta: number = Math.atan(m.slope(p.t)[0]);
     const r: V3 = sum([Math.cos(p.t), f.e1], [Math.sin(p.t), f.e2]);
@@ -392,15 +399,15 @@ function ball(c: ICase, label: string, radius: number): string[] {
  */
 function middle(c: ICase, label: string, radius: number): string[] {
   if (c.shared === null || c.join === null || c.join.join === null) return [];
-  const join: AutoMovieSolidJoin.IJoin = c.join.join;
+  const join: IAutoMovieSolidJoin.IJoin = c.join.join;
   const m: IMound = c.mound;
   const f: IFrame = m.frame;
-  return c.shared.curve.points.flatMap((p: AutoMovieSolidIntersection.IPoint): string[] => {
-    const column: AutoMovieSolidJoin.IColumn | null = join.column(p.t);
+  return c.shared.curve.points.flatMap((p: IAutoMovieSolidIntersection.IPoint): string[] => {
+    const column: IAutoMovieSolidJoin.IColumn | null = join.column(p.t);
     if (column === null) return [`${label}: no column at clock ${p.t}`];
     const beta: number = Math.atan(m.slope(p.t)[0]);
     const L: number = 2 * radius * Math.sin(beta / 2);
-    const jet: AutoMovieSolidBlend.IJet = AutoMovieSolidBlend.jet(column.start, column.end, 0.5);
+    const jet: IAutoMovieBlendCrossJet = AutoMovieSolidBlend.jet(column.start, column.end, 0.5);
     const edge: V3 = sum([1, f.origin], [m.a * Math.cos(p.t), f.e1], [m.a * Math.sin(p.t), f.e2]);
     const half: V3 = mul(add(column.rail.hostPoint, column.rail.partPoint), 0.5);
     const toward: V3 = sub(edge, half);
@@ -418,12 +425,12 @@ function middle(c: ICase, label: string, radius: number): string[] {
 /** At four times the stored clocks the blend leaves the wall in the wall's plane and arrives on the mound in the mound's tangent plane at its rail. */
 function tangent(c: ICase, label: string): string[] {
   if (c.shared === null || c.join === null || c.join.join === null) return [];
-  const join: AutoMovieSolidJoin.IJoin = c.join.join;
+  const join: IAutoMovieSolidJoin.IJoin = c.join.join;
   const out: string[] = [];
   const n: number = 4 * c.shared.curve.points.length;
   for (let i: number = 0; i < n; ++i) {
     const t: number = (2 * Math.PI * i) / n;
-    const column: AutoMovieSolidJoin.IColumn | null = join.column(t);
+    const column: IAutoMovieSolidJoin.IColumn | null = join.column(t);
     if (column === null) {
       out.push(`${label}: no column at clock ${t}`);
       continue;
@@ -447,12 +454,12 @@ function control(m: IMound, c: ICase): { port: number; mixed: number } | string 
   const t: number = (3 * Math.PI) / 2;
   const surfaces: { part: IAutoMovieSolidSurface; host: IAutoMovieSolidSurface } = build(m);
   const span: number = length(sub(point(m, 1, t), point(m, 0, t)));
-  const start: AutoMovieSolidRibbon.IRibbon = AutoMovieSolidRibbon.of(surfaces.host, m.a * Math.cos(t), m.a * Math.sin(t), -Math.cos(t), -Math.sin(t), span);
-  const end: AutoMovieSolidRibbon.IRibbon = AutoMovieSolidRibbon.of(surfaces.part, 1, t, 1, 0, span / Math.hypot(1, height(m, 1, t)[1]));
-  const column: AutoMovieSolidJoin.IColumn | null = c.join.join.column(t);
+  const start: IAutoMovieBlendCrossJet = AutoMovieSolidRibbon.of(surfaces.host, m.a * Math.cos(t), m.a * Math.sin(t), -Math.cos(t), -Math.sin(t), span);
+  const end: IAutoMovieBlendCrossJet = AutoMovieSolidRibbon.of(surfaces.part, 1, t, 1, 0, span / Math.hypot(1, height(m, 1, t)[1]));
+  const column: IAutoMovieSolidJoin.IColumn | null = c.join.join.column(t);
   if (column === null) return "the mixed join has no column at the bottom";
-  const radius = (a: AutoMovieSolidRibbon.IRibbon, b: AutoMovieSolidRibbon.IRibbon): number => {
-    const jet: AutoMovieSolidBlend.IJet = AutoMovieSolidBlend.jet(a, b, 0.5);
+  const radius = (a: IAutoMovieBlendCrossJet, b: IAutoMovieBlendCrossJet): number => {
+    const jet: IAutoMovieBlendCrossJet = AutoMovieSolidBlend.jet(a, b, 0.5);
     return length(jet.first) ** 3 / length(cross(jet.first, jet.second));
   };
   return { port: radius(start, end), mixed: radius(column.start, column.end) };

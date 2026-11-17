@@ -1,5 +1,10 @@
+import type {
+  IAutoMovieRecoveryCameraPointTriangulationOperation,
+  IAutoMovieRecoveryCameraPoseSelectionOperation,
+  IAutoMovieRecoveryEpipolarMatrixCalibrateOperation,
+} from "@automovie/interface";
+
 import { calibrateRecoveryEpipolarMatrix } from "./calibrateRecoveryEpipolarMatrix";
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 import { triangulateRecoveryCameraPoint } from "./triangulateRecoveryCameraPoint";
 
 /**
@@ -17,40 +22,31 @@ import { triangulateRecoveryCameraPoint } from "./triangulateRecoveryCameraPoint
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the current best O(N) point evidence and four scalar counts survive; replaced candidates become unreachable, and no image, cache or external handle is retained.
  */
 export function selectRecoveryCameraPose(
-  fundamental: readonly number[],
-  firstPoints: readonly (readonly [number, number])[],
-  secondPoints: readonly (readonly [number, number])[],
-  first: ReturnType<typeof createRecoveryCameraChart>,
-  second: ReturnType<typeof createRecoveryCameraChart>,
-  minimumDesignRatio: number,
-  maxSweeps: number,
-): {
-  rotation: number[];
-  translation: [number, number, number];
-  fundamental: number[];
-  points: ReturnType<typeof triangulateRecoveryCameraPoint>[];
-  allPositiveDepthCounts: number[];
-  positiveDepthFraction: number;
-  medianParallaxRadians: number | null;
-  uniqueWinner: boolean;
-  relativeProjectionDiscrepancy: number;
-} {
+  fundamental: Parameters<IAutoMovieRecoveryCameraPoseSelectionOperation.Operation>[0],
+  firstPoints: Parameters<IAutoMovieRecoveryCameraPoseSelectionOperation.Operation>[1],
+  secondPoints: Parameters<IAutoMovieRecoveryCameraPoseSelectionOperation.Operation>[2],
+  first: Parameters<IAutoMovieRecoveryCameraPoseSelectionOperation.Operation>[3],
+  second: Parameters<IAutoMovieRecoveryCameraPoseSelectionOperation.Operation>[4],
+  minimumDesignRatio: Parameters<IAutoMovieRecoveryCameraPoseSelectionOperation.Operation>[5],
+  maxSweeps: Parameters<IAutoMovieRecoveryCameraPoseSelectionOperation.Operation>[6],
+): ReturnType<IAutoMovieRecoveryCameraPoseSelectionOperation.Operation> {
   if (firstPoints.length === 0 || firstPoints.length !== secondPoints.length)
     throw new Error("camera-pose: nonempty paired pose evidence required");
-  const calibrated: ReturnType<typeof calibrateRecoveryEpipolarMatrix> =
+  const calibrated: ReturnType<IAutoMovieRecoveryEpipolarMatrixCalibrateOperation.Operation> =
     calibrateRecoveryEpipolarMatrix(fundamental, first, second, maxSweeps);
   const counts: number[] = [];
   let best: {
     pose: (typeof calibrated.poses)[number];
-    points: ReturnType<typeof triangulateRecoveryCameraPoint>[];
+    points: ReturnType<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[];
     positive: number;
     angles: number[];
   } | null = null;
   for (const pose of calibrated.poses) {
-    const points: ReturnType<typeof triangulateRecoveryCameraPoint>[] = [];
+    const points: ReturnType<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[] =
+      [];
     const angles: number[] = [];
     for (let at: number = 0; at < firstPoints.length; at++) {
-      const point: ReturnType<typeof triangulateRecoveryCameraPoint> =
+      const point: ReturnType<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation> =
         triangulateRecoveryCameraPoint(
           firstPoints[at]!,
           secondPoints[at]!,

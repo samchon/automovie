@@ -1,20 +1,25 @@
 import {
-  type IAutoMovieResolvedBone,
+  AutoMovieGravity,
   Quaternion,
   Vector3,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGymnasticsFlight,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
@@ -41,15 +46,9 @@ import { StrikingBody } from "../striking/StrikingBody";
  * @evidence contracts/development/common.md#meaningful-documentation States what a flight posture is, why it is written by joints and the physics.
  * @evidence contracts/development/design.md#principled-representation Free functions over the posture record and the engine's mass model; no state.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What the gymnastic laws share: freezing, the centre, placing by it, a rigid turn, the fall time, the lowest point, the launch read off a plan and the touchdown search.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Gravity is the only constant; every length is the body's or the plan's.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Gravity is the engine's (`AutoMovieGravity`); every length is the body's or the plan's.
  */
 export namespace GymnasticsFlight {
-  /** Gravity, m/s². */
-  export const G: number = 9.81;
-
-  /** The engine's mass model of a body. */
-  export type Model = ReturnType<typeof resolveAutoMovieCenterOfMass>;
-
   /**
    * The mass model of a body.
    *
@@ -64,7 +63,9 @@ export namespace GymnasticsFlight {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The callers keep it for the plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function model(body: IHumanBody): Model {
+  export function model(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieResolveCenterOfMass.IModel {
     return resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
   }
 
@@ -85,11 +86,11 @@ export namespace GymnasticsFlight {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function frozen(
-    body: IHumanBody,
-    posture: IHumanPosture,
-  ): IHumanPosture {
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture {
     const pose: IAutoMoviePose = resolveHumanPosture(body, posture);
-    const joints: IHumanPosture["joints"] = {};
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const joint of pose.joints as readonly IAutoMovieJointPose[])
       // A joint the pose leaves unset stands at clinical zero, as the
       // resolver itself reads it.
@@ -118,9 +119,9 @@ export namespace GymnasticsFlight {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function centre(
-    body: IHumanBody,
-    model: Model,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    model: IAutoMovieResolveCenterOfMass.IModel,
+    posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       Object.keys(posture.limbs).length === 0
@@ -147,11 +148,11 @@ export namespace GymnasticsFlight {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function placed(
-    body: IHumanBody,
-    model: Model,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    model: IAutoMovieResolveCenterOfMass.IModel,
+    posture: IAutoMovieMotionHumanPosture,
     at: IAutoMovieVector3,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const c: IAutoMovieVector3 = centre(body, model, posture);
     return {
       ...posture,
@@ -183,18 +184,19 @@ export namespace GymnasticsFlight {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function turned(
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     pivot: IAutoMovieVector3,
     yaw: number,
     pitch: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     if (Math.abs(posture.roll) > 1e-9)
       throw new Error("GymnasticsFlight.turned turns a posture with no roll");
-    const after: Pick<IHumanPosture, "yaw" | "pitch" | "roll"> = {
-      yaw: posture.yaw + yaw,
-      pitch: posture.pitch + pitch,
-      roll: 0,
-    };
+    const after: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> =
+      {
+        yaw: posture.yaw + yaw,
+        pitch: posture.pitch + pitch,
+        roll: 0,
+      };
     const turn: IAutoMovieQuaternion = Quaternion.multiply(
       resolveHumanPosture.heading(after),
       Quaternion.inverse(resolveHumanPosture.heading(posture)),
@@ -204,10 +206,10 @@ export namespace GymnasticsFlight {
         pivot,
         Quaternion.rotateVector(turn, Vector3.subtract(point, pivot)),
       );
-    const limbs: IHumanPosture["limbs"] = {};
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const [limb, goal] of Object.entries(posture.limbs) as [
-      IHumanPosture.Limb,
-      IHumanPosture.IGoal,
+      AutoMovieHumanLimb,
+      IAutoMovieHumanLimbGoal,
     ][])
       limbs[limb] =
         goal.on !== undefined
@@ -241,9 +243,11 @@ export namespace GymnasticsFlight {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function fall(from: number, vy: number, to: number): number | null {
-    const discriminant: number = vy * vy - 2 * G * (to - from);
+    const discriminant: number =
+      vy * vy - 2 * AutoMovieGravity.STANDARD * (to - from);
     if (discriminant < 0) return null;
-    const t: number = (vy + Math.sqrt(discriminant)) / G;
+    const t: number =
+      (vy + Math.sqrt(discriminant)) / AutoMovieGravity.STANDARD;
     return t > 0 ? t : null;
   }
 
@@ -270,7 +274,7 @@ export namespace GymnasticsFlight {
   ): IAutoMovieVector3 {
     return {
       x: from.x + velocity.x * t,
-      y: from.y + velocity.y * t - 0.5 * G * t * t,
+      y: from.y + velocity.y * t - 0.5 * AutoMovieGravity.STANDARD * t * t,
       z: from.z + velocity.z * t,
     };
   }
@@ -290,7 +294,10 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `knockdown.rest`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function lowest(body: IHumanBody, posture: IHumanPosture): number {
+  export function lowest(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): number {
     return posture.root.y - knockdown.rest(body, posture);
   }
 
@@ -313,11 +320,11 @@ export namespace GymnasticsFlight {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function launch(
-    body: IHumanBody,
-    model: Model,
-    plan: IHumanActionPlan,
+    body: IAutoMovieMotionHumanBody,
+    model: IAutoMovieResolveCenterOfMass.IModel,
+    plan: IAutoMovieMotionHumanActionPlan,
     seconds: number,
-  ): { centre: IAutoMovieVector3; velocity: IAutoMovieVector3 } {
+  ): IAutoMovieMotionHumanGymnasticsFlight.ILaunchResult {
     const delta: number = 1e-3;
     const one: IAutoMovieVector3 = centre(
       body,
@@ -331,13 +338,16 @@ export namespace GymnasticsFlight {
     );
     const velocity: IAutoMovieVector3 = {
       x: (two.x - one.x) / delta,
-      y: (two.y - one.y) / delta + 1.5 * G * delta,
+      y: (two.y - one.y) / delta + 1.5 * AutoMovieGravity.STANDARD * delta,
       z: (two.z - one.z) / delta,
     };
     return {
       centre: {
         x: one.x - velocity.x * delta,
-        y: one.y - velocity.y * delta + 0.5 * G * delta * delta,
+        y:
+          one.y -
+          velocity.y * delta +
+          0.5 * AutoMovieGravity.STANDARD * delta * delta,
         z: one.z - velocity.z * delta,
       },
       velocity,

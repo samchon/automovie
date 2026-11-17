@@ -1,4 +1,11 @@
 import { createBag } from "@automovie/archetypes";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
@@ -6,8 +13,6 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type IHumanActionLaw,
-  type IHumanBody,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -32,8 +37,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    of them takes: refused on `partner`, listing what the row takes.
  * 4. Stairs climbed step over step, six treads, with no stairs given:
  *    planned on the flight the parameters state.
- * 5. Typing at a keyboard whose heading is not given, seated and standing:
- *    refused on `keyboard.yaw`, where the missing heading was read as NaN.
+ * 5. Typing at a keyboard that declares no home row, seated and standing:
+ *    refused on `keyboard`, where a missing member was read as NaN.
  * 6. A headlock with no partner: refused on `partner`, naming no
  *    `undefined`.
  * 7. A pole vault with no pole: refused on the missing parameter, naming no
@@ -54,13 +59,16 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 10 scenarios.
  */
 export function test_human_motion_core_entry_scenes(): void {
-  const man: IHumanBody = motionHumanBody("m-average");
-  const woman: IHumanBody = motionHumanBody("f-small");
-  const laws: IHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
+  const man: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const woman: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] =
+    Object.values(HUMAN_LEXICON).flat();
   const outcome = (
-    composition: { node: HumanPerformance.IInput["composition"] },
+    composition: {
+      node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+    },
     partner: boolean = false,
-    props: HumanPerformance.IInput["props"] = [],
+    props: IAutoMovieMotionHumanPerformance.IInput["props"] = [],
   ): string => {
     try {
       new HumanPerformance({
@@ -99,7 +107,7 @@ export function test_human_motion_core_entry_scenes(): void {
     }
   };
   let partnerAt: number = 0.5;
-  const stand = (subject: string): HumanChain =>
+  const stand = (subject: string): IAutoMovieMotionHumanChain =>
     HumanChain.subject(subject).stand({ seconds: 0.3 });
   const complaints: string[] = [];
   const expect = (
@@ -175,9 +183,18 @@ export function test_human_motion_core_entry_scenes(): void {
       got === "planned" || got.startsWith("refused on "),
   );
 
-  // 5. Typing at a keyboard with no heading.
+  // 5. Typing at a keyboard with no home row.
+  const bare: IAutoMovieMotionHumanProp = {
+    subject: "keyboard",
+    frame: {
+      position: { x: 0, y: 1, z: 0.4 },
+      rotation: { x: 0, y: 1, z: 0, w: 0 },
+    },
+    points: {},
+    affordances: [],
+  };
   expect(
-    "typing at a keyboard with no heading",
+    "typing at a keyboard with no home row",
     outcome(
       HumanChain.subject("a")
         .sit({
@@ -193,22 +210,26 @@ export function test_human_motion_core_entry_scenes(): void {
           seconds: 0.5,
         })
         .registered("typeText", {
-          keyboard: { at: { x: -1, y: 0.7, z: 0.35 } },
+          keyboard: "keyboard",
           text: "hello",
         }),
+      false,
+      [bare],
     ),
-    (got: string): boolean => got === "refused on keyboard.yaw",
+    (got: string): boolean => got === "refused on keyboard",
   );
 
   expect(
-    "typing standing at a keyboard with no heading",
+    "typing standing at a keyboard with no home row",
     outcome(
       HumanChain.subject("a").registered("typeText", {
-        keyboard: { at: { x: -1, y: 1.0, z: 0.4 } },
+        keyboard: "keyboard",
         text: "the scene opens",
       }),
+      false,
+      [bare],
     ),
-    (got: string): boolean => got === "refused on keyboard.yaw",
+    (got: string): boolean => got === "refused on keyboard",
   );
   // 6. A headlock with no partner.
   expect(
@@ -268,7 +289,7 @@ export function test_human_motion_core_entry_scenes(): void {
 
   // 10. Two hands, each held on the other body.
   partnerAt = 0.5;
-  const held = (subject: string, other: string): HumanChain =>
+  const held = (subject: string, other: string): IAutoMovieMotionHumanChain =>
     stand(subject).touch({
       target: { kind: "person", subject: other, region: "shoulderLeft" },
       with: "palm",

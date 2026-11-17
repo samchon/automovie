@@ -1,19 +1,23 @@
-import type { AutoMovieLoftContract } from "./AutoMovieLoftContract";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidRail,
+  IAutoMovieSolidSharedCurve,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
-import type { AutoMovieSolidRail } from "./AutoMovieSolidRail";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** World point or derivative, mm. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 
 /** A surface's 2-jet at a chart point. */
 type IJet = IAutoMovieSolidSurface.IJet;
 
 /** A point of the shared curve. */
-type IPoint = AutoMovieSolidIntersection.IPoint;
+type IPoint = IAutoMovieSolidIntersection.IPoint;
 const { combine, cross, dot, norm, scale, solve2, sub, unit }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
 /**
@@ -43,108 +47,6 @@ const { combine, cross, dot, norm, scale, solve2, sub, unit }: typeof AutoMovieS
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No arc is declared by clock and nothing is fitted or searched along the curve: a loop off the part, a side that reverses or a loop that does not close on the part is refused by name.
  */
 export namespace AutoMovieSolidSharedCurve {
-  /**
-   * A closed loop on a host face's chart at a clock, radians, with its first and second clock derivatives: one turn over `2 pi`.
-   *
-   * @evidence contracts/development/design.md#principled-representation The chart curve with its 2-jet is what the host's map turns into the world curve's exact tangent and second derivative.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One reader; `AutoMovieConstructionPortCurve.ICurve.at` is one.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The derivatives are the loop's own, never differences of its points.
-   * @evidence contracts/development/common.md#meaningful-documentation States the clock, the chart and the period.
-   */
-  export type Loop = (t: number) => { point: [number, number]; first: [number, number]; second: [number, number] };
-
-  /**
-   * What a shared contact is built from.
-   *
-   * @evidence contracts/development/design.md#principled-representation The two surfaces, the loop on one face of the host, the kept side and the two limits a join already declares.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Every member is read by the builder; none repeats another.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values and borrowed readers only.
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and default.
-   */
-  export interface IInput {
-    /** The part, `v` periodic where it has a period. */
-    part: IAutoMovieSolidSurface;
-
-    /** The host: one surface, or an atlas of which `face` carries the loop. */
-    host: IAutoMovieSolidSurface | IAutoMovieSolidAtlas;
-
-    /** The host face the loop lies on; absent, 0. */
-    face?: number;
-
-    /** The loop on that face's chart. */
-    loop: Loop;
-
-    /** Points over one turn at the clocks `2 pi i / count`, at least 8. */
-    count: number;
-
-    /** Largest distance of a loop point from the part, mm, positive. */
-    tolerance: number;
-
-    /** Angle between the tangent planes, radians, under which a point is on a smooth arc and its sides come from the loop. */
-    grazing: number;
-
-    /** Which side of the host the part keeps: `outside` for a merge, `inside` for a diff. */
-    keep: AutoMovieSolidRail.Keep;
-
-    /** The part's chart point near the loop's point at clock 0; absent, the nearest of a grid over the part's declared domain. */
-    start?: [number, number];
-  }
-
-  /**
-   * A shared contact: the curve a join composes, and what the loop and the surfaces say at each of its points.
-   *
-   * @evidence contracts/development/design.md#principled-representation The curve has the traced curve's own record, so rails, widths and the blend read it unchanged; the two readers carry what a tangential contact adds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A curve and two readers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The arc of a point is read from the surfaces, never stored per clock.
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning.
-   */
-  export interface IShared {
-    /** The contact: `parameter` reads `arc`, since its clock is not the part's phase and both rails offset square to it. */
-    curve: AutoMovieSolidIntersection.ICurve;
-
-    /**
-     * The rails' sides at a point of the curve, or null where a direction vanishes.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the reading and its null.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `create` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    toward: (point: IPoint) => AutoMovieSolidRail.IToward | null;
-
-    /**
-     * The arc a point of the curve lies on: `smooth` where the tangent planes meet under the grazing angle, else `fold`.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the two values and the rule.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `create` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    arc: (point: IPoint) => "smooth" | "fold";
-  }
-
-  /**
-   * The contact, or null with the premise it broke.
-   *
-   * @evidence contracts/development/design.md#principled-representation A nullable contact with its diagnostics, as a trace returns.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A refusal carries no partial curve.
-   * @evidence contracts/development/common.md#meaningful-documentation States the null and the diagnostics.
-   */
-  export interface IResult {
-    /** The contact; null when a premise fails. */
-    shared: IShared | null;
-
-    /** The broken premises: `shared loop`, `closed loop`, `enclosed loop` or `one kept side`. */
-    diagnostics: AutoMovieLoftContract.IDiagnostic[];
-  }
-
   /** Newton steps of one foot. */
   export const STEPS: number = 40;
 
@@ -168,7 +70,7 @@ export namespace AutoMovieSolidSharedCurve {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each foot starts from the neighbouring stored point's; the stored points serve every reading at their own clocks.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned readers retain the stored points and borrow the surfaces and the loop; nothing else outlives the call.
    */
-  export function create(input: IInput): IResult {
+  export function create(input: IAutoMovieSolidSharedCurve.IInput): IAutoMovieSolidSharedCurve.IResult {
     const host: IAutoMovieSolidAtlas = AutoMovieSolidIntersection.atlas(input.host);
     const index: number = input.face ?? 0;
     const face: IAutoMovieSolidSurface = host.faces[index]!;
@@ -178,14 +80,14 @@ export namespace AutoMovieSolidSharedCurve {
     const period: number = part.period ?? turn;
 
     /** One refusal. */
-    const refuse = (contract: string, detail: string): IResult => ({
+    const refuse = (contract: string, detail: string): IAutoMovieSolidSharedCurve.IResult => ({
       shared: null,
       diagnostics: [{ producer, level: 6, contract, detail }],
     });
 
     /** The curve's point at a clock with the part's foot from a chart guess, or the premise that failed. */
     const evaluate = (t: number, guess: readonly [number, number]): { point: IPoint; gap: number } | string => {
-      const c: ReturnType<Loop> = input.loop(t);
+      const c: ReturnType<IAutoMovieSolidSharedCurve.Loop> = input.loop(t);
       const b: IJet | null = AutoMovieSolidDomain.jet(face, c.point[0], c.point[1]);
       if (b === null) return `the loop leaves the host face's domain at [${c.point[0]}, ${c.point[1]}]`;
 
@@ -352,7 +254,7 @@ export namespace AutoMovieSolidSharedCurve {
     const sense: number = area > 0 ? 1 : -1;
 
     /** Both rails' sides at a point: the host's outside the loop, the part's from the normals on a fold arc and from the loop on a smooth one. */
-    const toward: IShared["toward"] = (p: IPoint): AutoMovieSolidRail.IToward | null => {
+    const toward: IAutoMovieSolidSharedCurve.IShared["toward"] = (p: IPoint): IAutoMovieSolidRail.IToward | null => {
       const b: IJet = face.jet(p.y, p.theta);
       const a: IJet = part.jet(p.s, p.phi);
       const along: number = dot(p.tangent, p.tangent);
@@ -380,9 +282,9 @@ export namespace AutoMovieSolidSharedCurve {
     };
 
     // One kept side all round: neighbouring points' part directions turn with the loop, never against each other.
-    let before: AutoMovieSolidRail.IToward | null = toward(points[points.length - 1]!);
+    let before: IAutoMovieSolidRail.IToward | null = toward(points[points.length - 1]!);
     for (const p of points) {
-      const here: AutoMovieSolidRail.IToward | null = toward(p);
+      const here: IAutoMovieSolidRail.IToward | null = toward(p);
       if (here === null || before === null)
         return refuse("one kept side", `no side can be read at clock ${p.t}: a direction square to the curve vanishes`);
       if (!(dot(here.part, before.part) > 0))

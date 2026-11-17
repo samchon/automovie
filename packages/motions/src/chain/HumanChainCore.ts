@@ -1,11 +1,12 @@
-import {
-  AutoMovieChain,
-  AutoMovieComposition,
-  type IAutoMovieIntent,
-} from "@automovie/engine";
+import { AutoMovieChain, AutoMovieComposition } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanChainCore,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanActionParams } from "../IHumanActionParams";
+import { HumanHitTrack } from "../perform/HumanHitTrack";
 
 /**
  * The part of a person's chain that knows no action: whose chain it is, how
@@ -32,7 +33,7 @@ export class HumanChainCore extends AutoMovieChain {
    * @param subject The person.
    * @param node The composition.
    */
-  public constructor(subject: string, node: AutoMovieComposition) {
+  public constructor(subject: string, node: IAutoMovieComposition) {
     super(node);
     this.subject = subject;
   }
@@ -47,9 +48,9 @@ export class HumanChainCore extends AutoMovieChain {
    * @param args Its parameters, then an optional anchor: a stable id another chain can align to or cut on.
    * @returns The chain.
    */
-  public act<Name extends HumanActionName>(
+  public act<Name extends AutoMovieMotionHumanActionName>(
     name: Name,
-    ...args: HumanChainCore.Arguments<Name>
+    ...args: IAutoMovieMotionHumanChainCore.Arguments<Name>
   ): this {
     // Both shapes of the argument tuple hold the parameters first and the
     // anchor second, each possibly absent.
@@ -88,9 +89,9 @@ export class HumanChainCore extends AutoMovieChain {
    * @throws {Error} When the chain ends in no action, or in one already synced (cut it before syncing it).
    */
   public until(until: NonNullable<IAutoMovieIntent["until"]>): this {
-    const parts: readonly AutoMovieComposition[] =
+    const parts: readonly IAutoMovieComposition[] =
       this.node.kind === "sequence" ? this.node.parts : [this.node];
-    const last: AutoMovieComposition | undefined = parts.at(-1);
+    const last: IAutoMovieComposition | undefined = parts.at(-1);
     if (last?.kind === "at")
       throw new Error(
         "until cuts an action before it is synced; cut it first, then sync it",
@@ -129,25 +130,61 @@ export class HumanChainCore extends AutoMovieChain {
    * @returns The chain.
    * @throws {Error} When the chain ends in no action, or in one already synced (an action meets one instant).
    */
-  public sync(sync: HumanChainCore.ISync): this {
-    const parts: readonly AutoMovieComposition[] =
+  public sync(sync: IAutoMovieMotionHumanChainCore.ISync): this {
+    const parts: readonly IAutoMovieComposition[] =
       this.node.kind === "sequence" ? this.node.parts : [this.node];
-    const last: AutoMovieComposition | undefined = parts.at(-1);
+    const last: IAutoMovieComposition | undefined = parts.at(-1);
     if (last?.kind === "at")
       throw new Error(
         `sync times an action once, and the last one is already synced to ${last.anchor}`,
       );
     if (last === undefined || last.kind === "sequence")
       throw new Error("sync times an action; append one first");
+
+    // A drawn latency rides on the synced action's own parameters, as `over`
+    // does, and the action is aligned by its start when it names no instant,
+    // so the performance's alignment hook places it and adds the draw.
+    const latency = (node: IAutoMovieComposition): IAutoMovieComposition =>
+      node.kind === "intent"
+        ? {
+            kind: "intent",
+            intent: {
+              ...node.intent,
+              parameters: { ...node.intent.parameters, latency: sync.latency },
+            },
+          }
+        : node.kind === "parallel"
+          ? {
+              kind: "parallel",
+              parts: [latency(node.parts[0]!), ...node.parts.slice(1)],
+            }
+          : node;
+    const align: string | undefined =
+      sync.align ?? (sync.latency === undefined ? undefined : "start");
+
+    // A hit is an instant of the struck subject's hit track.
+    const of: string | undefined =
+      sync.hit === undefined ? sync.of : HumanHitTrack.name(sync.hit);
+    if (of === undefined)
+      throw new Error("sync names an instant: give `of` or `hit`");
+    const event: string | undefined =
+      sync.hit === undefined ? sync.event : HumanHitTrack.EVENT;
+    const index: number | undefined =
+      sync.hit === undefined ? sync.index : (sync.hit.index ?? 0);
     return this.derive({
       kind: "sequence",
       parts: [
         ...parts.slice(0, -1),
-        AutoMovieComposition.at(sync.of, last, sync.offset ?? 0, {
-          ...(sync.event === undefined ? {} : { event: sync.event }),
-          ...(sync.index === undefined ? {} : { index: sync.index }),
-          ...(sync.align === undefined ? {} : { align: sync.align }),
-        }),
+        AutoMovieComposition.at(
+          of,
+          sync.latency === undefined ? last : latency(last),
+          sync.offset ?? 0,
+          {
+            ...(event === undefined ? {} : { event }),
+            ...(index === undefined ? {} : { index }),
+            ...(align === undefined ? {} : { align }),
+          },
+        ),
       ],
     });
   }
@@ -171,10 +208,10 @@ export class HumanChainCore extends AutoMovieChain {
    * @returns The chain.
    * @throws {Error} When the chain ends in no action, or in one already synced (put the overlays on it before syncing it).
    */
-  public over(build: (overlay: this) => HumanChainCore): this {
-    const parts: readonly AutoMovieComposition[] =
+  public over(build: (overlay: this) => IAutoMovieMotionHumanChainCore): this {
+    const parts: readonly IAutoMovieComposition[] =
       this.node.kind === "sequence" ? this.node.parts : [this.node];
-    const last: AutoMovieComposition | undefined = parts.at(-1);
+    const last: IAutoMovieComposition | undefined = parts.at(-1);
     const carried: boolean =
       last !== undefined &&
       last.kind === "parallel" &&
@@ -189,7 +226,7 @@ export class HumanChainCore extends AutoMovieChain {
 
     // Every intent of the overlaid chain is marked, so the performance plans
     // it on the carrier instead of after it.
-    const mark = (node: AutoMovieComposition): AutoMovieComposition => {
+    const mark = (node: IAutoMovieComposition): IAutoMovieComposition => {
       switch (node.kind) {
         case "intent":
           return {
@@ -206,7 +243,7 @@ export class HumanChainCore extends AutoMovieChain {
           return { ...node, part: mark(node.part) };
       }
     };
-    const overlay: AutoMovieComposition = mark(
+    const overlay: IAutoMovieComposition = mark(
       build(this.derive({ kind: "sequence", parts: [] })).node,
     );
     return this.derive({
@@ -230,51 +267,12 @@ export class HumanChainCore extends AutoMovieChain {
    * @param node The node.
    * @returns The chain.
    */
-  protected override derive(node: AutoMovieComposition): this {
-    const make: new (subject: string, node: AutoMovieComposition) => this = this
-      .constructor as new (subject: string, node: AutoMovieComposition) => this;
+  protected override derive(node: IAutoMovieComposition): this {
+    const make: new (subject: string, node: IAutoMovieComposition) => this =
+      this.constructor as new (
+        subject: string,
+        node: IAutoMovieComposition,
+      ) => this;
     return new make(this.subject, node);
   }
-}
-
-/**
- * Companion types of {@link HumanChainCore}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member.
- * @evidence contracts/development/design.md#principled-representation The instant a synced action meets, as data, and the argument list of a named append as a tuple type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two types: `ISync`, read by `sync`, and `Arguments`, read by `act`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The arguments are derived from the parameter table, not restated per action.
- */
-export namespace HumanChainCore {
-  /** An instant to meet, and which instant of the synced action meets it. */
-  export interface ISync {
-    /** The anchor of an action placed earlier in the composition, or the name of a cue track. */
-    of: string;
-
-    /**
-     * Which instant of it: one of its events, or `start` or `end`. Absent,
-     * an action's decisive instant (its contact) or else its start; a cue
-     * track always needs one.
-     */
-    event?: string;
-
-    /** Which occurrence of that event, from 0, where it repeats, as a track's beats do; 0 when absent. */
-    index?: number;
-
-    /** The synced action's own instant that falls there: one of its events; its start when absent. */
-    align?: string;
-
-    /** Seconds after the instant named; negative is before. 0 when absent. */
-    offset?: number;
-  }
-
-  /**
-   * What follows the name in `act`: the action's parameters and an optional
-   * anchor. The parameters may be left out only when every one of them is
-   * optional.
-   */
-  export type Arguments<Name extends HumanActionName> =
-    {} extends IHumanActionParams[Name]
-      ? [params?: IHumanActionParams[Name], anchor?: string]
-      : [params: IHumanActionParams[Name], anchor?: string];
 }

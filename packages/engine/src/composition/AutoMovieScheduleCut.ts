@@ -1,9 +1,16 @@
-import type { IAutoMovieMotionEvent } from "@automovie/interface";
+import type {
+  IAutoMovieIntent,
+  IAutoMovieIntentTiming,
+  IAutoMovieMotionEvent,
+  IAutoMovieScheduleContext,
+  IAutoMovieScheduleCue,
+  IAutoMovieScheduleCut,
+  IAutoMovieScheduleError,
+  IAutoMovieScheduleWalk,
+} from "@automovie/interface";
 
 import { AutoMovieScheduleError } from "./AutoMovieScheduleError";
 import { AutoMovieScheduleWalk } from "./AutoMovieScheduleWalk";
-import type { IAutoMovieIntent } from "./IAutoMovieIntent";
-import type { resolveAutoMovieSchedule } from "./resolveAutoMovieSchedule";
 
 /**
  * Where an intent's `until` cuts it: a share of its duration, found from a
@@ -20,22 +27,6 @@ import type { resolveAutoMovieSchedule } from "./resolveAutoMovieSchedule";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A cut outside [0, 1], an unplaced anchor, an unnamed event and a law that is absent are refused with their codes.
  */
 export namespace AutoMovieScheduleCut {
-  /**
-   * A cut: its share of the duration and the event it was found at.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and range.
-   * @evidence contracts/development/design.md#principled-representation A cut is a share in [0, 1] of the duration, with the event it was found at when it was found at one.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both written onto the schedule's entry.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No intent or law is named; the event is optional because a share needs none.
-   */
-  export interface ICut {
-    /** The share of the duration, in [0, 1]. */
-    share: number;
-
-    /** The event the cut was found at, `of.event` for another anchor's. */
-    event?: string;
-  }
-
   /**
    * The cut of an intent.
    *
@@ -56,19 +47,20 @@ export namespace AutoMovieScheduleCut {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
-    walk: AutoMovieScheduleWalk.IWalk,
+    walk: IAutoMovieScheduleWalk.IWalk,
     intent: IAutoMovieIntent,
-    timing: resolveAutoMovieSchedule.ITiming,
+    timing: IAutoMovieIntentTiming,
     start: number,
-    context: resolveAutoMovieSchedule.IContext,
-  ): ICut | undefined {
+    context: IAutoMovieScheduleContext,
+  ): IAutoMovieScheduleCut.ICut | undefined {
     const until: IAutoMovieIntent["until"] = intent.until;
     if (until === undefined) return undefined;
-    const who: Pick<AutoMovieScheduleError.IProps, "subject" | "capability"> = {
-      subject: intent.subject,
-      capability: intent.capability,
-    };
-    let cut: ICut | undefined;
+    const who: Pick<IAutoMovieScheduleError.IProps, "subject" | "capability"> =
+      {
+        subject: intent.subject,
+        capability: intent.capability,
+      };
+    let cut: IAutoMovieScheduleCut.ICut | undefined;
     if ("proximity" in until) {
       if (walk.laws.until === undefined)
         throw new AutoMovieScheduleError(
@@ -84,7 +76,7 @@ export namespace AutoMovieScheduleCut {
       );
       if (share !== undefined) cut = { share };
     } else if ("of" in until) {
-      const events: readonly resolveAutoMovieSchedule.ICue[] | undefined =
+      const events: readonly IAutoMovieScheduleCue[] | undefined =
         AutoMovieScheduleWalk.instants(walk, until.of);
       if (events === undefined)
         throw new AutoMovieScheduleError(

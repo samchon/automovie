@@ -11,6 +11,7 @@ import { autoMovieSubjectMaterials } from "./autoMovieSubjectMaterials";
 import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "./constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
 import { Quaternion } from "./math/Quaternion";
 import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
+import { Transform } from "./math/Transform";
 
 /** World up, the axis an instance set's heading turns about. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -77,11 +78,7 @@ export const describeAutoMovieInstanceSetSubject = (
     owner: space,
     model,
     space,
-    transform: {
-      translation: structuredClone(set.anchor),
-      rotation: Quaternion.fromAxisAngle(UP, set.facingDeg),
-      scale: { x: 1, y: 1, z: 1 },
-    },
+    transform: Transform.of(structuredClone(set.anchor), Quaternion.fromAxisAngle(UP, set.facingDeg)),
     bounds: {
       declared: null,
       content: structuredClone(set.bounds),

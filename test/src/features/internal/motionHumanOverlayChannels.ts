@@ -1,5 +1,12 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -7,9 +14,7 @@ import {
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
   seated,
 } from "@automovie/motions";
 
@@ -64,7 +69,10 @@ export namespace motionHumanOverlayChannels {
   const mm = (metres: number): string => (metres * 1000).toFixed(2);
   const gap = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
-  const perform = (body: IHumanBody, chain: HumanChain): HumanPerformance =>
+  const perform = (
+    body: IAutoMovieMotionHumanBody,
+    chain: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "overlay",
       performers: [
@@ -78,9 +86,11 @@ export namespace motionHumanOverlayChannels {
       ],
       composition: chain.node,
     });
-  const walk = (): HumanChain =>
+  const walk = (): IAutoMovieMotionHumanChain =>
     HumanChain.subject("a").walk({ to: { x: 0, y: 0, z: 2 } });
-  const reading = (body: IHumanBody): HumanPerformance =>
+  const reading = (
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanPerformance =>
     perform(
       body,
       walk().over((u) =>
@@ -100,16 +110,16 @@ export namespace motionHumanOverlayChannels {
     part: "unclaimed" | "claimed",
     complaints: string[],
   ): void {
-    const body: IHumanBody = motionHumanBody(name);
-    const plain: HumanPerformance = perform(body, walk());
-    const withRead: HumanPerformance = reading(body);
-    const without: HumanSignature.IReader = HumanSignature.of(
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const plain: IAutoMovieMotionHumanPerformance = perform(body, walk());
+    const withRead: IAutoMovieMotionHumanPerformance = reading(body);
+    const without: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       plain,
       "a",
       body,
       0,
     );
-    const withTask: HumanSignature.IReader = HumanSignature.of(
+    const withTask: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       withRead,
       "a",
       body,
@@ -147,7 +157,8 @@ export namespace motionHumanOverlayChannels {
     }
 
     // 2 and 3. The phone hand is up, ahead of the chest, and held with it.
-    const task: HumanSegment.IOverlay | undefined = withRead.overlays("a")[0];
+    const task: IAutoMovieMotionHumanSegment.IOverlay | undefined =
+      withRead.overlays("a")[0];
     if (task === undefined) {
       complaints.push(`${name}: the performance holds no overlay`);
       return;
@@ -200,7 +211,7 @@ export namespace motionHumanOverlayChannels {
       );
 
     // 5. What no body performs is refused with what clashes.
-    const chair: seated.ISeat = {
+    const chair: IAutoMovieMotionHumanSeated.ISeat = {
       at: {
         x: 0,
         y: seated.popliteal(body),
@@ -241,7 +252,7 @@ export namespace motionHumanOverlayChannels {
         thrown.kind !== "channel" ||
         thrown.axis !== "over" ||
         !names.every((n: string): boolean =>
-          (thrown as HumanRefusal).message.includes(n),
+          (thrown as IAutoMovieMotionHumanRefusal).message.includes(n),
         )
       )
         complaints.push(
@@ -278,7 +289,9 @@ export namespace motionHumanOverlayChannels {
    */
   export function continuity(part: number, complaints: string[]): void {
     const name: motionHumanBody.Name = "m-average";
-    const film: HumanPerformance = reading(motionHumanBody(name));
+    const film: IAutoMovieMotionHumanPerformance = reading(
+      motionHumanBody(name),
+    );
     const rate: number = 24;
     const frames: number = Math.ceil(film.duration * rate);
     const from: number = Math.floor((frames * part) / PARTS) / rate;
@@ -294,9 +307,11 @@ export namespace motionHumanOverlayChannels {
         bones: (
           subject: string,
           seconds: number,
-        ): ReturnType<HumanPerformance["bones"]> =>
+        ): ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =>
           film.bones(subject, from + seconds),
-        segments: (subject: string): ReturnType<HumanPerformance["segments"]> =>
+        segments: (
+          subject: string,
+        ): ReturnType<IAutoMovieMotionHumanPerformance["segments"]> =>
           film.segments(subject).map((s) => ({
             ...s,
             start: s.start - from,

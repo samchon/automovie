@@ -1,18 +1,20 @@
 import {
-  type IAutoMovieResolvedBone,
+  AutoMovieGravity,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditBalance,
   HumanFoot,
-  type IAutoMovieMotionHumanAuditMeasure,
-  type IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
-  type IHumanContactWindow,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,8 +30,8 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * A body in its quiet stance is carried rigidly along its heading at a
  * constant speed `v` for 1 s, both feet declared planted on the ground. Its
  * feet travel with it, so its centre of mass keeps its place over them, and
- * the extrapolated centre lies `v / w` ahead of it, with `w = sqrt(9.81 /
- * (1.34 hipHeight))` the pendulum's eigenfrequency. The feet's hull ends in
+ * the extrapolated centre lies `v / w` ahead of it, with `w = sqrt(g /
+ * (1.34 hipHeight))` the pendulum's eigenfrequency, `g` standard gravity. The feet's hull ends in
  * front at the line through both toe points and behind at the line through
  * both heels, so past either line the distance outside is known in closed
  * form from the stance's centre of mass `c`, toe line `zToe` and heel line
@@ -56,11 +58,13 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  */
 export function test_human_motion_audit_balance(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  const ground: IHumanContactWindow["support"] = { kind: "ground" };
+  const ground: IAutoMovieMotionHumanContactWindow["support"] = {
+    kind: "ground",
+  };
   const plant = (
-    part: IHumanContactWindow["part"],
+    part: IAutoMovieMotionHumanContactWindow["part"],
     from: number,
-  ): IHumanContactWindow => ({
+  ): IAutoMovieMotionHumanContactWindow => ({
     part,
     kind: "plant",
     from,
@@ -69,11 +73,11 @@ export function test_human_motion_audit_balance(): void {
   });
 
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stance: Bones = motionHumanStance(body);
     const film = (
       speed: number,
-      contacts: IHumanContactWindow[] = [
+      contacts: IAutoMovieMotionHumanContactWindow[] = [
         plant("leftFoot", 0),
         plant("rightFoot", 0),
       ],
@@ -101,7 +105,7 @@ export function test_human_motion_audit_balance(): void {
     ): IAutoMovieMotionHumanAuditMeasure =>
       AutoMovieMotionHumanAuditBalance.measure(motion, "a", body);
 
-    const model: resolveAutoMovieCenterOfMass.IModel =
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const centre: number = resolveAutoMovieCenterOfMass.place(model, stance).z;
     const sole: number[] = HumanFoot.base(body, stance).map(
@@ -109,7 +113,12 @@ export function test_human_motion_audit_balance(): void {
     );
     const zToe: number = Math.max(...sole);
     const zHeel: number = Math.min(...sole);
-    const lead: number = 1 / Math.sqrt(9.81 / (1.34 * body.measure.hipHeight));
+    const lead: number =
+      1 /
+      Math.sqrt(
+        AutoMovieGravity.STANDARD /
+          (resolveAutoMovieCenterOfMass.PENDULUM * body.measure.hipHeight),
+      );
 
     const still: IAutoMovieMotionHumanAuditMeasure = measure(film(0));
     const margin: number = AutoMovieMotionHumanAuditBalance.margin(

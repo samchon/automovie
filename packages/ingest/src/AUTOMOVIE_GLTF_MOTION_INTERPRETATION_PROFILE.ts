@@ -1,4 +1,4 @@
-import type { AutoMovieGltfMotionInterpretationProfile } from "./AutoMovieGltfMotionInterpretationProfile";
+import type { AutoMovieGltfMotionInterpretationProfile } from "@automovie/interface";
 
 /**
  * Runtime identity of the fixed glTF motion spatial interpretation. This typed literal defines metres, right-handed coordinates and Y-up without implicit conversion; inspection and adoption share it, and no geometry-validity claim follows from the label.

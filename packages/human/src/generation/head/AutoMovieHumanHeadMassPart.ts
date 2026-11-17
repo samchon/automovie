@@ -1,15 +1,22 @@
 import {
-  AutoMovieLoftFrame,
   AutoMovieViewCurves,
   AutoMovieViewOutline,
   AutoMovieViewSection,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHeadLandmarks,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadMassPart,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewCurves,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import { AutoMovieHumanHeadVault } from "../AutoMovieHumanHeadVault";
-import type { IAutoMovieHumanHeadLandmarks } from "../IAutoMovieHumanHeadLandmarks";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadMassProfile } from "./AutoMovieHumanHeadMassProfile";
 import { AutoMovieHumanHeadMassSource } from "./AutoMovieHumanHeadMassSource";
 
@@ -159,7 +166,9 @@ export namespace AutoMovieHumanHeadMassPart {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work No prepared source is constructed.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one fresh two-number diagnostic.
    */
-  export function cervical(plan: IAutoMovieHumanHeadLayout): [number, number] {
+  export function cervical(
+    plan: IAutoMovieHumanHeadLayout,
+  ): IAutoMovieHumanHeadMassPart.CervicalResult {
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
     const dx: number = m.subnasale[0] - m.pogonion[0];
     const dy: number = m.subnasale[1] - m.pogonion[1];
@@ -304,7 +313,7 @@ export namespace AutoMovieHumanHeadMassPart {
     y: number,
     x: number,
     sign: 1 | -1,
-  ): [number, number, number] {
+  ): AutoMovieVector3Tuple {
     const { section, frame, extents }: ReturnType<typeof sectionAt> = sectionAt(
       part,
       y,
@@ -337,18 +346,18 @@ export namespace AutoMovieHumanHeadMassPart {
     part: IAutoMovieViewPart,
     y: number,
   ): {
-    section: AutoMovieViewSection.ISection;
-    frame: AutoMovieLoftFrame.IFrame;
+    section: IAutoMovieViewSection.ISection;
+    frame: IAutoMovieLoftSectionFrame;
     extents: [number, number, number, number];
   } {
-    const source: AutoMovieViewCurves.IResult =
+    const source: IAutoMovieViewCurves.IResult =
       AutoMovieViewCurves.create(part);
     const scalar: (index: number) => number = (index: number): number => {
-      const outline: AutoMovieViewOutline.IOutline | null =
+      const outline: IAutoMovieViewOutline.IOutline | null =
         source.curves[index]!.outline;
       if (outline === null)
         throw new Error(
-          `Head attachment: ${source.diagnostics.map((d: AutoMovieViewCurves.IResult["diagnostics"][number]): string => d.detail).join("; ")}`,
+          `Head attachment: ${source.diagnostics.map((d: IAutoMovieViewCurves.IResult["diagnostics"][number]): string => d.detail).join("; ")}`,
         );
       const value: number | string = AutoMovieViewOutline.value(outline, y);
       if (typeof value === "string")
@@ -373,8 +382,8 @@ export namespace AutoMovieHumanHeadMassPart {
       outline: IAutoMovieViewPart.IOutline,
     ): number => {
       const prepared:
-        | AutoMovieViewOutline.IOutline
-        | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(outline);
+        | IAutoMovieViewOutline.IOutline
+        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(outline);
       if ("detail" in prepared)
         throw new Error(`Head attachment fullness: ${prepared.detail}`);
       const value: number | string = AutoMovieViewOutline.value(prepared, y);
@@ -388,7 +397,7 @@ export namespace AutoMovieHumanHeadMassPart {
       part.fullness.departures !== undefined
         ? read(part.fullness.departures[q]!)
         : 0;
-    const section: AutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+    const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
       { extents },
       [
         common + departure(0),

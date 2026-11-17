@@ -1,9 +1,10 @@
 import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
-import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface";
-
-import type { IAutoMovieRecoveryMapElimination } from "../structures/internal/IAutoMovieRecoveryMapElimination";
-import type { IAutoMovieRecoveryMapJointBlock } from "../structures/internal/IAutoMovieRecoveryMapJointBlock";
-import type { IAutoMovieRecoveryMapJointPreparation } from "../structures/internal/IAutoMovieRecoveryMapJointPreparation";
+import type {
+  IAutoMovieRecoveryCameraMapBudget,
+  IAutoMovieRecoveryMapElimination,
+  IAutoMovieRecoveryMapJointBlock,
+  IAutoMovieRecoveryMapJointPreparation,
+} from "@automovie/interface";
 
 /**
  * Prepare original point qualification and one current scaled block design.

@@ -1,9 +1,12 @@
-import type { IAutoMovieTwoBoneArticulation } from "../kinematics/IAutoMovieTwoBoneArticulation";
+import type {
+  IAutoMoviePreparedChainPlant,
+  IAutoMovieSolvePreparedChainPlantProps,
+  IAutoMovieSolvedChainPlant,
+  IAutoMovieTwoBoneArticulation,
+} from "@automovie/interface";
+
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
-import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
-import type { IPreparedChainPlant } from "./IPreparedChainPlant";
-import type { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
 
 /**
  * Solve one prepared two-bone chain for a model-metre target and bend normal. Return null when analytic articulation is unavailable; otherwise decompose upper and lower rotations through the same prepared clinical domains used by residual FK.
@@ -17,11 +20,11 @@ import type { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantPr
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned articulation records; preparation and input maps are borrowed and the helper retains no solver workspace or resource.
  */
 export const solvePreparedChainPlant: (
-  props: ISolvePreparedChainPlantProps,
+  props: IAutoMovieSolvePreparedChainPlantProps,
 ) => IAutoMovieSolvedChainPlant | null = (
-  props: ISolvePreparedChainPlantProps,
+  props: IAutoMovieSolvePreparedChainPlantProps,
 ): IAutoMovieSolvedChainPlant | null => {
-  const { chain, upper, lower }: IPreparedChainPlant = props.prepared;
+  const { chain, upper, lower }: IAutoMoviePreparedChainPlant = props.prepared;
 
   const articulation: IAutoMovieTwoBoneArticulation | null =
     twoBoneChainArticulation({

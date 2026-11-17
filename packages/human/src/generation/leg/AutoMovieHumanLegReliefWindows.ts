@@ -1,5 +1,6 @@
+import type { IAutoMovieHumanLegReliefWindow } from "@automovie/interface";
+
 import { AutoMovieHumanLegGirth } from "./AutoMovieHumanLegGirth";
-import type { AutoMovieHumanLegReliefWindow } from "./AutoMovieHumanLegReliefWindow";
 
 /**
  * The leg's thirteen relief windows as one table: each a bump or hollow in
@@ -23,7 +24,7 @@ export namespace AutoMovieHumanLegReliefWindows {
    *
    * Mid-patella stands 36 mm under the knee centre on the references (ANSUR II: 16.9 mm women, 3.3 mm men under the lateral epicondyle and 11.2 and 20.2 mm above tibiale); the patella is about 45 mm long and 50 mm broad, so a half extent of half a knee radius (27 mm) and 0.46 radians (25 mm at 54 mm radius). It pushes forward and 10 degrees down, along its own axis.
    */
-  export const PATELLA: AutoMovieHumanLegReliefWindow.IWindow = {
+  export const PATELLA: IAutoMovieHumanLegReliefWindow.IWindow = {
     name: "leg.patella",
     segment: "shank",
     share: 0.086,
@@ -42,7 +43,7 @@ export namespace AutoMovieHumanLegReliefWindows {
    *
    * Tibiale stands 11.2 to 20.2 mm under mid-patella (ANSUR II); the tuberosity is a small forward prominence about 60 mm under the knee centre.
    */
-  export const TIBIAL_TUBEROSITY: AutoMovieHumanLegReliefWindow.IWindow = {
+  export const TIBIAL_TUBEROSITY: IAutoMovieHumanLegReliefWindow.IWindow = {
     name: "leg.tibialTuberosity",
     segment: "shank",
     share: 0.14,
@@ -61,7 +62,7 @@ export namespace AutoMovieHumanLegReliefWindows {
    *
    * The fibular head stands slightly above the level of the tibial tuberosity, behind and lateral to the lateral tibial condyle (Gray 1918, docs/anatomy/skeleton.md), so its window stands posterolateral (120 degrees round the section) and apart from the lateral condyle's at 90 degrees: two bumps summed at one place read as a knob, which the references' lateral knee does not show.
    */
-  export const FIBULAR_HEAD: AutoMovieHumanLegReliefWindow.IWindow = {
+  export const FIBULAR_HEAD: IAutoMovieHumanLegReliefWindow.IWindow = {
     name: "leg.fibularHead",
     segment: "shank",
     share: 0.07,
@@ -80,7 +81,7 @@ export namespace AutoMovieHumanLegReliefWindows {
    *
    * The medial epicondyle is the more prominent (Gray 1918); the joint centre stands at the epicondyles (docs/anatomy/skeleton.md).
    */
-  export const MEDIAL_CONDYLE: AutoMovieHumanLegReliefWindow.IWindow = {
+  export const MEDIAL_CONDYLE: IAutoMovieHumanLegReliefWindow.IWindow = {
     name: "leg.medialCondyle",
     segment: "shank",
     share: 0,
@@ -99,7 +100,7 @@ export namespace AutoMovieHumanLegReliefWindows {
    *
    * The lateral epicondyle; the joint centre stands at the epicondyles (docs/anatomy/skeleton.md).
    */
-  export const LATERAL_CONDYLE: AutoMovieHumanLegReliefWindow.IWindow = {
+  export const LATERAL_CONDYLE: IAutoMovieHumanLegReliefWindow.IWindow = {
     name: "leg.lateralCondyle",
     segment: "shank",
     share: 0,
@@ -118,7 +119,7 @@ export namespace AutoMovieHumanLegReliefWindows {
    *
    * The popliteal fossa spans from about 40 mm above to 20 mm under the joint line, centred 15 mm above it; the hollow is the skin moved forward, into the leg, between the hamstring tendons.
    */
-  export const POPLITEAL_FOSSA: AutoMovieHumanLegReliefWindow.IWindow = {
+  export const POPLITEAL_FOSSA: IAutoMovieHumanLegReliefWindow.IWindow = {
     name: "leg.poplitealFossa",
     segment: "thigh",
     share: 0.962,
@@ -137,16 +138,17 @@ export namespace AutoMovieHumanLegReliefWindows {
    *
    * The medial head is the lower and larger (map.md, 7.2); the belly runs about 170 mm, so a half extent of 1.6 radii, centred on the calf tape's site, where the girth law makes the calf's maximum; it pushes out along its own axis, backward and medial.
    */
-  export const GASTROCNEMIUS_MEDIAL_HEAD: AutoMovieHumanLegReliefWindow.IWindow = {
-    name: "leg.gastrocnemiusMedialHead",
-    segment: "shank",
-    share: AutoMovieHumanLegGirth.CALF_SITE,
-    angle: 4.2761,
-    halfStation: 1.6,
-    halfAngle: 0.6,
-    height: 0.08,
-    axis: [-0.4226, 0, -0.9063],
-  };
+  export const GASTROCNEMIUS_MEDIAL_HEAD: IAutoMovieHumanLegReliefWindow.IWindow =
+    {
+      name: "leg.gastrocnemiusMedialHead",
+      segment: "shank",
+      share: AutoMovieHumanLegGirth.CALF_SITE,
+      angle: 4.2761,
+      halfStation: 1.6,
+      halfAngle: 0.6,
+      height: 0.08,
+      axis: [-0.4226, 0, -0.9063],
+    };
 
   /**
    * The lateral head of the gastrocnemius as a relief window in its own frame: its own centre on the
@@ -156,16 +158,17 @@ export namespace AutoMovieHumanLegReliefWindows {
    *
    * The lateral head, higher and smaller than the medial (map.md, 7.2); it pushes out along its own axis, backward and lateral.
    */
-  export const GASTROCNEMIUS_LATERAL_HEAD: AutoMovieHumanLegReliefWindow.IWindow = {
-    name: "leg.gastrocnemiusLateralHead",
-    segment: "shank",
-    share: AutoMovieHumanLegGirth.CALF_SITE - LATERAL_RISE,
-    angle: 2.3562,
-    halfStation: 1.2,
-    halfAngle: 0.5,
-    height: 0.05,
-    axis: [-0.7071, 0, 0.7071],
-  };
+  export const GASTROCNEMIUS_LATERAL_HEAD: IAutoMovieHumanLegReliefWindow.IWindow =
+    {
+      name: "leg.gastrocnemiusLateralHead",
+      segment: "shank",
+      share: AutoMovieHumanLegGirth.CALF_SITE - LATERAL_RISE,
+      angle: 2.3562,
+      halfStation: 1.2,
+      halfAngle: 0.5,
+      height: 0.05,
+      axis: [-0.7071, 0, 0.7071],
+    };
 
   /**
    * The soleus' distal bulge either side of the Achilles tendon as a relief window in its own frame: its own centre on the
@@ -175,7 +178,7 @@ export namespace AutoMovieHumanLegReliefWindows {
    *
    * The soleus shows distal to the gastrocnemius' bellies (Gray 1918); it pushes straight back.
    */
-  export const SOLEUS_BELLY: AutoMovieHumanLegReliefWindow.IWindow = {
+  export const SOLEUS_BELLY: IAutoMovieHumanLegReliefWindow.IWindow = {
     name: "leg.soleusBelly",
     segment: "shank",
     share: 0.55,
@@ -194,7 +197,7 @@ export namespace AutoMovieHumanLegReliefWindows {
    *
    * A narrow ridge on the posterior midline above the heel (map.md, 7.2); its extent is the tendon's, about 120 mm long and 15 mm broad.
    */
-  export const ACHILLES_TENDON: AutoMovieHumanLegReliefWindow.IWindow = {
+  export const ACHILLES_TENDON: IAutoMovieHumanLegReliefWindow.IWindow = {
     name: "leg.achillesTendon",
     segment: "shank",
     share: 0.85,
@@ -213,16 +216,17 @@ export namespace AutoMovieHumanLegReliefWindows {
    *
    * The vastus medialis' fibres run low on the medial side above the patella (Gray 1918); it pushes anteromedially.
    */
-  export const VASTUS_MEDIALIS_TEARDROP: AutoMovieHumanLegReliefWindow.IWindow = {
-    name: "leg.vastusMedialisTeardrop",
-    segment: "thigh",
-    share: 0.88,
-    angle: 5.4978,
-    halfStation: 0.8,
-    halfAngle: 0.5,
-    height: 0.04,
-    axis: [0.7071, 0, -0.7071],
-  };
+  export const VASTUS_MEDIALIS_TEARDROP: IAutoMovieHumanLegReliefWindow.IWindow =
+    {
+      name: "leg.vastusMedialisTeardrop",
+      segment: "thigh",
+      share: 0.88,
+      angle: 5.4978,
+      halfStation: 0.8,
+      halfAngle: 0.5,
+      height: 0.04,
+      axis: [0.7071, 0, -0.7071],
+    };
 
   /**
    * The quadriceps' front as a relief window in its own frame: its own centre on
@@ -240,7 +244,7 @@ export namespace AutoMovieHumanLegReliefWindows {
    * rescaled to the girth law afterwards, so the bump moves volume to the front
    * and the tapes still read their inputs.
    */
-  export const QUADRICEPS: AutoMovieHumanLegReliefWindow.IWindow = {
+  export const QUADRICEPS: IAutoMovieHumanLegReliefWindow.IWindow = {
     name: "leg.quadriceps",
     segment: "thigh",
     share: 0.45,
@@ -259,7 +263,7 @@ export namespace AutoMovieHumanLegReliefWindows {
    *
    * The buttock window of the trunk starts at the crotch ring with height, slope and curvature zero, so the fold is the ring's own posterior arc; this window continues it a short way down as a shallow hollow, the skin moved forward.
    */
-  export const INFRAGLUTEAL_FOLD: AutoMovieHumanLegReliefWindow.IWindow = {
+  export const INFRAGLUTEAL_FOLD: IAutoMovieHumanLegReliefWindow.IWindow = {
     name: "leg.infraglutealFold",
     segment: "thigh",
     share: 0.2,
@@ -272,7 +276,7 @@ export namespace AutoMovieHumanLegReliefWindows {
   };
 
   /** Every window, knee first, the thigh's last. */
-  export const ALL: readonly AutoMovieHumanLegReliefWindow.IWindow[] = [
+  export const ALL: readonly IAutoMovieHumanLegReliefWindow.IWindow[] = [
     PATELLA,
     TIBIAL_TUBEROSITY,
     FIBULAR_HEAD,

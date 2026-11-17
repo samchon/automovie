@@ -1,8 +1,10 @@
-import type { IAutoMovieRenderSpec } from "@automovie/interface";
+import type {
+  IAutoMovieCaptureSubject,
+  IAutoMovieDrawCall,
+  IAutoMovieRenderSpec,
+} from "@automovie/interface";
 import {
   AutoMovieDrawSession,
-  type IAutoMovieCaptureSubject,
-  type IAutoMovieDrawCall,
   decodeAutoMovieRasterPng,
   renderAutoMovieDrawnVideo,
 } from "@automovie/render";
@@ -47,9 +49,7 @@ export async function test_draw_drawn_video(): Promise<void> {
     pixelFormat: "yuv420p",
     crf: 18,
   };
-  const open: (
-    subject: IAutoMovieCaptureSubject,
-  ) => Promise<{
+  const open: (subject: IAutoMovieCaptureSubject) => Promise<{
     session: AutoMovieDrawSession;
     double: createDrawPageDouble.IDouble;
   }> = async (

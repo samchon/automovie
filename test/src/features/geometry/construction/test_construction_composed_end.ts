@@ -1,3 +1,4 @@
+import type { IAutoMovieConstructionComposedEnd } from "@automovie/interface";
 import { AutoMovieConstructionComposedEnd } from "@automovie/engine";
 
 type V3 = [number, number, number];
@@ -26,7 +27,7 @@ type V3 = [number, number, number];
 export function test_construction_composed_end(): void {
   const failures: string[] = [];
   const turn: number = 2 * Math.PI;
-  const ellipse = (name: string, x: number, a: number, b: number, axis: V3): AutoMovieConstructionComposedEnd.ISection => ({
+  const ellipse = (name: string, x: number, a: number, b: number, axis: V3): IAutoMovieConstructionComposedEnd.ISection => ({
     name,
     axis,
     at: (psi: number): { point: V3; first: V3 } => ({
@@ -35,9 +36,9 @@ export function test_construction_composed_end(): void {
     }),
   });
   const lean = (angle: number): V3 => [Math.sin(angle), 0, Math.cos(angle)];
-  const compose = (sections: AutoMovieConstructionComposedEnd.ISection[]): AutoMovieConstructionComposedEnd.IComposition | string =>
+  const compose = (sections: IAutoMovieConstructionComposedEnd.ISection[]): IAutoMovieConstructionComposedEnd.IComposition | string =>
     AutoMovieConstructionComposedEnd.create({ point: [0, 0, 0], normal: [0, 0, 1], sections, samples: 32 });
-  const base = (): AutoMovieConstructionComposedEnd.ISection[] => [
+  const base = (): IAutoMovieConstructionComposedEnd.ISection[] => [
     ellipse("A", -14, 9, 9, lean(-0.2)),
     ellipse("B", 0, 9, 9, lean(0)),
     ellipse("C", 14, 9, 9, lean(0.2)),
@@ -46,7 +47,7 @@ export function test_construction_composed_end(): void {
   const near = (x: number, y: number): number => Math.abs(((x - y + Math.PI) % turn + turn) % turn - Math.PI);
   const off = (p: readonly number[], q: readonly number[]): number => Math.hypot(p[0]! - q[0]!, p[1]! - q[1]!, p[2]! - q[2]!);
 
-  const made: AutoMovieConstructionComposedEnd.IComposition | string = compose(base());
+  const made: IAutoMovieConstructionComposedEnd.IComposition | string = compose(base());
   const y: number = Math.sqrt(32);
   if (typeof made === "string") failures.push(`base: ${made}`);
   else {
@@ -77,7 +78,7 @@ export function test_construction_composed_end(): void {
     // 3. Seam planes.
     const planes: [V3, V3][] = [[[Math.cos(0.1), 0, Math.sin(0.1)], [-Math.sin(0.1), 0, Math.cos(0.1)]], [[Math.cos(0.1), 0, -Math.sin(0.1)], [Math.sin(0.1), 0, Math.cos(0.1)]]];
     planes.forEach(([normal, heading]: [V3, V3], j: number): void => {
-      const seam: AutoMovieConstructionComposedEnd.ISeam = made.seams[j]!;
+      const seam: IAutoMovieConstructionComposedEnd.ISeam = made.seams[j]!;
       if (!(off(seam.normal, normal) <= 1e-12 && off(seam.heading, heading) <= 1e-12)) failures.push(`seam ${j}: normal (${seam.normal.join(", ")}), heading (${seam.heading.join(", ")})`);
       const chord: number[] = [0, 1, 2].map((a: number): number => seam.forks[1].point[a]! - seam.forks[0].point[a]!);
       const dot = (p: readonly number[], q: readonly number[]): number => p[0]! * q[0]! + p[1]! * q[1]! + p[2]! * q[2]!;
@@ -86,7 +87,7 @@ export function test_construction_composed_end(): void {
   }
 
   // 4. A function of the children, and 6. the red control of a tabulated fork.
-  const grown: AutoMovieConstructionComposedEnd.IComposition | string = compose([ellipse("A", -14, 9, 9, lean(-0.2)), ellipse("B", 0, 11, 11, lean(0)), ellipse("C", 14, 9, 9, lean(0.2))]);
+  const grown: IAutoMovieConstructionComposedEnd.IComposition | string = compose([ellipse("A", -14, 9, 9, lean(-0.2)), ellipse("B", 0, 11, 11, lean(0)), ellipse("C", 14, 9, 9, lean(0.2))]);
   if (typeof grown === "string") failures.push(`grown: ${grown}`);
   else {
     const x: number = (196 + 81 - 121) / 28 - 14;
@@ -96,10 +97,10 @@ export function test_construction_composed_end(): void {
     const own: number = Math.abs(Math.hypot(grown.seams[0]!.forks[0].point[0], grown.seams[0]!.forks[0].point[1]) - 11);
     if (!(stale >= 1.4 && own <= 1e-9)) failures.push(`red control: the tabulated fork stands ${stale} mm off B's grown section, the composed one ${own}`);
   }
-  const leaned: AutoMovieConstructionComposedEnd.IComposition | string = compose([ellipse("A", -14, 9, 9, lean(-0.5)), ellipse("B", 0, 9, 9, lean(0)), ellipse("C", 14, 9, 9, lean(0.2))]);
+  const leaned: IAutoMovieConstructionComposedEnd.IComposition | string = compose([ellipse("A", -14, 9, 9, lean(-0.5)), ellipse("B", 0, 9, 9, lean(0)), ellipse("C", 14, 9, 9, lean(0.2))]);
   if (typeof leaned === "string") failures.push(`leaned: ${leaned}`);
   else if (!(off(leaned.seams[0]!.normal, [Math.cos(0.25), 0, Math.sin(0.25)]) <= 1e-12)) failures.push(`leaned: seam normal (${leaned.seams[0]!.normal.join(", ")})`);
-  const oval: AutoMovieConstructionComposedEnd.IComposition | string = compose([ellipse("A", -14, 9, 9, lean(-0.2)), ellipse("B", 0, 9, 6, lean(0)), ellipse("C", 14, 9, 9, lean(0.2))]);
+  const oval: IAutoMovieConstructionComposedEnd.IComposition | string = compose([ellipse("A", -14, 9, 9, lean(-0.2)), ellipse("B", 0, 9, 6, lean(0)), ellipse("C", 14, 9, 9, lean(0.2))]);
   if (typeof oval === "string") failures.push(`oval: ${oval}`);
   else
     for (const seam of oval.seams)
@@ -111,8 +112,8 @@ export function test_construction_composed_end(): void {
       }
 
   // 5. Refusals by name.
-  const refused = (sections: AutoMovieConstructionComposedEnd.ISection[], word: string, why: string): void => {
-    const result: AutoMovieConstructionComposedEnd.IComposition | string = compose(sections);
+  const refused = (sections: IAutoMovieConstructionComposedEnd.ISection[], word: string, why: string): void => {
+    const result: IAutoMovieConstructionComposedEnd.IComposition | string = compose(sections);
     if (typeof result !== "string" || !result.includes(word)) failures.push(`${why}: ${typeof result === "string" ? result : "admitted"}`);
   };
   refused([ellipse("A", -20, 9, 9, lean(0)), ellipse("B", 0, 9, 9, lean(0)), ellipse("C", 20, 9, 9, lean(0))], "cross 0 times", "sections apart");
@@ -122,8 +123,8 @@ export function test_construction_composed_end(): void {
 
   // 7-8. The outline as one closed curve, and distances to it.
   if (typeof made !== "string") {
-    const { pieces, at, distance }: AutoMovieConstructionComposedEnd.IOutline = made.outline;
-    if (pieces.map((p: AutoMovieConstructionComposedEnd.IPiece): number => p.section).join("") !== "0121") failures.push(`outline: pieces on sections ${pieces.map((p: AutoMovieConstructionComposedEnd.IPiece): number => p.section).join(", ")}, not 0, 1, 2, 1`);
+    const { pieces, at, distance }: IAutoMovieConstructionComposedEnd.IOutline = made.outline;
+    if (pieces.map((p: IAutoMovieConstructionComposedEnd.IPiece): number => p.section).join("") !== "0121") failures.push(`outline: pieces on sections ${pieces.map((p: IAutoMovieConstructionComposedEnd.IPiece): number => p.section).join(", ")}, not 0, 1, 2, 1`);
     let [gap, corner]: [number, number] = [0, Infinity];
     for (let i: number = 0; i < pieces.length; ++i) {
       const [here, next]: [{ point: V3; first: V3 }, { point: V3; first: V3 }] = [at(i + 1 - 1e-13), at((i + 1) % pieces.length)];

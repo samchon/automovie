@@ -1,4 +1,4 @@
-import type { IHumanBody } from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 
 import type { MotionHumanSweepChain } from "./MotionHumanSweepChain";
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
@@ -18,15 +18,17 @@ const guard = (
   });
 
 /** Shoulder to fingertip, metres. */
-const arm = (body: IHumanBody): number =>
+const arm = (body: IAutoMovieMotionHumanBody): number =>
   body.measure.upperArm + body.measure.forearm + body.measure.hand;
 
 /** The punching range of the striking captures: 1.3 arms. */
-const punching = (a: IHumanBody): number => 1.3 * arm(a);
+const punching = (a: IAutoMovieMotionHumanBody): number => 1.3 * arm(a);
 
 /** The kicking range of the striking captures: 0.9 of the shorter leg. */
-const kicking = (a: IHumanBody, b: IHumanBody): number =>
-  0.9 * Math.min(a.measure.hipHeight, b.measure.hipHeight);
+const kicking = (
+  a: IAutoMovieMotionHumanBody,
+  b: IAutoMovieMotionHumanBody,
+): number => 0.9 * Math.min(a.measure.hipHeight, b.measure.hipHeight);
 
 /**
  * The stages of the fighting laws: the guard, the fighting step, the punch,
@@ -51,12 +53,12 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
 > = {
   guard: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(a, S.chain().act("guard", { seconds: 1, ...S.set(pick, "stance") })),
   step: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -66,12 +68,19 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
     ),
   punch: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const feint: string | undefined = pick("feint");
+    // The partner's guard settles by 0.6 s, and a puncher reads it a
+    // reaction time before the launch (`HumanPerception.REACTION`): launched
+    // at 0.8 s, a jab perceived the guard still settling and planned on a
+    // face extrapolated 10 cm farther than it came to rest. Launched at 1 s,
+    // it perceives the partner at rest, the target a straight punch's
+    // signature describes; the guard settling during the perception is
+    // `test_human_motion_strike_punch_settling_guard`'s.
     return S.duo(a, b, punching(a), [
-      guard("a", 0.8).act("punch", {
+      guard("a", 1).act("punch", {
         technique: pick("technique") ?? "straight",
         at: S.person("b", "face"),
         ...S.set(pick, "hand", "accuracy"),
@@ -82,8 +91,8 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
   },
   kick: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const feint: string | undefined = pick("feint");
     return S.duo(a, b, kicking(a, b), [
@@ -98,8 +107,8 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
   },
   knee: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.duo(a, b, 0.55, [
       guard("a", 0.8).act("knee", {
@@ -110,8 +119,8 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
     ]),
   defend: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const kind: string = pick("kind") ?? "cover";
     const checked: boolean = kind === "check";
@@ -136,7 +145,7 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
   },
   flinch: (
     _pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -146,7 +155,7 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
     ),
   stagger: (
     _pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -157,7 +166,7 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
     ),
   knockdown: (
     _pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -165,16 +174,23 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
         from: S.point(0, a.measure.shoulderHeight, 1),
       }),
     ),
+  // A scene carries no forces, so `perturb` meets no impulse and absorbs
+  // nothing: the still stance its law states for that case.
+  perturb: (
+    _pick: motionHumanLawSweep.Pick,
+    a: IAutoMovieMotionHumanBody,
+  ): motionHumanLawSweep.IScene =>
+    S.solo(a, S.chain().act("stand", { seconds: 0.3 }).act("perturb", {})),
   clinch: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.duo(a, b, 0.55, [
       S.chain().act("clinch", {
         partner: "b",
         ...S.set(pick, "grip", "hand"),
       }),
-      S.chain("b").act("stand", { seconds: 4 }),
+      S.chain("b").act("stand", { seconds: 4, sway: 0 }),
     ]),
 };

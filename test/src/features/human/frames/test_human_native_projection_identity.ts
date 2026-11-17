@@ -1,9 +1,7 @@
+import { nclose } from "../../internal/nclose";
 import {
   AutoMovieLoftViewFullSource as Full,
   AutoMovieViewAxis,
-  type AutoMovieViewAxisJet,
-  type IAutoMovieSolidSurface,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
@@ -11,9 +9,17 @@ import {
   AutoMovieHumanNativeFamily as Native,
   AutoMovieHumanNativeProjectionCourse as Course,
 } from "@automovie/human";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanNativeProjectionCourse,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { nclose } from "../../internal/nclose";
 
 /**
  * An original physical projection preserves its actual angled source identity.
@@ -44,7 +50,7 @@ export function test_human_native_projection_identity(): void {
   const rail: number = 10;
   const length: number = 17;
   const pole: number = rail + length;
-  const originalAxis: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
+  const originalAxis: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
     [1000, 1000, 0], [0.8, -0.6, 0], [0, 0, 1],
   );
   const original: IAutoMovieViewPart = circle(originalAxis);
@@ -53,23 +59,23 @@ export function test_human_native_projection_identity(): void {
   const projection: number = Math.hypot(
     end[0]! - start[0]!, end[1]! - start[1]!, end[2]! - start[2]!,
   );
-  const originalJet: AutoMovieViewAxisJet.IJet | null = originalAxis.jet?.(rail) ?? null;
+  const originalJet: IAutoMovieViewAxisJet.IJet | null = originalAxis.jet?.(rail) ?? null;
   check("independent original physical metric is finite and positive", Number.isFinite(projection) && projection > 0);
   if (originalJet === null) failures.push("made original actual station2 unavailable");
   else check("offset angled premise did not distinguish endpoint D0 from vL",
     projection !== Math.hypot(...originalJet.first.origin) * length);
 
-  let projectionOwner: Course.IProjectionOwner | null = null;
+  let projectionOwner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner | null = null;
   try {
     projectionOwner = Course.prepare(original, rail);
     check("prepared metric differs from independent original endpoint D0", nclose(projectionOwner.projection, projection, 0));
   } catch (error: unknown) {
     failures.push("original owner preparation: " + (error instanceof Error ? error.message : String(error)));
   }
-  const translated: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
+  const translated: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
     [2000, 2000, 0], [0.8, -0.6, 0], [0, 0, 1],
   );
-  const cases: readonly (readonly [string, AutoMovieViewAxis.IAxis])[] = [
+  const cases: readonly (readonly [string, IAutoMovieViewAxis.IAxis])[] = [
     ["original angled source", originalAxis],
     ["translated same original datum", translated],
   ];
@@ -77,7 +83,7 @@ export function test_human_native_projection_identity(): void {
     try {
       const before: IAutoMovieViewPart = sample(original, axis);
       if (projectionOwner === null) throw new Error("captured original projection unavailable");
-      const course: Course.IPrepared = projectionOwner.project(original, axis, projection);
+      const course: IAutoMovieHumanNativeProjectionCourse.IPrepared = projectionOwner.project(original, axis, projection);
       check(label + ": literal original/current axis replaced", course.axis === axis);
       check(label + ": identity emitted new course breaks", course.materialBreaks.length === 0);
       const actual: IAutoMovieViewPart = sample(original, course.axis, course);
@@ -91,8 +97,8 @@ export function test_human_native_projection_identity(): void {
       check(label + ": literal cap-inclusive grid changed",
         actual.stations.length === before.stations.length &&
         actual.stations.every((s: number, i: number): boolean => nclose(s, before.stations[i]!, 0)));
-      const baselineReader: Full.IReader = Full.create(before);
-      const reader: Full.IReader = Full.create(actual);
+      const baselineReader: IAutoMovieLoftViewFullSource.IReader = Full.create(before);
+      const reader: IAutoMovieLoftViewFullSource.IReader = Full.create(actual);
       for (const station of [12, 18, 26])
         for (const phase of [0, 0.37, 1.2]) {
           const expected: IAutoMovieSolidSurface.IJet = baselineReader.jet(station, phase);
@@ -121,7 +127,7 @@ export function test_human_native_projection_identity(): void {
 }
 
 /** Tiny complete circular source with a fixed top square-root material cap. */
-function circle(axis: AutoMovieViewAxis.IAxis): IAutoMovieViewPart {
+function circle(axis: IAutoMovieViewAxis.IAxis): IAutoMovieViewPart {
   const coordinate: (sign: number) => IAutoMovieViewPart.IOutline = (
     sign: number,
   ): IAutoMovieViewPart.IOutline => ({
@@ -144,11 +150,11 @@ function circle(axis: AutoMovieViewAxis.IAxis): IAutoMovieViewPart {
 /** Exercise the real native consumer, applying exactly its opt-in course metadata. */
 function sample(
   original: IAutoMovieViewPart,
-  axis: AutoMovieViewAxis.IAxis,
-  course?: Course.IPrepared,
+  axis: IAutoMovieViewAxis.IAxis,
+  course?: IAutoMovieHumanNativeProjectionCourse.IPrepared,
 ): IAutoMovieViewPart {
   const radii: number[] = [Math.sqrt(18), 3, 1];
-  const prior: H.IFamily = {
+  const prior: IAutoMovieHumanConicLoft.IFamily = {
     name: original.name!, centres: [original.axis.at(0).origin, original.axis.at(27).origin],
     halves: [], up: [0.8, -0.6, 0], layout: S.limb(0), knots: [9, 18, 26],
     values: [radii, [0, 0, 0], [0, 0, 0], radii,
@@ -157,10 +163,10 @@ function sample(
     tips: [null, { from: 26, tip: 27, rings: 2 }],
   };
   const selected: IAutoMovieViewPart = { ...original, axis };
-  const family: H.IFamily = Native.create({
+  const family: IAutoMovieHumanConicLoft.IFamily = Native.create({
     original: prior, bone: prior,
     originals: new Map([[original.name!, original]]), axis,
-    scale: (): S.P => [1, 1], station: (s: number): number => s,
+    scale: (): AutoMovieVector2Tuple => [1, 1], station: (s: number): number => s,
     features: [], protection: [], authority: {
       sources: new Map([[original.name!, selected]]),
       ...(course === undefined || course.materialBreaks.length === 0 ? {} : {

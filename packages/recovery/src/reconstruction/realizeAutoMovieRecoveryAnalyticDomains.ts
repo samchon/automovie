@@ -1,13 +1,13 @@
-import {
-  type IAutoMovieContourLoft64 as L,
-  realizeAutoMovieBicubicAtlas64 as realize,
-} from "@automovie/engine";
+import { realizeAutoMovieBicubicAtlas64 as realize } from "@automovie/engine";
+import type {
+  IAutoMovieContourLoft64,
+  IAutoMovieRecoveryAnalyticDomainsRealizationOperation,
+  IAutoMovieRecoveryAnalyticRealization,
+  IAutoMovieRecoveryAtlasGeneration,
+  IAutoMovieRecoveryOpenContinuation,
+} from "@automovie/interface";
 
 import { readRecoveryMetadata as read } from "../internal/readRecoveryMetadata";
-import type { IAutoMovieRecoveryOpenContinuation } from "../structures/curve/IAutoMovieRecoveryOpenContinuation";
-import type { IAutoMovieRecoveryAnalyticRealization } from "../structures/domain/IAutoMovieRecoveryAnalyticRealization";
-import type { IAutoMovieRecoveryAnalyticRealizationInput } from "../structures/domain/IAutoMovieRecoveryAnalyticRealizationInput";
-import type { IAutoMovieRecoveryAtlasGeneration } from "../structures/domain/IAutoMovieRecoveryAtlasGeneration";
 
 /**
  * Admit source-free analytic ownership and retain every finite native result.
@@ -24,9 +24,9 @@ import type { IAutoMovieRecoveryAtlasGeneration } from "../structures/domain/IAu
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-owned maps expire on return. Model parts, reports and original recipe references transfer to the reconstruction caller; the public recipe's cell and vertex budgets bound each realization.
  */
 export function realizeAutoMovieRecoveryAnalyticDomains(
-  bundle: IAutoMovieRecoveryAnalyticRealizationInput,
-  graph?: IAutoMovieRecoveryOpenContinuation,
-): IAutoMovieRecoveryAnalyticRealization {
+  bundle: Parameters<IAutoMovieRecoveryAnalyticDomainsRealizationOperation.Operation>[0],
+  graph?: Parameters<IAutoMovieRecoveryAnalyticDomainsRealizationOperation.Operation>[1],
+): ReturnType<IAutoMovieRecoveryAnalyticDomainsRealizationOperation.Operation> {
   const result: IAutoMovieRecoveryAnalyticRealization = {
     parts: [],
     construction: [],
@@ -36,10 +36,15 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
     reports: [],
   };
   if (!bundle.analyticDomains?.length) return result;
-  const curves: Map<string, L.ISection["loops"][number]["curve"]> = new Map(),
+  const curves: Map<
+      string,
+      IAutoMovieContourLoft64.ISection["loops"][number]["curve"]
+    > = new Map(),
     ambiguous: Set<string> = new Set();
-  const register: (curve: L.ISection["loops"][number]["curve"]) => void = (
-    curve: L.ISection["loops"][number]["curve"],
+  const register: (
+    curve: IAutoMovieContourLoft64.ISection["loops"][number]["curve"],
+  ) => void = (
+    curve: IAutoMovieContourLoft64.ISection["loops"][number]["curve"],
   ): void => {
     const name: unknown = read(curve, ["name"]);
     if (typeof name !== "string" || name.length === 0) return;
@@ -133,7 +138,9 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
           );
       };
       for (const address of domain.closedGroups) {
-        const group: L.IInterval["groups"][number] | undefined =
+        const group:
+          | IAutoMovieContourLoft64.IInterval["groups"][number]
+          | undefined =
           bundle.loft.intervals?.[address.interval]?.groups[address.group];
         if (
           !Number.isSafeInteger(address.interval) ||
@@ -224,8 +231,9 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
         throw new Error("Native authority identity is not unique");
       const bound: Set<string> = new Set();
       for (const binding of domain.curveBindings) {
-        const curve: L.ISection["loops"][number]["curve"] | undefined =
-          curves.get(binding.curveName);
+        const curve:
+          | IAutoMovieContourLoft64.ISection["loops"][number]["curve"]
+          | undefined = curves.get(binding.curveName);
         const key: string = `${binding.curveName}:${binding.span}`;
         if (
           !curve ||

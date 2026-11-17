@@ -1,22 +1,17 @@
-import type { IAutoMovieViewPart } from "@automovie/engine";
-
-import type { AutoMovieHumanConicLoft as H } from "../conic/AutoMovieHumanConicLoft";
-import type { AutoMovieHumanF1 as Figure } from "./AutoMovieHumanF1";
 import { AutoMovieHumanF1NativeBuild as Build } from "./AutoMovieHumanF1NativeBuild";
-import { AutoMovieHumanF1NativeCalibration as Calibration } from "./AutoMovieHumanF1NativeCalibration";
-import type { AutoMovieHumanF1NativeFieldTypes as Types } from "./AutoMovieHumanF1NativeFieldTypes";
-import type { AutoMovieHumanF1NativeRootLaw as Root } from "./AutoMovieHumanF1NativeRootLaw";
+import {
+  AutoMovieHumanF1NativeCalibration as Calibration,
+} from "./AutoMovieHumanF1NativeCalibration";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1,
+  IAutoMovieHumanF1NativeLaw,
+  IAutoMovieHumanF1NativeRoot,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /** Public qualified F1 field/calibration/native-source entries, sharing one original invocation. */
 export namespace AutoMovieHumanF1NativeLaw {
-  /** Canonical ISize field and prepared-source contract owned by NativeFieldTypes. */
-  export type ISize = Types.ISize;
-  /** Canonical IFields field and prepared-source contract owned by NativeFieldTypes. */
-  export type IFields = Types.IFields;
-  /** Canonical ITapeFields field and prepared-source contract owned by NativeFieldTypes. */
-  export type ITapeFields = Types.ITapeFields;
-  /** Canonical IPrepared field and prepared-source contract owned by NativeFieldTypes. */
-  export type IPrepared = Types.IPrepared;
 
   /**
    * F1's qualified input calibration from the accepted generating controls.
@@ -30,9 +25,9 @@ export namespace AutoMovieHumanF1NativeLaw {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns only the bounded scalar field records returned to its caller.
    */
   export function reference(
-    figure: Figure.IAssembly,
+    figure: IAutoMovieHumanF1.IAssembly,
     originals: ReadonlyMap<string, IAutoMovieViewPart>,
-  ): IFields {
+  ): IAutoMovieHumanF1NativeLaw.IFields {
     return Calibration.reference(figure, originals);
   }
 
@@ -48,9 +43,9 @@ export namespace AutoMovieHumanF1NativeLaw {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller-owned closures retain only one bounded original bank/calibration and are released together.
    */
   export function prepare(
-    original: Figure.IAssembly,
+    original: IAutoMovieHumanF1.IAssembly,
     originals: ReadonlyMap<string, IAutoMovieViewPart>,
-  ): IPrepared {
+  ): IAutoMovieHumanF1NativeLaw.IPrepared {
     const began: number = performance.now();
     let nativeSourceReadAttempts: number = 0;
     const { fields, projectionOwner }: Calibration.IReference = Calibration.readReference(
@@ -60,7 +55,7 @@ export namespace AutoMovieHumanF1NativeLaw {
         nativeSourceReadAttempts++;
       },
     );
-    const rootCalibrations: Map<string, Root.ICalibration> = new Map();
+    const rootCalibrations: Map<string, IAutoMovieHumanF1NativeRoot.ICalibration> = new Map();
     return {
       fields,
       calibration: {
@@ -68,7 +63,7 @@ export namespace AutoMovieHumanF1NativeLaw {
         originalProjection: projectionOwner.calibration,
         milliseconds: performance.now() - began,
       },
-      apply: (next: IFields, bone: Figure.IAssembly): Figure.IAssembly => {
+      apply: (next: IAutoMovieHumanF1NativeLaw.IFields, bone: IAutoMovieHumanF1.IAssembly): IAutoMovieHumanF1.IAssembly => {
         const result: Build.Result = Build.create(
           { scope: "all", fields: next },
           original,
@@ -83,8 +78,8 @@ export namespace AutoMovieHumanF1NativeLaw {
         return result.assembly;
       },
       tapeFamilies: (
-        next: ITapeFields,
-      ): { trunk: H.IFamily; breast: H.IFamily } => {
+        next: IAutoMovieHumanF1NativeLaw.ITapeFields,
+      ): { trunk: IAutoMovieHumanConicLoft.IFamily; breast: IAutoMovieHumanConicLoft.IFamily } => {
         const result: Build.Result = Build.create(
           { scope: "tapes", fields: next },
           original,
@@ -113,11 +108,11 @@ export namespace AutoMovieHumanF1NativeLaw {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned families/readers borrow bounded original controls and call-owned maps for assembly lifetime; no module cache or process is created.
    */
   export function apply(
-    fields: IFields,
-    original: Figure.IAssembly,
-    bone: Figure.IAssembly,
+    fields: IAutoMovieHumanF1NativeLaw.IFields,
+    original: IAutoMovieHumanF1.IAssembly,
+    bone: IAutoMovieHumanF1.IAssembly,
     originals: ReadonlyMap<string, IAutoMovieViewPart>,
-  ): Figure.IAssembly {
+  ): IAutoMovieHumanF1.IAssembly {
     return prepare(original, originals).apply(fields, bone);
   }
 
@@ -133,10 +128,10 @@ export namespace AutoMovieHumanF1NativeLaw {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned two families retain invocation-owned readers and borrowed original controls only.
    */
   export function tapeFamilies(
-    fields: ITapeFields,
-    original: Figure.IAssembly,
+    fields: IAutoMovieHumanF1NativeLaw.ITapeFields,
+    original: IAutoMovieHumanF1.IAssembly,
     originals: ReadonlyMap<string, IAutoMovieViewPart>,
-  ): { trunk: H.IFamily; breast: H.IFamily } {
+  ): { trunk: IAutoMovieHumanConicLoft.IFamily; breast: IAutoMovieHumanConicLoft.IFamily } {
     return prepare(original, originals).tapeFamilies(fields);
   }
 }

@@ -1,19 +1,19 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanTouchEffector,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * What touches in a touch: a hand surface, or the tip of a tool the hand
@@ -30,20 +30,6 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hand's surfaces, shapes and alignment; the pad is a collider query, not a shape's radius.
  */
 export namespace AutoMovieMotionHumanTouchEffector {
-  /**
-   * A hand axis at rest: the fingers' direction, the palm's facing, the
-   * thumb's, or the axis of a cylinder the fist holds (`grasp`), or their
-   * opposites. A held cylinder lies obliquely across the palm, from the heel
-   * on the little finger's side to the index finger's knuckle (Napier 1956),
-   * so its axis is the thumb's leaned toward the fingers.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the anatomical directions, what the grasp axis is and that a leading minus is the opposite.
-   * @evidence contracts/development/design.md#principled-representation The hand's three anatomical axes, the power grip's oblique axis and their negatives, the directions a held tool or a surface can point in the hand's rest frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Eight literals, the entries of `AXES`, read by `axis` and, through `Direction`, by the effector's two laid directions; the tool offset weights the three anatomical axes directly.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Anatomical names, not bone-space x, y and z, so a left and a right hand state the same effector.
-   */
-  export type Axis = (typeof AXES)[number];
-
   /** The axes of {@link Axis}, as data. */
   export const AXES = [
     "fingers",
@@ -54,52 +40,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
     "-palm",
     "-thumb",
     "-grasp",
-  ] as const;
-
-  /**
-   * A direction of the hand: one of its axes, or a blend of the three
-   * anatomical ones by weight, normalised, for a direction between them:
-   * fingertips brought to the lips point half toward the face and half up
-   * it (`{ fingers: 1, palm: 1 }` turned into the region), and a held prop's
-   * own axis lies wherever the grip put it. Weights name anatomical axes, so
-   * a left and a right hand state the same direction.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two forms, what a blend is for and why it is side-free.
-   * @evidence contracts/development/design.md#principled-representation Any direction in the hand's frame is a combination of its three orthogonal axes; the record states the combination and `direction` normalises it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One alias, read by the effector's two laid directions.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No raw bone-space vector, which would mean opposite things on the two hands; all weights zero is refused by `direction`.
-   */
-  export type Direction =
-    | Axis
-    | Partial<Record<"fingers" | "palm" | "thumb", number>>;
-
-  /**
-   * An effector.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation A surface, a shape, an optional tool offset and the two directions laid against the region.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members read by `local`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Without the axes a surface uses its own normal and forward, so a bare skin row states nothing extra.
-   */
-  export interface IEffector {
-    /** The hand surface. */
-    surface: HumanHand.Surface;
-
-    /** The hand's shape. */
-    shape: HumanHand.Shape;
-
-    /** A held tool's tip from the surface, shares of the hand's length along each axis; none when absent. */
-    tool?: Partial<Record<"fingers" | "palm" | "thumb", number>>;
-
-    /** The direction of the hand turned into the region; the surface's own normal when absent. */
-    facing?: Direction;
-
-    /** The direction of the hand laid along the region's tangent; the surface's own forward when absent. */
-    along?: Direction;
-
-    /** Extra flexion of the fingers over the shape, degrees, as the touch's kind curls them (`AutoMovieMotionHumanTouchForm.curled`); none when absent. */
-    curl?: number;
-  }
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTouchEffector.Axis>[];
 
   /**
    * A hand axis at rest, in the hand's rest frame: the rig rests in a T pose
@@ -119,7 +60,10 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function axis(side: HumanHand.Side, axis: Axis): IAutoMovieVector3 {
+  export function axis(
+    side: AutoMovieHumanSide,
+    axis: IAutoMovieMotionHumanTouchEffector.Axis,
+  ): IAutoMovieVector3 {
     const sign: number = axis.startsWith("-") ? -1 : 1;
     const name: string = axis.replace("-", "");
     const fingers: number = side === "left" ? 1 : -1;
@@ -152,8 +96,8 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function direction(
-    side: HumanHand.Side,
-    direction: Direction,
+    side: AutoMovieHumanSide,
+    direction: IAutoMovieMotionHumanTouchEffector.Direction,
   ): IAutoMovieVector3 {
     if (typeof direction === "string") return axis(side, direction);
     let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -196,15 +140,11 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function local(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    effector: IEffector,
-  ): {
-    point: IAutoMovieVector3;
-    normal: IAutoMovieVector3;
-    forward: IAutoMovieVector3;
-  } {
-    const surface: HumanHand.IFrame = HumanHand.offset(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+  ): IAutoMovieMotionHumanTouchEffector.ILocalResult {
+    const surface: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
       body,
       side,
       effector.surface,
@@ -249,13 +189,13 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function point(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<
       AutoMovieHumanoidBone,
       Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
     >,
-    side: HumanHand.Side,
-    effector: IEffector,
+    side: AutoMovieHumanSide,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
   ): IAutoMovieVector3 {
     const hand = bones.get(`${side}Hand`)!;
     return Vector3.add(
@@ -287,15 +227,14 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function pad(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    effector: IEffector,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
   ): number {
     admit(effector);
     if (effector.tool !== undefined) return 0;
     const bones = new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>();
-    const own: AutoMovieHumanoidBone =
-      effector.surface === "indexTip" ? `${side}IndexDistal` : `${side}Hand`;
+    const own: AutoMovieHumanoidBone = HumanHand.bone(side, effector.surface);
     const rest: IAutoMovieVector3 | undefined = body.rest.get(own);
     if (rest !== undefined)
       bones.set(own, {
@@ -317,21 +256,35 @@ export namespace AutoMovieMotionHumanTouchEffector {
   /**
    * The hand shapes whose posed hand an effector's contact lies on, by hand
    * surface: a palm contact is the palm laid flat, a fist's is the fist, the
-   * index fingertip's is the finger held out flat or pointing, and the
+   * index fingertip's and pad's are the finger held out flat or pointing,
+   * every other digit's tip and pad are the digit held out straight in a
+   * flat hand (the point curls them into the fist), and the
    * back of the hand and the wrist are outermost in every shape. A grip
    * without a tool is the fist round a handle, its contact the fist's own
    * surface along its facing. A held tool's tip lies
    * beyond the hand in any shape that holds it.
    */
   export const ADMITS: Readonly<
-    Record<HumanHand.Surface, readonly HumanHand.Shape[]>
+    Record<
+      IAutoMovieMotionHumanHand.Surface,
+      readonly IAutoMovieMotionHumanHand.Shape[]
+    >
   > = {
     palm: ["flat"],
     grip: ["fist"],
     fist: ["fist"],
     indexTip: ["flat", "point"],
+    indexPad: ["flat", "point"],
     handBack: HumanHand.SHAPES,
     wrist: HumanHand.SHAPES,
+    thumbTip: ["flat"],
+    thumbPad: ["flat"],
+    middleTip: ["flat"],
+    middlePad: ["flat"],
+    ringTip: ["flat"],
+    ringPad: ["flat"],
+    littleTip: ["flat"],
+    littlePad: ["flat"],
   };
 
   /**
@@ -352,9 +305,12 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function admit(effector: IEffector): void {
+  export function admit(
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+  ): void {
     if (effector.tool !== undefined) return;
-    const admitted: readonly HumanHand.Shape[] = ADMITS[effector.surface];
+    const admitted: readonly IAutoMovieMotionHumanHand.Shape[] =
+      ADMITS[effector.surface];
     if (admitted.includes(effector.shape)) return;
     throw new HumanRefusal({
       kind: "parameter",
@@ -387,14 +343,14 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function goal(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    effector: IEffector,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     at: IAutoMovieVector3,
     normal: IAutoMovieVector3,
     tangent: IAutoMovieVector3,
     bend: IAutoMovieVector3,
-  ): IHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     const rest = local(body, side, effector);
     const rotation: IAutoMovieQuaternion = HumanHand.align(
       { normal: rest.normal, forward: rest.forward },

@@ -1,43 +1,45 @@
 ---
 name: development
-description: Repairs, implements, tests, and validates automovie source, tests, workflows, and package wiring. Use before editing any of them; checklist answers belong to contracts and visual verification to visual-debugging.
+description: Repairs, implements, tests and validates automovie source.
 ---
 
 # Development
 
-The rules on this page hold for every change to source, tests, workflows and package wiring. Each task adds its guide:
+These rules hold for every change to source, tests, workflows and package wiring. Each task adds its guide:
 
-| Task | Read |
+| Read | For |
 | --- | --- |
-| Changing existing behavior | [Repair](repair.md) |
-| Adding or changing tests | [Testing](testing.md) |
-| Running checks or finishing a change | [Validation](validation.md) |
+| [Repair](repair.md) | Changing existing behavior |
+| [Testing](testing.md) | Adding or changing tests |
+| [Validation](validation.md) | Running checks or finishing a change |
 
 ## Contracts
 
-Every maintained declaration answers, in its doc comment, the checklists its package selects, always including `common.md`; the [contracts](../contracts/SKILL.md) table says which declaration answers which.
+Every maintained declaration answers the checklists its package selects, as [contracts](../contracts/SKILL.md) sets. `human` selects none until its rebuild declares completion, then its production checklists at once.
 
-`human` selects none until its rebuild declares completion, then its production checklists at once.
+## Source style
 
-## Types and files
+### Types and files
 
-Annotate the type of every variable and parameter and the return type of every function. Leave a type to inference only where TypeScript takes no annotation, such as a `for...of` or `catch` binding.
+Annotate the type of every variable and parameter and the return type of every function, except where TypeScript takes no annotation, such as a `for...of` or `catch` binding.
 
 A source file has fewer than 500 lines and exports one symbol named after it, barrels excepted.
 
-## Comments and layout
+Canonical interface object contracts and object unions use `IAutoMovie*`; scalar, literal, tuple and utility aliases use `AutoMovie*`. Qualify a name by meaning, not by the package it came from. Related members may keep concise names inside a canonical type-only namespace. Reuse an existing concept after comparing units, frames, invariants and ownership. Interface enums must be `const enum`; verify their actual consumer and emit behavior, since the keyword alone does not establish an empty runtime artifact.
 
-Write code for the agent who changes it next. Give every declaration a JSDoc comment written to the contracts [Meaningful documentation](../contracts/development/common.md#meaningful-documentation) question, including in a package that selects no checklist.
+### Comments and layout
 
-Inside a body, separate the logical steps with blank lines so each step reads as one paragraph of code. Open each step whose purpose the code does not make obvious with a comment saying what it does and why.
+Give every declaration a JSDoc comment written to the contracts [Meaningful documentation](../contracts/development/common.md#meaningful-documentation) item, including in a package that selects no checklist.
 
-A comment gives the intent, premise, or reason the code cannot show, not a paraphrase of the code. Precede every comment inside a block with a blank line unless it opens the block, so a comment never sits directly under code.
+Inside a body, separate the logical steps with blank lines, and open each step whose purpose the code does not make obvious with a comment saying what it does and why.
+
+A comment gives the intent, premise or reason the code cannot show, never a paraphrase of the code. Precede every comment inside a block with a blank line unless it opens the block.
 
 ## Packages
 
 Respect the [package boundaries](../project/SKILL.md#packages); review reads every new import and dependency against them. A public producer lands with its consumer, because test-only reach is not wiring.
 
-`interface` is pure types with no runtime dependency. It uses plain `string` and `number` without wrapper aliases or `typia` tags, states units and ranges in JSDoc for `engine` validators to enforce, and constrains structure only through closed `AutoMovie*` unions.
+`interface` has no runtime dependency and owns the public contracts described by the project skill. Use plain `string` and `number`, with units, frames, ranges and the actual runtime admission owner in JSDoc; validator metadata such as `typia` tags stays with that implementation. Export types explicitly. Importing implementation packages, copying dependency types or adding opaque generics does not make a contract pure.
 
 ## Specification
 
@@ -47,9 +49,9 @@ Tests, CI, wiring, dependencies, `interface` core types, and the range-of-motion
 
 ### Tracked code
 
-Write every helper script in TypeScript as a tracked file and run it with `ttsx`. A build configuration that must start without compiling the project, such as the test package's esbuild configuration, is a tracked `.mts` file run by Node itself. Keep all program code, tests and tools in tracked paths and use gitignored paths for captured evidence and data, because an ignored file escapes review and cannot be recovered.
+Write every helper script in TypeScript as a tracked file. Use `ttsx` when its checking is part of the authorized validation. A build configuration or syntax-only helper that must run without another compiler is a tracked `.mts` file run by Node itself; this does not establish type correctness.
 
-Run an experiment as a tracked test, through a package's tracked debug tool, or as a type check.
+Keep all program code, tests and tools in tracked paths, and use gitignored paths only for captured evidence and data, because an ignored file escapes review and cannot be recovered. Run an experiment as a tracked test, through a package's tracked debug tool, or as a type check.
 
 ### Processes
 
@@ -59,4 +61,4 @@ A package's viewer runs as one server that every agent shares. Request one frame
 
 ### Several agents in one checkout
 
-Give each agent its own scratch directory, delete only inside its own directory, and commit with `git add` then `git commit --only <paths>`. A shared index lets one commit sweep another agent's files, and a recursive delete can wipe every agent's scratch.
+Give each agent its own scratch directory, delete only inside it, and commit with `git add` then `git commit --only <paths>`. A shared index lets one commit sweep another agent's files, and a recursive delete can wipe every agent's scratch.

@@ -6,4 +6,4 @@ Statements: [statements/principles/common.md](../statements/principles/common.md
 
 ## Scope preservation
 
-Does the body deliver the facts, constraints, events, relationships, interval, or result promised by its title, instructions, and lineage, chosen from this work's circumstances rather than familiar labels or habitual gestures? A heading, placeholder, research list, or promise that another author will decide the essential content leaves the scope unfilled, and specificity means useful distinctions, not more detail.
+Does the body deliver what its title, instructions and lineage promise, chosen from this work's circumstances rather than familiar labels or habitual gestures? A heading, a placeholder, a research list or a promise that another author will decide the essential content leaves the scope unfilled; specificity means useful distinctions, not more detail.

@@ -1,9 +1,11 @@
 import {
-  type IAutoMovieMeshClearanceWitness,
   measureAutoMovieMeshClearance,
   minimizeAutoMovieMeshClearance,
 } from "@automovie/engine";
-import { type IAutoMovieMesh } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshClearanceWitness,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";

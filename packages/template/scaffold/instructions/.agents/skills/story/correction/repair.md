@@ -2,34 +2,36 @@
 
 Identify the earliest owner, the consumers that use it, the current pass and the closed boundaries before changing the work. For a requested revision, name the change, what the user wants preserved and the smallest useful scope, then trace its impact through dependent facts, scenes, assets, performance and edit.
 
-## Upstream defects
+## Owner repairs
+
+### Upstream defects
 
 A construction author who finds a missing, conflicting or unrealizable parent decision repairs its earliest owner before writing from it, using the selected [upstream questions](../../contracts/story/SKILL.md); a downstream workaround leaves every other consumer with the defect.
 
-## Cause rounds
+### Cause rounds
 
-The entry rule of [repairing a finished round by cause](../../../../AGENTS.md#attitude) takes this form for a narrative body. Finish the inspection the [route](../workflow/SKILL.md) sets before editing. Group the findings by cause, including every member of a recurring class, and repair each cause where its action or explanation belongs, recomposing a passage when cutting would lose its meaning.
+Finish the inspection the [route](../workflow/SKILL.md) sets before editing. Group the findings by cause, including every member of a recurring class, and repair each cause where its action or explanation belongs, recomposing a passage when cutting would lose its meaning.
 
-Reconcile dependent statements, quotations, values and, while their stage is enabled, [answers](../evidence/answer-writing.md) in the same repair, then read the changed passages and the whole progression for new uniformity, fidelity losses and broken seams before the next round.
+In the same repair, reconcile dependent statements, quotations, values and, while their stage is enabled, answers. Then read the changed passages and the whole progression for new uniformity, fidelity losses and broken seams before the next round.
 
-## Closed passes
+### Concretization
+
+A decision the screenplay left vague, which scene composition or a generation prompt must make, belongs to the screenplay. Add it to the beat's record in the same change, or to the scene file's standing state when it holds for the whole scene. When another scene or film must keep it, also add it as a new anchored fact citing that beat, to settings, or to the brief when it is of a kind the brief holds.
+
+A closed screenplay stays closed: a concretized beat keeps its answers and reviews under closed passes, and the next review of that screenplay reads the beat afresh.
+
+An exchange, an outcome or a reaction is never a concretization. A screenplay that lacks one is defective and returns to its author under upstream defects. A user's fixed screenplay is never edited: its concretizations go to the instructions.
+
+## Boundaries
+
+### Closed passes
 
 Completed layers stay closed when their bodies or parents change: do not reopen their evidence, reviews or approvals. While their stage is enabled, remove answers for deleted H2s and write answers for new ones only; report other diagnostics without repairing them, keeping the original failed reports.
 
-Replacing a unit from scratch removes its obsolete answers, reviews and replaced descendants while keeping other material; a reused filename grants no approval, and the new unit begins its own cycle.
+Replacing a unit from scratch removes its obsolete answers, reviews and replaced descendants and keeps other material. A reused filename grants no approval, and the new unit begins its own cycle.
 
-## Concretization
-
-When scene composition or a generation prompt must make a decision the screenplay left vague, the decision belongs to the screenplay, not to the code or the prompt. Add it to the beat's record in the same change, or to the scene file's standing state when it holds for the whole scene. When another scene or film must keep it, also add it as a new anchored fact citing that beat, to settings, or to the brief when it is of a kind the [brief holds](../layers/brief.md#what-it-holds); otherwise the screenplay alone holds it.
-
-A closed screenplay stays closed: the edited beat keeps its answers and reviews under [closed passes](#closed-passes), and the next review of that screenplay reads the beat afresh.
-
-An exchange, an outcome or a reaction is never a concretization. A screenplay that lacks one is defective and returns to its author under [upstream defects](#upstream-defects).
-
-A user's [fixed screenplay](../workflow/SKILL.md#who-writes-the-screenplay) is never edited: its concretizations go to the instructions.
-
-## Scope expansion
+### Scope expansion
 
 A first-part pilot needs the user's commission and its exact part. Settings stay work-wide; the other layers cover the slice with its lineage, and the result states what the slice cannot establish.
 
-To expand, reconfigure through [evidence configuration](../../evidence/configuration.md), reset the affected passes together, design the complete treatment sequence including the pilot, and establish whole-population evidence and review; pilot approval cannot stand for the whole work.
+To expand, reconfigure through the evidence skill's configuration page, reset the affected passes together, design the complete treatment sequence including the pilot, and establish whole-population evidence and review; pilot approval cannot stand for the whole work.

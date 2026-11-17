@@ -1,39 +1,33 @@
-import type { AutoMovieLoftContract } from "./AutoMovieLoftContract";
+import type {
+  IAutoMovieLoftContract,
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidBlendChain,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidClip,
+  IAutoMovieSolidCycle,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
+
 import { AutoMovieSolidBlendChain } from "./AutoMovieSolidBlendChain";
-import type { AutoMovieSolidBody } from "./AutoMovieSolidBody";
 import { AutoMovieSolidChain } from "./AutoMovieSolidChain";
 import { AutoMovieSolidClip } from "./AutoMovieSolidClip";
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidDiff } from "./AutoMovieSolidDiff";
-import type { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
 import { AutoMovieSolidMerge } from "./AutoMovieSolidMerge";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
-import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * Existing transactional body assembly and frozen host snapshots.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Operations name snapshot ownership, live surface dependencies and returned versus thrown failure.
- * @evidence contracts/development/design.md#principled-representation Represents Existing transactional body assembly and frozen host snapshots: companion namespace of 9 members (`IFace`, `IBody`, `IFaceInput`, `IMerge`, `IMerged`, `atlas`, ...); units and frames named in its text: local, radians. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#principled-representation Represents Existing transactional body assembly and frozen host snapshots: companion namespace of 9 members (`IAutoMovieSolidBody.IFace`, `IBody`, `IFaceInput`, `IMerge`, `IMerged`, `atlas`, ...); units and frames named in its text: local, radians. It has no optional member, so no absent-value state combines with another.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidBodyMerge` in packages/engine/src/geometry/construction/AutoMovieSolidBodyMerge.ts; its surface is the 9 members listed and the text shows 2 other files naming it, mostly packages/engine (2), so no member is declared for a presumed future need.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieSolidBodyMerge {
-  /** The public mutable face contract used by snapshots and assembly. */
-  type IFace = AutoMovieSolidBody.IFace;
-
-  /** The original body whose mesh populations and cycles are checkpointed. */
-  type IBody = AutoMovieSolidBody.IBody;
-
   /** A surface/grid descriptor before body assembly adds cycles. */
-  type IFaceInput = AutoMovieSolidBody.IFaceInput;
-
-  /** The original merge/diff request and its borrowed join callbacks. */
-  type IMerge = AutoMovieSolidBody.IMerge;
-
-  /** The original nullable publication and diagnostic result. */
-  type IMerged = AutoMovieSolidBody.IMerged;
+  type IFaceInput = IAutoMovieSolidBody.IFaceInput;
 
   /**
    * The body as an atlas of its faces, leaving one out (the part of a merge
@@ -52,12 +46,12 @@ export namespace AutoMovieSolidBodyMerge {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closures retain copied cycles/maps and borrowed surfaces until dropped; population follows that captured body, with no global cache.
    */
   export function atlas(
-    body: IBody,
+    body: IAutoMovieSolidBody.IBody,
     without: number = -1,
-  ): { atlas: IAutoMovieSolidAtlas; index: number[] } {
+  ): IAutoMovieSolidBody.IAtlasResult {
     /** Included body face identifiers in original order. */
     const index: number[] = body.faces
-      .map((_: IFace, k: number): number => k)
+      .map((_: IAutoMovieSolidBody.IFace, k: number): number => k)
       .filter((k: number): boolean => k !== without);
 
     /** Translate a body identifier into this atlas's face index. */
@@ -68,8 +62,8 @@ export namespace AutoMovieSolidBodyMerge {
     // merge trims its host, and must still see the host untrimmed there.
 
     /** Detached cycles preserve the host before later body clipping. */
-    const frozen: IFace[] = index.map(
-      (k: number): IFace => ({
+    const frozen: IAutoMovieSolidBody.IFace[] = index.map(
+      (k: number): IAutoMovieSolidBody.IFace => ({
         ...body.faces[k]!,
         sourceAtlas:
           body.faces[k]!.sourceAtlas === undefined
@@ -80,7 +74,9 @@ export namespace AutoMovieSolidBodyMerge {
     );
 
     /** Read one captured face without consulting later body edits. */
-    const face: (i: number) => IFace = (i: number): IFace => frozen[i]!;
+    const face: (i: number) => IAutoMovieSolidBody.IFace = (
+      i: number,
+    ): IAutoMovieSolidBody.IFace => frozen[i]!;
     return {
       index,
       atlas: {
@@ -97,8 +93,9 @@ export namespace AutoMovieSolidBodyMerge {
           // The nearest segment of a cycle the point lies past.
 
           /** Captured face whose rejected cycles may supply a neighbour. */
-          const f: IFace = face(i);
-          const original: IFace["sourceAtlas"] = f.sourceAtlas;
+          const f: IAutoMovieSolidBody.IFace = face(i);
+          const original: IAutoMovieSolidBody.IFace["sourceAtlas"] =
+            f.sourceAtlas;
           if (
             original !== undefined &&
             !original.atlas.kept(original.face, u, v)
@@ -116,14 +113,14 @@ export namespace AutoMovieSolidBodyMerge {
 
           /** Nearest violated-cycle chart foot encountered so far. */
           let best: {
-            cycle: AutoMovieSolidCycle.ICycle;
-            foot: AutoMovieSolidCycle.IFoot;
+            cycle: IAutoMovieSolidCycle.ICycle;
+            foot: IAutoMovieSolidCycle.IFoot;
           } | null = null;
           for (const c of f.cycles) {
             if (AutoMovieSolidCycle.held(c, u, v, f.surface.period)) continue;
 
             /** The original polygon reader's chart-space foot. */
-            const foot: AutoMovieSolidCycle.IFoot = AutoMovieSolidCycle.foot(
+            const foot: IAutoMovieSolidCycle.IFoot = AutoMovieSolidCycle.foot(
               c,
               u,
               v,
@@ -135,7 +132,7 @@ export namespace AutoMovieSolidBodyMerge {
           if (best === null) return null;
 
           /** Neighbour paired with the chosen boundary segment. */
-          const n: AutoMovieSolidCycle.INeighbour =
+          const n: IAutoMovieSolidCycle.INeighbour =
             best.cycle.neighbours[best.foot.segment]!;
 
           /** Included neighbour index, absent at an open or excluded face. */
@@ -145,7 +142,7 @@ export namespace AutoMovieSolidBodyMerge {
           // A segment of a boundary one owner supplies to both faces maps the point by that owner's correspondence, between vertices
           // as well as at them (`AutoMovieSolidCycle.piece`), so the point reached lies on the same physical boundary point as the
           // foot; a segment a clip made maps by its chord's share.
-          const exact: AutoMovieSolidCycle.IExact | null =
+          const exact: IAutoMovieSolidCycle.IExact | null =
             AutoMovieSolidCycle.piece(best.cycle, best.foot.segment)?.exact ?? null;
           if (exact !== null) {
             const [eu, ev]: [number, number] = exact.across(u, v);
@@ -179,17 +176,20 @@ export namespace AutoMovieSolidBodyMerge {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Adjoining faces share exact boundary vertex indices, and one published blend supplies its surface and trim records.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body retains successful geometry; checkpoint copies are local, while returned joins retain their existing query cache with no new cache here.
    */
-  export function merge(body: IBody, input: IMerge): IMerged {
+  export function merge(
+    body: IAutoMovieSolidBody.IBody,
+    input: IAutoMovieSolidBody.IMerge,
+  ): IAutoMovieSolidBody.IMerged {
     /** Diagnostics retained in their original production order. */
-    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
+    const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     // Returned rail/trim failures restore these populations; callback throws remain uncaught.
 
     /** Original face population restored on a returned failure. */
     const faceCount: number = body.faces.length;
 
     /** Cycle copies isolate rollback from in-place clipping. */
-    const cycles: AutoMovieSolidCycle.ICycle[][] = body.faces.map(
-      (f: IFace): AutoMovieSolidCycle.ICycle[] => f.cycles.map(AutoMovieSolidCycle.copy),
+    const cycles: IAutoMovieSolidCycle.ICycle[][] = body.faces.map(
+      (f: IAutoMovieSolidBody.IFace): IAutoMovieSolidCycle.ICycle[] => f.cycles.map(AutoMovieSolidCycle.copy),
     );
 
     /** Scalar-array and owner populations, rather than vertex counts. */
@@ -201,10 +201,13 @@ export namespace AutoMovieSolidBodyMerge {
     ];
 
     /** Restore exactly the original checkpoint and return its diagnostic. */
-    const fail: (contract: string, detail: string) => IMerged = (
+    const fail: (
       contract: string,
       detail: string,
-    ): IMerged => {
+    ) => IAutoMovieSolidBody.IMerged = (
+      contract: string,
+      detail: string,
+    ): IAutoMovieSolidBody.IMerged => {
       diagnostics.push({
         producer: `solid.body.${body.name}.${input.name}`,
         level: 6,
@@ -213,7 +216,8 @@ export namespace AutoMovieSolidBodyMerge {
       });
       body.faces.length = faceCount;
       body.faces.forEach(
-        (f: IFace, i: number): void => void (f.cycles = cycles[i]!),
+        (f: IAutoMovieSolidBody.IFace, i: number): void =>
+          void (f.cycles = cycles[i]!),
       );
       [
         body.mesh.positions.length,
@@ -242,17 +246,17 @@ export namespace AutoMovieSolidBodyMerge {
     }: { atlas: IAutoMovieSolidAtlas; index: number[] } = atlas(body, known);
 
     /** Existing merge/diff result before a new body face is appended. */
-    const created: AutoMovieSolidJoin.IResult = (
+    const created: IAutoMovieSolidJoin.IResult = (
       input.kind === "merge" ? AutoMovieSolidMerge : AutoMovieSolidDiff
     ).create({ ...input.join, part: partSurface, host });
     diagnostics.push(...created.diagnostics);
     if (created.join === null) return { blend: null, join: null, diagnostics };
 
     /** Accepted join whose original callbacks supply the rails. */
-    const join: AutoMovieSolidJoin.IJoin = created.join;
+    const join: IAutoMovieSolidJoin.IJoin = created.join;
 
     /** Existing blend publication with aligned rail charts. */
-    const blend: AutoMovieSolidBlendChain.IBlend | null =
+    const blend: IAutoMovieSolidBlendChain.IBlend | null =
       AutoMovieSolidBlendChain.of(input.name, join, input.count);
     if (blend === null)
       return fail("rails", "a column of the blend has no rail");
@@ -293,7 +297,7 @@ export namespace AutoMovieSolidBodyMerge {
     // The host rail with the crossings between faces, and the part rail.
 
     /** Host rail including existing cross-face bisection observations. */
-    const rail: AutoMovieSolidClip.IRailPoint[] | string =
+    const rail: IAutoMovieSolidClip.IRailPoint[] | string =
       AutoMovieSolidClip.rail(body, join, blend, index, input.count);
     if (typeof rail === "string")
       return fail(
@@ -325,18 +329,18 @@ export namespace AutoMovieSolidBodyMerge {
       {
         kind: "start",
         vertices: rail.map(
-          (r: AutoMovieSolidClip.IRailPoint): number => r.vertex,
+          (r: IAutoMovieSolidClip.IRailPoint): number => r.vertex,
         ),
         chart: rail.map(
-          (r: AutoMovieSolidClip.IRailPoint): [number, number] => [0, r.phase],
+          (r: IAutoMovieSolidClip.IRailPoint): [number, number] => [0, r.phase],
         ),
         neighbours: rail.map(
           (
-            r: AutoMovieSolidClip.IRailPoint,
+            r: IAutoMovieSolidClip.IRailPoint,
             k: number,
-          ): AutoMovieSolidCycle.INeighbour => {
+          ): IAutoMovieSolidCycle.INeighbour => {
             /** Following rail point for this directed neighbour segment. */
-            const next: AutoMovieSolidClip.IRailPoint =
+            const next: IAutoMovieSolidClip.IRailPoint =
               rail[(k + 1) % rail.length]!;
 
             /** Original common-face choice, including its first-face fallback. */
@@ -360,7 +364,7 @@ export namespace AutoMovieSolidBodyMerge {
           phase(k),
         ]),
         neighbours: partVertices.map(
-          (_: number, k: number): AutoMovieSolidCycle.INeighbour => ({
+          (_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({
             face: part,
             from: blend.part.chart[k]!,
             to: blend.part.chart[(k + 1) % partVertices.length]!,
@@ -378,7 +382,7 @@ export namespace AutoMovieSolidBodyMerge {
         c[1],
       ]),
       neighbours: partVertices.map(
-        (_: number, k: number): AutoMovieSolidCycle.INeighbour => ({
+        (_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({
           face: blendFace,
           from: [blend.length, phase(k)],
           to: [
@@ -421,11 +425,15 @@ export namespace AutoMovieSolidBodyMerge {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads live cycles on each query; prepared mesh readers have their separate unchanged-input lifetime.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a boolean without retaining the face or query.
    */
-  export function kept(face: IFace, u: number, v: number): boolean {
+  export function kept(
+    face: IAutoMovieSolidBody.IFace,
+    u: number,
+    v: number,
+  ): boolean {
     return (
       (face.sourceAtlas === undefined ||
         face.sourceAtlas.atlas.kept(face.sourceAtlas.face, u, v)) &&
-      face.cycles.every((c: AutoMovieSolidCycle.ICycle): boolean =>
+      face.cycles.every((c: IAutoMovieSolidCycle.ICycle): boolean =>
         AutoMovieSolidCycle.held(c, u, v, face.surface.period),
       )
     );

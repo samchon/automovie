@@ -78,10 +78,10 @@ export default createEvidenceConfig({
 | --- | --- | --- |
 | `research` | Each study in `docs/research/` | `contracts/story/shared/principles/research.md` |
 | `development.entities` | Exports under `src/entities/` | `contracts/development/entities.md` |
-| `development.behaviors` | Exports under `src/laws/`, `src/interactions/` and `src/consequences/` | `contracts/development/behaviors.md`, each citing the study it follows |
+| `development.behaviors` | Exports under `src/laws/`, `src/interactions/` and `src/consequences/` | `contracts/development/behaviors.md` |
 | `development.composition` | Exports under `src/composition/` | `contracts/development/composition.md`, citing the screenplay scene files, sections and beats they realize |
 
-Every study must be cited by some behavior. Every screenplay section and beat must be realized by some scene, and every scene file by the film that orders it. Under `narrative: { mode: "none" }` with `development.composition`, every section of `docs/instructions/` must be realized by some composition or entity too, with no exclusion, because no narrative layer cites them. An option you leave out stays disabled.
+Every screenplay section and beat must be realized by some scene, and every scene file by the film that orders it. Under `narrative: { mode: "none" }` with `development.composition`, every section of `docs/instructions/` must be realized by some composition or entity too, with no exclusion, because no narrative layer cites them. An option you leave out stays disabled.
 
 ### Your own claims
 

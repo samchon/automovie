@@ -1,14 +1,10 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieLoftWorldJetLocal,
+  IAutoMovieLoftWorldJetWorld,
+} from "@automovie/interface";
+
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import type { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
-
-/** Exactly the Cartesian local total2, independent of its generating basis. */
-type Local = ReturnType<ReturnType<typeof AutoMovieLoftSectionNative.jet>>;
-
-/** World coordinates and physical station derivatives. */
-type V = [number, number, number];
-
-/** The same six world vectors consumed by either a loft or an original view. */
-type World = { p: V; s: V; t: V; ss: V; st: V; tt: V };
 
 /**
  * Apply the existing frame product rule to a complete local total2.
@@ -28,29 +24,32 @@ type World = { p: V; s: V; t: V; ss: V; st: V; tt: V };
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One product-rule pass supplies all six world vectors from the caller's prepared frame and local reading.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Six fresh output vectors and local frame slices belong to the call; no input is mutated or retained globally.
  */
-export function AutoMovieLoftWorldJet(local: Local, f: number[][]): World {
+export function AutoMovieLoftWorldJet(
+  local: IAutoMovieLoftWorldJetLocal,
+  f: number[][],
+): IAutoMovieLoftWorldJetWorld {
   const [f0, f1, f2] = f as [number[], number[], number[]];
-  const o: V[] = [
+  const o: AutoMovieVector3Tuple[] = [
     [f0[0]!, f0[1]!, f0[2]!],
     [f1[0]!, f1[1]!, f1[2]!],
     [f2[0]!, f2[1]!, f2[2]!],
   ];
-  const U: V[] = [
+  const U: AutoMovieVector3Tuple[] = [
     [f0[3]!, f0[4]!, f0[5]!],
     [f1[3]!, f1[4]!, f1[5]!],
     [f2[3]!, f2[4]!, f2[5]!],
   ];
-  const W: V[] = [
+  const W: AutoMovieVector3Tuple[] = [
     [f0[6]!, f0[7]!, f0[8]!],
     [f1[6]!, f1[7]!, f1[8]!],
     [f2[6]!, f2[7]!, f2[8]!],
   ];
-  const p: V = [0, 0, 0];
-  const ds: V = [0, 0, 0];
-  const dt: V = [0, 0, 0];
-  const dss: V = [0, 0, 0];
-  const dst: V = [0, 0, 0];
-  const dtt: V = [0, 0, 0];
+  const p: AutoMovieVector3Tuple = [0, 0, 0];
+  const ds: AutoMovieVector3Tuple = [0, 0, 0];
+  const dt: AutoMovieVector3Tuple = [0, 0, 0];
+  const dss: AutoMovieVector3Tuple = [0, 0, 0];
+  const dst: AutoMovieVector3Tuple = [0, 0, 0];
+  const dtt: AutoMovieVector3Tuple = [0, 0, 0];
   for (let k: number = 0; k < 3; k++) {
     const u0: number = U[0]![k]!;
     const u1: number = U[1]![k]!;
@@ -78,7 +77,7 @@ export function AutoMovieLoftWorldJet(local: Local, f: number[][]): World {
       u0 * local.st[0] + u1 * local.t[0] + w0 * local.st[1] + w1 * local.t[1];
     dtt[k] = u0 * local.tt[0] + w0 * local.tt[1];
   }
-  const out: World = {
+  const out: IAutoMovieLoftWorldJetWorld = {
     p,
     s: ds,
     t: dt,
@@ -87,7 +86,9 @@ export function AutoMovieLoftWorldJet(local: Local, f: number[][]): World {
     tt: dtt,
   };
   if (
-    !Object.values(out).every((row: V): boolean => row.every(Number.isFinite))
+    !Object.values(out).every((row: AutoMovieVector3Tuple): boolean =>
+      row.every(Number.isFinite),
+    )
   )
     throw new AutoMovieLoftAdmissionError(
       "The actual frame/local product has no finite required world total2.",

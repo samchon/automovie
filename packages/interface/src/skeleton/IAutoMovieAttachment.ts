@@ -1,5 +1,5 @@
-import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
-import { AutoMovieHumanoidBone } from "./AutoMovieHumanoidBone";
+import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { AutoMovieHumanoidBone } from "./AutoMovieHumanoidBone";
 
 /**
  * A rigid coupling of one model's root to a **bone of another model**: the cross-skeleton joint that lets a rider sit a horse, a passenger ride a cart, or a sword stay in a hand.

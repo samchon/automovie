@@ -1,11 +1,23 @@
-import { type AutoMovieViewAxis, AutoMovieViewJointedCourse } from "@automovie/engine";
-
 import { AutoMovieHumanConicLoft as H } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection as S } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
 import { AutoMovieHumanF1Placement as Placement } from "./AutoMovieHumanF1Placement";
 import { AutoMovieHumanF1Placing as T } from "./AutoMovieHumanF1Placing";
-import { AutoMovieHumanF1SegmentLengths as Lengths } from "./AutoMovieHumanF1SegmentLengths";
+import {
+  AutoMovieHumanF1SegmentLengths as Lengths,
+} from "./AutoMovieHumanF1SegmentLengths";
+import { AutoMovieViewJointedCourse } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicSection,
+  IAutoMovieHumanF1Placement,
+  IAutoMovieHumanF1Placing,
+  IAutoMovieHumanF1SegmentLengths,
+  IAutoMovieHumanSegmentJoint,
+  IAutoMovieViewAxis,
+  IAutoMovieViewJointedCourse,
+} from "@automovie/interface";
 
 /**
  * f1's centres before her curves (the Human skill's Centres Before Curves): which points every part is lofted about, what kind each is,
@@ -120,14 +132,14 @@ export namespace AutoMovieHumanF1Centres {
     hand: ["upperarm", "lowerarm", "hand", "middle1"],
   };
 
-  const joint = (chain: readonly F.IJoint[], name: string): F.IJoint => {
-    const found: F.IJoint | undefined = chain.find((j: F.IJoint): boolean => j.name === name);
+  const joint = (chain: readonly IAutoMovieHumanSegmentJoint[], name: string): IAutoMovieHumanSegmentJoint => {
+    const found: IAutoMovieHumanSegmentJoint | undefined = chain.find((j: IAutoMovieHumanSegmentJoint): boolean => j.name === name);
     if (found === undefined) throw new Error("the chain has no joint " + name);
     return found;
   };
 
-  const placed = (name: string): T.IPlaced => {
-    const found: T.IPlaced | undefined = T.POINTS[name];
+  const placed = (name: string): IAutoMovieHumanF1Placing.IPlaced => {
+    const found: IAutoMovieHumanF1Placing.IPlaced | undefined = T.POINTS[name];
     if (found === undefined) throw new Error("f1 has no point " + name);
     return found;
   };
@@ -143,7 +155,7 @@ export namespace AutoMovieHumanF1Centres {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one record.
    */
   export function describe(name: string): ICentre {
-    const point: T.IPlaced = placed(name);
+    const point: IAutoMovieHumanF1Placing.IPlaced = placed(name);
     const origin: boolean = point.local.every((x: number): boolean => x === 0);
     const frame: string = point.frame;
     const parent: string | null = joint(T.CHAIN, frame).parent;
@@ -219,11 +231,11 @@ export namespace AutoMovieHumanF1Centres {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The stored coordinates are borrowed when nothing moves.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the stored triple or one new triple.
    */
-  export function local(name: string, fields: Lengths.IFields = Lengths.F1, chain: readonly F.IJoint[] = T.CHAIN): F.V3 {
-    const base: F.V3 = Lengths.local(fields, name);
+  export function local(name: string, fields: IAutoMovieHumanF1SegmentLengths.IFields = Lengths.F1, chain: readonly IAutoMovieHumanSegmentJoint[] = T.CHAIN): AutoMovieVector3Tuple {
+    const base: AutoMovieVector3Tuple = Lengths.local(fields, name);
     const anchor: string | undefined = ANCHORS[name];
     if (anchor === undefined) return base;
-    const [own, stored]: F.IJoint[] = [joint(chain, anchor), joint(T.CHAIN, anchor)];
+    const [own, stored]: IAutoMovieHumanSegmentJoint[] = [joint(chain, anchor), joint(T.CHAIN, anchor)];
     if (own!.parent !== placed(name).frame) throw new Error("the anchor " + anchor + " does not stand in the frame of " + name);
     if (own!.offset.every((x: number, k: number): boolean => Object.is(x, stored!.offset[k]))) return base;
     return F.add(base, F.sub(own!.offset, stored!.offset));
@@ -243,19 +255,19 @@ export namespace AutoMovieHumanF1Centres {
    */
   export function course(
     family: string,
-    fields: Lengths.IFields = Lengths.F1,
-    chain: readonly F.IJoint[] = Lengths.chain(fields),
-    pose?: Placement.IPose,
-  ): F.V3[] {
+    fields: IAutoMovieHumanF1SegmentLengths.IFields = Lengths.F1,
+    chain: readonly IAutoMovieHumanSegmentJoint[] = Lengths.chain(fields),
+    pose?: IAutoMovieHumanF1Placement.IPose,
+  ): AutoMovieVector3Tuple[] {
     const names: string[] | undefined = T.COURSES[family];
     if (names === undefined) throw new Error("f1 has no course for " + family);
-    const frames: Placement.IFrames = Placement.frames(pose, chain);
-    return names.map((name: string): F.V3 => F.toWorld(Placement.frame(placed(name).frame, frames), local(name, fields, chain)));
+    const frames: IAutoMovieHumanF1Placement.IFrames = Placement.frames(pose, chain);
+    return names.map((name: string): AutoMovieVector3Tuple => F.toWorld(Placement.frame(placed(name).frame, frames), local(name, fields, chain)));
   }
 
   /** The mean reach of a section's four guides and their mean point in the chart, from the family's fields at one station. */
-  function section(family: H.IFamily, read: (s: number) => number[], station: number): { radius: number; centroid: [number, number] } {
-    const chain: S.IChain = S.resolve(read(station), family.layout);
+  function section(family: IAutoMovieHumanConicLoft.IFamily, read: (s: number) => number[], station: number): { radius: number; centroid: [number, number] } {
+    const chain: IAutoMovieHumanConicSection.IChain = S.resolve(read(station), family.layout);
     const guides: [number, number][] = chain.guides.map((k: number): [number, number] => [chain.input.points[k]![0], chain.input.points[k]![1]]);
     if (guides.length !== 4) throw new Error("a section of " + family.name + " has " + guides.length + " guides, four expected");
     return {
@@ -275,13 +287,13 @@ export namespace AutoMovieHumanF1Centres {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure measurement coordinates no shared work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain records.
    */
-  export function turns(family: H.IFamily): ITurn[] {
-    const prepared: AutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(family.centres, family.halves);
+  export function turns(family: IAutoMovieHumanConicLoft.IFamily): ITurn[] {
+    const prepared: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(family.centres, family.halves);
     if (typeof prepared === "string") throw new Error("course of " + family.name + ": " + prepared);
     const names: readonly string[] = T.COURSES[family.name] ?? [];
-    const axis: AutoMovieViewAxis.IAxis = H.axis(family);
+    const axis: IAutoMovieViewAxis.IAxis = H.axis(family);
     const read: (s: number) => number[] = H.reader(family);
-    return prepared.turns.map((turn: AutoMovieViewJointedCourse.ITurn): ITurn => {
+    return prepared.turns.map((turn: IAutoMovieViewJointedCourse.ITurn): ITurn => {
       const station: number = turn.start + turn.half;
       const centre: readonly number[] = family.centres[turn.centre]!;
       const at: readonly number[] = axis.at(station).origin;
@@ -308,23 +320,23 @@ export namespace AutoMovieHumanF1Centres {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure measurement coordinates no shared work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain records.
    */
-  export function offsets(family: H.IFamily): IOffset[] {
+  export function offsets(family: IAutoMovieHumanConicLoft.IFamily): IOffset[] {
     const names: readonly string[] =
       BONES[family.name] ?? (T.COURSES[family.name] ?? []).filter((name: string): boolean => describe(name).kind === "joint");
-    const bones: F.V3[] = names.map((name: string): F.V3 => Placement.point(name));
-    const axis: AutoMovieViewAxis.IAxis = H.axis(family);
+    const bones: AutoMovieVector3Tuple[] = names.map((name: string): AutoMovieVector3Tuple => Placement.point(name));
+    const axis: IAutoMovieViewAxis.IAxis = H.axis(family);
     const read: (s: number) => number[] = H.reader(family);
 
     // The distance to one bone and the point's share along it; a share outside [0, 1] on an end bone lies past the bone line.
-    const toSegment = (p: F.V3, a: F.V3, b: F.V3): [number, number] => {
-      const ab: F.V3 = F.sub(b, a);
+    const toSegment = (p: AutoMovieVector3Tuple, a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): [number, number] => {
+      const ab: AutoMovieVector3Tuple = F.sub(b, a);
       const share: number = F.dot(F.sub(p, a), ab) / F.dot(ab, ab);
-      const q: F.V3 = F.sub(p, F.add(a, F.scale(ab, Math.min(1, Math.max(0, share)))));
+      const q: AutoMovieVector3Tuple = F.sub(p, F.add(a, F.scale(ab, Math.min(1, Math.max(0, share)))));
       return [Math.hypot(q[0], q[1], q[2]), share];
     };
     return family.knots.map((station: number): IOffset => {
       const o: readonly number[] = axis.at(station).origin;
-      const p: F.V3 = [o[0]!, o[1]!, o[2]!];
+      const p: AutoMovieVector3Tuple = [o[0]!, o[1]!, o[2]!];
       let bone: number | null = null;
       let least: number = Infinity;
       for (let k: number = 1; k < bones.length; ++k) {

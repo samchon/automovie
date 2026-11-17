@@ -1,5 +1,7 @@
 import {
+  type IAutoMovieCreateCompiledSlotSummary,
   IAutoMovieFormationBounds,
+  type IAutoMovieSummarizeCompiledSlotChunks,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -23,20 +25,8 @@ export function summarizeCompiledSlotChunks(
   chunkSize: number,
   /** Generate one borrowed position synchronously; invoked exactly once per slot. */
   position: (slot: number) => IAutoMovieVector3,
-): {
-  /** Caller-owned chunk records in ascending start order. */
-  chunks: Array<{
-    index: number;
-    start: number;
-    count: number;
-    bounds: IAutoMovieFormationBounds;
-    centroid: IAutoMovieVector3;
-  }>;
-
-  /** Caller-owned bounds and centroid over every placement point. */
-  summary: { bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3 };
-} {
-  const whole: ReturnType<typeof createCompiledSlotSummary> =
+): IAutoMovieSummarizeCompiledSlotChunks.IResult {
+  const whole: IAutoMovieCreateCompiledSlotSummary.IResult =
     createCompiledSlotSummary();
   const chunks: Array<{
     index: number;
@@ -47,7 +37,7 @@ export function summarizeCompiledSlotChunks(
   }> = [];
   for (let start: number = 0; start < count; start += chunkSize) {
     const size: number = Math.min(chunkSize, count - start);
-    const chunk: ReturnType<typeof createCompiledSlotSummary> =
+    const chunk: IAutoMovieCreateCompiledSlotSummary.IResult =
       createCompiledSlotSummary();
     for (let slot: number = start; slot < start + size; ++slot) {
       const point: IAutoMovieVector3 = position(slot);

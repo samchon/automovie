@@ -1,13 +1,12 @@
 import {
-  IAutoMovieQuaternion,
+  type IAutoMovieResolveCameraAt,
+  type IAutoMovieResolvedCamera,
+  type IAutoMovieSampledChannel,
   IAutoMovieShot,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieSampledChannel } from "../resolve/IAutoMovieSampledChannel";
 import { channelKey } from "../resolve/channelKey";
 import { sampleClip } from "../resolve/sampleClip";
-import { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
 
 /**
  * A camera's world placement at shot-local `time`: its staged base transform when the shot has no camera move, else the move's `translation` and `rotation` tracks for the camera node sampled at `time`.
@@ -29,7 +28,7 @@ import { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sampled channel map is released on return; the result references either the base's objects or two fresh vectors and retains nothing else.
  */
 export function resolveCameraAt(
-  base: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion },
+  base: IAutoMovieResolveCameraAt.IBase,
   cameraMotion: IAutoMovieShot["cameraMotion"],
   cameraId: string,
   time: number,

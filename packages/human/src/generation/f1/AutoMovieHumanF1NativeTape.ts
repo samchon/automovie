@@ -1,14 +1,16 @@
+import { AutoMovieHumanF1NativeCalibration } from "./AutoMovieHumanF1NativeCalibration";
 import {
-  AutoMovieLoftViewFullSource as Full,
   AutoMovieConstructionNativeProfile,
-  type IAutoMovieViewPart,
+  AutoMovieLoftViewFullSource as Full,
   bracketedRoot,
   convexHull2D,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { AutoMovieHumanF1Engineering as E } from "./AutoMovieHumanF1Engineering";
-import { AutoMovieHumanF1NativeCalibration } from "./AutoMovieHumanF1NativeCalibration";
+import type {
+  IAutoMovieHumanF1Engineering,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieVector3,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * Finite source tapes for the F1 engineering constraint owner, without a loft or final mesh.
@@ -38,7 +40,7 @@ export function AutoMovieHumanF1NativeTape(
     stationPreparations: number;
     elapsedMs: number;
   }) => void,
-): E.IReading {
+): IAutoMovieHumanF1Engineering.IReading {
   if (!(Number.isInteger(phases) && phases >= 32) || revision.length === 0)
     throw new Error(
       "native tape needs a source revision and at least32 angular samples",
@@ -82,7 +84,7 @@ export function AutoMovieHumanF1NativeTape(
       };
     };
     // The trunk rings read the bare wall; every relief stays excluded so the wall tapes scale exactly.
-    const skin: Full.IReader = Full.create({
+    const skin: IAutoMovieLoftViewFullSource.IReader = Full.create({
       ...parts.trunk,
       reliefs: undefined,
     });
@@ -178,7 +180,7 @@ export function AutoMovieHumanF1NativeTape(
         throw new Error("native tape: the wall has no site " + field);
       return found[1];
     };
-    const result: E.IReading = {
+    const result: IAutoMovieHumanF1Engineering.IReading = {
       bareBust,
       girths: {
         hip: perimeter(ring(site("hipSkin"))),

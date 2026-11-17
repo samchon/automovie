@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
 
-import type { IHumanEntry } from "../../../human/structures/IHumanEntry";
 import HumanMovie from "../../../movies/HumanMovie";
+import { PLAYGROUND_BODIES } from "../../../playground/data/PLAYGROUND_BODIES";
+import type { IPlaygroundVocabulary } from "../../../playground/structures/IPlaygroundVocabulary";
 import { SCENES } from "../../../scenes/SCENES";
-import { readBakedManifest } from "../../../scenes/readBakedManifest";
 import type { IScene } from "../../../scenes/structures/IScene";
-import type { ISceneManifest } from "../../../scenes/structures/ISceneManifest";
 
 export const metadata: Metadata = {
   title: "Human",
@@ -15,28 +14,33 @@ export const metadata: Metadata = {
 };
 
 /**
- * The Human page's route. The bodies and their measures are read from the
- * bake while the site is exported, and the hidden scene that stands them
- * side by side from the scene records, so the page's script carries that
- * one record.
+ * The Human page's route. The bodies' ids and labels are read from
+ * `PLAYGROUND_BODIES` while the site is exported, and the hidden scene that
+ * stands them side by side from the scene records, so the page's script
+ * carries that one record and no body parameters; the page computes the
+ * lineup and the measures in the browser.
  *
  * @returns The page.
  */
 export default function HumanPage(): ReactElement {
-  const manifest: ISceneManifest | null = readBakedManifest();
   return (
     <HumanMovie
       lineup={SCENES.find((s: IScene): boolean => s.id === "lineup")!}
-      bodies={Object.entries(manifest?.bodies ?? {})
+      bodies={Object.entries(PLAYGROUND_BODIES)
         .map(
-          ([id, body]: [string, ISceneManifest.IBody]): IHumanEntry => ({
+          ([id, body]: [
+            string,
+            PLAYGROUND_BODIES.IEntry,
+          ]): IPlaygroundVocabulary.IBody => ({
             id,
             label: body.label,
-            measures: body.measures,
           }),
         )
-        .sort((a: IHumanEntry, b: IHumanEntry): number =>
-          a.id.localeCompare(b.id),
+        .sort(
+          (
+            a: IPlaygroundVocabulary.IBody,
+            b: IPlaygroundVocabulary.IBody,
+          ): number => a.id.localeCompare(b.id),
         )}
     />
   );

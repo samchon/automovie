@@ -1,5 +1,5 @@
-import { IAutoMovieDrivenCurve } from "../core/IAutoMovieDrivenCurve";
-import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieDrivenCurve } from "../core/IAutoMovieDrivenCurve";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
  * Makes a morph target's weight follow one clinical joint angle, so a shape

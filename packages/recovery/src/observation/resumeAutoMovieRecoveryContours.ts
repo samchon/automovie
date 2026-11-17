@@ -1,3 +1,21 @@
+import type {
+  AutoMovieRecoveryCurveFormat,
+  IAutoMovieMeshPlaneCut,
+  IAutoMovieMeshSectionOrientation,
+  IAutoMoviePlaneFrameConstruction,
+  IAutoMoviePolylineFit,
+  IAutoMovieRecoveryContourResume,
+  IAutoMovieRecoveryContourResumeInput,
+  IAutoMovieRecoveryContourResumePolicy,
+  IAutoMovieRecoveryMeshIncidencePreparationOperation,
+  IAutoMovieRecoveryObservationOptions,
+  IAutoMovieRecoveryResult,
+  IAutoMovieRecoverySavedSection,
+  IAutoMovieRecoverySavedSectionCutsBindingOperation,
+  IAutoMovieRecoveryScalarIndex,
+  IAutoMovieRecoverySectionObservationOperation,
+} from "@automovie/interface";
+
 import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecoveryCurves";
 import { RecoveryScalarIndex } from "../internal/RecoveryScalarIndex";
 import { bindRecoverySavedSectionCuts } from "../internal/bindRecoverySavedSectionCuts";
@@ -7,14 +25,6 @@ import { sourceOrientation } from "../internal/mesh-observations/sourceOrientati
 import { observeRecoverySection } from "../internal/observeRecoverySection";
 import { prepareRecoveryMeshIncidence } from "../internal/prepareRecoveryMeshIncidence";
 import { validateRecoveryContourResume } from "../internal/validateRecoveryContourResume";
-import type { IAutoMovieRecoveryCurveFit } from "../structures/curve/IAutoMovieRecoveryCurveFit";
-import type { IAutoMovieRecoveryContourResume } from "../structures/mesh/IAutoMovieRecoveryContourResume";
-import type { IAutoMovieRecoveryContourResumeInput } from "../structures/mesh/IAutoMovieRecoveryContourResumeInput";
-import type { IAutoMovieRecoveryContourResumePolicy } from "../structures/mesh/IAutoMovieRecoveryContourResumePolicy";
-import type { IAutoMovieRecoverySavedSection } from "../structures/mesh/IAutoMovieRecoverySavedSection";
-import type { IAutoMovieRecoveryObservationOptions } from "../structures/operation/IAutoMovieRecoveryObservationOptions";
-import type { AutoMovieRecoveryCurveFormat } from "../typings/AutoMovieRecoveryCurveFormat";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
 
 /** Fit only explicitly failed, rebound raw source contours into a new patch.
  * Original coefficient artifacts are opaque external references. The caller
@@ -51,34 +61,54 @@ export function resumeAutoMovieRecoveryContours<
   input: IAutoMovieRecoveryContourResumeInput,
   options: Pick<
     IAutoMovieRecoveryObservationOptions<Format>,
-    "curveFormat" | "signal" | "onProgress"
+    "curveFormat" | "cancelled" | "onProgress"
   >,
 ): IAutoMovieRecoveryResult<IAutoMovieRecoveryContourResume<Format>> {
   const operator: IAutoMovieRecoveryResult<never>["operator"] =
     "contour-resume-v1";
-  if (options?.signal?.aborted)
-    return {
-      operator,
-      status: "cancelled",
-      diagnostics: ["Cancelled before contour resume"],
-    };
-  if (
-    !validateRecoveryContourResume(input) ||
-    !options ||
-    !["bezier", "hermite"].includes(options.curveFormat) ||
-    (options.onProgress !== undefined &&
-      typeof options.onProgress !== "function")
-  )
-    return {
-      operator,
-      status: "refused",
-      diagnostics: [
-        "Complete saved source bindings, distinct failed raw targets, caller-bound actual original policies and a supported basis are required",
-      ],
-    };
+  let cancellationRequested: boolean = false;
+  let probe: (() => boolean) | undefined;
+  const cancelled: () => boolean = (): boolean => {
+    const requested: boolean | undefined = probe?.();
+    if (probe !== undefined && typeof requested !== "boolean")
+      throw new Error(
+        "Cancellation callback must return a boolean synchronously",
+      );
+    cancellationRequested = requested === true;
+    return cancellationRequested;
+  };
   try {
+    probe = options?.cancelled;
+    if (probe !== undefined && typeof probe !== "function")
+      return {
+        operator,
+        status: "refused",
+        diagnostics: ["Cancellation callback must be a function"],
+      };
+
+    if (cancelled())
+      return {
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before contour resume"],
+      };
+    if (
+      !validateRecoveryContourResume(input) ||
+      !options ||
+      !["bezier", "hermite"].includes(options.curveFormat) ||
+      (options.onProgress !== undefined &&
+        typeof options.onProgress !== "function")
+    )
+      return {
+        operator,
+        status: "refused",
+        diagnostics: [
+          "Complete saved source bindings, distinct failed raw targets, caller-bound actual original policies and a supported basis are required",
+        ],
+      };
+
     const checkpoint: () => void = (): void => {
-      if (options.signal?.aborted) throw new Error("Contour resume cancelled");
+      if (cancelled()) throw new Error("Contour resume cancelled");
     };
     const progress: (phase: string, done: number, total: number) => void = (
       phase: string,
@@ -89,11 +119,8 @@ export function resumeAutoMovieRecoveryContours<
       options.onProgress?.(phase, done, total);
       checkpoint();
     };
-    const frame: ReturnType<typeof planeFrame> = planeFrame(
-      [0, 0, 0],
-      input.axis,
-      input.reference,
-    );
+    const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> =
+      planeFrame([0, 0, 0], input.axis, input.reference);
     if (
       ![frame.n, frame.u, frame.v].every(
         (axis: [number, number, number]): boolean =>
@@ -126,15 +153,15 @@ export function resumeAutoMovieRecoveryContours<
           ],
         };
     progress("contour-resume-cuts", 0, input.savedSections.length);
-    const prepared: ReturnType<typeof prepareRecoveryMeshIncidence> =
+    const prepared: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation> =
       prepareRecoveryMeshIncidence(input, input.verticesMm);
     const heights: number[] = input.verticesMm.map(
       (point: [number, number, number]): number =>
         point[0] * frame.n[0] + point[1] * frame.n[1] + point[2] * frame.n[2],
     );
-    const index: ReturnType<typeof RecoveryScalarIndex.create> =
+    const index: ReturnType<IAutoMovieRecoveryScalarIndex.Create> =
       RecoveryScalarIndex.create(input.triangles, heights);
-    const cut: ReturnType<typeof cutExact.prepare> = cutExact.prepare(
+    const cut: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = cutExact.prepare(
       prepared.mesh,
       heights,
       true,
@@ -155,7 +182,7 @@ export function resumeAutoMovieRecoveryContours<
         saved.coordinateMm,
         index.cut(saved.coordinateMm),
       );
-      const bound: ReturnType<typeof bindRecoverySavedSectionCuts> =
+      const bound: ReturnType<IAutoMovieRecoverySavedSectionCutsBindingOperation.Operation> =
         bindRecoverySavedSectionCuts({ saved, contours, prepared, checkpoint });
       if (bound.status === "refused")
         return { operator, status: "refused", diagnostics: [bound.diagnostic] };
@@ -279,7 +306,7 @@ export function resumeAutoMovieRecoveryContours<
     const fits: IAutoMovieRecoveryContourResume<Format>["fits"] = [];
     const orientations: Map<
       1 | -1,
-      ReturnType<typeof sourceOrientation>
+      ReturnType<IAutoMovieMeshSectionOrientation.Operation>
     > = new Map();
     progress("contour-resume-fit", 0, targets.length);
     for (const [targetIndex, target] of targets.entries()) {
@@ -298,7 +325,7 @@ export function resumeAutoMovieRecoveryContours<
         const sign: 1 | -1 = target.originalPolicy.sourceOrientationSign;
         if (!orientations.has(sign))
           orientations.set(sign, sourceOrientation(prepared.mesh, sign));
-        const observed: ReturnType<typeof observeRecoverySection> =
+        const observed: ReturnType<IAutoMovieRecoverySectionObservationOperation.Operation> =
           observeRecoverySection({
             coordinateMm: target.coordinateMm,
             plane: {
@@ -323,7 +350,7 @@ export function resumeAutoMovieRecoveryContours<
           observed.section.loops[0];
         const quality: (typeof observed.report.fits)[number] | undefined =
           observed.report.fits[0];
-        const fitted: IAutoMovieRecoveryCurveFit | undefined =
+        const fitted: IAutoMoviePolylineFit | undefined =
           loop && quality
             ? { curve: loop.curve, ...quality }
             : observed.report.open[0];
@@ -383,7 +410,7 @@ export function resumeAutoMovieRecoveryContours<
   } catch (failure: unknown) {
     return {
       operator,
-      status: options.signal?.aborted ? "cancelled" : "failed",
+      status: cancellationRequested ? "cancelled" : "failed",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
       ],

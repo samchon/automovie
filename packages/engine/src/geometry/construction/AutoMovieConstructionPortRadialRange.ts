@@ -1,4 +1,4 @@
-import type { IAutoMovieConstructionPort } from "@automovie/interface";
+import type { IAutoMovieConstructionPortLoop } from "@automovie/interface";
 
 import { adjacentAutoMovieFloat64 } from "../../math/adjacentAutoMovieFloat64";
 import { AutoMovieConstructionPortAddress } from "./AutoMovieConstructionPortAddress";
@@ -34,7 +34,7 @@ import { AutoMovieConstructionPortAddress } from "./AutoMovieConstructionPortAdd
  * @evidence contracts/development/common.md#meaningful-documentation States metre/mm/radian/share units, closed bounds, finite positive ordering, reverse-rounding proof, q=0 caller admission, named numeric failures and the nonmaximal/incomplete endpoint scope.
  */
 export function AutoMovieConstructionPortRadialRange(
-  loop: IAutoMovieConstructionPort.ILoop,
+  loop: IAutoMovieConstructionPortLoop,
   clock: number,
   station: readonly [number, number],
   phase: readonly [number, number],

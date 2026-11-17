@@ -15,6 +15,9 @@ export type IAutoMoviePropRelationTarget =
   | IAutoMoviePropRelationTarget.IOpening
   | IAutoMoviePropRelationTarget.ISurface
   | IAutoMoviePropRelationTarget.IPropAffordance;
+/**
+ * The stable-reference alternatives accepted by a prop placement relation.
+ */
 export namespace IAutoMoviePropRelationTarget {
   /**
    * A logical space of a built environment, the only target an `in-space` relation accepts.

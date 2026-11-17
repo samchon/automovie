@@ -1,6 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -10,7 +15,6 @@ import {
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -31,8 +35,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * to side.
  *
  * Scenarios, the carrier walking 2 m, read at five instants 0.35 s apart
- * from 0.5 s after the carry is taken up (the lift into a carry is not
- * planned yet, so the take-up is a transition and not part of the hold;
+ * from 0.5 s after the carry is taken up (these fixtures request no explicit
+ * lift, so the take-up is a transition and not part of the hold;
  * the carried root is solved onto the carrier at every instant by one
  * rule, so a fault is systematic and five instants across more than a
  * stride show it, which keeps ten films near a minute):
@@ -56,8 +60,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 5. With the lean layer scheduled over the piggyback (`HumanCarriedLean`,
  *    20 degrees forward, the family's stated provisional size), the
  *    carrier's chest tips 20 degrees farther forward than without it,
- *    within 1 degree, at three instants of the walk, and its turn about the
- *    vertical, the walk's counter-rotation, differs by at most 1 degree:
+ *    within 1 degree, at three instants of the walk, and its turn against
+ *    the hips, the walk's counter-rotation, differs by at most 1 degree:
  *    the lean is summed onto the walk's trunk and takes nothing from it.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds two-person performances through the public chain and overlay and reads both displayed bodies; a carried body that drifts off the carrier, a carrier whose hands do not hold, or an accepted self-carry fails.
@@ -69,7 +73,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_carried_carries(): void {
   const RESTS: Readonly<
     Record<
-      HumanCarried.Carry,
+      IAutoMovieMotionHumanCarried.Carry,
       readonly [AutoMovieHumanoidRegion, AutoMovieHumanoidRegion]
     >
   > = {
@@ -81,20 +85,25 @@ export function test_human_motion_carried_carries(): void {
     armpitDrag: ["upperBack", "abdomen"],
     collarDrag: ["nape", "thighFrontLeft"],
     ankleDrag: ["calfLeft", "thighFrontRight"],
+    waistLift: ["abdomen", "sternum"],
+    overheadLift: ["abdomen", "nape"],
   };
   const complaints: string[] = [];
   const stage = (
     names: readonly ["m-average" | "f-small", "m-average" | "f-small"],
-    carry: HumanCarried.Carry | null,
+    carry: IAutoMovieMotionHumanCarried.Carry | null,
     by: string = "a",
     lean: boolean = false,
     phases: { lift?: number; setDown?: number } = {},
-  ): { film: HumanPerformance; bodies: Record<"a" | "b", IHumanBody> } => {
-    const bodies: Record<"a" | "b", IHumanBody> = {
+  ): {
+    film: IAutoMovieMotionHumanPerformance;
+    bodies: Record<"a" | "b", IAutoMovieMotionHumanBody>;
+  } => {
+    const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
       a: motionHumanBody(names[0]),
       b: motionHumanBody(names[1]),
     };
-    const walk: HumanChain = HumanChain.subject("a")
+    const walk: IAutoMovieMotionHumanChain = HumanChain.subject("a")
       .stand({ seconds: 0.3 })
       .walk({ to: { x: 0, y: 0, z: 2 } });
     return {
@@ -162,13 +171,13 @@ export function test_human_motion_carried_carries(): void {
   ] as const)
     for (const carry of carries) {
       const { film, bodies }: ReturnType<typeof stage> = stage(names, carry);
-      const carrier: HumanSignature.IReader = HumanSignature.of(
+      const carrier: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         film,
         "a",
         bodies.a,
         0,
       );
-      const carried: HumanSignature.IReader = HumanSignature.of(
+      const carried: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         film,
         "b",
         bodies.b,
@@ -199,7 +208,7 @@ export function test_human_motion_carried_carries(): void {
   const held: ReturnType<typeof stage> = stage(pair, "piggyback");
   const free: ReturnType<typeof stage> = stage(pair, null);
   for (const side of ["left", "right"] as const) {
-    const wrist = (film: HumanPerformance): IAutoMovieVector3 =>
+    const wrist = (film: IAutoMovieMotionHumanPerformance): IAutoMovieVector3 =>
       HumanSignature.joint(
         HumanSignature.of(film, "a", held.bodies.a, 0),
         1.3,
@@ -217,7 +226,7 @@ export function test_human_motion_carried_carries(): void {
   // 5. The lean against the load is summed onto the walk's own trunk.
   const leaned: ReturnType<typeof stage> = stage(pair, "piggyback", "a", true);
   const chest = (
-    film: HumanPerformance,
+    film: IAutoMovieMotionHumanPerformance,
     seconds: number,
     axis: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
@@ -229,16 +238,24 @@ export function test_human_motion_carried_carries(): void {
       axis,
     );
   for (const seconds of [1.3, 1.6, 1.9]) {
-    const tip = (film: HumanPerformance): number => {
+    const tip = (film: IAutoMovieMotionHumanPerformance): number => {
       const up: IAutoMovieVector3 = chest(film, seconds, { x: 0, y: 1, z: 0 });
       return (Math.atan2(up.z, up.y) * 180) / Math.PI;
     };
-    const turn = (film: HumanPerformance): number => {
-      const side: IAutoMovieVector3 = chest(film, seconds, {
-        x: 1,
-        y: 0,
-        z: 0,
-      });
+    // The walk's turn of the chest is read against its hips, so the whole
+    // body's pitch, which turns both, leaves it as the walk holds it.
+    const turn = (film: IAutoMovieMotionHumanPerformance): number => {
+      const bones = HumanSignature.bones(
+        HumanSignature.of(film, "a", held.bodies.a, 0),
+        seconds,
+      );
+      const side: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.multiply(
+          Quaternion.inverse(bones.get("hips")!.worldRotation),
+          bones.get("chest")!.worldRotation,
+        ),
+        { x: 1, y: 0, z: 0 },
+      );
       return (Math.atan2(-side.z, side.x) * 180) / Math.PI;
     };
     const forward: number = tip(leaned.film) - tip(held.film);
@@ -264,7 +281,7 @@ export function test_human_motion_carried_carries(): void {
       setDown: 0.5,
     },
   );
-  const borne: HumanSignature.IReader = HumanSignature.of(
+  const borne: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
     lifted.film,
     "b",
     lifted.bodies.b,

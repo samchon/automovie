@@ -1,13 +1,19 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanEmblem,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
-  type IHumanActionLaw,
-  type IHumanBody,
   seated,
   touch,
 } from "@automovie/motions";
@@ -44,7 +50,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 5 scenarios with their bounds.
  */
 export function test_human_motion_hand_seated_rows(): void {
-  const laws: IHumanActionLaw<never>[] = [
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] = [
     HumanEmblem.handOnHeart,
     HumanEmblem.hush,
   ];
@@ -52,8 +58,8 @@ export function test_human_motion_hand_seated_rows(): void {
   const gap = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
     Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
   for (const name of ["f-small", "m-average"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const seat: seated.ISeat = {
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const seat: IAutoMovieMotionHumanSeated.ISeat = {
       at: {
         x: 0,
         y: seated.popliteal(body),
@@ -62,49 +68,56 @@ export function test_human_motion_hand_seated_rows(): void {
       yaw: 0,
       depth: 0.45,
     };
-    const sat = (): HumanChain => HumanChain.subject("a").sit({ seat });
+    const sat = (): IAutoMovieMotionHumanChain =>
+      HumanChain.subject("a").sit({ seat });
     for (const [label, base, row] of [
       [
         "handOnHeart",
         sat,
-        (c: HumanChain): HumanChain => c.registered("handOnHeart", {}),
+        (c: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+          c.registered("handOnHeart", {}),
       ],
-      ["hush", sat, (c: HumanChain): HumanChain => c.registered("hush", {})],
+      [
+        "hush",
+        sat,
+        (c: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+          c.registered("hush", {}),
+      ],
       [
         "drink",
         sat,
-        (c: HumanChain): HumanChain => c.handToFace({ task: "drink" }),
+        (c: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+          c.handToFace({ task: "drink" }),
       ],
     ] as const)
       try {
-        const performance: HumanPerformance = new HumanPerformance({
-          seed: "seated",
-          laws,
-          performers: [
-            {
-              subject: "a",
-              body,
-              at: { x: 0, y: 0, z: 0 },
-              yaw: 0,
-              proficiency: { level: "trained" },
-            },
-          ],
-          composition: row(base()).node,
-        });
-        const settled: HumanSegment.ISegment = performance.segments("a")[0]!;
-        const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
+        const performance: IAutoMovieMotionHumanPerformance =
+          new HumanPerformance({
+            seed: "seated",
+            laws,
+            performers: [
+              {
+                subject: "a",
+                body,
+                at: { x: 0, y: 0, z: 0 },
+                yaw: 0,
+                proficiency: { level: "trained" },
+              },
+            ],
+            composition: row(base()).node,
+          });
+        const settled: IAutoMovieMotionHumanSegment =
+          performance.segments("a")[0]!;
+        const placed: IAutoMovieMotionHumanSegment =
+          performance.segments("a")[1]!;
         const instant = (event: string): number =>
           placed.start +
           (placed.plan.events.find((e): boolean => e.name === event)?.share ??
             NaN) *
             placed.plan.duration;
         const held: number = (instant("strokeEnd") + instant("relax")) / 2;
-        const reader: HumanSignature.IReader = HumanSignature.of(
-          performance,
-          "a",
-          body,
-          0,
-        );
+        const reader: IAutoMovieMotionHumanSignature.IReader =
+          HumanSignature.of(performance, "a", body, 0);
 
         // 4. Still seated.
         const moved: number = gap(

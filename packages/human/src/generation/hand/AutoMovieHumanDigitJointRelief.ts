@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanDigitJointRelief } from "@automovie/interface";
+
 import { AutoMovieHumanHandWindow } from "./AutoMovieHumanHandWindow";
 
 const { bump }: typeof AutoMovieHumanHandWindow = AutoMovieHumanHandWindow;
@@ -27,25 +29,16 @@ export namespace AutoMovieHumanDigitJointRelief {
   /** Amplitude as a share of the joint's radius: upper bound read on f1's relaxed capture, a convention. */
   export const SHARE: number = 0.04;
 
-  /** A joint's fixed inputs. */
-  export interface IInput {
-    /** Arc length of the joint's centre along the digit's line, mm. */
-    at: number;
-
-    /** Half extent of the window along the line, mm; the joint's turn half-length is the natural size. */
-    half: number;
-
-    /** The joint's radius, mm: the mean of the section's half width and depth there. */
-    radius: number;
-  }
-
   /**
    * The outward displacement of the skin at arc length `s`, mm.
    *
    * @param input The joint.
    * @param s Arc length along the line, mm.
    */
-  export function height(input: IInput, s: number): number {
+  export function height(
+    input: IAutoMovieHumanDigitJointRelief.IInput,
+    s: number,
+  ): number {
     return SHARE * input.radius * bump((s - input.at) / input.half).value;
   }
 
@@ -55,7 +48,13 @@ export namespace AutoMovieHumanDigitJointRelief {
    * @param input The joint.
    * @param s Arc length along the line, mm.
    */
-  export function slope(input: IInput, s: number): number {
-    return (SHARE * input.radius * bump((s - input.at) / input.half).slope) / input.half;
+  export function slope(
+    input: IAutoMovieHumanDigitJointRelief.IInput,
+    s: number,
+  ): number {
+    return (
+      (SHARE * input.radius * bump((s - input.at) / input.half).slope) /
+      input.half
+    );
   }
 }

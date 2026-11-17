@@ -1,4 +1,4 @@
-import { IAutoMovieActionCall } from "../harness/IAutoMovieActionCall";
+import type { IAutoMovieActionCall } from "../harness/IAutoMovieActionCall";
 
 /**
  * Thin verb program compiled by performShot into one shot through staged input, motion, coupling, camera and artifact gates.

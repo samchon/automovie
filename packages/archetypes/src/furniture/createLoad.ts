@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   type IArchetypeBand,
@@ -40,17 +41,21 @@ export function createLoad(
   params: createLoad.IParams,
   seed?: number | string,
 ): Archetype<createLoad.Affordance, createLoad.Dimension> {
+  const draw: ArchetypeDrawSession<createLoad.Dimension> =
+    new ArchetypeDrawSession<createLoad.Dimension>(
+      "load",
+      createLoad.UNITS,
+      seed,
+      params,
+    );
   const kind: createLoad.Kind = ArchetypeDraw.choice(
     "load",
     "kind",
     params.kind,
     createLoad.KINDS,
   );
-  const d: Record<createLoad.Dimension, number> = ArchetypeDraw.dimensions(
-    "load",
+  const d: Record<createLoad.Dimension, number> = draw.dimensions(
     createLoad.BANDS[kind],
-    seed,
-    params,
     createLoad.BANDS,
   );
   const load: number = params.load ?? 0;
@@ -76,10 +81,10 @@ export function createLoad(
   const { length, height, depth }: Record<createLoad.Dimension, number> = d;
   const builder: ArchetypeBuilder<createLoad.Affordance, createLoad.Dimension> =
     new ArchetypeBuilder({
-      archetype: "load",
+      material: "composite",
       id: params.id,
       name: kind,
-      dimensions: d,
+      draw,
     });
   builder.box(
     kind,
@@ -97,6 +102,7 @@ export function createLoad(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         Vector3.create((sign * length) / 2, hold, 0),
         Vector3.create(sign, 0, 0),
@@ -156,6 +162,14 @@ export namespace createLoad {
    * - `mass`: the empty crate or the whole sack, kilograms.
    */
   export type Dimension = "length" | "height" | "depth" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    height: "m",
+    depth: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, the contents, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

@@ -1,6 +1,4 @@
 import {
-  type IAutoMovieMotionSample,
-  type IAutoMovieResolvedBone,
   Quaternion,
   resolveLookAt,
   resolvePose,
@@ -14,6 +12,8 @@ import {
   IAutoMovieExpression,
   IAutoMovieJointPose,
   IAutoMovieLookAt,
+  type IAutoMovieMotionSample,
+  type IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";

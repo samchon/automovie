@@ -1,15 +1,18 @@
-import {
-  type AutoMovieViewAxis,
-  AutoMovieViewOutline,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import { AutoMovieViewOutline } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
+  AutoMovieHumanConicSection as S,
   AutoMovieHumanNativeFamily as Native,
   AutoMovieHumanNativeScaleProfile as Profile,
   AutoMovieHumanNativeSourceLaw,
-  AutoMovieHumanConicSection as S,
 } from "@automovie/human";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieViewAxis,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * A station-varying native scale applies to the source function, so the wall reads the scale law between the family's knots and a site
@@ -61,7 +64,7 @@ export function test_human_native_station_scale(): void {
   const R: number = 100;
   const share: number = 0.5;
   const median: number = (R * (1 + share)) / 2;
-  const prior: H.IFamily = {
+  const prior: IAutoMovieHumanConicLoft.IFamily = {
     name: "made",
     centres: [
       [0, 0, 0],
@@ -78,15 +81,15 @@ export function test_human_native_station_scale(): void {
   const stations: number[] = Array.from({ length: 51 }, (_: unknown, k: number): number => 2 * k);
   const original: IAutoMovieViewPart = H.part(prior, stations);
   const originals: Map<string, IAutoMovieViewPart> = new Map([[prior.name, original]]);
-  const axis: AutoMovieViewAxis.IAxis = H.axis(prior);
-  const bound = (station: number, ratio: S.P): Native.ISpec["protection"][number] => ({
+  const axis: IAutoMovieViewAxis.IAxis = H.axis(prior);
+  const bound = (station: number, ratio: AutoMovieVector2Tuple): Native.ISpec["protection"][number] => ({
     sources: new Map([[prior.name, AutoMovieHumanNativeSourceLaw(original, axis, ratio, [])]]),
     requirement: { type: "junction", station },
   });
   const build = (
-    scale: (s: number) => S.P,
+    scale: (s: number) => AutoMovieVector2Tuple,
     protection: Native.ISpec["protection"],
-    family: H.IFamily = prior,
+    family: IAutoMovieHumanConicLoft.IFamily = prior,
     sources: ReadonlyMap<string, IAutoMovieViewPart> = originals,
   ): IAutoMovieViewPart =>
     H.source(
@@ -101,7 +104,7 @@ export function test_human_native_station_scale(): void {
         protection,
       }),
     );
-  const read = (outline: IAutoMovieViewPart.IOutline, s: number, ends: AutoMovieViewOutline.IEnds = {}): [number, number, number] => {
+  const read = (outline: IAutoMovieViewPart.IOutline, s: number, ends: IAutoMovieViewOutline.IEnds = {}): [number, number, number] => {
     const curve = AutoMovieViewOutline.create(outline, ends);
     if ("contract" in curve) throw new Error(curve.detail);
     const reading = AutoMovieViewOutline.at(curve, s);
@@ -131,7 +134,7 @@ export function test_human_native_station_scale(): void {
   const half: number[] = Array.from({ length: 201 }, (_: unknown, k: number): number => k / 2);
 
   // 1. Isotropic profile with a bound junction.
-  const anchors: [number, S.P][] = [
+  const anchors: [number, AutoMovieVector2Tuple][] = [
     [0, [1, 1]],
     [30, [1.1, 1.1]],
     [100, [1.1, 1.1]],
@@ -160,7 +163,7 @@ export function test_human_native_station_scale(): void {
   const plain: Profile.IScale = Profile.create(anchors);
   let refusal: string | null = null;
   try {
-    build((s: number): S.P => plain(s), bound30);
+    build((s: number): AutoMovieVector2Tuple => plain(s), bound30);
   } catch (error: unknown) {
     refusal = String(error);
   }
@@ -221,7 +224,7 @@ export function test_human_native_station_scale(): void {
 
   // 5. A constant profile reads the plain constant scale's source exactly.
   const constant: IAutoMovieViewPart = build(Profile.constant([1.1, 1.1]), [bound(30, [1.1, 1.1])]);
-  const today: IAutoMovieViewPart = build((): S.P => [1.1, 1.1], [bound(30, [1.1, 1.1])]);
+  const today: IAutoMovieViewPart = build((): AutoMovieVector2Tuple => [1.1, 1.1], [bound(30, [1.1, 1.1])]);
   if (JSON.stringify([constant.front, constant.side, constant.fullness]) !== JSON.stringify([today.front, today.side, today.fullness]))
     failures.push("a constant profile changed the constant-scale source");
 
@@ -270,10 +273,10 @@ export function test_human_native_station_scale(): void {
   }
 
   // 8. A capped circle: the outlines are read in the pole's root parameter.
-  const capped: H.IFamily = { ...prior, name: "capped", tips: [null, { from: 100, tip: 120 }] };
+  const capped: IAutoMovieHumanConicLoft.IFamily = { ...prior, name: "capped", tips: [null, { from: 100, tip: 120 }] };
   const cappedOriginal: IAutoMovieViewPart = H.part(capped, stations);
   const pole: number = cappedOriginal.stations.at(-1)!;
-  const ends: AutoMovieViewOutline.IEnds = { top: pole };
+  const ends: IAutoMovieViewOutline.IEnds = { top: pole };
   if (cappedOriginal.pole !== "top" || pole !== 120) failures.push(`the capped circle does not close at its 120 mm pole: ${cappedOriginal.pole} at ${pole}`);
   else {
     const cappedPart: IAutoMovieViewPart = build(
@@ -318,16 +321,16 @@ export function test_human_native_station_scale(): void {
   }
 
   // 9. The production limb scope: the family is authored with a distal cap, its original source and every request drop that cap.
-  const scoped: H.IFamily = { ...capped, name: "scoped" };
+  const scoped: IAutoMovieHumanConicLoft.IFamily = { ...capped, name: "scoped" };
   const scopedOriginal: IAutoMovieViewPart = H.part({ ...scoped, tips: [null, null] }, stations);
-  const scopedAxis: AutoMovieViewAxis.IAxis = H.axis(scoped);
-  const scopedBound = (station: number, ratio: S.P): Native.ISpec["protection"][number] => ({
+  const scopedAxis: IAutoMovieViewAxis.IAxis = H.axis(scoped);
+  const scopedBound = (station: number, ratio: AutoMovieVector2Tuple): Native.ISpec["protection"][number] => ({
     sources: new Map([[scoped.name, AutoMovieHumanNativeSourceLaw(scopedOriginal, scopedAxis, ratio, [])]]),
     requirement: { type: "junction", station },
   });
   let scopedPart: IAutoMovieViewPart | undefined;
   try {
-    const family: H.IFamily = Native.create({
+    const family: IAutoMovieHumanConicLoft.IFamily = Native.create({
       original: scoped,
       bone: scoped,
       originals: new Map([[scoped.name, scopedOriginal]]),

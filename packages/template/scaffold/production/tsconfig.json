@@ -19,8 +19,7 @@
     "inlineSources": true,
     "plugins": [
       {
-        "transform": "@ttsc/lint",
-        "configFile": "lint.config.ts"
+        "transform": "@ttsc/lint"
       }
     ]
   },

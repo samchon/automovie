@@ -1,13 +1,11 @@
-import {
-  AutoMovieSplineCurve as Spline,
-  bracketedRoot,
-} from "@automovie/engine";
-import type { IAutoMovieConstructionPort } from "@automovie/interface";
-
-import type { AutoMovieHumanF1NativeRootTypes as Types } from "./AutoMovieHumanF1NativeRootTypes";
+import { AutoMovieSplineCurve as Spline, bracketedRoot } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionPortLoop,
+} from "@automovie/interface";
 
 /** World-space target controls; physical dimensions are owned by RootTypes. */
-type V = Types.V;
+type V = AutoMovieVector3Tuple;
 
 /** The native root's sole periodic-clock, radial reparameterization and target-clock2 owner. */
 export namespace AutoMovieHumanF1NativeRootClock {
@@ -21,7 +19,7 @@ export namespace AutoMovieHumanF1NativeRootClock {
   /** One existing radial loop and the original target parameter used by each emitted column. */
   export interface IReclock {
     /** Existing-pole radial controls, in public metres/radians. */
-    loop: IAutoMovieConstructionPort.ILoop;
+    loop: IAutoMovieConstructionPortLoop;
     /** Original target parameter recovered for each emitted radial column. */
     clocks: number[];
   }
@@ -145,7 +143,7 @@ export namespace AutoMovieHumanF1NativeRootClock {
 
   /** Reclock around the original pole; positive radial coefficients and monotone angular clock are admitted. */
   export function reclock(
-    loop: IAutoMovieConstructionPort.ILoop,
+    loop: IAutoMovieConstructionPortLoop,
     addresses: readonly (readonly [number, number])[],
   ): IReclock {
     const angles: number[] = unwrap(

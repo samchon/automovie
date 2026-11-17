@@ -1,5 +1,8 @@
+import type {
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
 import {
-  type AutoMovieSolidMeshConstraints,
   AutoMovieSolidMeshPlan,
   insertAutoMovieSolidMeshPoints,
   orientAutoMovieSolidChart as orient,
@@ -287,17 +290,17 @@ function cavity(failures: string[]): void {
     [3, [0, 4]],
     [4, [1, 1 + Number.EPSILON]],
   ]);
-  const boundary: AutoMovieSolidMeshConstraints.ISegment[] = [
+  const boundary: IAutoMovieSolidMeshConstraints.ISegment[] = [
     { a: 0, b: 1, turn: 0 },
     { a: 1, b: 2, turn: 0 },
     { a: 2, b: 3, turn: 0 },
     { a: 3, b: 0, turn: 0 },
   ];
-  const diagonal: AutoMovieSolidMeshConstraints.ISegment[] = [
+  const diagonal: IAutoMovieSolidMeshConstraints.ISegment[] = [
     ...boundary,
     { a: 0, b: 2, turn: 0 },
   ];
-  const triangles: AutoMovieSolidMeshPlan.ITriangle[] = [
+  const triangles: IAutoMovieSolidMeshPlan.ITriangle[] = [
     { vertices: [0, 1, 2], lifts: [0, 0, 0] },
     { vertices: [0, 2, 3], lifts: [0, 0, 0] },
   ];
@@ -310,16 +313,20 @@ function cavity(failures: string[]): void {
     boundary,
     triangles,
   });
-  valid(
-    failures,
-    "near-diagonal insertion",
-    points,
-    boundary,
-    insertAutoMovieSolidMeshPoints(points, boundary, triangles, all),
-  );
+  const inserted: IAutoMovieSolidMeshPlan.ITriangle[] | string =
+    insertAutoMovieSolidMeshPoints(points, boundary, triangles, all);
+  valid(failures, "near-diagonal insertion", points, boundary, inserted);
+  if (
+    typeof inserted !== "string" &&
+    (inserted.length !== 4 || !inserted.every(
+      (triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean =>
+        triangle.vertices.includes(4),
+    ))
+  )
+    failures.push("near-diagonal cavity kept the unconstrained diagonal");
 
   // The square's corners are cocircular and the point lies strictly inside their circle, so the Delaunay plan joins it to all four.
-  const plan: AutoMovieSolidMeshPlan.IPlan | string =
+  const plan: IAutoMovieSolidMeshPlan.IPlan | string =
     AutoMovieSolidMeshPlan.triangulate(
       points,
       boundary,
@@ -328,7 +335,7 @@ function cavity(failures: string[]): void {
   if (
     typeof plan === "string" ||
     plan.triangles.length !== 4 ||
-    !plan.triangles.every((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean =>
+    !plan.triangles.every((triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean =>
       triangle.vertices.includes(4),
     )
   )
@@ -344,7 +351,7 @@ function cavity(failures: string[]): void {
   );
   const on: Map<number, readonly [number, number]> = new Map(points);
   on.set(4, [2, 2]);
-  const refused: AutoMovieSolidMeshPlan.ITriangle[] | string =
+  const refused: IAutoMovieSolidMeshPlan.ITriangle[] | string =
     insertAutoMovieSolidMeshPoints(on, diagonal, triangles, all);
   if (
     typeof refused !== "string" ||
@@ -362,8 +369,8 @@ function cavity(failures: string[]): void {
     [4, [1, 1]],
     [5, [1, 1 + Number.EPSILON]],
   ]);
-  const fan: AutoMovieSolidMeshPlan.ITriangle[] = [0, 1, 2, 3].map(
-    (id: number): AutoMovieSolidMeshPlan.ITriangle => ({
+  const fan: IAutoMovieSolidMeshPlan.ITriangle[] = [0, 1, 2, 3].map(
+    (id: number): IAutoMovieSolidMeshPlan.ITriangle => ({
       vertices: [id, (id + 1) % 4, 4],
       lifts: [0, 0, 0],
     }),
@@ -387,8 +394,8 @@ function valid(
   failures: string[],
   label: string,
   points: ReadonlyMap<number, readonly [number, number]>,
-  constraints: readonly AutoMovieSolidMeshConstraints.ISegment[],
-  made: AutoMovieSolidMeshPlan.ITriangle[] | string,
+  constraints: readonly IAutoMovieSolidMeshConstraints.ISegment[],
+  made: IAutoMovieSolidMeshPlan.ITriangle[] | string,
 ): void {
   if (typeof made === "string") {
     failures.push(`${label}: ${made}`);
@@ -397,7 +404,7 @@ function valid(
   if (made.length !== 2 * points.size - 6)
     failures.push(`${label}: ${made.length} triangles for ${points.size} points`);
   for (const id of points.keys())
-    if (!made.some((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(id)))
+    if (!made.some((triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(id)))
       failures.push(`${label}: original point ${id} lost`);
   for (const triangle of made) {
     const corners: (readonly [number, number])[] = triangle.vertices.map(
@@ -416,7 +423,7 @@ function valid(
   }
   for (const edge of constraints)
     if (
-      !made.some((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean =>
+      !made.some((triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean =>
         triangle.vertices.some(
           (id: number, k: number): boolean =>
             id === edge.a && triangle.vertices[(k + 1) % 3] === edge.b,
@@ -489,7 +496,7 @@ function grazing(failures: string[]): void {
     [16, [16, 4.4]],
   ]);
   // The grazing edge comes first, so its walk is read from it.
-  const segments: AutoMovieSolidMeshConstraints.ISegment[] = [
+  const segments: IAutoMovieSolidMeshConstraints.ISegment[] = [
     [0, 1],
     [16, 0],
     [14, 2],
@@ -503,12 +510,14 @@ function grazing(failures: string[]): void {
     [15, 13],
     [13, 16],
     [16, 10],
-  ].map(([a, b]): AutoMovieSolidMeshConstraints.ISegment => ({
-    a: a!,
-    b: b!,
-    turn: 0,
-  }));
-  const made: AutoMovieSolidMeshPlan.IPlan | string =
+  ].map(
+    ([a, b]): IAutoMovieSolidMeshConstraints.ISegment => ({
+      a: a!,
+      b: b!,
+      turn: 0,
+    }),
+  );
+  const made: IAutoMovieSolidMeshPlan.IPlan | string =
     AutoMovieSolidMeshPlan.triangulate(
       points,
       segments,
@@ -547,13 +556,13 @@ function outputCover(failures: string[]): void {
     [2, [1, 0.5000000000000001]],
     [3, [0, 0.25]],
   ]);
-  const made: AutoMovieSolidMeshPlan.ITriangle[] | string =
+  const made: IAutoMovieSolidMeshPlan.ITriangle[] | string =
     triangulateAutoMovieSolidBoundary(
       exact,
       { vertices: [0, 1, 2, 3], lifts: [0, 1, 1, 1], winding: 0 },
       1,
     );
-  const refused: AutoMovieSolidMeshPlan.ITriangle[] | string =
+  const refused: IAutoMovieSolidMeshPlan.ITriangle[] | string =
     triangulateAutoMovieSolidBoundary(
       beyond,
       { vertices: [0, 1, 2, 3], lifts: [0, 1, 1, 1], winding: 0 },
@@ -589,7 +598,7 @@ function inspect(failures: string[], sample: Case, scale: number): void {
   const label: string = `${sample.name}/${scale}`;
   const points: Map<number, readonly [number, number]> = new Map();
   const identities: Map<string, number> = new Map();
-  const constraints: AutoMovieSolidMeshConstraints.ISegment[] = [];
+  const constraints: IAutoMovieSolidMeshConstraints.ISegment[] = [];
   for (const polygon of sample.polygons) {
     const ids: number[] = polygon.map(
       (point: readonly [number, number]): number => {
@@ -627,7 +636,7 @@ function inspect(failures: string[], sample: Case, scale: number): void {
   ): boolean => sample.keeps(u / scale, v / scale);
   const period: number | undefined =
     sample.period === undefined ? undefined : sample.period * scale;
-  const made: AutoMovieSolidMeshPlan.IPlan | string =
+  const made: IAutoMovieSolidMeshPlan.IPlan | string =
     AutoMovieSolidMeshPlan.triangulate(points, constraints, keeps, period);
   if (typeof made === "string") {
     failures.push(`${label}: ${made}`);
@@ -707,7 +716,7 @@ function inspect(failures: string[], sample: Case, scale: number): void {
     const expected: string = JSON.stringify(made);
     made.triangles[0]!.vertices[0] = 999;
     made.triangles[0]!.lifts[0] = 999;
-    const repeated: AutoMovieSolidMeshPlan.IPlan | string =
+    const repeated: IAutoMovieSolidMeshPlan.IPlan | string =
       AutoMovieSolidMeshPlan.triangulate(points, constraints, keeps, period);
     if (JSON.stringify(repeated) !== expected)
       failures.push(`${label}: retained mutable triangle output`);
@@ -717,7 +726,7 @@ function inspect(failures: string[], sample: Case, scale: number): void {
 /** Elementary axis-aligned source interval containment, independent of planner predicates. */
 function boundary(
   points: ReadonlyMap<number, readonly [number, number]>,
-  constraints: readonly AutoMovieSolidMeshConstraints.ISegment[],
+  constraints: readonly IAutoMovieSolidMeshConstraints.ISegment[],
   first: number,
   last: number,
   turn: number,
@@ -766,7 +775,7 @@ function boundary(
 function refuse(
   failures: string[],
   label: string,
-  made: AutoMovieSolidMeshPlan.IPlan | string,
+  made: IAutoMovieSolidMeshPlan.IPlan | string,
   expected: string,
 ): void {
   if (typeof made !== "string" || !made.includes(expected))

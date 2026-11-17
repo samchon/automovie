@@ -5,19 +5,23 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
 /** What a plyometric box commonly measures. */
 const BOX: string =
-  "the common three-height plyometric box, 20 by 24 by 30 in (0.508, 0.61 and 0.762 m), as gym equipment makers list it; no single maker's sheet was read, so the bands are marked provisional";
+  "the common three-height plyometric box, 20 by 24 by 30 in, as gym equipment makers list it; no single maker's sheet was read, so the bands are marked provisional";
 
 /**
  * A plyometric box: a closed wooden box stepped or jumped onto.
  *
  * It stands on the floor with the middle of its footprint at the origin.
  * `surface` is its top.
+ *
+ * The wooden box rests on its wooden base: wood on concrete (`ArchetypeFriction`).
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -36,28 +40,31 @@ export function createPlyoBox(
   params: createPlyoBox.IParams,
   seed?: number | string,
 ): Archetype<createPlyoBox.Affordance, createPlyoBox.Dimension> {
+  const draw: ArchetypeDrawSession<createPlyoBox.Dimension> =
+    new ArchetypeDrawSession<createPlyoBox.Dimension>(
+      "plyoBox",
+      createPlyoBox.UNITS,
+      seed,
+      params,
+    );
   const kind: createPlyoBox.Kind = ArchetypeDraw.choice(
     "plyoBox",
     "kind",
     params.kind ?? "wood",
     createPlyoBox.KINDS,
   );
-  const d: Partial<Record<createPlyoBox.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "plyoBox",
-      createPlyoBox.BANDS[kind],
-      seed,
-      params,
-      createPlyoBox.BANDS,
-    );
+  const d: Partial<Record<createPlyoBox.Dimension, number>> = draw.dimensions(
+    createPlyoBox.BANDS[kind],
+    createPlyoBox.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createPlyoBox.Affordance,
     createPlyoBox.Dimension
   > = new ArchetypeBuilder({
-    archetype: "plyoBox",
+    material: "wood",
     id: params.id,
     name: "plyometric box",
-    dimensions: d,
+    draw,
   });
   builder.box(
     "box",
@@ -73,7 +80,7 @@ export function createPlyoBox(
     width: d.width!,
     depth: d.depth!,
   });
-  return builder.build(d.mass!);
+  return builder.build(d.mass!, { rests: "wood" });
 }
 
 /**
@@ -104,6 +111,14 @@ export namespace createPlyoBox {
    */
   export type Dimension = "height" | "width" | "depth" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    width: "m",
+    depth: "m",
+    mass: "kg",
+  };
+
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which box; `wood` when absent. */
@@ -118,9 +133,24 @@ export namespace createPlyoBox {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     wood: {
-      height: ArchetypeBand.metres(0.508, 0.762, BOX, true),
-      width: ArchetypeBand.metres(0.508, 0.762, BOX, true),
-      depth: ArchetypeBand.metres(0.508, 0.762, BOX, true),
+      height: ArchetypeBand.metres(
+        20 * ArchetypeUnits.INCH,
+        30 * ArchetypeUnits.INCH,
+        BOX,
+        true,
+      ),
+      width: ArchetypeBand.metres(
+        20 * ArchetypeUnits.INCH,
+        30 * ArchetypeUnits.INCH,
+        BOX,
+        true,
+      ),
+      depth: ArchetypeBand.metres(
+        20 * ArchetypeUnits.INCH,
+        30 * ArchetypeUnits.INCH,
+        BOX,
+        true,
+      ),
       mass: ArchetypeBand.of(
         "kg",
         15,

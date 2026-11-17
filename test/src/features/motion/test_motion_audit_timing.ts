@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanAuditTiming } from "@automovie/interface";
 import { AutoMovieMotionHumanAuditTiming } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,7 +39,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the sound action and the 5 scenarios with their numbers.
  */
 export function test_motion_audit_timing(): void {
-  type Span = AutoMovieMotionHumanAuditTiming.ISpan;
+  type Span = IAutoMovieMotionHumanAuditTiming.ISpan;
   const sound = (): Span => ({
     name: "reach",
     start: 2,

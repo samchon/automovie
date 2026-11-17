@@ -1,26 +1,31 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPlaced,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanTargetGrid,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
-import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * An arm carried to a place of the air: the hand surface laid on a point
- * with a facing, the arm carried in joint space from the angles it held to
- * the goal's solution by a weight (`AutoMovieMotionHumanArm.carried`) and
- * the fingers shaped by the same weight. The exercise, stretching, dance and
+ * with a facing, the arm's reach, hold and return planned as one
+ * trajectory over the span the law states (`AutoMovieMotionHumanArm.carried`)
+ * and the fingers shaped by the weight; without a span, the deprecated
+ * joint-space carry by the weight. The exercise, stretching, dance and
  * sport laws place their arms this way, at named grid places of the body
  * (`AutoMovieMotionHumanTargetGrid.place`) moved by their own curves.
  *
@@ -30,80 +35,6 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the arm carry, the hand form and the target resolver; places are named grid places, never metres.
  */
 export namespace AutoMovieMotionHumanPlaced {
-  /**
-   * An arm laid at a place.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The window, the held angles, the weight, the place and the hand.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The members `arm` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The place is a function, so a moving place needs no second form.
-   */
-  export interface IArm {
-    /** The body. */
-    body: IHumanBody;
-
-    /** The arm. */
-    side: HumanHand.Side;
-
-    /** Seconds since the action's start the arm is written from. */
-    from: number;
-
-    /** Seconds since the action's start the arm is written until. */
-    to: number;
-
-    /** The arm's angles at weight 0. */
-    rest: AutoMovieMotionHumanArm.IAngles;
-
-    /**
-     * How far the arm is from its rest to the place.
-     *
-     * @param seconds Seconds since the action's start.
-     * @returns The weight in [0, 1]: 0 leaves the arm at `rest`, 1 lays the hand on the place.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument's origin, the range and what both ends of the range mean.
-     * @evidence contracts/development/implementation.md#principled-implementation The caller states the approach and the release as one blend weight over time, the form its clock's envelope already has.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One number per second; `arm` blends the rest angles and the solved arm by it.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The range is stated, so a weight outside it is the caller's error and is not clamped silently here.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    weight(seconds: number): number;
-
-    /**
-     * The place at a second.
-     *
-     * @param posture The posture written so far in this frame.
-     * @param seconds Seconds since the action's start.
-     * @returns The point in world metres, the unit direction the surface faces (its normal, pointing away from the surface) and, when the hand's fingers must point a given way, that unit direction.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States both arguments, the space and unit of the point, the sense of the normal and when the forward direction is given.
-     * @evidence contracts/development/implementation.md#principled-implementation The place is read on the posture so far, so a place on the performer's own moving body or on a moving object is followed frame by frame.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One query returning the three quantities the arm goal needs.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The facing is required, so the hand's orientation is never guessed from the point alone.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    place(
-      posture: IHumanPosture,
-      seconds: number,
-    ): {
-      point: IAutoMovieVector3;
-      facing: IAutoMovieVector3;
-      forward?: IAutoMovieVector3;
-    };
-
-    /** The hand surface; the palm when absent. */
-    surface?: HumanHand.Surface;
-
-    /** The hand's shape; flat when absent. */
-    shape?: HumanHand.Shape;
-
-    /** The elbow's preset; the solved least-strain place when absent. */
-    bend?: AutoMovieMotionHumanBend.Arm;
-  }
-
   /**
    * The arm and the fingers laid at a place.
    *
@@ -118,9 +49,11 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the arm carry, the target's hand goal and the hand form.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props.
    */
-  export function arm(props: IArm): IAutoMovieMotionHumanPrimitive[] {
-    const surface: HumanHand.Surface = props.surface ?? "palm";
-    const shape: HumanHand.Shape = props.shape ?? "flat";
+  export function arm(
+    props: IAutoMovieMotionHumanPlaced.IArm,
+  ): IAutoMovieMotionHumanPrimitive[] {
+    const surface: IAutoMovieMotionHumanHand.Surface = props.surface ?? "palm";
+    const shape: IAutoMovieMotionHumanHand.Shape = props.shape ?? "flat";
     return [
       AutoMovieMotionHumanArm.carried({
         body: props.body,
@@ -129,10 +62,11 @@ export namespace AutoMovieMotionHumanPlaced {
         to: props.to,
         rest: props.rest,
         weight: props.weight,
+        ...(props.span === undefined ? {} : { span: props.span }),
         goal: (
-          posture: IHumanPosture,
+          posture: IAutoMovieMotionHumanPosture,
           seconds: number,
-        ): IHumanPosture.IGoal => {
+        ): IAutoMovieHumanLimbGoal => {
           const at = props.place(posture, seconds);
           return AutoMovieMotionHumanArm.goal(
             props.body,
@@ -183,11 +117,14 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function grid(
-    body: IHumanBody,
-    posture: Pick<IHumanPosture, "root" | "yaw" | "pitch" | "roll">,
-    side: HumanHand.Side,
-    grid: AutoMovieMotionHumanTargetGrid.IGrid,
-    nudge?: AutoMovieMotionHumanTargetGrid.INudge,
+    body: IAutoMovieMotionHumanBody,
+    posture: Pick<
+      IAutoMovieMotionHumanPosture,
+      "root" | "yaw" | "pitch" | "roll"
+    >,
+    side: AutoMovieHumanSide,
+    grid: IAutoMovieMotionHumanTargetGrid.IGrid,
+    nudge?: IAutoMovieMotionHumanTargetGrid.INudge,
   ): IAutoMovieVector3 {
     const rest: IAutoMovieVector3 = body.rest.get("hips")!;
     const hips: IAutoMovieVector3 = Vector3.add(
@@ -226,8 +163,8 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function joint(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieVector3 {
     return HumanTrunk.resolve(body, posture).get(bone)!.worldPosition;
@@ -254,9 +191,9 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function carried(
-    body: IHumanBody,
-    standing: IHumanPosture,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    standing: IAutoMovieMotionHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     const from = HumanTrunk.resolve(body, standing).get("chest")!;
@@ -289,8 +226,8 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function shoulders(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 {
     const bones = HumanTrunk.resolve(body, posture);
     return Vector3.lerp(
@@ -319,15 +256,11 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function wrist(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    place: {
-      point: IAutoMovieVector3;
-      facing: IAutoMovieVector3;
-      forward: IAutoMovieVector3;
-    },
-    surface: HumanHand.Surface = "palm",
-    shape: HumanHand.Shape = "flat",
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    place: IAutoMovieMotionHumanPlaced.IWristPlace,
+    surface: IAutoMovieMotionHumanHand.Surface = "palm",
+    shape: IAutoMovieMotionHumanHand.Shape = "flat",
   ): IAutoMovieVector3 {
     return HumanHand.reach(
       body,
@@ -360,7 +293,7 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function root(
-    posture: Pick<IHumanPosture, "yaw" | "pitch" | "roll">,
+    posture: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">,
     rest: IAutoMovieVector3,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
@@ -384,7 +317,9 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function girdle(body: Pick<IHumanBody, "rest">): IAutoMovieVector3 {
+  export function girdle(
+    body: Pick<IAutoMovieMotionHumanBody, "rest">,
+  ): IAutoMovieVector3 {
     return Vector3.lerp(
       body.rest.get("leftUpperArm")!,
       body.rest.get("rightUpperArm")!,
@@ -408,7 +343,10 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function pitch(body: Pick<IHumanBody, "rest">, rise: number): number {
+  export function pitch(
+    body: Pick<IAutoMovieMotionHumanBody, "rest">,
+    rise: number,
+  ): number {
     const d: IAutoMovieVector3 = Vector3.subtract(
       girdle(body),
       body.rest.get("hips")!,

@@ -1,8 +1,19 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { tags } from "typia";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanGymnastics,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -11,16 +22,9 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -33,13 +37,17 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * stand the arms' reach above the wrists; over the second the trunk swings
  * about the shoulders, which stay where they are, and the legs follow
  * straight until the body stands inverted with the hips over the shoulders
- * and the shoulders over the base of the hands. The
+ * and the shoulders over the base of the hands. The exit is the entry
+ * reversed: over its first half the legs swing back down about the
+ * shoulders while the hands still bear, until the feet stand where they
+ * left the floor, and over its second the trunk unfolds over the feet. The
  * entry and the exit take 1.5 s each (provisional) and the hold is the
  * author's. Balance in the hold is by the wrists first (Kerwin and
  * Trewartha 2001); no sway is drafted yet.
  *
  * Events: `handsDown` at the entry's middle, `inverted` (`ready`), `release`
- * (`relax`), with the phrase instants.
+ * at the exit's middle, when the feet bear again and the hands leave the
+ * floor, with the phrase instants.
  *
  * Other laws plan the floor rolls, the cartwheel (`cartwheel`), the salto
  * (`salto`), the round-off (`roundOff`), the handspring (`handspring`) and
@@ -53,10 +61,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  */
 export namespace gymnastics {
   /** The action's name. */
-  export const name: HumanActionName = "gymnastics";
+  export const name: AutoMovieMotionHumanActionName = "gymnastics";
 
   /** Cancel table. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
     });
@@ -74,22 +82,6 @@ export namespace gymnastics {
   export const ENTER: number = 1.5;
 
   /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The hold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IParams {
-    /** Seconds held inverted; 2 when absent. */
-    seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
-
-  /**
    * Plan a handstand.
    *
    * @param context The action's context.
@@ -105,16 +97,16 @@ export namespace gymnastics {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and a few points.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGymnastics.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanGymnastics.IParams = context.params;
     const body = context.body;
     const m = body.measure;
     const hold: number = p.seconds ?? 2;
     HumanBound.least("seconds", hold, 0, "s");
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const timed: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: ENTER,
         attack: 0,
@@ -123,17 +115,23 @@ export namespace gymnastics {
       }),
       modifiers,
     );
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    // The exit mirrors the entry: the legs swing down over the hands first,
+    // the feet landing at `release` half way through, and the trunk unfolds
+    // over the standing feet after it.
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       timed.duration,
       [
         ...timed.instants,
         { name: "handsDown", seconds: timed.at("ready") / 2 },
         { name: "inverted", seconds: timed.at("ready") },
-        { name: "release", seconds: timed.at("relax") },
+        {
+          name: "release",
+          seconds: (timed.at("relax") + timed.duration) / 2,
+        },
       ],
     );
-    const entry: IHumanPosture = context.entry.posture;
-    const frame: HumanFrame.IFrame = {
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: entry.root.x, y: 0, z: entry.root.z },
       yaw: entry.yaw,
     };
@@ -188,18 +186,24 @@ export namespace gymnastics {
     );
     // The pitch that stands the hips straight above the shoulders.
     const inverted: number = AutoMovieMotionHumanPlaced.pitch(body, -Infinity);
-    // The share of the way into the inverted pose: the fold over the first half, the swing over the second.
+    // The share of the way into the inverted pose: the fold over the entry's
+    // first half and the swing over its second, then the swing undone over
+    // the exit's first half and the fold over its second, so at every
+    // instant the hands or the feet bear.
     const fold = (s: number): number =>
-      clock.envelope(["start", "handsDown"], ["relax", "end"], s);
+      clock.envelope(["start", "handsDown"], ["release", "end"], s);
     const swing = (s: number): number =>
-      clock.envelope(["handsDown", "inverted"], ["relax", "end"], s);
+      clock.envelope(["handsDown", "inverted"], ["relax", "release"], s);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [
       {
         channels: ["root", "trunk"],
         from: 0,
         to: clock.duration,
-        write: (posture: IHumanPosture, s: number): IHumanPosture => {
-          const pitched: IHumanPosture = {
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanPosture => {
+          const pitched: IAutoMovieMotionHumanPosture = {
             ...posture,
             pitch:
               posture.pitch + DOWN * fold(s) + (inverted - DOWN) * swing(s),
@@ -214,11 +218,12 @@ export namespace gymnastics {
           );
           const byShoulders: IAutoMovieVector3 =
             AutoMovieMotionHumanPlaced.root(pitched, girdle, shoulders);
-          const bearing: number =
-            s > clock.at("relax") ? swing(s) : swing(s) > 0 ? 1 : 0;
+          // The two places agree wherever the swing is nil and the fold full,
+          // at `handsDown` and at `release`, so the change of support is
+          // continuous.
           return {
             ...pitched,
-            root: Vector3.lerp(byHips, byShoulders, bearing),
+            root: swing(s) > 0 ? byShoulders : byHips,
           };
         },
       },
@@ -232,7 +237,7 @@ export namespace gymnastics {
           to: clock.duration,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
           weight: fold,
-          place: (posture: IHumanPosture) => ({
+          place: (posture: IAutoMovieMotionHumanPosture) => ({
             point: HumanFrame.point(
               { origin: hands, yaw: posture.yaw },
               {
@@ -247,7 +252,7 @@ export namespace gymnastics {
           bend: "raised",
         }),
       );
-      const stance: HumanFoot.IPlacement = {
+      const stance: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle: context.entry.feet[side].ankle,
         rotation: context.entry.feet[side].rotation,
       };
@@ -259,12 +264,12 @@ export namespace gymnastics {
           from: 0,
           to: clock.duration,
           placement: (
-            posture: IHumanPosture,
+            posture: IAutoMovieMotionHumanPosture,
             s: number,
-          ): HumanFoot.IPlacement => {
+          ): IAutoMovieMotionHumanFoot.IPlacement => {
             // The straight leg's ankle and foot as the pitched body carries them.
             const turn = resolveHumanPosture.heading(posture);
-            const carried: HumanFoot.IPlacement = {
+            const carried: IAutoMovieMotionHumanFoot.IPlacement = {
               ankle: Vector3.add(
                 posture.root,
                 Quaternion.rotateVector(turn, ankleRest),

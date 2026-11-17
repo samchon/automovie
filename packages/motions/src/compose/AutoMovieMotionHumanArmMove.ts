@@ -1,14 +1,17 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * An arm moved between an origin and a target by a weight, and the three
@@ -37,20 +40,23 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
   export function move(
-    props: AutoMovieMotionHumanArmTarget.IMove,
+    props: IAutoMovieMotionHumanArmTarget.IMove,
   ): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
     return {
       channels: [limb, `${props.side}Hand`],
       from: props.from,
       to: props.to,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const target: AutoMovieMotionHumanArmTarget.ITarget = props.target(
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
+        const target: IAutoMovieMotionHumanArmTarget.ITarget = props.target(
           posture,
           seconds,
         );
         const s: number = Math.min(1, Math.max(0, props.weight(seconds)));
-        const placed: AutoMovieMotionHumanArmTarget.ITarget =
+        const placed: IAutoMovieMotionHumanArmTarget.ITarget =
           s >= 1
             ? target
             : {
@@ -104,8 +110,8 @@ export namespace AutoMovieMotionHumanArmMove {
    * right, less its part along the path; a path that runs sideways bows up.
    */
   const bowed = (
-    posture: Pick<IHumanPosture, "yaw">,
-    side: HumanHand.Side,
+    posture: Pick<IAutoMovieMotionHumanPosture, "yaw">,
+    side: AutoMovieHumanSide,
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
     share: number,
@@ -156,12 +162,12 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function reach(
-    body: IHumanBody,
-    clock: AutoMovieMotionClock.IClock,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     window: readonly [string, string],
-    from: AutoMovieMotionHumanArmTarget.IOrigin,
-    target: AutoMovieMotionHumanArmTarget.Frame,
+    from: IAutoMovieMotionHumanArmTarget.IOrigin,
+    target: IAutoMovieMotionHumanArmTarget.Frame,
   ): IAutoMovieMotionHumanPrimitive {
     return move({
       body,
@@ -195,11 +201,11 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function hold(
-    body: IHumanBody,
-    clock: AutoMovieMotionClock.IClock,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     window: readonly [string, string],
-    target: AutoMovieMotionHumanArmTarget.Frame,
+    target: IAutoMovieMotionHumanArmTarget.Frame,
   ): IAutoMovieMotionHumanPrimitive {
     return move({
       body,
@@ -233,12 +239,12 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function retract(
-    body: IHumanBody,
-    clock: AutoMovieMotionClock.IClock,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    clock: IAutoMovieMotionClock,
+    side: AutoMovieHumanSide,
     window: readonly [string, string],
-    target: AutoMovieMotionHumanArmTarget.Frame,
-    to: AutoMovieMotionHumanArmTarget.IOrigin,
+    target: IAutoMovieMotionHumanArmTarget.Frame,
+    to: IAutoMovieMotionHumanArmTarget.IOrigin,
   ): IAutoMovieMotionHumanPrimitive {
     return move({
       body,

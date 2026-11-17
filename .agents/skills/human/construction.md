@@ -36,7 +36,7 @@ The parts' topology selects the operator:
 
 **Recesses.** Preserve real recesses and openings, such as the slit under the arm or the gap between the lips. A tape hull bridges them, and a common outward envelope cannot replace them.
 
-**Merges.** A merge or diff combines defined volumes; it neither establishes shared ownership nor repairs independent boundaries. Verify the source connection under [Shared Connections](verification.md#shared-connections) first, then judge the realized band, continuation, trim or Boolean separately. An operator failure never justifies distorting a valid anatomical input.
+**Merges.** A merge or diff combines defined volumes; it neither establishes shared ownership nor repairs independent boundaries. Verify the source connection under [Shared connections](verification.md#shared-connections) first, then judge the realized band, continuation, trim or Boolean separately. An operator failure never justifies distorting a valid anatomical input.
 
 ## Repair
 
@@ -46,14 +46,14 @@ Fix a defect where it is made, in this order. A fix at a later stage hides the e
 2. **The lines.** A connection defect is a 2D line defect until the overlaid lines at the joint agree. Correct the lines under [Connections](#connections).
 3. **The wall.** For a crease, slash, notch or step on a conic wall, read the wall's own curves there: the anchor lines, the curvature across each anchor, and each field between its knots. List the values at a bound or near a chord, then lay them again from the sound neighbouring knots, checking each neighbour in turn. Cover nothing with a net or relief.
 4. **The dependents.** Refit every relief, cutter and band that sits on a changed wall, on the new wall, in the same change. A relief whose window lies wholly past a splice is carried unchanged.
-5. **The reliefs.** A relief carries only skin its cast sees, under [Lofting](../3d-modeling/lofting.md#composition-before-lofting). A form a relief cannot see belongs to the wall as an inflection line, or to its own family.
+5. **The reliefs.** A relief carries only skin its cast sees, under [Lofting](../3d-modeling/crafting/lofting.md#composition-before-lofting). A form a relief cannot see belongs to the wall as an inflection line, or to its own family.
 6. **The kernel.** A missing capability goes into the engine under the [Tree](#tree) rule.
 
 Before the first change to an item, reread the governing skill sections, read the engine code at the operator and the record, research the method, and decide by the measured cause.
 
 A method grounded in the skills is not dropped for a failed run. A refusal measures a binding cause in the run, such as its target, windows, seed, knots or bounds. Isolate that cause with controls: the tool's existing mode as designed, then one change at a time against it. Fix the cause and keep the method. A method is set aside only when a measured cause shows it cannot express the form.
 
-## Parametric Identity And Binding
+## Parametric identity and binding
 
 - Keep logical anatomical names, source controls, generated streams and surface charts as distinct identities. Map each logical region to its source subdomain, ports and material charts. Duplicating geometry to keep an old chain name forks it.
 - Keep semantic measurement constraints distinct from direct curve authority. A curve edit that changes a locked measurement needs its declared constraint solve or an explicit refusal.

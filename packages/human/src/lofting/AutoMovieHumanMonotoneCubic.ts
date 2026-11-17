@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanMonotoneCubic } from "@automovie/interface";
+
 /**
  * Monotone piecewise cubic Hermite interpolation through knots (Fritsch
  * and Carlson 1980, "Monotone piecewise cubic interpolation").
@@ -20,7 +22,7 @@ export namespace AutoMovieHumanMonotoneCubic {
    * @returns The interpolated value.
    */
   export function interpolate(
-    knots: readonly (readonly [number, number])[],
+    knots: IAutoMovieHumanMonotoneCubic.InterpolateKnots,
     x: number,
     merge: number = 0,
   ): number {

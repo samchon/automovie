@@ -1,6 +1,4 @@
 import {
-  IAutoMovieFormationGrounding,
-  IAutoMovieFormationPlacement,
   formationSlot,
   formationSlotPosition,
   worldHeightfield,
@@ -10,6 +8,8 @@ import {
 } from "@automovie/engine";
 import {
   IAutoMovieFormationDesign,
+  type IAutoMovieFormationGrounding,
+  type IAutoMovieFormationPlacement,
   IAutoMovieVector3,
   IAutoMovieWorldSurface,
 } from "@automovie/interface";

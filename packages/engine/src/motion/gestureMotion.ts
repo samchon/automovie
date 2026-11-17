@@ -1,4 +1,5 @@
 import {
+  type AutoMovieGenericGesture,
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieKeyframe,
@@ -6,7 +7,7 @@ import {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import { AutoMovieGenericGesture } from "./AutoMovieGenericGesture";
+import { Transform } from "../math/Transform";
 
 const GENERIC: Set<string> = new Set<string>([
   "bow",
@@ -279,11 +280,7 @@ function jumpPose(
   const knee: number = Math.min(legFlex * 1.4, 62);
   return {
     skeleton,
-    root: {
-      translation: { x: 0, y: rootY, z: 0 },
-      rotation: { x: 0, y: 0, z: 0, w: 1 },
-      scale: { x: 1, y: 1, z: 1 },
-    },
+    root: Transform.of({ x: 0, y: rootY, z: 0 }, { x: 0, y: 0, z: 0, w: 1 }),
     joints: [
       j("leftUpperLeg", { flexion: legFlex }),
       j("rightUpperLeg", { flexion: legFlex }),

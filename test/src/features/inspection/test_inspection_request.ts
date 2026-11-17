@@ -1,6 +1,9 @@
+import type {
+  AutoMovieInspectionShade,
+  IAutoMovieInspectionRequest,
+} from "@automovie/interface";
 import {
   AUTO_MOVIE_INSPECTION_KEYS,
-  type IAutoMovieInspectionRequest,
   formatAutoMovieInspectionRequest,
   parseAutoMovieInspectionRequest,
 } from "@automovie/render";
@@ -96,7 +99,7 @@ export function test_inspection_request(): void {
     }),
     full,
   );
-  const shades: IAutoMovieInspectionRequest.Shade[] = [
+  const shades: AutoMovieInspectionShade[] = [
     "beauty",
     "depth",
     "mask",

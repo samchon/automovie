@@ -1,6 +1,9 @@
-import { IAutoMovieValidation } from "@automovie/interface";
+import {
+  type IAutoMovieMeshTopologyValidationProps,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
-import type { IAutoMovieMeshTopologyValidationProps } from "./IAutoMovieMeshTopologyValidationProps";
 import { ViolationCollector } from "./ViolationCollector";
 import { appendMeshTopology } from "./appendMeshTopology";
 
@@ -20,7 +23,7 @@ export const validateMeshTopology: (
 ) => IAutoMovieValidation = (
   props: IAutoMovieMeshTopologyValidationProps,
 ): IAutoMovieValidation => {
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   appendMeshTopology(
     props.mesh,
     props.path ?? "$input",

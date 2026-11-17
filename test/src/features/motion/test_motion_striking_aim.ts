@@ -1,5 +1,8 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanStrikingAim,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { StrikingAim } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -30,7 +33,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 scenarios and what each pins.
  */
 export function test_motion_striking_aim(): void {
-  const timing: StrikingAim.ITiming = {
+  const timing: IAutoMovieMotionHumanStrikingAim.ITiming = {
     launch: 1,
     impact: 1.4,
     latency: 0.11,

@@ -7,22 +7,19 @@ import {
   IAutoMovieJointPose,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
+  type IAutoMovieMotionSample,
   IAutoMoviePose,
   IAutoMovieTransform,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import { Transform } from "../math/Transform";
 import { Vector3 } from "../math/Vector3";
 import { segmentIndex } from "../math/segmentIndex";
-import { IAutoMovieMotionSample } from "./IAutoMovieMotionSample";
 import { cubicBezierEasing } from "./cubicBezierEasing";
 import { ease } from "./ease";
 
-const IDENTITY_TRANSFORM: IAutoMovieTransform = {
-  translation: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-  scale: { x: 1, y: 1, z: 1 },
-};
+const IDENTITY_TRANSFORM: IAutoMovieTransform = Transform.identity();
 
 /**
  * Sample caller-admitted clinical motion at finite seconds using clamped or looping clip time and the outgoing segment's easing. Ordered finite keyframes and valid pose/easing data are validateMotion's premise. End samples shallowly share frame data; interior samples interpolate joints, roots and expressions, treating unauthored values as neutral.

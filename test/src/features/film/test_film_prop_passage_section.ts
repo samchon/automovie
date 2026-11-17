@@ -1,11 +1,11 @@
 import {
-  type IAutoMoviePassageBlockage,
   propBlockedPassages,
   validateBuiltEnvironment,
 } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConstraintViolation,
+  IAutoMoviePassageBlockage,
   IAutoMoviePropBox,
   IAutoMovieValidation,
 } from "@automovie/interface";

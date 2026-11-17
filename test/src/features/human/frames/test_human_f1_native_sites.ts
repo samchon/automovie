@@ -1,4 +1,3 @@
-import type { AutoMovieViewAxis } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanCourseRuns as Runs,
@@ -6,6 +5,7 @@ import {
   AutoMovieHumanF1NativeSites as Sites,
   AutoMovieHumanF1RootRails as Rails,
 } from "@automovie/human";
+import type { IAutoMovieViewAxis } from "@automovie/interface";
 
 /**
  * f1's native measurement sites stand where their definitions put them, and the calibration reads them from that one owner.
@@ -58,7 +58,7 @@ export function test_human_f1_native_sites(): void {
     if (site.segment !== segment) failures.push(`${what} is carried by ${site.segment}, not ${segment}`);
 
   // 2. Nearest-datum sites are local minima of the distance to their datum.
-  const axes: Record<string, AutoMovieViewAxis.IAxis> = {
+  const axes: Record<string, IAutoMovieViewAxis.IAxis> = {
     arm: H.axis(Sites.F1.body.arm),
     hand: H.axis(Sites.F1.body.hand),
     leg: H.axis(Sites.F1.body.leg),
@@ -76,7 +76,7 @@ export function test_human_f1_native_sites(): void {
     [sites.extremities.foot, Sites.F1.point("footBall"), "extremities.foot"],
   ];
   for (const [site, datum, name] of datums) {
-    const axis: AutoMovieViewAxis.IAxis = axes[site.family]!;
+    const axis: IAutoMovieViewAxis.IAxis = axes[site.family]!;
     const d = (s: number): number => {
       const o: readonly number[] = axis.at(s).origin;
       return Math.hypot(o[0]! - datum[0]!, o[1]! - datum[1]!, o[2]! - datum[2]!);

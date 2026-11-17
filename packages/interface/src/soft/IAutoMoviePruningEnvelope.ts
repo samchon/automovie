@@ -1,4 +1,4 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * The volume a plant is kept inside.
@@ -14,6 +14,9 @@ export type IAutoMoviePruningEnvelope =
   | IAutoMoviePruningEnvelope.INone
   | IAutoMoviePruningEnvelope.IBox
   | IAutoMoviePruningEnvelope.ISphere;
+/**
+ * Analytic recipe-frame branch-centreline pruning alternatives.
+ */
 export namespace IAutoMoviePruningEnvelope {
   /**
    * Unpruned branching structure.

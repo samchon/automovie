@@ -1,13 +1,7 @@
 import engineManifest from "@automovie/engine/package.json";
 import humanManifest from "@automovie/human/package.json";
 import * as motions from "@automovie/motions";
-import {
-  HUMAN_ACTIONS,
-  type HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  HumanVerdicts,
-} from "@automovie/motions";
+import { HUMAN_ACTIONS } from "@automovie/motions";
 import motionsManifest from "@automovie/motions/package.json";
 import renderManifest from "@automovie/render/package.json";
 import viewerManifest from "@automovie/viewer/package.json";
@@ -15,25 +9,24 @@ import viewerManifest from "@automovie/viewer/package.json";
 import { SCENES } from "../../scenes/SCENES";
 import { SceneStatus } from "../../scenes/package/SceneStatus";
 import type { IScene } from "../../scenes/structures/IScene";
+import { TakeClient } from "../../takes/TakeClient";
+import type { ITake } from "../../takes/structures/ITake";
 import type { IPlaygroundAdapter } from "../IPlaygroundAdapter";
 import { PLAYGROUND_BODIES } from "../data/PLAYGROUND_BODIES";
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
-import type { IPlaygroundRefusal } from "../structures/IPlaygroundRefusal";
-import type { IPlaygroundTimeline } from "../structures/IPlaygroundTimeline";
 import type { IPlaygroundVerdicts } from "../structures/IPlaygroundVerdicts";
 import type { IPlaygroundVocabulary } from "../structures/IPlaygroundVocabulary";
 import { PlaygroundChain } from "./PlaygroundChain";
-import { PlaygroundPerformance } from "./PlaygroundPerformance";
 import { PlaygroundSchema } from "./PlaygroundSchema";
 import { PlaygroundStage } from "./PlaygroundStage";
 
 /**
- * The adapter over the installed packages: it builds a `HumanPerformance` of
- * `@automovie/motions` in the browser, on bodies of `@automovie/human`, and
- * reads the timeline, the refusal and the verdict report from it.
- *
- * Every list it describes is read from the packages' own data, so the
- * editor follows the installed release.
+ * The adapter over the installed packages. It lists the vocabulary from the
+ * packages' own data, so the editor follows the installed release, and it
+ * computes a composition through `TakeClient` in the take worker, the path
+ * every scene takes too, so the page stays responsive while a take is
+ * planned and posed and a scene and its playground composition are one
+ * performance.
  */
 export const PlaygroundPackageAdapter: IPlaygroundAdapter = {
   describe: async (): Promise<IPlaygroundVocabulary> => {
@@ -123,134 +116,40 @@ export const PlaygroundPackageAdapter: IPlaygroundAdapter = {
   perform: async (
     composition: IPlaygroundComposition,
   ): Promise<IPlaygroundAdapter.Result> => {
-    // Let the page paint its "building" state before the synchronous work.
-    await pause();
+    // A failure of the worker itself is shown as the playground shows any
+    // other error, in place of the performance.
+    let result: TakeClient.Result;
     try {
-      const { performance, figures }: PlaygroundPerformance.IBuilt =
-        PlaygroundPerformance.build(composition);
+      result = await TakeClient.take(composition, PlaygroundStage.FPS);
+    } catch (error) {
       return {
-        kind: "performance",
-        performance: {
-          timeline: timeline(performance, composition),
-          mount: (root: HTMLElement): IPlaygroundAdapter.IMounted =>
-            PlaygroundStage.mount(root, performance, figures),
-          verdicts: async (): Promise<IPlaygroundVerdicts> => {
-            await pause();
-            const report: HumanVerdicts.IReport = HumanVerdicts.of(performance);
-            return {
-              clean: report.clean,
-              text: HumanVerdicts.describe(report),
-              findings: report.findings.map(
-                (
-                  finding: HumanVerdicts.IFinding,
-                ): IPlaygroundVerdicts.IFinding => ({ ...finding }),
-              ),
-            };
-          },
+        kind: "refusal",
+        refusal: {
+          kind: "error",
+          message: error instanceof Error ? error.message : String(error),
+          performer: "",
+          act: "",
+          instance: 0,
+          axis: "",
+          value: undefined,
+          feasible: null,
+          alternatives: [],
+          fix: "",
         },
       };
-    } catch (error) {
-      return { kind: "refusal", refusal: refusal(error) };
     }
-  },
-};
-
-/** Yield to the browser once, so a state set before heavy synchronous work is painted. */
-const pause = (): Promise<void> =>
-  new Promise((resolve: () => void): void => {
-    setTimeout(resolve, 30);
-  });
-
-/** A thrown value as the playground's refusal: a `HumanRefusal` field for field, anything else as an error with its message. */
-const refusal = (error: unknown): IPlaygroundRefusal => {
-  if (error instanceof HumanRefusal)
+    if (result.kind === "refusal")
+      return { kind: "refusal", refusal: result.refusal };
+    const take: ITake = result.take;
     return {
-      kind: error.kind,
-      message: error.message,
-      performer: error.performer,
-      act: error.act,
-      instance: error.instance,
-      axis: error.axis,
-      value: error.value,
-      feasible:
-        error.feasible === null ? null : HumanRefusal.describe(error.feasible),
-      alternatives:
-        error.feasible !== null && error.feasible.kind === "alternatives"
-          ? [...error.feasible.values]
-          : [],
-      fix: error.fix,
+      kind: "performance",
+      performance: {
+        timeline: take.timeline,
+        mount: (root: HTMLElement): IPlaygroundAdapter.IMounted =>
+          PlaygroundStage.mount(root, take),
+        verdicts: (): Promise<IPlaygroundVerdicts> =>
+          TakeClient.verdicts(composition),
+      },
     };
-  return {
-    kind: "error",
-    message: error instanceof Error ? error.message : String(error),
-    performer: "",
-    act: "",
-    instance: 0,
-    axis: "",
-    value: undefined,
-    feasible: null,
-    alternatives: [],
-    fix: "",
-  };
-};
-
-/** The placed actions of every performer, with each action's named instants inside its span. */
-const timeline = (
-  performance: HumanPerformance,
-  composition: IPlaygroundComposition,
-): IPlaygroundTimeline => {
-  const span = (
-    segment: HumanSegment.ISegment,
-    overlay: boolean,
-  ): IPlaygroundTimeline.ISpan => ({
-    name: segment.name,
-    id: segment.id,
-    from: segment.entryTime,
-    to: segment.end,
-    overlay,
-    events: segment.plan.events
-      .map(
-        (event: {
-          name: string;
-          share: number;
-        }): IPlaygroundTimeline.IEvent => ({
-          name: event.name,
-          seconds: segment.start + event.share * segment.plan.duration,
-        }),
-      )
-      .filter(
-        (event: IPlaygroundTimeline.IEvent): boolean =>
-          event.seconds >= segment.entryTime - 1e-9 &&
-          event.seconds <= segment.end + 1e-9,
-      ),
-  });
-
-  // `overlays` exists only on releases whose chain has `over`.
-  const overlays:
-    | ((subject: string) => readonly HumanSegment.ISegment[])
-    | undefined = (
-    performance as unknown as {
-      overlays?: (subject: string) => readonly HumanSegment.ISegment[];
-    }
-  ).overlays;
-  return {
-    duration: performance.duration,
-    tracks: composition.performers.map(
-      (
-        performer: IPlaygroundComposition.IPerformer,
-      ): IPlaygroundTimeline.ITrack => ({
-        subject: performer.subject,
-        spans: [
-          ...performance
-            .segments(performer.subject)
-            .map((s: HumanSegment.ISegment) => span(s, false)),
-          ...(overlays === undefined
-            ? []
-            : overlays
-                .call(performance, performer.subject)
-                .map((s: HumanSegment.ISegment) => span(s, true))),
-        ],
-      }),
-    ),
-  };
+  },
 };

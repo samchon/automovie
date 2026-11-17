@@ -1,6 +1,6 @@
 import type { IAutoMovieBicubicAtlasGeometry } from "./IAutoMovieBicubicAtlasGeometry";
-import { IAutoMovieMeshGeometry } from "./IAutoMovieMeshGeometry";
-import { IAutoMoviePrimitiveGeometry } from "./IAutoMoviePrimitiveGeometry";
+import type { IAutoMovieMeshGeometry } from "./IAutoMovieMeshGeometry";
+import type { IAutoMoviePrimitiveGeometry } from "./IAutoMoviePrimitiveGeometry";
 
 /**
  * One model part's primitive, shared bicubic atlas, or explicit triangle data.

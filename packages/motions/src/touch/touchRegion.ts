@@ -1,27 +1,29 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTouchSite,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { touchSite } from "./touchSite";
 
 /**
  * Where the touch law reads a region at a second: on which bones, and moved
- * to which site.
+ * to which site; and how far about that site a hand may land.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read and the two things that decide it.
  * @evidence contracts/development/design.md#principled-representation One reader per plan, a function of the target and the posture so far, as the touch stroke asks for its region.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function; split from the touch law so each file holds one responsibility.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two functions, the reader and the landing disc; split from the touch law so each file holds one responsibility.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the touch stroke's region resolver and the site owner; no region is named.
  */
 export namespace touchRegion {
@@ -52,18 +54,21 @@ export namespace touchRegion {
    */
   export function reader(
     context: Pick<
-      IHumanActionContext,
+      IAutoMovieMotionHumanActionContext,
       "aim" | "body" | "prop" | "series" | "start"
     >,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: HumanHand.Side,
-    target: AutoMovieMotionTarget,
-    site: touchSite.ISite | undefined,
+    side: AutoMovieHumanSide,
+    target: IAutoMovieMotionTarget,
+    site: IAutoMovieMotionHumanTouchSite.ISite | undefined,
   ): (
-    target: AutoMovieMotionTarget,
+    target: IAutoMovieMotionTarget,
     legs: boolean,
-  ) => (posture: IHumanPosture, seconds: number) => touchSite.IFrame {
-    const body: IHumanBody = context.body;
+  ) => (
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+  ) => IAutoMovieMotionHumanTouchSite.IFrame {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const sited: ReturnType<typeof touchSite.of> | undefined =
       site === undefined ? undefined : touchSite.of(context, site);
     const shoulder: IAutoMovieVector3 = bones.get(
@@ -85,32 +90,39 @@ export namespace touchRegion {
       along = touchSite.span(context, target.subject, target.point, site.along);
     }
     return (
-        aimed: AutoMovieMotionTarget,
+        aimed: IAutoMovieMotionTarget,
         legs: boolean,
-      ): ((posture: IHumanPosture, seconds: number) => touchSite.IFrame) =>
-      (posture: IHumanPosture, seconds: number): touchSite.IFrame => {
-        const frame: touchSite.IFrame = AutoMovieMotionHumanTouch.region(
-          context,
-          aimed,
-          context.start + seconds,
-          posture,
-          legs && onLeg(body, aimed)
-            ? poseBones(
-                body,
-                resolveHumanPosture(body, {
-                  ...posture,
-                  limbs: {
-                    ...(posture.limbs.leftLeg === undefined
-                      ? {}
-                      : { leftLeg: posture.limbs.leftLeg }),
-                    ...(posture.limbs.rightLeg === undefined
-                      ? {}
-                      : { rightLeg: posture.limbs.rightLeg }),
-                  },
-                }),
-              )
-            : bones,
-        );
+      ): ((
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ) => IAutoMovieMotionHumanTouchSite.IFrame) =>
+      (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanTouchSite.IFrame => {
+        const frame: IAutoMovieMotionHumanTouchSite.IFrame =
+          AutoMovieMotionHumanTouch.region(
+            context,
+            aimed,
+            context.start + seconds,
+            posture,
+            legs && onLeg(body, aimed)
+              ? poseBones(
+                  body,
+                  resolveHumanPosture(body, {
+                    ...posture,
+                    limbs: {
+                      ...(posture.limbs.leftLeg === undefined
+                        ? {}
+                        : { leftLeg: posture.limbs.leftLeg }),
+                      ...(posture.limbs.rightLeg === undefined
+                        ? {}
+                        : { rightLeg: posture.limbs.rightLeg }),
+                    },
+                  }),
+                )
+              : bones,
+          );
         if (sited === undefined || aimed !== target) return frame;
         return along === undefined
           ? sited(frame, shoulder)
@@ -120,12 +132,39 @@ export namespace touchRegion {
             };
       };
   }
+
+  /**
+   * The radius about its site a hand may land within on its region: the
+   * first hand's site's own radius (drawn or chosen within), else the
+   * region's extent on the body it belongs to (a region is an area,
+   * `AutoMovieHumanoidSurfaceRegions`); none for a prop or a point.
+   *
+   * @param context The action's context.
+   * @param target The hand's target.
+   * @param site The hand's site, the first hand's only.
+   * @returns Metres, or `undefined`.
+   */
+  export function disc(
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "performer">,
+    target: IAutoMovieMotionTarget,
+    site: IAutoMovieMotionHumanTouchSite.ISite | undefined,
+  ): number | undefined {
+    if (site !== undefined && "draw" in site) return site.draw;
+    if (site !== undefined && "within" in site) return site.within;
+    if (target.kind === "self")
+      return context.body.surfaces.regions[target.region].radius;
+    if (target.kind === "person")
+      return context.performer(target.subject).body.surfaces.regions[
+        target.region
+      ].radius;
+    return undefined;
+  }
 }
 
 /** Whether a self region rides a leg, which a lean moves with the hips. */
 function onLeg(
-  body: IHumanActionContext["body"],
-  target: AutoMovieMotionTarget,
+  body: IAutoMovieMotionHumanActionContext["body"],
+  target: IAutoMovieMotionTarget,
 ): boolean {
   if (target.kind !== "self") return false;
   return /(UpperLeg|LowerLeg|Foot|Toes)$/.test(

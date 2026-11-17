@@ -1,13 +1,36 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import { type AutoMovieConstructionRealization, type AutoMovieLoftFrame, AutoMovieLoftViewFullSource as Full, type AutoMovieViewAxis, AutoMovieViewChain, type IAutoMovieSolidSurface, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
-import { AutoMovieHumanF1Armscye as Armscye, AutoMovieHumanConicLoft as H, AutoMovieHumanConicSection as S, AutoMovieHumanF1, AutoMovieHumanF1Joints, AutoMovieHumanF1Placement } from "@automovie/human";
-import type { AutoMovieConstructionNode, AutoMovieConstructionWidth } from "@automovie/interface";
 import { FamilyConicNearest as Nearest } from "./FamilyConicNearest";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import {
+  AutoMovieLoftViewFullSource as Full,
+  AutoMovieViewChain,
+  realizeAutoMovieConstruction,
+} from "@automovie/engine";
+import {
+  AutoMovieHumanConicLoft as H,
+  AutoMovieHumanConicSection as S,
+  AutoMovieHumanF1,
+  AutoMovieHumanF1Armscye as Armscye,
+  AutoMovieHumanF1Joints,
+  AutoMovieHumanF1Placement,
+} from "@automovie/human";
+import type {
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
+  IAutoMovieConstructionWidth,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewAxis,
+  IAutoMovieViewChain,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /**
  * The armscye as a shared-loop join, pre-checked on f1's two generated fields before anything is built (the Human skill's Shared
@@ -48,7 +71,7 @@ namespace FamilyConicArmscyeJoin {
   const normal = (jet: IAutoMovieSolidSurface.IJet): V => unit(cross(jet.u, jet.v));
 
   /** The phase in `[low, high]` where the trunk's skin at `station` stands at `z = c`, by bisection; null when the ends do not bracket it. */
-  function phaseAt(trunk: Full.IReader, station: number, c: number, low: number, high: number): number | null {
+  function phaseAt(trunk: IAutoMovieLoftViewFullSource.IReader, station: number, c: number, low: number, high: number): number | null {
     const f = (t: number): number => trunk.point(station, t)[2]! - c;
     let [a, b]: [number, number] = [low, high];
     let [fa, fb]: [number, number] = [f(a), f(b)];
@@ -74,16 +97,16 @@ namespace FamilyConicArmscyeJoin {
     const file: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--arm="))?.slice(6);
     // `--part=<family>`: any stored family of the figure in place of the arm (a breast, a nose), read against the trunk the same way.
     const named: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--part="))?.slice(7);
-    const stored: H.IFamily | undefined = named === undefined ? AutoMovieHumanF1.BODY.arm : AutoMovieHumanF1.FAMILIES.find((m: AutoMovieHumanF1.IMember): boolean => m.family.name === named)?.family;
+    const stored: IAutoMovieHumanConicLoft.IFamily | undefined = named === undefined ? AutoMovieHumanF1.BODY.arm : AutoMovieHumanF1.FAMILIES.find((m: IAutoMovieHumanF1.IMember): boolean => m.family.name === named)?.family;
     if (stored === undefined) throw new Error("--part: the figure has no family named " + named);
-    const family: H.IFamily = file === undefined ? stored : (JSON.parse(await fs.readFile(file, "utf8")) as H.IFamily);
+    const family: IAutoMovieHumanConicLoft.IFamily = file === undefined ? stored : (JSON.parse(await fs.readFile(file, "utf8")) as IAutoMovieHumanConicLoft.IFamily);
     const carried: number = Number(process.argv.find((a: string): boolean => a.startsWith("--carried="))?.slice(10) ?? 0);
     const from: number = family.knots[0]! - carried;
     const reach: number = Math.min(200, family.knots.at(-1)! - from);
     const armPart: IAutoMovieViewPart = H.part({ ...family, tips: undefined }, Array.from({ length: 101 }, (_: unknown, i: number): number => from + (reach * i) / 100));
-    const [arm, trunk]: Full.IReader[] = [Full.create(armPart), Full.create(trunkPart)];
+    const [arm, trunk]: IAutoMovieLoftViewFullSource.IReader[] = [Full.create(armPart), Full.create(trunkPart)];
     const grid: Nearest.IGrid = Nearest.grid([(await R.load(path.resolve(process.cwd(), ".."))).all]);
-    const foot: AutoMovieLoftFrame.IFrame = trunkPart.axis.at(0);
+    const foot: IAutoMovieLoftSectionFrame = trunkPart.axis.at(0);
     const tangent: V = unit(cross(foot.v, foot.u));
     const address = (p: readonly number[]): [number, number, number] => {
       const q: V = sub(p, foot.origin);
@@ -187,17 +210,17 @@ namespace FamilyConicArmscyeJoin {
       const stored: IAutoMovieViewPart | undefined =
         trunkFile === undefined
           ? AutoMovieHumanF1.construction().sources.get("trunk")
-          : H.part({ ...(JSON.parse(await fs.readFile(trunkFile, "utf8")) as H.IFamily), name: "trunk" }, Array.from({ length: 222 }, (_: unknown, i: number): number => 28 + 4 * i));
+          : H.part({ ...(JSON.parse(await fs.readFile(trunkFile, "utf8")) as IAutoMovieHumanConicLoft.IFamily), name: "trunk" }, Array.from({ length: 222 }, (_: unknown, i: number): number => 28 + 4 * i));
       if (stored === undefined) throw new Error("f1 has no trunk source");
       return contact(stored);
     }
     const sources: ReadonlyMap<string, IAutoMovieViewPart> = AutoMovieHumanF1.construction().sources;
     const [trunkPart, armPart]: (IAutoMovieViewPart | undefined)[] = [sources.get("trunk"), sources.get("arm")];
     if (trunkPart === undefined || armPart === undefined) throw new Error("f1 has no trunk or arm source: " + [...sources.keys()].join(", "));
-    const [trunk, arm]: Full.IReader[] = [Full.create(trunkPart), Full.create(armPart)];
+    const [trunk, arm]: IAutoMovieLoftViewFullSource.IReader[] = [Full.create(trunkPart), Full.create(armPart)];
     const out: string[] = [];
     out.push(`trunk domain ${trunk!.domain.join(" to ")} mm, reliefs ${(trunkPart.reliefs ?? []).length}; arm domain ${arm!.domain.join(" to ")} mm, reliefs ${(armPart.reliefs ?? []).length}`);
-    const root: AutoMovieLoftFrame.IFrame = armPart.axis.at(arm!.domain[0]);
+    const root: IAutoMovieLoftSectionFrame = armPart.axis.at(arm!.domain[0]);
     out.push(`arm course at its first station: origin [${root.origin.map((x: number): string => x.toFixed(2)).join(", ")}]`);
     for (const c of PLANES) {
       const station: number = arm!.domain[0] + (c - root.origin[2]!);
@@ -207,7 +230,7 @@ namespace FamilyConicArmscyeJoin {
         out.push("the arm's source does not reach this plane");
         continue;
       }
-      const frame: AutoMovieLoftFrame.IFrame = armPart.axis.at(station);
+      const frame: IAutoMovieLoftSectionFrame = armPart.axis.at(station);
       const tangent: V = unit(cross(frame.v, frame.u));
       out.push(`arm section plane normal [${tangent.map((x: number): string => x.toFixed(4)).join(", ")}] (the sagittal plane's is [0, 0, 1])`);
 
@@ -263,7 +286,7 @@ namespace FamilyConicArmscyeJoin {
     // each station line of the arm that faces the trunk, the first station at which the arm's skin leaves the trunk's solid. The trunk's
     // sections are level about its vertical course, so a point's trunk station is its height above the course's foot and its phase the
     // polar angle of (x, z); it is inside where it stands nearer the course than the trunk's skin at that address.
-    const foot: AutoMovieLoftFrame.IFrame = trunkPart.axis.at(0);
+    const foot: IAutoMovieLoftSectionFrame = trunkPart.axis.at(0);
     const depth = (p: readonly number[]): number | null => {
       const q: V = sub(p, foot.origin);
       const s: number = dot(q, unit(cross(foot.v, foot.u)));
@@ -305,12 +328,12 @@ namespace FamilyConicArmscyeJoin {
     // The stored arm carried inward of its first knot: its fields' natural cubics run on along their end tangents, as a loose family's
     // reach carries them. By arm chart angle, the station between `CARRIED.from` and the first knot plus 30 mm where that wall crosses
     // the trunk's skin (inside before, outside after), or how near the two come where they do not cross.
-    const family: H.IFamily = AutoMovieHumanF1.BODY.arm;
-    const course: AutoMovieViewAxis.IAxis = H.axis(family);
+    const family: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.BODY.arm;
+    const course: IAutoMovieViewAxis.IAxis = H.axis(family);
     const read: (s: number) => number[] = H.reader(family);
     const wall = (s: number, angle: number): V => {
-      const frame: AutoMovieLoftFrame.IFrame = course.at(s);
-      const section: AutoMovieViewChain.ISection = S.chain(read(s), family.layout);
+      const frame: IAutoMovieLoftSectionFrame = course.at(s);
+      const section: IAutoMovieViewChain.ISection = S.chain(read(s), family.layout);
       if (section.fault !== null) throw new Error("the carried arm's section at " + s + " is not admitted: " + section.fault);
       const r: number = AutoMovieViewChain.radius(section, angle);
       return [0, 1, 2].map((k: number): number => frame.origin[k]! + r * (Math.cos(angle) * frame.u[k]! + Math.sin(angle) * frame.v[k]!)) as V;
@@ -349,7 +372,7 @@ namespace FamilyConicArmscyeJoin {
     // The loop's candidate by rule: on the arm's carried face with its reliefs, by source phase, the crossing of the trunk's skin
     // nearest the ring at `RING` (the arm's ring in the record's armscye plane), and the two skins' gap at that ring where no crossing
     // stands within `NEAR` of it.
-    const carried: Full.IReader = Full.create(H.part(family, Array.from({ length: 76 }, (_: unknown, i: number): number => CARRIED.from + 2 * i)));
+    const carried: IAutoMovieLoftViewFullSource.IReader = Full.create(H.part(family, Array.from({ length: 76 }, (_: unknown, i: number): number => CARRIED.from + 2 * i)));
     out.push("");
     out.push(`== nearest crossing to the ring at station ${RING}, carried face with reliefs (domain ${carried.domain.join(" to ")}) ==`);
     out.push("arm phase deg | depth at the ring mm (+ inside the trunk) | nearest crossing station | loop station by rule | gap there mm");
@@ -392,13 +415,13 @@ namespace FamilyConicArmscyeJoin {
    * carried along the end tangents, and the arm's depth in the trunk at the ring. Where the loop lies on carried wall, its distance to
    * the reference says whether an extrapolation is drawing the join's edge.
    */
-  async function reference(family: H.IFamily, trunkPart: IAutoMovieViewPart, depth: (p: readonly number[]) => number | null): Promise<void> {
+  async function reference(family: IAutoMovieHumanConicLoft.IFamily, trunkPart: IAutoMovieViewPart, depth: (p: readonly number[]) => number | null): Promise<void> {
     const source: R.ISource = await R.load(path.resolve(process.cwd(), ".."));
     const grid: Nearest.IGrid = Nearest.grid([source.body]);
     const armPart: IAutoMovieViewPart = H.part(family, Array.from({ length: 77 }, (_: unknown, i: number): number => family.knots[0]! - Armscye.CARRIED_MM + 2 * i));
     const contact: Armscye.IContact = Armscye.create(trunkPart, armPart, 96);
-    const [arm, trunk]: Full.IReader[] = [Full.create(armPart), Full.create(trunkPart)];
-    const foot: AutoMovieLoftFrame.IFrame = trunkPart.axis.at(0);
+    const [arm, trunk]: IAutoMovieLoftViewFullSource.IReader[] = [Full.create(armPart), Full.create(trunkPart)];
+    const foot: IAutoMovieLoftSectionFrame = trunkPart.axis.at(0);
     const out: string[] = ["", `== the generated loop against the reference's skin (largest gap between the two fields on it ${contact.gap.toFixed(2)} mm) ==`];
     out.push("arm phase deg | loop station (fitted or carried) | arm point x, y, z | arm point to reference mm | trunk drop to reference mm | gap arm-trunk mm | depth at the ring mm");
     const step: number = contact.stations.length / 144;
@@ -422,7 +445,7 @@ namespace FamilyConicArmscyeJoin {
    * by the shared-loop join, realized by the engine; prints the contact, every diagnostic and the mesh's size, and draws the armpit and
    * the shoulder from six sides into `--out=<directory>`.
    */
-  async function realize(family: H.IFamily): Promise<void> {
+  async function realize(family: IAutoMovieHumanConicLoft.IFamily): Promise<void> {
     const out: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--out="))?.slice(6);
     if (out === undefined) throw new Error("--realize needs --out=<directory>");
     const option = (name: string, fallback: number): number => Number(process.argv.find((a: string): boolean => a.startsWith("--" + name + "="))?.slice(name.length + 3) ?? fallback);
@@ -430,7 +453,7 @@ namespace FamilyConicArmscyeJoin {
 
     // `--arm=<arm.family.json> --outermost=<mm>`: a candidate arm in place of the stored one, its contact read as its outermost leaving.
     const file: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--arm="))?.slice(6);
-    const candidate: H.IFamily = file === undefined ? family : { ...(JSON.parse(await fs.readFile(file, "utf8")) as H.IFamily), name: "arm" };
+    const candidate: IAutoMovieHumanConicLoft.IFamily = file === undefined ? family : { ...(JSON.parse(await fs.readFile(file, "utf8")) as IAutoMovieHumanConicLoft.IFamily), name: "arm" };
     const outermost: number | undefined = file === undefined ? undefined : option("outermost", 140);
     const first: number = file === undefined ? family.knots[0]! - Armscye.CARRIED_MM : candidate.knots[0]! - option("carried", 0);
 
@@ -439,10 +462,10 @@ namespace FamilyConicArmscyeJoin {
     const without: string[] = process.argv.find((a: string): boolean => a.startsWith("--without="))?.slice(10).split(",") ?? [];
     // `--trunk=<trunk.family.json>`: a candidate trunk in place of the stored one.
     const trunkFile: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--trunk="))?.slice(8);
-    const stored: H.IFamily = trunkFile === undefined ? AutoMovieHumanF1.BODY.trunk : { ...(JSON.parse(await fs.readFile(trunkFile, "utf8")) as H.IFamily), name: "trunk" };
+    const stored: IAutoMovieHumanConicLoft.IFamily = trunkFile === undefined ? AutoMovieHumanF1.BODY.trunk : { ...(JSON.parse(await fs.readFile(trunkFile, "utf8")) as IAutoMovieHumanConicLoft.IFamily), name: "trunk" };
     const missing: string[] = without.filter((name: string): boolean => !(stored.reliefs ?? []).some((r: { name: string }): boolean => r.name === name));
     if (missing.length > 0) throw new Error("--without: the trunk has no net named " + missing.join(", ") + "; it has " + (stored.reliefs ?? []).map((r: { name: string }): string => r.name).join(", "));
-    const trunk: H.IFamily = without.length === 0 ? stored : { ...stored, reliefs: (stored.reliefs ?? []).filter((r: { name: string }): boolean => !without.includes(r.name)) };
+    const trunk: IAutoMovieHumanConicLoft.IFamily = without.length === 0 ? stored : { ...stored, reliefs: (stored.reliefs ?? []).filter((r: { name: string }): boolean => !without.includes(r.name)) };
     const sources: Map<string, IAutoMovieViewPart> = new Map([
       ["trunk", H.part(trunk, Array.from({ length: 141 }, (_: unknown, i: number): number => 420 + 2 * i))],
       ["arm", H.part(candidate, Array.from({ length: 111 }, (_: unknown, i: number): number => first + 2 * i))],
@@ -460,8 +483,8 @@ namespace FamilyConicArmscyeJoin {
     // (positive outside it), the gap between the two, and the turn between the two surfaces' normals there.
     if (process.argv.includes("--table")) {
       const grid: Nearest.IGrid = Nearest.grid([(await R.load(path.resolve(process.cwd(), ".."))).all]);
-      const [armReader, trunkReader]: Full.IReader[] = [Full.create(sources.get("arm")!), Full.create(sources.get("trunk")!)];
-      const foot: AutoMovieLoftFrame.IFrame = sources.get("trunk")!.axis.at(0);
+      const [armReader, trunkReader]: IAutoMovieLoftViewFullSource.IReader[] = [Full.create(sources.get("arm")!), Full.create(sources.get("trunk")!)];
+      const foot: IAutoMovieLoftSectionFrame = sources.get("trunk")!.axis.at(0);
       const near = (x: readonly number[]): string => (Nearest.distance(grid, [x[0]!, x[1]!, x[2]!])?.toFixed(2) ?? "far");
       const rows: string[] = ["part phase deg | loop station | part point x, y, z | part point to reference mm | host drop to reference mm | gap mm | turn deg"];
       const every: number = contact.stations.length / 72;
@@ -477,8 +500,8 @@ namespace FamilyConicArmscyeJoin {
       }
       process.stdout.write(rows.join("\n") + "\n");
     }
-    const fold: AutoMovieConstructionWidth = { type: "fold", radius: option("radius", 6) / 1000, cap: option("cap", 30) / 1000, reach: option("reach", 6) / 1000 };
-    const root: AutoMovieConstructionNode = {
+    const fold: IAutoMovieConstructionWidth = { type: "fold", radius: option("radius", 6) / 1000, cap: option("cap", 30) / 1000, reach: option("reach", 6) / 1000 };
+    const root: IAutoMovieConstructionNode = {
       type: "join",
       kind: "merge",
       name: "armscye.arm",
@@ -496,7 +519,7 @@ namespace FamilyConicArmscyeJoin {
       grazing: option("grazing", 0.2),
     };
     const started: number = performance.now();
-    const real: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.armscye", root }, { chord: 0.0005, sources });
+    const real: IAutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.armscye", root }, { chord: 0.0005, sources });
     process.stdout.write(JSON.stringify({ milliseconds: Math.round(performance.now() - started), diagnostics: real.diagnostics, joins: real.joins.length, triangles: real.mesh.indices.length / 3 }).slice(0, 6000) + "\n");
     if (real.mesh.positions.length === 0) return;
     await fs.mkdir(out, { recursive: true });

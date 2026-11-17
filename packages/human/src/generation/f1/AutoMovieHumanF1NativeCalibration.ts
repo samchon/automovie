@@ -1,26 +1,34 @@
-import type {
-  AutoMovieLoftFrame,
-  AutoMovieViewAxis,
-  AutoMovieViewAxisJet,
-  IAutoMovieViewPart,
-} from "@automovie/engine";
-
-import { AutoMovieHumanNativeProjectionCourse as Course } from "../conic/AutoMovieHumanNativeProjectionCourse";
-import type { AutoMovieHumanConicSection as S } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanNativeCalipers } from "../conic/AutoMovieHumanNativeCalipers";
-import { AutoMovieHumanNativeScaleProfile as Profile } from "../conic/AutoMovieHumanNativeScaleProfile";
+import {
+  AutoMovieHumanNativeProjectionCourse as Course,
+} from "../conic/AutoMovieHumanNativeProjectionCourse";
+import {
+  AutoMovieHumanNativeScaleProfile as Profile,
+} from "../conic/AutoMovieHumanNativeScaleProfile";
 import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
-import type { AutoMovieHumanF1 as Figure } from "./AutoMovieHumanF1";
-import type { AutoMovieHumanF1NativeFieldTypes as Types } from "./AutoMovieHumanF1NativeFieldTypes";
 import { AutoMovieHumanF1NativeSites as Sites } from "./AutoMovieHumanF1NativeSites";
 import { AutoMovieHumanF1RootRails } from "./AutoMovieHumanF1RootRails";
-import { AutoMovieHumanF1SegmentLengths as Lengths } from "./AutoMovieHumanF1SegmentLengths";
+import {
+  AutoMovieHumanF1SegmentLengths as Lengths,
+} from "./AutoMovieHumanF1SegmentLengths";
+import type {
+  AutoMovieVector2Tuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanF1,
+  IAutoMovieHumanF1NativeLaw,
+  IAutoMovieHumanNativeProjectionCourse,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /** Complete directional calipers in the declared material plane, mm. */
-type ISize = Types.ISize;
+type ISize = IAutoMovieHumanF1NativeLaw.ISize;
 
 /** Existing qualified native inputs; no alternative geometry state is added. */
-type IFields = Types.IFields;
+type IFields = IAutoMovieHumanF1NativeLaw.IFields;
 
 /**
  * f1's native calibration: the calipers of her stored families at the measurement sites, one endpoint projection metric and the
@@ -33,7 +41,7 @@ export namespace AutoMovieHumanF1NativeCalibration {
     /** Qualified source fields, with projection measured from the original endpoint metric. */
     fields: IFields;
     /** Same immutable-original owner shared by every full/tape candidate. */
-    projectionOwner: Course.IProjectionOwner;
+    projectionOwner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner;
   }
 
   /** f1's sites by their definitions, from their one owner. */
@@ -90,10 +98,10 @@ export namespace AutoMovieHumanF1NativeCalibration {
     t <= 0 ? 0 : t >= 1 ? 1 : t * t * t * (10 + t * (-15 + 6 * t));
 
   /** Independent dimensionless depth/breadth ratios; the caller owns positive input admission. */
-  export const ratio: (a: ISize, b: ISize) => S.P = (
+  export const ratio: (a: ISize, b: ISize) => AutoMovieVector2Tuple = (
     a: ISize,
     b: ISize,
-  ): S.P => [a.depth / b.depth, a.breadth / b.breadth];
+  ): AutoMovieVector2Tuple => [a.depth / b.depth, a.breadth / b.breadth];
 
   /** Exact zero-edit identity, preserving the native law's unchanged-control branch. */
   export const same: (a: ISize, b: ISize) => boolean = (
@@ -108,29 +116,29 @@ export namespace AutoMovieHumanF1NativeCalibration {
    * others.
    */
   export function profile(
-    anchors: readonly (readonly [number, S.P])[],
+    anchors: readonly (readonly [number, AutoMovieVector2Tuple])[],
   ): Profile.IScale {
     return Profile.create(anchors);
   }
 
   /** A fixed translation of an original datum-defined course; directions and total2 are retained. */
   export function translated(
-    axis: AutoMovieViewAxis.IAxis,
-    delta: F.V3,
-  ): AutoMovieViewAxis.IAxis {
+    axis: IAutoMovieViewAxis.IAxis,
+    delta: AutoMovieVector3Tuple,
+  ): IAutoMovieViewAxis.IAxis {
     if (delta.every((value: number): boolean => value === 0)) return axis;
 
     /** Translate only frame origins; the original differential vectors remain untouched. */
-    const frame: (f: AutoMovieLoftFrame.IFrame) => AutoMovieLoftFrame.IFrame = (
-      f: AutoMovieLoftFrame.IFrame,
-    ): AutoMovieLoftFrame.IFrame => ({ ...f, origin: F.add(f.origin, delta) });
+    const frame: (f: IAutoMovieLoftSectionFrame) => IAutoMovieLoftSectionFrame = (
+      f: IAutoMovieLoftSectionFrame,
+    ): IAutoMovieLoftSectionFrame => ({ ...f, origin: F.add(f.origin, delta) });
     return {
-      at: (s: number): AutoMovieLoftFrame.IFrame => frame(axis.at(s)),
+      at: (s: number): IAutoMovieLoftSectionFrame => frame(axis.at(s)),
       jet: (
         s: number,
-        p: Parameters<NonNullable<AutoMovieViewAxis.IAxis["jet"]>>[1],
-      ): AutoMovieViewAxisJet.IJet | null => {
-        const jet: AutoMovieViewAxisJet.IJet | null = axis.jet?.(s, p) ?? null;
+        p: Parameters<NonNullable<IAutoMovieViewAxis.IAxis["jet"]>>[1],
+      ): IAutoMovieViewAxisJet.IJet | null => {
+        const jet: IAutoMovieViewAxisJet.IJet | null = axis.jet?.(s, p) ?? null;
         return jet === null ? null : { ...jet, value: frame(jet.value) };
       },
     };
@@ -148,7 +156,7 @@ export namespace AutoMovieHumanF1NativeCalibration {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns only the bounded scalar field records returned to its caller.
    */
   export function reference(
-    figure: Figure.IAssembly,
+    figure: IAutoMovieHumanF1.IAssembly,
     originals: ReadonlyMap<string, IAutoMovieViewPart>,
   ): IFields {
     return readReference(figure, originals).fields;
@@ -156,7 +164,7 @@ export namespace AutoMovieHumanF1NativeCalibration {
 
   /** Prepare calipers and their source-bound projection owner; its endpoint Point0/axis2 counts stay separate from caliper attempts. */
   export function readReference(
-    figure: Figure.IAssembly,
+    figure: IAutoMovieHumanF1.IAssembly,
     originals: ReadonlyMap<string, IAutoMovieViewPart>,
     onRead?: () => void,
   ): IReference {
@@ -177,15 +185,15 @@ export namespace AutoMovieHumanF1NativeCalibration {
       name: keyof IFields["roots"],
     ): ISize =>
       size(figure.body[name].name, figure.body[name].knots[0]! + RAIL[name]);
-    const femur: F.IFrame | undefined = figure.frames.get("femur");
-    const pelvis: F.IFrame | undefined = figure.frames.get("pelvis");
+    const femur: IAutoMovieHumanSegmentFrame | undefined = figure.frames.get("femur");
+    const pelvis: IAutoMovieHumanSegmentFrame | undefined = figure.frames.get("pelvis");
     if (femur === undefined || pelvis === undefined)
       throw new Error("F1 support calibration needs pelvis/femur frames");
-    const finger: Figure.IDigit | undefined = figure.digits.find(
-      (digit: Figure.IDigit): boolean => digit.limb === "arm" && digit.knuckle,
+    const finger: IAutoMovieHumanF1.IDigit | undefined = figure.digits.find(
+      (digit: IAutoMovieHumanF1.IDigit): boolean => digit.limb === "arm" && digit.knuckle,
     );
-    const toe: Figure.IDigit | undefined = figure.digits.find(
-      (digit: Figure.IDigit): boolean => digit.limb === "leg" && digit.knuckle,
+    const toe: IAutoMovieHumanF1.IDigit | undefined = figure.digits.find(
+      (digit: IAutoMovieHumanF1.IDigit): boolean => digit.limb === "leg" && digit.knuckle,
     );
     if (finger === undefined || toe === undefined)
       throw new Error(
@@ -194,7 +202,7 @@ export namespace AutoMovieHumanF1NativeCalibration {
 
     // A digit's caliper stands at its site by definition (the site owner's `digits`), on the digit the site was read on. A first knot
     // is where a digit's fitted skin begins, which is no joint and moves with every refit of its root.
-    const digitSite = (kind: "finger" | "toe", family: Figure.IDigit["family"]): number => {
+    const digitSite = (kind: "finger" | "toe", family: IAutoMovieHumanF1.IDigit["family"]): number => {
       const site: Sites.IDigitSite = SITES.digits[kind];
       if (site.family !== family.name)
         throw new Error("the " + kind + "'s caliper site was read on " + site.family + ", not on " + family.name);
@@ -208,7 +216,7 @@ export namespace AutoMovieHumanF1NativeCalibration {
     const breastSource: IAutoMovieViewPart | undefined = originals.get(figure.body.breast.name);
     if (breastSource === undefined)
       throw new Error("original breast projection source absent");
-    const projectionOwner: Course.IProjectionOwner = Course.prepare(breastSource, breastRail);
+    const projectionOwner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner = Course.prepare(breastSource, breastRail);
     const fields: IFields = {
       hipJointCentreBreadth: 2 * F.toLocal(pelvis, femur.origin)[2],
       wall: Object.fromEntries(

@@ -1,9 +1,13 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanChannel,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
 
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
-import { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 
 /**
  * Joint primitives: clinical angles written on the joints of a channel
@@ -16,53 +20,6 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Angles are keyed by the rig's bone union in the posture's own clinical triple.
  */
 export namespace AutoMovieMotionHumanJoints {
-  /**
-   * Clinical `[flexion, abduction, twist]` degrees by bone.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the triple's order and unit and the key.
-   * @evidence contracts/development/design.md#principled-representation The posture's own joint form, so added angles and held angles sum member by member.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One alias, used by every function here.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Keyed by `AutoMovieHumanoidBone`, not by string.
-   */
-  export type Angles = Partial<
-    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-  >;
-
-  /**
-   * Angles added over a window.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit, and which bones the angles may name.
-   * @evidence contracts/development/design.md#principled-representation The channels claimed, the span written and the angles added at each second.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by `add`; `pulse` fills them from a clock.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The channels are stated and checked against the bones at each second instead of being trusted.
-   */
-  export interface IAdd {
-    /** The channels whose joints are written. */
-    channels: readonly AutoMovieMotionHumanChannel[];
-
-    /** Seconds since the action's start from which the angles are added. */
-    from: number;
-
-    /** Seconds since the action's start until which the angles are added. */
-    to: number;
-
-    /**
-     * The angles added to what the posture holds.
-     *
-     * @param seconds Seconds since the action's start.
-     * @returns Degrees by bone; every bone belongs to one of the channels.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, the unit and the bones the result may name.
-     * @evidence contracts/development/implementation.md#principled-implementation The angles are a pure function of the seconds, so any time course fits one member and `add` evaluates it at each second it writes.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `add`; `pulse` fills it from a clock.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `add` checks the named bones against the claimed channels at each second, so an implementation cannot write a bone it did not claim.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    delta(seconds: number): Angles;
-  }
-
   /**
    * The channels a set of angles is written on.
    *
@@ -77,13 +34,13 @@ export namespace AutoMovieMotionHumanJoints {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanChannel.of` and `ORDER`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function channels(angles: Angles): AutoMovieMotionHumanChannel[] {
+  export function channels(
+    angles: IAutoMovieMotionHumanJoints.Angles,
+  ): AutoMovieMotionHumanChannel[] {
     const found: Set<AutoMovieMotionHumanChannel> = new Set(
-      (Object.keys(angles) as AutoMovieHumanoidBone[]).map(
-        AutoMovieMotionHumanChannel.of,
-      ),
+      (Object.keys(angles) as AutoMovieHumanoidBone[]).map(HumanChannels.of),
     );
-    return AutoMovieMotionHumanChannel.ORDER.filter(
+    return HumanChannels.ORDER.filter(
       (c: AutoMovieMotionHumanChannel): boolean => found.has(c),
     );
   }
@@ -103,18 +60,25 @@ export namespace AutoMovieMotionHumanJoints {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanChannel.of`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function add(props: IAdd): IAutoMovieMotionHumanPrimitive {
+  export function add(
+    props: IAutoMovieMotionHumanJoints.IAdd,
+  ): IAutoMovieMotionHumanPrimitive {
     return {
       channels: props.channels,
       from: props.from,
       to: props.to,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const joints: IHumanPosture["joints"] = { ...posture.joints };
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
+        const joints: IAutoMovieMotionHumanPosture["joints"] = {
+          ...posture.joints,
+        };
         for (const [bone, more] of Object.entries(props.delta(seconds)) as [
           AutoMovieHumanoidBone,
           readonly [number, number, number],
         ][]) {
-          if (!props.channels.includes(AutoMovieMotionHumanChannel.of(bone)))
+          if (!HumanChannels.covers(props.channels, bone))
             throw new Error(
               `A joint primitive writes ${bone} outside its channels`,
             );
@@ -149,18 +113,18 @@ export namespace AutoMovieMotionHumanJoints {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function pulse(
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     rise: readonly [string, string],
     fall: readonly [string, string],
-    peak: Angles,
+    peak: IAutoMovieMotionHumanJoints.Angles,
   ): IAutoMovieMotionHumanPrimitive {
     return add({
       channels: channels(peak),
       from: clock.at(rise[0]),
       to: clock.at(fall[1]),
-      delta: (seconds: number): Angles => {
+      delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles => {
         const share: number = clock.envelope(rise, fall, seconds);
-        const out: Angles = {};
+        const out: IAutoMovieMotionHumanJoints.Angles = {};
         for (const [bone, full] of Object.entries(peak) as [
           AutoMovieHumanoidBone,
           readonly [number, number, number],

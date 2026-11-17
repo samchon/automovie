@@ -1,13 +1,18 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
+  IAutoMovieMotionCoupling,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionMeeting,
+  IAutoMovieMotionMeetingKind,
+  IAutoMovieMotionMeetingRole,
+  IAutoMovieMotionMeetingTiming,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 
 /**
@@ -25,166 +30,10 @@ import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a meeting holds, when it is computed, why the order of asking does not matter and what a missing role means.
  * @evidence contracts/development/design.md#principled-representation A mutual action has one geometry and one timing that both performers obey, the scene with named roles of contextual animation and the shared synchronisation points of BML; the record is that scene, so neither law derives the other's side.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Five records and three functions. The performance computes the meeting and the action context carries it; the mutual laws read it with #3286. Default places and their resolution stay `AutoMovieMotionHumanTarget`'s.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Five records, the coupling's two names (IAutoMovieMotionCoupling, #3437) and three functions. The performance computes the meeting and the action context carries it; the mutual laws read it with #3286. Default places and their resolution stay `AutoMovieMotionHumanTarget`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing role is a shorter role list and a meeting that is not solid, not a partner made up to fill it.
  */
 export namespace AutoMovieMotionMeeting {
-  /**
-   * One performer's part in a meeting, as it stands when the meeting starts.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is and at which moment; each member gives its meaning.
-   * @evidence contracts/development/design.md#principled-representation What a kind needs to place contacts and time a role: who it is, its body, where it stands and where its bones are at the start.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five required members; the posture and the bones are picks of their owners' types, only the members a meeting reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member; an absent performer is an absent role, not a role with empty fields.
-   */
-  export interface IRole {
-    /** The role's name within the kind (`giver`, `attacker`). */
-    name: string;
-
-    /** The performer's subject id. */
-    subject: string;
-
-    /** The performer's body. */
-    body: IHumanBody;
-
-    /** Where the performer stands. */
-    posture: Pick<IHumanPosture, "root" | "yaw">;
-
-    /** The performer's world bones there. */
-    bones: ReadonlyMap<
-      AutoMovieHumanoidBone,
-      Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
-    >;
-  }
-
-  /**
-   * The three instants a meeting shares.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The instants two performers must agree on are when both are ready, when the contact is made and when it is left; they carry the names of a phrase's standard instants, so each law pins its own clock to them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three required numbers, used for a role's natural timing, the meeting's film seconds and an action's local seconds.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts One record for all three uses, whose origin each use states, instead of three records of the same shape.
-   */
-  export interface ITiming {
-    /** When the roles are ready to meet, seconds. */
-    ready: number;
-
-    /** When the contact is made, seconds. */
-    stroke: number;
-
-    /** When the contact is left, seconds. */
-    relax: number;
-  }
-
-  /**
-   * A kind of mutual action: its roles, its contacts and its natural timing.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what a kind is; each member and both methods give their meaning, parameters and units.
-   * @evidence contracts/development/design.md#principled-representation A kind is what differs between mutual actions: who takes part, where they touch and how long each takes to get there. The frame, the order and the shared instants are the same for all and are computed by `of`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members. No kind is shipped in this package yet beyond the feature test's; the handshake, the handover and the strike define theirs with #3286.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The contacts are default places, so one statement serves both the mean when together and the offer when alone; `place` is optional because the mean of the defaults is the right meeting point for a symmetric kind.
-   */
-  export interface IKind {
-    /** The kind's name (`handshake`, `handover`, `strike`). */
-    name: string;
-
-    /** The role names, one per performer; a symmetric action names one role twice. */
-    roles: readonly string[];
-
-    /** Each shared contact's default place, which a role offers when alone. */
-    contacts: Readonly<Record<string, AutoMovieMotionHumanTarget.IDefault>>;
-
-    /**
-     * One role's natural timing toward the contacts.
-     *
-     * @param role The role.
-     * @param contacts The contacts' world points, metres.
-     * @returns The role's instants, seconds since the meeting's start.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the role and the contacts it is given, and that the instants are seconds since the meeting's start.
-     * @evidence contracts/development/implementation.md#principled-implementation A role's own timing toward the contacts, from where it stands and where its bones are, so the meeting takes the latest of each instant over the roles.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One required member of a kind, called once per role by `of`. No kind is shipped in this package yet beyond the feature test's; the laws that define theirs come with issue #3286.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The member returns instants and no shared ones; the pair's shared instants are `of`'s, so no role is timed by its partner's guess.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    timing(
-      role: IRole,
-      contacts: Readonly<Record<string, IAutoMovieVector3>>,
-    ): ITiming;
-
-    /**
-     * Where the contacts lie when every role is present; the mean of the
-     * roles' default places when absent.
-     *
-     * @param roles The roles, in the meeting's order.
-     * @returns Each contact's world point, metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the roles it is given, their order, the unit and the frame of the result, and that its absence means the mean of the default places.
-     * @evidence contracts/development/implementation.md#principled-implementation A kind that knows where its contacts lie better than the mean of the roles' default places says so here, and `of` calls it only when every role is present.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional member of a kind, called at most once by `of`. No kind is shipped in this package yet beyond the feature test's.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts When a role is missing `of` does not call it, so a kind's placement never sees a partner made up to fill a role.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    place?(roles: readonly IRole[]): Record<string, IAutoMovieVector3>;
-  }
-
-  /**
-   * The film seconds a meeting holds over, as the composition states them:
-   * the contact is made no earlier than `from` and left at `to`, and the
-   * partners are free before and after. A meeting whose natural contact
-   * comes before `from` is moved later as a whole; one that would leave
-   * before `to` is held until then.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each bound does and what is free outside them.
-   * @evidence contracts/development/design.md#principled-representation A held meeting (a hug, a clasp) lasts as long as the story says, which only the composition knows; its two ends are film seconds every role reads alike.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two optional numbers, read by `of`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A window cannot shorten a meeting below its natural contact: `of` refuses it instead of cutting the reach.
-   */
-  export interface IWindow {
-    /** The earliest film second of the contact; the natural one when absent. */
-    from?: number;
-
-    /** The film second the contact is left; the natural one when absent. */
-    to?: number;
-  }
-
-  /**
-   * A meeting.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member gives its meaning, frame and unit; the frame states both its two-role and its one-role form.
-   * @evidence contracts/development/design.md#principled-representation The contacts are stored in the shared frame, so they read the same for both roles and survive a move of the pair; the instants are film seconds, the one time both actions share.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six required members of plain data, with no body or bone kept, so the record can be carried by the action context.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts `solid` is the one fact a law cannot derive from the rest, since the roles present do not say how many the kind has.
-   */
-  export interface IMeeting {
-    /** The kind's name. */
-    kind: string;
-
-    /**
-     * The shared frame: its origin on the floor at the mean of the roles'
-     * floor points, heading from the first role to the second, or to the
-     * mean floor point of the others when more than two meet; one role's own
-     * floor point and heading when it is alone.
-     */
-    frame: HumanFrame.IFrame;
-
-    /** Each contact's point in the frame; `x` left, `y` up, `z` forward, metres. */
-    contacts: Readonly<Record<string, IAutoMovieVector3>>;
-
-    /** The shared instants, film seconds. */
-    instants: ITiming;
-
-    /** The roles present, in the meeting's order. */
-    roles: readonly Pick<IRole, "name" | "subject">[];
-
-    /** Whether every role is present, so the contacts can be touched. */
-    solid: boolean;
-  }
-
   /**
    * The meeting of a mutual action.
    *
@@ -204,11 +53,11 @@ export namespace AutoMovieMotionMeeting {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; the record keeps no body, posture or bone.
    */
   export function of(
-    kind: IKind,
-    roles: readonly IRole[],
-    context: { start: number },
-    window?: IWindow,
-  ): IMeeting {
+    kind: IAutoMovieMotionMeetingKind,
+    roles: readonly IAutoMovieMotionMeetingRole[],
+    context: IAutoMovieMotionMeeting.IOfContext,
+    window?: IAutoMovieMotionMeeting.IWindow,
+  ): IAutoMovieMotionMeeting {
     if (roles.length === 0 || roles.length > kind.roles.length)
       throw new HumanRefusal({
         kind: "participant",
@@ -234,20 +83,24 @@ export namespace AutoMovieMotionMeeting {
           reason: `a ${kind.name} has no role "${role.name}"; its roles are ${kind.roles.join(", ")}`,
           fix: "name one of the kind's roles",
         });
-    const ordered: IRole[] = [...roles].sort((a: IRole, b: IRole): number =>
-      a.name !== b.name
-        ? a.name < b.name
-          ? -1
-          : 1
-        : a.subject < b.subject
-          ? -1
-          : a.subject > b.subject
-            ? 1
-            : 0,
+    const ordered: IAutoMovieMotionMeetingRole[] = [...roles].sort(
+      (
+        a: IAutoMovieMotionMeetingRole,
+        b: IAutoMovieMotionMeetingRole,
+      ): number =>
+        a.name !== b.name
+          ? a.name < b.name
+            ? -1
+            : 1
+          : a.subject < b.subject
+            ? -1
+            : a.subject > b.subject
+              ? 1
+              : 0,
     );
     const solid: boolean = ordered.length === kind.roles.length;
     const floors: IAutoMovieVector3[] = ordered.map(
-      (r: IRole): IAutoMovieVector3 => ({
+      (r: IAutoMovieMotionMeetingRole): IAutoMovieVector3 => ({
         x: r.posture.root.x,
         y: 0,
         z: r.posture.root.z,
@@ -262,7 +115,7 @@ export namespace AutoMovieMotionMeeting {
       ordered.length < 2
         ? { x: 0, y: 0, z: 0 }
         : Vector3.subtract(mean(floors.slice(1)), floors[0]!);
-    const frame: HumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin,
       yaw:
         Vector3.length(across) < 1e-9
@@ -274,14 +127,14 @@ export namespace AutoMovieMotionMeeting {
         ? kind.place(ordered)
         : Object.fromEntries(
             Object.entries(kind.contacts).map(
-              ([name, place]: [string, AutoMovieMotionHumanTarget.IDefault]): [
+              ([name, place]: [string, IAutoMovieMotionHumanTarget.IDefault]): [
                 string,
                 IAutoMovieVector3,
               ] => [
                 name,
                 mean(
                   ordered.map(
-                    (r: IRole): IAutoMovieVector3 =>
+                    (r: IAutoMovieMotionMeetingRole): IAutoMovieVector3 =>
                       AutoMovieMotionHumanTarget.fallback(
                         r.body,
                         r.posture,
@@ -292,11 +145,15 @@ export namespace AutoMovieMotionMeeting {
               ],
             ),
           );
-    const timings: ITiming[] = ordered.map(
-      (r: IRole): ITiming => kind.timing(r, world),
+    const timings: IAutoMovieMotionMeetingTiming[] = ordered.map(
+      (r: IAutoMovieMotionMeetingRole): IAutoMovieMotionMeetingTiming =>
+        kind.timing(r, world),
     );
-    const latest = (key: keyof ITiming): number =>
-      context.start + Math.max(...timings.map((t: ITiming): number => t[key]));
+    const latest = (key: keyof IAutoMovieMotionMeetingTiming): number =>
+      context.start +
+      Math.max(
+        ...timings.map((t: IAutoMovieMotionMeetingTiming): number => t[key]),
+      );
 
     // A window moves the whole meeting later to its start and holds the
     // contact to its end.
@@ -314,6 +171,18 @@ export namespace AutoMovieMotionMeeting {
         reason: `the ${kind.name} cannot make its contact before ${stroke.toFixed(2)} s, so a window that ends at ${window.to.toFixed(2)} s holds nothing`,
         fix: "end the window later, or start the action earlier",
       });
+    const instants: IAutoMovieMotionMeetingTiming = {
+      ready: latest("ready") + shift,
+      stroke,
+      relax: window?.to ?? latest("relax") + shift,
+    };
+
+    // A coupling is the kind's, from the ordered roles, and only when every
+    // role is present (#3437).
+    const coupling: IAutoMovieMotionCoupling | undefined =
+      solid && kind.couple !== undefined
+        ? kind.couple(ordered, instants)
+        : undefined;
     return {
       kind: kind.name,
       frame,
@@ -325,18 +194,17 @@ export namespace AutoMovieMotionMeeting {
           ] => [name, HumanFrame.local(frame, point)],
         ),
       ),
-      instants: {
-        ready: latest("ready") + shift,
-        stroke,
-        relax: window?.to ?? latest("relax") + shift,
-      },
+      instants,
       roles: ordered.map(
-        (r: IRole): Pick<IRole, "name" | "subject"> => ({
+        (
+          r: IAutoMovieMotionMeetingRole,
+        ): Pick<IAutoMovieMotionMeetingRole, "name" | "subject"> => ({
           name: r.name,
           subject: r.subject,
         }),
       ),
       solid,
+      ...(coupling === undefined ? {} : { coupling }),
     };
   }
 
@@ -359,10 +227,10 @@ export namespace AutoMovieMotionMeeting {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function place(
-    meeting: IMeeting,
+    meeting: IAutoMovieMotionMeeting,
     contact: string,
-    posture: Pick<IHumanPosture, "root" | "yaw">,
-  ): AutoMovieMotionHumanTarget.IPlace {
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+  ): IAutoMovieMotionHumanTarget.IPlace {
     const local: IAutoMovieVector3 | undefined = meeting.contacts[contact];
     if (local === undefined)
       throw new HumanRefusal({
@@ -410,7 +278,10 @@ export namespace AutoMovieMotionMeeting {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function local(meeting: IMeeting, start: number): ITiming {
+  export function local(
+    meeting: IAutoMovieMotionMeeting,
+    start: number,
+  ): IAutoMovieMotionMeetingTiming {
     return {
       ready: meeting.instants.ready - start,
       stroke: meeting.instants.stroke - start,

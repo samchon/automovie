@@ -3,14 +3,14 @@ import {
   IAutoMovieAttachment,
   IAutoMovieJointAxes,
   IAutoMoviePose,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieRestFrame,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { resolvePose } from "./resolvePose";
 
 /**

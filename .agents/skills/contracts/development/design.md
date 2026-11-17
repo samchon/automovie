@@ -1,10 +1,10 @@
 # Design
 
-Each exported type, interface, type alias and class answers every item in its doc comment with grounds a reviewer can check against the declaration and its consumers, as well as the [common](common.md) item. Keep simple decisions brief, and invent no alternatives or history.
+Each exported type, interface, type alias and class answers every item, and the [common](common.md) item, in its doc comment, with grounds a reviewer can check against the declaration and its consumers. Keep simple decisions brief, and invent no alternatives or history.
 
 ## Principled representation
 
-Model the concept the problem's semantics define, not the shape one caller happened to need. Represent each quantity with its unit, frame and timebase, and let the type's structure carry the domain's invariants, so a value the domain forbids cannot be written where the language can prevent it.
+Model the concept the problem's semantics define. Represent each quantity with its unit, frame and timebase, and let the type's structure carry the domain's invariants, so a value the domain forbids cannot be written where the language can prevent it.
 
 State the concept represented, its units, frames, timebases and invariants, which invalid states the type rules out, and which remain for runtime validation.
 
@@ -19,10 +19,9 @@ State the owner, the consumers the surface serves, and why any non-obvious membe
 Do not:
 
 - shape a type around one consumer, fixture or scene when the concept it names serves others;
-- fix a concept to one case its current consumers already outgrow, such as one body's bones in a gait several bodies use;
+- fix a concept to one case its consumers already outgrow, such as one body's bones in a gait several bodies use;
 - encode alternatives as optional fields that combine into meaningless states, where a discriminated union separates them;
 - widen to `any`, `unknown` or a cast to hide a mismatch between a value and its declared shape;
-- duplicate a type another owner declares;
 - add members only a test reads.
 
 State any such shape present and its basis, or the violation that remains.

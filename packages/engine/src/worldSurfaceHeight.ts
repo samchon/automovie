@@ -1,4 +1,7 @@
-import { IAutoMovieWorldSurface } from "@automovie/interface";
+import {
+  type IAutoMovieGroundQueryPoint,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
 
 import { surfaceHeightAt } from "./space/surfaceHeightAt";
 
@@ -15,8 +18,8 @@ import { surfaceHeightAt } from "./space/surfaceHeightAt";
  */
 export const worldSurfaceHeight: (
   surface: IAutoMovieWorldSurface,
-  point: { x: number; z: number },
+  point: IAutoMovieGroundQueryPoint,
 ) => number = (
   surface: IAutoMovieWorldSurface,
-  point: { x: number; z: number },
+  point: IAutoMovieGroundQueryPoint,
 ): number => surfaceHeightAt(surface, point.x, point.z);

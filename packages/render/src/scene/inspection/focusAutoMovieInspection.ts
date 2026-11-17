@@ -1,9 +1,11 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type {
+  IAutoMovieInspectionFocus,
+  IAutoMovieMark,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
-import type { IAutoMovieInspectionView } from "./IAutoMovieInspectionView.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionPaths } from "./measureAutoMovieInspectionPaths.js";
 
@@ -22,7 +24,7 @@ import { measureAutoMovieInspectionPaths } from "./measureAutoMovieInspectionPat
  */
 export function focusAutoMovieInspection(props: {
   /** What to frame. */
-  focus: IAutoMovieInspectionView.IFocus;
+  focus: IAutoMovieInspectionFocus;
 
   /** The drawn, selected objects. */
   objects: readonly IAutoMovieInspectionPath[];
@@ -30,7 +32,7 @@ export function focusAutoMovieInspection(props: {
   /** The drawn marks with the objects their frames belong to. */
   marks: readonly { mark: IAutoMovieMark; anchor: THREE.Object3D | null }[];
 }): IAutoMovieViewerSubjectBounds {
-  const focus: IAutoMovieInspectionView.IFocus = props.focus;
+  const focus: IAutoMovieInspectionFocus = props.focus;
   const flagged: boolean = focus.type === "flagged";
   const boxes: {
     min: { x: number; y: number; z: number };

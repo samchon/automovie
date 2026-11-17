@@ -1,4 +1,4 @@
-import { AutoMovieFilmTime } from "./AutoMovieFilmTime";
+import type { IAutoMovieFilmTime } from "./IAutoMovieFilmTime";
 
 /**
  * Frame-grid placement and trim of one declared audio asset in the film. Source and film intervals must fit their respective durations; fades together cannot exceed the cue span. Gain is a finite linear multiplier in `[0, 4]`.
@@ -16,25 +16,25 @@ export interface IAutoMovieAudioCue {
   asset: string;
 
   /** Declared source duration used for bounded trim validation. */
-  sourceDuration: AutoMovieFilmTime;
+  sourceDuration: IAutoMovieFilmTime;
 
   /** Source offset inside the asset. */
-  sourceOffset: AutoMovieFilmTime;
+  sourceOffset: IAutoMovieFilmTime;
 
   /** Film-global cue start. */
-  start: AutoMovieFilmTime;
+  start: IAutoMovieFilmTime;
 
   /** Cue duration. */
-  duration: AutoMovieFilmTime;
+  duration: IAutoMovieFilmTime;
 
   /** Finite linear gain in `[0, 4]`: zero is silence, one preserves amplitude. */
   gain: number;
 
   /** Fade-in duration. */
-  fadeIn: AutoMovieFilmTime;
+  fadeIn: IAutoMovieFilmTime;
 
   /** Fade-out duration. */
-  fadeOut: AutoMovieFilmTime;
+  fadeOut: IAutoMovieFilmTime;
 
   /** Deterministic destination bus. */
   bus: "dialogue" | "music" | "effects" | "ambience";

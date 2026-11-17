@@ -1,10 +1,14 @@
 import type {
   AutoMovieHumanoidBone,
   AutoMovieInterpolation,
+  IAutoMovieImportedNodeBoneMapping,
+  IAutoMovieImportedNodeMotionProps,
   IAutoMovieJointPose,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
+  IAutoMovieSampledChannel,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -13,13 +17,12 @@ import type {
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { Quaternion } from "../math/Quaternion";
+import { Transform } from "../math/Transform";
 import { channelKey } from "../resolve/channelKey";
 import { sampleClip } from "../resolve/sampleClip";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { getConstraint } from "../rom/getConstraint";
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { IAutoMovieImportedNodeBoneMapping } from "./IAutoMovieImportedNodeBoneMapping";
-import { IAutoMovieImportedNodeMotionProps } from "./IAutoMovieImportedNodeMotionProps";
 
 /**
  * Lower admitted imported node tracks into clinical keyframes at the sorted union of source key times. Every mapped node needs a rotation track; only hips translation is supported, all tracks share step or linear interpolation, and unsupported/missing/duplicate/nonfinite content throws. Key orientations are retained within clinical inversion tolerance; inter-key linear clinical interpolation generally differs from quaternion slerp.
@@ -182,7 +185,7 @@ export const importedNodeClipToAutoMovieMotion: (
     duration: props.clip.duration,
     loop: props.clip.loop,
     keyframes: keyTimes.map((time: number): IAutoMovieKeyframe => {
-      const sampled: ReturnType<typeof sampleClip> = sampleClip(
+      const sampled: Map<string, IAutoMovieSampledChannel> = sampleClip(
         props.clip,
         time,
       );
@@ -216,7 +219,7 @@ export const importedNodeClipToAutoMovieMotion: (
                 Quaternion.inverse(rest),
                 quaternion,
               );
-              const angles: ReturnType<typeof decomposeJointRotation> =
+              const angles: IAutoMovieResolvedJointAngles =
                 decomposeJointRotation(
                   relative,
                   sourceBones.get(entry.bone)!.axes ??
@@ -251,15 +254,15 @@ const rootTransform: (
 ) => IAutoMovieTransform = (
   value: readonly number[],
   rest: IAutoMovieVector3,
-): IAutoMovieTransform => ({
-  translation: {
-    x: value[0]! - rest.x,
-    y: value[1]! - rest.y,
-    z: value[2]! - rest.z,
-  },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-  scale: { x: 1, y: 1, z: 1 },
-});
+): IAutoMovieTransform =>
+  Transform.of(
+    {
+      x: value[0]! - rest.x,
+      y: value[1]! - rest.y,
+      z: value[2]! - rest.z,
+    },
+    { x: 0, y: 0, z: 0, w: 1 },
+  );
 
 const finiteUnitQuaternion: (
   value: readonly number[],

@@ -1,14 +1,17 @@
-import { AutoMovieChain, AutoMovieComposition } from "@automovie/engine";
+import { AutoMovieChain } from "@automovie/engine";
+import type {
+  IAutoMovieChain,
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanChainCore,
+  IAutoMovieMotionHumanHandoverAction,
+  IAutoMovieMotionHumanHandshake,
+  IAutoMovieMotionHumanMutual,
+} from "@automovie/interface";
 
 import { HumanMutual } from "./actions/HumanMutual";
-import type { HumanChainCore } from "./chain/HumanChainCore";
 import { HumanChainSport } from "./chain/HumanChainSport";
-import type { handOver } from "./handling/handOver";
-import type { handshake } from "./handling/handshake";
-import type { IHumanActionContext } from "./law/IHumanActionContext";
-import type { IHumanActionLaw } from "./law/IHumanActionLaw";
-import type { IHumanActionPlan } from "./law/IHumanActionPlan";
-import type { IHumanMutual } from "./law/IHumanMutual";
 
 /**
  * The fluent authoring surface of one person's actions: one typed method per
@@ -39,7 +42,6 @@ import type { IHumanMutual } from "./law/IHumanMutual";
  * @evidence contracts/development/common.md#meaningful-documentation States the surface with its operators and statics, its immutability, what the performance owns and where the vocabulary methods are declared.
  * @evidence contracts/development/design.md#principled-representation The engine's immutable chain of one subject with the whole vocabulary as typed methods; a mutual action joins several subjects' chains.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Four statics (`subject`, `extend`, `mutual`, `pair`); the vocabulary and the core operators (`act`, `registered`, `until`, `sync`, `over`) are inherited.
-egistered, until, sync, over) are inherited.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No action is reachable only through an untyped call.
  */
 export class HumanChain extends HumanChainSport {
@@ -49,7 +51,7 @@ export class HumanChain extends HumanChainSport {
    * @param subject The person.
    * @returns The chain.
    */
-  public static subject(subject: string): HumanChain {
+  public static subject(subject: string): IAutoMovieMotionHumanChain {
     return new HumanChain(subject, { kind: "sequence", parts: [] });
   }
 
@@ -68,8 +70,10 @@ export class HumanChain extends HumanChainSport {
    * @throws {Error} When a key differs from its law's name, or names something the chain already has.
    */
   public static extend<
-    Laws extends Readonly<Record<string, IHumanActionLaw<never>>>,
-  >(laws: Laws): HumanChain.IExtension<Laws> {
+    Laws extends Readonly<
+      Record<string, IAutoMovieMotionHumanActionLaw<never>>
+    >,
+  >(laws: Laws): IAutoMovieMotionHumanChain.IExtension<Laws> {
     class Extended extends HumanChain {}
     for (const [key, law] of Object.entries(laws)) {
       if (key !== law.name)
@@ -84,13 +88,17 @@ export class HumanChain extends HumanChainSport {
       // A method of an object literal, so it reads the chain it is called on.
       const methods: Record<
         string,
-        (this: HumanChain, params?: object, anchor?: string) => HumanChain
+        (
+          this: IAutoMovieMotionHumanChain,
+          params?: object,
+          anchor?: string,
+        ) => IAutoMovieMotionHumanChain
       > = {
         [key](
-          this: HumanChain,
+          this: IAutoMovieMotionHumanChain,
           params: object = {},
           anchor?: string,
-        ): HumanChain {
+        ): IAutoMovieMotionHumanChain {
           return this.registered(law.name, params, anchor);
         },
       };
@@ -100,11 +108,11 @@ export class HumanChain extends HumanChainSport {
       });
     }
     return {
-      subject: (subject: string): HumanChain.Extended<Laws> =>
+      subject: (subject: string): IAutoMovieMotionHumanChain.Extended<Laws> =>
         new Extended(subject, {
           kind: "sequence",
           parts: [],
-        }) as HumanChain.Extended<Laws>,
+        }) as IAutoMovieMotionHumanChain.Extended<Laws>,
     };
   }
 
@@ -129,12 +137,12 @@ export class HumanChain extends HumanChainSport {
    * @throws {Error} When one person is cast in two roles.
    */
   public static mutual<Params extends object, Role extends string>(
-    mutual: IHumanMutual<Params, Role>,
-    cast: Readonly<Record<Role, HumanChainCore>>,
+    mutual: IAutoMovieMotionHumanMutual<Params, Role>,
+    cast: Readonly<Record<Role, IAutoMovieMotionHumanChainCore>>,
     ...args: {} extends Params
       ? [params?: Params, anchor?: string]
       : [params: Params, anchor?: string]
-  ): AutoMovieChain {
+  ): IAutoMovieChain {
     const [params, anchor]: readonly [Params?, string?] = args;
     const subjects: Record<Role, string> = Object.fromEntries(
       mutual.roles.map((role: Role): [Role, string] => [
@@ -152,16 +160,17 @@ export class HumanChain extends HumanChainSport {
         {
           kind: "parallel",
           parts: mutual.roles.map(
-            (role: Role): AutoMovieComposition => cast[role].node,
+            (role: Role): IAutoMovieComposition => cast[role].node,
           ),
         },
         {
           kind: "parallel",
-          parts: mutual.roles.map((role: Role): AutoMovieComposition => {
-            const act: IHumanMutual.IAct = mutual.act(
+          parts: mutual.roles.map((role: Role): IAutoMovieComposition => {
+            const act: IAutoMovieMotionHumanMutual.IAct = mutual.act(
               role,
               params ?? ({} as Params),
               subjects,
+              anchor,
             );
             return HumanChain.subject(subjects[role]).registered(
               act.name,
@@ -183,60 +192,29 @@ export class HumanChain extends HumanChainSport {
    * @returns The mutual actions, each returning the joined composition.
    */
   public static pair(
-    a: HumanChain,
-    b: HumanChain,
+    a: IAutoMovieMotionHumanChain,
+    b: IAutoMovieMotionHumanChain,
   ): {
-    handshake(params?: Omit<handshake.IParams, "partner">): AutoMovieChain;
-    handOver(params: Omit<handOver.IParams, "to">): AutoMovieChain;
+    handshake(
+      params?: Omit<IAutoMovieMotionHumanHandshake.IParams, "partner">,
+    ): IAutoMovieChain;
+    handOver(
+      params: Omit<IAutoMovieMotionHumanHandoverAction.IParams, "to">,
+    ): IAutoMovieChain;
   } {
     return {
-      handOver: (params: Omit<handOver.IParams, "to">): AutoMovieChain =>
+      handOver: (
+        params: Omit<IAutoMovieMotionHumanHandoverAction.IParams, "to">,
+      ): IAutoMovieChain =>
         HumanChain.mutual(
           HumanMutual.handOver,
           { giver: a, receiver: b },
           params,
         ),
       handshake: (
-        params: Omit<handshake.IParams, "partner"> = {},
-      ): AutoMovieChain =>
+        params: Omit<IAutoMovieMotionHumanHandshake.IParams, "partner"> = {},
+      ): IAutoMovieChain =>
         HumanChain.mutual(HumanMutual.handshake, { one: a, other: b }, params),
     };
-  }
-}
-
-/**
- * Companion types of {@link HumanChain}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member.
- * @evidence contracts/development/design.md#principled-representation The chain intersected with one method per registered law, each typed by that law's own parameters.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `extend` returns and the types it is built from.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameter type is read from the law's plan, not restated.
- */
-export namespace HumanChain {
-  /** The parameters a law plans from. */
-  export type Parameters<Law> = Law extends {
-    plan(context: IHumanActionContext<infer P>): IHumanActionPlan;
-  }
-    ? P
-    : never;
-
-  /** A chain with a typed method for each registered law. */
-  export type Extended<Laws> = HumanChain & {
-    [Key in keyof Laws]: (
-      ...args: {} extends Parameters<Laws[Key]>
-        ? [params?: Parameters<Laws[Key]>, anchor?: string]
-        : [params: Parameters<Laws[Key]>, anchor?: string]
-    ) => Extended<Laws>;
-  };
-
-  /** What starts a chain of an extended kind. */
-  export interface IExtension<Laws> {
-    /**
-     * An empty chain of a person.
-     *
-     * @param subject The person.
-     * @returns The chain.
-     */
-    subject(subject: string): Extended<Laws>;
   }
 }

@@ -5,9 +5,10 @@ import {
   createSeat,
   createStorage,
 } from "@automovie/archetypes";
-import { type IAutoMovieMark, Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMark,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";

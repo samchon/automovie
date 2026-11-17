@@ -1,19 +1,21 @@
 import {
-  IAutoMovieBody,
   IAutoMovieClip,
+  type IAutoMovieDetectFreeFall,
+  type IAutoMovieFreeFallResult,
   IAutoMovieInteractionEvent,
   IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { convexHull2D } from "../math/convexHull2D";
 import { pointHullDistance } from "../math/pointHullDistance";
+import { AutoMovieGravity } from "../physics/AutoMovieGravity";
 import { projectileTrajectory } from "../physics/projectileTrajectory";
-import { IAutoMovieFreeFallResult } from "./IAutoMovieFreeFallResult";
 import { ViolationCollector } from "./ViolationCollector";
 
 const DEFAULT_MARGIN: number = 0.02;
 
-const DEFAULT_GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
+const DEFAULT_GRAVITY: IAutoMovieVector3 = AutoMovieGravity.DOWN;
 
 const DEFAULT_VELOCITY: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
@@ -32,49 +34,12 @@ const DEFAULT_FPS: number = 30;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One support hull decides the candidate and one canonical trajectory supplies its position/facing tracks; changed support or projectile inputs require a fresh evaluation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns returned clip/findings/events, with the event borrowing the supplied center point; temporary hull storage leaves scope and no simulation cursor or host is acquired.
  */
-export const detectFreeFall: (props: {
-  node?: string | undefined;
-  body: IAutoMovieBody | null;
-  centerOfMass: IAutoMovieVector3;
-  support: readonly IAutoMovieVector3[];
-  attached: boolean;
-  falling: boolean;
-  margin?: number | undefined;
-  gravity?: IAutoMovieVector3 | undefined;
-  velocity?: IAutoMovieVector3 | undefined;
-  fallDuration?: number | undefined;
-  fps?: number | undefined;
-  physicsIntent?: string | undefined;
-  path?: string | undefined;
-}) => IAutoMovieFreeFallResult = (props: {
-  /** Object node id, used to label the event and the suggested clip. */
-  node?: string;
-  /** The object's physical body. `null` → no declared physics, never falls. */
-  body: IAutoMovieBody | null;
-  /** Center of mass in world space at this frame. */
-  centerOfMass: IAutoMovieVector3;
-  /** Support contact points on the ground plane (XZ used); empty = unsupported. */
-  support: readonly IAutoMovieVector3[];
-  /** Whether the body is attached to / driven by something (holds it up). */
-  attached: boolean;
-  /** Whether the body is already on a falling trajectory. */
-  falling: boolean;
-  /** Allowed COM overhang past the support hull, meters. Defaults to `0.02`. */
-  margin?: number;
-  /** Constant acceleration for the arc. Defaults to `{0,-9.81,0}`. */
-  gravity?: IAutoMovieVector3;
-  /** Inherited initial velocity for the arc. Defaults to rest. */
-  velocity?: IAutoMovieVector3;
-  /** Seconds of fall arc to bake. Defaults to `1`. */
-  fallDuration?: number;
-  /** Arc sample rate. Defaults to `30`. */
-  fps?: number;
-  /** Marker that opts the body out of the gravity expectation. */
-  physicsIntent?: string;
-  /** JSON path of the annotation being checked. Defaults to `$input`. */
-  path?: string;
-}): IAutoMovieFreeFallResult => {
-  const collector: ViolationCollector = new ViolationCollector();
+export const detectFreeFall: (
+  props: IAutoMovieDetectFreeFall.IProps,
+) => IAutoMovieFreeFallResult = (
+  props: IAutoMovieDetectFreeFall.IProps,
+): IAutoMovieFreeFallResult => {
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const path: string = props.path ?? "$input";
   const margin: number =
     props.margin === undefined ? DEFAULT_MARGIN : props.margin;
@@ -149,8 +114,10 @@ export const detectFreeFall: (props: {
   return { validation: collector.toValidation(), events: [event], trajectory };
 };
 
-const empty: (collector: ViolationCollector) => IAutoMovieFreeFallResult = (
-  collector: ViolationCollector,
+const empty: (
+  collector: IAutoMovieViolationCollector,
+) => IAutoMovieFreeFallResult = (
+  collector: IAutoMovieViolationCollector,
 ): IAutoMovieFreeFallResult => ({
   validation: collector.toValidation(),
   events: [],

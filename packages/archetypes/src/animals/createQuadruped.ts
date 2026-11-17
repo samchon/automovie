@@ -1,0 +1,287 @@
+import { type Archetype, ArchetypeDraw, ArchetypeRefusal } from "../core";
+import { CamelBody } from "./CamelBody";
+import { CamelGait } from "./CamelGait";
+import { DeerBody } from "./DeerBody";
+import { DeerGait } from "./DeerGait";
+import { DogBody } from "./DogBody";
+import { DogGait } from "./DogGait";
+import { HorseGait } from "./HorseGait";
+import { HorseHarness } from "./HorseHarness";
+import { OxBody } from "./OxBody";
+import { OxGait } from "./OxGait";
+import type { QuadrupedBody } from "./QuadrupedBody";
+import type { QuadrupedGait } from "./QuadrupedGait";
+import { createCamel } from "./createCamel";
+import type { createCohortQuadruped } from "./createCohortQuadruped";
+import { createDeer } from "./createDeer";
+import { createDog } from "./createDog";
+import { createDonkey } from "./createDonkey";
+import { createHorse } from "./createHorse";
+import { createMule } from "./createMule";
+import { createOx } from "./createOx";
+import { createPony } from "./createPony";
+
+/**
+ * A four-legged animal of a kind, with its kind's tack: every kind shares one body of the horse's bone vocabulary (`QuadrupedBody`) and one ride (`rideQuadruped`), and differs from the others only by its species' data, its proportions, its gaits and its tack.
+ *
+ * The four equids retain their existing producers and tack. A `dog` is
+ * createDog's coarse Husky cohort prototype with required authored mass and
+ * optional authored collar. Ox, single-hump camel and Boso sika are coherent
+ * coarse cohort references, with actual identifying parts and optional authored
+ * equipment. Source limitations remain with each body/gait owner; fixed cohort
+ * means are not measured population variation or complete animal dynamics.
+ *
+ * @param params The kind, and the kind's own parameters.
+ * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @returns The animal.
+ * @throws {ArchetypeRefusal} For a kind that is not one of `KINDS`, and as the kind's producer refuses.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what every kind shares, what differs and which producer each kind is.
+ * @evidence contracts/development/implementation.md#principled-implementation Admit the kind, then call its producer, which builds the shared body from its species' data and adds its tack.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One choice, one call.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown kind is refused with the kinds there are.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work beyond the producer's.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The horse is `createHorse`'s, unchanged.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ */
+export function createQuadruped(
+  params: createQuadruped.IParams,
+  seed?: number | string,
+): Archetype<createQuadruped.Affordance, createQuadruped.Dimension> {
+  ArchetypeDraw.choice("quadruped", "kind", params.kind, createQuadruped.KINDS);
+  if (params.kind === "dog") return createDog(params, seed);
+  if (params.kind === "ox") return createOx(params, seed);
+  if (params.kind === "camel") return createCamel(params, seed);
+  if (params.kind === "deer") return createDeer(params, seed);
+  return createQuadruped.PRODUCERS[params.kind](params, seed);
+}
+
+/**
+ * Companion types and species of {@link createQuadruped}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Each kind, type and species table states what it is.
+ * @evidence contracts/development/design.md#principled-representation A closed union of kinds, each with its producer and its species' data: the body's proportions, the gait table and the parts that nod with the head.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The kinds and the species table the ride reads; each kind's proportions and gaits stay with their sources in its own producer and gait table.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No species branch in the shared body or the ride: an animal's species is found by its producer's name and read as data.
+ */
+export namespace createQuadruped {
+  /** The kinds. */
+  export type Kind =
+    | "horse"
+    | "pony"
+    | "donkey"
+    | "mule"
+    | "dog"
+    | "ox"
+    | "camel"
+    | "deer";
+
+  /** Every kind, for a caller that reads one at run time. */
+  export const KINDS: readonly Kind[] = [
+    "horse",
+    "pony",
+    "donkey",
+    "mule",
+    "dog",
+    "ox",
+    "camel",
+    "deer",
+  ];
+
+  /** The four existing equids, which share the horse tack contract. */
+  export const EQUIDS: readonly ("horse" | "pony" | "donkey" | "mule")[] = [
+    "horse",
+    "pony",
+    "donkey",
+    "mule",
+  ];
+
+  /** The affordance ids of every kind: each kind's own, as its producer lists them. */
+  export type Affordance =
+    | createHorse.Affordance
+    | createCohortQuadruped.Affordance;
+
+  /** The free dimensions of every kind: each kind's own, as its producer lists them. */
+  export type Dimension = createHorse.Dimension;
+
+  /** The parameters: the kind, and the kind's own parameters. */
+  export type IParams =
+    | ({ kind: "horse" | "pony" | "donkey" | "mule" } & createPony.IParams &
+        createMule.IParams)
+    | ({ kind: "dog" } & createDog.IParams)
+    | ({ kind: "ox" } & createOx.IParams)
+    | ({ kind: "camel" } & createCamel.IParams)
+    | ({ kind: "deer" } & createDeer.IParams);
+
+  /** Each kind's producer. */
+  export const PRODUCERS: Readonly<{
+    horse: typeof createHorse;
+    pony: typeof createPony;
+    donkey: typeof createDonkey;
+    mule: typeof createMule;
+    dog: typeof createDog;
+    ox: typeof createOx;
+    camel: typeof createCamel;
+    deer: typeof createDeer;
+  }> = {
+    horse: createHorse,
+    pony: createPony,
+    donkey: createDonkey,
+    mule: createMule,
+    dog: createDog,
+    ox: createOx,
+    camel: createCamel,
+    deer: createDeer,
+  };
+
+  /**
+   * A species: what the shared body and the ride read for an animal of its kind.
+   *
+   */
+  export interface ISpecies {
+    /** The producer's name, which the animal's `archetype` carries and refusals name. */
+    archetype: string;
+
+    /** Producer neutral standing directions, degrees: QuadrupedBody.IBody.stance builds the declared form, while pose solvers recover actual constructed control directions. */
+    stance: QuadrupedBody.IBody["stance"];
+
+    /** The gaits. */
+    table: QuadrupedGait.ITable;
+
+    /** Producer part-id vocabulary carried by the common neck nod, including neck/head themselves and optional tack that need not exist on every actual animal. QuadrupedCarriage binds existing accessories only. */
+    nodding: readonly string[];
+
+    /** Producer contact-id vocabulary carried by the common neck nod; optional contacts need not exist on every animal. Absent or unlisted contacts preserve trunk carriage, including the legacy equid held-rein policy. */
+    noddingContacts?: readonly string[];
+  }
+
+  /** Equid head-carried vocabulary: neck, head, bridle and optional actual ear plates. */
+  export const BRIDLED: readonly string[] = [
+    "neck",
+    ...HorseHarness.HEAD,
+    "leftEar",
+    "rightEar",
+  ];
+
+  /** Each kind's species. Every equid stands at the horse's angles (`createHorse.STANCE`; no pony's, donkey's or mule's were found) and rides the horse's measured gaits, `HorseGait.TABLE`, scaled to its height by dynamic similarity, which Bullimore and Burn 2006 (J Exp Biol 209:455, abstract) found to hold across trotting horses of 86 to 714 kg: relative stride length and duty factor at equal Froude number were not related to body mass. For the donkey and the mule the table is provisional: no study gives their duty factors, limb phases or transitions (the searches are in the sources record). */
+  export const SPECIES: Readonly<Record<Kind, ISpecies>> = {
+    horse: {
+      archetype: createHorse.PROFILE.archetype,
+      stance: createHorse.STANCE,
+      table: HorseGait.TABLE,
+      nodding: BRIDLED,
+      noddingContacts: [],
+    },
+    pony: {
+      archetype: createPony.ARCHETYPE,
+      stance: createHorse.STANCE,
+      table: HorseGait.TABLE,
+      nodding: BRIDLED,
+      noddingContacts: [],
+    },
+    donkey: {
+      archetype: createDonkey.ARCHETYPE,
+      stance: createHorse.STANCE,
+      table: HorseGait.TABLE,
+      nodding: BRIDLED,
+      noddingContacts: [],
+    },
+    mule: {
+      archetype: createMule.ARCHETYPE,
+      stance: createHorse.STANCE,
+      table: HorseGait.TABLE,
+      nodding: BRIDLED,
+      noddingContacts: [],
+    },
+    dog: {
+      archetype: "dog",
+
+      // Each cohort has its own constructed stance; species() reads it below.
+      stance: DogBody("pet").stance,
+      table: DogGait.TABLE,
+      nodding: ["neck", "head", "leftEar", "rightEar", "collar", "lead"],
+      noddingContacts: ["lead"],
+    },
+    ox: {
+      archetype: "ox",
+      stance: OxBody().stance,
+      table: OxGait.TABLE,
+      nodding: [
+        "neck",
+        "head",
+        "leftEar",
+        "rightEar",
+        "leftHorn",
+        "rightHorn",
+        "collar",
+        "lead",
+        "yoke-beam",
+        "yoke-bearing",
+        "yoke-bearing-link",
+        "yoke-hitch-link",
+        "yoke-hitch-base",
+        "yoke-hitch-upright--1",
+        "yoke-hitch-upright-1",
+      ],
+      noddingContacts: ["lead", "hitch"],
+    },
+    camel: {
+      archetype: "camel",
+      stance: CamelBody().stance,
+      table: CamelGait.TABLE,
+      nodding: ["neck", "head", "collar", "lead"],
+      noddingContacts: ["lead"],
+    },
+    deer: {
+      archetype: "deer",
+      stance: DeerBody().stance,
+      table: DeerGait.TABLE,
+      nodding: [
+        "neck",
+        "head",
+        "leftAntler",
+        "rightAntler",
+        "leftAntlerTine1",
+        "leftAntlerTine2",
+        "rightAntlerTine1",
+        "rightAntlerTine2",
+        "collar",
+        "lead",
+      ],
+      noddingContacts: ["lead"],
+    },
+  };
+
+  /**
+   * The species of an animal, found by its producer's name.
+   *
+   * @param animal The animal.
+   * @returns Its species.
+   * @throws {ArchetypeRefusal} When the animal is no quadruped's, listing the kinds.
+   *
+   */
+  export function species(animal: {
+    archetype: string;
+    provenance?: { models: Readonly<Record<string, string | undefined>> };
+  }): ISpecies {
+    const kind: Kind | undefined = KINDS.find(
+      (k: Kind): boolean => SPECIES[k].archetype === animal.archetype,
+    );
+    if (kind === undefined)
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: animal.archetype,
+        axis: "animal",
+        value: animal.archetype,
+        feasible: { kind: "alternatives", values: [...KINDS] },
+        reason: `a ${animal.archetype} is no quadruped`,
+        fix: "ride an animal createQuadruped builds",
+      });
+    if (kind === "dog") {
+      const cohort: string | undefined = animal.provenance?.models.cohort;
+      if (cohort === "pet" || cohort === "show" || cohort === "sled")
+        return { ...SPECIES.dog, stance: DogBody(cohort).stance };
+    }
+    return SPECIES[kind];
+  }
+}

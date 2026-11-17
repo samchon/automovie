@@ -11,7 +11,7 @@ export {
 export type {
   IAutoMovieFormationLodInput,
   IAutoMovieFormationLodSelection,
-} from "@automovie/engine";
+} from "@automovie/interface";
 export type { IAutoMovieFormationViewerStats } from "../IAutoMovieFormationViewerStats.js";
 export type { IAutoMovieFormationViewerObject } from "../IAutoMovieFormationViewerObject.js";
 export { buildInstancedFormation } from "../buildInstancedFormation.js";

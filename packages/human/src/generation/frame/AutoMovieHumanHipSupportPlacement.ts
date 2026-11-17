@@ -1,5 +1,7 @@
-import type { IAutoMovieHumanBodyIdentity } from "../../structures/body/IAutoMovieHumanBodyIdentity";
-import type { AutoMovieHumanSegmentFrame as F } from "./AutoMovieHumanSegmentFrame";
+import type {
+  IAutoMovieHumanBodyIdentity,
+  IAutoMovieHumanSegmentJoint,
+} from "@automovie/interface";
 
 /**
  * Place a supplied hip-support separation before skin construction.
@@ -20,9 +22,9 @@ import type { AutoMovieHumanSegmentFrame as F } from "./AutoMovieHumanSegmentFra
  */
 export function AutoMovieHumanHipSupportPlacement(
   inputs: Required<Pick<IAutoMovieHumanBodyIdentity, "hipJointCentreBreadth">>,
-  chain: readonly F.IJoint[],
+  chain: readonly IAutoMovieHumanSegmentJoint[],
   joint: string,
-): readonly F.IJoint[] {
+): readonly IAutoMovieHumanSegmentJoint[] {
   const breadth: number = inputs.hipJointCentreBreadth;
   if (
     !(
@@ -36,14 +38,14 @@ export function AutoMovieHumanHipSupportPlacement(
       "hipJointCentreBreadth must be finite and in (0,800] mm with a representable positive half-span",
     );
   const selected: number = chain.findIndex(
-    (entry: F.IJoint): boolean => entry.name === joint,
+    (entry: IAutoMovieHumanSegmentJoint): boolean => entry.name === joint,
   );
   if (selected < 0) throw new Error("Hip support joint is absent: " + joint);
   const half: number = breadth / 2;
-  const original: F.IJoint = chain[selected]!;
+  const original: IAutoMovieHumanSegmentJoint = chain[selected]!;
   if (original.offset[2] === half) return chain;
   return chain.map(
-    (entry: F.IJoint, index: number): F.IJoint =>
+    (entry: IAutoMovieHumanSegmentJoint, index: number): IAutoMovieHumanSegmentJoint =>
       index === selected
         ? { ...entry, offset: [entry.offset[0], entry.offset[1], half] }
         : entry,

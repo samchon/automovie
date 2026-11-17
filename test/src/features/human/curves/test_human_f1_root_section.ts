@@ -1,4 +1,5 @@
-import { type AutoMovieHumanConicLoft, AutoMovieHumanConicSection, AutoMovieHumanF1 } from "@automovie/human";
+import { AutoMovieHumanConicSection, AutoMovieHumanF1 } from "@automovie/human";
+import type { IAutoMovieHumanConicLoft, IAutoMovieHumanF1 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -22,7 +23,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the geometric identity, the three scenarios and the made defects' sizes.
  */
 export function test_human_f1_root_section(): void {
-  const parent: AutoMovieHumanConicLoft.IFamily = tube("parent", [0, 0, 0], [100, 0, 0], [0, 100], 30);
+  const parent: IAutoMovieHumanConicLoft.IFamily = tube("parent", [0, 0, 0], [100, 0, 0], [0, 100], 30);
   const lean: number = Math.PI / 6;
   const far: [number, number, number] = [80 + 100 * Math.cos(lean), 0, 100 * Math.sin(lean)];
   // The course starts 20 mm before the plane x = 100 and pierces it 20 / cos(lean) = 23.09 mm along, 20 tan(lean) across.
@@ -32,7 +33,7 @@ export function test_human_f1_root_section(): void {
     ["the plane between the knots", [10, 90]],
     ["the plane before the first knot", [40, 90]],
   ] as [string, number[]][]) {
-    const root: AutoMovieHumanF1.IRootSection = AutoMovieHumanF1.rootSection(parent, tube("child", [80, 0, 0], far, knots, RADIUS_MM), 32);
+    const root: IAutoMovieHumanF1.IRootSection = AutoMovieHumanF1.rootSection(parent, tube("child", [80, 0, 0], far, knots, RADIUS_MM), 32);
     const world = (p: [number, number]): number[] => [0, 1, 2].map((c: number): number => root.plane.origin[c]! + p[0] * root.plane.u[c]! + p[1] * root.plane.v[c]!);
     const centre: number[] = world(root.centre);
     TestValidator.predicate(label + ": the centre is where the course pierces the plane", Math.hypot(centre[0]! - pierce[0], centre[1]! - pierce[1], centre[2]! - pierce[2]) < TOLERANCE_MM);
@@ -70,7 +71,7 @@ const TOLERANCE_MM: number = 0.01;
  * @param knots Its two knots, mm along the course.
  * @param radius The tube's radius, mm.
  */
-function tube(name: string, from: [number, number, number], to: [number, number, number], knots: number[], radius: number): AutoMovieHumanConicLoft.IFamily {
+function tube(name: string, from: [number, number, number], to: [number, number, number], knots: number[], radius: number): IAutoMovieHumanConicLoft.IFamily {
   const section: number[] = [radius, 0, 0, radius, -radius, 0, 0, -radius, Math.SQRT2 - 1, Math.SQRT2 - 1, Math.SQRT2 - 1, Math.SQRT2 - 1];
   return {
     name,

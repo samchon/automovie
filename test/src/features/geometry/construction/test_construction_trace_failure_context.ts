@@ -1,8 +1,9 @@
-import {
-  AutoMovieSolidIntersection as Intersection,
-  type IAutoMovieSolidAtlas,
-  type IAutoMovieSolidSurface,
-} from "@automovie/engine";
+import type {
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
+import { AutoMovieSolidIntersection as Intersection } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -60,10 +61,10 @@ export function test_construction_trace_failure_context(): void {
       return null;
     },
   };
-  const seed: Intersection.IInput["seed"] = {
+  const seed: IAutoMovieSolidIntersection.IInput["seed"] = {
     s: 0, phi: Math.PI / 2, y: Math.cos(Math.PI / 2), theta: 1, face: 0,
   };
-  const result: Intersection.IResult = Intersection.trace({
+  const result: IAutoMovieSolidIntersection.IResult = Intersection.trace({
     part, host, seed, parameter: { kind: "arc" }, count: 8, tolerance: 1e-12, grazing: 0.01,
   });
   if (result.curve !== null) failures.push("an open kept strip published a closed circle");
@@ -111,7 +112,7 @@ export function test_construction_trace_failure_context(): void {
     kept: (_face: number, _y: number, _theta: number): boolean => true,
     across: (_face: number, _u: number, _v: number): null => null,
   };
-  const passed: Intersection.IResult = Intersection.trace({
+  const passed: IAutoMovieSolidIntersection.IResult = Intersection.trace({
     part, host: complete, seed, parameter: { kind: "arc" }, count: 8, tolerance: 1e-12, grazing: 0.01,
   });
   if (passed.curve === null || passed.diagnostics.length !== 0)

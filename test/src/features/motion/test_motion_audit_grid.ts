@@ -1,4 +1,4 @@
-import { IAutoMovieMotionHumanAuditMotion } from "@automovie/motions";
+import { AutoMovieMotionHumanAuditMotion } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -24,7 +24,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and lists the 5 scenarios with their numbers.
  */
 export function test_motion_audit_grid(): void {
-  const grid = IAutoMovieMotionHumanAuditMotion.grid;
+  const grid = AutoMovieMotionHumanAuditMotion.grid;
   const same = (got: number[], expected: number[]): boolean =>
     got.length === expected.length &&
     got.every(

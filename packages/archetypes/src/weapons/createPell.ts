@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -31,18 +31,22 @@ export function createPell(
   params: createPell.IParams = {},
   seed?: number | string,
 ): Archetype<createPell.Affordance, createPell.Dimension> {
-  const d: Record<createPell.Dimension, number> = ArchetypeDraw.dimensions(
-    "pell",
+  const draw: ArchetypeDrawSession<createPell.Dimension> =
+    new ArchetypeDrawSession<createPell.Dimension>(
+      "pell",
+      createPell.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createPell.Dimension, number> = draw.dimensions(
     createPell.BANDS,
-    seed,
-    params,
   );
   const builder: ArchetypeBuilder<createPell.Affordance, createPell.Dimension> =
     new ArchetypeBuilder({
-      archetype: "pell",
+      material: "wood",
       id: params.id,
       name: "pell",
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   builder.rod("post", d.diameter / 2, v(0, 0, 0), v(0, d.height, 0), {
@@ -94,6 +98,13 @@ export namespace createPell {
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "diameter" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

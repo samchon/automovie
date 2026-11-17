@@ -1,6 +1,10 @@
-import { AutoMovieViewChain } from "@automovie/engine";
-
 import { AutoMovieHumanConicSection as S } from "./AutoMovieHumanConicSection";
+import { AutoMovieViewChain } from "@automovie/engine";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieHumanConicSection,
+  IAutoMovieViewChain,
+} from "@automovie/interface";
 
 /**
  * A girth closed by fullness: the section whose extremes are given takes the one fullness at which its taut tape measures a published
@@ -57,20 +61,20 @@ export namespace AutoMovieHumanNativeGirthClosure {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading coordinates no shared work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Owns nothing past the call.
    */
-  export function tape(values: readonly number[], layout: S.ILayout): number {
-    const section: AutoMovieViewChain.ISection = S.chain(values, layout);
+  export function tape(values: readonly number[], layout: IAutoMovieHumanConicSection.ILayout): number {
+    const section: IAutoMovieViewChain.ISection = S.chain(values, layout);
     if (section.fault !== null) throw new Error("girth closure: the section is not admitted: " + section.fault);
-    const points: S.P[] = Array.from({ length: PHASES }, (_: unknown, k: number): S.P => {
+    const points: AutoMovieVector2Tuple[] = Array.from({ length: PHASES }, (_: unknown, k: number): AutoMovieVector2Tuple => {
       const phi: number = (2 * Math.PI * k) / PHASES;
       const r: number = AutoMovieViewChain.radius(section, phi);
       return [r * Math.cos(phi), r * Math.sin(phi)];
     });
 
     // Andrew's monotone chain: the lower and the upper hull of the points sorted by coordinate.
-    const sorted: S.P[] = [...points].sort((a: S.P, b: S.P): number => a[0] - b[0] || a[1] - b[1]);
-    const turn = (o: S.P, a: S.P, b: S.P): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-    const half = (source: readonly S.P[]): S.P[] => {
-      const out: S.P[] = [];
+    const sorted: AutoMovieVector2Tuple[] = [...points].sort((a: AutoMovieVector2Tuple, b: AutoMovieVector2Tuple): number => a[0] - b[0] || a[1] - b[1]);
+    const turn = (o: AutoMovieVector2Tuple, a: AutoMovieVector2Tuple, b: AutoMovieVector2Tuple): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const half = (source: readonly AutoMovieVector2Tuple[]): AutoMovieVector2Tuple[] => {
+      const out: AutoMovieVector2Tuple[] = [];
       for (const p of source) {
         while (out.length >= 2 && turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0) out.pop();
         out.push(p);
@@ -78,11 +82,11 @@ export namespace AutoMovieHumanNativeGirthClosure {
       out.pop();
       return out;
     };
-    const hull: S.P[] = [...half(sorted), ...half([...sorted].reverse())];
+    const hull: AutoMovieVector2Tuple[] = [...half(sorted), ...half([...sorted].reverse())];
     let sum: number = 0;
     for (let i: number = 0; i < hull.length; ++i) {
-      const a: S.P = hull[i]!;
-      const b: S.P = hull[(i + 1) % hull.length]!;
+      const a: AutoMovieVector2Tuple = hull[i]!;
+      const b: AutoMovieVector2Tuple = hull[(i + 1) % hull.length]!;
       sum += Math.hypot(b[0] - a[0], b[1] - a[1]);
     }
     return sum;
@@ -103,7 +107,7 @@ export namespace AutoMovieHumanNativeGirthClosure {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure map coordinates no shared work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh array.
    */
-  export function shift(values: readonly number[], layout: S.ILayout, fullness: number): number[] {
+  export function shift(values: readonly number[], layout: IAutoMovieHumanConicSection.ILayout, fullness: number): number[] {
     const { at, shoulders }: { at: number[]; shoulders: number } = S.offsets(layout);
     const arcs: number = layout.mirror ? layout.anchors.length - 1 : layout.anchors.length;
     if (values.length < shoulders + arcs) throw new Error("girth closure: the field vector has " + values.length + " numbers, its layout " + (shoulders + arcs));
@@ -112,7 +116,7 @@ export namespace AutoMovieHumanNativeGirthClosure {
       return 1 / (1 + Math.exp(-(Math.log(held / (1 - held)) + fullness)));
     };
     const out: number[] = [...values];
-    layout.anchors.forEach((anchor: S.IAnchor, k: number): void => {
+    layout.anchors.forEach((anchor: IAutoMovieHumanConicSection.IAnchor, k: number): void => {
       if (anchor.kind === "m") out[at[k]!] = moved(values[at[k]!]!);
     });
     for (let arc: number = 0; arc < arcs; ++arc) out[shoulders + arc] = moved(values[shoulders + arc]!);
@@ -134,7 +138,7 @@ export namespace AutoMovieHumanNativeGirthClosure {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure solve coordinates no shared work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one record.
    */
-  export function solve(values: readonly number[], layout: S.ILayout, girth: number): IClosed {
+  export function solve(values: readonly number[], layout: IAutoMovieHumanConicSection.ILayout, girth: number): IClosed {
     if (!(Number.isFinite(girth) && girth > 0)) throw new Error("girth closure: the girth must be finite and positive");
     const given: number = tape(values, layout);
     if (given === girth) return { fullness: 0, values, tape: given };

@@ -1,22 +1,22 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanWorkoutKind,
+  IAutoMovieMotionHumanWorkoutPlace,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsWheel } from "../sport/GymnasticsWheel";
 import { ExerciseKey } from "./ExerciseKey";
-import type { WorkoutKind } from "./WorkoutKind";
 
 /**
  * Where a workout's bearing bones stay: the one place the kind's pin keeps
@@ -31,15 +31,18 @@ import type { WorkoutKind } from "./WorkoutKind";
  *   wrist; a body that bears on its trunk is rested by its shapes; a body
  *   on a raised support has its hip joints as high above it as above the
  *   floor when it lies flat.
- * - `bar`: the author's place, or the prop's with the joints' own height
- *   above it, or, with neither, the floor rule for a kind done on equipment
- *   (an imagined support) and a bar above the standing reach for a hanging
- *   one.
+ * - `bar`: the prop's with the joints' own height above it, or, with none,
+ *   the places a support exercise's bars stand at (`WorkoutKind.bars`)
+ *   beside the place stood on, or the floor rule for a kind done on
+ *   equipment (an imagined support). A hanging kind hangs from the bar it
+ *   names and is refused without one;
+ *   hands that grip a bar are pinned by their grip sockets, so the bar lies
+ *   in the fists.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is decided, when, and each anchor's rule.
  * @evidence contracts/development/design.md#principled-representation One world point per plan, from which every posture's root follows by the pin, so the support cannot drift between postures.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one function the workout law calls and the bar's default height.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Heights are the entry's own joints', the prop's or the body's shapes'; the one share stated is the bar's.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The one function the workout law calls.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Heights are the entry's own joints', the prop's, the body's shapes' or the body's own for a support exercise's bars; no bar is imagined to hang from.
  */
 export namespace WorkoutPlace {
   /** The hip joints, by which a body on a raised support is placed. */
@@ -48,14 +51,12 @@ export namespace WorkoutPlace {
     "rightUpperLeg",
   ];
 
-  /** How far above the standing body's overhead grip a bar is when the author places none, a share of the stature (provisional): the feet clear the floor. */
-  export const BAR: number = 0.08;
-
   /**
    * The place the bearing bones keep.
    *
-   * @param props The action's context, the kind, the standing posture the exercise is entered from, the first key, the prop's place when one bears the body, and the author's bar.
+   * @param props The action's context, the kind, the standing posture the exercise is entered from, the first key, and the prop's place when one bears the body.
    * @returns World metres.
+   * @throws {HumanRefusal} When a hanging kind names no bar to hang from.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
    * @evidence contracts/development/implementation.md#principled-implementation Each anchor's rule as stated on the namespace, each read from forward kinematics of the first key or from the entry's displayed bones.
@@ -65,22 +66,30 @@ export namespace WorkoutPlace {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exercise keys' pose and mean and the knockdown's floor rest.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function of(props: {
-    context: Pick<IHumanActionContext, "body" | "entry">;
-    kind: WorkoutKind;
-    standing: IHumanPosture;
-    first: ExerciseKey.IKey;
-    borne: IAutoMovieVector3 | null;
-    bar: IAutoMovieVector3 | undefined;
-  }): IAutoMovieVector3 {
-    const context: Pick<IHumanActionContext, "body" | "entry"> = props.context;
-    const body: IHumanBody = context.body;
-    const kind: WorkoutKind = props.kind;
-    const standing: IHumanPosture = props.standing;
+  export function of(
+    props: IAutoMovieMotionHumanWorkoutPlace.IOfProps,
+  ): IAutoMovieVector3 {
+    const context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry"> =
+      props.context;
+    const unhung = (): never => {
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: "on",
+        value: null,
+        reason: "a hanging exercise hangs from a bar, and it names none",
+        fix: 'name the bar it hangs from in on, { prop, affordance: "bar" }, as createPullUpBar declares it',
+      });
+    };
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const kind: IAutoMovieMotionHumanWorkoutKind = props.kind;
+    const standing: IAutoMovieMotionHumanPosture = props.standing;
     const borne: IAutoMovieVector3 | null = props.borne;
     const yaw: number = standing.yaw;
-    const based: IHumanPosture = ExerciseKey.posed(props.first, yaw);
-    const pelvis = (posture: IHumanPosture): IAutoMovieVector3 =>
+    const based: IAutoMovieMotionHumanPosture = ExerciseKey.posed(
+      props.first,
+      yaw,
+    );
+    const pelvis = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         resolveHumanPosture.heading(posture),
         body.rest.get("hips")!,
@@ -99,25 +108,40 @@ export namespace WorkoutPlace {
       kind.pin.reduce(
         (
           sum: IAutoMovieVector3,
-          bone: AutoMovieHumanoidBone,
+          pin: IAutoMovieMotionHumanExerciseKey.Pin,
         ): IAutoMovieVector3 =>
-          Vector3.add(sum, entered.get(bone)!.worldPosition),
+          Vector3.add(sum, ExerciseKey.at(body, entered, pin)),
         { x: 0, y: 0, z: 0 },
       ),
       1 / kind.pin.length,
     );
-    // Feet or toes that bear on the floor are as high above it as when the
-    // body stands on them, and hands as high as a laid palm's wrist; only a
-    // body that bears on its trunk is rested by its shapes.
+    // Feet or toes that bear on the floor on their soles are as high above
+    // it as when the body stands on them, and hands as high as a laid palm's
+    // wrist; a body that bears on its trunk, or on the sides of its feet as
+    // a side plank does, is rested by its shapes.
+    const keyed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      resolveHumanPosture(body, based),
+    );
+    const soles: boolean = kind.pin.every(
+      (bone: IAutoMovieMotionHumanExerciseKey.Pin): boolean =>
+        bone !== "gripLeft" &&
+        bone !== "gripRight" &&
+        /(Foot|Toes)$/.test(bone) &&
+        Quaternion.rotateVector(keyed.get(bone)!.worldRotation, {
+          x: 0,
+          y: 1,
+          z: 0,
+        }).y > Math.SQRT1_2,
+    );
     const grounded: number | null =
       kind.anchor !== "hips" || kind.raise !== undefined || borne !== null
         ? null
-        : kind.pin.every((bone: AutoMovieHumanoidBone): boolean =>
-              /(Foot|Toes)$/.test(bone),
-            )
+        : soles
           ? shown.y
-          : kind.pin.every((bone: AutoMovieHumanoidBone): boolean =>
-                bone.endsWith("Hand"),
+          : kind.pin.every(
+                (bone: IAutoMovieMotionHumanExerciseKey.Pin): boolean =>
+                  bone.endsWith("Hand"),
               )
             ? GymnasticsWheel.laid(body)
             : null;
@@ -128,8 +152,8 @@ export namespace WorkoutPlace {
     // the legs that hang beside a bench and float the body by their length
     // (0.51 m on the first run of the supported test).
     const raised: number | null = borne?.y ?? kind.raise?.(body) ?? null;
-    const flat: IHumanPosture = ExerciseKey.posed(
-      ExerciseKey.of({ pitch: -90 }, {}),
+    const flat: IAutoMovieMotionHumanPosture = ExerciseKey.posed(
+      ExerciseKey.from(body, { pitch: -90 }, {}),
       yaw,
     );
     const lain: number =
@@ -154,28 +178,37 @@ export namespace WorkoutPlace {
         kind.pin,
       );
 
-    // A bar's place: the author's, the prop's with the joints' own height
-    // above it, an imagined support under a kind done on equipment (the
-    // body rested on the floor), or a bar above the standing reach.
+    // A bar's place: the prop's with the joints' own height above it, the
+    // places a support exercise's bars stand at beside the place stood on,
+    // or an imagined support under a kind done on equipment (the body
+    // rested on the floor); a hanging kind hangs only from a bar it names.
+    const barred = (height: number): IAutoMovieVector3 => {
+      const beside: IAutoMovieVector3 = ExerciseKey.mean(
+        body,
+        {
+          ...based,
+          root: {
+            x: hips.x - pelvis(based).x,
+            y: 0,
+            z: hips.z - pelvis(based).z,
+          },
+        },
+        kind.pin,
+      );
+      return { x: beside.x, y: height + (kind.rise?.(body) ?? 0), z: beside.z };
+    };
     const rested: IAutoMovieVector3 =
       kind.anchor === "stance"
         ? shown
         : kind.anchor === "hips"
           ? floored()
-          : (props.bar ??
-            (borne === null
-              ? null
-              : { ...borne, y: borne.y + (kind.rise?.(body) ?? 0) }) ??
-            (kind.rise !== undefined
-              ? floored()
-              : Vector3.add(
-                  ExerciseKey.mean(
-                    body,
-                    { ...based, root: standing.root },
-                    kind.pin,
-                  ),
-                  { x: 0, y: BAR * body.measure.stature, z: 0 },
-                )));
+          : borne !== null
+            ? { ...borne, y: borne.y + (kind.rise?.(body) ?? 0) }
+            : kind.bars !== undefined
+              ? barred(kind.bars(body))
+              : kind.rise !== undefined
+                ? floored()
+                : unhung();
     return grounded === null ? rested : { ...rested, y: grounded };
   }
 }

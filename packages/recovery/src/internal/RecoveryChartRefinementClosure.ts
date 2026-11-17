@@ -1,3 +1,5 @@
+import type { IAutoMovieRecoveryChartRefinementClosure } from "@automovie/interface";
+
 /**
  * Close a private rectangle split under laminar opposed interface intervals. Bounds are global unit-square [u0,u1,v0,v1] coordinates; axes 0 and 1 vary u and v. An exact endpoint sweep first establishes one covering layer over every positive-area cell. Every subsequent strict split preserves that partition without moving an endpoint. Proper overlaps propagate an existing smaller end into the opposite leaf; identical, contained and disjoint interfaces need no additional split. Stable geometric and name ordering makes input permutations equivalent.
  *
@@ -11,36 +13,13 @@
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One endpoint-compressed range-count tree serves each coverage sweep. Each closure round reuses its edge lists to find the first conflict, and every propagated parameter is an existing exact endpoint rather than a new geometric calculation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local leaves, historical names, endpoint trees and edge lists expire on return or failure. Every split increases leaf count by one, bounded by maxLeaves; output owns its arrays and no caller state or external handle is retained.
  */
-export function RecoveryChartRefinementClosure(input: {
-  leaves: readonly {
-    id: string;
-    root: string;
-    level: number;
-    bounds: readonly [number, number, number, number];
-  }[];
-  request: { leaf: string; axis: 0 | 1; parameter: number };
-  maxLeaves: number;
-}): {
-  leaves: {
-    id: string;
-    root: string;
-    level: number;
-    bounds: [number, number, number, number];
-  }[];
-  splits: {
-    leaf: string;
-    axis: 0 | 1;
-    parameter: number;
-    reason: "requested" | "interface-closure";
-  }[];
-  diagnostics: string[];
-} {
-  type Leaf = ReturnType<
-    typeof RecoveryChartRefinementClosure
-  >["leaves"][number];
-  type Split = ReturnType<
-    typeof RecoveryChartRefinementClosure
-  >["splits"][number];
+export function RecoveryChartRefinementClosure(
+  input: Parameters<IAutoMovieRecoveryChartRefinementClosure.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartRefinementClosure.Operation> {
+  type Leaf =
+    ReturnType<IAutoMovieRecoveryChartRefinementClosure.Operation>["leaves"][number];
+  type Split =
+    ReturnType<IAutoMovieRecoveryChartRefinementClosure.Operation>["splits"][number];
   type Edge = { leaf: string; start: number; end: number };
   type Line = {
     axis: 0 | 1;

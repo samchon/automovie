@@ -1,5 +1,5 @@
-import { IAutoMovieGaitCycle } from "./IAutoMovieGaitCycle";
-import { IAutoMovieKeyframe } from "./IAutoMovieKeyframe";
+import type { IAutoMovieGaitCycle } from "./IAutoMovieGaitCycle";
+import type { IAutoMovieKeyframe } from "./IAutoMovieKeyframe";
 
 /**
  * A time-based animation clip: an ordered sequence of keyframes over a fixed duration, targeting one skeleton.

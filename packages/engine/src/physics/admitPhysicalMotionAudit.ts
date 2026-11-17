@@ -1,6 +1,10 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMeasurePhysicalMotionConstraint,
+  IAutoMovieMotionAudit,
+  IAutoMovieMotionGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { AutoMovieMotionAudit as Audit } from "./AutoMovieMotionAudit";
 import { admitMotionGeometry } from "./admitMotionGeometry";
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 import { motionAuditGeometry } from "./motionAuditGeometry";
@@ -17,7 +21,9 @@ import { validatePhysicalProfile } from "./validatePhysicalProfile";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 21 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function admitPhysicalMotionAudit(input: Audit.IInput): void {
+export function admitPhysicalMotionAudit(
+  input: IAutoMovieMotionAudit.IInput,
+): void {
   const point: (value: IAutoMovieVector3) => boolean = (
     value: IAutoMovieVector3,
   ): boolean => !!value && [value.x, value.y, value.z].every(scalar);
@@ -61,9 +67,8 @@ export function admitPhysicalMotionAudit(input: Audit.IInput): void {
     if (body.geometry !== undefined) admitMotionGeometry(body.geometry);
     const carriers: Set<string> = new Set(
       motionAuditGeometry(body).segments.map(
-        (
-          segment: ReturnType<typeof motionAuditGeometry>["segments"][number],
-        ): string => segment.bone,
+        (segment: IAutoMovieMotionGeometry["segments"][number]): string =>
+          segment.bone,
       ),
     );
     const bones: Set<string> = new Set(carriers);
@@ -103,7 +108,7 @@ export function admitPhysicalMotionAudit(input: Audit.IInput): void {
           typeof constraint.enabled !== "function")
       )
         throw new Error("Invalid motion audit constraint");
-      const anchors: Audit.IAnchor[] =
+      const anchors: IAutoMovieMeasurePhysicalMotionConstraint.IAnchor[] =
         constraint.kind === "goal"
           ? [constraint.point]
           : constraint.kind === "distance"

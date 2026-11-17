@@ -5,9 +5,11 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
 } from "../core";
 import { SWORD_BANDS } from "./SWORD_BANDS";
+import { SWORD_MODELS } from "./SWORD_MODELS";
 
 /**
  * A blade held by its hilt: a longsword, an arming sword, a sabre, a katana, a rapier, a dagger or a knife.
@@ -16,14 +18,14 @@ import { SWORD_BANDS } from "./SWORD_BANDS";
  *
  * Mass and balance are cited, not derived: the parts carry mass shares that put the centre of mass at the drawn `balance` above the guard, the hilt's parts taking what the blade's taper leaves. `properties` gives the centre and the inertia, and `moment` the inertia about the grip that a cut works against.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the model where the kind has read models, and any dimension the author fixes.
+ * @param seed The seed that picks the model left free and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The weapon.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model not of the kind, a fixed dimension outside its band, or one the model gives.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the weapon stands, where its edge and flats face, how a curved blade is measured, what the blade's parts are and where the mass properties come from.
  * @evidence contracts/development/implementation.md#principled-implementation The blade tapers in width and thickness to `TAPER` of its base at the point, so each segment's mass share is its length times its width times its thickness and the blade's own centre follows; the hilt's share is then the lever balance that puts the whole at the cited point of balance, (blade centre minus balance) over (blade centre minus hilt centre), split among guard, grip and pommel by `HILT`. A curved blade's points lie on a parabola whose chord is the blade length.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, lay the blade's segments, lay the hilt, weigh the hilt against the blade, then the contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, draw the other dimensions, lay the blade's segments, lay the hilt, weigh the hilt against the blade, then the contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fuller, ricasso or bevel; a rapier's swept hilt is a plate, a sabre has no knuckle bow. The split of the hilt's mass, the taper, the guards' sizes and the curves are estimates named on their constants.
  * @evidence contracts/development/implementation.md#efficient-algorithms Nine parts: six blade segments, a guard, a grip and a pommel.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -33,26 +35,46 @@ export function createSword(
   params: createSword.IParams,
   seed?: number | string,
 ): Archetype<createSword.Affordance, createSword.Dimension> {
+  const draw: ArchetypeDrawSession<createSword.Dimension> =
+    new ArchetypeDrawSession<createSword.Dimension>(
+      "sword",
+      createSword.UNITS,
+      seed,
+      params,
+    );
   const kind: createSword.Kind = ArchetypeDraw.choice(
     "sword",
     "kind",
     params.kind,
     createSword.KINDS,
   );
-  const d: Record<createSword.Dimension, number> = ArchetypeDraw.dimensions(
-    "sword",
-    createSword.BANDS[kind],
-    seed,
-    params,
+  // A longsword or an arming sword is one of its maker's swords whole, a sabre one of its pattern's two weights; the rest are drawn in their bands.
+  const model: {
+    figures: Readonly<Partial<Record<createSword.Dimension, number>>>;
+  } = draw.model<createSword.Model>(
+    "model",
+    params.model,
+    createSword.MODELS[kind],
   );
+  const drawn: Partial<Record<createSword.Dimension, number>> = {
+    ...draw.dimensions(createSword.BANDS[kind], createSword.BANDS),
+    ...model.figures,
+  };
+  const d: Record<createSword.Dimension, number> = {
+    bladeLength: drawn.bladeLength!,
+    bladeWidth: drawn.bladeWidth!,
+    hiltLength: drawn.hiltLength!,
+    balance: drawn.balance!,
+    mass: drawn.mass!,
+  };
   const builder: ArchetypeBuilder<
     createSword.Affordance,
     createSword.Dimension
   > = new ArchetypeBuilder({
-    archetype: "sword",
+    material: "composite",
     id: params.id,
     name: createSword.NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const shape: createSword.IShape = createSword.SHAPES[kind];
@@ -159,6 +181,7 @@ export function createSword(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(hilt[1]!, v(0, 0, -1), v(0, sign, 0)),
       extent: null,
       grip: shape.hands === 2 ? "two-hand" : "power",
@@ -179,6 +202,7 @@ export function createSword(
     builder.affordance({
       id,
       kind: "ledge",
+      direction: "normal",
       frame: ArchetypeFrame.facing(
         v(0, middle.y, middle.z + sign * half),
         v(0, 0, sign),
@@ -191,6 +215,7 @@ export function createSword(
   builder.affordance({
     id: "flat",
     kind: "surface",
+    direction: "normal",
     frame: ArchetypeFrame.facing(
       v((createSword.THICKNESS * taper(0.5)) / 2, middle.y, middle.z),
       v(1, 0, 0),
@@ -203,6 +228,7 @@ export function createSword(
   builder.affordance({
     id: "point",
     kind: "surface",
+    direction: "along",
     frame: ArchetypeFrame.facing(along(1), chord, v(1, 0, 0)),
     extent: null,
   });
@@ -213,7 +239,7 @@ export function createSword(
  * Companion types, shape constants and bands of {@link createSword}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from or that it is an estimate.
- * @evidence contracts/development/design.md#principled-representation Closed unions, one cited band per dimension per kind, and one shape record per kind for what the bands do not vary: hands, edges, curve and hilt furniture.
+ * @evidence contracts/development/design.md#principled-representation Closed unions of kinds and read models, each model whole, one cited band per dimension a model leaves, and one shape record per kind for what neither varies: hands, edges, curve and hilt furniture.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What a cut, a thrust and a parry read (#3202 decision 6, #3374): the grip with sites along it, the edges, the flat, the point, the mass, the point of balance and the inertia about the grip.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Kinds differ by data in `SHAPES`, not by branches named after them, except the rapier's wider guard block.
  */
@@ -402,15 +428,39 @@ export namespace createSword {
     | "balance"
     | "mass";
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    bladeLength: "m",
+    bladeWidth: "m",
+    hiltLength: "m",
+    balance: "m",
+    mass: "kg",
+  };
+
+  /** The read models: Albion's Crecy and Regent longswords and Knight and Poitiers arming swords, and the 1796 sabre's officer's and trooper's patterns. */
+  export type Model =
+    | "crecy"
+    | "regent"
+    | "knight"
+    | "poitiers"
+    | "officer"
+    | "trooper";
+
+  /** The parameters: the kind, the model, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which blade. */
     kind: Kind;
+
+    /** Which of the kind's read models; picked from the seed when absent. A katana, a rapier, a dagger and a knife have none. */
+    model?: Model;
 
     /** The model's id, unique in a scene; `sword` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /** Each kind's read models whole, the default first. */
+  export const MODELS: typeof SWORD_MODELS = SWORD_MODELS;
+
+  /** The band of each free dimension a model leaves, by kind. */
   export const BANDS: typeof SWORD_BANDS = SWORD_BANDS;
 }

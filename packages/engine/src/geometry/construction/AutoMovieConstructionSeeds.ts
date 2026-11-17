@@ -1,23 +1,28 @@
-import type { AutoMovieConstructionSeed } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionSeed,
+  IAutoMovieConstructionSeedTrace,
+  IAutoMovieSolidFoot,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionSeedTrace as Trace } from "./AutoMovieConstructionSeedTrace";
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidFoot } from "./AutoMovieSolidFoot";
-import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { norm, scale, solve3, sub } = AutoMovieSolidVector;
 
 /**
- * A join's seed record as the trace's seed (`AutoMovieSolidIntersection.IInput.seed`), in millimetres.
+ * A join's seed record as the trace's seed (`IAutoMovieSolidIntersection.IInput.seed`), in millimetres.
  *
  * A point seed is its two chart points. A search seed walks the part face's station line at its phase (or, with `phases`, each of that many lines round the part in turn, its phase's first) between its two shares, takes each step's foot on the host face and solves `P(s, phase) = H(y, theta)` for `(s, y, theta)` by safeguarded Newton. The first locally converged meeting inside the part shares and the actual host domain, on the first line that has one, is the seed, with that line's phase. This bounded local search does not certify every crossing or geometric absence.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both seed kinds, the lines and their order, the walk, its steps, the solve and the failure message.
- * @evidence contracts/development/design.md#principled-representation Represents A join's seed record as the trace's seed (`AutoMovieSolidIntersection.IInput.seed`), in millimetres: companion namespace of 7 members (`STEPS`, `GRID`, `BACKTRACKINGS`, `DECREASE`, `create`, `meet`, ...); units and frames named in its text: newton, local, metres, metre, world. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#principled-representation Represents A join's seed record as the trace's seed (`IAutoMovieSolidIntersection.IInput.seed`), in millimetres: companion namespace of 7 members (`STEPS`, `GRID`, `BACKTRACKINGS`, `DECREASE`, `create`, `meet`, ...); units and frames named in its text: newton, local, metres, metre, world. It has no optional member, so no absent-value state combines with another.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConstructionSeeds` in packages/engine/src/geometry/construction/AutoMovieConstructionSeeds.ts; its surface is the 7 members listed and the text shows 4 other files naming it, mostly packages/engine (2), test (2), so no member is declared for a presumed future need.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
@@ -59,14 +64,14 @@ export namespace AutoMovieConstructionSeeds {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Interior/ordered station arrays and current numerical jets have call lifetime; only the selected seed's chart scalars/face index or error string is returned.
    */
   export function create(
-    seed: AutoMovieConstructionSeed,
+    seed: IAutoMovieConstructionSeed,
     part: IAutoMovieSolidSurface,
     layers: readonly number[],
     host: IAutoMovieSolidSurface,
     face: number,
     tolerance: number,
-    trace?: Trace.Sink,
-  ): AutoMovieSolidIntersection.IInput["seed"] | string {
+    trace?: IAutoMovieConstructionSeedTrace.Sink,
+  ): IAutoMovieSolidIntersection.IInput["seed"] | string {
     const S: number = AutoMovieConstructionViews.SCALE;
     if (seed.type === "point")
       return {
@@ -102,7 +107,7 @@ export namespace AutoMovieConstructionSeeds {
     const b: number = first + seed.to * (last - first);
     let starts: number = 0;
     for (const phase of phases) {
-      const found: AutoMovieSolidIntersection.IInput["seed"] | number = along(
+      const found: IAutoMovieSolidIntersection.IInput["seed"] | number = along(
         a,
         b,
         phase,
@@ -136,8 +141,8 @@ export namespace AutoMovieConstructionSeeds {
     host: IAutoMovieSolidSurface,
     face: number,
     tolerance: number,
-    trace?: Trace.Sink,
-  ): AutoMovieSolidIntersection.IInput["seed"] | number {
+    trace?: IAutoMovieConstructionSeedTrace.Sink,
+  ): IAutoMovieSolidIntersection.IInput["seed"] | number {
     const low: number = Math.min(a, b);
     const high: number = Math.max(a, b);
     const inside: number[] = layers.filter(
@@ -159,7 +164,7 @@ export namespace AutoMovieConstructionSeeds {
       let initialMode: "warm-foot" | "cold-foot" | "coarse" =
         guess === null ? "cold-foot" : "warm-foot";
       let initial: [number, number] = start;
-      let foot: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(
+      let foot: IAutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(
         host,
         p,
         start,
@@ -238,7 +243,7 @@ export namespace AutoMovieConstructionSeeds {
     phase: number,
     x0: Vec3,
     tolerance: number,
-    trace?: Trace.Sink,
+    trace?: IAutoMovieConstructionSeedTrace.Sink,
   ): Vec3 | null {
     let x: Vec3 = [...x0];
     if (!x.every(Number.isFinite)) {

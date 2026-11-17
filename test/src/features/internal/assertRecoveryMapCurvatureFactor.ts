@@ -1,8 +1,10 @@
-import type { IAutoMovieSimplexAtom } from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryMapCurvatureBlocks,
+  IAutoMovieRecoveryMapCurvatureFit,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieSimplexAtom,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryMapCurvatureBlocks,
-  type IAutoMovieRecoveryMapCurvatureFit,
-  type IAutoMovieRecoveryMapPose,
   createRecoveryMapTriangularMetric,
   differentiateRecoveryMapProjection,
   factorRecoveryMapCurvature,

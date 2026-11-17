@@ -3,20 +3,6 @@ import { SceneBuild } from "./SceneBuild";
 
 const { act, at, object, person, scene }: typeof SceneBuild = SceneBuild;
 
-/**
- * A ball resting on the floor, as a kick's target: its centre a football's
- * radius up (0.11 m), ahead of where the support foot plants.
- *
- * @param x To the left of a person facing +Z, metres.
- * @param z Forward, metres.
- * @returns The target.
- */
-const ball = (x: number, z: number): Record<string, unknown> => ({
-  kind: "point",
-  at: { x, y: 0.11, z },
-  frame: "world",
-});
-
 /** The sport scenes of the lexicon's football, basketball, gymnastics and swimming rows. */
 export const SCENES_FIELD: readonly IScene[] = [
   scene(
@@ -33,6 +19,7 @@ export const SCENES_FIELD: readonly IScene[] = [
         dag: "goalkeeper",
       },
       needs: [],
+      refusedUntil: 3549,
     },
     "five-a-side",
     [
@@ -41,13 +28,15 @@ export const SCENES_FIELD: readonly IScene[] = [
       person("cyr", "m2", 0, 3, 0, [
         act("chestTrap"),
         act("thighTrap"),
-        act("kickLeft", { ball: ball(0, 3.3) }, { anchor: "shot" }),
+        act("kickLeft", { ball: "ball" }, { anchor: "shot" }),
       ]),
       person("dag", "m1", 0, 11, 180, [
         act("stand", { seconds: 6 }),
         act("goalkeeperDiveRight", {}, { sync: { of: "shot" } }),
       ]),
     ],
+    // The ball at the striker's feet, ahead of where the support foot plants.
+    [object("ball", "createBall", "football", 0, 3.3)],
   ),
   scene(
     {
@@ -67,10 +56,13 @@ export const SCENES_FIELD: readonly IScene[] = [
       ]),
       person("fen", "m1", 0, 4, 180, [
         act("stand", { seconds: 1 }),
-        act("twoHandCatch", { from: "chest" }),
+        act("twoHandCatch", { from: "chest", ball: "ball" }),
         act("defensiveSlide"),
       ]),
     ],
+    // The ball caught lies at the passer's feet, as the dribble and the pass
+    // are mimed.
+    [object("ball", "createBall", "basketball", 0.3, 0.3)],
   ),
   scene(
     {

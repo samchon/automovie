@@ -1,5 +1,5 @@
-import { IAutoMovieConvexSpaceCell } from "./IAutoMovieConvexSpaceCell";
-import { IAutoMovieSpaceShell } from "./IAutoMovieSpaceShell";
+import type { IAutoMovieConvexSpaceCell } from "./IAutoMovieConvexSpaceCell";
+import type { IAutoMovieSpaceShell } from "./IAutoMovieSpaceShell";
 
 /**
  * One named semantic region, independent of visible walls and slabs.

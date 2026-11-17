@@ -1,5 +1,8 @@
-import type { AutoMovieHumanCanonicalBody } from "@automovie/human";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanCanonicalBody,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * One capture of the motion harness: who is drawn, at which instants, with
@@ -77,7 +80,7 @@ export namespace IMotionCaptureCase {
     id: string;
 
     /** The canonical body drawn. */
-    body: AutoMovieHumanCanonicalBody.IBody;
+    body: IAutoMovieHumanCanonicalBody.IBody;
 
     /** The canonical pose at a film second. */
     pose(seconds: number): IAutoMoviePose;

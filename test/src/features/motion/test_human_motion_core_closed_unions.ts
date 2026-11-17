@@ -1,3 +1,9 @@
+import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanReach,
+  IAutoMovieMotionManner,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanBend,
   AutoMovieMotionHumanChannel,
@@ -11,13 +17,13 @@ import {
   AutoMovieMotionHumanTouchForm,
   AutoMovieMotionManner,
   HumanBase,
+  HumanContactWindow,
   HumanFoot,
   HumanHand,
+  HumanInterruptRow,
   HumanObstacle,
+  HumanPosture,
   HumanRefusal,
-  IHumanContactWindow,
-  IHumanInterruptRow,
-  IHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -47,14 +53,14 @@ export function test_human_motion_core_closed_unions(): void {
   const same: readonly true[] = [
     true satisfies Same<
       (typeof AutoMovieMotionManner.PRESET_NAMES)[number],
-      AutoMovieMotionManner.Preset
+      IAutoMovieMotionManner.Preset
     >,
     true satisfies Same<
-      AutoMovieMotionManner.Preset,
+      IAutoMovieMotionManner.Preset,
       keyof typeof AutoMovieMotionManner.PRESETS
     >,
-    true satisfies Same<AutoMovieMotionHumanBend.Side, HumanHand.Side>,
-    true satisfies Same<IHumanPosture.Limb, AutoMovieMotionHumanReach.Limb>,
+    true satisfies Same<AutoMovieHumanSide, AutoMovieHumanSide>,
+    true satisfies Same<AutoMovieHumanLimb, IAutoMovieMotionHumanReach.Limb>,
   ];
 
   // 2. At run time.
@@ -90,13 +96,13 @@ export function test_human_motion_core_closed_unions(): void {
     "HumanHand.SHAPES": HumanHand.SHAPES,
     "HumanHand.AXES": HumanHand.AXES,
     "HumanFoot.SOCKETS": HumanFoot.SOCKETS,
-    "IHumanPosture.LIMBS": IHumanPosture.LIMBS,
+    "HumanPosture.LIMBS": HumanPosture.LIMBS,
     "HumanBase.KINDS": HumanBase.KINDS,
     "HumanBase.MOUNTS": HumanBase.MOUNTS,
     "HumanRefusal.KINDS": HumanRefusal.KINDS,
-    "IHumanContactWindow.KINDS": IHumanContactWindow.KINDS,
-    "IHumanInterruptRow.KINDS": IHumanInterruptRow.KINDS,
-    "IHumanInterruptRow.KEEPS": IHumanInterruptRow.KEEPS,
+    "HumanContactWindow.KINDS": HumanContactWindow.KINDS,
+    "HumanInterruptRow.KINDS": HumanInterruptRow.KINDS,
+    "HumanInterruptRow.KEEPS": HumanInterruptRow.KEEPS,
     "HumanObstacle.CAUSES": HumanObstacle.CAUSES,
   };
   const complaints: string[] = [];

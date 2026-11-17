@@ -1,12 +1,10 @@
-import {
-  type IAutoMovieResolvedBone,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { IHumanBody } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -52,7 +50,7 @@ export function test_human_motion_signature_approach(): void {
     default: [0.46, 1.22],
   };
   const sternum = (
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieVector3 => {
     const frame = body.surfaces.regions.sternum;
@@ -68,7 +66,7 @@ export function test_human_motion_signature_approach(): void {
   ])) {
     const cell: string = `approach ${row} ${name}`;
     const s: M.IStaged = M.stage("approach", row, name);
-    const partner: IHumanBody = motionHumanBody("m-average");
+    const partner: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
     const end: number = M.event(s, "arrive") ?? s.film.duration;
     const mine: IAutoMovieVector3 = sternum(s.body, M.bones(s, end));
     const theirs: IAutoMovieVector3 = sternum(partner, s.film.bones("b", end));

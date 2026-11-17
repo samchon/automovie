@@ -1,5 +1,9 @@
-import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
 import { AutoMovieHumanSkinDatum as Skin } from "../frame/AutoMovieHumanSkinDatum";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
+} from "@automovie/interface";
 
 /**
  * f1's datums that the native path moved by the trunk's tissue field (`AutoMovieHumanF1NativeBuild` `skinPoint`), each declared as a bone
@@ -27,8 +31,8 @@ export namespace AutoMovieHumanF1Datums {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read coordinates no shared work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the frame's own origin.
    */
-  export function legOrigin(frames: ReadonlyMap<string, F.IFrame>): F.V3 {
-    const femur: F.IFrame | undefined = frames.get("femur");
+  export function legOrigin(frames: ReadonlyMap<string, IAutoMovieHumanSegmentFrame>): AutoMovieVector3Tuple {
+    const femur: IAutoMovieHumanSegmentFrame | undefined = frames.get("femur");
     if (femur === undefined) throw new Error("the leg's course origin needs the femur's frame");
     return femur.origin;
   }
@@ -43,8 +47,8 @@ export namespace AutoMovieHumanF1Datums {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work An unchanged wall borrows the given chain.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the given chain or one edited array.
    */
-  export function ear(chain: readonly F.IJoint[], frames: ReadonlyMap<string, F.IFrame>, wall: Skin.IWall): readonly F.IJoint[] {
-    const ear: F.IFrame | undefined = frames.get("ear");
+  export function ear(chain: readonly IAutoMovieHumanSegmentJoint[], frames: ReadonlyMap<string, IAutoMovieHumanSegmentFrame>, wall: Skin.IWall): readonly IAutoMovieHumanSegmentJoint[] {
+    const ear: IAutoMovieHumanSegmentFrame | undefined = frames.get("ear");
     if (ear === undefined) throw new Error("the ear's attachment needs the ear's frame");
     return Skin.attach(chain, frames, "ear", Skin.skin(ear.origin, wall));
   }
@@ -69,7 +73,7 @@ export namespace AutoMovieHumanF1Datums {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure map coordinates no shared work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the given point or one new point.
    */
-  export function point(name: string, placed: F.V3, wall: Skin.IWall): F.V3 {
+  export function point(name: string, placed: AutoMovieVector3Tuple, wall: Skin.IWall): AutoMovieVector3Tuple {
     return SKIN[name] === undefined ? placed : Skin.skin(placed, wall);
   }
 }

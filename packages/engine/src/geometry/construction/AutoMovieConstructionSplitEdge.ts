@@ -1,9 +1,14 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionBandEdge,
+  IAutoMovieConstructionPortField,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import { AutoMovieConstructionPortField as Field } from "./AutoMovieConstructionPortField";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** World point or derivative, mm. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { combine, sub } = AutoMovieSolidVector;
 
 /**
@@ -28,51 +33,12 @@ const { combine, sub } = AutoMovieSolidVector;
  */
 export namespace AutoMovieConstructionSplitEdge {
   /**
-   * A carried band and its correspondence to the child.
-   *
-   * @evidence contracts/development/design.md#principled-representation The surface with the two maps the child's seam needs in both directions, as `AutoMovieConstructionPortBand.IBand`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three readers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The maps are the band's own correspondence, not a nearest search.
-   * @evidence contracts/development/common.md#meaningful-documentation States each reader's charts.
-   */
-  export interface IEdge {
-    /** The band's surface, the strip's chart, name, orientation, period and domain. */
-    surface: IAutoMovieSolidSurface;
-
-    /**
-     * The child's chart point on its rail at a band clock.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the chart.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `carried` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    rail: (clock: number) => [number, number];
-
-    /**
-     * The band clock whose rail point stands at a child phase, in `[0, 2 pi)`: the inverse of the monotone correspondence.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the range.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `carried` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    clock: (phase: number) => number;
-  }
-
-  /**
    * Carry a column strip's end edge onto its child's rail curve, or the reason it cannot be.
    *
    * @param strip The column strip's surface, chart `(station mm, clock rad)`.
    * @param length The strip's span, mm.
    * @param child The child's skin.
-   * @param rail The rail's station at a child phase with two derivatives (`AutoMovieConstructionSkinCut.ICut.at`).
+   * @param rail The rail's station at a child phase with two derivatives (`IAutoMovieConstructionSkinCut.ICut.at`).
    * @param childPhases The child's phase at each column, unwrapped along the clock.
    * @param start The loop's own curve at a band clock with its first and second clock derivatives (the host's ring on an arc, the shared seam on a seam), or absent to keep the strip's loop edge. With it the band's loop edge is that curve at every clock, carried by the complementary weight `1 - V`, so two bands that read one seam share its points and tangents between columns as well as at them; the curve's tangent turns at a fork, where the loop has its corner.
    * @returns The carried band, or the refusal.
@@ -92,11 +58,11 @@ export namespace AutoMovieConstructionSplitEdge {
     rail: (psi: number) => [number, number, number],
     childPhases: readonly number[],
     start?: (clock: number) => { p: Vec3; d1: Vec3; d2: Vec3 },
-  ): IEdge | string {
+  ): IAutoMovieConstructionBandEdge | string {
     const n: number = childPhases.length;
     const turn: number = 2 * Math.PI;
     const sense: number = Math.sign(childPhases[n - 1]! - childPhases[0]!);
-    const delta: Field.IField = Field.periodic(
+    const delta: IAutoMovieConstructionPortField.IField = Field.periodic(
       childPhases.map((phase: number, k: number): number => phase - (sense * turn * k) / n),
     );
     if (!(sense !== 0 && (sense > 0 ? 1 + delta.slopes[0] > 0 : 1 - delta.slopes[1] > 0)))

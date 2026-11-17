@@ -1,4 +1,7 @@
-import type { AutoMovieHumanRigControls as Controls } from "./AutoMovieHumanRigControls";
+import type {
+  AutoMovieHumanPoseChannelTemplate,
+  IAutoMovieHumanPoseChannels,
+} from "@automovie/interface";
 
 /** Existing head, neck, shoulder and thumb rows preserve literal joint identities. */
 const INITIAL = [
@@ -92,7 +95,7 @@ const INITIAL = [
     80,
   ],
 ] as const satisfies readonly (readonly [
-  Controls.ChannelTemplate,
+  AutoMovieHumanPoseChannelTemplate,
   string,
   "flexion" | "abduction" | "twist" | "forward" | "lateral",
   1 | -1,
@@ -165,7 +168,7 @@ const AXIAL = [
     90,
   ],
 ] as const satisfies readonly (readonly [
-  Controls.ChannelTemplate,
+  AutoMovieHumanPoseChannelTemplate,
   string,
   "flexion" | "abduction" | "twist" | "forward" | "lateral",
   1 | -1,
@@ -195,9 +198,9 @@ const TOES = [
  * sign is reflected because the clinical axes otherwise mirror each other.
  */
 
-export const AutoMovieHumanPoseChannels: readonly Channel[] =
-  ((): Channel[] => {
-    const rows: Channel[] = [...INITIAL];
+export const AutoMovieHumanPoseChannels: readonly IAutoMovieHumanPoseChannels.Channel[] =
+  ((): IAutoMovieHumanPoseChannels.Channel[] => {
+    const rows: IAutoMovieHumanPoseChannels.Channel[] = [...INITIAL];
     for (const [key, bone] of FINGERS)
       rows.push(
         [
@@ -271,20 +274,3 @@ export const AutoMovieHumanPoseChannels: readonly Channel[] =
       );
     return rows;
   })();
-/** Canonical generating inputs supply all finger and toe joint spellings. */
-type GeneratedJoint =
-  | `<side>${(typeof FINGERS)[number][1]}${"Proximal" | "Intermediate" | "Distal"}`
-  | `<side>Toe${(typeof TOES)[number][1]}${"Proximal" | "Intermediate" | "Distal"}`;
-/** The canonical table has finite paths/joints, clinical signs and sourced ranges. */
-type Channel = readonly [
-  path: Controls.ChannelTemplate,
-  bone:
-    | (typeof INITIAL)[number][1]
-    | (typeof AXIAL)[number][1]
-    | GeneratedJoint,
-  axis: "flexion" | "abduction" | "twist" | "forward" | "lateral",
-  sign: 1 | -1,
-  min: number,
-  max: number,
-  world?: boolean,
-];

@@ -1,3 +1,9 @@
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+  AutoMovieBernsteinGrid64 as BernsteinGrid,
+} from "@automovie/interface";
+
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 
 /**
@@ -24,16 +30,16 @@ export namespace AutoMovieBernsteinGrid64 {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The four-row grid owns its endpoint and handle coefficient arrays.
    */
   export function hermite(
-    a: readonly B.Vec[],
-    b: readonly B.Vec[],
-    da: readonly B.Vec[],
-    db: readonly B.Vec[],
+    a: readonly AutoMovieVector3Tuple[],
+    b: readonly AutoMovieVector3Tuple[],
+    da: readonly AutoMovieVector3Tuple[],
+    db: readonly AutoMovieVector3Tuple[],
     length: number,
-  ): B.Grid {
+  ): BernsteinGrid {
     const degree: number =
         Math.max(a.length, b.length, da.length, db.length) - 1,
-      aa: B.Poly = B.elevate(a, degree),
-      bb: B.Poly = B.elevate(b, degree);
+      aa: AutoMovieBernsteinPolynomial64 = B.elevate(a, degree),
+      bb: AutoMovieBernsteinPolynomial64 = B.elevate(b, degree);
     return [
       aa,
       B.add(aa, B.elevate(da, degree), length / 3),
@@ -52,11 +58,16 @@ export namespace AutoMovieBernsteinGrid64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each returned cross coefficient is evaluated once from its corresponding grid column.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the resulting new polynomial net escapes the temporary columns.
    */
-  export function gridValue(g: B.Grid, t: number): B.Poly {
+  export function gridValue(
+    g: BernsteinGrid,
+    t: number,
+  ): AutoMovieBernsteinPolynomial64 {
     return g[0]!.map(
-      (_: B.Vec, i: number): B.Vec =>
+      (_: AutoMovieVector3Tuple, i: number): AutoMovieVector3Tuple =>
         B.value(
-          g.map((p: B.Poly): B.Vec => p[i]!),
+          g.map(
+            (p: AutoMovieBernsteinPolynomial64): AutoMovieVector3Tuple => p[i]!,
+          ),
           t,
         ),
     );
@@ -72,11 +83,17 @@ export namespace AutoMovieBernsteinGrid64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Differentiated rows remain reusable coefficient nets for later grid evaluations.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The new grid retains no source-row array references.
    */
-  export function gridTangent(g: B.Grid, scale: number = 1): B.Grid {
+  export function gridTangent(
+    g: BernsteinGrid,
+    scale: number = 1,
+  ): BernsteinGrid {
     return g
       .slice(1)
       .map(
-        (p: B.Poly, i: number): B.Poly =>
+        (
+          p: AutoMovieBernsteinPolynomial64,
+          i: number,
+        ): AutoMovieBernsteinPolynomial64 =>
           B.scale(B.add(p, g[i]!, -1), (g.length - 1) * scale),
       );
   }

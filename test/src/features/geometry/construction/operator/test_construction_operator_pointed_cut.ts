@@ -1,14 +1,22 @@
+import type {
+  IAutoMovieConstructionPortCurve,
+  IAutoMovieConstructionPortLoop,
+  IAutoMovieConstructionWidth,
+  IAutoMovieLoftContract,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidSharedCurve,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import {
   AutoMovieConstructionPortCurve,
   AutoMovieConstructionWidths,
-  type AutoMovieLoftContract,
   AutoMovieSolidBody,
   AutoMovieSolidIntersection,
   AutoMovieSolidJoin,
   AutoMovieSolidSharedCurve,
-  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
-import type { AutoMovieConstructionWidth, IAutoMovieConstructionPort } from "@automovie/interface";
 
 import { ConstructionMound } from "../../../internal/construction/ConstructionMound";
 
@@ -28,7 +36,7 @@ type ILoopAt = (t: number) => { point: [number, number]; first: [number, number]
  * loop to both surfaces.
  *
  * Scenarios:
- * 1. The pointed lens. A join's loop is one C2 curve (`IAutoMovieConstructionPort.ILoop.shape`); a corner is not, and the cubic through a
+ * 1. The pointed lens. A join's loop is one C2 curve (`IAutoMovieConstructionPortLoop.shape`); a corner is not, and the cubic through a
  *    corner's shares bends without bound beside it, so the contact is refused as `shared loop`.
  * 2. The same lens with each point rounded on a circle of radius 3 mm tangent to both arcs (the lens opened by a disc). Every section
  *    square to the loop is a right angle between the plane and the cutter's wall, so a fold of radius `R` puts both rails
@@ -58,39 +66,39 @@ export function test_construction_operator_pointed_cut(): void {
     return fold > joint ? rho(c) : inner * Math.cos(fold) + Math.sqrt(end * end - inner * inner * Math.sin(fold) * Math.sin(fold));
   };
   const declare = (radial: (c: number) => number): ILoopAt => {
-    const loop: IAutoMovieConstructionPort.ILoop = {
+    const loop: IAutoMovieConstructionPortLoop = {
       centre: [0, 0],
       semi: [0.015, 15],
       sense: 1,
       shape: Array.from({ length: count }, (_: unknown, k: number): number => radial((2 * Math.PI * k) / count) / 15),
     };
-    const curve: AutoMovieConstructionPortCurve.ICurve | string = AutoMovieConstructionPortCurve.curve(loop, count, undefined);
+    const curve: IAutoMovieConstructionPortCurve.ICurve | string = AutoMovieConstructionPortCurve.curve(loop, count, undefined);
     if (typeof curve === "string") throw new Error(`the lens is not admitted as a loop: ${curve}`);
     return curve.at;
   };
   const host: IAutoMovieSolidSurface = ConstructionMound.build({ frame: ConstructionMound.LEVEL, a: 15, slope: (): [number, number, number] => [0, 0, 0], q: 0, c: 0, lift: 0 }).host;
   const radius: number = 0.5;
-  const rim: AutoMovieConstructionWidth = { type: "fold", radius: radius / 1000, cap: 0.002 };
+  const rim: IAutoMovieConstructionWidth = { type: "fold", radius: radius / 1000, cap: 0.002 };
 
   // 1. The pointed lens: refused.
   const pointed: ILoopAt = declare(rho);
   const sharp: ICase = compose(host, cutter(pointed), pointed, rim, count);
   if (sharp.join !== null && sharp.join.join !== null && sharp.diagnostics.length === 0) failures.push("pointed: admitted, expected the shared loop refusal");
-  else if (!sharp.diagnostics.some((x: AutoMovieLoftContract.IDiagnostic): boolean => x.contract === "shared loop")) failures.push(`pointed: expected the shared loop refusal, got ${describe(sharp)}`);
+  else if (!sharp.diagnostics.some((x: IAutoMovieLoftContract.IDiagnostic): boolean => x.contract === "shared loop")) failures.push(`pointed: expected the shared loop refusal, got ${describe(sharp)}`);
 
   // 2. The rounded lens: admitted, with both rails on the fold's closed-form points.
   const round: ILoopAt = declare(rounded);
   const own: ICase = compose(host, cutter(round), round, rim, count);
   if (own.join === null || own.join.join === null || own.diagnostics.length !== 0) failures.push(`rounded: not admitted: ${describe(own)}`);
   else if (own.shared !== null) {
-    const join: AutoMovieSolidJoin.IJoin = own.join.join;
+    const join: IAutoMovieSolidJoin.IJoin = own.join.join;
     for (const p of own.shared.curve.points) {
       const law: { host: number; part: number | null } = join.widths(p.t);
       if (Math.abs(law.host - radius) > 1e-6 || law.part === null || Math.abs(law.part - radius) > 1e-6) {
         failures.push(`declared: chords at clock ${p.t}: host ${law.host}, part ${law.part}, expected ${radius}`);
         continue;
       }
-      const rail: ReturnType<AutoMovieSolidJoin.IJoin["rail"]> = join.rail(p.t);
+      const rail: ReturnType<IAutoMovieSolidJoin.IJoin["rail"]> = join.rail(p.t);
       if (rail === null) {
         failures.push(`declared: no rail at clock ${p.t}`);
         continue;
@@ -110,18 +118,18 @@ export function test_construction_operator_pointed_cut(): void {
 
 /** One composed case. */
 interface ICase {
-  shared: AutoMovieSolidSharedCurve.IShared | null;
-  width: AutoMovieSolidJoin.IInput["width"] | null;
-  join: AutoMovieSolidJoin.IResult | null;
-  diagnostics: AutoMovieLoftContract.IDiagnostic[];
+  shared: IAutoMovieSolidSharedCurve.IShared | null;
+  width: IAutoMovieSolidJoin.IInput["width"] | null;
+  join: IAutoMovieSolidJoin.IResult | null;
+  diagnostics: IAutoMovieLoftContract.IDiagnostic[];
 }
 
 /** The cutter cut out of a face of the host by the body's own merge and drawn: its diagnostics and the drawn mesh's edges. */
 function embodied(host: IAutoMovieSolidSurface, part: IAutoMovieSolidSurface, c: ICase, count: number): string[] {
   if (c.shared === null || c.width === null) return ["body: the cut has no contact or no width law"];
   const range = (from: number, to: number, step: number): number[] => Array.from({ length: Math.round((to - from) / step) + 1 }, (_: unknown, i: number): number => from + i * step);
-  const first: AutoMovieSolidIntersection.IPoint = c.shared.curve.points[0]!;
-  const body: AutoMovieSolidBody.IBody = AutoMovieSolidBody.create("made", [{ surface: host, stations: range(-60, 60, 4), phases: range(-60, 60, 4) }]);
+  const first: IAutoMovieSolidIntersection.IPoint = c.shared.curve.points[0]!;
+  const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create("made", [{ surface: host, stations: range(-60, 60, 4), phases: range(-60, 60, 4) }]);
   const merged: ReturnType<typeof AutoMovieSolidBody.merge> = AutoMovieSolidBody.merge(body, {
     name: "cut.lens",
     kind: "diff",
@@ -130,7 +138,7 @@ function embodied(host: IAutoMovieSolidSurface, part: IAutoMovieSolidSurface, c:
     count,
     rows: 4,
   });
-  const told: string = merged.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => `${d.contract}: ${d.detail.slice(0, 200)}`).join("; ");
+  const told: string = merged.diagnostics.map((d: IAutoMovieLoftContract.IDiagnostic): string => `${d.contract}: ${d.detail.slice(0, 200)}`).join("; ");
   if (merged.blend === null || merged.join === null) return [`body: no blend (${told})`];
   const out: string[] = merged.diagnostics.length === 0 ? [] : [`body: diagnostics ${told}`];
   const open: ReturnType<typeof AutoMovieSolidBody.draw> = AutoMovieSolidBody.draw(body);
@@ -168,7 +176,7 @@ function embodied(host: IAutoMovieSolidSurface, part: IAutoMovieSolidSurface, c:
 
 /** The case's diagnostics, for a message. */
 function describe(c: ICase): string {
-  return c.diagnostics.map((x: AutoMovieLoftContract.IDiagnostic): string => `${x.contract}: ${x.detail.slice(0, 200)}`).join("; ") || "no diagnostic";
+  return c.diagnostics.map((x: IAutoMovieLoftContract.IDiagnostic): string => `${x.contract}: ${x.detail.slice(0, 200)}`).join("; ") || "no diagnostic";
 }
 
 /** A plane curve carried straight into the host as a cutter's wall, charted `(s, t)`, `s` the depth, mm; its outward normal is the curve's. */
@@ -186,17 +194,17 @@ function cutter(at: ILoopAt): IAutoMovieSolidSurface {
 }
 
 /** The declared loop's contact, its fold widths and the join of a cutter into its host, the cutter kept inside. */
-function compose(host: IAutoMovieSolidSurface, part: IAutoMovieSolidSurface, loop: ILoopAt, width: AutoMovieConstructionWidth, count: number): ICase {
-  const made: AutoMovieSolidSharedCurve.IResult = AutoMovieSolidSharedCurve.create({ part, host, loop, count, tolerance: 1e-6, grazing: 0.05, keep: "inside", start: [0, 0] });
+function compose(host: IAutoMovieSolidSurface, part: IAutoMovieSolidSurface, loop: ILoopAt, width: IAutoMovieConstructionWidth, count: number): ICase {
+  const made: IAutoMovieSolidSharedCurve.IResult = AutoMovieSolidSharedCurve.create({ part, host, loop, count, tolerance: 1e-6, grazing: 0.05, keep: "inside", start: [0, 0] });
   const out: ICase = { shared: made.shared, width: null, join: null, diagnostics: [...made.diagnostics] };
   if (made.shared === null) return out;
-  const law: AutoMovieSolidJoin.IInput["width"] | string = AutoMovieConstructionWidths.create(width, width, false, { curve: made.shared.curve, part, host: AutoMovieSolidIntersection.atlas(host), diff: true });
+  const law: IAutoMovieSolidJoin.IInput["width"] | string = AutoMovieConstructionWidths.create(width, width, false, { curve: made.shared.curve, part, host: AutoMovieSolidIntersection.atlas(host), diff: true });
   if (typeof law === "string") {
     out.diagnostics.push({ producer: "test", level: 6, contract: "width", detail: law });
     return out;
   }
   out.width = law;
-  const first: AutoMovieSolidIntersection.IPoint = made.shared.curve.points[0]!;
+  const first: IAutoMovieSolidIntersection.IPoint = made.shared.curve.points[0]!;
   out.join = AutoMovieSolidJoin.create(
     { part, host, seed: { phi: first.phi, s: first.s, y: first.y, theta: first.theta }, parameter: { kind: "arc" }, count, tolerance: 1e-6, grazing: 0.05, curve: made.shared.curve, toward: made.shared.toward, width: law },
     "inside",

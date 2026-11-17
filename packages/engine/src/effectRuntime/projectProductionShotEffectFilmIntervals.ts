@@ -1,24 +1,19 @@
 import {
-  IAutoMovieCompiledEffect,
   IAutoMovieFilmTimelineSegment,
   IAutoMovieProductionFrameRate,
+  type IAutoMovieProjectProductionShotEffectFilmIntervals,
+  type IAutoMovieShotEffect,
+  type IAutoMovieShotEffectFilmInterval,
 } from "@automovie/interface";
 
 import { productionFrameBoundaryToSeconds } from "../film/productionFrameBoundaryToSeconds";
 import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeError";
-import { IAutoMovieFilmEffectClock } from "./IAutoMovieFilmEffectClock";
-import { IAutoMovieShotEffectFilmInterval } from "./IAutoMovieShotEffectFilmInterval";
 import { estimateProductionFilmFrame } from "./estimateProductionFilmFrame";
 import { productionFilmEffectTimelineFrameRate } from "./productionFilmEffectTimelineFrameRate";
 
-type ShotEffect = Pick<
-  IAutoMovieCompiledEffect,
-  "id" | "zone" | "start" | "end"
->;
-
 /** One shot effect with the half-open source-frame interval it owns. */
 interface ISourceInterval {
-  effect: ShotEffect;
+  effect: IAutoMovieShotEffect;
   startFrame: number;
   endFrame: number;
 }
@@ -47,10 +42,9 @@ interface ISourceInterval {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Within one call each shot's source intervals are computed on its first segment and reused for every later segment of the same shot, keyed by shot id over the caller's immutable-for-the-call shot map; nothing survives the call, so a changed shot set is never answered from a stale entry.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The per-shot interval cache grows to at most one entry per distinct realized shot and is released when the call returns; the result array holds new interval records the caller owns.
  */
-export const projectProductionShotEffectFilmIntervals = (props: {
-  timeline: IAutoMovieFilmEffectClock;
-  shots: ReadonlyMap<string, { effects: readonly ShotEffect[] }>;
-}): IAutoMovieShotEffectFilmInterval[] => {
+export const projectProductionShotEffectFilmIntervals = (
+  props: IAutoMovieProjectProductionShotEffectFilmIntervals.IProps,
+): IAutoMovieShotEffectFilmInterval[] => {
   const frameRate: IAutoMovieProductionFrameRate =
     productionFilmEffectTimelineFrameRate(props.timeline);
   const sourceIntervals: Map<string, ISourceInterval[]> = new Map();
@@ -58,7 +52,7 @@ export const projectProductionShotEffectFilmIntervals = (props: {
     (
       segment: IAutoMovieFilmTimelineSegment,
     ): IAutoMovieShotEffectFilmInterval[] => {
-      const shot: { effects: readonly ShotEffect[] } | undefined =
+      const shot: { effects: readonly IAutoMovieShotEffect[] } | undefined =
         props.shots.get(segment.shot);
       if (shot === undefined) return [];
       let intervals: ISourceInterval[] | undefined = sourceIntervals.get(
@@ -66,7 +60,7 @@ export const projectProductionShotEffectFilmIntervals = (props: {
       );
       if (intervals === undefined) {
         intervals = shot.effects.map(
-          (effect: ShotEffect): ISourceInterval =>
+          (effect: IAutoMovieShotEffect): ISourceInterval =>
             sourceInterval(effect, segment.shot, frameRate),
         );
         sourceIntervals.set(segment.shot, intervals);
@@ -101,7 +95,7 @@ export const projectProductionShotEffectFilmIntervals = (props: {
 
 /** Convert one effect's second interval to the source frames it owns. */
 const sourceInterval = (
-  effect: ShotEffect,
+  effect: IAutoMovieShotEffect,
   shot: string,
   frameRate: IAutoMovieProductionFrameRate,
 ): ISourceInterval => {

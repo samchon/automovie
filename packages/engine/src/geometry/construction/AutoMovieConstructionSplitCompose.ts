@@ -1,13 +1,19 @@
-import type { IAutoMovieConstructionSplit } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionComposedEnd,
+  IAutoMovieConstructionSkinCut,
+  IAutoMovieConstructionSplit,
+  IAutoMovieConstructionSplitCompose,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionComposedEnd as ComposedEnd } from "./AutoMovieConstructionComposedEnd";
 import { AutoMovieConstructionSkinCut as SkinCut } from "./AutoMovieConstructionSkinCut";
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** World point or direction, mm. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { add, dot, scale, sub, unit } = AutoMovieSolidVector;
 
 /**
@@ -20,87 +26,6 @@ const { add, dot, scale, sub, unit } = AutoMovieSolidVector;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every failed premise is returned as a named refusal; nothing is clamped, tabulated or repaired.
  */
 export namespace AutoMovieConstructionSplitCompose {
-  /**
-   * An orthonormal frame in kernel coordinates.
-   *
-   * @evidence contracts/development/design.md#principled-representation An origin and three unit axes carry a point or a direction written in the frame into the kernel's coordinates.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four vectors.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only.
-   * @evidence contracts/development/common.md#meaningful-documentation States the units.
-   */
-  export interface IBasis {
-    /** The origin, mm. */
-    origin: Vec3;
-
-    /** The first axis, unit. */
-    x: Vec3;
-
-    /** The second axis, unit. */
-    y: Vec3;
-
-    /** The third axis, unit. */
-    z: Vec3;
-  }
-
-  /**
-   * One child as the derivations read it.
-   *
-   * @evidence contracts/development/design.md#principled-representation The child's skin, its kept side, its own stations and its facing end's frame are what a cut of it needs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six fields.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only; the realization admits the face before it builds this record.
-   * @evidence contracts/development/common.md#meaningful-documentation States each field's unit.
-   */
-  export interface IChild {
-    /** The child face's name in refusals. */
-    name: string;
-
-    /** The child's skin. */
-    surface: IAutoMovieSolidSurface;
-
-    /** The station's sign into the child's kept side. */
-    into: 1 | -1;
-
-    /** The child's own stations inside its domain, increasing, mm. */
-    stations: readonly number[];
-
-    /** The child's declared rail distance, mm. */
-    rail: number;
-
-    /** The child's facing end section's frame, its third axis into the child. */
-    basis: IBasis;
-  }
-
-  /**
-   * What a composed end gives the split.
-   *
-   * @evidence contracts/development/design.md#principled-representation The seams' host phases, their planes' headings and the children's rails are exactly the members the split otherwise reads from its declaration.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values derived from the children's skins and the host's ring alone.
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's indexing and unit.
-   */
-  export interface IDerived {
-    /** Each seam's host phases `[a, b]` in the split's own convention, radians. */
-    seams: [number, number][];
-
-    /** Each seam plane's bisector, unit. */
-    headings: Vec3[];
-
-    /**
-     * Each seam's valley as the seam's knots `[along, depth]`, mm, in the seam's own plane coordinates from its first fork on the host's
-     * ring (`AutoMovieConstructionSplitSeam.create`): at each place along the chord the deeper of the two children's cuts by the seam plane.
-     */
-    valleys: [number, number][][];
-
-    /** How far the host's end ring stands from the composed outline in the end plane, mm: the greatest and the mean over the ring's samples. */
-    host: { max: number; mean: number };
-
-    /** Each child's rail. */
-    cuts: SkinCut.ICut[];
-
-    /** The composition the rest was derived from. */
-    composition: ComposedEnd.IComposition;
-  }
-
   /**
    * A section's frame as a basis: its planar origin and axes, the third axis `v x u` signed out of the host or into the child.
    *
@@ -119,7 +44,7 @@ export namespace AutoMovieConstructionSplitCompose {
   export function basis(
     frame: { origin: readonly number[]; u: readonly number[]; v: readonly number[] },
     sign: 1 | -1,
-  ): IBasis | null {
+  ): IAutoMovieConstructionSplitCompose.IBasis | null {
     const u: Vec3 = [frame.u[0]!, frame.u[1]!, frame.u[2]!];
     const v: Vec3 = [frame.v[0]!, frame.v[1]!, frame.v[2]!];
     const x: Vec3 | null = unit(u);
@@ -130,7 +55,7 @@ export namespace AutoMovieConstructionSplitCompose {
   }
 
   /** A declared plane in kernel coordinates: metres in its frame to mm, its normal made unit; null for a zero normal. */
-  function plane(declared: IAutoMovieConstructionSplit.IPlane, frame: IBasis | null): SkinCut.IPlane | null {
+  function plane(declared: IAutoMovieConstructionSplit.IPlane, frame: IAutoMovieConstructionSplitCompose.IBasis | null): IAutoMovieConstructionSkinCut.IPlane | null {
     const S: number = AutoMovieConstructionViews.SCALE;
     const carry = (a: readonly number[], length: number): Vec3 =>
       frame === null
@@ -160,18 +85,18 @@ export namespace AutoMovieConstructionSplitCompose {
    */
   export function cut(
     declared: IAutoMovieConstructionSplit.ICut,
-    host: IBasis,
-    child: IChild,
+    host: IAutoMovieConstructionSplitCompose.IBasis,
+    child: IAutoMovieConstructionSplitCompose.IChild,
     samples: number,
-  ): SkinCut.ICut | string {
-    const frame: IBasis | null = declared.frame === "tree" ? null : declared.frame === "host" ? host : child.basis;
-    const planes: SkinCut.IPlane[] = [];
+  ): IAutoMovieConstructionSkinCut.ICut | string {
+    const frame: IAutoMovieConstructionSplitCompose.IBasis | null = declared.frame === "tree" ? null : declared.frame === "host" ? host : child.basis;
+    const planes: IAutoMovieConstructionSkinCut.IPlane[] = [];
     for (const p of declared.planes) {
-      const made: SkinCut.IPlane | null = plane(p, frame);
+      const made: IAutoMovieConstructionSkinCut.IPlane | null = plane(p, frame);
       if (made === null) return `the child face ${child.name}'s cut has a plane without a normal`;
       planes.push(made);
     }
-    const made: SkinCut.ICut | string = SkinCut.create({
+    const made: IAutoMovieConstructionSkinCut.ICut | string = SkinCut.create({
       surface: child.surface,
       planes,
       ...(declared.round === undefined ? {} : { round: declared.round * AutoMovieConstructionViews.SCALE }),
@@ -203,20 +128,20 @@ export namespace AutoMovieConstructionSplitCompose {
    */
   export function derive(input: {
     compose: IAutoMovieConstructionSplit.ICompose;
-    host: { surface: IAutoMovieSolidSurface; station: number; basis: IBasis };
-    children: readonly IChild[];
+    host: { surface: IAutoMovieSolidSurface; station: number; basis: IAutoMovieConstructionSplitCompose.IBasis };
+    children: readonly IAutoMovieConstructionSplitCompose.IChild[];
     count: number;
-  }): IDerived | string {
+  }): IAutoMovieConstructionSplitCompose.IDerived | string {
     const { compose, host, children, count }: typeof input = input;
     const S: number = AutoMovieConstructionViews.SCALE;
     const turn: number = 2 * Math.PI;
-    const end: SkinCut.IPlane | null = plane(compose.plane, compose.frame === "tree" ? null : host.basis);
+    const end: IAutoMovieConstructionSkinCut.IPlane | null = plane(compose.plane, compose.frame === "tree" ? null : host.basis);
     if (end === null) return "the composed end's plane has no normal";
 
     // Each child's section in the end plane.
-    const sections: ComposedEnd.ISection[] = [];
+    const sections: IAutoMovieConstructionComposedEnd.ISection[] = [];
     for (const child of children) {
-      const across: SkinCut.ICut | string = SkinCut.create({
+      const across: IAutoMovieConstructionSkinCut.ICut | string = SkinCut.create({
         surface: child.surface,
         planes: [end],
         into: child.into,
@@ -225,11 +150,11 @@ export namespace AutoMovieConstructionSplitCompose {
       });
       if (typeof across === "string")
         return `the child face ${child.name}'s section is not admitted in the end plane: ${across}`;
-      const section: ComposedEnd.ISection | string = ComposedEnd.section(child.name, child.surface, across, child.into, count);
+      const section: IAutoMovieConstructionComposedEnd.ISection | string = ComposedEnd.section(child.name, child.surface, across, child.into, count);
       if (typeof section === "string") return section;
       sections.push(section);
     }
-    const composition: ComposedEnd.IComposition | string = ComposedEnd.create({
+    const composition: IAutoMovieConstructionComposedEnd.IComposition | string = ComposedEnd.create({
       point: end.point,
       normal: end.normal,
       sections,
@@ -286,21 +211,21 @@ export namespace AutoMovieConstructionSplitCompose {
       most = Math.max(most, d);
       sum += d;
     }
-    const least: number = Math.min(...children.map((child: IChild): number => child.rail));
+    const least: number = Math.min(...children.map((child: IAutoMovieConstructionSplitCompose.IChild): number => child.rail));
     if (!(most <= least))
       return `the host's end ring stands up to ${most} mm (mean ${sum / m} mm) from the composed outline in the end plane, more than the band's length ${least} mm`;
 
     // Each child's boundary in the composition: its skin cut by the end plane and its seam planes where they stand.
-    const wedge = (i: number, shift: Vec3): SkinCut.IPlane[] => {
-      const planes: SkinCut.IPlane[] = [{ point: add(end.point, shift), normal: end.normal }];
+    const wedge = (i: number, shift: Vec3): IAutoMovieConstructionSkinCut.IPlane[] => {
+      const planes: IAutoMovieConstructionSkinCut.IPlane[] = [{ point: add(end.point, shift), normal: end.normal }];
       if (i > 0) planes.push({ point: add(composition.seams[i - 1]!.forks[0].point, shift), normal: composition.seams[i - 1]!.normal });
       if (i < composition.seams.length)
         planes.push({ point: add(composition.seams[i]!.forks[0].point, shift), normal: scale(composition.seams[i]!.normal, -1) });
       return planes;
     };
-    const bounds: SkinCut.ICut[] = [];
+    const bounds: IAutoMovieConstructionSkinCut.ICut[] = [];
     for (const [i, child] of children.entries()) {
-      const made: SkinCut.ICut | string = SkinCut.create({ surface: child.surface, planes: wedge(i, [0, 0, 0]), into: child.into, stations: child.stations, samples: count });
+      const made: IAutoMovieConstructionSkinCut.ICut | string = SkinCut.create({ surface: child.surface, planes: wedge(i, [0, 0, 0]), into: child.into, stations: child.stations, samples: count });
       if (typeof made === "string") return `the child face ${child.name}'s boundary in the composition: ${made}`;
       bounds.push(made);
     }
@@ -323,7 +248,7 @@ export namespace AutoMovieConstructionSplitCompose {
       const ends: [number, number] = [place(seam.forks[0].point)[0], place(seam.forks[1].point)[0]];
       /** One child's cut by the seam plane as a depth at a place along the chord, by bisection on its phase over its covered arc. */
       const depth = (i: number, which: 0 | 1): ((along: number) => number) | string => {
-        const child: IChild = children[i]!;
+        const child: IAutoMovieConstructionSplitCompose.IChild = children[i]!;
         const [pa, pb]: [number, number] = [seam.forks[0].phases[which], seam.forks[1].phases[which]];
         const free = (psi: number): boolean =>
           composition.lobes[i]!.some(([from, to]: [number, number]): boolean => {
@@ -358,7 +283,7 @@ export namespace AutoMovieConstructionSplitCompose {
       // Where the host's ring is not the outline its forks stand outside the composition's on the same line, and the seam runs
       // through the composition's forks too; a fork within 1e-9 mm of the ring's, rounding of the two solves, is the ring's own.
       const chord: number = place(ring(seams[j]![1]))[0];
-      const forks: [number, number][] = seam.forks.map((f: ComposedEnd.IFork): [number, number] => place(f.point));
+      const forks: [number, number][] = seam.forks.map((f: IAutoMovieConstructionComposedEnd.IFork): [number, number] => place(f.point));
       const ordered: [number, number][] = [forks[0]!, ...knots, forks[1]!];
       if (!(ends[0] < ends[1])) ordered.reverse();
       valleys.push(ordered.filter(([along]: [number, number], k: number): boolean => (k !== 0 && k !== ordered.length - 1) || (along > 1e-9 && along < chord - 1e-9)));
@@ -366,11 +291,11 @@ export namespace AutoMovieConstructionSplitCompose {
 
     // Each child's rail: the end plane and its seam planes, each moved along the child's axis by its rail distance, so the rail is the
     // child's boundary in the composition moved along its stations.
-    const cuts: SkinCut.ICut[] = [];
+    const cuts: IAutoMovieConstructionSkinCut.ICut[] = [];
     for (const [i, child] of children.entries()) {
       const shift: Vec3 = scale(sections[i]!.axis, child.rail);
-      const planes: SkinCut.IPlane[] = wedge(i, shift);
-      const made: SkinCut.ICut | string = SkinCut.create({
+      const planes: IAutoMovieConstructionSkinCut.IPlane[] = wedge(i, shift);
+      const made: IAutoMovieConstructionSkinCut.ICut | string = SkinCut.create({
         surface: child.surface,
         planes,
         ...(compose.round === undefined ? {} : { round: compose.round * S }),
@@ -383,7 +308,7 @@ export namespace AutoMovieConstructionSplitCompose {
     }
     return {
       seams,
-      headings: composition.seams.map((seam: ComposedEnd.ISeam): Vec3 => seam.heading),
+      headings: composition.seams.map((seam: IAutoMovieConstructionComposedEnd.ISeam): Vec3 => seam.heading),
       valleys,
       host: { max: most, mean: sum / m },
       cuts,

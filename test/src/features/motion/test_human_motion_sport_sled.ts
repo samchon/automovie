@@ -1,12 +1,22 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
   HumanSignature,
   HumanSportCarry,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -24,8 +34,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * Scenarios, on the small woman and the average man, read every quarter of
  * a second after the hands have taken the handles (`gripped`):
  * 1. The push plans.
- * 2. Each wrist lies within 0.12 m of its handle (provisional: the wrist is
- *    a hand's half length off the grip it holds).
+ * 2. Each fist's grip socket lies within 15 mm of its handle (the
+ *    campaign's contact bound), and each handle keeps its place in its
+ *    hand's frame within 1 mm from the first reading (the campaign's grip
+ *    bound): both hands hold the sled rigidly.
  * 3. The line from the hips joint to the neck leans at least 15 degrees
  *    from vertical (provisional): the trunk leans into the load.
  * 4. By the end the sled has moved at least 2 m forward and its height has
@@ -42,9 +54,9 @@ export function test_human_motion_sport_sled(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
   for (const name of ["f-small", "m-average"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const height: number = 0.55 * body.measure.stature;
-    const sled: IHumanProp = {
+    const sled: IAutoMovieMotionHumanProp = {
       subject: "sled",
       frame: {
         position: { x: 0, y: 0, z: 0.55 },
@@ -62,7 +74,7 @@ export function test_human_motion_sport_sled(): void {
         extent: null,
       })),
     };
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "sled",
@@ -94,20 +106,22 @@ export function test_human_motion_sport_sled(): void {
       (placed.plan.events.find((e): boolean => e.name === "gripped")?.share ??
         NaN) *
         placed.plan.duration;
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,
       0,
     );
     let off: number = 0;
+    let slip: number = 0;
+    const first: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
     let upright: number = Infinity;
     for (
       let seconds: number = gripped + 0.05;
       seconds <= placed.end;
       seconds += 0.25
     ) {
-      const frame: IHumanProp.IFrame = performance.prop("sled", seconds);
+      const frame: IAutoMovieRigidTransform = performance.prop("sled", seconds);
       for (const side of ["left", "right"] as const) {
         const handle: IAutoMovieVector3 = Vector3.add(
           frame.position,
@@ -116,14 +130,24 @@ export function test_human_motion_sport_sled(): void {
             sled.affordances!.find((a) => a.id === side)!.frame.translation,
           ),
         );
-        off = Math.max(
-          off,
-          Vector3.length(
-            Vector3.subtract(
-              HumanSignature.joint(reader, seconds, `${side}Hand`),
-              handle,
-            ),
-          ),
+        const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+          performance.bones("a", seconds);
+        const socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripLeft"] =
+          body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"];
+        const fist: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+          socket,
+          bones.get(socket.bone)!,
+        ).point;
+        off = Math.max(off, Vector3.length(Vector3.subtract(fist, handle)));
+        const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+        const local: IAutoMovieVector3 = Quaternion.rotateVector(
+          Quaternion.inverse(hand.worldRotation),
+          Vector3.subtract(handle, hand.worldPosition),
+        );
+        first[side] ??= local;
+        slip = Math.max(
+          slip,
+          Vector3.length(Vector3.subtract(local, first[side]!)),
         );
       }
       const hips: IAutoMovieVector3 = HumanSignature.joint(
@@ -146,15 +170,19 @@ export function test_human_motion_sport_sled(): void {
           Math.PI,
       );
     }
-    if (!(off <= 0.12))
+    if (!(off <= 0.015))
       complaints.push(
-        `${name}: a wrist lies ${mm(off)} mm from its handle, within 120 mm expected`,
+        `${name}: a fist lies ${mm(off)} mm from its handle, within 15 mm expected`,
+      );
+    if (!(slip <= 0.001))
+      complaints.push(
+        `${name}: a handle moves ${(slip * 1000).toFixed(1)} mm in its hand during the push, within 1 mm expected`,
       );
     if (!(upright >= 15))
       complaints.push(
         `${name}: the trunk leans only ${upright.toFixed(1)} degrees from vertical, at least 15 expected`,
       );
-    const end: IHumanProp.IFrame = performance.prop("sled", placed.end);
+    const end: IAutoMovieRigidTransform = performance.prop("sled", placed.end);
     if (!(end.position.z - 0.55 >= 2))
       complaints.push(
         `${name}: the sled moves ${mm(end.position.z - 0.55)} mm forward, at least 2000 mm expected`,

@@ -1,0 +1,596 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanArmTrajectory,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
+import { HumanArmClearance } from "../posture/HumanArmClearance";
+import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
+import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
+import { blendHumanJoint } from "../posture/blendHumanJoint";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
+import { AutoMovieMotionHumanArmRide } from "./AutoMovieMotionHumanArmRide";
+
+/**
+ * An arm's whole action planned as one trajectory (`HumanArmTrajectory`):
+ * its reach from rest, its hold on the goal's site and its return, read off
+ * the posture so far and solved once, alone or with the other arm of the
+ * same span.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what is planned, from what and how often.
+ * @evidence contracts/development/design.md#principled-representation The action's four instants, the group of arms solved together, each arm's task and the reach's duration, the inputs of one trajectory problem.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The span, the group and its constructor, the planned arm, the planner and the reach's duration, read by the carry, the touch law and the gesture law.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The trajectory's problem is the planner's own (`HumanArmTrajectory`); this file only reads it off the action.
+ */
+export namespace AutoMovieMotionHumanArmPlanned {
+  /**
+   * A group for arms moved together.
+   *
+   * @returns The empty group.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result.
+   * @evidence contracts/development/implementation.md#principled-implementation A group starts empty; its carries join it as they are built.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One literal.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: no member is assumed.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The group holds its carries and their solution, released with the primitives that close over it.
+   */
+  export function together(): IAutoMovieMotionHumanArmPlanned.ITogether {
+    return { carries: [] };
+  }
+
+  /**
+   * The span a carry's weight states: where it leaves 0 (`start`), first
+   * reaches 1 (`ready`), last leaves 1 (`relax`) and is back at 0 (`end`),
+   * or `relax` and `end` at the window's end for a weight that holds 1 to
+   * it. Each instant is bracketed on a 1/240 s grid of the window and
+   * bisected within its bracket to 1e-12 s.
+   *
+   * @param weight The carry's weight, 0 at its rest and 1 on its goal.
+   * @param from The window's first second.
+   * @param to The window's last second.
+   * @returns The span; none for a weight that states no single reach: one that never leaves 0 or never reaches 1, starts off 0, ends between its ends, or leaves 0 again after it returned.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the four instants, the hold to the end, the precision and every case with no span.
+   * @evidence contracts/development/implementation.md#principled-implementation A weight is a time course of a reach, so its instants are where it crosses its ends; a crossing bracketed by two samples is found by bisection to the precision asked.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan for the brackets and one bisection per instant.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A weight with two reaches or none is not given a span: its law states its own (`AutoMovieMotionHumanArmCarry.ICarry.span`).
+   * @evidence contracts/development/implementation.md#efficient-algorithms 240 samples a second of window and forty-odd reads per instant, once per carry.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per carry by `carried`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function stated(
+    weight: (seconds: number) => number,
+    from: number,
+    to: number,
+  ): IAutoMovieMotionHumanArmPlanned.ISpan | undefined {
+    const count: number = Math.max(1, Math.ceil((to - from) * 240));
+    const at = (i: number): number => from + ((to - from) * i) / count;
+    const w: number[] = Array.from(
+      { length: count + 1 },
+      (_: unknown, i: number): number => weight(at(i)),
+    );
+    // The first sample past a condition, from a sample on.
+    const first = (since: number, met: (v: number) => boolean): number => {
+      for (let i: number = since; i <= count; ++i) if (met(w[i]!)) return i;
+      return -1;
+    };
+    // The instant between two samples where the condition starts to hold.
+    const crossing = (i: number, met: (v: number) => boolean): number => {
+      let lo: number = at(i - 1);
+      let hi: number = at(i);
+      while (hi - lo > 1e-12) {
+        const mid: number = (lo + hi) / 2;
+        if (met(weight(mid))) hi = mid;
+        else lo = mid;
+      }
+      return hi;
+    };
+    const moved = (v: number): boolean => v > 0;
+    const arrived = (v: number): boolean => v >= 1;
+    const left = (v: number): boolean => v < 1;
+    const rested = (v: number): boolean => v <= 0;
+    const leaves: number = first(0, moved);
+    if (leaves <= 0) return undefined;
+    const reaches: number = first(leaves, arrived);
+    if (reaches < 0) return undefined;
+    // The last second at rest before it moves, the start.
+    const start: number = crossing(leaves, moved);
+    const ready: number = crossing(reaches, arrived);
+    const releases: number = first(reaches, left);
+    if (releases < 0) return { start, ready, relax: to, end: to };
+    const returns: number = first(releases, rested);
+    if (returns < 0 || first(returns, moved) >= 0) return undefined;
+    return {
+      start,
+      ready,
+      relax: crossing(releases, left),
+      end: crossing(returns, rested),
+    };
+  }
+
+  /**
+   * The shortest reach that keeps an arm within the audit's travel bound
+   * (`HumanArmTrajectoryModel.SPEED_LIMIT`) on the joint-space blend from one
+   * arm to another: a minimum-jerk reach peaks at 1.875 times its mean speed
+   * (Flash and Hogan 1985, J Neurosci 5:1688), so a path of length L takes
+   * at least 1.875 L over the bound, L the longest of the elbow's, the
+   * wrist's and the middle fingertip's arcs.
+   *
+   * @param body The body.
+   * @param posture The posture the arm moves in.
+   * @param side The arm.
+   * @param from The arm at the start.
+   * @param to The arm at the end.
+   * @returns Seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the bound, its source and the arcs it reads.
+   * @evidence contracts/development/implementation.md#principled-implementation The minimum-jerk profile's peak-to-mean speed ratio over the longest arc of the blend.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One base pose, the arcs sampled along the blend, one division.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arc is measured on the blend the arm takes, not on the straight line between the ends.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve and `ARC` resolves of the arm.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `blendHumanJoint`, `HumanArmClearance.posed` and `poseBones`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function reaching(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    from: IAutoMovieMotionHumanArmClearance.IArm,
+    to: IAutoMovieMotionHumanArmClearance.IArm,
+  ): number {
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+    delete limbs[`${side}Arm`];
+    const base: IAutoMoviePose = resolveHumanPosture(body, {
+      ...posture,
+      limbs,
+    });
+    const points = (w: number): IAutoMovieVector3[] => {
+      const arm: IAutoMovieMotionHumanArmClearance.IArm = {
+        upper: blendHumanJoint(
+          body,
+          `${side}UpperArm`,
+          from.upper,
+          to.upper,
+          w,
+        ),
+        lower: blendHumanJoint(
+          body,
+          `${side}LowerArm`,
+          from.lower,
+          to.lower,
+          w,
+        ),
+        hand: blendHumanJoint(body, `${side}Hand`, from.hand, to.hand, w),
+      };
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(body, HumanArmClearance.posed(base, side, arm));
+      return [`${side}LowerArm`, `${side}Hand`, `${side}MiddleDistal`].map(
+        (bone: string): IAutoMovieVector3 =>
+          bones.get(bone as AutoMovieHumanoidBone)!.worldPosition,
+      );
+    };
+    const length: number[] = [0, 0, 0];
+    let last: IAutoMovieVector3[] = points(0);
+    for (let i: number = 1; i <= ARC; ++i) {
+      const next: IAutoMovieVector3[] = points(i / ARC);
+      next.forEach((p: IAutoMovieVector3, j: number): void => {
+        length[j]! += Vector3.length(Vector3.subtract(p, last[j]!));
+      });
+      last = next;
+    }
+    return (1.875 * Math.max(...length)) / HumanArmTrajectoryModel.SPEED_LIMIT;
+  }
+
+  /**
+   * Arms solved as one trajectory problem over their span
+   * (`HumanArmTrajectory`), against the posture so far with every one of
+   * them left out: a carry's, and a whole-body law's that writes its arms
+   * itself (a gesture).
+   *
+   * Every goal is read as the plan perceives it (`ICarry.perceived`), so a
+   * goal on another person reads them where the performer saw them when the
+   * plan starts, never at a later second.
+   *
+   * The waypoints: the reach and the return spaced by the arc their blend
+   * covers (`SPACING` of the farthest probe's travel, between a sixth and a
+   * thirtieth of a second), the hold at the least spacing (`LEAST`, six a
+   * second); the solve then splits every interval that does not bound its
+   * site's path or its probes' clearance (`HumanArmRefine`), down to the
+   * frame grid at the finest, so a still hold keeps few waypoints and a
+   * stroke as many as its motion needs. On the hold each arm's site is its
+   * goal's contact in the world; a site on a segment of another arm of the
+   * group rides that arm as it is solved.
+   *
+   * @param body The body.
+   * @param span The span's instants.
+   * @param carries The arms.
+   * @param before The posture so far at any second of the span.
+   * @returns Each arm's trajectory.
+   * @throws {HumanRefusal} When no trajectory meets the constraints (`HumanArmTrajectory.solve`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the problem, the waypoints and their spacing, the sites and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The arms' whole action is one trajectory optimisation (TrajOpt), read off the very postures it is written on, so the plan is a constant of the action.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Waypoints, postures and poses, each arm's sites, the bases, one solve.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The waypoints are refined on the trajectory by what they must bound, never by a declared rate; the goal is read at every waypoint, not interpolated.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture so far, one resolve and one goal read per instant and arm, kept across the refinement; two reach measures; one refined solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveHumanPosture`, `resolveHumanPosture.world`, `reaching` and `HumanArmTrajectory.solve`.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the trajectories, which hold the solved waypoints only.
+   */
+  export function planned(
+    body: IAutoMovieMotionHumanBody,
+    span: IAutoMovieMotionHumanArmPlanned.ISpan,
+    carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[],
+    before: (seconds: number) => IAutoMovieMotionHumanPosture,
+  ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory> {
+    // Each phrase is an interval cut into pieces, its own end left to the
+    // next one; an empty interval (a hold that lasts to the end, a reach
+    // that starts on its site) has no piece, and the last phrase closes on
+    // its end itself.
+    const times: number[] = [];
+    const cut = (a: number, b: number, pieces: number, last: boolean): void => {
+      for (let i: number = 0; i < pieces; ++i)
+        times.push(a + ((b - a) * i) / pieces);
+      if (last) times.push(b);
+    };
+
+    // A posture with the planned arms left out.
+    const without = (
+      p: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanPosture => {
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...p.limbs };
+      for (const c of carries) delete limbs[`${c.side}Arm`];
+      return { ...p, limbs };
+    };
+
+    // Each instant's posture so far and its pose with the planned arms left
+    // out, the base each arm is read against, and each arm's goal there as
+    // the plan perceives it, each read once however often the plan and its
+    // refinement ask.
+    const read: Map<
+      number,
+      { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose }
+    > = new Map();
+    const at = (
+      t: number,
+    ): { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose } => {
+      let found:
+        | { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose }
+        | undefined = read.get(t);
+      if (found === undefined) {
+        const posture: IAutoMovieMotionHumanPosture = before(t);
+        found = { posture, pose: resolveHumanPosture(body, without(posture)) };
+        read.set(t, found);
+      }
+      return found;
+    };
+    const goals: Map<number, IAutoMovieHumanLimbGoal>[] = carries.map(
+      (): Map<number, IAutoMovieHumanLimbGoal> => new Map(),
+    );
+    const aimed = (a: number, t: number): IAutoMovieHumanLimbGoal => {
+      let found: IAutoMovieHumanLimbGoal | undefined = goals[a]!.get(t);
+      if (found === undefined)
+        goals[a]!.set(t, (found = aim(carries[a]!, at(t).posture, t)));
+      return found;
+    };
+    const travel = (t: number, sign: -1 | 1): number => {
+      let longest: number = 0;
+      const p: IAutoMovieMotionHumanPosture = at(t).posture;
+      carries.forEach(
+        (c: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): void => {
+          const fit: IAutoMovieMotionHumanArmAngles.IAngles =
+            AutoMovieMotionHumanArmAngles.angles(
+              resolveHumanPosture(body, {
+                ...p,
+                limbs: { ...p.limbs, [`${c.side}Arm`]: aimed(a, t) },
+              }),
+              c.side,
+            );
+          longest = Math.max(
+            longest,
+            (reaching(
+              body,
+              p,
+              c.side,
+              sign === 1 ? c.rest : (c.back ?? c.rest),
+              fit,
+            ) *
+              HumanArmTrajectoryModel.SPEED_LIMIT) /
+              1.875,
+          );
+        },
+      );
+      return longest;
+    };
+    const spaced = (seconds: number, arc: number): number =>
+      Math.min(
+        Math.ceil(seconds / STEP),
+        Math.max(Math.ceil(seconds * LEAST), Math.ceil(arc / SPACING), 1),
+      );
+    cut(
+      span.start,
+      span.ready,
+      spaced(span.ready - span.start, travel(span.ready, 1)),
+      false,
+    );
+    cut(
+      span.ready,
+      span.relax,
+      span.relax > span.ready
+        ? Math.max(1, Math.ceil((span.relax - span.ready) * LEAST))
+        : 0,
+      false,
+    );
+    cut(
+      span.relax,
+      span.end,
+      spaced(span.end - span.relax, travel(span.relax, -1)),
+      true,
+    );
+
+    // Each instant's base, one record however often the refinement reads it,
+    // so the frames built on it are built once (`HumanArmFrame.of`).
+    const bases: Map<number, HumanArmTrajectory.IProblem["bases"][number]> =
+      new Map();
+    const base = (t: number): HumanArmTrajectory.IProblem["bases"][number] => {
+      let found: HumanArmTrajectory.IProblem["bases"][number] | undefined =
+        bases.get(t);
+      if (found === undefined) {
+        found = {
+          pose: at(t).pose,
+          others: carries.flatMap(
+            (
+              _: IAutoMovieMotionHumanArmPlanned.IPlanned,
+              a: number,
+            ): IAutoMovieMotionHumanColliders.IPlaced[] => {
+              const goal: IAutoMovieHumanLimbGoal = aimed(a, t);
+              return [...(goal.clear ?? []), ...(goal.rests ?? [])];
+            },
+          ),
+        };
+        bases.set(t, found);
+      }
+      return found;
+    };
+    const holding = (t: number): boolean =>
+      t >= span.ready - 1e-9 && t <= span.relax + 1e-9;
+    const ready: IAutoMovieMotionHumanPosture = at(span.ready).posture;
+    const guesses: IAutoMovieMotionHumanArmAngles.IAngles[] = carries.map(
+      (
+        c: IAutoMovieMotionHumanArmPlanned.IPlanned,
+        a: number,
+      ): IAutoMovieMotionHumanArmAngles.IAngles =>
+        AutoMovieMotionHumanArmAngles.angles(
+          resolveHumanPosture(body, {
+            ...ready,
+            limbs: { ...ready.limbs, [`${c.side}Arm`]: aimed(a, span.ready) },
+          }),
+          c.side,
+        ),
+    );
+
+    // Each arm's site at an instant, read once however often the refinement
+    // reads the problem again: a refinement adds instants, and the site at
+    // an instant already read does not change. The same record each time
+    // also lets the solve keep what it built on it (`HumanArmTrajectoryContext.of`).
+    const sited: Map<number, HumanArmTrajectory.ISite | undefined>[] =
+      carries.map(
+        (): Map<number, HumanArmTrajectory.ISite | undefined> => new Map(),
+      );
+    const problem = (
+      waypoints: readonly number[],
+    ): HumanArmTrajectory.IProblem => ({
+      body,
+      times: waypoints,
+      share: carries[0]!.weight,
+      arms: carries.map(
+        (
+          c: IAutoMovieMotionHumanArmPlanned.IPlanned,
+          a: number,
+        ): HumanArmTrajectory.IArm => {
+          const rider: number =
+            c.on === undefined
+              ? -1
+              : carries.findIndex(
+                  (o: IAutoMovieMotionHumanArmPlanned.IPlanned): boolean =>
+                    o !== c && c.on!.startsWith(o.side),
+                );
+          // The site where the arm's goal puts it at an instant, on the hold.
+          const located = (t: number): HumanArmTrajectory.ISite | undefined => {
+            if (!holding(t)) return undefined;
+            const pose: IAutoMoviePose = at(t).pose;
+            const own: HumanArmTrajectory.ISite = site(
+              body,
+              pose,
+              c,
+              aimed(a, t),
+            );
+            if (rider < 0) return own;
+            const lead: IAutoMovieMotionHumanArmPlanned.IPlanned =
+              carries[rider]!;
+
+            // A grip on an object both hands hold rides the lead hand's own
+            // site, the hand as the plan puts it there: a closed chain
+            // through the plan, not the hand as posed when it is read.
+            if (c.grasp !== undefined && c.on!.endsWith("Hand")) {
+              const held: HumanArmTrajectory.ISite = site(
+                body,
+                pose,
+                lead,
+                aimed(rider, t),
+              );
+              if (held.rotation !== undefined)
+                return {
+                  ...own,
+                  on: {
+                    ...AutoMovieMotionHumanArmRide.gripped(held, own),
+                    arm: rider,
+                  },
+                };
+            }
+            return {
+              ...own,
+              on: {
+                ...AutoMovieMotionHumanArmRide.riding(
+                  body,
+                  pose,
+                  lead.side,
+                  c.on!,
+                  own.point,
+                  own.rotation,
+                ),
+                arm: rider,
+              },
+            };
+          };
+          const read = (t: number): HumanArmTrajectory.ISite | undefined => {
+            if (!sited[a]!.has(t)) sited[a]!.set(t, located(t));
+            return sited[a]!.get(t);
+          };
+          return {
+            side: c.side,
+            rest: c.rest,
+            ...(c.back === undefined ? {} : { back: c.back }),
+            ...(c.rests === undefined ? {} : { rests: c.rests }),
+            ...(c.grasp === undefined ? {} : { grasp: c.grasp }),
+            sites: waypoints.map(read),
+            guess: guesses[a]!,
+          };
+        },
+      ),
+      bases: waypoints.map(
+        (t: number): HumanArmTrajectory.IProblem["bases"][number] => base(t),
+      ),
+    });
+    const solved: IAutoMovieMotionHumanArmTrajectory.Trajectory[] =
+      HumanArmTrajectory.solve(problem, times);
+    return new Map(
+      carries.map(
+        (
+          c: IAutoMovieMotionHumanArmPlanned.IPlanned,
+          a: number,
+        ): [
+          AutoMovieHumanSide,
+          IAutoMovieMotionHumanArmTrajectory.Trajectory,
+        ] => [c.side, solved[a]!],
+      ),
+    );
+  }
+
+  /**
+   * How far a planned arm's goal has moved at a second of its hold since the
+   * plan perceived it: the site the goal puts the hand on now (a person one
+   * frame behind), less the site the plan used for that second, both on the
+   * pose at the second. Zero wherever the goal has not moved since the plan.
+   *
+   * @param body The body.
+   * @param carry The arm.
+   * @param posture The posture so far at the second.
+   * @param seconds The second, on the hold.
+   * @returns The sites' difference, metres, the contact in the hand's frame, and the base the arm is read against.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two sites, the pose they are read on and when the result is zero.
+   * @evidence contracts/development/implementation.md#principled-implementation A feedback term is driven by error: the target's motion since the feed-forward plan perceived it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One base pose, two goal reads, one difference.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both sites are read on the same pose, so the posture so far cancels and only the target's motion is left.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolve and two goal reads per call.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `site`, the planner's own reading of a goal.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function moved(
+    body: IAutoMovieMotionHumanBody,
+    carry: IAutoMovieMotionHumanArmPlanned.IPlanned,
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+  ): {
+    error: IAutoMovieVector3;
+    contact: IAutoMovieVector3;
+    base: HumanArmTrajectory.IProblem["bases"][number];
+  } {
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+    delete limbs[`${carry.side}Arm`];
+    const pose: IAutoMoviePose = resolveHumanPosture(body, {
+      ...posture,
+      limbs,
+    });
+    const goal: IAutoMovieHumanLimbGoal = carry.goal(posture, seconds);
+    const now: HumanArmTrajectory.ISite = site(body, pose, carry, goal);
+    const then: HumanArmTrajectory.ISite = site(
+      body,
+      pose,
+      carry,
+      aim(carry, posture, seconds),
+    );
+    return {
+      error: Vector3.subtract(now.point, then.point),
+      contact: now.contact,
+      base: { pose, others: [...(goal.clear ?? []), ...(goal.rests ?? [])] },
+    };
+  }
+  /** The goal as the plan perceives it. */
+  function aim(
+    carry: IAutoMovieMotionHumanArmPlanned.IPlanned,
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+  ): IAutoMovieHumanLimbGoal {
+    return (carry.perceived ?? carry.goal)(posture, seconds);
+  }
+
+  /** An arm's site from its goal on a pose: the goal's contact where its rotation carries it from the wrist's point. */
+  function site(
+    body: IAutoMovieMotionHumanBody,
+    pose: IAutoMoviePose,
+    carry: IAutoMovieMotionHumanArmPlanned.IPlanned,
+    goal: IAutoMovieHumanLimbGoal,
+  ): HumanArmTrajectory.ISite {
+    const world: IAutoMovieHumanLimbGoal = resolveHumanPosture.world(
+      body,
+      pose,
+      `${carry.side}Arm`,
+      goal,
+    );
+    return {
+      point:
+        world.contact === undefined
+          ? world.point
+          : Vector3.add(
+              world.point,
+              Quaternion.rotateVector(
+                world.rotation ?? Quaternion.identity(),
+                world.contact,
+              ),
+            ),
+      contact: world.contact ?? { x: 0, y: 0, z: 0 },
+      ...(world.limits === undefined ? {} : { limits: world.limits }),
+      disc: carry.disc ?? AutoMovieMotionHumanAuditTangle.BUILT,
+      ...(world.rotation === undefined ? {} : { rotation: world.rotation }),
+    };
+  }
+}
+
+/** The spacing of the trajectory's waypoints, seconds at most: the frame grid, a thirtieth of a second. */
+const STEP: number = 1 / 30;
+
+/** The least waypoints a second of a reach, a return or a hold, the swept clearance's spacing. */
+const LEAST: number = 6;
+
+/** The farthest probe's travel between two waypoints of a reach, metres. */
+const SPACING: number = 0.08;
+
+/** Samples along a blend whose arc is measured. */
+const ARC: number = 32;

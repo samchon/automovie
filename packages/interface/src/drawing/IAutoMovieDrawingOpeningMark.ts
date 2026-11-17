@@ -1,5 +1,5 @@
-import { AutoMovieDrawingOpeningBasis } from "./AutoMovieDrawingOpeningBasis";
-import { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
+import type { AutoMovieDrawingOpeningBasis } from "./AutoMovieDrawingOpeningBasis";
+import type { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
 
 /**
  * One opening as the drawing can see it.

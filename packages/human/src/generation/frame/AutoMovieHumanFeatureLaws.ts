@@ -1,5 +1,6 @@
 import { AutoMovieHumanFeatureTemplate as T } from "./AutoMovieHumanFeatureTemplate";
 import { AutoMovieHumanSegmentFrame as F } from "./AutoMovieHumanSegmentFrame";
+import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
 /**
  * The body's surface features below the head as laws: which landmarks place each, what length sizes it, and its sizes as shares of that
@@ -67,16 +68,16 @@ export namespace AutoMovieHumanFeatureLaws {
   /** What a law is given to make its template: points and directions in its segment's frame. */
   export interface IDatums {
     /** Its centre's landmark, or the landmark it starts at, mm. */
-    from: F.V3;
+    from: AutoMovieVector3Tuple;
 
     /** The landmark it ends at, for a law of two landmarks. */
-    to?: F.V3;
+    to?: AutoMovieVector3Tuple;
 
     /** The direction out of the skin there; it need not be unit. */
-    outward: F.V3;
+    outward: AutoMovieVector3Tuple;
 
     /** The segment's long direction, for a law of one landmark; it need not be unit nor square to `outward`. */
-    along?: F.V3;
+    along?: AutoMovieVector3Tuple;
   }
 
   /** The features that are templates. Every share is f1's reading as the namespace states; the comment gives the millimetres it was read at. */
@@ -154,8 +155,8 @@ export namespace AutoMovieHumanFeatureLaws {
       return T.between(datums.from, datums.to, { name: law.name, class: law.class, segment: law.segment, outward: datums.outward, half: law.across * scale, height: law.height * scale });
     }
     if (datums.along === undefined || law.along === undefined) throw new Error("feature law: " + law.name + " has one landmark and needs a long direction and a share along it");
-    const outward: F.V3 = F.unit(datums.outward);
-    const along: F.V3 = F.perpendicular(datums.along, outward);
+    const outward: AutoMovieVector3Tuple = F.unit(datums.outward);
+    const along: AutoMovieVector3Tuple = F.perpendicular(datums.along, outward);
     return { name: law.name, class: law.class, segment: law.segment, centre: [...datums.from], along, across: F.unit(F.cross(outward, along)), extent: [law.along * scale, law.across * scale], height: law.height * scale };
   }
 }

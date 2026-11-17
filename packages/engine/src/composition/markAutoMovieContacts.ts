@@ -1,6 +1,8 @@
-import type { IAutoMovieContactReceipt } from "@automovie/interface";
-
-import type { IAutoMovieMark } from "../geometry/IAutoMovieMark";
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMovieMark,
+  IAutoMovieMarkContacts,
+} from "@automovie/interface";
 
 /**
  * Turn the solved contacts acting at one second into inspection marks: one arrow per contact, at the contact point along its normal, as long as the mean force times a stated scale.
@@ -24,11 +26,9 @@ import type { IAutoMovieMark } from "../geometry/IAutoMovieMark";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure conversion of one second.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh marks and keeps nothing.
  */
-export function markAutoMovieContacts(props: {
-  receipts: readonly IAutoMovieContactReceipt[];
-  seconds: number;
-  metresPerNewton: number;
-}): IAutoMovieMark[] {
+export function markAutoMovieContacts(
+  props: IAutoMovieMarkContacts.IProps,
+): IAutoMovieMark[] {
   if (!(Number.isFinite(props.metresPerNewton) && props.metresPerNewton > 0))
     throw new Error(
       `markAutoMovieContacts: metres per newton ${props.metresPerNewton} is not positive and finite`,

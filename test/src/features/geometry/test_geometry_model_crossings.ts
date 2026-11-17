@@ -1,10 +1,8 @@
-import {
-  type IAutoMovieModelCrossing,
-  measureAutoMovieModelCrossings,
-} from "@automovie/engine";
-import {
-  type IAutoMovieModel,
-  type IAutoMovieModelPart,
+import { measureAutoMovieModelCrossings } from "@automovie/engine";
+import type {
+  IAutoMovieModel,
+  IAutoMovieModelCrossing,
+  IAutoMovieModelPart,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

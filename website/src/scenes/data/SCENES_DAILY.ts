@@ -70,15 +70,13 @@ export const SCENES_DAILY: readonly IScene[] = [
       setting: "everyday",
       roles: { dee: "writer", eli: "colleague" },
       needs: [],
+      refusedUntil: 3556,
     },
     "office",
     [
       person("dee", "f2", -1.2, 0.3, 0, [
         act("sit", { seat: seat("chairD"), seconds: 0.5 }),
-        act("typeText", {
-          keyboard: { at: { x: -1.2, y: DESK_TOP + 0.02, z: 0.47 }, yaw: 0 },
-          text: "the scene opens",
-        }),
+        act("typeText", { keyboard: "keyboard", text: "the scene opens" }),
         act("rubEyes"),
         act("thinking", { seconds: 1.5 }),
       ]),
@@ -101,8 +99,20 @@ export const SCENES_DAILY: readonly IScene[] = [
       ]),
     ],
     [
-      object("deskD", "createTable", "desk", -1.2, 0.8),
+      // Deep enough that its front edge, at z 0.4, lies under the keyboard
+      // where the seated typist reaches it.
+      object("deskD", "createTable", "desk", -1.2, 0.75, 0, 0, { depth: 0.7 }),
       object("chairD", "createSeat", "office", -1.2, 0.08),
+      // Turned half round, so its typist's +Z side faces the chair.
+      object(
+        "keyboard",
+        "createKeyboard",
+        "keyboard",
+        -1.2,
+        0.48,
+        180,
+        DESK_TOP,
+      ),
       object("deskE", "createTable", "desk", 1, 0.75),
       object("chairE", "createSeat", "office", 1, -0.15),
       object("switch", "createSwitch", "rocker", 2.2, 0, 270),
@@ -195,6 +205,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       setting: "everyday",
       roles: { ivy: "photographer", jay: "tourist", kit: "tourist" },
       needs: [],
+      refusedUntil: 3549,
     },
     "tourists",
     [
@@ -282,6 +293,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       setting: "everyday",
       roles: { tia: "traveller", uli: "friend", val: "friend" },
       needs: [],
+      refusedUntil: 3552,
     },
     "farewell",
     [
@@ -315,6 +327,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       setting: "everyday",
       roles: { wes: "friend", xan: "friend", yui: "friend" },
       needs: [],
+      refusedUntil: 3552,
     },
     "charades",
     [

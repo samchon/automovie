@@ -1,4 +1,4 @@
-import { AutoMovieWetGrade } from "./AutoMovieWetGrade";
+import type { AutoMovieWetGrade } from "./AutoMovieWetGrade";
 
 /**
  * One wet or waterproofed region, bound to a logical space of the served environment.

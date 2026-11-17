@@ -1,9 +1,6 @@
-import {
-  AutoMovieHumanNativeScaleProfile as Profile,
-  type AutoMovieHumanConicSection as S,
-} from "@automovie/human";
-
 import { nclose } from "../../internal/predicates";
+import { AutoMovieHumanNativeScaleProfile as Profile } from "@automovie/human";
+import type { AutoMovieVector2Tuple } from "@automovie/interface";
 
 /**
  * The native scale profile reads the endpoint-flat quintic and its own station 2-jet, and composes into a handoff by the product rule.
@@ -35,7 +32,7 @@ export function test_human_native_scale_profile(): void {
   };
 
   // 1. The quintic between two sites, held outside them.
-  const rise: S.P = [0.1, 0.2];
+  const rise: AutoMovieVector2Tuple = [0.1, 0.2];
   const profile: Profile.IScale = Profile.create([
     [0, [1, 1]],
     [30, [1.1, 1.2]],
@@ -48,7 +45,7 @@ export function test_human_native_scale_profile(): void {
     const h1: number = inside ? (30 * t ** 2 - 60 * t ** 3 + 30 * t ** 4) / 30 : 0;
     const h2: number = inside ? (60 * t - 180 * t ** 2 + 120 * t ** 3) / 900 : 0;
     const jet: Profile.IJet = profile.jet(s);
-    const value: S.P = profile(s);
+    const value: AutoMovieVector2Tuple = profile(s);
     for (const k of [0, 1] as const) {
       close(`profile value ${k} at ${s}`, value[k], 1 + rise[k] * h, 1e-14);
       close(`profile first ${k} at ${s}`, jet.first[k], rise[k] * h1, 1e-15);
@@ -95,7 +92,7 @@ export function test_human_native_scale_profile(): void {
 
   // 4. The guard.
   if (Profile.of(profile) !== profile) failures.push("a carried scale was not recovered");
-  if (Profile.of((): S.P => [1, 1]) !== null) failures.push("a plain scale was given a jet");
+  if (Profile.of((): AutoMovieVector2Tuple => [1, 1]) !== null) failures.push("a plain scale was given a jet");
 
   // 5. Refusals.
   for (const [what, bad] of [

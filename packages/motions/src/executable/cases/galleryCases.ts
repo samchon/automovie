@@ -1,7 +1,9 @@
+import { Transform } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieHumanCanonicalBody,
   IAutoMovieJointPose,
   IAutoMoviePose,
 } from "@automovie/interface";
@@ -29,7 +31,7 @@ import { MotionBodies } from "../MotionBodies";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function galleryCases(): IMotionCaptureCase[] {
-  const body: AutoMovieHumanCanonicalBody.IBody =
+  const body: IAutoMovieHumanCanonicalBody.IBody =
     MotionBodies.population("m-average").body;
   const poses: {
     label: string;
@@ -98,18 +100,17 @@ export function galleryCases(): IMotionCaptureCase[] {
     times: [{ seconds: 0, label: "neutral" }],
     performers: (["f-small", "m-average", "m-tall"] as const).map(
       (id: string, i: number): IMotionCaptureCase.IPerformer => {
-        const b: AutoMovieHumanCanonicalBody.IBody =
+        const b: IAutoMovieHumanCanonicalBody.IBody =
           MotionBodies.population(id).body;
         return {
           id,
           body: b,
           pose: (): IAutoMoviePose => ({
             ...zero(b, {}),
-            root: {
-              translation: { x: (i - 1) * 0.8, y: 0, z: 0 },
-              rotation: { x: 0, y: 0, z: 0, w: 1 },
-              scale: { x: 1, y: 1, z: 1 },
-            },
+            root: Transform.of(
+              { x: (i - 1) * 0.8, y: 0, z: 0 },
+              { x: 0, y: 0, z: 0, w: 1 },
+            ),
           }),
         };
       },
@@ -120,7 +121,7 @@ export function galleryCases(): IMotionCaptureCase[] {
 
 /** Every rig bone at clinical zero, with some bones' angles set. */
 function zero(
-  body: AutoMovieHumanCanonicalBody.IBody,
+  body: IAutoMovieHumanCanonicalBody.IBody,
   set: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>>,
 ): IAutoMoviePose {
   return {
@@ -155,11 +156,11 @@ function fist(
 
 /** One Human joint's canonical position under a pose. */
 function joint(
-  body: AutoMovieHumanCanonicalBody.IBody,
+  body: IAutoMovieHumanCanonicalBody.IBody,
   pose: IAutoMoviePose,
   bone: string,
 ): { x: number; y: number; z: number } {
   return AutoMovieHumanCanonicalBody.place(body, pose).find(
-    (p: AutoMovieHumanCanonicalBody.IPlacement): boolean => p.bone === bone,
+    (p: IAutoMovieHumanCanonicalBody.IPlacement): boolean => p.bone === bone,
   )!.position;
 }

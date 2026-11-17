@@ -1,4 +1,7 @@
-import type { resolveAutoMovieSchedule } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanCue,
+  IAutoMovieScheduleCue,
+} from "@automovie/interface";
 
 /**
  * Cue tracks: the named instants of a film's speech and music, for actions
@@ -15,34 +18,105 @@ import type { resolveAutoMovieSchedule } from "@automovie/engine";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No instant is derived from a guessed speech rate; an accent is given or absent.
  */
 export namespace HumanCue {
-  /** A score's pulse. */
-  export interface IBeats {
-    /** Tempo, beats per minute. */
-    bpm: number;
-
-    /** Film second of the first beat, which is a downbeat; 0 when absent. */
-    from?: number;
-
-    /** How many beats the track holds. */
-    count: number;
-
-    /** Beats in a bar; 4 when absent. */
-    meter?: number;
+  /**
+   * A command track: for each order its preparatory word `${word}Caution`
+   * (when it has one) and its word of execution `${word}`, in film order, as
+   * drill gives a command in two parts (US Army TC 3-21.5: the preparatory
+   * command and the command of execution). An action synced to a word with
+   * `latency: "reaction"` is warned when its preparatory word is on the
+   * track. The words' seconds are the screenplay's.
+   *
+   * @param orders The commands, in the order given.
+   * @returns The track.
+   * @throws {Error} When a second is not finite, a caution is not positive, a preparatory word falls before the film, or one falls at or before an earlier command's word of execution, naming both words.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the event names, the source of the two parts and the refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation Each order contributes its two instants; the track is ordered by time, an earlier order first on a tie.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One validation pass, one loop and one stable sort.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No interval between words is invented: every second is given.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A sort of the instants, which are few.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list and retains nothing.
+   */
+  export function orders(
+    orders: readonly IAutoMovieMotionHumanCue.IOrder[],
+  ): IAutoMovieScheduleCue[] {
+    const track: { cue: IAutoMovieScheduleCue; order: number }[] = [];
+    const sorted: IAutoMovieMotionHumanCue.IOrder[] = [...orders].sort(
+      (
+        a: IAutoMovieMotionHumanCue.IOrder,
+        b: IAutoMovieMotionHumanCue.IOrder,
+      ): number => a.at - b.at,
+    );
+    sorted.forEach(
+      (order: IAutoMovieMotionHumanCue.IOrder, i: number): void => {
+        if (!Number.isFinite(order.at))
+          throw new Error(`The command ${order.word} has no finite second`);
+        if (order.caution !== undefined) {
+          if (!(order.caution > 0))
+            throw new Error(
+              `The command ${order.word}'s preparatory word comes ${order.caution} s before it; a positive time is expected`,
+            );
+          const caution: number = order.at - order.caution;
+          if (caution < 0)
+            throw new Error(
+              `The command ${order.word}'s preparatory word would fall at ${caution.toFixed(3)} s, before the film begins`,
+            );
+          const before: IAutoMovieMotionHumanCue.IOrder | undefined =
+            sorted[i - 1];
+          if (before !== undefined && caution <= before.at)
+            throw new Error(
+              `The command ${order.word}'s preparatory word at ${caution.toFixed(3)} s falls at or before the word of execution of ${before.word} at ${before.at.toFixed(3)} s`,
+            );
+          track.push({
+            cue: { name: `${order.word}Caution`, seconds: caution },
+            order: 2 * i,
+          });
+        }
+        track.push({
+          cue: { name: order.word, seconds: order.at },
+          order: 2 * i + 1,
+        });
+      },
+    );
+    return track
+      .sort((a, b) => a.cue.seconds - b.cue.seconds || a.order - b.order)
+      .map((each) => each.cue);
   }
 
-  /** One spoken line. */
-  export interface ILine {
-    /** Film second the line starts. */
-    from: number;
-
-    /** Film second it ends. */
-    to: number;
-
-    /** Film seconds of its stressed syllables, in order; none when absent. */
-    accents?: readonly number[];
-
-    /** Film seconds its phrases end inside the line, in order; none when absent. */
-    phrases?: readonly number[];
+  /**
+   * A cue track from published instants, read structurally from anything
+   * that publishes them (an archetype ride's footfalls and gait changes), so
+   * a rider, a squadron's riders or a dancer read a support's or a band's
+   * events without this package importing what publishes them.
+   *
+   * @param source What publishes the instants.
+   * @param names The labels to keep; every label when absent.
+   * @returns The track, in time order, each instant under its label.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read and why it is read structurally.
+   * @evidence contracts/development/implementation.md#principled-implementation Each kept instant becomes a cue of its label; the track is ordered by time, the source's order kept on a tie.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter, one map and one stable sort.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is renamed or invented.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A sort of the instants.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list and retains nothing.
+   */
+  export function instants(
+    source: IAutoMovieMotionHumanCue.IInstants,
+    names?: readonly string[],
+  ): IAutoMovieScheduleCue[] {
+    return source.instants
+      .filter(
+        (i: { label: string }): boolean =>
+          names === undefined || names.includes(i.label),
+      )
+      .map((i: { label: string; seconds: number }, order: number) => ({
+        cue: { name: i.label, seconds: i.seconds },
+        order,
+      }))
+      .sort((a, b) => a.cue.seconds - b.cue.seconds || a.order - b.order)
+      .map((each) => each.cue);
   }
 
   /**
@@ -62,7 +136,9 @@ export namespace HumanCue {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list and retains nothing.
    */
-  export function beats(beats: IBeats): resolveAutoMovieSchedule.ICue[] {
+  export function beats(
+    beats: IAutoMovieMotionHumanCue.IBeats,
+  ): IAutoMovieScheduleCue[] {
     const meter: number = beats.meter ?? 4;
     if (!(beats.bpm > 0))
       throw new Error("A beat track needs a positive tempo");
@@ -72,7 +148,7 @@ export namespace HumanCue {
     ] as const)
       if (!(Number.isInteger(value) && value > 0))
         throw new Error(`A beat track's ${name} is a positive whole number`);
-    const track: resolveAutoMovieSchedule.ICue[] = [];
+    const track: IAutoMovieScheduleCue[] = [];
     for (let i: number = 0; i < beats.count; ++i) {
       const seconds: number = (beats.from ?? 0) + (i * 60) / beats.bpm;
       if (i % meter === 0) track.push({ name: "downbeat", seconds });
@@ -100,26 +176,28 @@ export namespace HumanCue {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list and retains nothing.
    */
   export function dialogue(
-    lines: readonly ILine[],
-  ): resolveAutoMovieSchedule.ICue[] {
-    const track: resolveAutoMovieSchedule.ICue[] = [];
-    lines.forEach((line: ILine, index: number): void => {
-      if (!(line.to >= line.from))
-        throw new Error(`Line ${index} ends before it starts`);
-      const inside = (name: string, list: readonly number[] = []): void => {
-        for (const seconds of list) {
-          if (!(seconds >= line.from && seconds <= line.to))
-            throw new Error(
-              `Line ${index} has ${name === "accent" ? "an accent" : "a phrase end"} at ${seconds} s, outside its ${line.from} to ${line.to} s`,
-            );
-          track.push({ name, seconds });
-        }
-      };
-      track.push({ name: "lineStart", seconds: line.from });
-      inside("accent", line.accents);
-      inside("phraseEnd", line.phrases);
-      track.push({ name: "lineEnd", seconds: line.to });
-    });
+    lines: readonly IAutoMovieMotionHumanCue.ILine[],
+  ): IAutoMovieScheduleCue[] {
+    const track: IAutoMovieScheduleCue[] = [];
+    lines.forEach(
+      (line: IAutoMovieMotionHumanCue.ILine, index: number): void => {
+        if (!(line.to >= line.from))
+          throw new Error(`Line ${index} ends before it starts`);
+        const inside = (name: string, list: readonly number[] = []): void => {
+          for (const seconds of list) {
+            if (!(seconds >= line.from && seconds <= line.to))
+              throw new Error(
+                `Line ${index} has ${name === "accent" ? "an accent" : "a phrase end"} at ${seconds} s, outside its ${line.from} to ${line.to} s`,
+              );
+            track.push({ name, seconds });
+          }
+        };
+        track.push({ name: "lineStart", seconds: line.from });
+        inside("accent", line.accents);
+        inside("phraseEnd", line.phrases);
+        track.push({ name: "lineEnd", seconds: line.to });
+      },
+    );
     return track
       .map((cue, order) => ({ cue, order }))
       .sort((a, b) => a.cue.seconds - b.cue.seconds || a.order - b.order)

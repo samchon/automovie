@@ -1,5 +1,5 @@
-import type { IAutoMovieHumanParameters } from "@automovie/human";
 import type {
+  IAutoMovieHumanParameters,
   IAutoMoviePhysicalProfile,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
@@ -14,9 +14,13 @@ import * as path from "node:path";
  * inputs.
  *
  * An entry lives under `test/.cache/bodies/<key>/<person>.json` (git-ignored),
- * the key a hash of every source file of the human, engine and interface
- * packages, so a change to any code a preparation may read starts a new key
- * and the directories of other keys are removed. An entry holds the person's
+ * the key a hash of the path, size and modification time of every source
+ * file of the human, engine and interface packages, so a change to any code
+ * a preparation may read starts a new key and the directories of other keys
+ * are removed. Writing a file sets its modification time, so the key is
+ * read from one status call per file, not from the file's contents, whose
+ * reading cost every test process seconds; a file rewritten unchanged only
+ * starts a new key. An entry holds the person's
  * inputs beside the skeleton and the profile and is read only when they are
  * the inputs asked; a number JSON cannot hold (a signed zero, a non-finite
  * value) is written tagged and read back as itself, so the body read is the
@@ -25,10 +29,10 @@ import * as path from "node:path";
  * so a process never reads another's half-written entry.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is kept, where, under which key, when an entry is read, and how a stale or broken one is replaced.
- * @evidence contracts/development/implementation.md#principled-implementation A pure function's result cached under the hash of everything it reads; the inputs are checked on read, and the encoding keeps every double exactly.
+ * @evidence contracts/development/implementation.md#principled-implementation A pure function's result cached under a hash of the state of everything it reads, as a build tool keys its outputs by its sources' modification times; the inputs are checked on read, and the encoding keeps every double exactly.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One key, one read, one write.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A failed read or write falls back to preparing the body; nothing is trusted that was not checked.
- * @evidence contracts/development/implementation.md#efficient-algorithms The key is hashed once per process; an entry read is one file parse.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The key is hashed once per process from one status call per source file, never its contents; an entry read is one file parse.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A body prepared by any process is read by every later one with the same code.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One key's directory is kept; the others are removed when a new key is written.
  */
@@ -148,8 +152,10 @@ export namespace motionHumanBodyCache {
       for (const file of files.sort((a: string, b: string): number =>
         a < b ? -1 : a > b ? 1 : 0,
       )) {
-        hash.update(path.relative(at, file));
-        hash.update(fs.readFileSync(file));
+        const stat: fs.BigIntStats = fs.statSync(file, { bigint: true });
+        hash.update(
+          `${path.relative(at, file)}\u0000${stat.size}\u0000${stat.mtimeNs}\u0000`,
+        );
       }
     }
     return (known = path.join(

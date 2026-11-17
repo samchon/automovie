@@ -1,4 +1,4 @@
-import { IAutoMovieColor } from "../color/IAutoMovieColor";
+import type { IAutoMovieColor } from "../color/IAutoMovieColor";
 
 /**
  * Image-based lighting, background, exposure, tone mapping, and shadows.

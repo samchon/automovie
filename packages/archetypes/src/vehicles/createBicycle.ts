@@ -5,8 +5,9 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -42,20 +43,24 @@ export function createBicycle(
   params: createBicycle.IParams = {},
   seed?: number | string,
 ): Archetype<createBicycle.Affordance, createBicycle.Dimension> {
-  const d: Record<createBicycle.Dimension, number> = ArchetypeDraw.dimensions(
-    "bicycle",
+  const draw: ArchetypeDrawSession<createBicycle.Dimension> =
+    new ArchetypeDrawSession<createBicycle.Dimension>(
+      "bicycle",
+      createBicycle.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createBicycle.Dimension, number> = draw.dimensions(
     createBicycle.BANDS,
-    seed,
-    params,
   );
   const builder: ArchetypeBuilder<
     createBicycle.Affordance,
     createBicycle.Dimension
   > = new ArchetypeBuilder({
-    archetype: "bicycle",
+    material: "composite",
     id: params.id,
     name: "bicycle",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const radius: number = d.wheelDiameter / 2;
@@ -71,7 +76,7 @@ export function createBicycle(
     -Math.sqrt(stay * stay - (radius - d.bottomBracket) ** 2),
   );
   const fore: IAutoMovieVector3 = v(0, radius, rear.z + d.wheelbase);
-  const angle: number = (d.seatAngle * Math.PI) / 180;
+  const angle: number = d.seatAngle * ArchetypeUnits.DEGREE;
   const saddle: IAutoMovieVector3 = v(
     0,
     d.bottomBracket + d.saddleHeight * Math.sin(angle),
@@ -87,6 +92,7 @@ export function createBicycle(
     builder.rod(name, radius, v(-0.012, at.y, at.z), v(0.012, at.y, at.z), {
       color: "#22262b",
       density: 0.2,
+      surface: "rubber",
     });
   for (const [name, from, to] of [
     ["seat-tube", bracket, v(0, saddle.y - 0.03, saddle.z)],
@@ -132,6 +138,7 @@ export function createBicycle(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.upright(
         v(sign * (d.handlebarWidth / 2 - 0.06), bars.y, bars.z),
       ),
@@ -191,7 +198,7 @@ export function createBicycle(
       rides: "crank",
     });
   }
-  return builder.build(d.mass);
+  return builder.build(d.mass, { rests: "rubber", ground: "asphalt" });
 }
 
 /**
@@ -260,6 +267,22 @@ export namespace createBicycle {
     | "handlebarWidth"
     | "gripDiameter"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    wheelDiameter: "m",
+    wheelbase: "m",
+    bottomBracket: "m",
+    crank: "m",
+    stance: "m",
+    saddleHeight: "m",
+    seatAngle: "degrees",
+    saddleWidth: "m",
+    reach: "m",
+    handlebarWidth: "m",
+    gripDiameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

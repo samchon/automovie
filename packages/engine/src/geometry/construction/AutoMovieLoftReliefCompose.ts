@@ -1,11 +1,13 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieLoftRelief,
+  IAutoMovieLoftSurfaceJet,
+} from "@automovie/interface";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import type { AutoMovieLoftJet } from "./AutoMovieLoftJet";
 import { AutoMovieLoftRelief } from "./AutoMovieLoftRelief";
-import type { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieLoftRelief } from "./IAutoMovieLoftRelief";
 
 /** A fresh mutable world vector, in mm per the named derivative order. */
-type V = AutoMovieSolidVector.Vec3;
+type V = AutoMovieVector3Tuple;
 
 /**
  * Shared relief addition for native originals and existing chain consumers.
@@ -95,7 +97,7 @@ export namespace AutoMovieLoftReliefCompose {
    * @evidence contracts/development/common.md#meaningful-documentation Names physical derivative coordinates, fresh mutable ownership and preserved arithmetic order.
    */
   export function jet(
-    value: AutoMovieLoftJet.IJet,
+    value: IAutoMovieLoftSurfaceJet,
     reliefs: readonly IAutoMovieLoftRelief[],
     s: number,
     t: number,

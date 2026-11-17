@@ -1,26 +1,46 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * A bounded projection of one articulated point relative to another, fitted as motor intent rather than a direct pose correction.
+ * An interval for the world-axis projection of one articulated point relative to another.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (A bounded projection of one articulated point relative to another, fitted as motor intent rather than a direct pose correction) and documents 9 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents A bounded projection of one articulated point relative to another, fitted as motor intent rather than a direct pose correction: interface of 9 members (`id`, `chain`, `source`, `reference`, `axis`, `minimum`, ...); units and frames named in its text: local, metre, frame, world, metres. Optional members `minimum`, `maximum` express documented absence, and the ranges its member docs state are left to runtime validation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAutoMoviePhysicalPointBound` in packages/interface/src/physics/IAutoMoviePhysicalPointBound.ts; its surface is the 9 members listed and the text shows 9 other files naming it, mostly packages/engine (5), test (3), packages/interface (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; 2 optional members (`minimum`, `maximum`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows.
+ * admitPhysicalPointBounds requires at least one finite interval end, ordered ends when both exist, a unit axis within 1e-6, a contiguous actuator chain and an existing reference carrier. It permits at most 256 bounds in a call and 1 through 32 updates per bound. The source/reference points are local metres; minimum, maximum and tolerance are metres after projection into the explicit world axis. An omitted end leaves that side unbounded. The fitter emits motor intent and retains unreachable residuals.
+ *
+ * @evidence contracts/development/design.md#principled-representation The reference union permits either one local point or one collider support point; the explicit axis and interval define the constraint without guessing a goal point.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Articulated point fitting and contact admission share this record, while the referenced profile continues to own bone hierarchy and collider geometry.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts At least one interval end remains a runtime requirement; the type does not claim that any admitted interval is reachable or that fitting directly corrects a pose.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines both local and world frames, metre units, absent ends, numerical admission and residual behavior.
  */
 export interface IAutoMoviePhysicalPointBound {
   /** Unique relationship id within the sampled target, shared with collider bindings. */ id: string;
   /** Contiguous proximal-to-distal actuator chain ending at source.bone. */ chain: string[];
   /** Candidate source point in its bone's local metre frame. */ source: {
+    /** Existing source segment at the end of the actuator chain. */
     bone: string;
+
+    /** Point relative to that bone origin, metres. */
     localPoint: IAutoMovieVector3;
   };
   /** Same-body references follow the candidate; external references use the simultaneous actual snapshot. A shape selects its support point along axis on every evaluation, including shape offsets and rotation. Select exactly one of localPoint and shape. */ reference: {
+    /** Existing body identity in the simultaneous profile registry. */
     body: string;
+
+    /** Existing carrier in that body's profile. */
     bone: string;
   } & (
-    | { localPoint: IAutoMovieVector3; shape?: never }
-    | { shape: string; localPoint?: never }
+    | {
+        /** Fixed point in the reference bone's local metre frame. */
+        localPoint: IAutoMovieVector3;
+
+        /** A fixed point excludes a collider support selection. */
+        shape?: never;
+      }
+    | {
+        /** Collider whose current support point along axis supplies the reference. */
+        shape: string;
+
+        /** A collider support selection excludes a fixed local point. */
+        localPoint?: never;
+      }
   );
   /** Explicit world-space unit projection direction. */ axis: IAutoMovieVector3;
   /** Inclusive lower projection, metres; at least one bound must be present. */ minimum?: number;

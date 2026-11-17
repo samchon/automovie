@@ -2,19 +2,18 @@ import {
   AutoMovieIllinois,
   AutoMovieViewOutline,
   AutoMovieViewParameter,
-  type IAutoMovieViewPart,
   AutoMovieSolidVector as V,
 } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootSource,
+  IAutoMovieHumanLegProximal,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanFootSource } from "../foot/AutoMovieHumanFootSource";
-import type { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
-
-/** A world calibration-mm vector. */
-type Vec3 = V.Vec3;
-/** The actual public axis's separately available frame derivatives. */
-type FrameJet = NonNullable<
-  ReturnType<NonNullable<IAutoMovieViewPart["axis"]["jet"]>>
->;
 
 /**
  * An unmeasured proximal leg outline constrained by its actual parent field.
@@ -28,44 +27,6 @@ type FrameJet = NonNullable<
  * @evidence contracts/performance.md#bound-retention-and-release-resources The definition owns its finite outline and borrowed parent/contact records; no global cache or process is retained.
  */
 export namespace AutoMovieHumanLegProximal {
-  /** The identical parent definition and its authoritative named hip station. */
-  export interface IParent {
-    /** Actual trial/final parent, not an independently reconstructed hip box. */
-    definition: AutoMovieHumanSiteViewPart.IDefinition;
-    /** Named canonical parent station, calibration mm. */
-    station: number;
-  }
-
-  /** Actual parent/child coordinates and separately qualified transfer jets. */
-  export interface IContact {
-    /** Definition consumed by this exact source transfer. */
-    parent: IParent;
-    /** Complete original parent field, including fullness and parameter owners. */
-    owner: AutoMovieHumanFootSource.ISource;
-    /** Original parent phase, radians. */
-    phase: number;
-    /** Actual world contact, calibration mm. */
-    point: Vec3;
-    /** Actual source station on the unchanged child course, mm. */
-    station: number;
-    /** Signed native v direction of the outward guide. */
-    outward: 1 | -1;
-    /** Positive ray radius and first/second derivatives in child station. */
-    radius: [number, number, number];
-    /** The available parent frame jets in its actual physical parameter. */
-    parentFrame: FrameJet;
-    /** The available child frame jets at the actual contact. */
-    childFrame: FrameJet;
-  }
-
-  /** New proximal outward original, with its actual complete parent authority. */
-  export interface IResult {
-    /** Reauthored prefix; all named-thigh-and-later scalar spans replay unchanged. */
-    outline: IAutoMovieViewPart.IOutline;
-    /** Contact retained by both construction and independent source readers. */
-    contact: IContact;
-  }
-
   /**
    * Constrain only the unmeasured pole-to-thigh outward source. The canonical
    * parent is level in its actual declared X/Z chart; the child reference and
@@ -83,11 +44,10 @@ export namespace AutoMovieHumanLegProximal {
   export function create(
     child: IAutoMovieViewPart,
     thigh: number,
-    parent: IParent,
+    parent: IAutoMovieHumanLegProximal.IParent,
     outward: 1 | -1,
-  ): IResult {
-    const definition: AutoMovieHumanSiteViewPart.IDefinition =
-      parent.definition;
+  ): IAutoMovieHumanLegProximal.IResult {
+    const definition: IAutoMovieHumanSourceDefinition = parent.definition;
     if (definition.part === null || definition.view === null)
       throw new Error("Proximal leg needs its actual parent definition");
     const axis: typeof definition.view.axis = definition.view.axis;
@@ -108,9 +68,9 @@ export namespace AutoMovieHumanLegProximal {
       throw new Error(
         "Proximal leg transfer needs the actual level X/Z parent with its identity height clock",
       );
-    const owner: AutoMovieHumanFootSource.ISource =
+    const owner: IAutoMovieHumanFootSource.ISource =
       AutoMovieHumanFootSource.prepare(definition.part);
-    const section: AutoMovieHumanFootSource.IStation =
+    const section: IAutoMovieHumanFootSource.IStation =
       AutoMovieHumanFootSource.at(owner, parent.station);
     const frame: ReturnType<IAutoMovieViewPart["axis"]["at"]> =
       owner.part.axis.at(parent.station);
@@ -128,12 +88,14 @@ export namespace AutoMovieHumanLegProximal {
       );
     const reference: ReturnType<IAutoMovieViewPart["axis"]["at"]> =
       child.axis.at(thigh);
-    const advance: Vec3 = V.cross(reference.v, reference.u);
-    const direction: Vec3 = V.scale(reference.v, outward);
+    const advance: AutoMovieVector3Tuple = V.cross(reference.v, reference.u);
+    const direction: AutoMovieVector3Tuple = V.scale(reference.v, outward);
     if (direction[2] === 0)
       throw new Error("Proximal lateral guide has no world lateral direction");
-    const point: (phi: number) => Vec3 = (phi: number): Vec3 => {
-      const local: ReturnType<AutoMovieHumanFootSource.IStation["phase"]> =
+    const point: (phi: number) => AutoMovieVector3Tuple = (
+      phi: number,
+    ): AutoMovieVector3Tuple => {
+      const local: ReturnType<IAutoMovieHumanFootSource.IStation["phase"]> =
         section.phase(phi);
       return V.add(
         frame.origin,
@@ -158,11 +120,12 @@ export namespace AutoMovieHumanLegProximal {
       throw new Error(
         "Canonical hip section has no residual-checked femur lateral-plane contact",
       );
-    const contactPoint: Vec3 = point(phase);
+    const contactPoint: AutoMovieVector3Tuple = point(phase);
     const station: number =
       thigh + V.dot(V.sub(contactPoint, reference.origin), advance);
-    const childFrame: FrameJet | null = child.axis.jet?.(station) ?? null;
-    const parentFrame: FrameJet | null =
+    const childFrame: IAutoMovieHumanLegProximal.FrameJet | null =
+      child.axis.jet?.(station) ?? null;
+    const parentFrame: IAutoMovieHumanLegProximal.FrameJet | null =
       owner.part.axis.jet?.(parent.station) ?? null;
     if (childFrame === null || parentFrame === null || section.jet === null)
       throw new Error(
@@ -170,7 +133,7 @@ export namespace AutoMovieHumanLegProximal {
       );
     const actual: ReturnType<IAutoMovieViewPart["axis"]["at"]> =
       child.axis.at(station);
-    const d: Vec3 = V.scale(actual.v, outward);
+    const d: AutoMovieVector3Tuple = V.scale(actual.v, outward);
     const radius: number = V.dot(V.sub(contactPoint, actual.origin), d);
     if (
       !(station > child.stations[0]! && station < thigh && radius > 0) ||
@@ -182,34 +145,41 @@ export namespace AutoMovieHumanLegProximal {
         "Actual hip contact is outside the unmeasured straight proximal leg interval",
       );
     const jet: ReturnType<
-      NonNullable<AutoMovieHumanFootSource.IStation["jet"]>
+      NonNullable<IAutoMovieHumanFootSource.IStation["jet"]>
     > = section.jet(phase);
-    const pp: Vec3 = V.add(parentFrame.first.origin, [jet.s[0], 0, jet.s[1]]);
-    const ppp: Vec3 = V.add(parentFrame.second.origin, [
+    const pp: AutoMovieVector3Tuple = V.add(parentFrame.first.origin, [
+      jet.s[0],
+      0,
+      jet.s[1],
+    ]);
+    const ppp: AutoMovieVector3Tuple = V.add(parentFrame.second.origin, [
       jet.ss[0],
       0,
       jet.ss[1],
     ]);
-    const pt: Vec3 = [jet.t[0], 0, jet.t[1]];
-    const pst: Vec3 = [jet.st[0], 0, jet.st[1]];
-    const ptt: Vec3 = [jet.tt[0], 0, jet.tt[1]];
-    const ds: Vec3 = V.scale(childFrame.first.v, outward);
-    const dss: Vec3 = V.scale(childFrame.second.v, outward);
-    const qs: Vec3 = V.add(childFrame.first.origin, V.scale(ds, radius));
-    const fr: Vec3 = V.sub(V.scale(pp, d[1]), d);
-    const fs: Vec3 = V.sub(V.scale(pp, qs[1]), qs);
+    const pt: AutoMovieVector3Tuple = [jet.t[0], 0, jet.t[1]];
+    const pst: AutoMovieVector3Tuple = [jet.st[0], 0, jet.st[1]];
+    const ptt: AutoMovieVector3Tuple = [jet.tt[0], 0, jet.tt[1]];
+    const ds: AutoMovieVector3Tuple = V.scale(childFrame.first.v, outward);
+    const dss: AutoMovieVector3Tuple = V.scale(childFrame.second.v, outward);
+    const qs: AutoMovieVector3Tuple = V.add(
+      childFrame.first.origin,
+      V.scale(ds, radius),
+    );
+    const fr: AutoMovieVector3Tuple = V.sub(V.scale(pp, d[1]), d);
+    const fs: AutoMovieVector3Tuple = V.sub(V.scale(pp, qs[1]), qs);
     const first: [number, number] = solve(fr, pt, V.scale(fs, -1));
     const yFirst: number = qs[1] + d[1] * first[0];
-    const known: Vec3 = V.add(
+    const known: AutoMovieVector3Tuple = V.add(
       V.add(childFrame.second.origin, V.scale(dss, radius)),
       V.scale(ds, 2 * first[0]),
     );
-    const parentKnown: Vec3 = V.add(
+    const parentKnown: AutoMovieVector3Tuple = V.add(
       V.add(V.scale(ppp, yFirst * yFirst), V.scale(pst, 2 * yFirst * first[1])),
       V.add(V.scale(ptt, first[1] * first[1]), V.scale(pp, known[1])),
     );
     const second: [number, number] = solve(fr, pt, V.sub(known, parentKnown));
-    const contact: IContact = {
+    const contact: IAutoMovieHumanLegProximal.IContact = {
       parent,
       owner,
       phase,
@@ -221,8 +191,8 @@ export namespace AutoMovieHumanLegProximal {
       childFrame,
     };
     const original:
-      | AutoMovieViewOutline.IOutline
-      | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
       outward === 1 ? child.side.positive : child.side.negative,
       { bottom: child.stations[0]!, top: child.stations.at(-1)! },
     );
@@ -265,7 +235,7 @@ export namespace AutoMovieHumanLegProximal {
     for (const knot of original.knots.filter(
       (value: IAutoMovieViewPart.IKnot): boolean => value.station >= thigh,
     )) {
-      const reading: AutoMovieViewOutline.IReading | string =
+      const reading: IAutoMovieViewOutline.IReading | string =
         AutoMovieViewOutline.at(original, knot.station);
       if (typeof reading === "string") throw new Error(reading);
       knots.push({
@@ -282,7 +252,11 @@ export namespace AutoMovieHumanLegProximal {
 }
 
 /** Solve the same implicit X/Z contact equations, rejecting degeneracy. */
-function solve(a: Vec3, b: Vec3, rhs: Vec3): [number, number] {
+function solve(
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+  rhs: AutoMovieVector3Tuple,
+): [number, number] {
   const determinant: number = a[0] * b[2] - a[2] * b[0];
   const result: [number, number] = [
     (rhs[0] * b[2] - rhs[2] * b[0]) / determinant,

@@ -1,4 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanVariation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
@@ -43,7 +47,7 @@ export namespace AutoMovieMotionHumanVariationForm {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function amount(
-    source: AutoMovieMotionHumanVariation.ISource | undefined,
+    source: IAutoMovieMotionHumanVariation.ISource | undefined,
     key: string,
     share: number,
   ): number {
@@ -92,9 +96,9 @@ export namespace AutoMovieMotionHumanVariationForm {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function swivel(
-    source: AutoMovieMotionHumanVariation.ISource | undefined,
+    source: IAutoMovieMotionHumanVariation.ISource | undefined,
     key: string,
-    props: AutoMovieMotionHumanBend.ISolve,
+    props: IAutoMovieMotionHumanBend.ISolve,
     elbow: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     if (source === undefined) return elbow;
@@ -150,7 +154,7 @@ export namespace AutoMovieMotionHumanVariationForm {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function bend(
-    source: AutoMovieMotionHumanVariation.ISource | undefined,
+    source: IAutoMovieMotionHumanVariation.ISource | undefined,
     key: string,
     out: number,
   ): number {
@@ -189,7 +193,7 @@ export namespace AutoMovieMotionHumanVariationForm {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function curvature(
-    source: AutoMovieMotionHumanVariation.ISource | undefined,
+    source: IAutoMovieMotionHumanVariation.ISource | undefined,
     key: string,
     share: number,
   ): number {

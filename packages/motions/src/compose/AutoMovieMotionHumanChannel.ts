@@ -1,24 +1,26 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanDigit,
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanChannelClaim,
+  AutoMovieMotionHumanChannel as AutoMovieMotionHumanChannelContract,
+  IAutoMovieHumanDigitGoal,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanPostureRotation,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import { HumanPosture } from "../posture/HumanPosture";
 
 /**
- * A part of the body one primitive writes at a time.
+ * Channel ordering, bone ownership and posture merging for the canonical channel vocabulary.
+ * ORDER is constrained by the interface union. The readers below use this order
+ * and ownership partition when composing primitives, including individual-digit claims.
  *
- * The channels partition {@link IHumanPosture}: `root` owns `root` and `yaw`;
- * `trunk` owns `pitch`, `roll` and the joints of the pelvis, the spine and the
- * shoulder girdles; `head` owns the neck, the head, the jaw and the eyes;
- * each arm owns its limb goal and the joints of its upper arm, forearm and
- * hand; each hand owns its finger joints; each leg owns its limb goal and the
- * joints of its thigh, shank, foot and toes.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a channel is and which fields of a posture each one owns.
- * @evidence contracts/development/design.md#principled-representation A partition of the posture by the kinematic tree: the root, the trunk it carries, the head and the limbs that hang from the trunk, and each hand at the end of its arm.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Nine channels, the coarsest split under which two parts of one action never need the same channel at once; the only owner of which field belongs to which part.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union read from the `ORDER` list, so a primitive cannot claim a part the merge does not know and a page lists the same channels.
+ * @evidence contracts/development/common.md#meaningful-documentation of maps bones, claims handles digit ownership, and merge selects posture fields from the writer owning each channel.
+ * @evidence contracts/development/design.md#principled-representation One runtime namespace implements the canonical channel and claim vocabularies without redefining their types.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Joints, action composition and performance overlays share these ownership decisions and the nine-channel order.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The runtime list satisfies the canonical union; contract consumers need no dependency on these executable helpers.
  */
-export type AutoMovieMotionHumanChannel =
-  (typeof AutoMovieMotionHumanChannel.ORDER)[number];
 export namespace AutoMovieMotionHumanChannel {
   /**
    * The order channels are written in: the body is placed first and the
@@ -27,8 +29,7 @@ export namespace AutoMovieMotionHumanChannel {
    * although they hang from them: an arm's goal lays a surface of the hand
    * (the palm, a fingertip, the fist) on its target, and the arm's fit reads
    * that surface with the fingers as their own primitive shapes them, while
-   * a finger's angles read nothing of the arm. The channels as data: the
-   * union is read from this list.
+   * a finger's angles read nothing of the arm. The channels as data, checked against the canonical union.
    */
   export const ORDER = [
     "root",
@@ -40,7 +41,7 @@ export namespace AutoMovieMotionHumanChannel {
     "rightHand",
     "leftArm",
     "rightArm",
-  ] as const;
+  ] as const satisfies readonly NonNullable<AutoMovieMotionHumanChannelContract>[];
 
   /**
    * The channel that owns a bone's joint.
@@ -56,7 +57,9 @@ export namespace AutoMovieMotionHumanChannel {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function of(bone: AutoMovieHumanoidBone): AutoMovieMotionHumanChannel {
+  export function of(
+    bone: AutoMovieHumanoidBone,
+  ): AutoMovieMotionHumanChannelContract {
     const side: "left" | "right" | undefined = bone.startsWith("left")
       ? "left"
       : bone.startsWith("right")
@@ -75,14 +78,103 @@ export namespace AutoMovieMotionHumanChannel {
     return `${side}Leg`;
   }
 
+  /** The bones `trunkTurn` covers: the spine and the chest above the pelvis, not the shoulder girdles. */
+  export const TURN: readonly AutoMovieHumanoidBone[] = [
+    "spine",
+    "chest",
+    "upperChest",
+  ];
+
+  /**
+   * The digit that owns a bone's joint, for a finger or thumb bone.
+   *
+   * @param bone The bone.
+   * @returns Its digit; none for a bone of no digit.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and the empty case.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the side and the digit from the bone's name, the rig vocabulary's own structure, as `of` does.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One side test and one pattern.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function digit(
+    bone: AutoMovieHumanoidBone,
+  ): AutoMovieHumanDigit | undefined {
+    const found: RegExpMatchArray | null = bone.match(
+      /^(left|right)(Thumb|Index|Middle|Ring|Little)/,
+    );
+    return found === null
+      ? undefined
+      : (`${found[1]}${found[2]}` as AutoMovieHumanDigit);
+  }
+
+  /**
+   * Whether claims cover a claim: they name it, or it is a digit of a hand
+   * they name.
+   *
+   * @param claims The claims.
+   * @param claim The claim asked about.
+   * @returns Whether it is covered.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two ways a claim is covered.
+   * @evidence contracts/development/implementation.md#principled-implementation A hand's channel is the union of its digits, so it covers each of them.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One membership test and one hand test.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A digit claim never covers its hand: the hand's other digits stay free.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the claims.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function claims(
+    claims: readonly AutoMovieMotionHumanChannelClaim[],
+    claim: AutoMovieMotionHumanChannelClaim,
+  ): boolean {
+    if (claims.includes(claim)) return true;
+    const side: RegExpMatchArray | null = claim.match(
+      /^(left|right)(Thumb|Index|Middle|Ring|Little)$/,
+    );
+    return (
+      side !== null &&
+      claims.includes(`${side[1]}Hand` as AutoMovieMotionHumanChannelClaim)
+    );
+  }
+
+  /**
+   * Whether claims cover a bone's joint: they name its channel, or its digit.
+   *
+   * @param claims The claims.
+   * @param bone The bone.
+   * @returns Whether its joint is covered.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what covers a joint.
+   * @evidence contracts/development/implementation.md#principled-implementation The joint's channel by `of`, or its digit by `digit`; with claims that name no digit it is `claims.includes(of(bone))` exactly.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two membership tests.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the claims.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `of` and `digit`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function covers(
+    claims: readonly AutoMovieMotionHumanChannelClaim[],
+    bone: AutoMovieHumanoidBone,
+  ): boolean {
+    if (claims.includes(of(bone))) return true;
+    if (claims.includes("trunkTurn") && TURN.includes(bone)) return true;
+    const own: AutoMovieHumanDigit | undefined = digit(bone);
+    return own !== undefined && claims.includes(own);
+  }
+
   /**
    * A posture with some channels taken from another: every field the
    * channels own is copied from `written`, everything else stays as `base`
-   * has it. A joint or a limb goal `written` no longer sets is cleared.
+   * has it. A joint or a limb goal `written` no longer sets is cleared. A
+   * digit claim takes that digit's joints and its digit goal only; a hand's
+   * channel takes all five.
    *
    * @param base The posture the other channels keep.
    * @param written The posture the channels were written on.
-   * @param channels The channels to take.
+   * @param channels The channels and digits to take.
    * @returns The merged posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is copied, what stays and what happens to a field the written posture no longer sets.
@@ -94,35 +186,51 @@ export namespace AutoMovieMotionHumanChannel {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function merge(
-    base: IHumanPosture,
-    written: IHumanPosture,
-    channels: readonly AutoMovieMotionHumanChannel[],
-  ): IHumanPosture {
-    const owns = (channel: AutoMovieMotionHumanChannel): boolean =>
+    base: IAutoMovieMotionHumanPosture,
+    written: IAutoMovieMotionHumanPosture,
+    channels: readonly AutoMovieMotionHumanChannelClaim[],
+  ): IAutoMovieMotionHumanPosture {
+    const owns = (channel: AutoMovieMotionHumanChannelContract): boolean =>
       channels.includes(channel);
-    const joints: IHumanPosture["joints"] = {};
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const [bone, angles] of Object.entries(base.joints) as [
       AutoMovieHumanoidBone,
       readonly [number, number, number],
     ][])
-      if (!owns(of(bone))) joints[bone] = angles;
+      if (!covers(channels, bone)) joints[bone] = angles;
     for (const [bone, angles] of Object.entries(written.joints) as [
       AutoMovieHumanoidBone,
       readonly [number, number, number],
     ][])
-      if (owns(of(bone))) joints[bone] = angles;
-    const limbs: IHumanPosture["limbs"] = {};
+      if (covers(channels, bone)) joints[bone] = angles;
+
+    // Each digit's goal goes with its digit; a posture that has none keeps
+    // none, so a merge without digit goals is the merge it always was.
+    const digits: NonNullable<IAutoMovieMotionHumanPosture["digits"]> = {};
+    for (const d of HumanPosture.DIGITS) {
+      const goal: IAutoMovieHumanDigitGoal | undefined = (
+        AutoMovieMotionHumanChannel.claims(channels, d) ? written : base
+      ).digits?.[d];
+      if (goal !== undefined) digits[d] = goal;
+    }
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const limb of [
       "leftArm",
       "rightArm",
       "leftLeg",
       "rightLeg",
     ] as const) {
-      const goal: IHumanPosture.IGoal | undefined = (
+      const goal: IAutoMovieHumanLimbGoal | undefined = (
         owns(limb) ? written : base
       ).limbs[limb];
       if (goal !== undefined) limbs[limb] = goal;
     }
+
+    // A whole-body rotation turns the root, so it goes with the root's
+    // channel (#3423); a posture that has none keeps none.
+    const rotation: IAutoMovieHumanPostureRotation | undefined = (
+      owns("root") ? written : base
+    ).rotation;
     return {
       root: owns("root") ? written.root : base.root,
       yaw: owns("root") ? written.yaw : base.yaw,
@@ -130,6 +238,8 @@ export namespace AutoMovieMotionHumanChannel {
       roll: owns("trunk") ? written.roll : base.roll,
       joints,
       limbs,
+      ...(Object.keys(digits).length === 0 ? {} : { digits }),
+      ...(rotation === undefined ? {} : { rotation }),
     };
   }
 }

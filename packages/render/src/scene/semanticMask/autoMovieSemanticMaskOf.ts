@@ -1,6 +1,6 @@
+import type { IAutoMovieSemanticMaskBinding } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieSemanticMaskBinding } from "./IAutoMovieSemanticMaskBinding.js";
 import { SCENE_MASK_KEY } from "./SCENE_MASK_KEY.js";
 
 /**

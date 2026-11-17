@@ -1,6 +1,7 @@
-import { type IAutoMovieForgedProp, forgeProp } from "@automovie/engine";
+import { forgeProp } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
+  IAutoMovieForgedProp,
   IAutoMoviePropArticulation,
   IAutoMoviePropSpec,
   IAutoMovieSkeleton,

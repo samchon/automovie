@@ -1,7 +1,10 @@
-import { IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
+import {
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  type IAutoMoviePlacement,
+} from "@automovie/interface";
 
 import { addPositiveModulo } from "../math/addPositiveModulo";
-import { IAutoMoviePlacement } from "./IAutoMoviePlacement";
 
 /**
  * Arrange admitted clips on one actor's shot clock in stable start order. Keyframes shift by placement start, gaps hold the previous tail, and coincident or overlapping later frames are dropped rather than layered; empty placements return an empty zero-duration clip.

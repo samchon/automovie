@@ -1,5 +1,9 @@
-import { IAutoMovieNode, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  type IAutoMovieLowerSkeletonNodes,
+  IAutoMovieNode,
+} from "@automovie/interface";
 
+import { Transform } from "../math/Transform";
 import { MOTION_ROOT_NODE_ID } from "./constants/MOTION_ROOT_NODE_ID";
 
 /**
@@ -13,18 +17,11 @@ import { MOTION_ROOT_NODE_ID } from "./constants/MOTION_ROOT_NODE_ID";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Scene/motion consumers share naming; changed mutable skeleton contents require new lowering instead of an identity-only cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns node/root records and the skeleton owns borrowed rest data; no native node, handle or task is retained.
  */
-export const lowerSkeletonNodes: (props: {
-  skeleton: IAutoMovieSkeleton;
-  prefix?: string;
-  rootParent?: string | null;
-}) => IAutoMovieNode[] = (props: {
-  /** The rig to lower. */
-  skeleton: IAutoMovieSkeleton;
-  /** Node-id prefix for every lowered node. Defaults to `""` (bare names). */
-  prefix?: string;
-  /** Parent node id for the synthetic root, or `null` for a graph root. */
-  rootParent?: string | null;
-}): IAutoMovieNode[] => {
+export const lowerSkeletonNodes: (
+  props: IAutoMovieLowerSkeletonNodes.IProps,
+) => IAutoMovieNode[] = (
+  props: IAutoMovieLowerSkeletonNodes.IProps,
+): IAutoMovieNode[] => {
   const prefix: string = props.prefix ?? "";
   const rootId: string = `${prefix}${MOTION_ROOT_NODE_ID}`;
   const nodes: IAutoMovieNode[] = [
@@ -33,11 +30,7 @@ export const lowerSkeletonNodes: (props: {
       name: null,
       parent: props.rootParent ?? null,
       kind: "group",
-      transform: {
-        translation: { x: 0, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      },
+      transform: Transform.identity(),
       mesh: null,
       camera: null,
       light: null,
@@ -50,11 +43,7 @@ export const lowerSkeletonNodes: (props: {
       name: null,
       parent: bone.parent === null ? rootId : `${prefix}${bone.parent}`,
       kind: "bone",
-      transform: {
-        translation: bone.rest.translation,
-        rotation: bone.rest.rotation,
-        scale: { x: 1, y: 1, z: 1 },
-      },
+      transform: Transform.of(bone.rest.translation, bone.rest.rotation),
       mesh: null,
       camera: null,
       light: null,

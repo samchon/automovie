@@ -1,0 +1,73 @@
+import { ArchetypeBand, type IArchetypeBand } from "../core";
+import type { createHolster } from "./createHolster";
+import { createSword } from "./createSword";
+
+/** A scabbard maker's rule of fit, read. */
+const WULFLUND: string =
+  "Wulflund's wood-core scabbard, made to the sword at about 1.5 cm longer and 2 cm wider than the blade (https://www.wulflund.com/weapons/swords/sword-accessories/scabbard-with-a-wooden-core.html)";
+
+/** How much longer and wider than its blade a scabbard or a sheath is made, metres: Wulflund's 1.5 and 2 cm. */
+const FIT: Readonly<{ length: number; width: number }> = {
+  length: 0.015,
+  width: 0.02,
+};
+
+/** A scabbard's or a sheath's length and width made to one of `createSword`'s read swords, whole. */
+const madeTo = (
+  name: string,
+  sword: Readonly<Partial<Record<createSword.Dimension, number>>>,
+): createHolster.Fitted => ({
+  length: ArchetypeBand.metres(
+    sword.bladeLength! + FIT.length,
+    sword.bladeLength! + FIT.length,
+    `${WULFLUND}, on the ${name}'s read ${sword.bladeLength} m blade`,
+  ),
+  width: ArchetypeBand.metres(
+    sword.bladeWidth! + FIT.width,
+    sword.bladeWidth! + FIT.width,
+    `${WULFLUND}, on the ${name}'s read ${sword.bladeWidth} m blade width`,
+  ),
+});
+
+/** A scabbard's or a sheath's length and width made to a blade of one of `createSword`'s kinds, its bands moved out by the fit, provisional where the blade's are. */
+const madeFor = (kind: createSword.Kind): createHolster.Fitted => {
+  const blade: Readonly<
+    Partial<Record<createSword.Dimension, IArchetypeBand>>
+  > = createSword.BANDS[kind];
+  const length: IArchetypeBand = blade.bladeLength!;
+  const width: IArchetypeBand = blade.bladeWidth!;
+  return {
+    length: ArchetypeBand.metres(
+      length.minimum + FIT.length,
+      length.maximum + FIT.length,
+      `${WULFLUND}, on ${length.source}`,
+      length.provisional,
+    ),
+    width: ArchetypeBand.metres(
+      width.minimum + FIT.width,
+      width.maximum + FIT.width,
+      `${WULFLUND}, on ${width.source}`,
+      width.provisional,
+    ),
+  };
+};
+
+/** The blades of `createHolster` by kind, the default first, each made with Wulflund's fit: a read sword's figures whole, or a kind's blade bands moved out, provisional where the blade's are. */
+export const HOLSTER_BLADES: Readonly<{
+  scabbard: Readonly<Record<createHolster.ScabbardBlade, createHolster.Fitted>>;
+  sheath: Readonly<Record<createHolster.SheathBlade, createHolster.Fitted>>;
+}> = {
+  scabbard: {
+    crecy: madeTo("Crecy", createSword.MODELS.longsword!.crecy!),
+    regent: madeTo("Regent", createSword.MODELS.longsword!.regent!),
+    knight: madeTo("Knight", createSword.MODELS.armingSword!.knight!),
+    poitiers: madeTo("Poitiers", createSword.MODELS.armingSword!.poitiers!),
+    sabre: madeFor("sabre"),
+    katana: madeFor("katana"),
+    rapier: madeFor("rapier"),
+  },
+  sheath: {
+    dagger: madeFor("dagger"),
+    knife: madeFor("knife"),
+  },
+};

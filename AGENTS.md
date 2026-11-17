@@ -4,23 +4,25 @@
 
 ## Attitude
 
+Work by these rules:
+
 - Do the literal request, widening it only when the user hands that over.
-- The user's instruction outranks any skill.
+- Follow the user's instruction over any skill.
 - Answer a question from the user before continuing any work.
 - Write everything the user sees in the user's language.
 - Write code, comments, documents, commits, issues, and pull requests in English.
 - Ship each topic as its own pull request.
 - Delete every scratch file once it has served.
 
-## Fixing By Cause
+## Fixing by cause
 
-Let a test run, CI run, review round, visual inspection round, or experiment finish, then fix all of its findings together by cause, never one finding at a time or a known one later. Changing one thing and rerunning to see what it does is one finding at a time, however fast the rerun.
+Let a test run, CI run, review round, visual inspection round, or experiment finish, then fix all of its findings together by cause, never one finding at a time, and never leaving a known finding for later. Changing one thing and rerunning to see what it does is one finding at a time, however fast the rerun.
 
 ## Viewers
 
-Keep video and 3D viewers operational, and restore a broken viewer before other work. Fill a missing core capability at its package owner, then verify the real consumer and reconnect it before resuming.
+Keep video and 3D viewers operational, and restore a broken viewer before other work. Add a missing core capability in the package that owns it, then reconnect the viewer and verify it before resuming.
 
-## Finishing Work
+## Finishing work
 
 A message without a tool call ends the turn. While work remains, do not end it with:
 
@@ -36,20 +38,21 @@ Stop only when nothing can move without the user, a protected target blocks you,
 
 ## Skills
 
-Read the skill whose trigger applies.
+Read every skill whose trigger applies.
 
-- [project](.agents/skills/project/SKILL.md): judging product scope, choosing a package owner, or choosing a command.
-- [contracts](.agents/skills/contracts/SKILL.md): writing or reviewing maintained source or tests, for their `@evidence` checklists, or changing Evidence selection.
-- [development](.agents/skills/development/SKILL.md): changing code, tests, or workflows.
-- [3d-modeling](.agents/skills/3d-modeling/SKILL.md): changing geometry, rigs, assets, materials, or lighting.
-- [visual-debugging](.agents/skills/visual-debugging/SKILL.md): judging a form, a motion, a guide pass, a generated image or a film on screen, before claiming a visual change works, and changing viewer or capture behavior.
-- [motion](.agents/skills/motion/SKILL.md): authoring or verifying body motion, the motions vocabulary, a human action law, an engine motion primitive or retargeting, or a motion capture verdict.
-- [human](.agents/skills/human/SKILL.md): working on `packages/human`, a human figure, or the Human viewer, or supervising workers who do.
-- [scaffold](.agents/skills/scaffold/SKILL.md): editing `packages/template`, or reading, authoring, or reviewing production content anywhere.
-- [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md): designing or revising the production skills, contracts and routers shipped by the scaffold.
-- [production-campaign](.agents/skills/production-campaign/SKILL.md): sustained authoring campaigns with writers and reviewers launched as CLI processes, observation of a single production's runs, and production comparisons.
-- [prompting](.agents/skills/prompting/SKILL.md): changing `AGENTS.md`, `CLAUDE.md`, or a skill.
-- [documentation](.agents/skills/documentation/SKILL.md): writing any document or doc comment.
-- [review](.agents/skills/review/SKILL.md): any review or self-review.
-- [issue-campaign](.agents/skills/issue-campaign/SKILL.md): a broad audit or repeated issue-to-pull-request work.
-- [pull-request](.agents/skills/pull-request/SKILL.md): only when asked to push, open, update, or merge, or under a delivery mandate.
+| Skill | Use when |
+| --- | --- |
+| [project](.agents/skills/project/SKILL.md) | Judging product scope, choosing a package owner, or choosing a command |
+| [contracts](.agents/skills/contracts/SKILL.md) | Writing or reviewing maintained source or tests, for their `@evidence` checklists, or changing Evidence selection |
+| [development](.agents/skills/development/SKILL.md) | Changing code, tests, or workflows |
+| [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | Changing geometry, rigs, assets, materials, or lighting |
+| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Judging a form, a motion, a guide channel, a generated image or a film on screen, before claiming a visual change works, and changing viewer or capture behavior |
+| [motion](.agents/skills/motion/SKILL.md) | Authoring or verifying body motion, the motions vocabulary, a human action law, an engine motion primitive or retargeting, or a motion capture verdict |
+| [human](.agents/skills/human/SKILL.md) | Working on `packages/human`, a human figure, or the Human viewer, or supervising workers who do |
+| [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md) | Editing `packages/template` or its shipped skills, or reading, authoring or reviewing production content |
+| [production-campaign](.agents/skills/production-campaign/SKILL.md) | Running sustained authoring campaigns with writers and reviewers launched as CLI processes, observing one production's runs, or comparing productions |
+| [prompting](.agents/skills/prompting/SKILL.md) | Changing `AGENTS.md`, `CLAUDE.md`, or a skill |
+| [documentation](.agents/skills/documentation/SKILL.md) | Writing any document or doc comment |
+| [review](.agents/skills/review/SKILL.md) | Doing any review or self-review |
+| [issue-campaign](.agents/skills/issue-campaign/SKILL.md) | Running a broad audit or repeated issue-to-pull-request work |
+| [pull-request](.agents/skills/pull-request/SKILL.md) | Pushing, opening, updating, or merging a pull request, only when asked or under a delivery mandate |

@@ -1,4 +1,4 @@
-import type { IAutoMovieConstructionPort } from "@automovie/interface";
+import type { IAutoMovieHumanF1 } from "@automovie/interface";
 
 /**
  * Direct normalized F1 parent-chart original controls. These accepted controls
@@ -9,11 +9,7 @@ import type { IAutoMovieConstructionPort } from "@automovie/interface";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States original provenance, qualified prior scope, metre/radian chart contract and both-side clocks.
  */
-export const AutoMovieHumanF1RootControls: {
-  arm: [IAutoMovieConstructionPort.ILoop, IAutoMovieConstructionPort.ILoop];
-  breast: [IAutoMovieConstructionPort.ILoop, IAutoMovieConstructionPort.ILoop];
-  nose: IAutoMovieConstructionPort.ILoop;
-} = {
+export const AutoMovieHumanF1RootControls: IAutoMovieHumanF1.IRootControls = {
   arm: [
     {
       centre: [0.5514570696257226, 1.642321970577369],

@@ -1,7 +1,9 @@
-import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieSolidMeshConstraints,
+} from "@automovie/interface";
 
-/** A point in one face's native station/phase chart. */
-type Point = readonly [number, number];
+import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 
 /** One indexed point in the universal cover of a periodic chart. */
 interface Cut {
@@ -12,7 +14,7 @@ interface Cut {
   turn: number;
 
   /** Representable lifted coordinates for predicates and ordering only. */
-  point: Point;
+  point: Readonly<AutoMovieVector2Tuple>;
 }
 
 /**
@@ -43,9 +45,9 @@ export namespace AutoMovieSolidMeshConstraints {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Uses fixed per-segment scratch and returns a boolean/string without retaining inputs.
    */
   export function contains(
-    vertices: ReadonlyMap<number, Point>,
-    segments: readonly ISegment[],
-    point: Point,
+    vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+    segments: readonly IAutoMovieSolidMeshConstraints.ISegment[],
+    point: Readonly<AutoMovieVector2Tuple>,
     period?: number,
   ): boolean | string {
     if (
@@ -55,8 +57,12 @@ export namespace AutoMovieSolidMeshConstraints {
     )
       return "constraint membership needs finite coordinates and a positive period";
     for (const segment of segments) {
-      const a: Point | undefined = vertices.get(segment.a);
-      const stored: Point | undefined = vertices.get(segment.b);
+      const a: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(
+        segment.a,
+      );
+      const stored: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(
+        segment.b,
+      );
       if (
         a === undefined ||
         stored === undefined ||
@@ -64,52 +70,26 @@ export namespace AutoMovieSolidMeshConstraints {
         (period === undefined && segment.turn !== 0)
       )
         return "constraint membership has an unavailable endpoint or invalid turn";
-      const b: Point = [stored[0], stored[1] + segment.turn * (period ?? 0)];
+      const b: Readonly<AutoMovieVector2Tuple> = [
+        stored[0],
+        stored[1] + segment.turn * (period ?? 0),
+      ];
       if (![...a, ...b].every(Number.isFinite))
         return "constraint membership cover is not representable";
       const shifts: number[] | null = images(point[1], a[1], b[1], period);
       if (shifts === null)
         return "constraint membership image is not representable";
       for (const lift of shifts) {
-        const lifted: Point = [point[0], point[1] + lift * (period ?? 0)];
+        const lifted: Readonly<AutoMovieVector2Tuple> = [
+          point[0],
+          point[1] + lift * (period ?? 0),
+        ];
         if (!lifted.every(Number.isFinite))
           return "constraint membership point is not representable";
         if (on(a, b, lifted)) return true;
       }
     }
     return false;
-  }
-
-  /**
-   * An existing straight native-chart segment and its periodic lift.
-   *
-   * @evidence contracts/development/design.md#principled-representation Endpoint IDs name original evaluated vertices; turn selects the second endpoint's sheet without changing its identity.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two IDs and one integer expose the complete indexed segment.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains no inferred world point, normal or positional weld.
-   * @evidence contracts/development/common.md#meaningful-documentation Members state endpoint authority and the cover-turn convention.
-   */
-  export interface ISegment {
-    /** Original first endpoint ID. */
-    a: number;
-
-    /** Original second endpoint ID. */
-    b: number;
-
-    /** Integer periods added to b's stored phase; zero in a nonperiodic chart. */
-    turn: number;
-  }
-
-  /**
-   * One subconstraint with every inducing input segment preserved.
-   *
-   * @evidence contracts/development/design.md#principled-representation The indexed subsegment and its source list preserve the input-to-refinement relation across overlaps and T junctions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Extends the same segment record with one explicit provenance array.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Duplicate geometry does not discard an inducing segment or replace a vertex identity.
-   * @evidence contracts/development/common.md#meaningful-documentation Sources index the original segment population, independently of output ordering.
-   */
-  export interface IEdge extends ISegment {
-    /** Original input segment indices that contain this subconstraint. */
-    sources: number[];
   }
 
   /**
@@ -126,14 +106,14 @@ export namespace AutoMovieSolidMeshConstraints {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local maps and cut arrays expire with the call; output source incidence storage can grow to O(EV), with no retained global state.
    */
   export function split(
-    vertices: ReadonlyMap<number, Point>,
-    segments: readonly ISegment[],
+    vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+    segments: readonly IAutoMovieSolidMeshConstraints.ISegment[],
     period?: number,
-  ): IEdge[] | string {
+  ): IAutoMovieSolidMeshConstraints.IEdge[] | string {
     if (period !== undefined && !(Number.isFinite(period) && period > 0))
       return "constraint period must be finite and positive";
     for (const entry of vertices) {
-      const [id, point]: [number, Point] = entry;
+      const [id, point]: [number, Readonly<AutoMovieVector2Tuple>] = entry;
       if (
         !Number.isSafeInteger(id) ||
         id < 0 ||
@@ -146,8 +126,13 @@ export namespace AutoMovieSolidMeshConstraints {
     // The vertices by first coordinate: a vertex lies on a segment only inside
     // the segment's own range of it, which no lift changes, so each segment
     // reads that slice instead of every vertex.
-    const sorted: [number, Point][] = [...vertices].sort(
-      (x: [number, Point], y: [number, Point]): number => x[1][0] - y[1][0],
+    const sorted: [number, Readonly<AutoMovieVector2Tuple>][] = [
+      ...vertices,
+    ].sort(
+      (
+        x: [number, Readonly<AutoMovieVector2Tuple>],
+        y: [number, Readonly<AutoMovieVector2Tuple>],
+      ): number => x[1][0] - y[1][0],
     );
     const from: (value: number) => number = (value: number): number => {
       let low: number = 0;
@@ -159,11 +144,16 @@ export namespace AutoMovieSolidMeshConstraints {
       }
       return low;
     };
-    const pieces: Map<string, IEdge> = new Map();
+    const pieces: Map<string, IAutoMovieSolidMeshConstraints.IEdge> = new Map();
     for (let source: number = 0; source < segments.length; source++) {
-      const segment: ISegment = segments[source]!;
-      const a: Point | undefined = vertices.get(segment.a);
-      const stored: Point | undefined = vertices.get(segment.b);
+      const segment: IAutoMovieSolidMeshConstraints.ISegment =
+        segments[source]!;
+      const a: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(
+        segment.a,
+      );
+      const stored: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(
+        segment.b,
+      );
       if (
         a === undefined ||
         stored === undefined ||
@@ -171,7 +161,10 @@ export namespace AutoMovieSolidMeshConstraints {
         (period === undefined && segment.turn !== 0)
       )
         return `constraint ${source} has an unavailable endpoint or invalid turn`;
-      const b: Point = [stored[0], stored[1] + segment.turn * (period ?? 0)];
+      const b: Readonly<AutoMovieVector2Tuple> = [
+        stored[0],
+        stored[1] + segment.turn * (period ?? 0),
+      ];
       if (!b.every(Number.isFinite) || (a[0] === b[0] && a[1] === b[1]))
         return `constraint ${source} has no finite nonzero lifted span`;
       if (period !== undefined) {
@@ -198,12 +191,16 @@ export namespace AutoMovieSolidMeshConstraints {
         k < sorted.length && sorted[k]![1][0] <= highest;
         k++
       ) {
-        const [id, point]: [number, Point] = sorted[k]!;
+        const [id, point]: [number, Readonly<AutoMovieVector2Tuple>] =
+          sorted[k]!;
         const shifts: number[] | null = images(point[1], a[1], b[1], period);
         if (shifts === null)
           return `constraint ${source} has an unrepresentable cover image`;
         for (const turn of shifts) {
-          const lifted: Point = [point[0], point[1] + turn * (period ?? 0)];
+          const lifted: Readonly<AutoMovieVector2Tuple> = [
+            point[0],
+            point[1] + turn * (period ?? 0),
+          ];
           if (!lifted.every(Number.isFinite))
             return `constraint ${source} has a nonfinite cover coordinate`;
           if (on(a, b, lifted)) cuts.push({ id, turn, point: lifted });
@@ -238,22 +235,23 @@ export namespace AutoMovieSolidMeshConstraints {
         const to: Cut = ordered[k]!;
         const forward: boolean =
           from.id < to.id || (from.id === to.id && to.turn > from.turn);
-        const edge: ISegment = forward
+        const edge: IAutoMovieSolidMeshConstraints.ISegment = forward
           ? { a: from.id, b: to.id, turn: to.turn - from.turn }
           : { a: to.id, b: from.id, turn: from.turn - to.turn };
         const key: string = `${edge.a}/${edge.b}/${edge.turn}`;
-        const known: IEdge | undefined = pieces.get(key);
+        const known: IAutoMovieSolidMeshConstraints.IEdge | undefined =
+          pieces.get(key);
         if (known === undefined)
           pieces.set(key, { ...edge, sources: [source] });
         else if (known.sources[known.sources.length - 1] !== source)
           known.sources.push(source);
       }
     }
-    const edges: IEdge[] = [...pieces.values()];
+    const edges: IAutoMovieSolidMeshConstraints.IEdge[] = [...pieces.values()];
 
     // Two pieces whose ranges of the first coordinate are apart cannot cross.
     const range: [number, number][] = edges.map(
-      (edge: IEdge): [number, number] => {
+      (edge: IAutoMovieSolidMeshConstraints.IEdge): [number, number] => {
         const p: number = vertices.get(edge.a)![0];
         const q: number = vertices.get(edge.b)![0];
         return [Math.min(p, q), Math.max(p, q)];
@@ -263,19 +261,27 @@ export namespace AutoMovieSolidMeshConstraints {
       for (let j: number = i + 1; j < edges.length; j++) {
         if (range[i]![1] < range[j]![0] || range[j]![1] < range[i]![0])
           continue;
-        const edge: IEdge = edges[i]!;
-        const other: IEdge = edges[j]!;
-        const a: Point = vertices.get(edge.a)!;
-        const endpoint: Point = vertices.get(edge.b)!;
-        const b: Point = [endpoint[0], endpoint[1] + edge.turn * (period ?? 0)];
-        const origin: Point = vertices.get(other.a)!;
+        const edge: IAutoMovieSolidMeshConstraints.IEdge = edges[i]!;
+        const other: IAutoMovieSolidMeshConstraints.IEdge = edges[j]!;
+        const a: Readonly<AutoMovieVector2Tuple> = vertices.get(edge.a)!;
+        const endpoint: Readonly<AutoMovieVector2Tuple> = vertices.get(edge.b)!;
+        const b: Readonly<AutoMovieVector2Tuple> = [
+          endpoint[0],
+          endpoint[1] + edge.turn * (period ?? 0),
+        ];
+        const origin: Readonly<AutoMovieVector2Tuple> = vertices.get(other.a)!;
         const shifts: number[] | null = images(origin[1], a[1], b[1], period);
         if (shifts === null)
           return "subconstraint cover image is not representable";
         for (const turn of shifts) {
-          const target: Point = vertices.get(other.b)!;
-          const c: Point = [origin[0], origin[1] + turn * (period ?? 0)];
-          const d: Point = [
+          const target: Readonly<AutoMovieVector2Tuple> = vertices.get(
+            other.b,
+          )!;
+          const c: Readonly<AutoMovieVector2Tuple> = [
+            origin[0],
+            origin[1] + turn * (period ?? 0),
+          ];
+          const d: Readonly<AutoMovieVector2Tuple> = [
             target[0],
             target[1] + (turn + other.turn) * (period ?? 0),
           ];
@@ -297,7 +303,11 @@ export namespace AutoMovieSolidMeshConstraints {
 }
 
 /** Exact represented-point membership on a closed straight segment; no identity is inferred from it. */
-function on(a: Point, b: Point, point: Point): boolean {
+function on(
+  a: Readonly<AutoMovieVector2Tuple>,
+  b: Readonly<AutoMovieVector2Tuple>,
+  point: Readonly<AutoMovieVector2Tuple>,
+): boolean {
   return (
     point[0] >= Math.min(a[0], b[0]) &&
     point[0] <= Math.max(a[0], b[0]) &&

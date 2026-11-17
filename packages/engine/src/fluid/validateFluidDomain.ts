@@ -3,7 +3,9 @@ import {
   IAutoMovieFluidDrain,
   IAutoMovieFluidSource,
   IAutoMovieFluidSpray,
+  type IAutoMovieValidateFluidDomain,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
@@ -42,13 +44,13 @@ const EDGES: readonly ["xMin", "xMax", "zMin", "zMax"] = [
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A single validation pass per call; nothing is shared across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the collector and id sets die with the call, and the returned violations, at most a few per declared field, belong to the caller.
  */
-export const validateFluidDomain: (props: {
-  domain: IAutoMovieFluidDomain;
-}) => IAutoMovieValidation = (props: {
-  domain: IAutoMovieFluidDomain;
-}): IAutoMovieValidation => {
+export const validateFluidDomain: (
+  props: IAutoMovieValidateFluidDomain.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateFluidDomain.IProps,
+): IAutoMovieValidation => {
   const domain: IAutoMovieFluidDomain = props.domain;
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
   out.nonEmpty(`${root}.id`, domain.id, "fluid domain id");
@@ -341,12 +343,12 @@ export const validateFluidDomain: (props: {
 
 /** Append the shared finite, open-lower-bound range finding; scalar work has the diagnostic conversion costs of validateRange and mutates only the borrowed collector. */
 const positive: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   value: number,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   value: number,
@@ -354,14 +356,14 @@ const positive: (
 
 /** Require a safe integer inside inclusive bounds; one constant-work predicate appends at most one finding without clamping. */
 const integer: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   value: number,
   min: number,
   max: number,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   value: number,
@@ -379,13 +381,13 @@ const integer: (
 
 /** Compare actual length with the computed cell count, appending at most one finding even for an unusable count; no array is traversed or resized here. */
 const length: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   actual: number,
   cells: number,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   actual: number,
@@ -402,13 +404,13 @@ const length: (
 
 /** Append one range finding and overshoot when an actual collection length exceeds its named budget; constant scalar work leaves the collection unchanged. */
 const count: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   actual: number,
   budget: number,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   actual: number,
@@ -426,13 +428,13 @@ const count: (
 
 /** Check blank text and sibling duplication, then add the exact id to the call-owned set. Text trimming/hashing scales with id length; blank siblings receive blank findings without duplicate findings. */
 const identity: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   id: string,
   seen: Set<string>,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   label: string,
   id: string,
@@ -446,13 +448,13 @@ const identity: (
 
 /** Check each safe integer coordinate before reading solidity; an in-grid solid site appends a separate finding. Constant work borrows the domain and collector without retaining them. */
 const site: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   domain: IAutoMovieFluidDomain,
   column: number,
   row: number,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   domain: IAutoMovieFluidDomain,
   column: number,
@@ -488,12 +490,12 @@ const inside: (value: number, limit: number) => boolean = (
 
 /** Check finite nonnegative endpoints and strict end-after-start ordering; null end is unbounded. Scalar checks append their own findings without mutating the window or repeating ordering errors for non-finite endpoints. */
 const window: (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   start: number,
   end: number | null,
 ) => void = (
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
   start: number,
   end: number | null,

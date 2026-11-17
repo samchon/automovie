@@ -1,4 +1,5 @@
-import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
+
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
@@ -29,9 +30,12 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  * first whose plane cuts the loop (its front extreme at x 127.8 mm, the loop's 127.7), so the mouth and the lead carry its
  * section; the flare that `NOSTRIL_SPREAD_MM` drew out over 2 mm is gone with it.
  */
-export const AutoMovieHumanF1Nostril: AutoMovieHumanConicLoft.IFamily = {
+export const AutoMovieHumanF1Nostril: IAutoMovieHumanConicLoft.IFamily = {
   name: "nostril",
-  centres: [AutoMovieHumanF1Joints.nostrilRoot, AutoMovieHumanF1Joints.nostrilTip],
+  centres: [
+    AutoMovieHumanF1Joints.nostrilRoot,
+    AutoMovieHumanF1Joints.nostrilTip,
+  ],
   halves: [],
   up: AutoMovieHumanF1Placement.direction("nostril.up"),
   layout: AutoMovieHumanConicSection.limb(0),
@@ -66,5 +70,5 @@ export const AutoMovieHumanF1Nostril: AutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, a station placed by anatomy; its cap starts at `from`.
-  tips: [null, {from: 13, tip: 16}],
+  tips: [null, { from: 13, tip: 16 }],
 };

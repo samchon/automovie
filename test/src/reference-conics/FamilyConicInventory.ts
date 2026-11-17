@@ -1,7 +1,22 @@
+import {
+  AutoMovieHumanConicLoft as H,
+  AutoMovieHumanConicRelief,
+  AutoMovieHumanConicSection as S,
+  AutoMovieHumanF1,
+  AutoMovieHumanF1Placement,
+  AutoMovieHumanF1Placing as T,
+} from "@automovie/human";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicSection,
+  IAutoMovieHumanF1,
+  IAutoMovieHumanF1Placing,
+  IAutoMovieLoftRelief,
+  IAutoMovieViewAxis,
+} from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { AutoMovieViewAxis, IAutoMovieLoftRelief } from "@automovie/engine";
-import { AutoMovieHumanConicLoft as H, AutoMovieHumanConicRelief, AutoMovieHumanConicSection as S, AutoMovieHumanF1, AutoMovieHumanF1Placement, AutoMovieHumanF1Placing as T } from "@automovie/human";
 
 /**
  * The inventory of what f1 is stored as, by control group (issue #3151, step 1; #3172 and #3173, their first halves): one row per stored
@@ -137,13 +152,13 @@ namespace FamilyConicInventory {
   }
 
   /** The segment each station of a family lies on: its course's runs, and the trunk's one run split at the thorax's and the head's origins. */
-  function segmentOf(family: H.IFamily): (s: number) => string {
+  function segmentOf(family: IAutoMovieHumanConicLoft.IFamily): (s: number) => string {
     const centres: V3[] = family.centres.map((c): V3 => [c[0], c[1], c[2]]);
     const runs: string[] = T.COURSES[family.name] === undefined ? centres.slice(1).map((): string => "?") : AutoMovieHumanF1Placement.runs(family.name);
     const ends: number[] = [0];
     for (let k: number = 1; k < centres.length; ++k) ends.push(ends[k - 1]! + Math.hypot(centres[k]![0] - centres[k - 1]![0], centres[k]![1] - centres[k - 1]![1], centres[k]![2] - centres[k - 1]![2]));
     if (family.name === "trunk") {
-      const axis: AutoMovieViewAxis.IAxis = H.axis(family);
+      const axis: IAutoMovieViewAxis.IAxis = H.axis(family);
       const o: number[] = axis.at(0).origin as number[];
       const t: number[] = (axis.at(1).origin as number[]).map((x: number, i: number): number => x - o[i]!);
       const at = (name: string): number => dot((AutoMovieHumanF1Placement.frame(name).origin as number[]).map((x: number, i: number): number => x - o[i]!), t) / Math.hypot(t[0]!, t[1]!, t[2]!) ** 2;
@@ -157,10 +172,10 @@ namespace FamilyConicInventory {
   }
 
   /** Every field of a layout: its anchor, what the number is, its unit and its role. */
-  function fieldsOf(layout: S.ILayout): { anchor: number; what: string; unit: S.Unit; role: Role; arc?: [number, number] }[] {
-    const out: { anchor: number; what: string; unit: S.Unit; role: Role; arc?: [number, number] }[] = [];
-    const units: S.Unit[] = S.units(layout);
-    layout.anchors.forEach((a: S.IAnchor, k: number): void => {
+  function fieldsOf(layout: IAutoMovieHumanConicSection.ILayout): { anchor: number; what: string; unit: IAutoMovieHumanConicSection.Unit; role: Role; arc?: [number, number] }[] {
+    const out: { anchor: number; what: string; unit: IAutoMovieHumanConicSection.Unit; role: Role; arc?: [number, number] }[] = [];
+    const units: IAutoMovieHumanConicSection.Unit[] = S.units(layout);
+    layout.anchors.forEach((a: IAutoMovieHumanConicSection.IAnchor, k: number): void => {
       if (a.kind === "u" || a.kind === "v") {
         const name: string = a.kind === "u" ? (a.mid === true ? "median extreme" : "u extreme") : "v extreme";
         if (a.mid === true) out.push({ anchor: k, what: name + ": reach u", unit: "mm", role: "reach" });
@@ -178,12 +193,12 @@ namespace FamilyConicInventory {
   }
 
   /** The plain-words anatomy of one field at a station: where its anchor points on the body, and what the number measures there. */
-  function anatomy(family: H.IFamily, field: { anchor: number; what: string; role: Role; arc?: [number, number] }, s: number, median: boolean): string {
+  function anatomy(family: IAutoMovieHumanConicLoft.IFamily, field: { anchor: number; what: string; role: Role; arc?: [number, number] }, s: number, median: boolean): string {
     const values: number[] = H.reader(family)(s);
-    const chain: S.IChain = S.resolve(values, family.layout);
+    const chain: IAutoMovieHumanConicSection.IChain = S.resolve(values, family.layout);
     const frame = H.axis(family).at(s);
     const toward = (k: number): string => {
-      const p: S.P = chain.input.points[k]!;
+      const p: AutoMovieVector2Tuple = chain.input.points[k]!;
       return words([0, 1, 2].map((i: number): number => p[0] * frame.u[i]! + p[1] * frame.v[i]!), median);
     };
     const part: string = PART[family.name] ?? family.name;
@@ -198,9 +213,9 @@ namespace FamilyConicInventory {
     const root: string = path.resolve(process.cwd(), "..");
     const countDir: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--count="))?.slice("--count=".length);
     const rows: IRow[] = [];
-    const members: { family: H.IFamily; role: "family" | "cutter"; mirrored: boolean }[] = [
-      ...AutoMovieHumanF1.FAMILIES.map((m: AutoMovieHumanF1.IMember) => ({ family: m.family, role: "family" as const, mirrored: m.mirrored })),
-      ...AutoMovieHumanF1.CUTTERS.map((c: { family: H.IFamily; mirrored: boolean }) => ({ family: c.family, role: "cutter" as const, mirrored: c.mirrored })),
+    const members: { family: IAutoMovieHumanConicLoft.IFamily; role: "family" | "cutter"; mirrored: boolean }[] = [
+      ...AutoMovieHumanF1.FAMILIES.map((m: IAutoMovieHumanF1.IMember) => ({ family: m.family, role: "family" as const, mirrored: m.mirrored })),
+      ...AutoMovieHumanF1.CUTTERS.map((c: { family: IAutoMovieHumanConicLoft.IFamily; mirrored: boolean }) => ({ family: c.family, role: "cutter" as const, mirrored: c.mirrored })),
     ];
 
     // Walls, by field and segment.
@@ -221,17 +236,17 @@ namespace FamilyConicInventory {
         }
       });
       // The course and its knots: stations, turn halves, closed ends, roll.
-      const tips: H.ITip[] = [];
+      const tips: IAutoMovieHumanConicLoft.ITip[] = [];
       for (const tip of family.tips ?? []) if (tip !== null) tips.push(tip);
       rows.push({ group: role === "family" ? "wall" : "cutter", family: family.name, field: "knot stations", unit: "mm", frame: "course arclength", segment: [...bySegment.keys()].join(", "), stations: `${family.knots[0]} .. ${family.knots.at(-1)}`, count: family.knots.length, role: "course", anatomy: (PART[family.name] ?? family.name) + ": where the section's fields are pinned along the course" });
       if (family.halves.length > 0) rows.push({ group: role === "family" ? "wall" : "cutter", family: family.name, field: "turn halves", unit: "mm", frame: "course arclength", segment: AutoMovieHumanF1Placement.runs(family.name).join(", "), stations: "-", count: family.halves.length, role: "course", anatomy: (PART[family.name] ?? family.name) + ": how long the course takes to turn at each joint" });
-      if (tips.length > 0) rows.push({ group: role === "family" ? "wall" : "cutter", family: family.name, field: "closed ends (from, tip, centre)", unit: "mm", frame: "course arclength and chart", segment: [...bySegment.keys()].at(-1)!, stations: tips.map((t: H.ITip): string => `${t.from} .. ${t.tip}`).join("; "), count: tips.reduce((sum: number, t: H.ITip): number => sum + 2 + (t.centre === undefined ? 0 : 2), 0), role: "course", anatomy: (PART[family.name] ?? family.name) + ": where its end closes and the cap's centre" });
+      if (tips.length > 0) rows.push({ group: role === "family" ? "wall" : "cutter", family: family.name, field: "closed ends (from, tip, centre)", unit: "mm", frame: "course arclength and chart", segment: [...bySegment.keys()].at(-1)!, stations: tips.map((t: IAutoMovieHumanConicLoft.ITip): string => `${t.from} .. ${t.tip}`).join("; "), count: tips.reduce((sum: number, t: IAutoMovieHumanConicLoft.ITip): number => sum + 2 + (t.centre === undefined ? 0 : 2), 0), role: "course", anatomy: (PART[family.name] ?? family.name) + ": where its end closes and the cap's centre" });
       if (family.roll !== undefined) rows.push({ group: "wall", family: family.name, field: "roll of the chart (knots and angles)", unit: "mm, rad", frame: "course arclength", segment: [...bySegment.keys()].join(", "), stations: `${family.roll.knots[0]} .. ${family.roll.knots.at(-1)}`, count: family.roll.knots.length + family.roll.values.length, role: "course", anatomy: (PART[family.name] ?? family.name) + ": how the sheet turns in its planes along its length" });
 
       // Nets.
       for (const relief of family.reliefs ?? []) {
         const known = NETS[relief.name];
-        const placed: T.IPlaced | undefined = T.DIRECTIONS[relief.name + ".axis"] ?? T.DIRECTIONS[relief.name.replace(/\.twin$/, "") + ".axis"];
+        const placed: IAutoMovieHumanF1Placing.IPlaced | undefined = T.DIRECTIONS[relief.name + ".axis"] ?? T.DIRECTIONS[relief.name.replace(/\.twin$/, "") + ".axis"];
         rows.push({
           group: "net",
           family: family.name,
@@ -249,8 +264,8 @@ namespace FamilyConicInventory {
 
     // Placing, by segment.
     for (const joint of T.CHAIN) {
-      const points: [string, T.IPlaced][] = Object.entries(T.POINTS).filter(([, p]): boolean => p.frame === joint.name);
-      const directions: [string, T.IPlaced][] = Object.entries(T.DIRECTIONS).filter(([, p]): boolean => p.frame === joint.name);
+      const points: [string, IAutoMovieHumanF1Placing.IPlaced][] = Object.entries(T.POINTS).filter(([, p]): boolean => p.frame === joint.name);
+      const directions: [string, IAutoMovieHumanF1Placing.IPlaced][] = Object.entries(T.DIRECTIONS).filter(([, p]): boolean => p.frame === joint.name);
       const centres: string[] = points.filter(([, p]): boolean => p.local.every((x: number): boolean => x === 0)).map(([n]): string => n);
       const courses: string[] = points.filter(([n]): boolean => /\.\d+$/.test(n) || n.startsWith("axis") || n.startsWith("arm")).map(([n]): string => n);
       const landmarks: string[] = points.map(([n]): string => n).filter((n: string): boolean => !centres.includes(n) && !courses.includes(n));
@@ -295,7 +310,7 @@ namespace FamilyConicInventory {
 
   /** Every net of the figure, for a check that `NETS` names each one. */
   export function unnamed(): string[] {
-    return AutoMovieHumanF1.FAMILIES.flatMap((m: AutoMovieHumanF1.IMember): IAutoMovieLoftRelief[] => m.family.reliefs ?? []).map((r: IAutoMovieLoftRelief): string => r.name).filter((n: string): boolean => NETS[n] === undefined);
+    return AutoMovieHumanF1.FAMILIES.flatMap((m: IAutoMovieHumanF1.IMember): IAutoMovieLoftRelief[] => m.family.reliefs ?? []).map((r: IAutoMovieLoftRelief): string => r.name).filter((n: string): boolean => NETS[n] === undefined);
   }
 }
 

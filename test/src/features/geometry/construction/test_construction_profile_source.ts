@@ -3,11 +3,14 @@ import {
   AutoMovieConstructionProfile,
   AutoMovieLoftAdmissionError,
   AutoMovieViewAxis,
-  type IAutoMovieConstructionProfileSource,
-  type IAutoMovieSolidSurface,
   measureAutoMovieCurveLength64,
 } from "@automovie/engine";
-import type { IAutoMovieConstructionProfile } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionProfilePiece,
+  IAutoMovieConstructionProfileSource,
+  IAutoMoviePreparedConstructionProfile,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionNativeContinuation as Made } from "../../internal/construction/ConstructionNativeContinuation";
@@ -49,7 +52,7 @@ const CORNERS: readonly (readonly [number, number])[] = [
 export function test_construction_profile_source(): void {
   const failures: string[] = [];
   const source: IAutoMovieConstructionProfileSource = made();
-  const prepared: AutoMovieConstructionProfile.IPrepared =
+  const prepared: IAutoMoviePreparedConstructionProfile.IPrepared =
     AutoMovieConstructionProfile.create(source);
   for (const station of [0, 0.37, 1]) {
     if (prepared.section(station).length !== 2)
@@ -129,7 +132,7 @@ export function test_construction_profile_source(): void {
     measureAutoMovieCurveLength64(
       prepared.definition.loops[0]!.pieces.map(
         (
-          piece: IAutoMovieConstructionProfile.IPiece,
+          piece: IAutoMovieConstructionProfilePiece,
         ): Parameters<typeof measureAutoMovieCurveLength64>[0][number] => ({
           domain: [0, 1],
           derivative: (v: number): [number, number, number] =>
@@ -161,7 +164,7 @@ export function test_construction_profile_source(): void {
         topology: "topology1",
       },
     });
-  const nativeReader: AutoMovieConstructionProfile.IPrepared =
+  const nativeReader: IAutoMoviePreparedConstructionProfile.IPrepared =
     AutoMovieConstructionProfile.create(native);
   const actual: IAutoMovieSolidSurface = nativeReader.atlas.faces[0]!;
   for (const s of [0, 0.17, 0.81, 1])
@@ -223,7 +226,7 @@ export function test_construction_profile_source(): void {
 function made(): IAutoMovieConstructionProfileSource {
   const curves: Map<string, IAutoMovieConstructionProfileSource.ICurve> =
     new Map();
-  const pieces: IAutoMovieConstructionProfile.IPiece[] = [];
+  const pieces: IAutoMovieConstructionProfilePiece[] = [];
   for (let index: number = 0; index < 6; index++) {
     const from: readonly [number, number] = CORNERS[index]!;
     const to: readonly [number, number] = CORNERS[(index + 1) % 6]!;
@@ -341,7 +344,7 @@ function refusals(failures: string[]): void {
   const bad: IAutoMovieConstructionProfileSource = made();
   bad.definition.loops[0]!.pieces[0]!.clock = [2.1, 5];
   bad.definition.guides[0]!.clock = 2.1;
-  const gap: AutoMovieConstructionProfile.IPrepared =
+  const gap: IAutoMoviePreparedConstructionProfile.IPrepared =
     AutoMovieConstructionProfile.create(bad);
   refuses((): unknown => gap.section(0.5), failures, "actual loop gap");
   refuses(

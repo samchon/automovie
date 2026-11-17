@@ -1,4 +1,4 @@
-import type { AutoMovieHumanConicSection as S } from "./AutoMovieHumanConicSection";
+import type { AutoMovieVector2Tuple } from "@automovie/interface";
 
 /**
  * A measurement site's four reaches about a stated centre, and how tissue and bone move them.
@@ -108,7 +108,7 @@ export namespace AutoMovieHumanNativeSiteReaches {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure map coordinates no shared work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one point.
    */
-  export function extreme(point: S.P, kind: "u" | "v", centre: S.P, from: IReaches, to: IReaches): S.P {
+  export function extreme(point: AutoMovieVector2Tuple, kind: "u" | "v", centre: AutoMovieVector2Tuple, from: IReaches, to: IReaches): AutoMovieVector2Tuple {
     for (const reaches of [from, to]) for (const name of ["front", "back", "lateral", "medial"] as const) positive("the " + name + " reach", reaches[name]);
     const [du, dv]: [number, number] = [point[0] - centre[0], point[1] - centre[1]];
     const along: number = du >= 0 ? to.front / from.front : to.back / from.back;

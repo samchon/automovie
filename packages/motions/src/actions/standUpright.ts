@@ -1,15 +1,13 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
+import { Quaternion, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanStandUpright,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { poseBones } from "../posture/poseBones";
 
 /**
@@ -34,34 +32,31 @@ import { poseBones } from "../posture/poseBones";
  * with it (a provisional value inside Winter's few centimetres).
  */
 export namespace standUpright {
-  /** A body's alignment. */
-  export interface IAlignment {
-    /** Spine, chest, neck and head flexion, clinical degrees. */
-    joints: Partial<
-      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-    >;
-
-    /** Forward lean of the centre of mass ahead of the ankles, metres in the body frame. */
-    lean: number;
-  }
-
   /**
    * The alignment of a body, solved once and kept per body.
    *
    * @param body The body.
    * @returns Its alignment.
    */
-  export function of(body: IHumanBody): IAlignment {
-    const known: IAlignment | undefined = CACHE.get(body);
+  export function of(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanStandUpright.IAlignment {
+    const known: IAutoMovieMotionHumanStandUpright.IAlignment | undefined =
+      CACHE.get(body);
     if (known !== undefined) return known;
-    const solved: IAlignment = solve(body);
+    const solved: IAutoMovieMotionHumanStandUpright.IAlignment = solve(body);
     CACHE.set(body, solved);
     return solved;
   }
 
-  const CACHE: WeakMap<IHumanBody, IAlignment> = new WeakMap();
+  const CACHE: WeakMap<
+    IAutoMovieMotionHumanBody,
+    IAutoMovieMotionHumanStandUpright.IAlignment
+  > = new WeakMap();
 
-  function solve(body: IHumanBody): IAlignment {
+  function solve(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanStandUpright.IAlignment {
     const bones = (
       joints: Partial<Record<AutoMovieHumanoidBone, number>>,
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {

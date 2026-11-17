@@ -1,10 +1,16 @@
+import type {
+  AutoMovieMotionHumanChannel,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionWeaponContact,
+  IAutoMovieMotionWeaponPath,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
-import { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 
 /**
  * An action composed of part primitives over a base.
@@ -15,30 +21,37 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * that second writes its channels onto it, in {@link AutoMovieMotionHumanChannel.ORDER}, so
  * an arm reads the trunk the action already placed. The plan's contact
  * windows and weapons are the base's followed by the primitives', and its
- * `channels` are the channels some primitive claims, in that order.
+ * `channels` are the channels some primitive claims, in that order. Each
+ * primitive is also given the posture so far at any second of the action
+ * (`IAutoMovieMotionHumanPrimitive.write`'s `before`): the base and the
+ * primitives before it, so a movement planned once over its span (an arm's
+ * trajectory) reads the very postures it will be written on, and its plan
+ * is a constant of the action. That plan is made here, when the action is
+ * composed (`IAutoMovieMotionHumanPrimitive.prepare`, in writing order), so
+ * no posture read plans and a plan that cannot be made refuses the action.
  *
  * @param props The base, the clock and the primitives.
  * @returns The plan.
- * @throws {Error} When the base and the clock differ in duration, a primitive claims no channel, a primitive's window is reversed or leaves the clock, or two primitives claim one channel over overlapping windows.
+ * @throws {Error} When the base and the clock differ in duration, a primitive claims no channel, a primitive's window is reversed or leaves the clock, or two primitives claim one channel over overlapping windows; and whatever a primitive's plan refuses with (a planned arm's `HumanRefusal`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the base and the clock give, the writing order, where contacts and weapons come from, which channels the plan reports and every refusal.
- * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the base's with each active primitive's channels merged in, in the order of the kinematic tree, so a part reads the parts it hangs from as already placed.
+ * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the base's with each active primitive's channels merged in, in the order of the kinematic tree, so a part reads the parts it hangs from as already placed; the posture so far before a primitive is the same composition stopped at it, at any second, so it is a pure function of time.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Sort once, validate once, collect contacts and weapons once, then one loop per posture.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Two primitives on one channel at one time throw instead of the later one winning; windows that only touch at an instant are allowed, and the sort is stable by the given order.
- * @evidence contracts/development/implementation.md#efficient-algorithms Validation is quadratic in the primitives once per plan, and an action has tens of them; each posture is linear in the primitives.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Validation is quadratic in the primitives once per plan, and an action has tens of them; each posture is linear in the primitives, and the posture so far is composed only when a primitive reads it (a planned movement, once per action).
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanChannel.merge` and `ORDER` and the clock's events; the sorted list is computed once and shared by every posture.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base, the clock and the sorted primitives, and holds no per-second state.
  */
 export function composeAutoMovieMotionHumanAction(
-  props: composeAutoMovieMotionHumanAction.IProps,
-): IHumanActionPlan {
+  props: IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction.IProps,
+): IAutoMovieMotionHumanActionPlan {
   const duration: number = props.clock.duration;
   if (Math.abs(props.base.duration - duration) > 1e-6)
     throw new Error("A composed action's base lasts as long as its clock");
   const rank = (p: IAutoMovieMotionHumanPrimitive): number =>
     Math.min(
       ...p.channels.map((c: AutoMovieMotionHumanChannel): number =>
-        AutoMovieMotionHumanChannel.ORDER.indexOf(c),
+        HumanChannels.ORDER.indexOf(c),
       ),
     );
   const primitives: IAutoMovieMotionHumanPrimitive[] = props.primitives
@@ -87,27 +100,33 @@ export function composeAutoMovieMotionHumanAction(
           fix: "give one of the two movements another body part or another time",
         });
     }
-  const contacts: IHumanContactWindow[] = [
+  const contacts: IAutoMovieMotionHumanContactWindow[] = [
     ...props.base.contacts,
     ...primitives.flatMap(
-      (p: IAutoMovieMotionHumanPrimitive): readonly IHumanContactWindow[] =>
-        p.contacts ?? [],
+      (
+        p: IAutoMovieMotionHumanPrimitive,
+      ): readonly IAutoMovieMotionHumanContactWindow[] => p.contacts ?? [],
     ),
   ];
-  const weapons: IHumanActionPlan.IWeapon[] = [
+  const weapons: IAutoMovieMotionWeaponPath[] = [
     ...(props.base.weapons ?? []),
     ...primitives.flatMap(
       (
         p: IAutoMovieMotionHumanPrimitive,
-      ): readonly IHumanActionPlan.IWeapon[] => p.weapons ?? [],
+      ): readonly IAutoMovieMotionWeaponPath[] => p.weapons ?? [],
     ),
   ];
-  const base: IHumanActionPlan = props.base;
+  const base: IAutoMovieMotionHumanActionPlan = props.base;
+  // What is planned once over a span is planned now, in the order the
+  // primitives write, each on the posture so far before it.
+  primitives.forEach((p: IAutoMovieMotionHumanPrimitive, i: number): void =>
+    p.prepare?.(so(i)),
+  );
   return {
     duration,
     events: props.clock.events(),
     contacts,
-    channels: AutoMovieMotionHumanChannel.ORDER.filter(
+    channels: HumanChannels.ORDER.filter(
       (c: AutoMovieMotionHumanChannel): boolean =>
         primitives.some((p: IAutoMovieMotionHumanPrimitive): boolean =>
           p.channels.includes(c),
@@ -122,44 +141,31 @@ export function composeAutoMovieMotionHumanAction(
     ...(base.stop === undefined
       ? {}
       : {
-          stop: (events: readonly IHumanActionPlan.IContactEvent[]): void =>
+          stop: (events: readonly IAutoMovieMotionWeaponContact[]): void =>
             base.stop!(events),
         }),
-    posture: (seconds: number): IHumanPosture => {
+    posture: (seconds: number): IAutoMovieMotionHumanPosture =>
+      so(primitives.length)(seconds),
+  };
+  // The posture so far before the primitive at `index`, at any second: the
+  // base and every primitive before it that is active then, each given its
+  // own posture so far in turn.
+  function so(
+    index: number,
+  ): (seconds: number) => IAutoMovieMotionHumanPosture {
+    return (seconds: number): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, seconds));
-      let posture: IHumanPosture = base.posture(t);
-      for (const p of primitives)
+      let posture: IAutoMovieMotionHumanPosture = base.posture(t);
+      for (let i: number = 0; i < index; ++i) {
+        const p: IAutoMovieMotionHumanPrimitive = primitives[i]!;
         if (t >= p.from - 1e-9 && t <= p.to + 1e-9)
-          posture = AutoMovieMotionHumanChannel.merge(
+          posture = HumanChannels.merge(
             posture,
-            p.write(posture, Math.min(p.to, Math.max(p.from, t))),
+            p.write(posture, Math.min(p.to, Math.max(p.from, t)), so(i)),
             p.channels,
           );
+      }
       return posture;
-    },
-  };
-}
-/**
- * Companion types of {@link composeAutoMovieMotionHumanAction}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what `IProps` is composed of; each member states its meaning and its constraint.
- * @evidence contracts/development/design.md#principled-representation The posture kept where nothing is claimed, the time axis, the part movements, and which instant is decisive.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One interface of four members; contacts and weapons come from the base and the primitives and are not stated a second time.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The decisive instant is a name of the clock and not a second, so it cannot disagree with the clock.
- */
-export namespace composeAutoMovieMotionHumanAction {
-  /** What an action is composed of. */
-  export interface IProps {
-    /** The plan whose posture the unclaimed channels keep; as long as the clock. */
-    base: IHumanActionPlan;
-
-    /** The action's clock: its duration and its events. */
-    clock: AutoMovieMotionClock.IClock;
-
-    /** The part primitives, in any order. */
-    primitives: readonly IAutoMovieMotionHumanPrimitive[];
-
-    /** The clock instant that is the action's decisive instant, when it has one. */
-    contact?: string;
+    };
   }
 }

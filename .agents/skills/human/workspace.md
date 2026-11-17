@@ -4,9 +4,9 @@
 
 - Call the references f1, f2, m1 and m2, or the reference source, in every file, issue, commit and pull request.
 - The reference data is private: read it, and keep it out of commits, copies and deletions.
-- Acquire further references without asking, with tooling kept in tracked paths under development's [Scripts And Shared Checkouts](../development/SKILL.md#scripts-and-shared-checkouts).
+- Acquire further references without asking, with tooling kept in tracked paths under development's [Scripts and shared checkouts](../development/SKILL.md#scripts-and-shared-checkouts).
 
-## Ignored Paths
+## Ignored paths
 
 `test/.shots`, `test/src/executable`, `.shots`, `.references` and `packages/human/.shots` are ignored and unrecoverable, and a checkout can overwrite an ignored file without warning. New Human captures belong in `packages/human/.shots`.
 

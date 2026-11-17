@@ -1,11 +1,26 @@
-import path from "node:path";
-import { type AutoMovieConstructionRealization, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
-import { AutoMovieHumanChainTopology, AutoMovieHumanConicLoft as H, AutoMovieHumanF1, AutoMovieHumanF1Centres, AutoMovieHumanF1Placement, AutoMovieHumanF1Placing, AutoMovieHumanF1SegmentLengths } from "@automovie/human";
-import type { AutoMovieConstructionNode, IAutoMovieConstructionSplit } from "@automovie/interface";
 import { FamilyConicLoop } from "./FamilyConicLoop";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { FamilyConicThumbRoot } from "./FamilyConicThumbRoot";
 import { FamilyConicValley } from "./FamilyConicValley";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
+import {
+  AutoMovieHumanChainTopology,
+  AutoMovieHumanConicLoft as H,
+  AutoMovieHumanF1,
+  AutoMovieHumanF1Centres,
+  AutoMovieHumanF1Placement,
+  AutoMovieHumanF1Placing,
+  AutoMovieHumanF1SegmentLengths,
+} from "@automovie/human";
+import type {
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
+  IAutoMovieConstructionSplit,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
+import path from "node:path";
 
 /**
  * Readings of every joint of the f1 figure at once, for `packages/human/docs/techniques/joints-one-shot.md`: instruments only, nothing
@@ -55,7 +70,7 @@ namespace FamilyConicJoints {
 
   function starts(): void {
     const out: string[] = ["family | centres | halves | first knot | last knot | course at first centre | at first knot | at last knot | tips"];
-    const families: H.IFamily[] = [...AutoMovieHumanF1.FAMILIES.map((m: AutoMovieHumanF1.IMember): H.IFamily => m.family), ...AutoMovieHumanF1.CUTTERS.map((c: { family: H.IFamily }): H.IFamily => c.family)];
+    const families: IAutoMovieHumanConicLoft.IFamily[] = [...AutoMovieHumanF1.FAMILIES.map((m: IAutoMovieHumanF1.IMember): IAutoMovieHumanConicLoft.IFamily => m.family), ...AutoMovieHumanF1.CUTTERS.map((c: { family: IAutoMovieHumanConicLoft.IFamily }): IAutoMovieHumanConicLoft.IFamily => c.family)];
     for (const family of families) {
       const axis = H.axis(family);
       const [first, last]: [number, number] = [family.knots[0]!, family.knots.at(-1)!];
@@ -69,7 +84,7 @@ namespace FamilyConicJoints {
           fixed(axis.at(0).origin),
           fixed(axis.at(first).origin),
           fixed(axis.at(last).origin),
-          (family.tips ?? []).map((tip: H.ITip | null): string => (tip === null ? "open" : `tip ${tip.tip} from ${tip.from}`)).join("; ") || "open; open",
+          (family.tips ?? []).map((tip: IAutoMovieHumanConicLoft.ITip | null): string => (tip === null ? "open" : `tip ${tip.tip} from ${tip.from}`)).join("; ") || "open; open",
         ].join(" | "),
       );
       out.push("  centres: " + family.centres.map(fixed).join(" "));
@@ -149,37 +164,37 @@ namespace FamilyConicJoints {
   }
 
   /** The node of that name in a tree, by its hosts, parts and children. */
-  function find(node: AutoMovieConstructionNode, name: string): AutoMovieConstructionNode | null {
+  function find(node: IAutoMovieConstructionNode, name: string): IAutoMovieConstructionNode | null {
     if ((node as { name?: string }).name === name) return node;
-    const below: AutoMovieConstructionNode[] = [];
-    const any = node as { host?: AutoMovieConstructionNode; part?: AutoMovieConstructionNode; children?: { part: AutoMovieConstructionNode }[] };
+    const below: IAutoMovieConstructionNode[] = [];
+    const any = node as { host?: IAutoMovieConstructionNode; part?: IAutoMovieConstructionNode; children?: { part: IAutoMovieConstructionNode }[] };
     if (any.host !== undefined) below.push(any.host);
     if (any.part !== undefined) below.push(any.part);
     for (const child of any.children ?? []) below.push(child.part);
     for (const next of below) {
-      const found: AutoMovieConstructionNode | null = find(next, name);
+      const found: IAutoMovieConstructionNode | null = find(next, name);
       if (found !== null) return found;
     }
     return null;
   }
 
   function compose(name: string): void {
-    const declared: AutoMovieHumanF1.IConstruction = AutoMovieHumanF1.construction();
-    const node: AutoMovieConstructionNode | null = find(declared.root, name);
+    const declared: IAutoMovieHumanF1.IConstruction = AutoMovieHumanF1.construction();
+    const node: IAutoMovieConstructionNode | null = find(declared.root, name);
     if (node === null || node.type !== "split") throw new Error("--compose: the tree has no split named " + name);
     const carried: number = Number(option("carried") ?? 0);
     const plane: number = Number(option("plane") ?? 0);
     const rail: number | undefined = option("rail") === undefined ? undefined : Number(option("rail")) / 1000;
     const sources: Map<string, IAutoMovieViewPart> = new Map(declared.sources);
-    const families: Map<string, H.IFamily> = new Map(AutoMovieHumanF1.assemble().families.map((family: H.IFamily): [string, H.IFamily] => [family.name, family]));
+    const families: Map<string, IAutoMovieHumanConicLoft.IFamily> = new Map(AutoMovieHumanF1.assemble().families.map((family: IAutoMovieHumanConicLoft.IFamily): [string, IAutoMovieHumanConicLoft.IFamily] => [family.name, family]));
 
     // Each child as its own leaf alone: a child that is itself a subtree (a leg with its toes) is read as its facing face's source.
     const children: IAutoMovieConstructionSplit.IChild[] = node.children.map((child: IAutoMovieConstructionSplit.IChild): IAutoMovieConstructionSplit.IChild => {
       const face: string = child.partFace;
       if (carried > 0) {
-        const family: H.IFamily | undefined = families.get(face.replace(/\.mirror$/, ""));
+        const family: IAutoMovieHumanConicLoft.IFamily | undefined = families.get(face.replace(/\.mirror$/, ""));
         if (family === undefined) throw new Error("--compose: no family named " + face);
-        const own: H.IFamily = face.endsWith(".mirror") ? H.mirror(family, face) : family;
+        const own: IAutoMovieHumanConicLoft.IFamily = face.endsWith(".mirror") ? H.mirror(family, face) : family;
         const [first, last]: [number, number] = [own.knots[0]! - carried, own.knots.at(-1)!];
         sources.set(face, H.part({ ...own, tips: [null, own.tips?.[1] ?? null] }, Array.from({ length: Math.ceil(last - first) + 1 }, (_: unknown, i: number): number => Math.min(last, first + i))));
       }
@@ -190,7 +205,7 @@ namespace FamilyConicJoints {
       const { heading: _heading, ...rest }: IAutoMovieConstructionSplit.IProfile = profile;
       return { ...rest, knots: [] };
     };
-    const root: AutoMovieConstructionNode = {
+    const root: IAutoMovieConstructionNode = {
       ...node,
       host: { type: "source", name: node.hostFace, source: node.hostFace },
       ...(node.profile === undefined ? {} : { profile: bare(node.profile)! }),
@@ -199,7 +214,7 @@ namespace FamilyConicJoints {
       compose: { frame: "host", plane: { point: [0, 0, plane / 1000], normal: [0, 0, 1] } },
     };
     const started: number = performance.now();
-    const real: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "joint." + name, root }, { chord: 0.0005, sources });
+    const real: IAutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "joint." + name, root }, { chord: 0.0005, sources });
     process.stdout.write(`== ${name} alone as a composed end: plane ${plane} mm out of the host's end, children carried ${carried} mm, rail ${rail === undefined ? "the figure's" : rail * 1000 + " mm"} ==\n`);
     process.stdout.write(`children: ${children.map((child: IAutoMovieConstructionSplit.IChild): string => `${child.partFace} (rail ${(child.rail * 1000).toFixed(1)} mm)`).join(", ")}\n`);
     process.stdout.write(`realized in ${Math.round(performance.now() - started)} ms, ${real.mesh.indices.length / 3} triangles, ${real.diagnostics.length} diagnostics\n`);
@@ -209,7 +224,7 @@ namespace FamilyConicJoints {
   async function end(name: string): Promise<void> {
     const planes: number[] = (option("planes") ?? "0").split(",").map(Number);
     const within: number = Number(option("within") ?? 80);
-    const families: Map<string, H.IFamily> = new Map(AutoMovieHumanF1.assemble().families.map((family: H.IFamily): [string, H.IFamily] => [family.name, family]));
+    const families: Map<string, IAutoMovieHumanConicLoft.IFamily> = new Map(AutoMovieHumanF1.assemble().families.map((family: IAutoMovieHumanConicLoft.IFamily): [string, IAutoMovieHumanConicLoft.IFamily] => [family.name, family]));
     let base: { origin: readonly number[]; u: readonly number[]; v: readonly number[] };
     let normal: [number, number, number];
     let names: string[];
@@ -232,10 +247,10 @@ namespace FamilyConicJoints {
       names = (option("children") ?? "").split(",").filter((x: string): boolean => x !== "");
       title = `the plane through [${framed.slice(0, 3).join(", ")}]`;
     } else {
-      const declared: AutoMovieHumanF1.IConstruction = AutoMovieHumanF1.construction();
-      const node: AutoMovieConstructionNode | null = find(declared.root, name);
+      const declared: IAutoMovieHumanF1.IConstruction = AutoMovieHumanF1.construction();
+      const node: IAutoMovieConstructionNode | null = find(declared.root, name);
       if (node === null || node.type !== "split") throw new Error("--end: the tree has no split named " + name);
-      const host: H.IFamily = families.get(node.hostFace)!;
+      const host: IAutoMovieHumanConicLoft.IFamily = families.get(node.hostFace)!;
       const frame = H.axis(host).at(node.hostEnd === "top" ? host.knots.at(-1)! : host.knots[0]!);
       const out0: [number, number, number] = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
       // The course's direction is `v x u`; out of the host it is that at a top end and its reverse at a bottom end.
@@ -252,9 +267,9 @@ namespace FamilyConicJoints {
       // Where each child's course pierces the plane: the root of its signed distance along the course, carried back before its start.
       const pierced: { name: string; at: [number, number] | null }[] = names.map((face: string): { name: string; at: [number, number] | null } => {
         const child: { partFace: string } = { partFace: face };
-        const family: H.IFamily | undefined = families.get(child.partFace.replace(/\.mirror$/, ""));
+        const family: IAutoMovieHumanConicLoft.IFamily | undefined = families.get(child.partFace.replace(/\.mirror$/, ""));
         if (family === undefined) return { name: child.partFace, at: null };
-        const own: H.IFamily = child.partFace.endsWith(".mirror") ? H.mirror(family, child.partFace) : family;
+        const own: IAutoMovieHumanConicLoft.IFamily = child.partFace.endsWith(".mirror") ? H.mirror(family, child.partFace) : family;
         const course = H.axis(own);
         const off = (s: number): number => [0, 1, 2].reduce((sum: number, k: number): number => sum + (course.at(s).origin[k]! - origin[k]!) * normal[k]!, 0);
         // The crossing nearest the family's own face: bracketed outward from its first knot.
@@ -324,14 +339,14 @@ namespace FamilyConicJoints {
 
   function roll(spec: string): void {
     const [name, field, ratio]: string[] = spec.split(":");
-    const stored: H.IFamily | undefined = AutoMovieHumanF1.FAMILIES.find((m: AutoMovieHumanF1.IMember): boolean => m.family.name === name)?.family;
+    const stored: IAutoMovieHumanConicLoft.IFamily | undefined = AutoMovieHumanF1.FAMILIES.find((m: IAutoMovieHumanF1.IMember): boolean => m.family.name === name)?.family;
     if (stored === undefined || field === undefined || !(Number(ratio) > 0)) throw new Error("--roll needs <family>:<length field>:<ratio>");
     const f1 = AutoMovieHumanF1SegmentLengths.F1 as unknown as Record<string, unknown>;
     if (typeof f1[field] !== "number") throw new Error("--roll: no numeric length field named " + field + "; fields: " + Object.keys(f1).join(", "));
     const lengths = { ...f1, [field]: (f1[field] as number) * Number(ratio) } as unknown as typeof AutoMovieHumanF1SegmentLengths.F1;
     const chain = AutoMovieHumanF1SegmentLengths.chain(lengths);
     const frames = AutoMovieHumanF1Placement.frames(undefined, AutoMovieHumanChainTopology(AutoMovieHumanF1Placing.CHAIN, chain));
-    const person: H.IFamily = AutoMovieHumanF1Placement.repose(stored, frames, (datum: string) => AutoMovieHumanF1Centres.local(datum, lengths, chain)).family;
+    const person: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Placement.repose(stored, frames, (datum: string) => AutoMovieHumanF1Centres.local(datum, lengths, chain)).family;
     const out: string[] = [`== ${name} for a person with ${field} x ${ratio} ==`];
     out.push("centres f1:     " + stored.centres.map(fixed).join(" "));
     out.push("centres person: " + person.centres.map(fixed).join(" "));

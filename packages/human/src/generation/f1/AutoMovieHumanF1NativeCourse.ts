@@ -1,9 +1,13 @@
-import type { AutoMovieViewAxis } from "@automovie/engine";
-
 import { AutoMovieHumanConicLoft as H } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanCourseRuns as Runs } from "../conic/AutoMovieHumanCourseRuns";
-import { AutoMovieHumanMaterialCourse as Material } from "../conic/AutoMovieHumanMaterialCourse";
-import type { AutoMovieHumanF1SegmentLengths as Lengths } from "./AutoMovieHumanF1SegmentLengths";
+import {
+  AutoMovieHumanMaterialCourse as Material,
+} from "../conic/AutoMovieHumanMaterialCourse";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1SegmentLengths,
+  IAutoMovieViewAxis,
+} from "@automovie/interface";
 
 /**
  * How a person's segment lengths enter the native path's families: through each family's course, never through its stations.
@@ -30,7 +34,7 @@ export namespace AutoMovieHumanF1NativeCourse {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned course retains the placed course and its map.
    * @evidence contracts/development/common.md#meaningful-documentation Names both families' roles and the identity case.
    */
-  export function create(prior: H.IFamily, placed: H.IFamily, hold?: Material.IHold): AutoMovieViewAxis.IAxis {
+  export function create(prior: IAutoMovieHumanConicLoft.IFamily, placed: IAutoMovieHumanConicLoft.IFamily, hold?: Material.IHold): IAutoMovieViewAxis.IAxis {
     return Material.create(H.axis(placed), Material.map(prior, placed, hold));
   }
 
@@ -45,7 +49,7 @@ export namespace AutoMovieHumanF1NativeCourse {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    * @evidence contracts/development/common.md#meaningful-documentation States what unchanged means.
    */
-  export function unchanged(prior: H.IFamily, placed: H.IFamily): boolean {
+  export function unchanged(prior: IAutoMovieHumanConicLoft.IFamily, placed: IAutoMovieHumanConicLoft.IFamily): boolean {
     return Material.map(prior, placed) === Runs.identity;
   }
 
@@ -66,7 +70,7 @@ export namespace AutoMovieHumanF1NativeCourse {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    * @evidence contracts/development/common.md#meaningful-documentation States the three measured reasons the law is missing.
    */
-  export function admit(lengths: Lengths.IFields, zero: Lengths.IFields): void {
+  export function admit(lengths: IAutoMovieHumanF1SegmentLengths.IFields, zero: IAutoMovieHumanF1SegmentLengths.IFields): void {
     for (const key of ["pelvisToThorax", "thoraxToHead"] as const)
       if (lengths[key] !== zero[key])
         throw new Error(

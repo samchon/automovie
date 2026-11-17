@@ -1,8 +1,11 @@
 import {
-  IAutoMovieCameraClearanceEnvelope,
+  type IAutoMovieCameraClearanceEvaluation,
   IAutoMovieCameraClearanceFinding,
+  type IAutoMovieCameraClearanceObstacleState,
   IAutoMovieCameraClearanceReport,
+  type IAutoMovieCameraClearanceSample,
   IAutoMovieCameraClearanceSphere,
+  type IAutoMovieEvaluateCameraClearanceBox,
   IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -13,70 +16,11 @@ import { Vector3 } from "../math/Vector3";
 import { sampleTimes } from "../motion/sampleTimes";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 
-/**
- * An inclusive world-space axis-aligned box, in metres.
- */
-interface IBox {
-  /** Smallest corner. */
-  min: IAutoMovieVector3;
-
-  /** Largest corner. */
-  max: IAutoMovieVector3;
-}
-
-/**
- * One current world-space obstacle bound at one fixed-clock instant.
- */
-interface IAutoMovieCameraClearanceObstacleState {
-  /** Stable resolved scene-node identity. */
-  node: string;
-
-  /** Inclusive world-space box holding the obstacle at this instant. */
-  bounds: IBox;
-}
-
-/**
- * Camera and obstacle state read at one fixed-clock instant.
- */
-interface IAutoMovieCameraClearanceSample {
-  /** Shot-local sample time in seconds. */
-  time: number;
-
-  /** Resolved camera transform at this exact instant. */
-  camera: IAutoMovieTransform;
-
-  /** Every current resolved obstacle at this exact instant. */
-  obstacles: IAutoMovieCameraClearanceObstacleState[];
-}
-
-/**
- * Complete deterministic input for one camera take.
- */
-interface IAutoMovieCameraClearanceEvaluation {
-  /** Resolved camera identity. */
-  camera: string;
-
-  /** Camera-local body and optional parent-rig envelope. */
-  envelope: IAutoMovieCameraClearanceEnvelope;
-
-  /** Geometry revision from which the obstacle states were read. */
-  revision: string;
-
-  /** Geometry revision that remains current at evaluation time. */
-  currentRevision: string;
-
-  /** Endpoint-inclusive fixed-clock samples per second. */
-  sampleRate: number;
-
-  /** Shot duration in seconds. */
-  duration: number;
-
-  /** State at every base fixed-clock and additional causal-key instant. */
-  samples: IAutoMovieCameraClearanceSample[];
-}
-
 /** Reject a non-finite coordinate or an inverted box. */
-function assertBox(box: IBox, path: string): void {
+function assertBox(
+  box: IAutoMovieEvaluateCameraClearanceBox,
+  path: string,
+): void {
   const coordinates: number[] = [
     box.min.x,
     box.min.y,
@@ -92,7 +36,10 @@ function assertBox(box: IBox, path: string): void {
 }
 
 /** The smallest box holding both endpoint boxes of one obstacle. */
-function unionBoxes(first: IBox, second: IBox): IBox {
+function unionBoxes(
+  first: IAutoMovieEvaluateCameraClearanceBox,
+  second: IAutoMovieEvaluateCameraClearanceBox,
+): IAutoMovieEvaluateCameraClearanceBox {
   return {
     min: {
       x: Math.min(first.min.x, second.min.x),
@@ -110,7 +57,10 @@ function unionBoxes(first: IBox, second: IBox): IBox {
 /**
  * Grow a box by a radius on every side, the box a sphere centre must enter to touch it; this over-covers the rounded corners, which keeps it conservative.
  */
-function inflateBox(box: IBox, radius: number): IBox {
+function inflateBox(
+  box: IAutoMovieEvaluateCameraClearanceBox,
+  radius: number,
+): IAutoMovieEvaluateCameraClearanceBox {
   return {
     min: {
       x: box.min.x - radius,
@@ -131,7 +81,7 @@ function inflateBox(box: IBox, radius: number): IBox {
 function segmentIntersectsBox(
   start: IAutoMovieVector3,
   end: IAutoMovieVector3,
-  box: IBox,
+  box: IAutoMovieEvaluateCameraClearanceBox,
 ): boolean {
   let lower: number = 0;
   let upper: number = 1;
@@ -200,8 +150,8 @@ function rotationArcMargin(
 function obstaclesByNode(
   sample: IAutoMovieCameraClearanceSample,
   sampleIndex: number,
-): Map<string, IBox> {
-  const result: Map<string, IBox> = new Map();
+): Map<string, IAutoMovieEvaluateCameraClearanceBox> {
+  const result: Map<string, IAutoMovieEvaluateCameraClearanceBox> = new Map();
   sample.obstacles.forEach(
     (
       obstacle: IAutoMovieCameraClearanceObstacleState,
@@ -282,10 +232,13 @@ export function evaluateCameraClearance(
       "$input.samples must contain every endpoint-inclusive fixed-clock instant in strict time order; additional causal instants are allowed",
     );
 
-  const obstacleMaps: Map<string, IBox>[] = input.samples.map(obstaclesByNode);
+  const obstacleMaps: Map<string, IAutoMovieEvaluateCameraClearanceBox>[] =
+    input.samples.map(obstaclesByNode);
   for (let index: number = 1; index < obstacleMaps.length; index++) {
-    const previous: Map<string, IBox> = obstacleMaps[index - 1]!;
-    const current: Map<string, IBox> = obstacleMaps[index]!;
+    const previous: Map<string, IAutoMovieEvaluateCameraClearanceBox> =
+      obstacleMaps[index - 1]!;
+    const current: Map<string, IAutoMovieEvaluateCameraClearanceBox> =
+      obstacleMaps[index]!;
     if (
       previous.size !== current.size ||
       [...previous.keys()].some((node: string): boolean => !current.has(node))
@@ -335,7 +288,7 @@ export function evaluateCameraClearance(
         sphere.radius * scale +
         rotationArcMargin(first.camera, second.camera, sphere.center);
       for (const node of nodes) {
-        const obstacle: IBox = unionBoxes(
+        const obstacle: IAutoMovieEvaluateCameraClearanceBox = unionBoxes(
           obstacleMaps[previous]!.get(node)!,
           obstacleMaps[index]!.get(node)!,
         );

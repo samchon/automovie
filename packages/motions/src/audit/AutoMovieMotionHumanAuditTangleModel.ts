@@ -7,16 +7,20 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
+import { HumanColliderCorners } from "../posture/HumanColliderCorners";
 import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
 
 /**
  * The per-body model the tangle audit (`AutoMovieMotionHumanAuditTangle`)
@@ -35,13 +39,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every probe and sphere is read from the body's own colliders and joints.
  */
 export namespace AutoMovieMotionHumanAuditTangleModel {
-  /**
-   * The reference overlap beyond which two segments' surfaces are one volume
-   * by their build, metres: the 10 mm a pressed skin gives, the audit's own
-   * limit for a tangle. Two colliders deeper in each other than that while
-   * the body stands at rest cannot be told apart by their corners.
-   */
-  export const BUILT: number = 0.01;
+  /** The reference overlap beyond which two segments' surfaces are one volume by their build, metres (`AutoMovieMotionHumanAuditSkin.BUILT`). */
+  export const BUILT: number = AutoMovieMotionHumanAuditSkin.BUILT;
 
   /** One collider segment's probes and bounding sphere in its own frame. */
   export interface IPart {
@@ -49,7 +48,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     bone: AutoMovieHumanoidBone;
 
     /** The segment's shapes. */
-    shapes: readonly IAutoMoviePhysicalProfile.IShape[];
+    shapes: readonly IAutoMoviePhysicalShape[];
 
     /** The probes: the shapes' corners, then points along the bone. */
     probes: IAutoMovieVector3[];
@@ -73,10 +72,10 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     related: boolean[][];
 
     /** The segments placed in the rest T-pose. */
-    rest: HumanColliders.IPlaced[];
+    rest: IAutoMovieMotionHumanColliders.IPlaced[];
 
     /** The segments placed in the quiet stance. */
-    stance: HumanColliders.IPlaced[];
+    stance: IAutoMovieMotionHumanColliders.IPlaced[];
 
     /** The reference depths of each ordered pair's probes, by pair index. */
     baseline: Map<number, Float64Array>;
@@ -123,7 +122,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Remembered in a `WeakMap` keyed by the body.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One model per live body, released with it.
    */
-  export function model(body: IHumanBody): IModel {
+  export function model(body: IAutoMovieMotionHumanBody): IModel {
     const known: IModel | undefined = MODELS.get(body);
     if (known !== undefined) return known;
     const parent: Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null> =
@@ -138,58 +137,63 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
           bone.bone,
         ]);
     }
-    const rest: HumanColliders.IPlaced[] = HumanColliders.placed(
-      body,
-      poseBones(body, { skeleton: body.skeleton.id, root: null, joints: [] }),
-    );
-    const parts: IPart[] = rest.map((p: HumanColliders.IPlaced): IPart => {
-      const probes: IAutoMovieVector3[] = [];
-      for (const shape of p.shapes)
-        for (const corner of corners(shape))
-          probes.push(
-            Vector3.add(
-              shape.transform.position,
-              Quaternion.rotateVector(shape.transform.rotation, corner),
-            ),
-          );
-      const surface: number = probes.length;
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(p.pose.rotation);
-      const joint: IAutoMovieVector3 = body.rest.get(p.bone)!;
-      for (const child of children.get(p.bone) ?? [])
-        for (const share of [0.25, 0.5, 0.75])
-          probes.push(
-            Quaternion.rotateVector(
-              inverse,
-              Vector3.subtract(
-                Vector3.add(
-                  joint,
-                  Vector3.scale(
-                    Vector3.subtract(body.rest.get(child)!, joint),
-                    share,
-                  ),
-                ),
-                p.pose.position,
+    const rest: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanColliders.placed(
+        body,
+        poseBones(body, { skeleton: body.skeleton.id, root: null, joints: [] }),
+      );
+    const parts: IPart[] = rest.map(
+      (p: IAutoMovieMotionHumanColliders.IPlaced): IPart => {
+        const probes: IAutoMovieVector3[] = [];
+        for (const shape of p.shapes)
+          for (const corner of HumanColliderCorners(shape))
+            probes.push(
+              Vector3.add(
+                shape.transform.position,
+                Quaternion.rotateVector(shape.transform.rotation, corner),
               ),
-            ),
-          );
-      let centre: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-      for (const probe of probes)
-        centre = Vector3.add(centre, Vector3.scale(probe, 1 / probes.length));
-      let radius: number = 0;
-      for (const probe of probes)
-        radius = Math.max(
-          radius,
-          Vector3.length(Vector3.subtract(probe, centre)),
+            );
+        const surface: number = probes.length;
+        const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+          p.pose.rotation,
         );
-      return {
-        bone: p.bone,
-        shapes: p.shapes,
-        probes,
-        surface,
-        centre,
-        radius,
-      };
-    });
+        const joint: IAutoMovieVector3 = body.rest.get(p.bone)!;
+        for (const child of children.get(p.bone) ?? [])
+          for (const share of [0.25, 0.5, 0.75])
+            probes.push(
+              Quaternion.rotateVector(
+                inverse,
+                Vector3.subtract(
+                  Vector3.add(
+                    joint,
+                    Vector3.scale(
+                      Vector3.subtract(body.rest.get(child)!, joint),
+                      share,
+                    ),
+                  ),
+                  p.pose.position,
+                ),
+              ),
+            );
+        let centre: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+        for (const probe of probes)
+          centre = Vector3.add(centre, Vector3.scale(probe, 1 / probes.length));
+        let radius: number = 0;
+        for (const probe of probes)
+          radius = Math.max(
+            radius,
+            Vector3.length(Vector3.subtract(probe, centre)),
+          );
+        return {
+          bone: p.bone,
+          shapes: p.shapes,
+          probes,
+          surface,
+          centre,
+          radius,
+        };
+      },
+    );
     // The nearest ancestor of a bone that carries a collider: the joint its
     // collider meets, skipping bones (a clavicle) that have none.
     const collided: ReadonlySet<AutoMovieHumanoidBone> = new Set(
@@ -211,13 +215,17 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
           group(a.bone) === group(b.bone),
       ),
     );
-    const stance: HumanColliders.IPlaced[] = HumanColliders.placed(
-      body,
-      poseBones(
+    const stance: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanColliders.placed(
         body,
-        resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
-      ),
-    );
+        poseBones(
+          body,
+          resolveHumanPosture(
+            body,
+            stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
+          ),
+        ),
+      );
     const built: IModel = { parts, related, rest, stance, baseline: new Map() };
     MODELS.set(body, built);
     return built;
@@ -239,7 +247,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function centre(
-    p: HumanColliders.IPlaced,
+    p: IAutoMovieMotionHumanColliders.IPlaced,
     part: IPart,
   ): IAutoMovieVector3 {
     return Vector3.add(
@@ -260,14 +268,14 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @evidence contracts/development/implementation.md#principled-implementation Interior depth of a point in a convex hull is its least distance to the face planes; other shapes are read by the engine's shape distance.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One relative transform, then one loop over probes and shapes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The engine owns the hull faces and the shape distance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A face loop stops once a probe is no deeper than the deepest found.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A probe outside a shape's bounding sphere (`HumanColliders.bound`) skips the shape, which can add no depth there, and a face loop stops once a probe is no deeper than the deepest found; the readings are those of reading every shape.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Poses are read independently.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh array and retains nothing.
    */
   export function depths(
     probes: readonly IAutoMovieVector3[],
-    a: HumanColliders.IPlaced,
-    b: HumanColliders.IPlaced,
+    a: IAutoMovieMotionHumanColliders.IPlaced,
+    b: IAutoMovieMotionHumanColliders.IPlaced,
   ): Float64Array {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(b.pose.rotation);
     const rotation: IAutoMovieQuaternion = Quaternion.multiply(
@@ -279,6 +287,21 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
       Vector3.subtract(a.pose.position, b.pose.position),
     );
     const out: Float64Array = new Float64Array(probes.length);
+    // Each shape's bounding sphere in segment j's frame: a probe outside it
+    // is outside the shape, which then adds no depth.
+    const balls: { centre: IAutoMovieVector3; radius: number }[] = b.shapes.map(
+      (shape: IAutoMoviePhysicalShape) => {
+        const ball: IAutoMovieMotionHumanColliders.IBall =
+          HumanColliders.bound(shape);
+        return {
+          centre: Vector3.add(
+            shape.transform.position,
+            Quaternion.rotateVector(shape.transform.rotation, ball.centre),
+          ),
+          radius: ball.radius,
+        };
+      },
+    );
     for (let k: number = 0; k < probes.length; k++) {
       // The probe in segment j's frame.
       const local: IAutoMovieVector3 = Vector3.add(
@@ -286,7 +309,13 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
         Quaternion.rotateVector(rotation, probes[k]!),
       );
       let deepest: number = 0;
-      for (const shape of b.shapes) {
+      for (let s: number = 0; s < b.shapes.length; s++) {
+        const shape: IAutoMoviePhysicalShape = b.shapes[s]!;
+        if (
+          Vector3.length(Vector3.subtract(local, balls[s]!.centre)) >=
+          balls[s]!.radius
+        )
+          continue;
         if (shape.kind !== "hull") {
           deepest = Math.max(
             deepest,
@@ -314,29 +343,24 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
   }
 
   /**
-   * How deep each probe of segment `i` lies in segment `j` beyond its own
-   * reference depth there.
+   * Each probe of segment `i`'s reference depth in segment `j`: the depth it
+   * may keep there before the audit reads it as a tangle, which a planner
+   * keeps its probes within.
    *
    * @param m The body's model.
-   * @param placed The body's placed segments.
    * @param i The segment whose probes are read.
    * @param j The segment they are read in.
-   * @returns Metres per probe; zero or less where it lies no deeper.
+   * @returns Metres per probe; `Infinity` for a corner of a pair whose colliders overlap past the skin by their build.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the sign.
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit, who reads it and the value of a pair the audit sets aside.
    * @evidence contracts/development/implementation.md#principled-implementation The reference depth is the deeper of the rest pose's and the quiet stance's; corners share their pair's deepest reference depth, set aside past `BUILT`, and a point of the bone's axis keeps its own.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The remembered baseline, then one subtraction per probe.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two depth readings, one maximum per probe, then the corners' shared depth.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the corners share a depth, so a crossing limb's axis is read in full.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The baseline is computed once per ordered pair.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Remembered in the model's baseline map.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Computed once per ordered pair.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Remembered in the model's baseline map, which `beyond` reads too.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The baselines live with the model, bounded by the segment pairs.
    */
-  export function beyond(
-    m: IModel,
-    placed: readonly HumanColliders.IPlaced[],
-    i: number,
-    j: number,
-  ): Float64Array {
+  export function reference(m: IModel, i: number, j: number): Float64Array {
     const key: number = i * m.parts.length + j;
     const probes: IAutoMovieVector3[] = m.parts[i]!.probes;
     let baseline: Float64Array | undefined = m.baseline.get(key);
@@ -361,6 +385,35 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
         baseline[k] = shared > BUILT ? Infinity : shared;
       m.baseline.set(key, baseline);
     }
+    return baseline;
+  }
+
+  /**
+   * How deep each probe of segment `i` lies in segment `j` beyond its own
+   * reference depth there (`reference`).
+   *
+   * @param m The body's model.
+   * @param placed The body's placed segments.
+   * @param i The segment whose probes are read.
+   * @param j The segment they are read in.
+   * @returns Metres per probe; zero or less where it lies no deeper.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the sign.
+   * @evidence contracts/development/implementation.md#principled-implementation The depth now less the reference depth, probe by probe.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The reference, then one subtraction per probe.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every probe is read against its own reference, none skipped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One depth reading per call; the reference is computed once per ordered pair.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads `reference`.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh array and retains nothing.
+   */
+  export function beyond(
+    m: IModel,
+    placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+    i: number,
+    j: number,
+  ): Float64Array {
+    const probes: IAutoMovieVector3[] = m.parts[i]!.probes;
+    const baseline: Float64Array = reference(m, i, j);
     const now: Float64Array = depths(probes, placed[i]!, placed[j]!);
     for (let k: number = 0; k < now.length; k++)
       now[k] = now[k]! - baseline[k]!;
@@ -387,7 +440,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    */
   export function excess(
     m: IModel,
-    placed: readonly HumanColliders.IPlaced[],
+    placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     i: number,
     j: number,
   ): number {
@@ -398,49 +451,16 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
 }
 
 /** The models of live bodies. */
-const MODELS: WeakMap<IHumanBody, AutoMovieMotionHumanAuditTangleModel.IModel> =
-  new WeakMap();
+const MODELS: WeakMap<
+  IAutoMovieMotionHumanBody,
+  AutoMovieMotionHumanAuditTangleModel.IModel
+> = new WeakMap();
 
 /** The fingers' part of a bone name. */
 const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/u;
 
 /** The identity frame a shape's distance is read in. */
-const IDENTITY: IAutoMoviePhysicalProfile.ITransform = {
+const IDENTITY: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
-};
-
-/** A shape's corners in its own frame: a hull's points, a box's corners, and the poles and equators of a sphere or a capsule. */
-const corners = (
-  shape: IAutoMoviePhysicalProfile.IShape,
-): readonly IAutoMovieVector3[] => {
-  if (shape.kind === "hull") return physicalHullFaces(shape.points).vertices;
-  if (shape.kind === "box") {
-    const h: IAutoMovieVector3 = shape.halfExtents;
-    return [-1, 1].flatMap((x: number): IAutoMovieVector3[] =>
-      [-1, 1].flatMap((y: number): IAutoMovieVector3[] =>
-        [-1, 1].map(
-          (z: number): IAutoMovieVector3 => ({
-            x: x * h.x,
-            y: y * h.y,
-            z: z * h.z,
-          }),
-        ),
-      ),
-    );
-  }
-  const r: number = shape.radius;
-  const half: number = shape.kind === "capsule" ? shape.halfLength : 0;
-  return [
-    { x: 0, y: half + r, z: 0 },
-    { x: 0, y: -half - r, z: 0 },
-    ...(half === 0 ? [0] : [-half, 0, half]).flatMap(
-      (y: number): IAutoMovieVector3[] => [
-        { x: r, y, z: 0 },
-        { x: -r, y, z: 0 },
-        { x: 0, y, z: r },
-        { x: 0, y, z: -r },
-      ],
-    ),
-  ];
 };

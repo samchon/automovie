@@ -1,11 +1,16 @@
+import type { AutoMovieHumanExpressionSide as AutoMovieHumanExpressionSideContract } from "@automovie/interface";
+
+/** The canonical AutoMovieHumanExpressionSide literal vocabulary; runtime named members below preserve value access. */
+export type AutoMovieHumanExpressionSide = AutoMovieHumanExpressionSideContract;
+
 /** Closed expression side choices; serialized values are unchanged. */
-export enum AutoMovieHumanExpressionSide {
-  /** both choice. */
-  Both = "both",
-
-  /** left choice. */
-  Left = "left",
-
-  /** right choice. */
-  Right = "right",
-}
+export const AutoMovieHumanExpressionSide = {
+  /** Apply this action unit to both anatomical sides. */
+  Both: "both",
+  /** Apply this action unit to the person's anatomical left side. */
+  Left: "left",
+  /** Apply this action unit to the person's anatomical right side. */
+  Right: "right",
+} as const satisfies Readonly<
+  Record<string, AutoMovieHumanExpressionSideContract>
+>;

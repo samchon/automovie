@@ -1,6 +1,8 @@
-import type { IAutoMovieRandom } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanDefenceOutcome,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 
-import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingSkill } from "./StrikingSkill";
 
 /**
@@ -39,78 +41,6 @@ import { StrikingSkill } from "./StrikingSkill";
  */
 export namespace DefenceOutcome {
   /**
-   * The outcome classes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The namespace defines each class's margin band.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the three outcomes the margin bands partition.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The outcomes the defence law forces and reports.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export type Outcome = "inTime" | "late" | "fail";
-
-  /**
-   * The timing a decision reads, all in film seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit, range and default.
-   * @evidence contracts/development/design.md#principled-representation Film-second instants, a seconds duration, a share in [0, 1] and a factor band; the orderings and ranges are checked when deciding.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the decision reads; the stretch band lets a forced outcome scale the attack.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the skill type.
-   */
-  export interface IInput {
-    /** The strike's launch, film seconds. */
-    launch: number;
-
-    /** The strike's contact, film seconds; after the launch. */
-    hit: number;
-
-    /** How much of the attack its preparation shows, in [0, 1]. */
-    telegraph: number;
-
-    /** The defence's movement time, seconds; positive. */
-    movement: number;
-
-    /** The defender's skill. */
-    skill: HumanSkill.ISkill;
-
-    /** The factors the attacker's launch-to-contact time may be scaled by, `[shortest, longest]`, containing 1; `[1, 1]` when the attack is already fixed. */
-    stretch?: readonly [number, number];
-  }
-
-  /**
-   * A decided defence.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and band.
-   * @evidence contracts/development/design.md#principled-representation The outcome with the realised start, reaction, lead and margin in seconds, the attack's stretch and contact, and the warnings of an unmet forced outcome.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the defence law schedules and what audits and tests read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the outcome union.
-   */
-  export interface IDecision {
-    /** The outcome. */
-    outcome: Outcome;
-
-    /** Film second the defence starts moving. */
-    start: number;
-
-    /** The reaction time used, seconds; inside its 1 to 99 % band. */
-    reaction: number;
-
-    /** The anticipation lead used, seconds; inside its band. */
-    lead: number;
-
-    /** The margin `m`, seconds. */
-    margin: number;
-
-    /** The factor applied to the attacker's launch-to-contact time; 1 when unchanged. */
-    stretch: number;
-
-    /** The contact second after the stretch. */
-    hit: number;
-
-    /** Why a forced outcome could not be met with plausible timing; empty when it was. */
-    warnings: string[];
-  }
-
-  /**
    * Classify a margin.
    *
    * @param margin `t_hit - (t_start + T_def)`, seconds.
@@ -125,7 +55,10 @@ export namespace DefenceOutcome {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function classify(margin: number, movement: number): Outcome {
+  export function classify(
+    margin: number,
+    movement: number,
+  ): IAutoMovieMotionHumanDefenceOutcome.Outcome {
     if (margin >= 0) return "inTime";
     if (margin > -0.5 * movement) return "late";
     return "fail";
@@ -147,7 +80,7 @@ export namespace DefenceOutcome {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function band(
-    outcome: Outcome,
+    outcome: IAutoMovieMotionHumanDefenceOutcome.Outcome,
     movement: number,
   ): readonly [number, number] {
     if (outcome === "inTime") return [0, Infinity];
@@ -173,10 +106,10 @@ export namespace DefenceOutcome {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function decide(
-    input: IInput,
+    input: IAutoMovieMotionHumanDefenceOutcome.IInput,
     random: IAutoMovieRandom,
-    forced?: Outcome,
-  ): IDecision {
+    forced?: IAutoMovieMotionHumanDefenceOutcome.Outcome,
+  ): IAutoMovieMotionHumanDefenceOutcome.IDecision {
     if (!(input.hit > input.launch))
       throw new Error("A strike's contact comes after its launch");
     if (!(input.movement > 0))

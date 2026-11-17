@@ -1,5 +1,8 @@
-import type { AutoMovieLoftFrame, AutoMovieViewAxis } from "@automovie/engine";
 import { AutoMovieHumanCourseRuns as Runs } from "@automovie/human";
+import type {
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewAxis,
+} from "@automovie/interface";
 
 /**
  * A course's runs and the material map that carries a station by its run and tau.
@@ -30,9 +33,9 @@ export function test_human_course_runs(): void {
   const near = (what: string, got: number, want: number, tolerance: number): void => {
     if (!(Math.abs(got - want) <= tolerance)) failures.push(`${what}: ${got} instead of ${want}`);
   };
-  const frame = (origin: [number, number, number]): AutoMovieLoftFrame.IFrame => ({ origin, u: [0, 0, 1], v: [0, 1, 0] });
-  const axis: AutoMovieViewAxis.IAxis = {
-    at: (s: number): AutoMovieLoftFrame.IFrame => (s <= 100 ? frame([s, 0, 0]) : frame([100, s - 100, 0])),
+  const frame = (origin: [number, number, number]): IAutoMovieLoftSectionFrame => ({ origin, u: [0, 0, 1], v: [0, 1, 0] });
+  const axis: IAutoMovieViewAxis.IAxis = {
+    at: (s: number): IAutoMovieLoftSectionFrame => (s <= 100 ? frame([s, 0, 0]) : frame([100, s - 100, 0])),
   };
   const centres: [number, number, number][] = [
     [0, 0, 0],

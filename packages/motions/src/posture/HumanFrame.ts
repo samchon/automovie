@@ -1,5 +1,6 @@
 import { Quaternion } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanFrame,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -14,15 +15,6 @@ import type {
  * `(sin h, 0, cos h)`.
  */
 export namespace HumanFrame {
-  /** A frame: a floor origin and a heading. */
-  export interface IFrame {
-    /** Origin, world metres. */
-    origin: IAutoMovieVector3;
-
-    /** Heading about +Y, degrees. */
-    yaw: number;
-  }
-
   /**
    * A local point in world metres.
    *
@@ -31,7 +23,7 @@ export namespace HumanFrame {
    * @returns The world point.
    */
   export function point(
-    frame: IFrame,
+    frame: IAutoMovieMotionHumanFrame,
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     const r: number = (frame.yaw * Math.PI) / 180;
@@ -52,7 +44,7 @@ export namespace HumanFrame {
    * @returns `x` left, `y` up, `z` forward, metres.
    */
   export function local(
-    frame: IFrame,
+    frame: IAutoMovieMotionHumanFrame,
     world: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     const r: number = (frame.yaw * Math.PI) / 180;
@@ -65,6 +57,16 @@ export namespace HumanFrame {
       y: world.y - frame.origin.y,
       z: dx * s + dz * c,
     };
+  }
+
+  /**
+   * The unit vector a heading faces along the floor, world.
+   *
+   * @param yaw Degrees about +Y.
+   * @returns `(sin yaw, 0, cos yaw)`.
+   */
+  export function forward(yaw: number): IAutoMovieVector3 {
+    return point({ origin: { x: 0, y: 0, z: 0 }, yaw }, { x: 0, y: 0, z: 1 });
   }
 
   /**

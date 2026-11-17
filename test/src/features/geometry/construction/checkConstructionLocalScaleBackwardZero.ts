@@ -1,7 +1,11 @@
+import type {
+  IAutoMovieBlendColumn,
+  IAutoMovieConstructionSplitBand,
+  IAutoMovieConstructionSplitBandTrace,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import {
   AutoMovieConstructionSplitBand as Band,
-  type AutoMovieConstructionSplitBandTrace as BandTrace,
-  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
 
 import { nclose } from "../../internal/nclose";
@@ -63,18 +67,18 @@ export function checkConstructionLocalScaleBackwardZero(input: IInput): {
   // 64-pass proof holds, with 191 forward columns and one retained backward
   // zero. Neither this input nor successful publication certifies regularity.
   const zeroIndex: number = count / 2;
-  const zeroEvents: BandTrace.Event[] = [];
+  const zeroEvents: IAutoMovieConstructionSplitBandTrace.Event[] = [];
 
   /** Same analytic bottleneck, with one explicitly retained zero first jet. */
-  const zeroNear: (k: number, length: number) => Band.IColumn["start"] = (
+  const zeroNear: (k: number, length: number) => IAutoMovieBlendColumn["start"] = (
     k: number,
     length: number,
-  ): Band.IColumn["start"] => ({
+  ): IAutoMovieBlendColumn["start"] => ({
     point: loop[k]!,
     first: [0, k === zeroIndex ? 0 : length, 0],
     second: [0, k === 0 ? -bend * length * length : 0, 0],
   });
-  let zeroResult: Band.IStrip | string = "strip did not return";
+  let zeroResult: IAutoMovieConstructionSplitBand.IStrip | string = "strip did not return";
   try {
     zeroResult = Band.strip(
       "analytic-minorant-backward-zero-192",
@@ -86,7 +90,7 @@ export function checkConstructionLocalScaleBackwardZero(input: IInput): {
       "angle",
       "column",
       [],
-      (event: BandTrace.Event): void => {
+      (event: IAutoMovieConstructionSplitBandTrace.Event): void => {
         zeroEvents.push(event);
       },
     );
@@ -94,33 +98,33 @@ export function checkConstructionLocalScaleBackwardZero(input: IInput): {
     failures.push("backward-zero: threw " + String(error));
   }
   const zeroPrepared:
-    | Extract<BandTrace.Event, { kind: "prepared" }>
+    | Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "prepared" }>
     | undefined = zeroEvents.find(
     (
-      event: BandTrace.Event,
-    ): event is Extract<BandTrace.Event, { kind: "prepared" }> =>
+      event: IAutoMovieConstructionSplitBandTrace.Event,
+    ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "prepared" }> =>
       event.kind === "prepared",
   );
-  const zeroPasses: Extract<BandTrace.Event, { kind: "local-pass" }>[] =
+  const zeroPasses: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }>[] =
     zeroEvents.filter(
       (
-        event: BandTrace.Event,
-      ): event is Extract<BandTrace.Event, { kind: "local-pass" }> =>
+        event: IAutoMovieConstructionSplitBandTrace.Event,
+      ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> =>
         event.kind === "local-pass",
     );
-  const zeroCertificates: Extract<BandTrace.Event, { kind: "minorant" }>[] =
+  const zeroCertificates: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "minorant" }>[] =
     zeroEvents.filter(
       (
-        event: BandTrace.Event,
-      ): event is Extract<BandTrace.Event, { kind: "minorant" }> =>
+        event: IAutoMovieConstructionSplitBandTrace.Event,
+      ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "minorant" }> =>
         event.kind === "minorant",
     );
   const zeroCertificate:
-    | Extract<BandTrace.Event, { kind: "minorant" }>["result"]
+    | Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "minorant" }>["result"]
     | undefined = zeroCertificates[0]?.result;
-  const zeroLast: Extract<BandTrace.Event, { kind: "local-pass" }> | undefined =
+  const zeroLast: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> | undefined =
     zeroPasses.at(-1);
-  const zeroOwn: BandTrace.Target | undefined = zeroLast?.own[0];
+  const zeroOwn: IAutoMovieConstructionSplitBandTrace.Target | undefined = zeroLast?.own[0];
   const zeroExcess: number | null =
     zeroLast !== undefined && zeroOwn?.kind === "finite"
       ? zeroLast.smooth[0]! - zeroOwn.value
@@ -134,7 +138,7 @@ export function checkConstructionLocalScaleBackwardZero(input: IInput): {
       forwardCount: zeroPrepared?.forwardIndices.length ?? null,
       localPasses: zeroPasses.length,
       aboveOwnOnly: zeroPasses.every(
-        (pass: Extract<BandTrace.Event, { kind: "local-pass" }>): boolean =>
+        (pass: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }>): boolean =>
           pass.adjustments.length === 1 &&
           pass.adjustments[0]!.reason === "above-own" &&
           pass.adjustments[0]!.column === 0,
@@ -165,7 +169,7 @@ export function checkConstructionLocalScaleBackwardZero(input: IInput): {
         "backward-zero: independent positive common certificate changed",
       );
     for (let k: number = 0; k < zeroPrepared.columns.length; ++k) {
-      const column: Band.IColumn = zeroPrepared.columns[k]!;
+      const column: IAutoMovieBlendColumn = zeroPrepared.columns[k]!;
       if (
         !close(column.start.point, loop[k]!) ||
         !close(column.end.point, [loop[k]![0], 1, loop[k]![2]]) ||
@@ -195,7 +199,7 @@ export function checkConstructionLocalScaleBackwardZero(input: IInput): {
       "backward-zero: independent old 64-pass excess did not reproduce",
     );
   for (let index: number = 0; index < zeroPasses.length; ++index) {
-    const pass: Extract<BandTrace.Event, { kind: "local-pass" }> =
+    const pass: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> =
       zeroPasses[index]!;
     if (
       pass.pass !== index ||

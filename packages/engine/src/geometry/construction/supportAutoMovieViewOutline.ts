@@ -1,4 +1,5 @@
-import type { AutoMovieViewOutline } from "./AutoMovieViewOutline";
+import type { IAutoMovieViewOutline } from "@automovie/interface";
+
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
 import { rootsAutoMovieViewSinPolynomial } from "./rootsAutoMovieViewSinPolynomial";
@@ -22,7 +23,7 @@ import { rootsAutoMovieViewSinPolynomial } from "./rootsAutoMovieViewSinPolynomi
  * @returns Endpoints, included named knots and numerical interior critical stations, or an explicit failure.
  */
 export function supportAutoMovieViewOutline(
-  outline: AutoMovieViewOutline.IOutline,
+  outline: IAutoMovieViewOutline.IOutline,
   slope: number,
   valueScale: number,
   domain: readonly [number, number],
@@ -37,13 +38,13 @@ export function supportAutoMovieViewOutline(
     domain[1] > outline.domain[1]
   )
     return "affine source support needs finite coefficients and an increasing closed domain within its source knots";
-  const { xs, ys, curvatures }: AutoMovieViewOutline.IOutline["spline"] =
+  const { xs, ys, curvatures }: IAutoMovieViewOutline.IOutline["spline"] =
     outline.spline;
   const result: number[] = [
     domain[0],
     ...outline.knots
       .map(
-        (k: AutoMovieViewOutline.IOutline["knots"][number]): number =>
+        (k: IAutoMovieViewOutline.IOutline["knots"][number]): number =>
           k.station,
       )
       .filter((s: number): boolean => s > domain[0] && s < domain[1]),
@@ -72,7 +73,7 @@ export function supportAutoMovieViewOutline(
             (value: number, k: number): number =>
               (valueScale * (k + 1) * value) / h,
           );
-    const p: AutoMovieViewOutline.IOutline["parameter"] = outline.parameter;
+    const p: IAutoMovieViewOutline.IOutline["parameter"] = outline.parameter;
     if (p === undefined) polynomial[0] = polynomial[0]! + slope;
     else if (p.type === "root") {
       const factor: number = (p.end === "bottom" ? 2 : -2) * slope;

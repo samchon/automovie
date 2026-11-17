@@ -1,4 +1,4 @@
-import { IAutoMovieCompiledShotSource } from "./IAutoMovieCompiledShotSource";
+import type { IAutoMovieCompiledShotSource } from "./IAutoMovieCompiledShotSource";
 
 /**
  * One compiled shot paired with the caller-supplied revision used to qualify inspection answers.

@@ -1,4 +1,7 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type {
+  AutoMovieCubicBezierControls3,
+  IAutoMovieCubicBezierCurve64,
+} from "@automovie/interface";
 
 /** Independent small-polygon enumeration and incidence algebra for contour tests. */
 export namespace contourStripOracle {
@@ -231,7 +234,7 @@ export namespace contourStripOracle {
     name: string,
     points: readonly V[],
     widths?: readonly number[],
-  ): C.Cubic {
+  ): IAutoMovieCubicBezierCurve64 {
     return {
       type: "cubicBezier",
       name,
@@ -240,7 +243,7 @@ export namespace contourStripOracle {
       phaseUnit: "mm",
       phaseIntervals: widths ?? points.map((): number => 1),
       spans: points.map(
-        (p: V, i: number): C.Span => [
+        (p: V, i: number): AutoMovieCubicBezierControls3 => [
           p,
           p,
           points[(i + 1) % points.length],
@@ -251,7 +254,10 @@ export namespace contourStripOracle {
   }
 
   /** Explicit cubic Bernstein formula, independent of the engine's evaluator and subdivision. */
-  export function evaluate(curve: C.Cubic, phase: number): V {
+  export function evaluate(
+    curve: IAutoMovieCubicBezierCurve64,
+    phase: number,
+  ): V {
     let start: number = 0,
       index: number = 0;
     while (
@@ -263,7 +269,7 @@ export namespace contourStripOracle {
     }
     const t: number = (phase - start) / curve.phaseIntervals[index],
       u: number = 1 - t;
-    const span: C.Span = curve.spans[index];
+    const span: AutoMovieCubicBezierControls3 = curve.spans[index];
     return [0, 1, 2].map(
       (k: number): number =>
         u ** 3 * span[0][k] +

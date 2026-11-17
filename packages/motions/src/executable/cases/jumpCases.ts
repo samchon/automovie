@@ -1,15 +1,19 @@
 import {
-  type IAutoMovieResolvedBone,
+  AutoMovieGravity,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPerformance,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanFoot } from "../../posture/HumanFoot";
@@ -55,10 +59,15 @@ import { FootSlip } from "./FootSlip";
  */
 export function jumpCases(who: string): IMotionCaptureCase[] {
   const man = MotionBodies.population(who);
-  const body: IHumanBody = createHumanBody(man.body.skeleton, man.body.profile);
+  const body: IAutoMovieMotionHumanBody = createHumanBody(
+    man.body.skeleton,
+    man.body.profile,
+  );
   const l: number = body.measure.hipHeight;
   const goal: IAutoMovieVector3 = { x: 0, y: 0, z: 6 };
-  const perform = (chain: HumanChain): HumanPerformance =>
+  const perform = (
+    chain: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "jump",
       performers: [
@@ -72,7 +81,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
       ],
       composition: chain.node,
     });
-  const walking: HumanPerformance = perform(
+  const walking: IAutoMovieMotionHumanPerformance = perform(
     HumanChain.subject("a").walk({ to: goal }),
   );
   const walk = walking.segments("a")[0]!;
@@ -103,14 +112,14 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
   let sink: { value: number; where: string } = { value: 0, where: "none" };
   const tuck: string[] = [];
   let tuckOk: boolean = true;
-  let drawn: HumanPerformance | undefined;
+  let drawn: IAutoMovieMotionHumanPerformance | undefined;
   for (let k: number = 0; k <= 20; k++) {
     const cut: number = s0 + ((s1 - s0) * k) / 20;
     const at: number = walk.start + cut * walk.plan.duration;
     const hips: IAutoMovieVector3 = walking
       .bones("a", at)
       .get("hips")!.worldPosition;
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = perform(
         HumanChain.subject("a")
@@ -162,14 +171,19 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
           (x) =>
             x.part === `${side}Foot` && t >= x.from + 1e-9 && t <= x.to - 1e-9,
         );
-        const sole: HumanFoot.ISocket[] = HumanFoot.sockets(body, map, side);
+        const sole: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
+          body,
+          map,
+          side,
+        );
         for (const { socket, point } of sole)
           if (t >= touchdown && -point.y > sink.value)
             sink = {
               value: -point.y,
               where: `k=${k} ${side} ${socket} t=${t.toFixed(3)} (${t < takeoff ? (t < at ? "walk" : "push-off") : "landing"})`,
             };
-        const planted: HumanFoot.ISocket = FootSlip.contact(sole);
+        const planted: IAutoMovieMotionHumanFoot.ISocket =
+          FootSlip.contact(sole);
         if (w < 0 || planted.point.y > 0.01) continue;
         const d: number = FootSlip.drift(touched, `${side}${w}`, planted);
         if (d > slip.value)
@@ -291,11 +305,13 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
     if (samples.length >= 3) {
       const fx = fit((s) => s.p.x);
       const fz = fit((s) => s.p.z);
-      const fy = fit((s) => s.p.y + 0.5 * 9.81 * s.t * s.t);
+      const fy = fit(
+        (s) => s.p.y + 0.5 * AutoMovieGravity.STANDARD * s.t * s.t,
+      );
       for (const s of samples) {
         const e: number = Math.hypot(
           s.p.x - fx(s.t),
-          s.p.y - (fy(s.t) - 0.5 * 9.81 * s.t * s.t),
+          s.p.y - (fy(s.t) - 0.5 * AutoMovieGravity.STANDARD * s.t * s.t),
           s.p.z - fz(s.t),
         );
         if (e > flight.value)
@@ -340,7 +356,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
       label: `${(n * 0.1).toFixed(1)} s`,
     }),
   ).filter((g) => g.seconds >= leap.entryTime - 0.6);
-  const performance: HumanPerformance = drawn;
+  const performance: IAutoMovieMotionHumanPerformance = drawn;
   return [
     {
       name: `jump-e1-${who}`,

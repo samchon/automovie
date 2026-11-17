@@ -1,13 +1,13 @@
 import {
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSurfaceNetwork,
-  type IAutoMovieSurfaceRig,
   rigAutoMovieSurfaceNetwork,
   sampleAutoMovieSurfaceNetwork,
 } from "@automovie/engine";
-import {
-  type IAutoMovieQuaternion,
-  type IAutoMovieVector3,
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSurfaceRig,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

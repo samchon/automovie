@@ -1,9 +1,16 @@
-import { AutoMovieLoftChain, type AutoMovieViewLoft, type IAutoMovieViewPart } from "@automovie/engine";
-import type { AutoMovieConstructionNode } from "@automovie/interface";
-
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
-import type { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
 import { AutoMovieHumanNail } from "../nail/AutoMovieHumanNail";
+import { AutoMovieLoftChain } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionNode,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1Nails,
+  IAutoMovieHumanNail,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * f1's twenty nails: which distal segment each digit's nail stands on, how that segment's axes read as distal and dorsal, and the
@@ -40,23 +47,6 @@ import { AutoMovieHumanNail } from "../nail/AutoMovieHumanNail";
  *   free edge's step on a median cut, which on f1's reference is about 0.7 mm, so it may be about twice too thick.
  */
 export namespace AutoMovieHumanF1Nails {
-  /** One digit's row. */
-  export interface IRow {
-    /** The digit family's chain name. */
-    digit: string;
-
-    /** The distal segment in `AutoMovieHumanF1Frames`. */
-    segment: string;
-
-    /**
-     * Whether the segment is a hand's: a hand's phalanx has Y proximal and X volar (Wu et al. 2005 4.3.5), so its distal direction is
-     * `-Y` and its dorsal `-X`; a toe's has X distal and Y dorsal.
-     */
-    hand: boolean;
-
-    /** The proportions. */
-    proportions: AutoMovieHumanNail.IProportions;
-  }
 
   // A toe's row has no crown radius, so its plate is its bed's own arc (`AutoMovieHumanNail.IProportions.radius`). None was found
   // for a lesser toe; the mean of the fingers' shares, tried as an estimate, set the plate's edges up to 1.3 mm under a back that
@@ -68,13 +58,13 @@ export namespace AutoMovieHumanF1Nails {
   /** The fold's depth and the fingernails' mean thickness, mm (Bellinato 2023). */
   const PLATE: number = 0.46;
 
-  const finger = (digit: string, segment: string, width: number, radius: number, thickness: number): IRow => ({
+  const finger = (digit: string, segment: string, width: number, radius: number, thickness: number): IAutoMovieHumanF1Nails.IRow => ({
     digit,
     segment,
     hand: true,
     proportions: { width, aspect: 0.91, radius, thickness, fold: PLATE, lunula: 1, wrap: 0.4 },
   });
-  const toe = (digit: string, segment: string, aspect: number, radius: number | null, thickness: number, wrap: number): IRow => ({
+  const toe = (digit: string, segment: string, aspect: number, radius: number | null, thickness: number, wrap: number): IAutoMovieHumanF1Nails.IRow => ({
     digit,
     segment,
     hand: false,
@@ -82,7 +72,7 @@ export namespace AutoMovieHumanF1Nails {
   });
 
   /** The rows, one per digit of a side. */
-  export const ROWS: readonly IRow[] = [
+  export const ROWS: readonly IAutoMovieHumanF1Nails.IRow[] = [
     finger("finger.thumb", "thumb.distal", 13.2 / 18.8, 9.6 / 13.2, 0.48),
     finger("finger.index", "index.distal", 11.1 / 15.4, 7.4 / 11.1, 0.47),
     finger("finger.middle", "middle.distal", 11.5 / 15.1, 7.3 / 11.5, 0.47),
@@ -101,15 +91,6 @@ export namespace AutoMovieHumanF1Nails {
   /** The net a digit's skin is read on for its nail: its station step, mm, its phases round, and how far before the last joint it starts, mm. */
   const SKIN: { station: number; phases: number; before: number } = { station: 0.25, phases: 360, before: 3 };
 
-  /** A digit's nail at a pose. */
-  export interface IMade {
-    /** The row. */
-    row: IRow;
-
-    /** The nail. */
-    nail: AutoMovieHumanNail.INail;
-  }
-
   /** The plate's and the bed's names for a digit. */
   export function names(digit: string): { plate: string; bed: string } {
     return { plate: "nail." + digit, bed: "nailbed." + digit };
@@ -121,26 +102,26 @@ export namespace AutoMovieHumanF1Nails {
    * @param family The digit's family at the pose, without its bed.
    * @param frames Every segment's frame at the pose.
    */
-  export function create(family: AutoMovieHumanConicLoft.IFamily, frames: ReadonlyMap<string, F.IFrame>): IMade {
-    const row: IRow | undefined = ROWS.find((r: IRow): boolean => r.digit === family.name);
+  export function create(family: IAutoMovieHumanConicLoft.IFamily, frames: ReadonlyMap<string, IAutoMovieHumanSegmentFrame>): IAutoMovieHumanF1Nails.IMade {
+    const row: IAutoMovieHumanF1Nails.IRow | undefined = ROWS.find((r: IAutoMovieHumanF1Nails.IRow): boolean => r.digit === family.name);
     if (row === undefined) throw new Error("f1 has no nail row for " + family.name);
-    const frame: F.IFrame | undefined = frames.get(row.segment);
+    const frame: IAutoMovieHumanSegmentFrame | undefined = frames.get(row.segment);
     if (frame === undefined) throw new Error("f1 has no segment " + row.segment);
-    const flip = (a: F.V3): F.V3 => [-a[0], -a[1], -a[2]];
-    const segment: AutoMovieHumanNail.IFrame = row.hand ? { origin: frame.origin, distal: flip(frame.axes[1]), dorsal: flip(frame.axes[0]) } : { origin: frame.origin, distal: frame.axes[0], dorsal: frame.axes[1] };
+    const flip = (a: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [-a[0], -a[1], -a[2]];
+    const segment: IAutoMovieHumanNail.IFrame = row.hand ? { origin: frame.origin, distal: flip(frame.axes[1]), dorsal: flip(frame.axes[0]) } : { origin: frame.origin, distal: frame.axes[0], dorsal: frame.axes[1] };
     const from: number = family.knots[0]!;
     const to: number = family.knots.at(-1)!;
     const end: number = family.tips?.[1]?.tip ?? to;
     const count: number = Math.ceil(to - from) + 1;
-    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1)));
+    const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1)));
     if (loft.chain === null) throw new Error("f1's " + family.name + " does not loft for its nail");
-    const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+    const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
     const { plate, bed }: { plate: string; bed: string } = names(family.name);
 
     // The skin from a little before the last joint to the tip, read once on a net `SKIN.station` mm by `2 pi / SKIN.phases` rad and
     // bilinear between its points: the law asks for some hundred thousand points, and on a digit, whose skin turns on radii of 5 mm
     // and more, a chord that long stands `SKIN.station^2 / (8 * 5)`, 2 micrometres, off the skin.
-    const centres: AutoMovieHumanConicLoft.V3[] = family.centres;
+    const centres: AutoMovieVector3Tuple[] = family.centres;
     let joint: number = 0;
     for (let k: number = 0; k + 2 < centres.length; ++k) joint += Math.hypot(centres[k + 1]![0] - centres[k]![0], centres[k + 1]![1] - centres[k]![1], centres[k + 1]![2] - centres[k]![2]);
     const first: number = Math.max(from, joint - SKIN.before);
@@ -178,8 +159,8 @@ export namespace AutoMovieHumanF1Nails {
    * @param families The digits' families at the pose, without their beds.
    * @param frames Every segment's frame at the pose.
    */
-  export function all(families: readonly AutoMovieHumanConicLoft.IFamily[], frames: ReadonlyMap<string, F.IFrame>): IMade[] {
-    return families.map((family: AutoMovieHumanConicLoft.IFamily): IMade => create(family, frames));
+  export function all(families: readonly IAutoMovieHumanConicLoft.IFamily[], frames: ReadonlyMap<string, IAutoMovieHumanSegmentFrame>): IAutoMovieHumanF1Nails.IMade[] {
+    return families.map((family: IAutoMovieHumanConicLoft.IFamily): IAutoMovieHumanF1Nails.IMade => create(family, frames));
   }
 
   /** Columns of a nail's join round its curve: the curve is some 40 mm long, so they stand 0.4 mm apart, under the bed's cell. */
@@ -192,14 +173,14 @@ export namespace AutoMovieHumanF1Nails {
    * @param made Its nail.
    * @param close Whether the family is lofted for a close-up of the nail, with the free edge's strip; absent, the figure's level.
    */
-  export function bedded(family: AutoMovieHumanConicLoft.IFamily, made: IMade, close: boolean = false): AutoMovieHumanConicLoft.IFamily {
+  export function bedded(family: IAutoMovieHumanConicLoft.IFamily, made: IAutoMovieHumanF1Nails.IMade, close: boolean = false): IAutoMovieHumanConicLoft.IFamily {
     // The level. At the figure's cameras a hand 190 mm long fills 900 px, 0.21 mm a pixel, and a foot 0.28: the fold's wall, 1.84 mm,
     // reads and its net's 0.46 mm cell is the lofting rule's quarter of it, while the free edge's step, one thickness long, is two
     // pixels and cannot be told from the bed's slope. So the figure lofts the bed alone; the strip, whose 0.12 mm rows ask the cap
     // for 100 to 160 rings, is the close-up's.
-    const nets: AutoMovieHumanNail.INail["bed"][] = close ? [made.nail.bed, made.nail.strip] : [made.nail.bed];
-    const reliefs: AutoMovieHumanConicLoft.IFamily["reliefs"] = [...(family.reliefs ?? []), ...nets];
-    const end: AutoMovieHumanConicLoft.ITip | null = family.tips?.[1] ?? null;
+    const nets: IAutoMovieHumanNail.INail["bed"][] = close ? [made.nail.bed, made.nail.strip] : [made.nail.bed];
+    const reliefs: IAutoMovieHumanConicLoft.IFamily["reliefs"] = [...(family.reliefs ?? []), ...nets];
+    const end: IAutoMovieHumanConicLoft.ITip | null = family.tips?.[1] ?? null;
     if (end === null) return { ...family, reliefs };
 
     // A net shows only what the rings sample, and a digit's layers are cut to a net's rows only along its wall: inside the cap the
@@ -209,7 +190,7 @@ export namespace AutoMovieHumanF1Nails {
     const length: number = end.tip - end.from;
     const asked: number = Math.max(
       end.rings ?? 0,
-      ...nets.map((relief: AutoMovieHumanNail.INail["bed"]): number => {
+      ...nets.map((relief: IAutoMovieHumanNail.INail["bed"]): number => {
         const far: number = Math.min(length, end.tip - relief.stations[0]);
         return far > 0 ? Math.ceil((2 * Math.sqrt(length * far) * (relief.rows - 3)) / (relief.stations[1] - relief.stations[0])) - 1 : 0;
       }),
@@ -226,11 +207,11 @@ export namespace AutoMovieHumanF1Nails {
    * @param nails The nails of one side.
    * @param twin The name of a family's reflection.
    */
-  export function attach(root: AutoMovieConstructionNode, sources: Map<string, IAutoMovieViewPart>, nails: readonly IMade[], twin: (name: string) => string): AutoMovieConstructionNode {
-    let node: AutoMovieConstructionNode = root;
+  export function attach(root: IAutoMovieConstructionNode, sources: Map<string, IAutoMovieViewPart>, nails: readonly IAutoMovieHumanF1Nails.IMade[], twin: (name: string) => string): IAutoMovieConstructionNode {
+    let node: IAutoMovieConstructionNode = root;
     for (const made of nails)
       for (const side of [1, -1]) {
-        const plate: AutoMovieHumanConicLoft.IFamily = side > 0 ? made.nail.plate : AutoMovieHumanConicLoft.mirror(made.nail.plate, twin(made.nail.plate.name));
+        const plate: IAutoMovieHumanConicLoft.IFamily = side > 0 ? made.nail.plate : AutoMovieHumanConicLoft.mirror(made.nail.plate, twin(made.nail.plate.name));
         const cell: number = (made.nail.bed.stations[1] - made.nail.bed.stations[0]) / (made.nail.bed.rows - 3);
         const last: number = plate.knots[plate.knots.length - 1]!;
         const count: number = Math.ceil(last / cell) + 1;

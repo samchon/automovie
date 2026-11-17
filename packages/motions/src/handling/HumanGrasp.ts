@@ -1,26 +1,25 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  type curlChainUntilContact,
-  physicalShapeSpan,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeSpan } from "@automovie/engine";
 import type {
-  AutoMovieGripKind,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
-  IAutoMoviePose,
+  IAutoMovieCurlChainUntilContact,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanGraspReach } from "./HumanGraspReach";
 
 /**
@@ -56,27 +55,6 @@ import { HumanGraspReach } from "./HumanGraspReach";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanGrasp {
-  /** A grasp target in the world. */
-  export interface ITarget {
-    /** The grip point, world metres. */
-    point: IAutoMovieVector3;
-
-    /** The unit direction the hand arrives along, into the object (the affordance's `-Y`). */
-    approach: IAutoMovieVector3;
-
-    /** The unit wrapped axis (the affordance's `+X`). */
-    axis: IAutoMovieVector3;
-
-    /** The grip kind. */
-    grip: AutoMovieGripKind;
-
-    /** The grasped width, metres. */
-    width: number;
-
-    /** The prop's colliders in the world. */
-    colliders: curlChainUntilContact.ICollider[];
-  }
-
   /**
    * A prop affordance as a target at a film second, from its displayed frame.
    *
@@ -88,12 +66,12 @@ export namespace HumanGrasp {
    * @throws {HumanRefusal} When the prop declares no such affordance or no colliders.
    */
   export function target(
-    context: Pick<IHumanActionContext, "prop">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop">,
     subject: string,
     id: string,
     seconds: number,
-  ): ITarget {
-    const prop: IHumanActionContext.IProp = context.prop(subject);
+  ): IAutoMovieMotionHumanGrasp.ITarget {
+    const prop: IAutoMovieMotionHumanPropReader = context.prop(subject);
     return HumanGrasp.at(prop.prop, id, prop.frame(seconds));
   }
 
@@ -108,10 +86,10 @@ export namespace HumanGrasp {
    * @throws {HumanRefusal} When the prop declares no such affordance or no colliders.
    */
   export function at(
-    prop: IHumanProp,
+    prop: IAutoMovieMotionHumanProp,
     id: string,
-    frame: IHumanProp.IFrame,
-  ): ITarget {
+    frame: IAutoMovieRigidTransform,
+  ): IAutoMovieMotionHumanGrasp.ITarget {
     const subject: string = prop.subject;
     const affordance: IAutoMovieAffordance | undefined = prop.affordances?.find(
       (a: IAutoMovieAffordance): boolean => a.id === id,
@@ -130,7 +108,7 @@ export namespace HumanGrasp {
         reason: `Prop ${subject} has no affordance ${id}; it has ${(prop.affordances ?? []).map((a: IAutoMovieAffordance): string => a.id).join(", ") || "none"}`,
         fix: "name one of the prop's affordances, or declare this one on the prop",
       });
-    const shapes: readonly P.IShape[] = prop.shapes ?? [];
+    const shapes: readonly IAutoMoviePhysicalShape[] = prop.shapes ?? [];
     if (shapes.length === 0)
       throw new HumanRefusal({
         kind: "affordance",
@@ -148,8 +126,10 @@ export namespace HumanGrasp {
       y: -1,
       z: 0,
     });
-    const colliders: curlChainUntilContact.ICollider[] = shapes.map(
-      (shape: P.IShape): curlChainUntilContact.ICollider => ({ shape, frame }),
+    const colliders: IAutoMovieCurlChainUntilContact.ICollider[] = shapes.map(
+      (
+        shape: IAutoMoviePhysicalShape,
+      ): IAutoMovieCurlChainUntilContact.ICollider => ({ shape, frame }),
     );
     const point: IAutoMovieVector3 = Vector3.add(
       frame.position,
@@ -158,12 +138,14 @@ export namespace HumanGrasp {
 
     // Without an authored aperture, the grasped part is the collider whose
     // centre lies nearest the grip point (a mug's handle, not its body).
-    const centre = (c: curlChainUntilContact.ICollider): IAutoMovieVector3 =>
+    const centre = (
+      c: IAutoMovieCurlChainUntilContact.ICollider,
+    ): IAutoMovieVector3 =>
       Vector3.add(
         c.frame.position,
         Quaternion.rotateVector(c.frame.rotation, c.shape.transform.position),
       );
-    const nearest: curlChainUntilContact.ICollider = colliders.reduce(
+    const nearest: IAutoMovieCurlChainUntilContact.ICollider = colliders.reduce(
       (best, c) =>
         Vector3.length(Vector3.subtract(centre(c), point)) <
         Vector3.length(Vector3.subtract(centre(best), point))
@@ -190,11 +172,11 @@ export namespace HumanGrasp {
    * @returns The wrist point and the hand's rotation.
    */
   export function hand(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    target: ITarget,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    target: IAutoMovieMotionHumanGrasp.ITarget,
     tilt: number = 0,
-  ): HumanHand.IWrist {
+  ): IAutoMovieMotionHumanHand.IWrist {
     // The grip socket's frame fixes the hand's turn; the palm then lies on
     // the grasped part's near surface, half its width back from the axis. A
     // tilt turns the hand about the approach through the palm's point, an
@@ -252,7 +234,7 @@ export namespace HumanGrasp {
    * key is fitted with the grasp's own arm solution as its reference, the way
    * the law will show it. The returned `reference` is that solution, for the
    * law to pass on every goal of the stroke
-   * (`IHumanPosture.IGoal.reference`).
+   * (`HumanPosture.IGoal.reference`).
    *
    * @param body The body.
    * @param posture The posture the arm is fitted in (its other limbs and trunk).
@@ -262,28 +244,25 @@ export namespace HumanGrasp {
    * @param tilts The tilts tried at each turn; only the authored one when absent.
    * @param stroke The further key poses the same grip must reach, from its grasp goal and from the hand the arm shows for that goal: what is held is rigid in the shown hand, so a key that places the held thing is built from the shown one. None when absent.
    * @param turns The turns tried, degrees; -90 to 90 in steps of 15 when absent.
-   * @param required What a grip must hold before its cost counts: a measure of its per-key errors (the grasp's, then each stroke key's) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
+   * @param required What a grip must hold before its cost counts: a measure of its per-key errors, judgements and the bounds the keys hold their judgements to (the grasp's, then each stroke key's; `NaN` where none) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
    * @param admits Whether the caller can take a candidate's grasp goal at all: a candidate it refuses is tried only when it refuses every one. Every candidate when absent.
    * @returns The best turn and tilt, their goal, the hand the arm achieves for it, and the arm's solution there.
    */
   export function reachable(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
     bend: IAutoMovieVector3,
-    goal: (turn: number, tilt: number) => HumanHand.IWrist,
+    goal: (turn: number, tilt: number) => IAutoMovieMotionHumanHand.IWrist,
     tilts: readonly number[] = [0],
     stroke?: (
-      wrist: HumanHand.IWrist,
-      shown: HumanHand.IWrist,
-    ) => readonly IKey[],
+      wrist: IAutoMovieMotionHumanHand.IWrist,
+      shown: IAutoMovieMotionHumanHand.IWrist,
+    ) => Iterable<IAutoMovieMotionHumanGrasp.IKey>,
     turns: readonly number[] = TURNS,
-    required?: {
-      bound: number;
-      measure: (keys: readonly number[]) => number;
-    },
-    admits?: (wrist: HumanHand.IWrist) => boolean,
-  ): IReach {
+    required?: IAutoMovieMotionHumanGrasp.IReachableRequired,
+    admits?: (wrist: IAutoMovieMotionHumanHand.IWrist) => boolean,
+  ): IAutoMovieMotionHumanGrasp.IReach {
     return HumanGraspReach.reachable(
       body,
       posture,
@@ -304,48 +283,6 @@ export namespace HumanGrasp {
     (_: unknown, i: number): number => -90 + 15 * i,
   );
 
-  /** A key pose of a stroke: the posture the arm is fitted in, the wrist goal and the elbow hint. */
-  export interface IKey {
-    /** The posture's other limbs and trunk at the key. */
-    posture: IHumanPosture;
-
-    /** The wrist goal at the key. */
-    wrist: HumanHand.IWrist;
-
-    /** The elbow hint at the key, world metres. */
-    bend: IAutoMovieVector3;
-  }
-
-  /** The reachable grip {@link reachable} chose. */
-  export interface IReach {
-    /** Degrees of the chosen turn. */
-    turn: number;
-
-    /** Degrees of the chosen tilt. */
-    tilt: number;
-
-    /** The wrist goal of that turn and tilt. */
-    wrist: HumanHand.IWrist;
-
-    /** The hand the arm achieves for it. */
-    shown: HumanHand.IWrist;
-
-    /** The arm's solution at the grasp, the reference of the whole stroke. */
-    reference: IHumanPosture.IReference;
-
-    /** The error the arm leaves over the grasp and its stroke: degrees of rotation plus millimetres of position. */
-    miss: number;
-
-    /** How far the fitted elbow turns from its hint about the shoulder-to-wrist line, worst over the grasp and its stroke, degrees. */
-    departure: number;
-
-    /** The error the arm leaves at the grasp and then at each key of its stroke, in the stroke's order, counted as `miss` is: what a law reads to say which pose of a use the grasp cannot hold. */
-    keys: readonly number[];
-
-    /** The posed body at the grasp. */
-    pose: IAutoMoviePose;
-  }
-
   /**
    * The standing posture a person settles into from where they stand: the
    * stand law's posture centred over the person's displayed feet, facing the
@@ -358,12 +295,12 @@ export namespace HumanGrasp {
    * @returns The posture.
    */
   export function standing(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<
       AutoMovieHumanoidBone,
       Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
     >,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     return HumanGraspReach.standing(body, bones);
   }
 
@@ -375,7 +312,10 @@ export namespace HumanGrasp {
    * @param turn Degrees about the wrapped axis.
    * @returns The turned target.
    */
-  export function around(target: ITarget, turn: number): ITarget {
+  export function around(
+    target: IAutoMovieMotionHumanGrasp.ITarget,
+    turn: number,
+  ): IAutoMovieMotionHumanGrasp.ITarget {
     return HumanGraspReach.around(target, turn);
   }
 
@@ -388,7 +328,7 @@ export namespace HumanGrasp {
    * @returns Metres.
    */
   export function extent(
-    colliders: readonly curlChainUntilContact.ICollider[],
+    colliders: readonly IAutoMovieCurlChainUntilContact.ICollider[],
     axis: IAutoMovieVector3,
   ): number {
     const [lo, hi]: readonly [number, number] = span(colliders, axis);
@@ -405,7 +345,7 @@ export namespace HumanGrasp {
    * @returns The low and high projections, metres along the axis from the world origin.
    */
   export function span(
-    colliders: readonly curlChainUntilContact.ICollider[],
+    colliders: readonly IAutoMovieCurlChainUntilContact.ICollider[],
     axis: IAutoMovieVector3,
   ): readonly [number, number] {
     let lo: number = Infinity;

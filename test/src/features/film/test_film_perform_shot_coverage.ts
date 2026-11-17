@@ -1,15 +1,12 @@
-import {
-  IAutoMoviePerformedShot,
-  IAutoMovieStagedSet,
-  performShot,
-  stageScene,
-} from "@automovie/engine";
+import { performShot, stageScene } from "@automovie/engine";
 import {
   IAutoMovieBlockingCoverage,
   IAutoMovieCameraIntent,
   IAutoMovieClip,
+  type IAutoMoviePerformedShot,
   IAutoMovieShotCoverage,
   IAutoMovieSkeleton,
+  type IAutoMovieStagedSet,
   IAutoMovieTrack,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

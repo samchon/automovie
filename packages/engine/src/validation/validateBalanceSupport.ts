@@ -1,11 +1,12 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
-  type IAutoMovieJointAxes,
-  IAutoMovieMotion,
-  IAutoMovieSkeleton,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieSkeletonTopology,
+  type IAutoMovieValidateBalanceSupport,
   IAutoMovieValidation,
   IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { indexSkeletonTopology, resolvePose } from "../kinematics";
@@ -13,10 +14,6 @@ import { convexHull2D } from "../math/convexHull2D";
 import { pointHullDistance } from "../math/pointHullDistance";
 import { sampleMotion } from "../motion/sampleMotion";
 import { windowSampleTimes } from "../motion/windowSampleTimes";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import type { IAutoMovieResolvedBone } from "./../kinematics/IAutoMovieResolvedBone";
-import type { IAutoMovieSkeletonTopology } from "./../kinematics/IAutoMovieSkeletonTopology";
-import { IAutoMovieBalanceSupportWindow } from "./IAutoMovieBalanceSupportWindow";
 import { ViolationCollector } from "./ViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 
@@ -77,45 +74,12 @@ const SUPPORT_BONE_REACHABLE: string =
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Skeleton topology/reachability are computed once per invocation, then reused across windows.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Caller inputs are borrowed; per-sample maps/hulls release, while returned diagnostics grow with sampled failures and acquire no host handle.
  */
-export const validateBalanceSupport: (props: {
-  motion: IAutoMovieMotion;
-  skeleton: IAutoMovieSkeleton;
-  supports: readonly IAutoMovieBalanceSupportWindow[];
-  sampleRate?: number;
-  path?: string;
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-  physicsIntent?: string;
-}) => IAutoMovieValidation = (props: {
-  /** Motion clip to sample. */
-  motion: IAutoMovieMotion;
-
-  /** Skeleton used for forward kinematics. */
-  skeleton: IAutoMovieSkeleton;
-
-  /** Declared support windows to test. */
-  supports: readonly IAutoMovieBalanceSupportWindow[];
-
-  /** Samples per second used by the validator. Defaults to `24`. */
-  sampleRate?: number;
-
-  /** JSON path of the support annotation being checked. Defaults to `$input`. */
-  path?: string;
-
-  /** Optional clinical-axis remap for rigs authored in semantic axes. */
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
-  /** Optional rest-frame remap for clinical authoring. */
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-
-  /**
-   * Marker that opts the clip out of the balance expectation: a deliberately
-   * off-balance pose (wire-fu, a mid-spin freeze, a tiptoe) sets this and the
-   * matching warnings are suppressed.
-   */
-  physicsIntent?: string;
-}): IAutoMovieValidation => {
-  const collector: ViolationCollector = new ViolationCollector();
+export const validateBalanceSupport: (
+  props: IAutoMovieValidateBalanceSupport.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateBalanceSupport.IProps,
+): IAutoMovieValidation => {
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const sampleRate: number =
     props.sampleRate === undefined ? DEFAULT_SAMPLE_RATE : props.sampleRate;

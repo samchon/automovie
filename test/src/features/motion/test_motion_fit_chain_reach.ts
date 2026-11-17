@@ -1,13 +1,10 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  type IAutoMovieResolvedBone,
-  Vector3,
-} from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";

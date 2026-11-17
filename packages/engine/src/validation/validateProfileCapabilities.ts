@@ -1,4 +1,8 @@
-import { IAutoMovieProfile, IAutoMovieValidation } from "@automovie/interface";
+import {
+  type IAutoMovieValidateProfileCapabilities,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
 
@@ -13,13 +17,12 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Scalar helpers share finite/range semantics while uniqueness is local to current inputs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only diagnostics return; no response driver, physics task or mount host is retained.
  */
-export const validateProfileCapabilities: (props: {
-  profiles: readonly IAutoMovieProfile[];
-}) => IAutoMovieValidation = (props: {
-  /** Profiles attached to one runtime model or model group. */
-  profiles: readonly IAutoMovieProfile[];
-}): IAutoMovieValidation => {
-  const collector: ViolationCollector = new ViolationCollector();
+export const validateProfileCapabilities: (
+  props: IAutoMovieValidateProfileCapabilities.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateProfileCapabilities.IProps,
+): IAutoMovieValidation => {
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const profileIds: Set<string> = new Set<string>();
   for (const [profileIndex, profile] of props.profiles.entries()) {
     const path: string = `$input.profiles[${profileIndex}]`;
@@ -109,12 +112,12 @@ const nonBlank: (
   value: string,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: string,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (value.trim().length === 0)
     collector.push("type", path, `${label} must be non-blank`, value);
@@ -140,13 +143,13 @@ const unique: (
   value: string,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   seen: Set<string>,
   value: string,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (seen.has(value))
     collector.push("type", path, `${label} must be unique`, value);
@@ -172,12 +175,12 @@ const positive: (
   value: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (Number.isFinite(value) === false || value <= 0)
     collector.push(
@@ -207,12 +210,12 @@ const unitPositive: (
   value: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (Number.isFinite(value) === false || value <= 0 || value > 1)
     collector.push(
@@ -244,14 +247,14 @@ const bounded: (
   max: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: number,
   min: number,
   max: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => collector.range(path, value, min, max, label);
 
 /**
@@ -275,14 +278,14 @@ const integer: (
   max: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   value: number,
   min: number,
   max: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   if (Number.isInteger(value) === false || value < min || value > max)
     collector.push(

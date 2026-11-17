@@ -1,4 +1,4 @@
-import { IAutoMovieMeshPhysicalSource } from "./IAutoMovieMeshPhysicalSource";
+import type { IAutoMovieMeshPhysicalSource } from "./IAutoMovieMeshPhysicalSource";
 
 /**
  * Physical source correspondence of a mesh, aligned with its render vertices.

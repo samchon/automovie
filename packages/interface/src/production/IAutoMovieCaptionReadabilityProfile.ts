@@ -1,5 +1,5 @@
-import { IAutoMovieCaptionGraphemeSegmentationIdentity } from "./IAutoMovieCaptionGraphemeSegmentationIdentity";
-import { IAutoMovieCaptionReadabilityBoundary } from "./IAutoMovieCaptionReadabilityBoundary";
+import type { IAutoMovieCaptionGraphemeSegmentationIdentity } from "./IAutoMovieCaptionGraphemeSegmentationIdentity";
+import type { IAutoMovieCaptionReadabilityBoundary } from "./IAutoMovieCaptionReadabilityBoundary";
 
 /**
  * Production-owned caption readability thresholds for one language.

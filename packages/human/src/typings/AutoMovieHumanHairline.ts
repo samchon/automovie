@@ -1,17 +1,18 @@
+import type { AutoMovieHumanHairline as AutoMovieHumanHairlineContract } from "@automovie/interface";
+
+/** The canonical AutoMovieHumanHairline literal vocabulary; runtime named members below preserve value access. */
+export type AutoMovieHumanHairline = AutoMovieHumanHairlineContract;
+
 /** Closed hairline choices; serialized values are unchanged. */
-export enum AutoMovieHumanHairline {
-  /** round choice. */
-  Round = "round",
-
-  /** mShaped choice. */
-  MShaped = "mShaped",
-
-  /** rectangular choice. */
-  Rectangular = "rectangular",
-
-  /** bellShaped choice. */
-  BellShaped = "bellShaped",
-
-  /** triangular choice. */
-  Triangular = "triangular",
-}
+export const AutoMovieHumanHairline = {
+  /** Smooth concave frontal contour without a distinct frontotemporal recession. */
+  Round: "round",
+  /** Marked frontotemporal recession with raised lateral frontal margins. */
+  MShaped: "mShaped",
+  /** Horizontal frontal margin with mild temporal recession. */
+  Rectangular: "rectangular",
+  /** Bell-shaped frontal contour with a higher midline hairline. */
+  BellShaped: "bellShaped",
+  /** Frontal margin descending nearly straight from the centre toward the temples. */
+  Triangular: "triangular",
+} as const satisfies Readonly<Record<string, AutoMovieHumanHairlineContract>>;

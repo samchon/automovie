@@ -1,5 +1,8 @@
-import { IAutoMovieRenderSpec } from "@automovie/interface";
-import { IAutoMovieRenderAdapters, renderVideo } from "@automovie/render";
+import {
+  type IAutoMovieRenderAdapters,
+  IAutoMovieRenderSpec,
+} from "@automovie/interface";
+import { renderVideo } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";

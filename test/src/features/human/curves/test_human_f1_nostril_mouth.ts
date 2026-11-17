@@ -1,4 +1,5 @@
-import { type AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
+import { AutoMovieHumanF1 } from "@automovie/human";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -24,9 +25,9 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the anatomical observation, the tolerance's source and both scenarios.
  */
 export function test_human_f1_nostril_mouth(): void {
-  const stored: AutoMovieHumanConicLoft.IFamily | undefined = AutoMovieHumanF1.CUTTERS.map(
-    (cutter): AutoMovieHumanConicLoft.IFamily => cutter.family,
-  ).find((family: AutoMovieHumanConicLoft.IFamily): boolean => family.name === "nostril");
+  const stored: IAutoMovieHumanConicLoft.IFamily | undefined = AutoMovieHumanF1.CUTTERS.map(
+    (cutter): IAutoMovieHumanConicLoft.IFamily => cutter.family,
+  ).find((family: IAutoMovieHumanConicLoft.IFamily): boolean => family.name === "nostril");
   if (stored === undefined) throw new Error("f1 has no nostril cutter");
 
   // 1. The stored cutter.
@@ -36,7 +37,7 @@ export function test_human_f1_nostril_mouth(): void {
   // 2. The made defect: the mouth knot fitted to the floor's hull again.
   const mouth: number = stored.knots.indexOf(9);
   if (mouth < 0) throw new Error("the nostril cutter has no knot at 9 mm");
-  const defect: AutoMovieHumanConicLoft.IFamily = {
+  const defect: IAutoMovieHumanConicLoft.IFamily = {
     ...stored,
     values: stored.values.map((row: number[], f: number): number[] => (f === 0 ? row.map((x: number, k: number): number => (k === mouth ? 8.24 : x)) : row)),
   };
@@ -56,7 +57,7 @@ const HULL_MM: number = 1.46;
  * @param family The cutter: two centres, its chart's `up`, its front extreme's `u` in the first row.
  * @returns One line per such knot, its station first.
  */
-function past(family: AutoMovieHumanConicLoft.IFamily): string[] {
+function past(family: IAutoMovieHumanConicLoft.IFamily): string[] {
   const [a, b] = family.centres as [number, number, number][];
   const length: number = Math.hypot(b![0] - a![0], b![1] - a![1], b![2] - a![2]);
   const d: number[] = [0, 1, 2].map((i: number): number => (b![i]! - a![i]!) / length);

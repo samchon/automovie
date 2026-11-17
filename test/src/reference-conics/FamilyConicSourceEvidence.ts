@@ -1,10 +1,11 @@
-import type { AutoMovieHumanConicLoft as H } from "@automovie/human";
+import { FamilyConicCaptureInput as Input } from "./FamilyConicCaptureInput";
+import type {
+  FamilyConicOriginalCatalog as Original,
+} from "./FamilyConicOriginalCatalog";
+import type { FamilyConicSourceCapture as Source } from "./FamilyConicSourceCapture";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-
-import { FamilyConicCaptureInput as Input } from "./FamilyConicCaptureInput";
-import type { FamilyConicOriginalCatalog as Original } from "./FamilyConicOriginalCatalog";
-import type { FamilyConicSourceCapture as Source } from "./FamilyConicSourceCapture";
 
 /** Original-definition serialization and exclusive evidence writing before downstream rendering. */
 export namespace FamilyConicSourceEvidence {
@@ -23,7 +24,7 @@ export namespace FamilyConicSourceEvidence {
       bare: state.input.bare,
       generationEntry: "AutoMovieHumanF1.assembleNative(fields)",
       actualNativeFamilies: state.assembly.families.filter(
-        (family: H.IFamily): boolean => family.native !== undefined,
+        (family: IAutoMovieHumanConicLoft.IFamily): boolean => family.native !== undefined,
       ).length,
       reads: state.reads,
       assemblyMs: state.assemblyMs,

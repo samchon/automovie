@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
+
 import { HumanRefusal } from "./HumanRefusal";
 
 /**
@@ -111,7 +113,7 @@ export namespace HumanBound {
     minimum: number,
     maximum: number,
     unit: string = "",
-    open?: HumanRefusal.IRange["open"],
+    open?: IAutoMovieMotionHumanRefusal.IRange["open"],
   ): number {
     const low: boolean =
       open === "minimum" || open === "both"
@@ -135,8 +137,8 @@ export namespace HumanBound {
   function refuse(
     axis: string,
     value: number,
-    feasible: HumanRefusal.IRange,
-  ): HumanRefusal {
+    feasible: IAutoMovieMotionHumanRefusal.IRange,
+  ): IAutoMovieMotionHumanRefusal {
     const accepted: string = HumanRefusal.describe(feasible);
     return new HumanRefusal({
       kind: "parameter",

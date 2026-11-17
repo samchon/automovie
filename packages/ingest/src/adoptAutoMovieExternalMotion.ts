@@ -3,22 +3,21 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieClip,
+  IAutoMovieExternalMotionAdoptionDecision,
+  IAutoMovieExternalMotionAdoptionReceipt,
+  IAutoMovieExternalMotionInspection,
+  IAutoMovieExternalMotionNativeHandoff,
+  IAutoMovieExternalMotionNodeInspection,
+  IAutoMovieExternalMotionRetargetDecision,
+  IAutoMovieExternalMotionRetargetHandoff,
+  IAutoMovieExternalMotionSource,
+  IAutoMovieImportedNodeBoneMapping,
   IAutoMovieSkeleton,
   IAutoMovieTrack,
   IAutoMovieTransform,
 } from "@automovie/interface";
 
 import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE } from "./AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";
-import type { AutoMovieExternalMotionAdoptionDecision } from "./AutoMovieExternalMotionAdoptionDecision";
-import type { IAutoMovieExternalModelInspection } from "./IAutoMovieExternalModelInspection";
-import type { IAutoMovieExternalMotionAdoption } from "./IAutoMovieExternalMotionAdoption";
-import type { IAutoMovieExternalMotionBoneMapping } from "./IAutoMovieExternalMotionBoneMapping";
-import type { IAutoMovieExternalMotionInspection } from "./IAutoMovieExternalMotionInspection";
-import type { IAutoMovieExternalMotionNativeHandoff } from "./IAutoMovieExternalMotionNativeHandoff";
-import type { IAutoMovieExternalMotionNodeInspection } from "./IAutoMovieExternalMotionNodeInspection";
-import type { IAutoMovieExternalMotionRetargetDecision } from "./IAutoMovieExternalMotionRetargetDecision";
-import type { IAutoMovieExternalMotionRetargetHandoff } from "./IAutoMovieExternalMotionRetargetHandoff";
-import type { IAutoMovieExternalMotionSource } from "./IAutoMovieExternalMotionSource";
 import { compareCodeUnits } from "./internal/compareCodeUnits";
 import { composeLocalTransform } from "./internal/composeLocalTransform";
 
@@ -42,25 +41,11 @@ import { composeLocalTransform } from "./internal/composeLocalTransform";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Adoption validates one decision against one inspection per call and shares no work across calls; the inspection it reads is already the caller's reused result.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary maps and sets die with the call; the receipt retains copies of the take, rig and mapping proportional to their size and is owned by the caller, with no handle or task.
  */
-export const adoptAutoMovieExternalMotion: (props: {
-  /** Unmodified result of inspecting the source's exact resident bytes. */
-  inspection: IAutoMovieExternalModelInspection;
-
-  /** Manifest identity whose digest-to-byte binding the caller establishes. */
-  source: IAutoMovieExternalMotionSource;
-
-  /** Explicit take, rig and mapping, with retarget fields in retarget mode. */
-  decision: AutoMovieExternalMotionAdoptionDecision;
-}) => IAutoMovieExternalMotionAdoption = (props: {
-  /** Unmodified result of inspecting the source's exact resident bytes. */
-  inspection: IAutoMovieExternalModelInspection;
-
-  /** Manifest identity whose digest-to-byte binding the caller establishes. */
-  source: IAutoMovieExternalMotionSource;
-
-  /** Explicit take, rig and mapping, with retarget fields in retarget mode. */
-  decision: AutoMovieExternalMotionAdoptionDecision;
-}): IAutoMovieExternalMotionAdoption => {
+export const adoptAutoMovieExternalMotion: (
+  props: IAutoMovieExternalMotionAdoptionReceipt.IProps,
+) => IAutoMovieExternalMotionAdoptionReceipt = (
+  props: IAutoMovieExternalMotionAdoptionReceipt.IProps,
+): IAutoMovieExternalMotionAdoptionReceipt => {
   if (props.inspection.profile !== "gltf-motion-v1")
     throw new Error(
       'External motion adoption requires the "gltf-motion-v1" inspection profile.',
@@ -91,7 +76,7 @@ export const adoptAutoMovieExternalMotion: (props: {
     throw new Error(
       `External motion source digest "${props.source.digest}" must be a lowercase SHA-256 digest.`,
     );
-  const decision: AutoMovieExternalMotionAdoptionDecision = props.decision;
+  const decision: IAutoMovieExternalMotionAdoptionDecision = props.decision;
   if (decision.mode !== "native" && decision.mode !== "retarget")
     throw new Error(
       `Unsupported external motion adoption mode "${String((decision as { mode: unknown }).mode)}".`,
@@ -133,14 +118,14 @@ export const adoptAutoMovieExternalMotion: (props: {
 };
 
 const validateMotionBinding: (props: {
-  decision: AutoMovieExternalMotionAdoptionDecision;
+  decision: IAutoMovieExternalMotionAdoptionDecision;
   take: IAutoMovieClip;
   nodes: IAutoMovieExternalMotionNodeInspection[];
 }) => Pick<
   IAutoMovieExternalMotionNativeHandoff,
   "sourceRig" | "mapping"
 > = (props: {
-  decision: AutoMovieExternalMotionAdoptionDecision;
+  decision: IAutoMovieExternalMotionAdoptionDecision;
   take: IAutoMovieClip;
   nodes: IAutoMovieExternalMotionNodeInspection[];
 }): Pick<IAutoMovieExternalMotionNativeHandoff, "sourceRig" | "mapping"> => {
@@ -166,7 +151,7 @@ const validateMotionBinding: (props: {
       'External motion source rig is missing required bone "hips".',
     );
 
-  const mapping: IAutoMovieExternalMotionBoneMapping[] = props.decision.mapping;
+  const mapping: IAutoMovieImportedNodeBoneMapping[] = props.decision.mapping;
   if (mapping.length === 0)
     throw new Error("External motion semantic mapping must not be empty.");
   const availableNodes: Map<string, IAutoMovieExternalMotionNodeInspection> =
@@ -245,13 +230,13 @@ const validateMotionBinding: (props: {
     mapping: mapping
       .map(
         (
-          entry: IAutoMovieExternalMotionBoneMapping,
-        ): IAutoMovieExternalMotionBoneMapping => ({ ...entry }),
+          entry: IAutoMovieImportedNodeBoneMapping,
+        ): IAutoMovieImportedNodeBoneMapping => ({ ...entry }),
       )
       .sort(
         (
-          left: IAutoMovieExternalMotionBoneMapping,
-          right: IAutoMovieExternalMotionBoneMapping,
+          left: IAutoMovieImportedNodeBoneMapping,
+          right: IAutoMovieImportedNodeBoneMapping,
         ): number => compareCodeUnits(left.node, right.node),
       ),
   };
@@ -359,6 +344,16 @@ const cloneSkeleton: (skeleton: IAutoMovieSkeleton) => IAutoMovieSkeleton = (
   bones: skeleton.bones.map(
     (bone: IAutoMovieBone): IAutoMovieBone => ({
       ...bone,
+      ...(bone.axes === undefined
+        ? {}
+        : {
+            axes: {
+              ...bone.axes,
+              flexion: { ...bone.axes.flexion },
+              abduction: { ...bone.axes.abduction },
+              twist: { ...bone.axes.twist },
+            },
+          }),
       rest: {
         translation: { ...bone.rest.translation },
         rotation: { ...bone.rest.rotation },
@@ -369,6 +364,15 @@ const cloneSkeleton: (skeleton: IAutoMovieSkeleton) => IAutoMovieSkeleton = (
           ? null
           : {
               ...bone.constraint,
+              ...(bone.constraint.swingTwist === undefined ||
+              bone.constraint.swingTwist === null
+                ? {}
+                : {
+                    swingTwist: {
+                      ...bone.constraint.swingTwist,
+                      twist: { ...bone.constraint.swingTwist.twist },
+                    },
+                  }),
               flexion:
                 bone.constraint.flexion === null
                   ? null

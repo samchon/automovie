@@ -1,4 +1,4 @@
-import { IAutoMovieCameraClearanceSphere } from "./IAutoMovieCameraClearanceSphere";
+import type { IAutoMovieCameraClearanceSphere } from "./IAutoMovieCameraClearanceSphere";
 
 /**
  * Physical envelopes carried by one authored and resolved camera.

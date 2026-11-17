@@ -1,12 +1,17 @@
 import type {
-  IAutoMoviePhysicalContactBinding as Binding,
   IAutoMovieFootfallPattern,
-  IAutoMoviePhysicalProfile as P,
-  IAutoMoviePhysicalPointBound as PointBound,
+  IAutoMoviePhysicalContactBinding,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalMaterial,
+  IAutoMoviePhysicalPointBound,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
 
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
 import { admitPhysicalPointBounds } from "./admitPhysicalPointBounds";
 import { isPhysicalActuatorChain } from "./isPhysicalActuatorChain";
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
@@ -24,10 +29,10 @@ import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 23 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function admitPhysicalContactBindings(
-  input: Simulation.IInput,
-  body: Simulation.IBody,
-  bindings: Binding[] | undefined,
-  pointBounds?: PointBound[],
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  body: IAutoMoviePhysicalSimulationInput.IBody,
+  bindings: IAutoMoviePhysicalContactBinding[] | undefined,
+  pointBounds?: IAutoMoviePhysicalPointBound[],
 ): void {
   if (
     (bindings !== undefined && !Array.isArray(bindings)) ||
@@ -39,31 +44,42 @@ export function admitPhysicalContactBindings(
   const ids: Set<string> = new Set();
   for (const binding of bindings ?? []) {
     if (!binding) throw new Error(body.id + ": invalid contact binding");
-    const receiver: Simulation.IBody | undefined = input.bodies.find(
-      (candidate: Simulation.IBody): boolean =>
-        candidate.id === binding.target?.body,
-    );
-    const source: P.IShape | undefined = body.profile.segments
+    const receiver: IAutoMoviePhysicalSimulationInput.IBody | undefined =
+      input.bodies.find(
+        (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
+          candidate.id === binding.target?.body,
+      );
+    const source: IAutoMoviePhysicalShape | undefined = body.profile.segments
       .find(
-        (segment: P.ISegment): boolean => segment.bone === binding.source?.bone,
+        (segment: IAutoMoviePhysicalSegment): boolean =>
+          segment.bone === binding.source?.bone,
       )
       ?.shapes.find(
-        (shape: P.IShape): boolean => shape.id === binding.source.shape,
+        (shape: IAutoMoviePhysicalShape): boolean =>
+          shape.id === binding.source.shape,
       );
-    const target: P.IShape | undefined = receiver?.profile.segments
-      .find(
-        (segment: P.ISegment): boolean => segment.bone === binding.target.bone,
-      )
-      ?.shapes.find(
-        (shape: P.IShape): boolean => shape.id === binding.target.shape,
-      );
-    const allowance: (profile: P, shape: P.IShape | undefined) => number = (
-      profile: P,
-      shape: P.IShape | undefined,
+    const target: IAutoMoviePhysicalShape | undefined =
+      receiver?.profile.segments
+        .find(
+          (segment: IAutoMoviePhysicalSegment): boolean =>
+            segment.bone === binding.target.bone,
+        )
+        ?.shapes.find(
+          (shape: IAutoMoviePhysicalShape): boolean =>
+            shape.id === binding.target.shape,
+        );
+    const allowance: (
+      profile: IAutoMoviePhysicalProfile,
+      shape: IAutoMoviePhysicalShape | undefined,
+    ) => number = (
+      profile: IAutoMoviePhysicalProfile,
+      shape: IAutoMoviePhysicalShape | undefined,
     ): number => {
-      const material: P.IMaterial | undefined = profile.materials.find(
-        (item: P.IMaterial): boolean => item.id === shape?.material,
-      );
+      const material: IAutoMoviePhysicalMaterial | undefined =
+        profile.materials.find(
+          (item: IAutoMoviePhysicalMaterial): boolean =>
+            item.id === shape?.material,
+        );
       return material && material.compliance > 0
         ? (material.maximumCompression ?? 0)
         : 0;
@@ -119,15 +135,17 @@ export function admitPhysicalContactBindings(
     )
       throw new Error(body.id + ": invalid contact binding surface normal");
   }
-  const profiles: Record<string, P> = Object.fromEntries(
-    input.bodies.map((item: Simulation.IBody): [string, P] => [
-      item.id,
-      item.profile,
-    ]),
-  );
+  const profiles: Record<string, IAutoMoviePhysicalProfile> =
+    Object.fromEntries(
+      input.bodies.map(
+        (
+          item: IAutoMoviePhysicalSimulationInput.IBody,
+        ): [string, IAutoMoviePhysicalProfile] => [item.id, item.profile],
+      ),
+    );
   admitPhysicalPointBounds(profiles, body.id, pointBounds ?? [], ids);
   const shapes: string[] = body.profile.segments.flatMap(
-    (segment: P.ISegment): string[] =>
+    (segment: IAutoMoviePhysicalSegment): string[] =>
       segment.shapes.map((): string => segment.bone),
   );
   const self: number = body.selfAvoidance
@@ -180,12 +198,12 @@ export function admitPhysicalContactBindings(
     self +
     endpoints +
     (bindings ?? []).reduce(
-      (sum: number, binding: Binding): number =>
+      (sum: number, binding: IAutoMoviePhysicalContactBinding): number =>
         sum + (binding.kind === "contact" ? 3 : 1),
       0,
     ) +
     (pointBounds ?? []).reduce(
-      (sum: number, bound: PointBound): number =>
+      (sum: number, bound: IAutoMoviePhysicalPointBound): number =>
         sum +
         Number(bound.minimum !== undefined) +
         Number(bound.maximum !== undefined),
@@ -199,23 +217,32 @@ export function admitPhysicalContactBindings(
     throw new Error(body.id + ": contact target residual budget exceeded");
   const bones: Set<string> = new Set(
     body.selfAvoidance
-      ? body.profile.joints.map((joint: P.IJoint): string => joint.child)
+      ? body.profile.joints.map(
+          (joint: IAutoMoviePhysicalJoint): string => joint.child,
+        )
       : [
           ...(bindings ?? [])
-            .filter((binding: Binding): boolean => binding.weight > 0)
-            .flatMap((binding: Binding): string[] => binding.chain),
+            .filter(
+              (binding: IAutoMoviePhysicalContactBinding): boolean =>
+                binding.weight > 0,
+            )
+            .flatMap(
+              (binding: IAutoMoviePhysicalContactBinding): string[] =>
+                binding.chain,
+            ),
           ...(pointBounds ?? []).flatMap(
-            (bound: PointBound): string[] => bound.chain,
+            (bound: IAutoMoviePhysicalPointBound): string[] => bound.chain,
           ),
         ],
   );
   const coordinates: number = body.profile.joints
-    .filter((joint: P.IJoint): boolean => bones.has(joint.child))
+    .filter((joint: IAutoMoviePhysicalJoint): boolean => bones.has(joint.child))
     .reduce(
-      (sum: number, joint: P.IJoint): number =>
+      (sum: number, joint: IAutoMoviePhysicalJoint): number =>
         sum +
         joint.axes.filter(
-          (axis: P.IAxis): boolean => axis.maximum > axis.minimum,
+          (axis: IAutoMoviePhysicalJointAxis): boolean =>
+            axis.maximum > axis.minimum,
         ).length,
       0,
     );

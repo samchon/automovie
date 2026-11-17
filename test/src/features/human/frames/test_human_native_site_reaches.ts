@@ -1,6 +1,6 @@
-import { AutoMovieHumanNativeSiteReaches as Reaches, type AutoMovieHumanConicSection as S } from "@automovie/human";
-
 import { nclose } from "../../internal/predicates";
+import { AutoMovieHumanNativeSiteReaches as Reaches } from "@automovie/human";
+import type { AutoMovieVector2Tuple } from "@automovie/interface";
 
 /**
  * A site's four reaches about a stated centre: the split of a depth and a breadth, tissue over bone, and an extreme carried between two
@@ -30,7 +30,7 @@ export function test_human_native_site_reaches(): void {
   const close = (what: string, got: number, expected: number): void => {
     if (!nclose(got, expected, 1e-12)) failures.push(`${what}: ${got} against ${expected}`);
   };
-  const point = (what: string, got: S.P, expected: S.P): void => {
+  const point = (what: string, got: AutoMovieVector2Tuple, expected: AutoMovieVector2Tuple): void => {
     close(what + " u", got[0], expected[0]);
     close(what + " v", got[1], expected[1]);
   };
@@ -43,7 +43,7 @@ export function test_human_native_site_reaches(): void {
     }
     if (!thrown) failures.push(what + " was accepted");
   };
-  const centre: S.P = [10, 0];
+  const centre: AutoMovieVector2Tuple = [10, 0];
   const round: Reaches.IReaches = { front: 50, back: 50, lateral: 50, medial: 50 };
   const none: Reaches.IReaches = { front: 0, back: 0, lateral: 0, medial: 0 };
 

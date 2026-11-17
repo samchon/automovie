@@ -1,17 +1,20 @@
+import type {
+  AutoMovieSolidChartVector4,
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidSurface,
+  IAutoMovieSolidTraceLaw,
+  IAutoMovieSolidTraceTrialTrial,
+} from "@automovie/interface";
+
 import { AutoMovieSolidTraceObservation as Observation } from "./AutoMovieSolidTraceObservation";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
-import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
-import type { AutoMovieSolidTraceLaw } from "./AutoMovieSolidTraceLaw";
 import { AutoMovieSolidTraceTrial } from "./AutoMovieSolidTraceTrial";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
-type Vec4 = [number, number, number, number];
+type Vec3 = AutoMovieVector3Tuple;
 type IJet = IAutoMovieSolidSurface.IJet;
-type IPoint = AutoMovieSolidIntersection.IPoint;
-type ILaw = AutoMovieSolidTraceLaw.ILaw;
 const { combine, cross, dot, norm, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
 
@@ -59,18 +62,23 @@ export namespace AutoMovieSolidTraceSolve {
   export function solve(
     part: IAutoMovieSolidSurface,
     host: IAutoMovieSolidAtlas,
-    law: ILaw,
+    law: IAutoMovieSolidTraceLaw.ILaw,
     t: number,
-    guess: Readonly<Vec4>,
+    guess: Readonly<AutoMovieSolidChartVector4>,
     face: number,
     tolerance: number,
     observation?: Observation.IState,
-  ): IPoint | null {
+  ): IAutoMovieSolidIntersection.IPoint | null {
     let f: number = face;
-    let x: Vec4 = [guess[0], guess[1], guess[2], guess[3]];
+    let x: AutoMovieSolidChartVector4 = [
+      guess[0],
+      guess[1],
+      guess[2],
+      guess[3],
+    ];
     const budget: { left: number } = { left: SWITCHES };
     for (let k: number = 0; k <= SWITCHES; k++) {
-      const p: IPoint | null = solveOn(
+      const p: IAutoMovieSolidIntersection.IPoint | null = solveOn(
         part,
         host,
         law,
@@ -113,19 +121,19 @@ export namespace AutoMovieSolidTraceSolve {
   function solveOn(
     part: IAutoMovieSolidSurface,
     host: IAutoMovieSolidAtlas,
-    law: ILaw,
+    law: IAutoMovieSolidTraceLaw.ILaw,
     t: number,
-    guess: Readonly<Vec4>,
+    guess: Readonly<AutoMovieSolidChartVector4>,
     tolerance: number,
     face: number,
     budget: { left: number },
     observation?: Observation.IState,
-  ): IPoint | null {
+  ): IAutoMovieSolidIntersection.IPoint | null {
     if (observation !== undefined) { observation.meeting = null; observation.trial = null; observation.failure = null; }
-    let x: Vec4 = [guess[0], guess[1], guess[2], guess[3]];
+    let x: AutoMovieSolidChartVector4 = [guess[0], guess[1], guess[2], guess[3]];
     const initialA: IJet | null = AutoMovieSolidDomain.jet(part, x[0], x[1]);
     if (initialA === null) return Observation.fail(observation, "part-jet-unavailable", x, face, { budget: budget.left });
-    const initialB: ReturnType<typeof AutoMovieSolidTraceTrial> =
+    const initialB: IAutoMovieSolidTraceTrialTrial | null =
       AutoMovieSolidTraceTrial(host, face, x[2], x[3], budget.left > 0, observation);
     if (initialB === null) return Observation.fail(observation, "host-trial-unavailable", x, face, { part: initialA, budget: budget.left });
     if (initialB.crossed) budget.left--;
@@ -133,10 +141,14 @@ export namespace AutoMovieSolidTraceSolve {
     x = [x[0], x[1], initialB.u, initialB.v];
     let a: IJet = initialA;
     let b: IJet = initialB.jet;
-    const residual: (aj: IJet, bj: IJet, xs: Vec4) => number[] = (
+    const residual: (
       aj: IJet,
       bj: IJet,
-      xs: Vec4,
+      xs: AutoMovieSolidChartVector4,
+    ) => number[] = (
+      aj: IJet,
+      bj: IJet,
+      xs: AutoMovieSolidChartVector4,
     ): number[] => [...sub(aj.p, bj.p), law.g(aj.p, xs[1], t)];
     const size: (r: number[]) => number = (r: number[]): number =>
       Math.hypot(...r);
@@ -157,7 +169,7 @@ export namespace AutoMovieSolidTraceSolve {
       let k: number = 1;
       let moved: boolean = false;
       for (let halving: number = 0; halving < 20; halving++, k /= 2) {
-        const y: Vec4 = [
+        const y: AutoMovieSolidChartVector4 = [
           x[0] + k * dx[0]!,
           x[1] + k * dx[1]!,
           x[2] + k * dx[2]!,
@@ -165,7 +177,7 @@ export namespace AutoMovieSolidTraceSolve {
         ];
         const ay: IJet | null = AutoMovieSolidDomain.jet(part, y[0], y[1]);
         if (ay === null) { Observation.reject(observation, "part-jet-unavailable", y, currentFace); continue; }
-        const by: ReturnType<typeof AutoMovieSolidTraceTrial> =
+        const by: IAutoMovieSolidTraceTrialTrial | null =
           AutoMovieSolidTraceTrial(
             host,
             currentFace,
@@ -175,7 +187,7 @@ export namespace AutoMovieSolidTraceSolve {
             observation,
           );
         if (by === null) continue;
-        const mapped: Vec4 = [y[0], y[1], by.u, by.v];
+        const mapped: AutoMovieSolidChartVector4 = [y[0], y[1], by.u, by.v];
         const ry: number[] = residual(ay, by.jet, mapped);
         const candidateGap: number = size(ry);
         if (candidateGap < gap) {
@@ -205,7 +217,7 @@ export namespace AutoMovieSolidTraceSolve {
       r.map((v: number): number => -v),
     );
     if (polish !== null) {
-      const y: Vec4 = [
+      const y: AutoMovieSolidChartVector4 = [
         x[0] + polish[0]!,
         x[1] + polish[1]!,
         x[2] + polish[2]!,
@@ -213,7 +225,7 @@ export namespace AutoMovieSolidTraceSolve {
       ];
       const ay: IJet | null = AutoMovieSolidDomain.jet(part, y[0], y[1]);
       if (ay !== null) {
-        const by: ReturnType<typeof AutoMovieSolidTraceTrial> =
+        const by: IAutoMovieSolidTraceTrialTrial | null =
           AutoMovieSolidTraceTrial(
             host,
             currentFace,
@@ -223,7 +235,7 @@ export namespace AutoMovieSolidTraceSolve {
             observation,
           );
         if (by !== null) {
-          const mapped: Vec4 = [y[0], y[1], by.u, by.v];
+          const mapped: AutoMovieSolidChartVector4 = [y[0], y[1], by.u, by.v];
           const polishedResidual: number[] = residual(ay, by.jet, mapped);
           const polishedGap: number = size(polishedResidual);
           if (polishedGap <= gap) {
@@ -241,7 +253,12 @@ export namespace AutoMovieSolidTraceSolve {
   }
 
   /** The 4 by 4 Jacobian by rows: the meeting's three, then the parameter's. */
-  function jacobian(a: IJet, b: IJet, law: ILaw, t: number): number[][] {
+  function jacobian(
+    a: IJet,
+    b: IJet,
+    law: IAutoMovieSolidTraceLaw.ILaw,
+    t: number,
+  ): number[][] {
     const [gp, gphi]: [Vec3, number] = law.grad(t);
     return [
       ...[0, 1, 2].map((i: number): number[] => [
@@ -262,12 +279,12 @@ export namespace AutoMovieSolidTraceSolve {
   function point(
     a: IJet,
     b: IJet,
-    law: ILaw,
+    law: IAutoMovieSolidTraceLaw.ILaw,
     t: number,
-    x: Readonly<Vec4>,
+    x: Readonly<AutoMovieSolidChartVector4>,
     face: number,
     observation?: Observation.IState,
-  ): IPoint | null {
+  ): IAutoMovieSolidIntersection.IPoint | null {
     const J: number[][] = jacobian(a, b, law, t);
     if (observation?.meeting !== undefined && observation.meeting !== null) observation.meeting.jacobian = J;
     const rate: number[] | null = AutoMovieSolidVector.solve(J, [
@@ -277,7 +294,7 @@ export namespace AutoMovieSolidTraceSolve {
       -law.gt(a.p, t),
     ]);
     if (rate === null) return Observation.fail(observation, "singular-first-rate", x, face);
-    const [ds, dp, dy, dt] = rate as Vec4;
+    const [ds, dp, dy, dt] = rate as AutoMovieSolidChartVector4;
     const qa: Vec3 = combine([
       [ds * ds, a.uu],
       [2 * ds * dp, a.uv],
@@ -321,8 +338,8 @@ export namespace AutoMovieSolidTraceSolve {
         [rate2[0]!, a.u],
         [rate2[1]!, a.v],
       ]),
-      rate: rate as Vec4,
-      rate2: rate2 as Vec4,
+      rate: rate as AutoMovieSolidChartVector4,
+      rate2: rate2 as AutoMovieSolidChartVector4,
       angle: Math.asin(Math.min(1, sine)),
     };
   }
@@ -363,13 +380,13 @@ export namespace AutoMovieSolidTraceSolve {
   export function advance(
     part: IAutoMovieSolidSurface,
     host: IAutoMovieSolidAtlas,
-    law: ILaw,
-    from: IPoint,
+    law: IAutoMovieSolidTraceLaw.ILaw,
+    from: IAutoMovieSolidIntersection.IPoint,
     target: number,
     tolerance: number,
     observation?: Observation.IState,
-  ): IPoint | null {
-    let current: IPoint = from;
+  ): IAutoMovieSolidIntersection.IPoint | null {
+    let current: IAutoMovieSolidIntersection.IPoint = from;
 
     /** Signed original interval, also the maximum recovered proposal. */
     const span: number = target - from.t;
@@ -384,11 +401,16 @@ export namespace AutoMovieSolidTraceSolve {
     ) {
       const step: number =
         Math.abs(target - current.t) < Math.abs(h) ? target - current.t : h;
-      const x0: Vec4 = [current.s, current.phi, current.y, current.theta];
-      const guess: Vec4 = x0.map(
+      const x0: AutoMovieSolidChartVector4 = [
+        current.s,
+        current.phi,
+        current.y,
+        current.theta,
+      ];
+      const guess: AutoMovieSolidChartVector4 = x0.map(
         (v: number, i: number): number =>
           v + current.rate[i]! * step + (current.rate2[i]! * step * step) / 2,
-      ) as Vec4;
+      ) as AutoMovieSolidChartVector4;
       const predicted: Vec3 = combine([
         [1, current.point],
         [step, current.tangent],
@@ -397,7 +419,7 @@ export namespace AutoMovieSolidTraceSolve {
       const t: number =
         Math.abs(target - current.t - step) === 0 ? target : current.t + step;
       if (!Number.isFinite(t) || t === current.t) return null;
-      const next: IPoint | null = solve(
+      const next: IAutoMovieSolidIntersection.IPoint | null = solve(
         part,
         host,
         law,
@@ -463,11 +485,11 @@ export namespace AutoMovieSolidTraceSolve {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned reference/record; a shallow shifted point retains the original vector/rate arrays but no additional cache or handle.
    */
   export function shifted(
-    p: IPoint,
+    p: IAutoMovieSolidIntersection.IPoint,
     theta: number,
     phi: number,
     t: number,
-  ): IPoint {
+  ): IAutoMovieSolidIntersection.IPoint {
     return theta === 0 && phi === 0 && t === 0
       ? p
       : { ...p, theta: p.theta + theta, phi: p.phi + phi, t: p.t + t };

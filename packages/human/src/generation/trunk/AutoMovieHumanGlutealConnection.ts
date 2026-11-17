@@ -1,13 +1,11 @@
-import {
-  AutoMovieLoftSectionNative,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import type { IAutoMovieConstructionView } from "@automovie/interface";
+import { AutoMovieLoftSectionNative } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanGlutealConnection,
+  IAutoMovieHumanGlutealParent,
+} from "@automovie/interface";
 
 import { AutoMovieHumanGlutealParent } from "./AutoMovieHumanGlutealParent";
-
-/** Calibration millimetres in the body frame. */
-type Vec3 = [number, number, number];
 
 /** Numerical convergence budget for the internal root plane, one micrometre. */
 const ROOT_ACCURACY: number = 1e-3;
@@ -22,7 +20,7 @@ interface FootprintContact {
   /** World across coordinate, mm. */
   z: number;
   /** Actual composite original-parent interval. */
-  chord: AutoMovieHumanGlutealParent.IChord;
+  chord: IAutoMovieHumanGlutealParent.IChord;
 }
 
 /** A sampled limiting AP boundary and its exact queried footprint phase. */
@@ -30,7 +28,7 @@ interface RootLimit {
   /** Null is the independent central wall constraint, rather than a footprint sample. */
   footprintPhase: number | null;
   /** Identical original source owner, physical station, phase and world AP position. */
-  boundary: AutoMovieHumanGlutealParent.IBoundary;
+  boundary: IAutoMovieHumanGlutealParent.IBoundary;
 }
 
 /** One completed numerical grid, retained only for a failed refinement's provenance. */
@@ -49,54 +47,10 @@ interface RootRefinement {
 
 /** A gluteal root/contact derived from its actual composite original parent. */
 export namespace AutoMovieHumanGlutealConnection {
-  /** Independent mass law and the identical original parent definitions. */
-  export interface IInput {
-    /** Current tape pass's original trunk, calibration mm. */
-    trunk: IAutoMovieViewPart;
-    /** Same-side original leg and its authoritative metre declaration. */
-    leg: { part: IAutoMovieViewPart; view: IAutoMovieConstructionView };
-    /** Public posterior AP apex; its height and across position remain fixed. */
-    target: Vec3;
-    /** Own root footprint: up, lateral, down and medial, mm. */
-    footprint: [number, number, number, number];
-    /** Own source fullness, dimensionless; it is not copied from the parent. */
-    shoulder: number;
-    /** Anatomical lateral is +Z on the left and -Z on the right. */
-    lateral: 1 | -1;
-  }
-
-  /** One whole-phase root position and its actual local parent chord. */
-  export interface IContact {
-    /** Point of the gluteal root curve, calibration mm. */
-    point: Vec3;
-    /** Parent chord with its original boundary owners/stations/phases. */
-    chord: AutoMovieHumanGlutealParent.IChord;
-  }
-
-  /** Parent-supported placement candidate and the local field that determined it. */
-  export interface IConnection {
-    /** Identical parent definitions, also consumed by their production lofts. */
-    parent: AutoMovieHumanGlutealParent.IParent;
-    /** Composite parent's posterior wall at the apex's unchanged Y/Z, mm. */
-    wall: Vec3;
-    /** Fixed anatomical posterior direction. */
-    normal: Vec3;
-    /** Strictly positive wall-to-public-apex distance, mm. */
-    amplitude: number;
-    /** Internal root-axis candidate, mm; common mass preparation may retain its supported original datum. */
-    root: Vec3;
-    /** Root-to-wall AP separation, mm. */
-    embed: number;
-    /** Common AP interval over this exact footprint's final bounded phase grid, mm; not a continuous containment certificate. */
-    rootInterval: readonly [number, number];
-    /** Final numerical phase budget; not a continuous containment certificate. */
-    phases: number;
-    /** Exact candidate-ring contact query; a retained original root must publish its own matching contact reader. */
-    contact(phi: number): IContact | string;
-  }
-
   /** Derive the internal root from full local AP chords, keeping the independent apex/footprint. */
-  export function create(input: IInput): IConnection | string {
+  export function create(
+    input: IAutoMovieHumanGlutealConnection.IInput,
+  ): IAutoMovieHumanGlutealConnection.IConnection | string {
     if (
       !input.target.every(Number.isFinite) ||
       !input.footprint.every(
@@ -104,17 +58,21 @@ export namespace AutoMovieHumanGlutealConnection {
       )
     )
       return "Gluteal connection needs a finite apex and positive own footprint.";
-    const parent: AutoMovieHumanGlutealParent.IParent | string =
+    const parent: IAutoMovieHumanGlutealParent.IParent | string =
       AutoMovieHumanGlutealParent.create(input.trunk, input.leg);
     if (typeof parent === "string") return parent;
-    const centre: AutoMovieHumanGlutealParent.IChord[] | string = parent.chord(
+    const centre: IAutoMovieHumanGlutealParent.IChord[] | string = parent.chord(
       input.target[1],
       input.target[2],
     );
     if (typeof centre === "string") return centre;
     if (centre.length !== 1)
       return "Gluteal apex has no unique source-supported parent AP chord.";
-    const wall: Vec3 = [centre[0]!.back.x, input.target[1], input.target[2]];
+    const wall: AutoMovieVector3Tuple = [
+      centre[0]!.back.x,
+      input.target[1],
+      input.target[2],
+    ];
     const amplitude: number = wall[0] - input.target[0];
     if (!(Number.isFinite(amplitude) && amplitude > 0))
       return `Gluteal parent leaves no positive public AP projection: ${amplitude} mm.`;
@@ -145,7 +103,7 @@ export namespace AutoMovieHumanGlutealConnection {
       const local: ReturnType<typeof read> = read(phi);
       const y: number = wall[1] + local.p[0];
       const z: number = wall[2] + local.p[1];
-      const chords: AutoMovieHumanGlutealParent.IChord[] | string =
+      const chords: IAutoMovieHumanGlutealParent.IChord[] | string =
         parent.chord(y, z);
       if (typeof chords === "string") return chords;
       return chords.length === 1
@@ -196,7 +154,11 @@ export namespace AutoMovieHumanGlutealConnection {
           Math.abs(upper - previous[1]),
         ) <= ROOT_ACCURACY
       ) {
-        const root: Vec3 = [(lower + upper) / 2, wall[1], wall[2]];
+        const root: AutoMovieVector3Tuple = [
+          (lower + upper) / 2,
+          wall[1],
+          wall[2],
+        ];
         return {
           parent,
           wall,
@@ -206,7 +168,9 @@ export namespace AutoMovieHumanGlutealConnection {
           embed: root[0] - wall[0],
           rootInterval: [lower, upper],
           phases: count,
-          contact(phi: number): IContact | string {
+          contact(
+            phi: number,
+          ): IAutoMovieHumanGlutealConnection.IContact | string {
             const value: ReturnType<typeof chordAt> = chordAt(phi);
             if (typeof value === "string") return value;
             if (root[0] < value.chord.back.x || root[0] > value.chord.front.x)

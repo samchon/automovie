@@ -1,32 +1,29 @@
 # Research statements
 
-Contract: [principles/research.md](../../principles/research.md).
-
 ## Depicted practice
 
-Name each statement the studied subject does not have, such as an outcome table for a camera style, and each that no written consumer uses yet, under [when to study](../../../../../story/planning/research.md#when-to-study).
+A statement here does not apply when the studied subject lacks what it asks for, such as a technique's law for a camera style, or when no written consumer uses it yet, under [when to study](../../../../../story/planning/research.md#when-to-study).
 
-1. A performed practice, such as fighting, dance, sport, work or ceremony, has density and distribution targets at the depicted level, such as actions per unit time, chain lengths, technique mix, defense and counter ratios and pauses, measured from footage or statistics where they exist.
-2. Each technique has its law:
+1. A performed practice, such as fighting or ceremony, has density and distribution targets at the depicted level, such as actions per unit time and technique mix, measured from footage or statistics where they exist.
+2. Each technique the installed motion vocabulary does not perform has its law:
     - its key poses in the performer's own body frame;
     - its phases and timing;
     - reach and contact surfaces;
     - support and weight transfer;
     - how the body travels to deliver it from the distance where it starts.
 3. Legal and illegal actions are recorded.
-4. An outcome table says which combinations of intent can yield which outcome classes, and every outcome the screenplay uses has a row.
-5. The study records how actions chain through sequences, setups and transitions.
-6. It records spatial strategy and tempo across the duration.
-7. It records the conduct of everyone present, officials and crowds included.
-8. It records the markers that separate the depicted level from a beginner.
-9. It records how the genre is shot.
-10. It gives the measurable targets for what a viewer sees and hears, such as distance by phase, idle time per presence and shot-change cadence.
-11. Each target is a range from the depicted discipline and level, with its method and uncertainty.
-12. An invented action names its closest real analogue and states where it departs.
-13. No value is a rank or an adjective, and none is borrowed from another discipline without a stated translation.
-14. Every value has a source.
-15. The study covers what the production must write or decide itself. Exception: a single movement the installed motion vocabulary performs, or a rule or table an installed package exports, is not restudied.
-16. The level, patterns and targets of a practice built from such movements are studied here.
+4. Where the practice's rules limit what can follow from what, such as which strike a guard can stop, the study records those limits, so the screenplay decides no outcome the practice forbids.
+5. The study records:
+    - how actions chain through sequences, setups and transitions;
+    - spatial strategy and tempo across the duration;
+    - the conduct of everyone present, officials and crowds included;
+    - the markers that separate the depicted level from a beginner;
+    - how the genre is shot.
+6. It gives measurable targets for what a viewer sees and hears, such as distance by phase and shot-change cadence.
+7. Each target is a range from the depicted discipline and level, with its method and uncertainty.
+8. An invented action names its closest real analogue and states where it departs.
+9. Every value has a source, none is a rank or an adjective, and none is borrowed from another discipline without a stated translation.
+10. The study covers what the production must write or decide itself. Exception: a single movement the installed motion vocabulary performs, a rule or table an installed package exports, and the general film grammar of [shots and cuts](../../../../../story/layers/shots.md) are not restudied, though the level, patterns and targets of a practice built from such movements are.
 
 ## Traceable sources
 

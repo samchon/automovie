@@ -1,9 +1,17 @@
-import { type AutoMovieViewAxis, AutoMovieViewChain } from "@automovie/engine";
-
 import { AutoMovieHumanConicLoft as H } from "../conic/AutoMovieHumanConicLoft";
-import { AutoMovieHumanConicRecentre as Recentre } from "../conic/AutoMovieHumanConicRecentre";
+import {
+  AutoMovieHumanConicRecentre as Recentre,
+} from "../conic/AutoMovieHumanConicRecentre";
 import { AutoMovieHumanConicSection as S } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
+import { AutoMovieViewChain } from "@automovie/engine";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicRecentre,
+  IAutoMovieHumanConicSection,
+  IAutoMovieViewAxis,
+  IAutoMovieViewChain,
+} from "@automovie/interface";
 
 /**
  * f1's trunk about its own centre line (the Human skill's step 2, Re-base, and Centres Before Curves, steps 2 and 3): the line its
@@ -48,19 +56,19 @@ export namespace AutoMovieHumanF1TrunkCentre {
    */
   export interface IRecentred {
     /** The origin line's shift from the base course at each knot, in the section chart, mm. */
-    line: Recentre.ILine;
+    line: IAutoMovieHumanConicRecentre.ILine;
 
     /** The family's own station knots, mm. */
     knots: readonly number[];
 
     /** The family's own layout. */
-    layout: S.ILayout;
+    layout: IAutoMovieHumanConicSection.ILayout;
 
     /** Knot values by section field then knot, about the origin line. */
     values: number[][];
 
     /** The base course with its origin on the line, every section plane and chart direction kept. */
-    axis: AutoMovieViewAxis.IAxis;
+    axis: IAutoMovieViewAxis.IAxis;
   }
 
   /**
@@ -77,7 +85,7 @@ export namespace AutoMovieHumanF1TrunkCentre {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure measurement of one section coordinates no shared work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one pair.
    */
-  export function centroid(section: AutoMovieViewChain.ISection): [number, number] {
+  export function centroid(section: IAutoMovieViewChain.ISection): [number, number] {
     if (section.fault !== null) throw new Error("trunk centre: the section is not admitted: " + section.fault);
     let [area, u, v]: [number, number, number] = [0, 0, 0];
     for (let j: number = 0; j < ROUND; ++j) {
@@ -102,19 +110,19 @@ export namespace AutoMovieHumanF1TrunkCentre {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot's section is resolved once for its centroid and its reach.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns two fresh arrays.
    */
-  export function line(family: H.IFamily = AutoMovieHumanF1Trunk, share: number = SCALE_SHARE): Recentre.ILine {
+  export function line(family: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Trunk, share: number = SCALE_SHARE): IAutoMovieHumanConicRecentre.ILine {
     if (!(Number.isFinite(share) && share >= 0)) throw new Error("trunk centre: the smoothing share must be finite and nonnegative");
     const knots: readonly number[] = family.knots;
     const read: (s: number) => number[] = H.reader(family);
     const centres: [number, number][] = [];
     let reach: number = 0;
     for (const s of knots) {
-      const chain: S.IChain = S.resolve(read(s), family.layout);
+      const chain: IAutoMovieHumanConicSection.IChain = S.resolve(read(s), family.layout);
       centres.push(centroid(AutoMovieViewChain.of(chain.input)));
       reach += chain.guides.reduce((sum: number, k: number): number => sum + Math.hypot(chain.input.points[k]![0], chain.input.points[k]![1]), 0) / chain.guides.length;
     }
     const width: number = (share * reach) / knots.length;
-    const median: boolean = family.layout.mirror || family.layout.anchors.some((anchor: S.IAnchor): boolean => anchor.mid === true);
+    const median: boolean = family.layout.mirror || family.layout.anchors.some((anchor: IAutoMovieHumanConicSection.IAnchor): boolean => anchor.mid === true);
 
     // Each knot stands for half the course to each neighbour, so unevenly spaced knots average as the course they sample.
     const span: number[] = knots.map((s: number, k: number): number => ((knots[k + 1] ?? s) - (knots[k - 1] ?? s)) / 2);
@@ -145,7 +153,7 @@ export namespace AutoMovieHumanF1TrunkCentre {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The line is computed once when the caller gives none and serves both the values and the course.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh rows; the course retains the base course and two knot-sized splines.
    */
-  export function recentre(family: H.IFamily = AutoMovieHumanF1Trunk, origin: Recentre.ILine = line(family)): IRecentred {
+  export function recentre(family: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Trunk, origin: IAutoMovieHumanConicRecentre.ILine = line(family)): IRecentred {
     return { line: origin, knots: family.knots, layout: family.layout, values: Recentre.shift(family, origin), axis: Recentre.axis(H.axis(family), family.knots, origin) };
   }
 }

@@ -1,14 +1,23 @@
+import { ROM_TOLERANCE } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanAudit,
+  IAutoMovieMotionHumanAuditContact,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditRange,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformer,
+  IAutoMovieMotionHumanVerdicts,
+} from "@automovie/interface";
+
 import { HumanBound } from "../law/HumanBound";
-import type { HumanPerformance } from "../perform/HumanPerformance";
-import type { IHumanPerformer } from "../perform/IHumanPerformer";
 import { AutoMovieMotionHumanAudit } from "./AutoMovieMotionHumanAudit";
 import { AutoMovieMotionHumanAuditContact } from "./AutoMovieMotionHumanAuditContact";
 import { AutoMovieMotionHumanAuditPartner } from "./AutoMovieMotionHumanAuditPartner";
 import { AutoMovieMotionHumanAuditRange } from "./AutoMovieMotionHumanAuditRange";
 import { AutoMovieMotionHumanAuditSpin } from "./AutoMovieMotionHumanAuditSpin";
+import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditStatics";
 import { AutoMovieMotionHumanAuditTiming } from "./AutoMovieMotionHumanAuditTiming";
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import type { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 
 /**
  * The verdict report of a performance: every physical bound that holds for
@@ -40,7 +49,14 @@ import type { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAu
  *   of mass stays over them.
  * - `skate`, `loose`, `afloat`: a foot the motion shows on the floor does
  *   not skate, and a declared plant is neither loose nor afloat.
- * - `range`: every joint stays within its range of motion, within 0.01.
+ * - `statics`: while a held body's bearing contacts all declare their load,
+ *   the load-weighted contact centre lies under the centre of mass within
+ *   2 % of stature (`AutoMovieMotionHumanAuditStatics`).
+ * - `range`: every joint stays within its range of motion, within
+ *   `ROM_TOLERANCE` (0.01 degrees).
+ * - `unloaded`: a foot no plant on the ground holds dorsiflexes no further
+ *   than an ankle bearing no weight does (`ANKLE_DORSIFLEXION.unloaded`),
+ *   within `ROM_TOLERANCE`.
  * - `turn`: no bone spins more than 5 turns a second between frames.
  * - `partner`: two people do not pass more than 10 mm into each other.
  *
@@ -62,42 +78,6 @@ export namespace HumanVerdicts {
   /** The actions whose body the floor does not carry. */
   export const AIRBORNE: readonly string[] = ["swim", "climbLadder"];
 
-  /** A bound that does not hold. */
-  export interface IFinding {
-    /** The bound. */
-    check: string;
-
-    /** The performer, or `a+b` for a bound between two. */
-    subject: string;
-
-    /** The action the finding's instant lies in; empty before the performer's first action or for a bound read over the whole film. */
-    act: string;
-
-    /** Which occurrence of that action in the performer's chain, from 1; 0 when `act` is empty. */
-    instance: number;
-
-    /** The reading; for `timing`, 0. */
-    value: number;
-
-    /** The limit it exceeds; for `timing`, 0. */
-    limit: number;
-
-    /** The film second of the reading. */
-    seconds: number;
-
-    /** What the reading is of: a bone, a pair of parts, or the fault's text. */
-    where: string;
-  }
-
-  /** The report of a performance. */
-  export interface IReport {
-    /** Whether every bound holds. */
-    clean: boolean;
-
-    /** The bounds that do not hold, performer by performer in the order they were given. */
-    findings: IFinding[];
-  }
-
   /**
    * Read every bound on a performance, or on one span of its film.
    *
@@ -116,10 +96,10 @@ export namespace HumanVerdicts {
    * @throws {HumanRefusal} When the span does not lie within the film or ends before it starts.
    */
   export function of(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     rate: number = 24,
-    span?: { from: number; to: number },
-  ): IReport {
+    span?: IAutoMovieMotionHumanVerdicts.IOfSpan,
+  ): IAutoMovieMotionHumanVerdicts.IReport {
     const from: number = span?.from ?? 0;
     const to: number = span?.to ?? performance.duration;
     HumanBound.within("span.from", from, 0, performance.duration, "s");
@@ -129,20 +109,21 @@ export namespace HumanVerdicts {
       from,
       to,
     );
-    const posed: AutoMovieMotionHumanAuditRange.IPosed = {
+    const posed: IAutoMovieMotionHumanAuditRange.IPosed = {
       duration: to - from,
       pose: (
         subject: string,
         seconds: number,
-      ): ReturnType<AutoMovieMotionHumanAuditRange.IPosed["pose"]> =>
+      ): ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]> =>
         performance.pose(subject, from + seconds),
     };
-    const people: readonly IHumanPerformer[] = performance.performers;
-    const findings: IFinding[] = [];
+    const people: readonly IAutoMovieMotionHumanPerformer[] =
+      performance.performers;
+    const findings: IAutoMovieMotionHumanVerdicts.IFinding[] = [];
     const place = (
       subject: string,
       seconds: number,
-    ): Pick<IFinding, "act" | "instance"> => {
+    ): Pick<IAutoMovieMotionHumanVerdicts.IFinding, "act" | "instance"> => {
       const spans = performance.segments(subject);
       const span = [...spans]
         .reverse()
@@ -191,7 +172,7 @@ export namespace HumanVerdicts {
           seconds: 0,
           where: fault,
         });
-      const report: AutoMovieMotionHumanAudit.IReport =
+      const report: IAutoMovieMotionHumanAudit.IReport =
         AutoMovieMotionHumanAudit.run(motion, who, person.body, {
           rate,
           limits: airborne
@@ -201,7 +182,7 @@ export namespace HumanVerdicts {
       for (const finding of report.findings)
         measured(who, who, finding.check, finding, finding.limit);
       if (!airborne) {
-        const contact: AutoMovieMotionHumanAuditContact.IResult =
+        const contact: IAutoMovieMotionHumanAuditContact.IResult =
           AutoMovieMotionHumanAuditContact.measure(motion, who, person.body);
         for (const check of ["skate", "loose", "afloat"] as const)
           measured(
@@ -213,13 +194,33 @@ export namespace HumanVerdicts {
               ? AutoMovieMotionHumanAuditContact.HEIGHT
               : AutoMovieMotionHumanAuditContact.SPEED,
           );
+        measured(
+          who,
+          who,
+          "statics",
+          AutoMovieMotionHumanAuditStatics.measure(
+            motion,
+            who,
+            person.body,
+            rate,
+          ),
+          AutoMovieMotionHumanAuditStatics.SHARE * person.body.measure.stature,
+        );
+        measured(
+          who,
+          who,
+          "unloaded",
+          AutoMovieMotionHumanAuditRange.unloaded(motion, posed, who, rate)
+            .overshoot,
+          ROM_TOLERANCE,
+        );
       }
       measured(
         who,
         who,
         "range",
         AutoMovieMotionHumanAuditRange.measure(posed, who, rate).overshoot,
-        0.01,
+        ROM_TOLERANCE,
       );
       measured(
         who,
@@ -243,7 +244,17 @@ export namespace HumanVerdicts {
           ).worst,
           SKIN,
         );
-    return { clean: findings.length === 0, findings };
+
+    // Every launched prop's flights, those still airborne at the end apart.
+    const launched: Set<string> = new Set();
+    for (const person of people)
+      for (const s of performance.segments(person.subject))
+        for (const l of s.plan.launches ?? []) launched.add(l.prop);
+    const unended: string[] = [];
+    for (const prop of launched)
+      for (const f of performance.flights(prop))
+        if (f.end === Infinity) unended.push(`${prop}@${f.launch.toFixed(3)}`);
+    return { clean: findings.length === 0, findings, unended };
   }
 
   /**
@@ -252,10 +263,12 @@ export namespace HumanVerdicts {
    * @param report A report.
    * @returns `clean`, or each finding as `subject.act#instance check value over limit at seconds (where)`.
    */
-  export function describe(report: IReport): string {
+  export function describe(
+    report: IAutoMovieMotionHumanVerdicts.IReport,
+  ): string {
     if (report.clean) return "clean";
     return report.findings
-      .map((f: IFinding): string => {
+      .map((f: IAutoMovieMotionHumanVerdicts.IFinding): string => {
         const place: string =
           f.act === "" ? f.subject : `${f.subject}.${f.act}#${f.instance}`;
         return f.check === "timing"
@@ -299,7 +312,7 @@ const shifted = (
 
 /** The performance as a motion that resolves each person's instant once, for the span of one report. */
 const remember = (
-  performance: HumanPerformance,
+  performance: IAutoMovieMotionHumanPerformance,
 ): IAutoMovieMotionHumanAuditMotion => {
   const known: Map<
     string,

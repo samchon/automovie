@@ -4,6 +4,7 @@ import {
   physicalNativeShape,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalProfile as P,
   IAutoMovieFootfallPattern as Pattern,
   IAutoMovieContactReceipt as Receipt,
@@ -52,7 +53,7 @@ export async function test_physical_support_witnesses(): Promise<void> {
     predictive: boolean,
   ): void {
     const profile: P = PhysicalFixtures.sphere();
-    const segment: P.ISegment = profile.segments[0]!;
+    const segment: IAutoMoviePhysicalSegment = profile.segments[0]!;
     segment.shapes = [
       {
         id: "box",

@@ -1,22 +1,24 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformanceAim,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionTarget,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
-import { HumanSegment } from "./HumanSegment";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * A target's world point and outward normal at a film second: a person's
@@ -38,18 +40,10 @@ export namespace HumanPerformanceAim {
    * @returns The aim.
    */
   export function aim(
-    self: HumanPerformanceState,
-    target: AutoMovieMotionTarget,
+    self: IAutoMovieMotionHumanPerformanceState,
+    target: IAutoMovieMotionTarget,
     seconds: number,
-    frame: {
-      root: IAutoMovieVector3;
-      yaw: number;
-      heights: Record<"low" | "middle" | "high", number>;
-      range: number;
-      body: IHumanBody;
-      bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-      subject?: string;
-    },
+    frame: IAutoMovieMotionHumanPerformanceAim.IFrame,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
     const yaw: number = (frame.yaw * Math.PI) / 180;
     const forward: IAutoMovieVector3 = {
@@ -72,10 +66,8 @@ export namespace HumanPerformanceAim {
             seconds,
             frame,
           );
-        const other: HumanSegment.IPerson = HumanPerformanceRead.person(
-          self,
-          target.subject,
-        );
+        const other: IAutoMovieMotionHumanSegment.IPerson =
+          HumanPerformanceRead.person(self, target.subject);
         const region = other.performer.body.surfaces.regions[target.region];
         if (region === undefined)
           throw new HumanRefusal({
@@ -113,8 +105,14 @@ export namespace HumanPerformanceAim {
         return { point: placed.point, normal: placed.normal };
       }
       case "prop": {
-        const prop: IHumanProp | undefined = self.props.get(target.subject);
-        const local = prop?.points[target.point];
+        const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(
+          target.subject,
+        );
+        // A part an act has moved is where the prop's state poses it.
+        const local =
+          prop === undefined
+            ? undefined
+            : HumanPerformanceObject.point(self, prop, target.point, seconds);
         if (prop === undefined)
           throw HumanPerformanceRead.missing("prop", target.subject, [
             ...self.props.keys(),
@@ -136,10 +134,15 @@ export namespace HumanPerformanceAim {
           | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
           | undefined = prop.point?.(target.point, seconds);
         if (moving !== undefined) return moving;
-        const at: IHumanProp.IFrame = HumanPerformanceRead.prop(
+        // A prop the performer carries is read on the performer's own body,
+        // as their own region is (`HumanPerformanceRead.prop`).
+        const at: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
           self,
           target.subject,
           seconds,
+          frame.subject === undefined
+            ? undefined
+            : { subject: frame.subject, bones: frame.bones },
         );
         return {
           point: Vector3.add(
@@ -187,5 +190,38 @@ export namespace HumanPerformanceAim {
           normal: Vector3.scale(forward, -1),
         };
     }
+  }
+
+  /**
+   * The aiming frame of a performer standing in a posture: its root and
+   * heading, the heights of a `none` target's three lines from the body's
+   * measures (the hips less a third of the thigh, the chest, the head's
+   * centre) and its range, nine tenths of the leg's length.
+   *
+   * @param body The performer's body.
+   * @param posture The posture they stand in.
+   * @param bones Their bones in it, read only for a `self` target or a prop they carry.
+   * @param subject Their subject id.
+   * @returns The frame.
+   */
+  export function frame(
+    body: IAutoMovieMotionHumanBody,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    bones: IAutoMovieMotionHumanPerformanceAim.IFrame["bones"],
+    subject?: string,
+  ): IAutoMovieMotionHumanPerformanceAim.IFrame {
+    return {
+      root: posture.root,
+      yaw: posture.yaw,
+      heights: {
+        low: body.measure.hipHeight - 0.3 * body.measure.thigh,
+        middle: body.measure.chestHeight,
+        high: body.measure.headHeight - 0.5 * body.measure.headRadius,
+      },
+      range: 0.9 * (body.measure.thigh + body.measure.shank),
+      body,
+      bones,
+      ...(subject === undefined ? {} : { subject }),
+    };
   }
 }

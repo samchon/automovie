@@ -1,9 +1,9 @@
-import type { IAutoMovieViewPart } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
-  AutoMovieHumanNativeFamily as Native,
   AutoMovieHumanConicSection as S,
+  AutoMovieHumanNativeFamily as Native,
 } from "@automovie/human";
+import type { IAutoMovieHumanConicLoft, IAutoMovieViewPart } from "@automovie/interface";
 
 /**
  * Native turn sampling reads regular wall rings while both caps retain their poles.
@@ -22,7 +22,7 @@ export function test_human_native_sampling_scope(): void {
   const failures: string[] = [];
   const shoulder: number = Math.SQRT2 - 1;
   for (const both of [false, true]) {
-    const prior: H.IFamily = {
+    const prior: IAutoMovieHumanConicLoft.IFamily = {
       name: "circle",
       centres: [
         [0, 0, 0],

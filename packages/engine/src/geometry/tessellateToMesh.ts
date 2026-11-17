@@ -1,6 +1,9 @@
-import { AutoMoviePrimitiveShape, IAutoMovieMesh } from "@automovie/interface";
+import {
+  IAutoMovieMesh,
+  type IAutoMoviePrimitiveShape,
+  type IAutoMovieTessellation,
+} from "@automovie/interface";
 
-import { ITessellation } from "./ITessellation";
 import { tessellate } from "./tessellate";
 
 /**
@@ -25,9 +28,9 @@ import { tessellate } from "./tessellate";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the three arrays from `tessellate` are transferred to the returned mesh.
  */
 export const tessellateToMesh: (
-  shape: AutoMoviePrimitiveShape,
-) => IAutoMovieMesh = (shape: AutoMoviePrimitiveShape): IAutoMovieMesh => {
-  const tessellation: ITessellation = tessellate(shape);
+  shape: IAutoMoviePrimitiveShape,
+) => IAutoMovieMesh = (shape: IAutoMoviePrimitiveShape): IAutoMovieMesh => {
+  const tessellation: IAutoMovieTessellation = tessellate(shape);
   return {
     positions: tessellation.positions,
     normals: tessellation.normals,

@@ -2,7 +2,11 @@ import {
   linearizePhysicalInterval,
   solvePhysicalFloorChainTarget,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalPointFixtures } from "../internal/PhysicalPointFixtures";
@@ -73,11 +77,15 @@ export function test_physical_interval_linearization(): void {
     [delta, 0],
   );
   const profile: P = PhysicalPointFixtures.profile();
-  const targets: Record<string, P.ITransform> = Object.fromEntries(
-    profile.segments.map((segment: P.ISegment): [string, P.ITransform] => [
-      segment.bone,
-      structuredClone(segment.neutral),
-    ]),
+  const targets: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
+    profile.segments.map(
+      (
+        segment: IAutoMoviePhysicalSegment,
+      ): [string, IAutoMovieRigidTransform] => [
+        segment.bone,
+        structuredClone(segment.neutral),
+      ],
+    ),
   );
   const lifted: ReturnType<typeof solvePhysicalFloorChainTarget> =
     solvePhysicalFloorChainTarget({

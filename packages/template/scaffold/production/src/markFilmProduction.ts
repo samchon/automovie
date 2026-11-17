@@ -1,8 +1,8 @@
 import {
-  type IAutoMovieMark,
   markAutoMovieContacts,
   markAutoMovieSkeleton,
 } from "@automovie/engine";
+import type { IAutoMovieMark } from "@automovie/interface";
 
 import type { IFilmProduction } from "./IFilmProduction";
 

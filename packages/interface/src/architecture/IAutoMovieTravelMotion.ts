@@ -1,4 +1,4 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * The single degree of freedom one moving member travels on.
@@ -17,6 +17,9 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 export type IAutoMovieTravelMotion =
   | IAutoMovieTravelMotion.IRevolute
   | IAutoMovieTravelMotion.IPrismatic;
+/**
+ * Revolute and prismatic travel alternatives of one moving member.
+ */
 export namespace IAutoMovieTravelMotion {
   /**
    * A hinge: the member turns about an axis through a pivot.

@@ -1,10 +1,12 @@
-import {
-  AutoMovieHumanF1Placement,
-  AutoMovieHumanSegmentFrame,
-} from "@automovie/human";
-import { TestValidator } from "@nestia/e2e";
-
 import { vclose } from "../../internal/predicates";
+import { AutoMovieHumanF1Placement, AutoMovieHumanSegmentFrame } from "@automovie/human";
+import type {
+  AutoMovieMatrix3Tuple,
+  IAutoMovieHumanF1Placement,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 /**
  * An invocation's segment chain places every descendant before any family,
@@ -22,7 +24,7 @@ import { vclose } from "../../internal/predicates";
  * @evidence contracts/development/common.md#meaningful-documentation States invocation ownership and the two numbered geometric scenarios.
  */
 export function test_human_f1_chain_input(): void {
-  const chain: AutoMovieHumanSegmentFrame.IJoint[] = [
+  const chain: IAutoMovieHumanSegmentJoint[] = [
     {
       name: "root",
       parent: null,
@@ -47,13 +49,13 @@ export function test_human_f1_chain_input(): void {
     },
   ];
   const frames: (
-    pose?: AutoMovieHumanF1Placement.IPose,
-    input?: readonly AutoMovieHumanSegmentFrame.IJoint[],
-  ) => AutoMovieHumanF1Placement.IFrames = AutoMovieHumanF1Placement.frames;
+    pose?: IAutoMovieHumanF1Placement.IPose,
+    input?: readonly IAutoMovieHumanSegmentJoint[],
+  ) => IAutoMovieHumanF1Placement.IFrames = AutoMovieHumanF1Placement.frames;
 
   // 1. The reference chain includes both the root translation and parent turn.
-  const reference: AutoMovieHumanF1Placement.IFrames = frames(undefined, chain);
-  const referenceChild: AutoMovieHumanSegmentFrame.IFrame | undefined =
+  const reference: IAutoMovieHumanF1Placement.IFrames = frames(undefined, chain);
+  const referenceChild: IAutoMovieHumanSegmentFrame | undefined =
     reference.get("child");
   TestValidator.predicate(
     "the child follows the supplied chain",
@@ -70,12 +72,12 @@ export function test_human_f1_chain_input(): void {
   );
 
   // 2. Replacing the parent rotation changes the same descendant once.
-  const posed: AutoMovieHumanF1Placement.IFrames = frames(
-    (name: string): AutoMovieHumanSegmentFrame.M3 | undefined =>
+  const posed: IAutoMovieHumanF1Placement.IFrames = frames(
+    (name: string): AutoMovieMatrix3Tuple | undefined =>
       name === "parent" ? AutoMovieHumanSegmentFrame.IDENTITY : undefined,
     chain,
   );
-  const posedChild: AutoMovieHumanSegmentFrame.IFrame | undefined =
+  const posedChild: IAutoMovieHumanSegmentFrame | undefined =
     posed.get("child");
   TestValidator.predicate(
     "the pose is applied once to the invocation chain",

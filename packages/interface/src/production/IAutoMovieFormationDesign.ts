@@ -1,7 +1,8 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { AutoMovieFormationCapability } from "./AutoMovieFormationCapability";
-import { IAutoMovieFormationLayout } from "./IAutoMovieFormationLayout";
-import { IAutoMovieModelLod } from "./IAutoMovieModelLod";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieFormationCapability } from "./AutoMovieFormationCapability";
+import type { IAutoMovieFormationBlock } from "./IAutoMovieFormationBlock";
+import type { IAutoMovieFormationLayout } from "./IAutoMovieFormationLayout";
+import type { IAutoMovieModelLod } from "./IAutoMovieModelLod";
 
 /**
  * A unit-level formation whose members are deterministic derived slots.
@@ -34,6 +35,11 @@ export interface IAutoMovieFormationDesign {
    * Compact layout with only the parameters its algorithm consumes. Line, column and wedge own explicit spacing; arc separation follows radius and angle, while scatter density follows count and radius.
    */
   layout: IAutoMovieFormationLayout;
+
+  /**
+   * Blocks of slots in place of the one layout: slot `i` is block `k`'s slot `i` minus the counts of the blocks before it, laid by the block's layout and placed by its offset and facing in the design's frame (`IAutoMovieFormationBlock`); the counts sum to `count`. The one `layout` lays every slot when absent, and a reader that does not know blocks reads the design as that layout.
+   */
+  blocks?: IAutoMovieFormationBlock[];
 
   /** Formation origin in world-space meters. */
   anchor: IAutoMovieVector3;

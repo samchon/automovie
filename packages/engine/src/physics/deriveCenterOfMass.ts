@@ -1,10 +1,12 @@
 import {
   IAutoMovieModel,
+  type IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import { Transform } from "../math/Transform";
 import { Vector3 } from "../math/Vector3";
 import { physicalModelRestTransforms } from "./physicalModelRestTransforms";
 import { primitiveCentroid } from "./primitiveCentroid";
@@ -40,7 +42,7 @@ export const deriveCenterOfMass: (
 ): IAutoMovieVector3 | null => {
   let total: number = 0;
   let weighted: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const bones: ReturnType<typeof physicalModelRestTransforms> =
+  const bones: Map<string, IAutoMovieRigidTransform> =
     physicalModelRestTransforms(model);
   for (const part of model.parts) {
     if (part.geometry.type !== "primitive") continue;
@@ -69,11 +71,7 @@ export const deriveCenterOfMass: (
   return total > 0 ? Vector3.scale(weighted, 1 / total) : null;
 };
 
-const IDENTITY: IAutoMovieTransform = {
-  translation: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-  scale: { x: 1, y: 1, z: 1 },
-};
+const IDENTITY: IAutoMovieTransform = Transform.identity();
 
 /** How much a transform's scale multiplies a solid's volume. */
 const scaleVolume: (t: IAutoMovieTransform) => number = (

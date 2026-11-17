@@ -1,6 +1,8 @@
-import type { IHumanActionContext } from "./IHumanActionContext";
-import type { IHumanActionLaw } from "./IHumanActionLaw";
-import type { IHumanActionPlan } from "./IHumanActionPlan";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+} from "@automovie/interface";
 
 /**
  * A row: a shipped or registered action under a name of its own, with some
@@ -39,9 +41,9 @@ export namespace HumanActionRow {
    */
   export function of<P extends object, Fixed extends keyof P>(
     name: string,
-    law: IHumanActionLaw<P>,
+    law: IAutoMovieMotionHumanActionLaw<P>,
     fixed: Pick<P, Fixed>,
-  ): IHumanActionLaw<Omit<P, Fixed>> {
+  ): IAutoMovieMotionHumanActionLaw<Omit<P, Fixed>> {
     const resolve = (given: object): object => {
       const merged: object = { ...given, ...fixed };
       return law.resolve?.(merged) ?? merged;
@@ -54,8 +56,22 @@ export namespace HumanActionRow {
       ...(law.accepts === undefined ? {} : { accepts: law.accepts }),
       ...(law.yields === undefined ? {} : { yields: law.yields }),
       ...(law.overlay === undefined ? {} : { overlay: law.overlay }),
-      plan: (context: IHumanActionContext<Omit<P, Fixed>>): IHumanActionPlan =>
-        law.plan(context as unknown as IHumanActionContext<P>),
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<Omit<P, Fixed>>,
+      ): IAutoMovieMotionHumanActionPlan =>
+        law.plan(context as unknown as IAutoMovieMotionHumanActionContext<P>),
+      // The owner's demands, read from the resolved parameters as its plan
+      // reads them.
+      ...(law.demands === undefined
+        ? {}
+        : {
+            demands: (
+              ahead: IAutoMovieMotionHumanActionLaw.IAhead<Omit<P, Fixed>>,
+            ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] =>
+              law.demands!(
+                ahead as unknown as IAutoMovieMotionHumanActionLaw.IAhead<P>,
+              ),
+          }),
     };
   }
 }

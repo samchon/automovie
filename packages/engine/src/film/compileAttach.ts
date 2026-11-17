@@ -1,28 +1,22 @@
 import {
-  AutoMovieHumanoidBone,
   IAutoMovieAttachment,
   IAutoMovieClip,
-  IAutoMovieJointAxes,
+  type IAutoMovieCompileAttach,
   IAutoMovieMotion,
   IAutoMoviePose,
   IAutoMovieQuaternion,
-  IAutoMovieSkeleton,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { resolveAttachment } from "../kinematics/resolveAttachment";
 import { Quaternion } from "../math/Quaternion";
+import { Transform } from "../math/Transform";
 import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 
 /** The child rides the bone directly: origin on the bone, no extra offset. */
-const IDENTITY_OFFSET: IAutoMovieTransform = {
-  translation: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-  scale: { x: 1, y: 1, z: 1 },
-};
+const IDENTITY_OFFSET: IAutoMovieTransform = Transform.identity();
 
 /**
  * Bake the `attachTo` verb into the child object's follow clip, the per-frame realisation of a rigid coupling to a parent's bone (a sword in a hand, a prop on a saddle). The child is not a rig, so, like a projectile, it moves by a node clip of translation and rotation tracks, not a pose motion.
@@ -45,47 +39,9 @@ const IDENTITY_OFFSET: IAutoMovieTransform = {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call bakes one coupling from its own inputs; `coupleObjects` coordinates the shot's couplings and shares a parent's baked clips with its riders.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after returning; the two tracks share one time array and own position and rotation arrays, holding 1 + 3 + 4 numbers per sample for the caller.
  */
-export function compileAttach(props: {
-  /** The coupled child's scene node: the clip's target. */
-  child: string;
-
-  /** The parent bone the child rides. */
-  bone: AutoMovieHumanoidBone;
-
-  /** The parent's staged world placement. */
-  parentTransform: IAutoMovieTransform;
-
-  /**
-   * The parent's ridden world frame at shot-local second t, or null before its
-   * coupling starts. The staged parentTransform applies when no ridden frame
-   * exists. Omit for a parent that holds its staged placement throughout.
-   */
-  parentTransformAt?: (t: number) => IAutoMovieTransform | null;
-
-  /** The parent's rig, for the per-frame FK. */
-  parentSkeleton: IAutoMovieSkeleton;
-
-  /** The parent's compiled pose motion; absent, the parent holds its rest pose. */
-  parentMotion?: IAutoMovieMotion;
-
-  /** Shot-local second the coupling begins. */
-  start: number;
-
-  /** Length of the coupling in seconds; must be finite and positive. */
-  duration: number;
-
-  /** The shot's length in seconds, which the clip's duration spans. */
-  shotDuration: number;
-
-  /** Samples per second of the baked follow; defaults to 30. */
-  fps?: number;
-
-  /** Clinical-axis remap for the parent's FK, such as `HUMANOID_JOINT_AXES`. */
-  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
-  /** Per-rig clinical rest-frame remap for the parent's FK. */
-  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-}): IAutoMovieClip {
+export function compileAttach(
+  props: IAutoMovieCompileAttach.IProps,
+): IAutoMovieClip {
   const fps: number = props.fps ?? 30;
   // `performShot` rejects a zero-span coupling before it reaches here; this
   // precondition, the one `projectileTrajectory` enforces, keeps any other

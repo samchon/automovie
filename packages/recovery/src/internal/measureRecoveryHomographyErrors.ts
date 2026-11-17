@@ -1,4 +1,5 @@
 import { AutoMovieMatrix3 } from "@automovie/engine";
+import type { IAutoMovieRecoveryHomographyErrorsMeasurementOperation } from "@automovie/interface";
 
 /**
  * Measure the root-mean-square forward/backward homography transfer in pixels.
@@ -14,10 +15,10 @@ import { AutoMovieMatrix3 } from "@automovie/engine";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owned nullable scalar results transfer to the caller; no point, map cache, image or external handle survives the synchronous call.
  */
 export function measureRecoveryHomographyErrors(
-  model: { matrix: readonly number[]; inverse: readonly number[] },
-  first: readonly (readonly [number, number])[],
-  second: readonly (readonly [number, number])[],
-): (number | null)[] {
+  model: Parameters<IAutoMovieRecoveryHomographyErrorsMeasurementOperation.Operation>[0],
+  first: Parameters<IAutoMovieRecoveryHomographyErrorsMeasurementOperation.Operation>[1],
+  second: Parameters<IAutoMovieRecoveryHomographyErrorsMeasurementOperation.Operation>[2],
+): ReturnType<IAutoMovieRecoveryHomographyErrorsMeasurementOperation.Operation> {
   if (first.length !== second.length)
     throw new Error("camera-homography: paired transfer points required");
   return first.map(

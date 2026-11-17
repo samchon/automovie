@@ -1,9 +1,8 @@
+import { nclose } from "../../internal/nclose";
 import {
   AutoMovieLoftViewFullSource as Full,
-  type AutoMovieLoftFrame,
   AutoMovieViewAxis,
   AutoMovieViewAxisJet,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
@@ -11,10 +10,18 @@ import {
   AutoMovieHumanNativeFamily as Native,
   AutoMovieHumanNativeProjectionCourse as Course,
 } from "@automovie/human";
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanNativeProjectionCourse,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { nclose } from "../../internal/nclose";
 
 /**
  * A physical projection change is one uniform axial scale of the whole part about a declared origin.
@@ -59,14 +66,14 @@ export function test_human_native_projection_course(): void {
   };
 
   // Each original is an authored analytic input, not a replacement foreign method.
-  const straight: (speed: number) => AutoMovieViewAxis.IAxis = (speed: number): AutoMovieViewAxis.IAxis => {
-    const base: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
+  const straight: (speed: number) => IAutoMovieViewAxis.IAxis = (speed: number): IAutoMovieViewAxis.IAxis => {
+    const base: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
       [0, 0, 0], [1, 0, 0], [0, 0, 1],
     );
     if (speed === 1) return base;
     return {
-      at: (s: number): AutoMovieLoftFrame.IFrame => base.at(speed * s),
-      jet: (s: number, parameter?: AutoMovieConstructionOutlineParameter): AutoMovieViewAxisJet.IJet | null => AutoMovieViewAxisJet.parameter(
+      at: (s: number): IAutoMovieLoftSectionFrame => base.at(speed * s),
+      jet: (s: number, parameter?: IAutoMovieConstructionOutlineParameter): IAutoMovieViewAxisJet.IJet | null => AutoMovieViewAxisJet.parameter(
         AutoMovieViewAxisJet.fixed(base.at(speed * s), [0, speed, 0], [0, 0, 0]),
         parameter, s,
       ),
@@ -75,20 +82,20 @@ export function test_human_native_projection_course(): void {
   const run: (lambda: number, speed: number, rail: number, length: number, behind: number) => void = (
     lambda: number, speed: number, rail: number, length: number, behind: number,
   ): void => {
-    const original: AutoMovieViewAxis.IAxis = straight(speed);
+    const original: IAutoMovieViewAxis.IAxis = straight(speed);
     const projection: number = lambda * (speed * length);
     const tip: number = rail + length;
     const origin: number = rail - behind;
     const nativeOriginal: IAutoMovieViewPart = cap(original, rail - 1, tip);
-    const projectionOwner: Course.IProjectionOwner = Course.prepare(nativeOriginal, rail);
-    const made: Course.IPrepared = projectionOwner.project(nativeOriginal, original, projection, origin);
+    const projectionOwner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner = Course.prepare(nativeOriginal, rail);
+    const made: IAutoMovieHumanNativeProjectionCourse.IPrepared = projectionOwner.project(nativeOriginal, original, projection, origin);
     for (const t of [-0.1, 0, 0.25, 0.5, 0.75, 1]) {
       const s: number = rail + length * t;
-      const frame: AutoMovieLoftFrame.IFrame = made.axis.at(s);
+      const frame: IAutoMovieLoftSectionFrame = made.axis.at(s);
       close("world origin", frame.origin[1], speed * (origin + lambda * (s - origin)));
       close("fixed chart u", frame.u[0], 1);
       close("fixed chart v", frame.v[2], 1);
-      const jet: AutoMovieViewAxisJet.IJet | null = made.axis.jet?.(s) ?? null;
+      const jet: IAutoMovieViewAxisJet.IJet | null = made.axis.jet?.(s) ?? null;
       if (jet === null) { failures.push("available analytic course2 lost"); continue; }
       close("physical first", jet.first.origin[1], speed * lambda);
       close("physical second", jet.second.origin[1], 0);
@@ -103,14 +110,14 @@ export function test_human_native_projection_course(): void {
     close("moved rail", made.axis.at(rail).origin[1], speed * (rail + (lambda - 1) * behind));
     close("physical projection", made.axis.at(tip).origin[1] - made.axis.at(rail).origin[1], projection);
     const middle: number = rail + length / 2;
-    const oldParameter: AutoMovieConstructionOutlineParameter = { type: "root", end: "top", pole: tip };
-    const rootJet: AutoMovieViewAxisJet.IJet | null = made.axis.jet?.(middle, oldParameter) ?? null;
+    const oldParameter: IAutoMovieConstructionOutlineParameter = { type: "root", end: "top", pole: tip };
+    const rootJet: IAutoMovieViewAxisJet.IJet | null = made.axis.jet?.(middle, oldParameter) ?? null;
     if (rootJet === null) failures.push("material-pole axis2 lost");
     else {
       close("old-pole first", rootJet.first.origin[1], 2 * speed * lambda * Math.sqrt(length / 2));
       close("old-pole second", rootJet.second.origin[1], -2 * speed * lambda);
     }
-    const source: Full.IReader = Full.create(cap(made.axis, rail - 1, tip));
+    const source: IAutoMovieLoftViewFullSource.IReader = Full.create(cap(made.axis, rail - 1, tip));
     close("material pole Point0", source.point(tip, 0)[1], speed * (origin + lambda * (tip - origin)));
     refuses("outside native source domain", (): unknown => source.point(tip + 1, 0));
   };
@@ -125,10 +132,10 @@ export function test_human_native_projection_course(): void {
 
   // A course scaled about its pole and carried by a world shift: pole 10 -> 13, rail 2 -> 10 - 1.5 * 8 + 3 = 1.
   scenario("carried course about the pole", (): void => {
-    const axis: AutoMovieViewAxis.IAxis = straight(1);
+    const axis: IAutoMovieViewAxis.IAxis = straight(1);
     const part: IAutoMovieViewPart = cap(axis, 1, 10);
-    const owner: Course.IProjectionOwner = Course.prepare(part, 2);
-    const made: Course.IPrepared = owner.project(part, axis, 1.5 * owner.projection, 10, [0, 3, 0]);
+    const owner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner = Course.prepare(part, 2);
+    const made: IAutoMovieHumanNativeProjectionCourse.IPrepared = owner.project(part, axis, 1.5 * owner.projection, 10, [0, 3, 0]);
     close("carried pole", made.axis.at(10).origin[1], 13);
     close("carried rail", made.axis.at(2).origin[1], 1);
     close("carried first jet", made.axis.jet?.(5)?.first.origin[1] ?? NaN, 1.5);
@@ -141,12 +148,12 @@ export function test_human_native_projection_course(): void {
 
   // Scenario 2: the side profile of a convex dome under every declared ratio.
   scenario("side profile inflections", (): void => {
-    const axis: AutoMovieViewAxis.IAxis = straight(1);
+    const axis: IAutoMovieViewAxis.IAxis = straight(1);
     const original: IAutoMovieViewPart = dome(axis);
-    const owner: Course.IProjectionOwner = Course.prepare(original, 10);
+    const owner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner = Course.prepare(original, 10);
     const stations: number[] = Array.from({ length: 181 }, (_, k: number): number => 9 + (17.9 * k) / 180);
     const profile = (part: IAutoMovieViewPart): [number, number][] => {
-      const reader: Full.IReader = Full.create(part);
+      const reader: IAutoMovieLoftViewFullSource.IReader = Full.create(part);
       return stations.map((s: number): [number, number] => {
         const p: readonly number[] = reader.point(s, Math.PI / 2);
         return [p[1]!, Math.hypot(p[0]!, p[2]!)];
@@ -155,7 +162,7 @@ export function test_human_native_projection_course(): void {
     const before: [number, number][] = profile(original);
     const expectedCount: number = inflections(before);
     for (const lambda of RATIOS) {
-      const made: Course.IPrepared = owner.project(original, axis, lambda * owner.projection, 7);
+      const made: IAutoMovieHumanNativeProjectionCourse.IPrepared = owner.project(original, axis, lambda * owner.projection, 7);
       const after: [number, number][] = profile({ ...original, axis: made.axis });
       if (lambda === 1 && made.axis !== axis) failures.push("ratio 1 replaced the original dome axis");
       stations.forEach((s: number, k: number): void => {
@@ -171,14 +178,14 @@ export function test_human_native_projection_course(): void {
   // Scenario 3b: a bound that rounds onto an integer must still let the native sampler cut its rows.
   scenario("integral speed bound through the native sampler", (): void => {
     const speed: number = 1 - Number.EPSILON / 2;
-    const axis: AutoMovieViewAxis.IAxis = straight(speed);
+    const axis: IAutoMovieViewAxis.IAxis = straight(speed);
     const original: IAutoMovieViewPart = dome(axis);
-    const owner: Course.IProjectionOwner = Course.prepare(original, 10);
-    const made: Course.IPrepared = owner.project(original, axis, 4 * owner.projection);
+    const owner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner = Course.prepare(original, 10);
+    const made: IAutoMovieHumanNativeProjectionCourse.IPrepared = owner.project(original, axis, 4 * owner.projection);
     if (!(made.maximumSpeed >= 4 * speed) || Number.isInteger(made.maximumSpeed))
       failures.push("speed bound " + made.maximumSpeed + " is not a strict noninteger bound");
     const radii: number[] = [Math.sqrt(18), 3, 1];
-    const prior: H.IFamily = {
+    const prior: IAutoMovieHumanConicLoft.IFamily = {
       name: original.name!, centres: [axis.at(0).origin, axis.at(27).origin], halves: [],
       up: [1, 0, 0], layout: S.limb(0), knots: [9, 18, 26],
       values: [radii, [0, 0, 0], [0, 0, 0], radii, radii.map((v: number): number => -v), [0, 0, 0],
@@ -186,9 +193,9 @@ export function test_human_native_projection_course(): void {
         ...[0, 1, 2, 3].map((): number[] => [Math.SQRT2 - 1, Math.SQRT2 - 1, Math.SQRT2 - 1])],
       tips: [null, { from: 26, tip: 27, rings: 2 }],
     };
-    const family: H.IFamily = Native.create({
+    const family: IAutoMovieHumanConicLoft.IFamily = Native.create({
       original: prior, bone: prior, originals: new Map([[original.name!, original]]), axis: made.axis,
-      scale: (): S.P => [1, 1], station: (s: number): number => s, features: [], protection: [],
+      scale: (): AutoMovieVector2Tuple => [1, 1], station: (s: number): number => s, features: [], protection: [],
       authority: {
         sources: new Map([[original.name!, { ...original, axis: made.axis }]]),
         sampling: { maximumSpeed: made.maximumSpeed, materialBreaks: made.materialBreaks },
@@ -199,16 +206,16 @@ export function test_human_native_projection_course(): void {
   });
 
   scenario("Point0 source-read separation", (): void => {
-    const base: AutoMovieViewAxis.IAxis = straight(1);
+    const base: IAutoMovieViewAxis.IAxis = straight(1);
     let sourceJetReads: number = 0;
     let sourcePoint0Reads: number = 0;
-    const original: AutoMovieViewAxis.IAxis = {
-      at: (s: number): AutoMovieLoftFrame.IFrame => { sourcePoint0Reads++; return base.at(s); },
-      jet: (s: number, p?: AutoMovieConstructionOutlineParameter): AutoMovieViewAxisJet.IJet | null => { sourceJetReads++; return base.jet!(s, p); },
+    const original: IAutoMovieViewAxis.IAxis = {
+      at: (s: number): IAutoMovieLoftSectionFrame => { sourcePoint0Reads++; return base.at(s); },
+      jet: (s: number, p?: IAutoMovieConstructionOutlineParameter): IAutoMovieViewAxisJet.IJet | null => { sourceJetReads++; return base.jet!(s, p); },
     };
     const nativeOriginal: IAutoMovieViewPart = cap(original, 1, 10);
-    const projectionOwner: Course.IProjectionOwner = Course.prepare(nativeOriginal, 2);
-    const made: Course.IPrepared = projectionOwner.project(nativeOriginal, original, 9.6);
+    const projectionOwner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner = Course.prepare(nativeOriginal, 2);
+    const made: IAutoMovieHumanNativeProjectionCourse.IPrepared = projectionOwner.project(nativeOriginal, original, 9.6);
     if (projectionOwner.calibration.axis2ReadAttempts !== sourceJetReads ||
       projectionOwner.calibration.point0ReadAttempts !== sourcePoint0Reads)
       failures.push("original projection read attempts disagree with actual authored-source calls");
@@ -217,7 +224,7 @@ export function test_human_native_projection_course(): void {
     if (sourceJetReads !== preparedReads)
       failures.push("Point0 performed an unnecessary original source2 read");
   });
-  const base: AutoMovieViewAxis.IAxis = straight(1);
+  const base: IAutoMovieViewAxis.IAxis = straight(1);
   refuses("nonfinite rail", (): unknown => project(base, NaN, 8, 8));
   refuses("zero material span", (): unknown => project(base, 2, 0, 8));
   refuses("negative projection", (): unknown => project(base, 2, 8, -1));
@@ -225,10 +232,10 @@ export function test_human_native_projection_course(): void {
   refuses("underflowed positive scale", (): unknown => project(base, 2, 8, Number.MIN_VALUE));
   refuses("unrepresentable scale", (): unknown => project(base, 2, 0.5, Number.MAX_VALUE));
   refuses("nonfinite origin", (): unknown => Course.prepare(cap(base, 1, 10), 2).project(cap(base, 1, 10), base, 9.6, NaN));
-  refuses("unavailable original axis2", (): unknown => project({ at: (s: number): AutoMovieLoftFrame.IFrame => base.at(s) }, 2, 8, 9.6));
-  const curved: AutoMovieViewAxis.IAxis = {
-    at: (s: number): AutoMovieLoftFrame.IFrame => base.at(s + s * s / 16),
-    jet: (s: number, p?: AutoMovieConstructionOutlineParameter): AutoMovieViewAxisJet.IJet | null => AutoMovieViewAxisJet.parameter(
+  refuses("unavailable original axis2", (): unknown => project({ at: (s: number): IAutoMovieLoftSectionFrame => base.at(s) }, 2, 8, 9.6));
+  const curved: IAutoMovieViewAxis.IAxis = {
+    at: (s: number): IAutoMovieLoftSectionFrame => base.at(s + s * s / 16),
+    jet: (s: number, p?: IAutoMovieConstructionOutlineParameter): IAutoMovieViewAxisJet.IJet | null => AutoMovieViewAxisJet.parameter(
       AutoMovieViewAxisJet.fixed(base.at(s + s * s / 16), [0, 1 + s / 8, 0], [0, 1 / 8, 0]), p, s,
     ),
   };
@@ -253,7 +260,7 @@ function inflections(points: readonly [number, number][]): number {
 }
 
 /** Tiny positive ellipse with the actual original top material cap. */
-function cap(axis: AutoMovieViewAxis.IAxis, from: number, tip: number): IAutoMovieViewPart {
+function cap(axis: IAutoMovieViewAxis.IAxis, from: number, tip: number): IAutoMovieViewPart {
   const radial: (value: number) => IAutoMovieViewPart.IOutline = (value: number): IAutoMovieViewPart.IOutline => ({
     knots: [{ site: "wall", station: from, value }, { site: "pole", station: tip, value: 0 }],
   });
@@ -273,7 +280,7 @@ function cap(axis: AutoMovieViewAxis.IAxis, from: number, tip: number): IAutoMov
 }
 
 /** A made convex dome: radius sqrt(27 - s) on stations 9..27, a paraboloid closed at its top pole. */
-function dome(axis: AutoMovieViewAxis.IAxis): IAutoMovieViewPart {
+function dome(axis: IAutoMovieViewAxis.IAxis): IAutoMovieViewPart {
   const coordinate: (sign: number) => IAutoMovieViewPart.IOutline = (sign: number): IAutoMovieViewPart.IOutline => ({
     parameter: { type: "root", end: "top", pole: 27 },
     knots: [{ station: 9, value: sign * Math.sqrt(18), site: "base" }, { station: 27, value: 0, site: "pole" }],
@@ -290,8 +297,8 @@ function dome(axis: AutoMovieViewAxis.IAxis): IAutoMovieViewPart {
 }
 
 /** Malformed and valid tiny sources reach the same prepared production entry. */
-function project(axis: AutoMovieViewAxis.IAxis, rail: number, length: number,
-  projection: number): Course.IPrepared {
+function project(axis: IAutoMovieViewAxis.IAxis, rail: number, length: number,
+  projection: number): IAutoMovieHumanNativeProjectionCourse.IPrepared {
   const original: IAutoMovieViewPart = cap(axis, rail - 1, rail + length);
   return Course.prepare(original, rail).project(original, axis, projection);
 }

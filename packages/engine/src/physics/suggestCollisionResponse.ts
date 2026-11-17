@@ -1,14 +1,11 @@
 import type {
-  AutoMovieHumanoidBone,
+  IAutoMovieCollisionResponse,
+  IAutoMovieImpact,
   IAutoMoviePose,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
+  IAutoMovieRecoilPush,
+  IAutoMovieSuggestCollisionResponse,
 } from "@automovie/interface";
 
-import { IAutoMovieCollisionResponse } from "./IAutoMovieCollisionResponse";
-import type { IAutoMovieImpact } from "./IAutoMovieImpact";
-import { IAutoMovieImpactBody } from "./IAutoMovieImpactBody";
-import type { IAutoMovieRecoilPush } from "./IAutoMovieRecoilPush";
 import { impactRecoil } from "./impactRecoil";
 import { impulseToRecoilPush } from "./impulseToRecoilPush";
 import { resolveImpact } from "./resolveImpact";
@@ -30,30 +27,11 @@ import { resolveImpact } from "./resolveImpact";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The computed impact impulse is passed directly to the push conversion in this call; no cross-request cache assumes mutable body or rig equivalence.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned aggregate owns its new response/push/pose records except documented borrowed no-closing velocities; no ongoing physical state or handle is retained.
  */
-export const suggestCollisionResponse: (props: {
-  /** The struck actor's colliding body (mass, velocity, material). */ a: IAutoMovieImpactBody;
-  /** The other colliding body. */ b: IAutoMovieImpactBody;
-  /** Unit contact normal from `a` toward `b`. */ normal: IAutoMovieVector3;
-  /** Degrees of recoil flexion per unit impulse. */ gainDegPerImpulse: number;
-  /** Struck bone chain (contact bone toward the body), for the flinch pose. */ chain?: AutoMovieHumanoidBone[];
-  /** Skeleton the flinch is bounded against. */ skeleton?: IAutoMovieSkeleton;
-  /** Flinch falloff down the chain. Defaults to `impactRecoil`'s default. */ falloff?: number;
-}) => IAutoMovieCollisionResponse = (props: {
-  /** The struck actor's colliding body (mass, velocity, material). */
-  a: IAutoMovieImpactBody;
-  /** The other colliding body. */
-  b: IAutoMovieImpactBody;
-  /** Unit contact normal from `a` toward `b`. */
-  normal: IAutoMovieVector3;
-  /** Degrees of recoil flexion per unit impulse. */
-  gainDegPerImpulse: number;
-  /** Struck bone chain (contact bone toward the body), for the flinch pose. */
-  chain?: AutoMovieHumanoidBone[];
-  /** Skeleton the flinch is bounded against. */
-  skeleton?: IAutoMovieSkeleton;
-  /** Flinch falloff down the chain. Defaults to `impactRecoil`'s default. */
-  falloff?: number;
-}): IAutoMovieCollisionResponse => {
+export const suggestCollisionResponse: (
+  props: IAutoMovieSuggestCollisionResponse.IProps,
+) => IAutoMovieCollisionResponse = (
+  props: IAutoMovieSuggestCollisionResponse.IProps,
+): IAutoMovieCollisionResponse => {
   const impact: IAutoMovieImpact = resolveImpact(
     props.a,
     props.b,

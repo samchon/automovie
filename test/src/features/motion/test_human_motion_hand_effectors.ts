@@ -1,14 +1,19 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffectors,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanBend,
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
-  type IHumanProp,
   touch,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -46,7 +51,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 6 scenarios with their bounds.
  */
 export function test_human_motion_hand_effectors(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
   const gap = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
@@ -56,7 +61,7 @@ export function test_human_motion_hand_effectors(): void {
     y: body.measure.chestHeight,
     z: 0.45,
   };
-  const rail: IHumanProp = {
+  const rail: IAutoMovieMotionHumanProp = {
     subject: "rail",
     frame: { position: middle, rotation: { x: 0, y: 0, z: 0, w: 1 } },
     points: {
@@ -79,9 +84,9 @@ export function test_human_motion_hand_effectors(): void {
 
   /** One touch: the performance and the middle of its hold. */
   const perform = (
-    params: touch.IParams,
-  ): { performance: HumanPerformance; held: number } => {
-    const performance: HumanPerformance = new HumanPerformance({
+    params: IAutoMovieMotionHumanTouch.IParams,
+  ): { performance: IAutoMovieMotionHumanPerformance; held: number } => {
+    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "effector",
       props: [rail],
       performers: [
@@ -105,7 +110,7 @@ export function test_human_motion_hand_effectors(): void {
         .touch(params)
         .with(HumanChain.subject("b").stand({ seconds: 4 })).node,
     });
-    const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
+    const placed: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
     const instant = (event: string): number =>
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -117,8 +122,8 @@ export function test_human_motion_hand_effectors(): void {
     };
   };
   const part = (
-    read: { performance: HumanPerformance; held: number },
-    name: touch.With,
+    read: { performance: IAutoMovieMotionHumanPerformance; held: number },
+    name: IAutoMovieMotionHumanTouchEffectors.With,
   ): IAutoMovieVector3 =>
     AutoMovieMotionHumanTouchEffector.point(
       body,
@@ -130,7 +135,10 @@ export function test_human_motion_hand_effectors(): void {
   // 1, 2. The named part of the hand on the sternum.
   for (const name of ["handEdge", "heel"] as const)
     try {
-      const read: { performance: HumanPerformance; held: number } = perform({
+      const read: {
+        performance: IAutoMovieMotionHumanPerformance;
+        held: number;
+      } = perform({
         target: { kind: "person", subject: "b", region: "sternum" },
         with: name,
         kind: "hold",

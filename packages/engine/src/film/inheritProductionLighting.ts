@@ -1,7 +1,6 @@
 import {
+  type IAutoMovieInheritProductionLighting,
   IAutoMovieLight,
-  IAutoMovieProductionLighting,
-  IAutoMovieShotStoryTime,
 } from "@automovie/interface";
 
 import { autoMovieStoryTime } from "./autoMovieStoryTime";
@@ -27,19 +26,9 @@ import { resolveProductionLighting } from "./resolveProductionLighting";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call resolves one instant of one production for one shot and coordinates no work across calls; the caller evaluates it once per shot.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The map and set are dropped on return; the caller owns the returned array, bounded by staged lights plus production sources.
  */
-export function inheritProductionLighting(props: {
-  /** The production's declared sources, or `null` when it declares none. */
-  lighting: IAutoMovieProductionLighting | null;
-
-  /** The shot's scene lights, in staging order. */
-  lights: readonly IAutoMovieLight[];
-
-  /** Where the shot sits on the story clock, or `null` when it is unpinned. */
-  pin: IAutoMovieShotStoryTime | null;
-
-  /** The instant to evaluate, in shot-local seconds. */
-  seconds: number;
-}): IAutoMovieLight[] {
+export function inheritProductionLighting(
+  props: IAutoMovieInheritProductionLighting.IProps,
+): IAutoMovieLight[] {
   const { lighting, pin }: typeof props = props;
   if (lighting === null || pin === null) return [...props.lights];
 

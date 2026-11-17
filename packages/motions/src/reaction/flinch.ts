@@ -1,11 +1,23 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanFlinch,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRange,
+  IAutoMovieMotionHumanTiming,
+  IAutoMovieMotionManner,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -17,13 +29,8 @@ import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange"
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import { StrikingQuality } from "../striking/StrikingQuality";
 import { StrikingTarget } from "../striking/StrikingTarget";
@@ -63,10 +70,10 @@ import { ReactionSource } from "./ReactionSource";
  */
 export namespace flinch {
   /** The action's name. */
-  export const name: HumanActionName = "flinch";
+  export const name: AutoMovieMotionHumanActionName = "flinch";
 
   /** Cancel table: a flinch flows into a guard, a defence or a stagger. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       guard: ["fromStroke", "smooth"],
       defend: ["fromStroke", "quick"],
@@ -75,46 +82,27 @@ export namespace flinch {
     });
 
   /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
-  export const accepts: IHumanActionLaw["accepts"] = {
+  export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
 
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the threat's target and the intensity's range and default.
-   * @evidence contracts/development/design.md#principled-representation The threat is the interface's motion-target union and the intensity a share in (0, 1], checked when planning.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
-   */
-  export interface IParams {
-    /** Where the threat comes from; a place ahead of the performer when absent. */
-    from?: AutoMovieMotionTarget;
-
-    /** How strong, in (0, 1]; 1 when absent. */
-    intensity?: number;
-
-    /** How it is performed; its intensity is `intensity` unless it states one. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
-
   /** The rise to the startle's peak, a measured reflex time. */
-  export const RISE: AutoMovieMotionHumanTiming.Span = {
+  export const RISE: IAutoMovieMotionHumanTiming.Span = {
     seconds: 0.2,
     source: "Brown et al. 1991, Brain 114:1891",
   };
 
   /** The return from the peak (provisional). */
-  export const RETURN: AutoMovieMotionHumanTiming.Span = "beat";
+  export const RETURN: IAutoMovieMotionHumanTiming.Span = "beat";
 
   /** The trunk's lean away from the threat at full intensity (provisional). */
-  export const LEAN: AutoMovieMotionHumanRange.Amount = "light";
+  export const LEAN: IAutoMovieMotionHumanRange.Amount = "light";
 
   /** The root's shift away from the threat at full intensity, as a share of the stature (provisional). */
   export const SHIFT: number = 0.018;
 
   /** The neck's added flexion at full intensity (provisional). */
-  export const DUCK: AutoMovieMotionHumanRange.Amount = "light";
+  export const DUCK: IAutoMovieMotionHumanRange.Amount = "light";
 
   /**
    * Plan a flinch.
@@ -132,10 +120,10 @@ export namespace flinch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one cached direction, cleared by settle and released with the plan.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFlinch.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanFlinch.IParams = context.params;
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, {
         ...(p.intensity === undefined ? {} : { intensity: p.intensity }),
         ...p.manner,
@@ -143,11 +131,11 @@ export namespace flinch {
     const intensity: number = modifiers.extent;
     const body = context.body;
     const m = body.measure;
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
 
     // The startle's rise is a reflex and keeps its time; the return follows
     // the manner's tempo.
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase(
         AutoMovieMotionHumanTiming.phrase({
           prepare: "none",
@@ -198,7 +186,7 @@ export namespace flinch {
     // A glove before the face on the trunk the action has placed so far.
     const cover =
       (side: "left" | "right") =>
-      (posture: IHumanPosture): IHumanPosture.IGoal => {
+      (posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal => {
         const bones = StrikingBody.trunk(body, posture);
         const face = StrikingBody.region(body, bones, "face");
         const fist: number = StrikingQuality.fist(m.hand);
@@ -255,7 +243,7 @@ export namespace flinch {
 
     // The neck's duck and the fingers' closing into fists, each over what the
     // entry held: a body entered with closed fists adds nothing to them.
-    const startle: AutoMovieMotionHumanJoints.Angles = {
+    const startle: IAutoMovieMotionHumanJoints.Angles = {
       neck: [duck * intensity, 0, 0],
     };
     for (const side of ["left", "right"] as const)
@@ -293,7 +281,7 @@ export namespace flinch {
           body,
           from: 0,
           to: duration,
-          angles: (seconds: number): AutoMovieMotionHumanLean.IAngles => ({
+          angles: (seconds: number): IAutoMovieMotionHumanLean.IAngles => ({
             pitch: lean * share(seconds) * away().z,
             roll: -lean * share(seconds) * away().x,
           }),

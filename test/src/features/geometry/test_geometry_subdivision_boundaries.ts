@@ -1,9 +1,9 @@
-import {
-  type IAutoMovieSubdivisionCage,
-  type IAutoMovieSubdivisionSurface,
-  subdivideAutoMovieSurface,
-} from "@automovie/engine";
-import { type IAutoMovieVector3 } from "@automovie/interface";
+import { subdivideAutoMovieSurface } from "@automovie/engine";
+import type {
+  IAutoMovieSubdivisionCage,
+  IAutoMovieSubdivisionSurface,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

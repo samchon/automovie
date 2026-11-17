@@ -1,10 +1,10 @@
 import type { AutoMovieConstructionContinuity } from "./AutoMovieConstructionContinuity";
 import type { AutoMovieConstructionJoinKind } from "./AutoMovieConstructionJoinKind";
-import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
-import type { AutoMovieConstructionParameter } from "./AutoMovieConstructionParameter";
-import type { AutoMovieConstructionSeed } from "./AutoMovieConstructionSeed";
-import type { IAutoMovieConstructionPort } from "./IAutoMovieConstructionPort";
-import type { AutoMovieConstructionWidth } from "./AutoMovieConstructionWidth";
+import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
+import type { IAutoMovieConstructionParameter } from "./IAutoMovieConstructionParameter";
+import type { IAutoMovieConstructionPortLoop } from "./IAutoMovieConstructionPortLoop";
+import type { IAutoMovieConstructionSeed } from "./IAutoMovieConstructionSeed";
+import type { IAutoMovieConstructionWidth } from "./IAutoMovieConstructionWidth";
 
 /**
  * A part joined onto a host: a merge (the union of the two solids) or a diff (the part cut from the host), along the curve where their surfaces meet, with a blend of declared continuity between a rail on each.
@@ -13,7 +13,7 @@ import type { AutoMovieConstructionWidth } from "./AutoMovieConstructionWidth";
  *
  * A mixed join declares `loop`: the contact is then that closed curve on `seed.hostFace`'s chart, the boundary both surfaces share by one owner, and nothing is traced. Round it the part may run on from the host where the two are tangent (a mound's upper pole, a shoulder cap, an ear's root) and cross it elsewhere (the fold under a mound, the cleft under an arm, the groove round a nostril's wing). No arc is declared: at each point of the loop the turn `beta` between the two surfaces' outward normals is read from the surfaces, a `fold` width with a `reach` gives each rail its chord `hypot(reach, radius tan(beta / 2))`, and the kept sides come from the normals where the surfaces cross by more than `grazing` and from the loop where they do not (the host outside the loop, the part running on from the host across it). The fold's width therefore runs out to the reach as the crossing closes, with the blend G2 to both surfaces along both rails all round; a changed part size or a turned part frame moves every arc with the surfaces.
  *
- * Engine admission: `seed.partFace` a view part of the part's subtree and `seed.hostFace` a face of the host's; a diff's part a view part, since only the cutter's wall inside the host is kept; `count` a positive multiple of 4 of at least 8; `rows` a positive integer; `tolerance` and `grazing` positive. With `loop`: the loop as `IAutoMovieConstructionPort.ILoop` admits it; every point of it within `tolerance` of the part's face (`shared loop`); the part's kept side the same all round (`one kept side`: a part that passes under its host along an arc is no mound); each width positive at every point, so a `fold` width carries its `reach`; a fold's radius within both surfaces' radii of curvature toward the fold (`fold radius`).
+ * Engine admission: `seed.partFace` a view part of the part's subtree and `seed.hostFace` a face of the host's; a diff's part a view part, since only the cutter's wall inside the host is kept; `count` a positive multiple of 4 of at least 8; `rows` a positive integer; `tolerance` and `grazing` positive. With `loop`: the loop as `IAutoMovieConstructionPortLoop` admits it; every point of it within `tolerance` of the part's face (`shared loop`); the part's kept side the same all round (`one kept side`: a part that passes under its host along an arc is no mound); each width positive at every point, so a `fold` width carries its `reach`; a fold's radius within both surfaces' radii of curvature toward the fold (`fold radius`).
  *
  * @evidence contracts/development/design.md#principled-representation The surface-surface intersection is traced as a function of a declared parameter by Newton's method with exact jets from the implicit function theorem, and the blend is the quintic Hermite between both surfaces' 2-jets along their rails, G2 by construction (Patrikalakis, Maekawa and Cho, Shape Interrogation, ch. 5; Vida, Martin and Varady, A survey of blending methods, 1994).
  * @evidence contracts/development/design.md#minimal-and-owned-surface One record serves the merge and the diff, which differ only in the kept sides; the host as a subtree covers branches, overhangs, corners where two blends meet, and parts merged at both ends without special cases.
@@ -31,16 +31,16 @@ export interface IAutoMovieConstructionJoin {
   name: string;
 
   /** The solid the part joins: its whole subtree, whose faces the curve may cross. */
-  host: AutoMovieConstructionNode;
+  host: IAutoMovieConstructionNode;
 
   /** The joined solid: its whole subtree, of which `seed.partFace` meets the host. */
-  part: AutoMovieConstructionNode;
+  part: IAutoMovieConstructionNode;
 
   /** Where the trace starts, from the landmarks that locate the contact. */
-  seed: AutoMovieConstructionSeed;
+  seed: IAutoMovieConstructionSeed;
 
   /** The curve's parameter: how one turn of the loop is measured. Not read with `loop`, whose clock measures the turn. */
-  parameter: AutoMovieConstructionParameter;
+  parameter: IAutoMovieConstructionParameter;
 
   /**
    * The contact as a declared closed curve on `seed.hostFace`'s chart, in place of a trace: the loop one owner supplies to both surfaces,
@@ -48,13 +48,13 @@ export interface IAutoMovieConstructionJoin {
    * is tangential over part of its turn, which no trace can follow. The seed then names the two faces and, as a `point` seed, the part's
    * chart point near the loop's clock 0; nothing is searched along the curve. Absent, the curve is traced from the seed.
    */
-  loop?: IAutoMovieConstructionPort.ILoop;
+  loop?: IAutoMovieConstructionPortLoop;
 
   /** Chord from the curve to the part's rail, as a function of the curve's parameter. */
-  partWidth: AutoMovieConstructionWidth;
+  partWidth: IAutoMovieConstructionWidth;
 
   /** Chord from the curve to the host's rail; a `station` width is refused here. */
-  hostWidth: AutoMovieConstructionWidth;
+  hostWidth: IAutoMovieConstructionWidth;
 
   /** The continuity the blend keeps across both rails. */
   continuity: AutoMovieConstructionContinuity;

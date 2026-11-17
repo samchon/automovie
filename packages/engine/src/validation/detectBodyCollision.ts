@@ -1,34 +1,32 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBody,
+  type IAutoMovieBodyCollisionResult,
   IAutoMovieBone,
   IAutoMovieCapsuleProxy,
+  type IAutoMovieClosestSegmentPoints,
+  type IAutoMovieCollisionActor,
+  type IAutoMovieCollisionResponse,
+  type IAutoMovieDetectBodyCollision,
   IAutoMovieInteractionEvent,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieSkeletonTopology,
   IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
-import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { resolvePose } from "../kinematics/resolvePose";
-import { IAutoMovieClosestSegmentPoints } from "../math/IAutoMovieClosestSegmentPoints";
 import { Vector3 } from "../math/Vector3";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/sampleTimes";
-import { IAutoMovieCollisionResponse } from "../physics/IAutoMovieCollisionResponse";
 import { suggestCollisionResponse } from "../physics/suggestCollisionResponse";
-import { IAutoMovieBodyCollisionResult } from "./IAutoMovieBodyCollisionResult";
-import { IAutoMovieCollisionActor } from "./IAutoMovieCollisionActor";
 import { ViolationCollector } from "./ViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 import { validateCapsule } from "./validateCapsule";
 
 const DEFAULT_SAMPLE_RATE: number = 24;
-
-const DEFAULT_MASS: number = 70; // kg: an unspecified body defaults to a human mass
-
-const DEFAULT_RESTITUTION: number = 0.2;
 
 const DEFAULT_HARDNESS: number = 0.5;
 
@@ -51,30 +49,20 @@ interface IPenetration {
 /**
  * Sample two capsule-proxy actors and return overlap advice, contact events and an optional response.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Finite positive sample rate and canonical reachable-capsule admission precede endpoint-inclusive pose sampling; every capsule pair uses shared closest-segment distance and strict summed-radius penetration, then one deepest contact seeds the response.
+ * @evidence contracts/development/implementation.md#principled-implementation Finite positive sample rate and canonical reachable-capsule admission precede endpoint-inclusive pose sampling; every capsule pair uses shared closest-segment distance and strict summed-radius penetration. An unsuppressed overlap requests a response only after both actors declare a body, finite positive mass and finite restitution in [0,1]; every missing or invalid response quantity is reported while geometric contacts remain available.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pose/FK, distance and impact-response owners remain shared, while this detector owns sampled cross-body population and warning/event correspondence; runtime repository consumers are portable tests rather than an installed film collision host.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid capsules return structural findings before sampling, and physicsIntent suppresses advice while preserving contacts. Sampling is not continuous collision proof; final truncated-interval velocity still multiplies displacement by nominal rate, and derived numeric failures can propagate.
- * @evidence contracts/development/common.md#meaningful-documentation States sample-clock scope, shortest actor duration, default response-body quantities, strict penetration, deepest tie order and uncorrected final-interval velocity approximation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither absent bodies nor missing mass/restitution receive guessed values. PhysicsIntent and non-contact paths request no physical response, while malformed capsules fail before sampling. The existing adviser still uses its documented hardness/penetrability heuristic and geometric fallback normal. Sampling is not continuous collision proof; final truncated-interval velocity still uses nominal rate, and derived numeric failures can propagate.
+ * @evidence contracts/development/common.md#meaningful-documentation States sample-clock scope, shortest duration, response-only body/mass/coefficient admission, retained contacts on refusal, strict penetration, deepest tie order and uncorrected final-interval velocity approximation.
  * @evidence contracts/development/implementation.md#efficient-algorithms For F frames, J resolved bones and A/B capsules, pose maps cost O(F*J), pair checks O(F*A*B), and deepest-contact sorting O(E log E) for E penetrations; storage is O(F*J+E).
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each actor pose resolves once per frame and its map serves all capsule pairs; one retained penetration list supplies events, warnings and deepest response without a cross-call motion cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local pose maps and penetration rows are discarded; fresh events, validation and response transfer to the caller without retaining sampled poses or owning a physics/render task.
  */
-export const detectBodyCollision: (props: {
-  a: IAutoMovieCollisionActor;
-  b: IAutoMovieCollisionActor;
-  sampleRate?: number | undefined;
-  physicsIntent?: string | undefined;
-  gainDegPerImpulse?: number | undefined;
-  path?: string | undefined;
-}) => IAutoMovieBodyCollisionResult = (props: {
-  a: IAutoMovieCollisionActor;
-  b: IAutoMovieCollisionActor;
-  sampleRate?: number;
-  physicsIntent?: string;
-  gainDegPerImpulse?: number;
-  path?: string;
-}): IAutoMovieBodyCollisionResult => {
-  const collector: ViolationCollector = new ViolationCollector();
+export const detectBodyCollision: (
+  props: IAutoMovieDetectBodyCollision.IProps,
+) => IAutoMovieBodyCollisionResult = (
+  props: IAutoMovieDetectBodyCollision.IProps,
+): IAutoMovieBodyCollisionResult => {
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const path: string = props.path ?? "$input";
   const sampleRate: number =
     props.sampleRate === undefined ? DEFAULT_SAMPLE_RATE : props.sampleRate;
@@ -196,6 +184,50 @@ export const detectBodyCollision: (props: {
     );
   });
 
+  // Geometry is already observed. Only a requested response needs authored
+  // physical quantities; report both actors' faults without inventing them.
+  const beforeResponseAdmission: number = collector.items.length;
+  for (const [side, actor] of [
+    ["a", props.a],
+    ["b", props.b],
+  ] as const) {
+    const body: IAutoMovieBody | null = actor.body;
+    const bodyPath: string = `${path}.${side}.body`;
+    if (body === null || body === undefined) {
+      collector.push(
+        "type",
+        bodyPath,
+        `actor "${actor.node}" needs an authored physical body with mass and restitution before a collision response can be suggested`,
+        body,
+      );
+      continue;
+    }
+    if (!Number.isFinite(body.mass) || body.mass <= 0)
+      collector.push(
+        "range",
+        `${bodyPath}.mass`,
+        `body "${actor.node}" needs a finite positive authored mass in kilograms`,
+        body.mass,
+      );
+    if (body.restitution === undefined)
+      collector.push(
+        "type",
+        `${bodyPath}.restitution`,
+        `body "${actor.node}" needs an explicitly authored or calibrated body restitution parameter before a collision response can be suggested`,
+        body.restitution,
+      );
+    else
+      collector.range(
+        `${bodyPath}.restitution`,
+        body.restitution,
+        0,
+        1,
+        "body restitution",
+      );
+  }
+  if (collector.items.length !== beforeResponseAdmission)
+    return { validation: collector.toValidation(), events, response: null };
+
   const response: IAutoMovieCollisionResponse = suggestResponse(
     props,
     penetrations,
@@ -216,12 +248,12 @@ const validateActorCapsules: (
   actor: IAutoMovieCollisionActor,
   path: string,
   topology: IAutoMovieSkeletonTopology,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => boolean = (
   actor: IAutoMovieCollisionActor,
   path: string,
   topology: IAutoMovieSkeletonTopology,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): boolean => {
   const bones: Set<AutoMovieHumanoidBone> = new Set(
     actor.skeleton.bones.map(
@@ -295,8 +327,8 @@ const suggestResponse: (
     Vector3.dot(rawNormal, rawNormal) > 0 ? rawNormal : FALLBACK_NORMAL;
 
   return suggestCollisionResponse({
-    a: impactBody(props.a.body, velA),
-    b: impactBody(props.b.body, velB),
+    a: impactBody(props.a.body, velA, props.a.node),
+    b: impactBody(props.b.body, velB, props.b.node),
     normal,
     gainDegPerImpulse: gain,
     chain: [deepest.otherFrom],
@@ -325,6 +357,7 @@ const velocity: (
 const impactBody: (
   body: IAutoMovieBody | null,
   vel: IAutoMovieVector3,
+  node: string,
 ) => {
   mass: number;
   velocity: IAutoMovieVector3;
@@ -334,19 +367,31 @@ const impactBody: (
 } = (
   body: IAutoMovieBody | null,
   vel: IAutoMovieVector3,
+  node: string,
 ): {
   mass: number;
   velocity: IAutoMovieVector3;
   restitution: number;
   hardness: number;
   penetrability: number;
-} => ({
-  mass: body === null ? DEFAULT_MASS : body.mass,
-  velocity: vel,
-  restitution: body === null ? DEFAULT_RESTITUTION : body.restitution,
-  hardness: DEFAULT_HARDNESS,
-  penetrability: DEFAULT_PENETRABILITY,
-});
+} => {
+  if (body === null || body === undefined)
+    throw new Error(
+      `actor "${node}" has no authored body for collision response`,
+    );
+  const restitution: number | undefined = body.restitution;
+  if (restitution === undefined)
+    throw new Error(
+      `body "${node}" has no declared restitution for collision response`,
+    );
+  return {
+    mass: body.mass,
+    velocity: vel,
+    restitution,
+    hardness: DEFAULT_HARDNESS,
+    penetrability: DEFAULT_PENETRABILITY,
+  };
+};
 
 const resolveMap: (
   actor: IAutoMovieCollisionActor,

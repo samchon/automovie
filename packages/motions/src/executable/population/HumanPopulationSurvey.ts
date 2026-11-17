@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyAnatomy } from "@automovie/human";
+import type { IAutoMovieHumanBodyAnatomy } from "@automovie/interface";
 
 /**
  * The published statistics every test person is built from and checked against:

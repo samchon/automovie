@@ -1,3 +1,10 @@
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanWorkoutBodyweight,
+  IAutoMovieMotionHumanWorkoutKind,
+} from "@automovie/interface";
+
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 
@@ -11,8 +18,12 @@ import { WorkoutKind } from "./WorkoutKind";
  * (ACSM's Guidelines, 11th ed.; NSCA's Essentials of Strength Training and
  * Conditioning, 4th ed., for the dip); none is a measured value.
  *
- * First pass: the bars of a dip are places unless the author names a prop
- * (`on`); a bird dog's hands are kept by the angles alone.
+ * The bars of a dip are places at the standing hips' height beside the body
+ * unless the author names a prop (`on`): a support exercise's bars stand
+ * within the standing body's reach. First pass: the dip's base is the
+ * grammar's `hanging`, the body borne by its hands with its feet off the
+ * floor, there being no base of a body supported above its hands; a bird
+ * dog's hands are kept by the angles alone.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the kinds, the sources and that the angles are provisional, and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise: data over the one planner.
@@ -21,19 +32,19 @@ import { WorkoutKind } from "./WorkoutKind";
  */
 export namespace WorkoutBodyweight {
   /** Lying on the back with the arms by the sides. */
-  const supine: ExerciseKey.IKey = ExerciseKey.of(
-    { pitch: -90 },
-    { ankle: -20, elbow: 5 },
-  );
+  const supine = (
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanExerciseKey.IKey =>
+    ExerciseKey.from(body, { pitch: -90 }, { ankle: -20, elbow: 5 });
 
   /** A kind done lying or sitting on the floor, the pelvis kept. */
   const floor = (
-    base: WorkoutKind["base"],
-    supports: readonly WorkoutKind.ISupport[],
+    base: IAutoMovieMotionHumanWorkoutKind["base"],
+    supports: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[],
     reps: number,
-    route: WorkoutKind["route"],
+    route: IAutoMovieMotionHumanWorkoutKind["route"],
     alternate: boolean = false,
-  ): WorkoutKind => ({
+  ): IAutoMovieMotionHumanWorkoutKind => ({
     base,
     anchor: "hips",
     pin: ["leftUpperLeg", "rightUpperLeg"],
@@ -45,21 +56,17 @@ export namespace WorkoutBodyweight {
   });
 
   /** The back bears. */
-  const BACK: readonly WorkoutKind.ISupport[] = [{ part: "back", kind: "lie" }];
-
-  /** The exercises' names. */
-  export type Name =
-    | "pikePushUp"
-    | "superman"
-    | "birdDog"
-    | "lyingLegRaise"
-    | "bicycleCrunch"
-    | "russianTwist"
-    | "deadBug"
-    | "dip";
+  const BACK: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[] = [
+    { part: "back", kind: "lie" },
+  ];
 
   /** The exercises. */
-  export const KINDS: Readonly<Record<Name, WorkoutKind>> = {
+  export const KINDS: Readonly<
+    Record<
+      IAutoMovieMotionHumanWorkoutBodyweight.Name,
+      IAutoMovieMotionHumanWorkoutKind
+    >
+  > = {
     /** A pike push-up: from the hips-high support on the hands and feet, the head lowered between the hands. */
     pikePushUp: {
       base: "leaning",
@@ -74,9 +81,12 @@ export namespace WorkoutBodyweight {
       ],
       enter: 2,
       reps: 5,
-      route: (): WorkoutKind.IStep[] => [
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 140, neck: 10 },
             { hip: 105, ankle: 35, shoulder: 175, elbow: 3, wrist: -50 },
           ),
@@ -85,7 +95,8 @@ export namespace WorkoutBodyweight {
           "top",
         ),
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 150, neck: 10 },
             { hip: 115, ankle: 35, shoulder: 150, elbow: 95, wrist: -50 },
           ),
@@ -97,27 +108,36 @@ export namespace WorkoutBodyweight {
     },
 
     /** A superman: lying face down, the arms ahead and the legs lifted off the floor together. */
-    superman: floor("lying", BACK, 5, (): WorkoutKind.IStep[] => [
-      WorkoutKind.step(
-        ExerciseKey.of(
-          { pitch: 88 },
-          { ankle: -45, shoulder: 170, raise: 10, elbow: 5 },
+    superman: floor(
+      "lying",
+      BACK,
+      5,
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+        WorkoutKind.step(
+          ExerciseKey.from(
+            body,
+            { pitch: 88 },
+            { ankle: -45, shoulder: 170, raise: 10, elbow: 5 },
+          ),
+          1,
+          "lower",
+          "down",
         ),
-        1,
-        "lower",
-        "down",
-      ),
-      WorkoutKind.step(
-        ExerciseKey.of(
-          { pitch: 88, spine: [-12, 0, 0], chest: [-12, 0, 0], neck: -15 },
-          { hip: -15, ankle: -45, shoulder: 185, raise: 10, elbow: 5 },
+        WorkoutKind.step(
+          ExerciseKey.from(
+            body,
+            { pitch: 88, spine: [-12, 0, 0], chest: [-12, 0, 0], neck: -15 },
+            { hip: -15, ankle: -45, shoulder: 185, raise: 10, elbow: 5 },
+          ),
+          1,
+          "lift",
+          "top",
+          1,
         ),
-        1,
-        "lift",
-        "top",
-        1,
-      ),
-    ]),
+      ],
+    ),
 
     /** A bird dog: on hands and knees, one arm and the opposite leg reached level, alternating. */
     birdDog: {
@@ -131,9 +151,12 @@ export namespace WorkoutBodyweight {
       alternate: true,
       enter: 2.4,
       reps: 6,
-      route: (): WorkoutKind.IStep[] => [
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 85, neck: -30 },
             { hip: 85, knee: 95, ankle: -40, shoulder: 85, elbow: 3 },
           ),
@@ -142,7 +165,8 @@ export namespace WorkoutBodyweight {
           "kneeling",
         ),
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 85, neck: -30 },
             { hip: 85, knee: 95, ankle: -40, shoulder: 85, elbow: 3 },
             { hip: 0, knee: 5 },
@@ -157,24 +181,38 @@ export namespace WorkoutBodyweight {
     },
 
     /** A lying leg raise: on the back, both straight legs raised to upright and lowered. */
-    lyingLegRaise: floor("lying", BACK, 6, (): WorkoutKind.IStep[] => [
-      WorkoutKind.step(supine, 1.5, "lower", "down"),
-      WorkoutKind.step(
-        ExerciseKey.of({ pitch: -90 }, { hip: 88, ankle: -20, elbow: 5 }),
-        1.2,
-        "raise",
-        "top",
-      ),
-    ]),
+    lyingLegRaise: floor(
+      "lying",
+      BACK,
+      6,
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+        WorkoutKind.step(supine(body), 1.5, "lower", "down"),
+        WorkoutKind.step(
+          ExerciseKey.from(
+            body,
+            { pitch: -90 },
+            { hip: 88, ankle: -20, elbow: 5 },
+          ),
+          1.2,
+          "raise",
+          "top",
+        ),
+      ],
+    ),
 
     /** A bicycle crunch: on the back, one knee drawn in as the opposite shoulder turns to it, alternating. */
     bicycleCrunch: floor(
       "lying",
       BACK,
       8,
-      (): WorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: -90, chest: [15, 0, 0], neck: 15 },
             { hip: 40, knee: 20, shoulder: 60, raise: 60, elbow: 140 },
           ),
@@ -183,7 +221,8 @@ export namespace WorkoutBodyweight {
           "extended",
         ),
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: -90, spine: [15, 0, 25], chest: [20, 0, 20], neck: 15 },
             { hip: 40, knee: 20, shoulder: 60, raise: 60, elbow: 140 },
             {},
@@ -202,9 +241,12 @@ export namespace WorkoutBodyweight {
       "seated",
       [{ part: "seat", kind: "seat" }],
       8,
-      (): WorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: -35 },
             { hip: 85, knee: 80, ankle: -10, shoulder: 45, elbow: 90 },
           ),
@@ -213,7 +255,8 @@ export namespace WorkoutBodyweight {
           "middle",
         ),
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: -35, spine: [0, 0, 25], chest: [0, 0, 20] },
             { hip: 85, knee: 80, ankle: -10, shoulder: 45, elbow: 90 },
           ),
@@ -230,9 +273,12 @@ export namespace WorkoutBodyweight {
       "lying",
       BACK,
       6,
-      (): WorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: -90 },
             { hip: 90, knee: 90, shoulder: 90, raise: 0, elbow: 3 },
           ),
@@ -241,7 +287,8 @@ export namespace WorkoutBodyweight {
           "square",
         ),
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: -90 },
             { hip: 90, knee: 90, shoulder: 90, raise: 0, elbow: 3 },
             { hip: 10, knee: 5 },
@@ -260,22 +307,26 @@ export namespace WorkoutBodyweight {
     dip: {
       base: "hanging",
       anchor: "bar",
-      pin: ["leftHand", "rightHand"],
+      pin: ["gripLeft", "gripRight"],
+      bars: (body: IAutoMovieMotionHumanBody): number => body.measure.hipHeight,
       supports: [
         { part: "leftHand", kind: "grip" },
         { part: "rightHand", kind: "grip" },
       ],
       enter: 1,
       reps: 5,
-      route: (): WorkoutKind.IStep[] => [
+      route: (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of({}, { knee: 70, raise: 8, elbow: 3 }),
+          ExerciseKey.from(body, {}, { knee: 70, raise: 8, elbow: 3 }),
           1,
           "press",
           "top",
         ),
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 15 },
             { hip: 15, knee: 70, shoulder: -60, raise: 8, elbow: 95 },
           ),

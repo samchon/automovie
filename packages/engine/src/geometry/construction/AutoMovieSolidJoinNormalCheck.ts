@@ -1,11 +1,14 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidRail,
+} from "@automovie/interface";
 import { AutoMovieSolidBlend } from "./AutoMovieSolidBlend";
-import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
-import type { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
-import type { AutoMovieSolidRail } from "./AutoMovieSolidRail";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
 /** World vectors retain the source reader's millimetre units. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 
 /** Only the original neighbouring-rail or sampled-normal premise can fail here. */
 type IFailure = {
@@ -36,13 +39,13 @@ type IFailure = {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows columns/readers for this synchronous call and retains only the preceding normal/along/first within each column. A returned failure owns one string; no source object, callback, snapshot history or external handle is retained.
  */
 export function AutoMovieSolidJoinNormalCheck(
-  columns: readonly AutoMovieSolidJoin.IColumn[],
-  column: AutoMovieSolidJoin.IJoin["column"],
+  columns: readonly IAutoMovieSolidJoin.IColumn[],
+  column: IAutoMovieSolidJoin.IJoin["column"],
   period: number,
-  curve: AutoMovieSolidIntersection.ICurve,
+  curve: IAutoMovieSolidIntersection.ICurve,
   shares: number,
-  keep: AutoMovieSolidRail.Keep,
-  mode: AutoMovieSolidRail.Mode,
+  keep: IAutoMovieSolidRail.Keep,
+  mode: IAutoMovieSolidRail.Mode,
 ): IFailure | null {
   const { sub, cross, dot, norm }: Pick<
     typeof AutoMovieSolidVector,
@@ -50,8 +53,8 @@ export function AutoMovieSolidJoinNormalCheck(
   > = AutoMovieSolidVector;
   const step: number = period / (16 * curve.points.length);
   for (const c of columns) {
-    const before: AutoMovieSolidJoin.IColumn | null = column(c.rail.curve.t - step);
-    const after: AutoMovieSolidJoin.IColumn | null = column(c.rail.curve.t + step);
+    const before: IAutoMovieSolidJoin.IColumn | null = column(c.rail.curve.t - step);
+    const after: IAutoMovieSolidJoin.IColumn | null = column(c.rail.curve.t + step);
     if (before === null || after === null)
       return { contract: "rails", detail: `no rail beside t ${c.rail.curve.t}` };
     let previous: Vec3 | null = null;
@@ -78,7 +81,7 @@ export function AutoMovieSolidJoinNormalCheck(
             value.map(scalar);
 
           /** Identify actual kept-rail addresses without reevaluating either surface. */
-          const rail: (value: AutoMovieSolidRail.IRail) => object = (value: AutoMovieSolidRail.IRail): object => ({
+          const rail: (value: IAutoMovieSolidRail.IRail) => object = (value: IAutoMovieSolidRail.IRail): object => ({
             contact: {
               t: scalar(value.curve.t),
               part: [scalar(value.curve.s), scalar(value.curve.phi)],

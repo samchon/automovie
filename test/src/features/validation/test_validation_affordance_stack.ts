@@ -1,11 +1,11 @@
 import {
-  type IAutoMovieSupportResult,
   affordanceSupportContacts,
   detectSupportToppling,
 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieQuaternion,
+  IAutoMovieSupportResult,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";

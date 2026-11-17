@@ -4,14 +4,18 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionWeaponContact,
+  IAutoMovieMotionWeaponPath,
+  IAutoMovieResolveContactEvents,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanSegment } from "./HumanSegment";
 
 /**
@@ -25,6 +29,9 @@ import { HumanSegment } from "./HumanSegment";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A hand that holds a prop and is driven elsewhere is refused.
  */
 export namespace HumanPerformanceContacts {
+  /** The contact scan's step, seconds: a 120th, so a strike of at most a few metres a second moves a few centimetres between samples. */
+  export const STEP: number = 1 / 120;
+
   /**
    * Settle what a newly planned action does to the props its performer
    * holds, whether it carries the body or rides a carrier: a grip window on
@@ -33,21 +40,22 @@ export namespace HumanPerformanceContacts {
    * holds of its own.
    */
   export function hold(
-    person: HumanSegment.IPerson,
-    segment: HumanSegment.ISegment,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment,
     riding: boolean,
   ): void {
-    const plan: IHumanActionPlan = segment.plan;
+    const plan: IAutoMovieMotionHumanActionPlan = segment.plan;
     for (const held of person.holds) {
       if (held.until !== Infinity) continue;
-      const take: IHumanActionPlan["contacts"][number] | undefined =
-        plan.contacts.find(
-          (c: IHumanActionPlan["contacts"][number]): boolean =>
-            c.part === `${held.side}Hand` &&
-            c.kind === "grip" &&
-            c.support.kind === "prop" &&
-            c.support.subject === held.prop,
-        );
+      const take:
+        | IAutoMovieMotionHumanActionPlan["contacts"][number]
+        | undefined = plan.contacts.find(
+        (c: IAutoMovieMotionHumanActionPlan["contacts"][number]): boolean =>
+          c.part === `${held.side}Hand` &&
+          c.kind === "grip" &&
+          c.support.kind === "prop" &&
+          c.support.subject === held.prop,
+      );
       if (take !== undefined) {
         held.until = Math.max(
           held.from,
@@ -62,7 +70,7 @@ export namespace HumanPerformanceContacts {
           feasible: {
             kind: "alternatives",
             values: person.holds.some(
-              (h: HumanSegment.IHeld): boolean =>
+              (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
                 h.until === Infinity && h.side !== held.side,
             )
               ? []
@@ -95,15 +103,15 @@ export namespace HumanPerformanceContacts {
    * A contact is mutual: when the limb a weapon meets is striking too, its
    * capsule nearest the striker stops at the same second.
    */
-  export function contacts(self: HumanPerformanceState): void {
-    const weapons: resolveAutoMovieContactEvents.IWeapon[] = [];
+  export function contacts(self: IAutoMovieMotionHumanPerformanceState): void {
+    const weapons: IAutoMovieResolveContactEvents.IWeapon[] = [];
     const owners: Map<
       string,
       {
-        person: HumanSegment.IPerson;
-        segment: HumanSegment.ISegment;
+        person: IAutoMovieMotionHumanSegment.IPerson;
+        segment: IAutoMovieMotionHumanSegment;
         id: string;
-        limb: IHumanActionPlan.IWeapon["limb"];
+        limb: IAutoMovieMotionWeaponPath["limb"];
         from: number;
         to: number;
       }
@@ -159,10 +167,10 @@ export namespace HumanPerformanceContacts {
         },
       ]),
     );
-    const met: Map<string, IHumanActionPlan.IContactEvent & { key: string }> =
+    const met: Map<string, IAutoMovieMotionWeaponContact & { key: string }> =
       new Map();
     let applied: string = "";
-    const apply = (stops: resolveAutoMovieContactEvents.IStops): void => {
+    const apply = (stops: IAutoMovieResolveContactEvents.IStops): void => {
       const signature: string = [...stops]
         .map(([k, s]) => `${k}@${s}`)
         .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
@@ -170,7 +178,7 @@ export namespace HumanPerformanceContacts {
       if (signature === applied) return;
       applied = signature;
       for (const person of self.people.values()) person.stops.clear();
-      const changed: Set<HumanSegment.ISegment> = new Set();
+      const changed: Set<IAutoMovieMotionHumanSegment> = new Set();
       for (const [key, seconds] of stops) {
         const owner = owners.get(key)!;
         owner.person.stops.set(
@@ -211,7 +219,7 @@ export namespace HumanPerformanceContacts {
       for (const person of self.people.values()) HumanSegment.forget(person);
     };
     const nearest = (
-      owner: HumanSegment.IPerson,
+      owner: IAutoMovieMotionHumanSegment.IPerson,
       [point, end]: [IAutoMovieVector3, IAutoMovieVector3],
       seconds: number,
     ): string => {
@@ -232,16 +240,16 @@ export namespace HumanPerformanceContacts {
       }
       return best.subject;
     };
-    const events: resolveAutoMovieContactEvents.IEvent[] =
+    const events: IAutoMovieResolveContactEvents.IEvent[] =
       resolveAutoMovieContactEvents({
         weapons,
         bodies: [...self.people.values()].map(
-          (person: HumanSegment.IPerson) => ({
+          (person: IAutoMovieMotionHumanSegment.IPerson) => ({
             id: person.performer.subject,
             distance: (
               point: IAutoMovieVector3,
               seconds: number,
-              stops: resolveAutoMovieContactEvents.IStops,
+              stops: IAutoMovieResolveContactEvents.IStops,
             ): number => {
               apply(stops);
               return HumanColliders.distance(
@@ -258,7 +266,7 @@ export namespace HumanPerformanceContacts {
               a: IAutoMovieVector3,
               b: IAutoMovieVector3,
               seconds: number,
-              stops: resolveAutoMovieContactEvents.IStops,
+              stops: IAutoMovieResolveContactEvents.IStops,
               taper?: readonly [number, number],
             ): number => {
               apply(stops);
@@ -282,7 +290,7 @@ export namespace HumanPerformanceContacts {
               a: IAutoMovieVector3,
               b: IAutoMovieVector3,
               seconds: number,
-              stops: resolveAutoMovieContactEvents.IStops,
+              stops: IAutoMovieResolveContactEvents.IStops,
             ): string | undefined => {
               apply(stops);
               const bone: AutoMovieHumanoidBone =
@@ -323,17 +331,30 @@ export namespace HumanPerformanceContacts {
         ),
         from,
         to,
-        step: 1 / 120,
+        step: HumanPerformanceContacts.STEP,
       });
     apply(new Map(events.map((e): [string, number] => [e.weapon, e.seconds])));
-    const plans: Map<HumanSegment.ISegment, IHumanActionPlan.IContactEvent[]> =
-      new Map();
+    const plans: Map<
+      IAutoMovieMotionHumanSegment,
+      IAutoMovieMotionWeaponContact[]
+    > = new Map();
     for (const owner of owners.values()) plans.set(owner.segment, []);
     for (const e of events) {
       const owner = owners.get(e.weapon)!;
       plans
         .get(owner.segment)!
         .push({ weapon: owner.id, against: e.against, seconds: e.seconds });
+
+      // Each stop is a hit on the person it met (`HumanPerformanceHits`).
+      self.strikes.push({
+        subject: owner.person.performer.subject,
+        segment: owner.segment,
+        weapon: owner.segment.plan.weapons!.find(
+          (w: IAutoMovieMotionWeaponPath): boolean => w.id === owner.id,
+        )!,
+        against: e.against,
+        seconds: e.seconds,
+      });
     }
     for (const [segment, own] of plans) segment.plan.stop?.(own);
   }

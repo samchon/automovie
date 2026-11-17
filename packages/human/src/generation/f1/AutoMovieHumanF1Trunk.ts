@@ -1,8 +1,8 @@
-import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicRelief } from "../conic/AutoMovieHumanConicRelief";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
 /**
  * f1's trunk tape wall.
@@ -20,7 +20,7 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  * all sections). Regenerated through the engine's view loft from these numbers alone, the reference skin's cut vertices lie
  * 0.31 mm from it on average and at most 58.72 mm. 341 independent numbers.
  */
-export const AutoMovieHumanF1Trunk: AutoMovieHumanConicLoft.IFamily = {
+export const AutoMovieHumanF1Trunk: IAutoMovieHumanConicLoft.IFamily = {
   name: "trunk",
   centres: [AutoMovieHumanF1Joints.axisFloor, AutoMovieHumanF1Joints.axisCrown],
   halves: [],

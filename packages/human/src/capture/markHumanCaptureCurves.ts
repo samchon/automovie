@@ -1,13 +1,15 @@
 import {
   AutoMovieLoftChain,
-  type AutoMovieViewLoft,
-  type IAutoMovieConstructionCurve,
-  type IAutoMovieMark,
   markAutoMovieConstructionCurves,
 } from "@automovie/engine";
+import type {
+  IAutoMovieConstructionCurve,
+  IAutoMovieHumanF1,
+  IAutoMovieMark,
+  IAutoMovieViewLoft,
+} from "@automovie/interface";
 
 import { AutoMovieHumanConicLoft } from "../generation/conic/AutoMovieHumanConicLoft";
-import type { AutoMovieHumanF1 } from "../generation/f1/AutoMovieHumanF1";
 
 /** Samples round a section ring; a multiple of four, so the guides' quarter phases are ring samples. */
 const PHASES: number = 48;
@@ -28,7 +30,7 @@ const STEP: number = 4;
  */
 export function markHumanCaptureCurves(
   person: string,
-  members: readonly AutoMovieHumanF1.IMember[],
+  members: readonly IAutoMovieHumanF1.IMember[],
 ): IAutoMovieMark[] {
   const curves: IAutoMovieConstructionCurve[] = [];
   for (const { family, mirrored } of members) {
@@ -42,12 +44,12 @@ export function markHumanCaptureCurves(
       for (let k: number = 1; k < count; k++)
         stations.push(knot + ((next - knot) * k) / count);
     });
-    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(
+    const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(
       family,
       stations,
     );
     if (loft.chain === null) continue;
-    const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+    const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
 
     // One ring per station, millimetres converted to metres; a sample the chain refuses is null.
     let flagged: boolean = loft.diagnostics.length !== 0;

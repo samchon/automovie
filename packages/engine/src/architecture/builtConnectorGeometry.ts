@@ -1,14 +1,14 @@
 import {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltEnvironment,
+  type IAutoMovieConnectorGeometry,
   IAutoMovieConnectorLanding,
+  type IAutoMovieConnectorLandingAt,
+  type IAutoMovieConnectorStation,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieConnectorGeometry } from "./IAutoMovieConnectorGeometry";
-import { IAutoMovieConnectorLandingAt } from "./IAutoMovieConnectorLandingAt";
-import { IAutoMovieConnectorStation } from "./IAutoMovieConnectorStation";
 import { requireBuiltConnector } from "./requireBuiltConnector";
 
 /**

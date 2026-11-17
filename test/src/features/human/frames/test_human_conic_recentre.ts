@@ -1,4 +1,8 @@
-import { AutoMovieViewAxis, type AutoMovieViewAxisJet, AutoMovieViewChain, AutoMovieViewJointedCourse } from "@automovie/engine";
+import {
+  AutoMovieViewAxis,
+  AutoMovieViewChain,
+  AutoMovieViewJointedCourse,
+} from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicRecentre as Recentre,
@@ -8,6 +12,14 @@ import {
   AutoMovieHumanF1NativeSites as Sites,
   AutoMovieHumanNativeScaleCentre as Centre,
 } from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicRecentre,
+  IAutoMovieHumanConicSection,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewJointedCourse,
+} from "@automovie/interface";
 
 /**
  * A family re-expressed about another origin line is the same skin; a scale about a scaling centre leaves that centre still; a turn's
@@ -48,8 +60,8 @@ export function test_human_conic_recentre(): void {
   const centre = (s: number): [number, number] => [3 + 0.1 * s, -2 + 0.05 * s];
   const rho: number = Math.SQRT2 - 1;
   const row = (f: (e: [number, number]) => number): number[] => knots.map((s: number): number => f(centre(s)));
-  const layout: S.ILayout = S.limb(0);
-  const family: Recentre.IFields = {
+  const layout: IAutoMovieHumanConicSection.ILayout = S.limb(0);
+  const family: IAutoMovieHumanConicRecentre.IFields = {
     knots,
     layout,
     values: [
@@ -64,11 +76,11 @@ export function test_human_conic_recentre(): void {
       ...[0, 1, 2, 3].map((): number[] => knots.map((): number => rho)),
     ],
   };
-  const base: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight([1, 2, 3], [1, 0, 0], [0, 0, 1]);
-  const line: Recentre.ILine = { u: knots.map((s: number): number => centre(s)[0]), v: knots.map((s: number): number => centre(s)[1]) };
+  const base: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight([1, 2, 3], [1, 0, 0], [0, 0, 1]);
+  const line: IAutoMovieHumanConicRecentre.ILine = { u: knots.map((s: number): number => centre(s)[0]), v: knots.map((s: number): number => centre(s)[1]) };
   const moved: number[][] = Recentre.shift(family, line);
-  const axis: AutoMovieViewAxis.IAxis = Recentre.axis(base, knots, line);
-  const world = (course: AutoMovieViewAxis.IAxis, values: readonly (readonly number[])[], s: number, t: number): number[] => {
+  const axis: IAutoMovieViewAxis.IAxis = Recentre.axis(base, knots, line);
+  const world = (course: IAutoMovieViewAxis.IAxis, values: readonly (readonly number[])[], s: number, t: number): number[] => {
     const frame = course.at(s);
     const r: number = AutoMovieViewChain.radius(S.chain(H.reader({ knots, values: values as number[][] })(s), layout), t);
     return [0, 1, 2].map((k: number): number => frame.origin[k]! + r * (Math.cos(t) * frame.u[k]! + Math.sin(t) * frame.v[k]!));
@@ -92,7 +104,7 @@ export function test_human_conic_recentre(): void {
   for (let j: number = 0; j < 8; ++j) agree(`loop address ${j}`, 15 + 6 * Math.cos((Math.PI * j) / 4), 0.8 + 0.3 * Math.sin((Math.PI * j) / 4));
 
   // 3. The moved course's jet.
-  const jet: AutoMovieViewAxisJet.IJet | null | undefined = axis.jet?.(12.5);
+  const jet: IAutoMovieViewAxisJet.IJet | null | undefined = axis.jet?.(12.5);
   if (jet === null || jet === undefined) failures.push("the moved course gives no jet on a base that has one");
   else {
     near("moved course tangent", jet.first.origin, [0.1, 1, 0.05], 1e-12);
@@ -101,7 +113,7 @@ export function test_human_conic_recentre(): void {
   }
 
   // 4. The zero line.
-  const zero: Recentre.ILine = { u: knots.map((): number => 0), v: knots.map((): number => 0) };
+  const zero: IAutoMovieHumanConicRecentre.ILine = { u: knots.map((): number => 0), v: knots.map((): number => 0) };
   Recentre.shift(family, zero).forEach((values: number[], f: number): void => {
     if (!values.every((x: number, k: number): boolean => Object.is(x, family.values[f]![k]))) failures.push(`the zero line changed field ${f}`);
   });
@@ -116,8 +128,8 @@ export function test_human_conic_recentre(): void {
       // refused as required
     }
   };
-  const bilateral: S.ILayout = S.bilateral(0);
-  const half: Recentre.IFields = { knots, layout: bilateral, values: S.units(bilateral).map((unit: S.Unit, f: number): number[] => knots.map((): number => (unit === "share" ? rho : f === 0 ? 20 : f === 1 ? 0 : f === 2 ? 10 : -20))) };
+  const bilateral: IAutoMovieHumanConicSection.ILayout = S.bilateral(0);
+  const half: IAutoMovieHumanConicRecentre.IFields = { knots, layout: bilateral, values: S.units(bilateral).map((unit: IAutoMovieHumanConicSection.Unit, f: number): number[] => knots.map((): number => (unit === "share" ? rho : f === 0 ? 20 : f === 1 ? 0 : f === 2 ? 10 : -20))) };
   refuses("a v move of a bilateral family", (): unknown => Recentre.shift(half, { u: zero.u, v: knots.map((): number => 1) }));
   refuses("an origin past the front extreme", (): unknown => Recentre.shift(family, { u: knots.map((): number => 40), v: zero.v }));
 
@@ -134,13 +146,13 @@ export function test_human_conic_recentre(): void {
   near("least half length", [least], [(15 / 16) * (Math.PI / 2) * reach], 1e-12);
   for (const [factor, speed] of [[1, 0], [1.25, 0.2]] as const) {
     const corner: [number, number, number][] = [[0, 0, 0], [100, 0, 0], [100, 100, 0]];
-    const course: AutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(corner, [least * factor], [0, 0, 1]);
-    const prepared: AutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(corner, [least * factor]);
+    const course: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(corner, [least * factor], [0, 0, 1]);
+    const prepared: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(corner, [least * factor]);
     if (typeof course === "string" || typeof prepared === "string") {
       failures.push("the made right-angle course was refused");
       continue;
     }
-    const bend: AutoMovieViewAxisJet.IJet | null | undefined = course.jet?.(prepared.turns[0]!.start + prepared.turns[0]!.half);
+    const bend: IAutoMovieViewAxisJet.IJet | null | undefined = course.jet?.(prepared.turns[0]!.start + prepared.turns[0]!.half);
     if (bend === null || bend === undefined) failures.push("the made course gives no jet");
     else near(`offset speed at ${factor} of the least half length`, [1 - Math.hypot(...bend.second.origin) * reach], [speed], 1e-9);
   }
@@ -150,17 +162,17 @@ export function test_human_conic_recentre(): void {
   const report: string[] = [`RUNS ${JSON.stringify(Sites.REFERENCE.runs)}`, `WINDOWS ${JSON.stringify(Sites.REFERENCE.windows)}`];
   for (const [group, record] of Object.entries({ wall: Sites.REFERENCE.wall, arm: Sites.REFERENCE.arm, leg: Sites.REFERENCE.leg, extremities: Sites.REFERENCE.extremities }))
     for (const [name, site] of Object.entries(record)) report.push(`SITE ${group}.${name} ${site.station} tau ${site.run.tau.toFixed(4)}`);
-  const families: H.IFamily[] = [...AutoMovieHumanF1.FAMILIES.map((m: { family: H.IFamily }): H.IFamily => m.family), ...AutoMovieHumanF1.CUTTERS.map((m: { family: H.IFamily }): H.IFamily => m.family)];
+  const families: IAutoMovieHumanConicLoft.IFamily[] = [...AutoMovieHumanF1.FAMILIES.map((m: { family: IAutoMovieHumanConicLoft.IFamily }): IAutoMovieHumanConicLoft.IFamily => m.family), ...AutoMovieHumanF1.CUTTERS.map((m: { family: IAutoMovieHumanConicLoft.IFamily }): IAutoMovieHumanConicLoft.IFamily => m.family)];
   for (const f of families)
     for (const fold of Law.folds(f))
       report.push(`FOLD ${f.name} | ${fold.centre} | half ${fold.half} | angle ${((fold.angle * 180) / Math.PI).toFixed(2)} | concave ${fold.concave.toFixed(2)} | least ${fold.least.toFixed(2)} | margin ${fold.margin.toFixed(2)}`);
-  for (const f of families.filter((x: H.IFamily): boolean => ["trunk", "arm", "hand", "leg"].includes(x.name))) {
+  for (const f of families.filter((x: IAutoMovieHumanConicLoft.IFamily): boolean => ["trunk", "arm", "hand", "leg"].includes(x.name))) {
     const read = H.reader(f);
     const skeleton = Law.skeleton(f);
-    const smooth: Recentre.ILine = Law.centreLine(f, "sections");
-    const raw: Recentre.ILine = Law.centreLine(f, "sections", 0);
+    const smooth: IAutoMovieHumanConicRecentre.ILine = Law.centreLine(f, "sections");
+    const raw: IAutoMovieHumanConicRecentre.ILine = Law.centreLine(f, "sections", 0);
     f.knots.forEach((s: number, k: number): void => {
-      const chain: S.IChain = S.resolve(read(s), f.layout);
+      const chain: IAutoMovieHumanConicSection.IChain = S.resolve(read(s), f.layout);
       const g: number[][] = chain.guides.map((i: number): number[] => chain.input.points[i]!);
       report.push(`ROW ${f.name} ${s} | +u ${g[0]![0]!.toFixed(1)} -u ${g[2]![0]!.toFixed(1)} +v ${g[1]![1]!.toFixed(1)} -v ${g[3]![1]!.toFixed(1)} | centre [${raw.u[k]!.toFixed(1)}, ${raw.v[k]!.toFixed(1)}] smooth [${smooth.u[k]!.toFixed(1)}, ${smooth.v[k]!.toFixed(1)}] | skeleton ${skeleton[k] === null ? "none" : `[${skeleton[k]![0].toFixed(1)}, ${skeleton[k]![1].toFixed(1)}]`}`);
     });

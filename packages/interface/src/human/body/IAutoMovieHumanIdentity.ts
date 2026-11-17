@@ -1,0 +1,29 @@
+import type { IAutoMovieHumanPigmentation } from "../appearance/IAutoMovieHumanPigmentation";
+import type { IAutoMovieHumanHeadIdentity } from "../head/IAutoMovieHumanHeadIdentity";
+import type { IAutoMovieHumanBodyIdentity } from "./IAutoMovieHumanBodyIdentity";
+import type { IAutoMovieHumanComposition } from "./IAutoMovieHumanComposition";
+
+/**
+ * Clinical anthropometric, craniofacial, joint-mobility, composition and pigmentation inputs.
+ *
+ * Lengths are millimetres. Standing body measurements use the anthropometric posture: erect, heels together, arms hanging, palms toward the thighs and head in the Frankfort plane. Individual fields retain their specified seated, mobility and other acquisition protocols. Body landmarks follow ANSUR II (Gordon et al. 2014, NATICK/TR-15/007); facial landmarks follow the Farkas nomenclature used by 3D Facial Norms (Weinberg et al. 2016, Cleft Palate Craniofac J 53(6):e185-e197). Left and right measurements remain independent.
+ *
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Clinical anthropometric, craniofacial, joint-mobility, composition and pigmentation inputs.
+ * @evidence contracts/development/design.md#principled-representation `body`: Trunk, limbs and body landmarks. `head`: Cranial vault and face frame. `composition`: Fat and lean mass, which decide surface relief and where volume sits.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanIdentity is the canonical exchange used by IAutoMovieHumanIdentitySchema.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `body`, `head`, `composition`, `pigmentation`; callers supply the complete record.
+ */
+export interface IAutoMovieHumanIdentity {
+  /** Trunk, limbs and body landmarks. */
+  body: IAutoMovieHumanBodyIdentity;
+
+  /** Cranial vault and face frame. */
+  head: IAutoMovieHumanHeadIdentity;
+
+  /** Fat and lean mass, which decide surface relief and where volume sits. */
+  composition: IAutoMovieHumanComposition;
+
+  /** Skin and iris pigmentation. */
+  pigmentation: IAutoMovieHumanPigmentation;
+}

@@ -1,12 +1,16 @@
+import type {
+  IAutoMovieConstructionWidth,
+  IAutoMovieLoftContract,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidRail,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import {
   AutoMovieConstructionWidths,
-  type AutoMovieLoftContract,
   AutoMovieSolidIntersection,
   AutoMovieSolidJoin,
-  type AutoMovieSolidRail,
-  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
-import type { AutoMovieConstructionWidth } from "@automovie/interface";
 
 type V3 = [number, number, number];
 
@@ -42,7 +46,7 @@ export function test_construction_widths_offset(): void {
   const R: number = 10;
   const share: number = 0.5;
   const cap: number = 8;
-  const curvature: AutoMovieConstructionWidth = { type: "curvature", share, cap: cap / 1000, end: null };
+  const curvature: IAutoMovieConstructionWidth = { type: "curvature", share, cap: cap / 1000, end: null };
 
   // 1. The steep merge: bounded at the trough, admitted, its part rail forward everywhere.
   const steep: number = Math.PI / 3;
@@ -56,7 +60,7 @@ export function test_construction_widths_offset(): void {
 
   // 2. A constant chord past the contact's radius at the trough: still the folded blend's refusal.
   const folded: ICase = compose(R, steep, "outside", { type: "chord", value: 0.008 }, curvature);
-  if (folded.join.join !== null || !folded.join.diagnostics.some((d: AutoMovieLoftContract.IDiagnostic): boolean => d.contract === "unfolded blend"))
+  if (folded.join.join !== null || !folded.join.diagnostics.some((d: IAutoMovieLoftContract.IDiagnostic): boolean => d.contract === "unfolded blend"))
     failures.push(`8 mm chord: expected the unfolded-blend refusal, got ${describe(folded)}`);
 
   // 3. A constant chord under that radius: admitted.
@@ -86,13 +90,13 @@ export function test_construction_widths_offset(): void {
 /** One composed case: its traced curve, its laws (or why they were refused) and the join's result. */
 interface ICase {
   /** The traced contact. */
-  curve: AutoMovieSolidIntersection.ICurve;
+  curve: IAutoMovieSolidIntersection.ICurve;
 
   /** The width laws, or the refused premise. */
-  width: AutoMovieSolidJoin.IInput["width"] | string;
+  width: IAutoMovieSolidJoin.IInput["width"] | string;
 
   /** The join's result. */
-  join: AutoMovieSolidJoin.IResult;
+  join: IAutoMovieSolidJoin.IResult;
 }
 
 /**
@@ -108,9 +112,9 @@ interface ICase {
 function compose(
   R: number,
   alpha: number,
-  keep: AutoMovieSolidRail.Keep,
-  part: AutoMovieConstructionWidth,
-  host: AutoMovieConstructionWidth,
+  keep: IAutoMovieSolidRail.Keep,
+  part: IAutoMovieConstructionWidth,
+  host: IAutoMovieConstructionWidth,
 ): ICase {
   const zero: V3 = [0, 0, 0];
 
@@ -146,7 +150,7 @@ function compose(
   };
 
   // Seeded at phase 0, the point (R, 0, 0) of both.
-  const input: Omit<AutoMovieSolidJoin.IInput, "width"> = {
+  const input: Omit<IAutoMovieSolidJoin.IInput, "width"> = {
     part: cylinder,
     host: plane,
     seed: { phi: 0, s: 0, y: 0, theta: R },
@@ -155,17 +159,17 @@ function compose(
     tolerance: 1e-9,
     grazing: 0.05,
   };
-  const traced: AutoMovieSolidIntersection.IResult = AutoMovieSolidIntersection.trace(input);
+  const traced: IAutoMovieSolidIntersection.IResult = AutoMovieSolidIntersection.trace(input);
   if (traced.curve === null)
-    throw new Error(`the cylinder and the plane at ${alpha} rad did not trace: ${traced.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => d.detail).join("; ")}`);
-  const curve: AutoMovieSolidIntersection.ICurve = traced.curve;
-  const width: AutoMovieSolidJoin.IInput["width"] | string = AutoMovieConstructionWidths.create(part, host, false, {
+    throw new Error(`the cylinder and the plane at ${alpha} rad did not trace: ${traced.diagnostics.map((d: IAutoMovieLoftContract.IDiagnostic): string => d.detail).join("; ")}`);
+  const curve: IAutoMovieSolidIntersection.ICurve = traced.curve;
+  const width: IAutoMovieSolidJoin.IInput["width"] | string = AutoMovieConstructionWidths.create(part, host, false, {
     curve,
     part: cylinder,
     host: AutoMovieSolidIntersection.atlas(plane),
     diff: keep === "inside",
   });
-  const join: AutoMovieSolidJoin.IResult =
+  const join: IAutoMovieSolidJoin.IResult =
     typeof width === "string"
       ? { join: null, diagnostics: [{ producer: "test", level: 6, contract: "width", detail: width }] }
       : AutoMovieSolidJoin.create({ ...input, curve, width }, keep);
@@ -195,9 +199,9 @@ function law(R: number, alpha: number, phi: number, share: number, cap: number, 
 /** The part law at every traced point against its closed form, 1e-7 relative. */
 function expect(c: ICase, label: string, want: (phi: number) => number): string[] {
   if (typeof c.width === "string") return [`${label}: width refused: ${c.width}`];
-  const part: AutoMovieSolidJoin.IInput["width"]["part"] = c.width.part;
+  const part: IAutoMovieSolidJoin.IInput["width"]["part"] = c.width.part;
   if (typeof part !== "function") return [`${label}: the part law is a station`];
-  return c.curve.points.flatMap((p: AutoMovieSolidIntersection.IPoint): string[] => {
+  return c.curve.points.flatMap((p: IAutoMovieSolidIntersection.IPoint): string[] => {
     const got: number = part(p.t);
     const expected: number = want(p.phi);
     return Math.abs(got - expected) <= 1e-7 * expected ? [] : [`${label}: part chord at phase ${p.phi}: ${got} mm against ${expected} mm`];
@@ -208,7 +212,7 @@ function expect(c: ICase, label: string, want: (phi: number) => number): string[
 function hostAtCap(c: ICase, label: string, cap: number): string[] {
   if (typeof c.width === "string") return [];
   const host: (t: number) => number = c.width.host;
-  return c.curve.points.flatMap((p: AutoMovieSolidIntersection.IPoint): string[] =>
+  return c.curve.points.flatMap((p: IAutoMovieSolidIntersection.IPoint): string[] =>
     Math.abs(host(p.t) - cap) <= 1e-9 * cap ? [] : [`${label}: host chord at phase ${p.phi}: ${host(p.t)} mm against the cap ${cap}`],
   );
 }
@@ -220,12 +224,12 @@ function admitted(c: ICase, label: string): string[] {
 
 /** At every traced point the part rail's travel along the contact's tangent is positive: the rail does not run backward. */
 function forward(c: ICase, label: string): string[] {
-  const join: AutoMovieSolidJoin.IJoin | null = c.join.join;
+  const join: IAutoMovieSolidJoin.IJoin | null = c.join.join;
   if (join === null) return [];
   const h: number = 1e-4;
-  return c.curve.points.flatMap((p: AutoMovieSolidIntersection.IPoint): string[] => {
-    const before: AutoMovieSolidRail.IRail | null = join.rail(p.t - h);
-    const after: AutoMovieSolidRail.IRail | null = join.rail(p.t + h);
+  return c.curve.points.flatMap((p: IAutoMovieSolidIntersection.IPoint): string[] => {
+    const before: IAutoMovieSolidRail.IRail | null = join.rail(p.t - h);
+    const after: IAutoMovieSolidRail.IRail | null = join.rail(p.t + h);
     if (before === null || after === null) return [`${label}: no rail beside t ${p.t}`];
     const travel: number =
       (after.partPoint[0] - before.partPoint[0]) * p.tangent[0] +
@@ -238,6 +242,6 @@ function forward(c: ICase, label: string): string[] {
 /** A join result's diagnostics, for a failure message. */
 function describe(c: ICase): string {
   return c.join.join === null
-    ? `refused: ${c.join.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => `${d.contract}: ${d.detail.slice(0, 160)}`).join("; ")}`
+    ? `refused: ${c.join.diagnostics.map((d: IAutoMovieLoftContract.IDiagnostic): string => `${d.contract}: ${d.detail.slice(0, 160)}`).join("; ")}`
     : `admitted with ${c.join.diagnostics.length} diagnostics`;
 }

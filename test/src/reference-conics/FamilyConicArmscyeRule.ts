@@ -1,12 +1,35 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieMeshExtract as M, type AutoMovieViewLoft, realizeAutoMovieConstruction } from "@automovie/engine";
-import { AutoMovieHumanBendArc, AutoMovieHumanConicLoft as H, AutoMovieHumanConicPose, AutoMovieHumanF1, AutoMovieHumanF1Placement as P, AutoMovieHumanF1Placing, AutoMovieHumanSegmentFrame as SF } from "@automovie/human";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import {
+  AutoMovieLoftChain,
+  AutoMovieMeshExtract as M,
+  realizeAutoMovieConstruction,
+} from "@automovie/engine";
+import {
+  AutoMovieHumanBendArc,
+  AutoMovieHumanConicLoft as H,
+  AutoMovieHumanConicPose,
+  AutoMovieHumanF1,
+  AutoMovieHumanF1Placement as P,
+  AutoMovieHumanF1Placing,
+  AutoMovieHumanSegmentFrame as SF,
+} from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1,
+  IAutoMovieHumanF1Placement,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieMeshSectionChain,
+  IAutoMovieMeshSectionCut,
+  IAutoMovieMillimeterMesh,
+  IAutoMovieViewLoft,
+} from "@automovie/interface";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /**
  * The armscye's loop by a rule from the skeleton (issue #3151, R1). The armscye is the trunk's opening bounded by the clavicle and the
@@ -81,8 +104,8 @@ namespace FamilyConicArmscyeRule {
 
   /** The trunk's chart at the reference pose (`AutoMovieHumanF1` `trunkChart`): `v` across the course toward the stored side. */
   function trunkChart(): (p: V) => { station: number; u: number; v: number } {
-    const trunk: H.IFamily = AutoMovieHumanF1.BODY.trunk;
-    const pelvis: SF.IFrame = P.frame("pelvis");
+    const trunk: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.BODY.trunk;
+    const pelvis: IAutoMovieHumanSegmentFrame = P.frame("pelvis");
     const floor: V = SF.toLocal(pelvis, trunk.centres[0]!) as V;
     const t: V = unit(sub(SF.toLocal(pelvis, trunk.centres[1]!) as V, floor));
     const u: V = perpendicular(SF.toLocalDirection(pelvis, trunk.up) as V, t);
@@ -94,11 +117,11 @@ namespace FamilyConicArmscyeRule {
   }
 
   /** The stored trunk round the shoulder as a mesh, mm: its loft with its nets, a ring every millimetre at 720 phases. */
-  function trunkMesh(): M.IMesh {
-    const trunk: H.IFamily = AutoMovieHumanF1.BODY.trunk;
+  function trunkMesh(): IAutoMovieMillimeterMesh {
+    const trunk: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.BODY.trunk;
     const stations: number[] = [];
     for (let s: number = 380; s <= 760; s += 1) stations.push(s);
-    const loft: AutoMovieViewLoft.IResult = H.create(trunk, stations);
+    const loft: IAutoMovieViewLoft.IResult = H.create(trunk, stations);
     if (loft.chain === null) throw new Error("the trunk does not loft round the shoulder");
     const chain = loft.chain;
     const K: number = 720;
@@ -117,7 +140,7 @@ namespace FamilyConicArmscyeRule {
   }
 
   /** The breast's port loop in the world, read on the trunk's skin (`AutoMovieHumanF1.mammary`). */
-  function breastPort(trunk: M.IMesh): V[] {
+  function breastPort(trunk: IAutoMovieMillimeterMesh): V[] {
     const loop = AutoMovieHumanF1.mammary(1, AutoMovieHumanF1.assemble());
     const chart = trunkChart();
     const shape: number[] = loop.shape === undefined ? Array.from({ length: 64 }, (): number => 1) : [...loop.shape];
@@ -132,8 +155,8 @@ namespace FamilyConicArmscyeRule {
   }
 
   /** A plane fixed in the thorax: its point under GH and its chart. */
-  function plane(beta: number, k: number): { centre: V; frame: AutoMovieLoftFrame.IFrame; normal: V } {
-    const thorax: SF.IFrame = P.frame("thorax");
+  function plane(beta: number, k: number): { centre: V; frame: IAutoMovieLoftSectionFrame; normal: V } {
+    const thorax: IAutoMovieHumanSegmentFrame = P.frame("thorax");
     const [x, y, z]: V[] = [thorax.axes[0] as V, thorax.axes[1] as V, thorax.axes[2] as V];
     const b: number = (beta * Math.PI) / 180;
     const normal: V = unit(add(scale(z!, Math.cos(b)), scale(x!, Math.sin(b))));
@@ -149,10 +172,10 @@ namespace FamilyConicArmscyeRule {
    * seams, so a cut through either is in open pieces, which a closed-loop reading (`FamilyConicSource.loops`) drops and the first run
    * read as rays meeting no skin.
    */
-  function ring(mesh: M.IMesh, frame: AutoMovieLoftFrame.IFrame): (V | null)[] {
+  function ring(mesh: IAutoMovieMillimeterMesh, frame: IAutoMovieLoftSectionFrame): (V | null)[] {
     const n: V = cross(frame.v as V, frame.u as V);
-    const section: M.ISection = M.outline(mesh, { origin: [...frame.origin] as V, axes: [n, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!;
-    const pieces: { points: C.P[]; closed: boolean }[] = section.loops.map((loop: M.ILoop) => ({ points: [...loop.points], closed: loop.closed }));
+    const section: IAutoMovieMeshSectionCut = M.outline(mesh, { origin: [...frame.origin] as V, axes: [n, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!;
+    const pieces: { points: C.P[]; closed: boolean }[] = section.loops.map((loop: IAutoMovieMeshSectionChain) => ({ points: [...loop.points], closed: loop.closed }));
     return Array.from({ length: RAYS }, (_: unknown, j: number): V | null => {
       const d: C.P = [Math.cos((2 * Math.PI * j) / RAYS), Math.sin((2 * Math.PI * j) / RAYS)];
       let best: number = Infinity;
@@ -171,10 +194,10 @@ namespace FamilyConicArmscyeRule {
   }
 
   /** The arm's own ring at its rail at a pose, as world points, with its centre and the arm's course direction there. */
-  function armRing(frames: P.IFrames): { centre: V; along: V; points: V[] } {
-    const arm: H.IFamily = AutoMovieHumanF1.assemble(frames === P.frames() ? undefined : P.NEUTRAL).body.arm;
+  function armRing(frames: IAutoMovieHumanF1Placement.IFrames): { centre: V; along: V; points: V[] } {
+    const arm: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.assemble(frames === P.frames() ? undefined : P.NEUTRAL).body.arm;
     const s0: number = arm.knots[0]!;
-    const loft: AutoMovieViewLoft.IResult = H.create({ ...arm, tips: undefined, reliefs: undefined }, [s0, s0 + ARM_RAIL_MM, s0 + 2 * ARM_RAIL_MM]);
+    const loft: IAutoMovieViewLoft.IResult = H.create({ ...arm, tips: undefined, reliefs: undefined }, [s0, s0 + ARM_RAIL_MM, s0 + 2 * ARM_RAIL_MM]);
     if (loft.chain === null) throw new Error("the arm's first stations do not loft");
     const read = AutoMovieLoftChain.sampler(loft.chain, s0 + ARM_RAIL_MM);
     const points: V[] = Array.from({ length: 128 }, (_: unknown, j: number): V => read((2 * Math.PI * j) / 128) as V);
@@ -195,10 +218,10 @@ namespace FamilyConicArmscyeRule {
    * One cap section: the skin's section square to the GH course at a station, kept on the arm's side of the girdle's plane (lateral of
    * it), closed along the plane's line where it crosses; and whether it is star-shaped about the course point.
    */
-  function capSection(mesh: M.IMesh, gh: V, distal: V, girdle: V, s: number): { loop: V[]; inside: boolean; folds: number; deepest: number; phases: [number, number] | null } | null {
+  function capSection(mesh: IAutoMovieMillimeterMesh, gh: V, distal: V, girdle: V, s: number): { loop: V[]; inside: boolean; folds: number; deepest: number; phases: [number, number] | null } | null {
     const origin: V = add(gh, scale(distal, s));
     const fore: V = perpendicular([1, 0, 0], distal);
-    const frame: AutoMovieLoftFrame.IFrame = { origin, u: fore, v: cross(distal, fore) };
+    const frame: IAutoMovieLoftSectionFrame = { origin, u: fore, v: cross(distal, fore) };
     const cut: C.P[] | null = R.cut(mesh, frame).loop;
     if (cut === null) return null;
     const world = (p: C.P): V => add(origin, add(scale(fore, p[0]), scale(frame.v as V, p[1])));
@@ -252,15 +275,15 @@ namespace FamilyConicArmscyeRule {
   async function cap(): Promise<void> {
     const root: string = path.resolve(process.cwd(), "..");
     const source: R.ISource = await R.load(root);
-    const pieces: AutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
+    const pieces: IAutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
     const generatedIndices: number[] = [];
     let offset: number = 0;
     for (const piece of pieces) {
       for (const i of piece.indices) generatedIndices.push(i + offset);
       offset += piece.positions.length / 3;
     }
-    const generated: M.IMesh = { positions: pieces.flatMap((piece: AutoMovieHumanF1.IPiece): number[] => piece.positions.map((x: number): number => 1000 * x)), indices: generatedIndices };
-    const trunk: M.IMesh = trunkMesh();
+    const generated: IAutoMovieMillimeterMesh = { positions: pieces.flatMap((piece: IAutoMovieHumanF1.IPiece): number[] => piece.positions.map((x: number): number => 1000 * x)), indices: generatedIndices };
+    const trunk: IAutoMovieMillimeterMesh = trunkMesh();
     const breast: V[] = breastPort(trunk);
     const gh: V = P.frame("humerus").origin as V;
     const elbow: V = P.frame("forearm").origin as V;
@@ -271,7 +294,7 @@ namespace FamilyConicArmscyeRule {
 
     // 1. The ring on both skins, and its stations on the GH course.
     const rings: Record<string, V[]> = {};
-    for (const [skin, mesh] of [["reference", source.all], ["generated", generated]] as [string, M.IMesh][]) {
+    for (const [skin, mesh] of [["reference", source.all], ["generated", generated]] as [string, IAutoMovieMillimeterMesh][]) {
       rings[skin] = ring(mesh, girdle.frame).filter((h: V | null): h is V => h !== null);
       const stations: number[] = rings[skin]!.map((p: V): number => dot(sub(p, gh), distal));
       lines.push(`ring on the ${skin}: ${rings[skin]!.length} points, GH-course stations ${Math.min(...stations).toFixed(1)} .. ${Math.max(...stations).toFixed(1)} mm`);
@@ -281,7 +304,7 @@ namespace FamilyConicArmscyeRule {
 
     // The cap's sections.
     const drawn: N.Curve[] = [];
-    for (const [skin, mesh] of [["reference", source.all], ["generated", generated]] as [string, M.IMesh][]) {
+    for (const [skin, mesh] of [["reference", source.all], ["generated", generated]] as [string, IAutoMovieMillimeterMesh][]) {
       lines.push(`CAP SECTIONS on the ${skin}, square to the GH course every ${CAP_STEP_MM} mm, lateral of the girdle's plane:`);
       let firstStar: number | null = null;
       const bad: string[] = [];
@@ -303,7 +326,7 @@ namespace FamilyConicArmscyeRule {
     lines.push("");
 
     // 2. Today's arm course against the GH course.
-    const arm: H.IFamily = AutoMovieHumanF1.BODY.arm;
+    const arm: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.BODY.arm;
     const armAxis = H.axis(arm);
     const lineDistance = (p: V): number => norm(sub(sub(p, gh), scale(distal, dot(sub(p, gh), distal))));
     let agree: number | null = null;
@@ -349,8 +372,8 @@ namespace FamilyConicArmscyeRule {
       return `  ${label}: gap ${Math.min(...gaps).toFixed(1)} .. ${Math.max(...gaps).toFixed(1)} mm round 24 clocks; turn ${degrees(Math.acos(Math.min(1, Math.abs(dot(axis, girdle.normal))))).toFixed(1)} deg between the ring's plane and the arm's ring`;
     };
     // The neutral pose turns the humerus about GH: the reference arm ring carried rigidly by that rotation.
-    const neutral: SF.IFrame = P.frames(P.NEUTRAL).get("humerus")!;
-    const reference: SF.IFrame = P.frame("humerus");
+    const neutral: IAutoMovieHumanSegmentFrame = P.frames(P.NEUTRAL).get("humerus")!;
+    const reference: IAutoMovieHumanSegmentFrame = P.frame("humerus");
     const carry = (p: V): V => SF.toWorld(neutral, SF.toLocal(reference, p)) as V;
     const scaled = (loop: V[], k: number): V[] => {
       const centre: V = add(gh, scale(distal, armAt));
@@ -389,7 +412,7 @@ namespace FamilyConicArmscyeRule {
     const fold = AutoMovieHumanF1.BODY.trunk.reliefs?.find((r): boolean => r.name === "trunk.fold");
     const foldEdge: V[] = [];
     if (fold !== undefined) {
-      const loft: AutoMovieViewLoft.IResult = H.create(AutoMovieHumanF1.BODY.trunk, [fold.stations[0], (fold.stations[0] + fold.stations[1]) / 2, fold.stations[1]]);
+      const loft: IAutoMovieViewLoft.IResult = H.create(AutoMovieHumanF1.BODY.trunk, [fold.stations[0], (fold.stations[0] + fold.stations[1]) / 2, fold.stations[1]]);
       if (loft.chain !== null)
         for (let s: number = fold.stations[0]; s <= fold.stations[1]; s += 2) {
           const read = AutoMovieLoftChain.sampler(loft.chain, s);
@@ -443,7 +466,7 @@ namespace FamilyConicArmscyeRule {
    * A section of the skin on a course frame, kept lateral of the girdle's plane and closed along it, with its star check about the course
    * point (the clipped form of `capSection`, on any frame).
    */
-  function clippedSection(mesh: M.IMesh, frame: AutoMovieLoftFrame.IFrame, gh: V, girdle: V): { loop: V[]; inside: boolean; folds: number; deepest: number; phases: [number, number] | null } | null {
+  function clippedSection(mesh: IAutoMovieMillimeterMesh, frame: IAutoMovieLoftSectionFrame, gh: V, girdle: V): { loop: V[]; inside: boolean; folds: number; deepest: number; phases: [number, number] | null } | null {
     const origin: V = frame.origin as V;
     const cut: C.P[] | null = R.cut(mesh, frame).loop;
     if (cut === null) return null;
@@ -498,20 +521,20 @@ namespace FamilyConicArmscyeRule {
   async function armCourse(): Promise<void> {
     const root: string = path.resolve(process.cwd(), "..");
     const source: R.ISource = await R.load(root);
-    const pieces: AutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
+    const pieces: IAutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
     const generatedIndices: number[] = [];
     let offset: number = 0;
     for (const piece of pieces) {
       for (const i of piece.indices) generatedIndices.push(i + offset);
       offset += piece.positions.length / 3;
     }
-    const generated: M.IMesh = { positions: pieces.flatMap((piece: AutoMovieHumanF1.IPiece): number[] => piece.positions.map((x: number): number => 1000 * x)), indices: generatedIndices };
+    const generated: IAutoMovieMillimeterMesh = { positions: pieces.flatMap((piece: IAutoMovieHumanF1.IPiece): number[] => piece.positions.map((x: number): number => 1000 * x)), indices: generatedIndices };
     const r: number = UPPER_ARM_GIRTH_MM / (2 * Math.PI);
     const girdle = plane(0, 0);
     const n: V = girdle.normal;
     const ringPoints: V[] = ring(source.all, girdle.frame).filter((h: V | null): h is V => h !== null);
     const centre: V = scale(ringPoints.reduce((s: V, p: V): V => add(s, p), [0, 0, 0]), 1 / ringPoints.length);
-    const arm: H.IFamily = AutoMovieHumanF1.BODY.arm;
+    const arm: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.BODY.arm;
     const lines: string[] = [`R3a: the arm's course by rule; the girdle's ring centre ${fixed(centre)}, its normal ${fixed(n, 3)}; r = ${r.toFixed(2)} mm`, ""];
 
     // The axilla's slit: its cutter's skin, lofted, against the girdle's plane.
@@ -523,7 +546,7 @@ namespace FamilyConicArmscyeRule {
     const drawn: { k: number; curves: N.Curve[] }[] = [];
     const stored: Map<number, { s: number; centres: V[] }> = new Map();
     for (const pose of ["reference", "neutral"] as const) {
-      const frames: P.IFrames = pose === "reference" ? P.frames() : P.frames(P.NEUTRAL);
+      const frames: IAutoMovieHumanF1Placement.IFrames = pose === "reference" ? P.frames() : P.frames(P.NEUTRAL);
       const gh: V = frames.get("humerus")!.origin as V;
       const elbow: V = frames.get("forearm")!.origin as V;
       lines.push(`${pose.toUpperCase()}:`);
@@ -566,7 +589,7 @@ namespace FamilyConicArmscyeRule {
         let elbowStation: number = 0;
         for (let s: number = 0; s < 800; s += 0.5) if (norm(sub(axis.at(s).origin as V, elbow)) < norm(sub(axis.at(elbowStation).origin as V, elbow))) elbowStation = s;
         const curves: N.Curve[] = [];
-        for (const [skin, mesh] of (pose === "reference" ? [["reference", source.all], ["generated", generated]] : [["generated", generated]]) as [string, M.IMesh][]) {
+        for (const [skin, mesh] of (pose === "reference" ? [["reference", source.all], ["generated", generated]] : [["generated", generated]]) as [string, IAutoMovieMillimeterMesh][]) {
           const bad: string[] = [];
           let index: number = -1;
           for (let s: number = 0; s <= elbowStation; s += CAP_STEP_MM) {
@@ -658,14 +681,14 @@ namespace FamilyConicArmscyeRule {
   async function precheck(): Promise<void> {
     const root: string = path.resolve(process.cwd(), "..");
     const source: R.ISource = await R.load(root);
-    const pieces: AutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
+    const pieces: IAutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
     const generatedIndices: number[] = [];
     let offset: number = 0;
     for (const piece of pieces) {
       for (const i of piece.indices) generatedIndices.push(i + offset);
       offset += piece.positions.length / 3;
     }
-    const generated: M.IMesh = { positions: pieces.flatMap((piece: AutoMovieHumanF1.IPiece): number[] => piece.positions.map((x: number): number => 1000 * x)), indices: generatedIndices };
+    const generated: IAutoMovieMillimeterMesh = { positions: pieces.flatMap((piece: IAutoMovieHumanF1.IPiece): number[] => piece.positions.map((x: number): number => 1000 * x)), indices: generatedIndices };
     const r: number = UPPER_ARM_GIRTH_MM / (2 * Math.PI);
     const girdle = plane(0, 0);
     const n: V = girdle.normal;
@@ -679,8 +702,8 @@ namespace FamilyConicArmscyeRule {
       if (Math.abs(next - s) < 1e-9) break;
       s = next;
     }
-    const arm: H.IFamily = AutoMovieHumanF1.BODY.arm;
-    const frames: P.IFrames = P.frames();
+    const arm: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.BODY.arm;
+    const frames: IAutoMovieHumanF1Placement.IFrames = P.frames();
     const centres: V[] = [centre, add(centre, scale(n, s + 1e-6)), ...T_COURSE_AFTER.map((name: string): V => SF.toWorld(frames.get(PLACED[name]!.frame)!, PLACED[name]!.local) as V)];
     const axis = H.axis({ centres, halves: [TURN_K * r, ...arm.halves.slice(1)], up: P.direction("arm.up", frames) as V });
     const turnEnd: number = 2 * TURN_K * r + 20;
@@ -688,9 +711,9 @@ namespace FamilyConicArmscyeRule {
 
     // (a) The crossing check: at each station the skin's section lateral of the girdle's plane, read along 720 rays from the course point
     // at the outermost crossing; each ray's point must move forward along the course's tangent from one ring to the next.
-    for (const [skin, mesh] of [["reference", source.all], ["generated", generated]] as [string, M.IMesh][]) {
+    for (const [skin, mesh] of [["reference", source.all], ["generated", generated]] as [string, IAutoMovieMillimeterMesh][]) {
       const read = (station: number): ({ p: V; skin: boolean } | null)[] => {
-        const frame: AutoMovieLoftFrame.IFrame = axis.at(station);
+        const frame: IAutoMovieLoftSectionFrame = axis.at(station);
         const cut: C.P[] | null = R.cut(mesh, frame).loop;
         if (cut === null) return Array.from({ length: RAYS }, (): null => null);
         const world = (p: C.P): V => add(frame.origin as V, add(scale(frame.u as V, p[0]), scale(frame.v as V, p[1])));
@@ -747,7 +770,7 @@ namespace FamilyConicArmscyeRule {
     }
 
     // (c) The girdle's ring as a port loop on the trunk's chart, on f1's trunk wall.
-    const trunk: M.IMesh = trunkMesh();
+    const trunk: IAutoMovieMillimeterMesh = trunkMesh();
     const onTrunk: V[] = ring(trunk, girdle.frame).filter((h: V | null): h is V => h !== null);
     const chart = trunkChart();
     const armpit = chart(P.point("armpit") as V);
@@ -911,13 +934,13 @@ namespace FamilyConicArmscyeRule {
     pose: "reference" | "neutral";
 
     /** The reference's stored skin; null at a pose it was not recorded in. */
-    reference: M.IMesh | null;
+    reference: IAutoMovieMillimeterMesh | null;
 
     /** The generated figure, realized whole. */
-    generated: M.IMesh;
+    generated: IAutoMovieMillimeterMesh;
 
     /** The generated triangles the arm owns. */
-    armFace: M.IMesh;
+    armFace: IAutoMovieMillimeterMesh;
 
     /** The generated figure's owning faces, sorted. */
     owners: string[];
@@ -939,7 +962,7 @@ namespace FamilyConicArmscyeRule {
   }
 
   /** The skins at a pose from its realized figure and, at the reference pose, the reference's stored skin. */
-  function skinsOf(realized: IRealized, reference: M.IMesh | null, pose: "reference" | "neutral"): ISkins {
+  function skinsOf(realized: IRealized, reference: IAutoMovieMillimeterMesh | null, pose: "reference" | "neutral"): ISkins {
     const armName: string = AutoMovieHumanF1.BODY.arm.name;
     const centroid = (t: number): V => {
       const [i, j, k]: number[] = [realized.indices[3 * t]!, realized.indices[3 * t + 1]!, realized.indices[3 * t + 2]!];
@@ -1020,13 +1043,13 @@ namespace FamilyConicArmscyeRule {
    */
   function readStation(axis: IAxis, station: number, skins: ISkins, all: boolean): IRead[] {
     const armName: string = AutoMovieHumanF1.BODY.arm.name;
-    const frame: AutoMovieLoftFrame.IFrame = axis.at(station);
+    const frame: IAutoMovieLoftSectionFrame = axis.at(station);
     const normal: V = cross(frame.v as V, frame.u as V);
     const origin: V = [...frame.origin] as V;
     const world = (p: C.P): V => add(origin, add(scale(frame.u as V, p[0]), scale(frame.v as V, p[1])));
     const chartOf = (p: V): C.P => [dot(sub(p, origin), frame.u as V), dot(sub(p, origin), frame.v as V)];
     const keep = (p: C.P): boolean => dot(sub(world(p), skins.girdle.point), skins.girdle.normal) > 0.5;
-    const cut = (surface: M.IMesh): IPiece[] => M.outline(surface, { origin, axes: [normal, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): IPiece => ({ points: [...loop.points], closed: loop.closed }));
+    const cut = (surface: IAutoMovieMillimeterMesh): IPiece[] => M.outline(surface, { origin, axes: [normal, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: IAutoMovieMeshSectionChain): IPiece => ({ points: [...loop.points], closed: loop.closed }));
     const extents = (pieces: readonly IPiece[]): { course: number; shoulder: number } => ({
       course: Math.max(0, ...pieces.flatMap((piece: IPiece): number[] => piece.points.map((p: C.P): number => Math.hypot(p[0], p[1])))),
       shoulder: Math.max(0, ...pieces.flatMap((piece: IPiece): number[] => piece.points.map((p: C.P): number => norm(sub(world(p), skins.gh))))),
@@ -1203,7 +1226,7 @@ namespace FamilyConicArmscyeRule {
       if (Math.abs(next - s) < 1e-9) break;
       s = next;
     }
-    const frames: P.IFrames = P.frames();
+    const frames: IAutoMovieHumanF1Placement.IFrames = P.frames();
     const centres: V[] = [centre, add(centre, scale(n, s + 1e-6)), ...T_COURSE_AFTER.map((name: string): V => SF.toWorld(frames.get(PLACED[name]!.frame)!, PLACED[name]!.local) as V)];
     const axis: IAxis = H.axis({ centres, halves: [TURN_K * r, ...AutoMovieHumanF1.BODY.arm.halves.slice(1)], up: P.direction("arm.up", frames) as V });
     const turnEnd: number = 2 * TURN_K * r + 20;
@@ -1211,7 +1234,7 @@ namespace FamilyConicArmscyeRule {
     lines.push(...crossingCheck(axis, turnEnd, skins, progress).lines);
 
     // (c) The ring's reversal against the slit.
-    const trunk: M.IMesh = trunkMesh();
+    const trunk: IAutoMovieMillimeterMesh = trunkMesh();
     const onTrunk: V[] = ring(trunk, girdle.frame).filter((h: V | null): h is V => h !== null);
     const chart = trunkChart();
     const armpit = chart(P.point("armpit") as V);
@@ -1241,7 +1264,7 @@ namespace FamilyConicArmscyeRule {
 
   /** The axilla's slit as its cutter's skin at the reference pose: the cutter lofted at 21 stations, 36 phases each. */
   function slitSkin(): V[] {
-    const cutter: H.IFamily = AutoMovieHumanF1.CUTTERS[0]!.family;
+    const cutter: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.CUTTERS[0]!.family;
     const at = (i: number): number => cutter.knots[0]! + ((cutter.knots[cutter.knots.length - 1]! - cutter.knots[0]!) * i) / 20;
     const cutterLoft = H.create({ ...cutter, tips: undefined, reliefs: undefined }, cutter.knots.length >= 2 ? Array.from({ length: 21 }, (_: unknown, i: number): number => at(i)) : cutter.knots);
     const slit: V[] = [];
@@ -1258,7 +1281,7 @@ namespace FamilyConicArmscyeRule {
    * point or not, on each skin given; the band's turn at the ring and its gap on the first skin; the slit's skin against the first sections;
    * how the second run and the course pass GH; and each segment's length against the set-backs of the turns at its ends.
    */
-  function courseFacts(axis: IAxis, centres: V[], halves: number[], frames: P.IFrames, meshes: [string, M.IMesh][], ringPoints: V[], slit: V[], n: V): { lines: string[]; sections: N.Curve[]; elbowStation: number } {
+  function courseFacts(axis: IAxis, centres: V[], halves: number[], frames: IAutoMovieHumanF1Placement.IFrames, meshes: [string, IAutoMovieMillimeterMesh][], ringPoints: V[], slit: V[], n: V): { lines: string[]; sections: N.Curve[]; elbowStation: number } {
     const onPlane: V = P.frame("humerus").origin as V;
     const gh: V = frames.get("humerus")!.origin as V;
     const elbow: V = frames.get("forearm")!.origin as V;
@@ -1266,7 +1289,7 @@ namespace FamilyConicArmscyeRule {
     let elbowStation: number = 0;
     for (let s: number = 0; s < 800; s += 0.5) if (norm(sub(axis.at(s).origin as V, elbow)) < norm(sub(axis.at(elbowStation).origin as V, elbow))) elbowStation = s;
     const sections: N.Curve[] = [];
-    meshes.forEach(([skin, mesh]: [string, M.IMesh], m: number): void => {
+    meshes.forEach(([skin, mesh]: [string, IAutoMovieMillimeterMesh], m: number): void => {
       const bad: string[] = [];
       let index: number = -1;
       for (let s: number = 0; s <= elbowStation; s += CAP_STEP_MM) {
@@ -1317,13 +1340,13 @@ namespace FamilyConicArmscyeRule {
    * length between its ends; and each closed piece's star-shape in the trunk's chart (phase read as millimetres at the armpit's side
    * distance), as the port's loop is read.
    */
-  function realCut(trunk: M.IMesh, girdle: { frame: AutoMovieLoftFrame.IFrame; normal: V }, foldAt: (p: V) => { z: number; distance: number }): { lines: string[]; rayRing: V[]; pieces: { points: V[]; closed: boolean }[]; trunk: M.IMesh } {
-    const frame: AutoMovieLoftFrame.IFrame = girdle.frame;
+  function realCut(trunk: IAutoMovieMillimeterMesh, girdle: { frame: IAutoMovieLoftSectionFrame; normal: V }, foldAt: (p: V) => { z: number; distance: number }): { lines: string[]; rayRing: V[]; pieces: { points: V[]; closed: boolean }[]; trunk: IAutoMovieMillimeterMesh } {
+    const frame: IAutoMovieLoftSectionFrame = girdle.frame;
     const origin: V = [...frame.origin] as V;
     const normal: V = cross(frame.v as V, frame.u as V);
     const world = (p: C.P): V => add(origin, add(scale(frame.u as V, p[0]), scale(frame.v as V, p[1])));
     const chartOf = (p: V): C.P => [dot(sub(p, origin), frame.u as V), dot(sub(p, origin), frame.v as V)];
-    const pieces: IPiece[] = M.outline(trunk, { origin, axes: [normal, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): IPiece => ({ points: [...loop.points], closed: loop.closed }));
+    const pieces: IPiece[] = M.outline(trunk, { origin, axes: [normal, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: IAutoMovieMeshSectionChain): IPiece => ({ points: [...loop.points], closed: loop.closed }));
     const rays: (V | null)[] = ring(trunk, frame);
     const rayRing: V[] = rays.filter((h: V | null): h is V => h !== null);
     const flat: C.P[] = rayRing.map(chartOf);
@@ -1395,7 +1418,7 @@ namespace FamilyConicArmscyeRule {
   }
 
   /** A mesh kept to the triangles whose corners all lie within `radius` of `focus`, for a frame. */
-  function cropMesh(id: string, mesh: M.IMesh, focus: V, radius: number): N.Mesh {
+  function cropMesh(id: string, mesh: IAutoMovieMillimeterMesh, focus: V, radius: number): N.Mesh {
     const positions: number[] = [];
     const indices: number[] = [];
     const remap: Map<number, number> = new Map();
@@ -1465,9 +1488,9 @@ namespace FamilyConicArmscyeRule {
     const n: V = girdle.normal;
     const ringPoints: V[] = ring(source.all, girdle.frame).filter((h: V | null): h is V => h !== null);
     const centre: V = scale(ringPoints.reduce((t: V, p: V): V => add(t, p), [0, 0, 0]), 1 / ringPoints.length);
-    const arm: H.IFamily = AutoMovieHumanF1.BODY.arm;
+    const arm: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.BODY.arm;
     const reference: ISkins = skinsOf(await realizedSkin(root, "reference", progress), source.all, "reference");
-    const frames: P.IFrames = P.frames();
+    const frames: IAutoMovieHumanF1Placement.IFrames = P.frames();
     const elbow: V = frames.get("forearm")!.origin as V;
     const later: V[] = T_COURSE_AFTER.map((name: string): V => SF.toWorld(frames.get(PLACED[name]!.frame)!, PLACED[name]!.local) as V);
     const lines: string[] = [`R3b, the shoulder turn by the digits' rule; the girdle's ring centre ${fixed(centre)}, its normal ${fixed(n, 3)}; the arm's radius r ${r.toFixed(2)} mm seeds R`, ""];
@@ -1588,7 +1611,7 @@ namespace FamilyConicArmscyeRule {
     lines.push("2. THE COURSE AT THE REFERENCE POSE:", ...factsReference.lines, "");
 
     // 1 and 2 at neutral: the corner stays (fixed in the thorax), the turns keep their set-backs.
-    const neutralFrames: P.IFrames = P.frames(P.NEUTRAL);
+    const neutralFrames: IAutoMovieHumanF1Placement.IFrames = P.frames(P.NEUTRAL);
     const neutralCentres: V[] = [centre, converged.centres[1]!, ...T_COURSE_AFTER.map((name: string): V => SF.toWorld(neutralFrames.get(PLACED[name]!.frame)!, PLACED[name]!.local) as V)];
     const neutralHalves: number[] = AutoMovieHumanConicPose.halves(converged.centres, converged.halves, neutralCentres);
     let neutralAxis: IAxis | null = null;
@@ -1646,11 +1669,11 @@ namespace FamilyConicArmscyeRule {
   }
 
   /** Each ray's outermost kept point of a mesh's cut at a course station, every piece read, open or closed; null where a ray meets none. */
-  function castSection(axis: IAxis, station: number, mesh: M.IMesh, keep: (p: V) => boolean): (V | null)[] {
-    const frame: AutoMovieLoftFrame.IFrame = axis.at(station);
+  function castSection(axis: IAxis, station: number, mesh: IAutoMovieMillimeterMesh, keep: (p: V) => boolean): (V | null)[] {
+    const frame: IAutoMovieLoftSectionFrame = axis.at(station);
     const origin: V = [...frame.origin] as V;
     const world = (p: C.P): V => add(origin, add(scale(frame.u as V, p[0]), scale(frame.v as V, p[1])));
-    const pieces: IPiece[] = M.outline(mesh, { origin, axes: [cross(frame.v as V, frame.u as V), [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): IPiece => ({ points: [...loop.points], closed: loop.closed }));
+    const pieces: IPiece[] = M.outline(mesh, { origin, axes: [cross(frame.v as V, frame.u as V), [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: IAutoMovieMeshSectionChain): IPiece => ({ points: [...loop.points], closed: loop.closed }));
     return cast(pieces, (p: C.P): boolean => keep(world(p))).map((h, j: number): V | null => (Number.isFinite(h.t) ? world([h.t * Math.cos((2 * Math.PI * j) / RAYS), h.t * Math.sin((2 * Math.PI * j) / RAYS)]) : null));
   }
 
@@ -1693,15 +1716,15 @@ namespace FamilyConicArmscyeRule {
    * volume is its tube between its first and last knots.
    */
   function cutterVolume(): (p: V) => boolean {
-    const cutter: H.IFamily = AutoMovieHumanF1.CUTTERS[0]!.family;
+    const cutter: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.CUTTERS[0]!.family;
     const axis: IAxis = H.axis(cutter);
     const stations: number[] = [];
     for (let s: number = cutter.knots[0]!; s <= cutter.knots.at(-1)!; s += 0.5) stations.push(s);
-    const loft: AutoMovieViewLoft.IResult = H.create({ ...cutter, tips: undefined, reliefs: undefined }, stations);
+    const loft: IAutoMovieViewLoft.IResult = H.create({ ...cutter, tips: undefined, reliefs: undefined }, stations);
     if (loft.chain === null) throw new Error("the axilla cutter does not loft");
     const chain = loft.chain;
     const rings = stations.map((s: number) => {
-      const frame: AutoMovieLoftFrame.IFrame = axis.at(s);
+      const frame: IAutoMovieLoftSectionFrame = axis.at(s);
       const origin: V = [...frame.origin] as V;
       const read = AutoMovieLoftChain.sampler(chain, s);
       return { origin, normal: cross(frame.v as V, frame.u as V), u: frame.u as V, v: frame.v as V, loop: Array.from({ length: 72 }, (_: unknown, j: number): C.P => {
@@ -1730,7 +1753,7 @@ namespace FamilyConicArmscyeRule {
   }
 
   /** One source of f1's construction realized alone at a chord of 1 mm, mm: the family's own wall, no port, band or cutter applied. */
-  function alone(name: string): M.IMesh {
+  function alone(name: string): IAutoMovieMillimeterMesh {
     const declared = AutoMovieHumanF1.construction();
     const real = realizeAutoMovieConstruction({ name: "f1." + name, root: { type: "source", name, source: name }, fills: [] }, { chord: 0.001, sources: declared.sources });
     return { positions: Array.from(real.mesh.positions, (x: number): number => 1000 * x), indices: Array.from(real.mesh.indices) };
@@ -1769,12 +1792,12 @@ namespace FamilyConicArmscyeRule {
     await fs.mkdir(out, { recursive: true });
 
     // 1. The current f1 arm on its own course: its stored family's frames (armRoot, armTurn, its halves), its own wall realized alone.
-    const arm: H.IFamily = AutoMovieHumanF1.BODY.arm;
+    const arm: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.BODY.arm;
     const armAxis: IAxis = H.axis(arm);
     const from: number = arm.knots[0]!;
     let elbowStation: number = from;
     for (let s: number = from; s < from + 800; s += 0.5) if (norm(sub(armAxis.at(s).origin as V, elbow)) < norm(sub(armAxis.at(elbowStation).origin as V, elbow))) elbowStation = s;
-    const armWall: M.IMesh = alone(arm.name);
+    const armWall: IAutoMovieMillimeterMesh = alone(arm.name);
     progress(`realized the arm's own wall: ${armWall.indices.length / 3} triangles`);
     const own = folds(armAxis, from, elbowStation, (station: number): (V | null)[] => castSection(armAxis, station, armWall, (): boolean => true));
     progress(`the arm on its own course: ${own.back.length} steps go back`);
@@ -1810,7 +1833,7 @@ namespace FamilyConicArmscyeRule {
       if (Math.abs(next - s15) < 1e-9) break;
       s15 = next;
     }
-    const frames: P.IFrames = P.frames();
+    const frames: IAutoMovieHumanF1Placement.IFrames = P.frames();
     const centres15: V[] = [centre, add(centre, scale(n, s15 + 1e-6)), ...T_COURSE_AFTER.map((name: string): V => SF.toWorld(frames.get(PLACED[name]!.frame)!, PLACED[name]!.local) as V)];
     const axis15: IAxis = H.axis({ centres: centres15, halves: [TURN_K * r, ...arm.halves.slice(1)], up: P.direction("arm.up", frames) as V });
     const turnEnd: number = 2 * TURN_K * r + 20;
@@ -1825,7 +1848,7 @@ namespace FamilyConicArmscyeRule {
 
     // 3. The girdle ring on the trunk family's own wall, realized alone (the port cuts the host's face, not the cutter's result), and on its
     // loft as the earlier runs read it.
-    const trunkWall: M.IMesh = alone(AutoMovieHumanF1.BODY.trunk.name);
+    const trunkWall: IAutoMovieMillimeterMesh = alone(AutoMovieHumanF1.BODY.trunk.name);
     progress(`realized the trunk's own wall: ${trunkWall.indices.length / 3} triangles`);
     const ownCut = realCut(trunkWall, girdle, reference.foldAt);
     const loftCut = realCut(trunkMesh(), girdle, reference.foldAt);
@@ -1834,7 +1857,7 @@ namespace FamilyConicArmscyeRule {
     // 4. The band's span on the k = 1.5 course: per phase, the ring's point (the ray from the ring's centre in the course's first frame) and
     // the rail's (the boundary of 2b, then ARM_RAIL_MM along that phase's points on the skin); their distance, and the angle between the
     // reference skin's normals there (triangle winding, the nearest triangle's).
-    const first: AutoMovieLoftFrame.IFrame = axis15.at(0);
+    const first: IAutoMovieLoftSectionFrame = axis15.at(0);
     const flatRing: C.P[] = ringPoints.map((p: V): C.P => [dot(sub(p, centre), first.u as V), dot(sub(p, centre), first.v as V)]);
     const ringHits = cast([{ points: flatRing, closed: true }], (): boolean => true);
     const ringAt: (V | null)[] = ringHits.map((h, j: number): V | null => (Number.isFinite(h.t) ? add(centre, add(scale(first.u as V, h.t * Math.cos((2 * Math.PI * j) / RAYS)), scale(first.v as V, h.t * Math.sin((2 * Math.PI * j) / RAYS)))) : null));
@@ -1912,7 +1935,7 @@ namespace FamilyConicArmscyeRule {
   }
 
   /** A mesh's surface normal at a point: the nearest triangle's (by centroid, through a grid of 10 mm cells), by the triangle's winding. */
-  function normalsOf(mesh: M.IMesh): (p: V) => V {
+  function normalsOf(mesh: IAutoMovieMillimeterMesh): (p: V) => V {
     const corner = (t: number, c: number): V => {
       const v: number = mesh.indices[3 * t + c]!;
       return [mesh.positions[3 * v]!, mesh.positions[3 * v + 1]!, mesh.positions[3 * v + 2]!];
@@ -1944,9 +1967,9 @@ namespace FamilyConicArmscyeRule {
    * The trunk's chart (`trunkChart`) read back onto a wall: at a station the plane square to the chart's course, and in it the wall's
    * outermost crossing of the ray from the course along a phase; null where the ray meets none. `axis` is the chart's course point.
    */
-  function lifter(wall: M.IMesh): { lift: (station: number, phase: number) => V | null; axis: (station: number) => V } {
-    const trunk: H.IFamily = AutoMovieHumanF1.BODY.trunk;
-    const pelvis: SF.IFrame = P.frame("pelvis");
+  function lifter(wall: IAutoMovieMillimeterMesh): { lift: (station: number, phase: number) => V | null; axis: (station: number) => V } {
+    const trunk: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.BODY.trunk;
+    const pelvis: IAutoMovieHumanSegmentFrame = P.frame("pelvis");
     const floor: V = SF.toLocal(pelvis, trunk.centres[0]!) as V;
     const t: V = unit(sub(SF.toLocal(pelvis, trunk.centres[1]!) as V, floor));
     const u: V = perpendicular(SF.toLocalDirection(pelvis, trunk.up) as V, t);
@@ -1957,7 +1980,7 @@ namespace FamilyConicArmscyeRule {
       axis,
       lift: (station: number, phase: number): V | null => {
         const origin: V = axis(station);
-        const pieces: IPiece[] = M.outline(wall, { origin, axes: [tw!, uw!, vw!] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): IPiece => ({ points: [...loop.points], closed: loop.closed }));
+        const pieces: IPiece[] = M.outline(wall, { origin, axes: [tw!, uw!, vw!] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: IAutoMovieMeshSectionChain): IPiece => ({ points: [...loop.points], closed: loop.closed }));
         const r: number = rayHit(pieces, phase);
         return Number.isFinite(r) ? add(origin, add(scale(uw!, r * Math.cos(phase)), scale(vw!, r * Math.sin(phase)))) : null;
       },
@@ -2016,7 +2039,7 @@ namespace FamilyConicArmscyeRule {
     const elbow: V = P.frame("forearm").origin as V;
     const ringPoints: V[] = ring(source.all, girdle.frame).filter((h: V | null): h is V => h !== null);
     const centre: V = scale(ringPoints.reduce((t: V, p: V): V => add(t, p), [0, 0, 0]), 1 / ringPoints.length);
-    const arm: H.IFamily = AutoMovieHumanF1.BODY.arm;
+    const arm: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.BODY.arm;
     const lines: string[] = ["R3b, the armscye's port loop by rule and the k 1.5 course against today's shoulder; measurement only", ""];
     const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", "port-" + new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
@@ -2028,7 +2051,7 @@ namespace FamilyConicArmscyeRule {
       if (Math.abs(next - s15) < 1e-9) break;
       s15 = next;
     }
-    const frames: P.IFrames = P.frames();
+    const frames: IAutoMovieHumanF1Placement.IFrames = P.frames();
     const centres15: V[] = [centre, add(centre, scale(n, s15 + 1e-6)), ...T_COURSE_AFTER.map((name: string): V => SF.toWorld(frames.get(PLACED[name]!.frame)!, PLACED[name]!.local) as V)];
     const halves15: number[] = [TURN_K * r, ...arm.halves.slice(1)];
     const axis15: IAxis = H.axis({ centres: centres15, halves: halves15, up: P.direction("arm.up", frames) as V });
@@ -2073,8 +2096,8 @@ namespace FamilyConicArmscyeRule {
     progress("1. the courses");
 
     // 2. The rule port loop (the chart envelope of the girdle plane's cut of the trunk family's own wall) against today's armscye loop.
-    const trunkWall: M.IMesh = alone(AutoMovieHumanF1.BODY.trunk.name);
-    const armWall: M.IMesh = alone(arm.name);
+    const trunkWall: IAutoMovieMillimeterMesh = alone(AutoMovieHumanF1.BODY.trunk.name);
+    const armWall: IAutoMovieMillimeterMesh = alone(arm.name);
     progress("realized the trunk's and the arm's own walls");
     const chart = trunkChart();
     const armpitV: number = chart(P.point("armpit") as V).v;
@@ -2083,11 +2106,11 @@ namespace FamilyConicArmscyeRule {
       return [c.station, armpitV * Math.atan2(c.v, c.u)];
     };
     const { lift, axis: trunkAxis } = lifter(trunkWall);
-    const frame: AutoMovieLoftFrame.IFrame = girdle.frame;
+    const frame: IAutoMovieLoftSectionFrame = girdle.frame;
     const planeOrigin: V = [...frame.origin] as V;
     const planeWorld = (p: C.P): V => add(planeOrigin, add(scale(frame.u as V, p[0]), scale(frame.v as V, p[1])));
     const cutPieces: { world: V[]; closed: boolean }[] = M.outline(trunkWall, { origin: planeOrigin, axes: [cross(frame.v as V, frame.u as V), [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!
-      .loops.map((loop: M.ILoop): { world: V[]; closed: boolean } => ({ world: loop.points.map(planeWorld), closed: loop.closed }))
+      .loops.map((loop: IAutoMovieMeshSectionChain): { world: V[]; closed: boolean } => ({ world: loop.points.map(planeWorld), closed: loop.closed }))
       .filter((piece: { world: V[]; closed: boolean }): boolean => piece.world.some((p: V): boolean => norm(sub(p, centre)) < SHOULDER_PIECES_MM));
     const charted: IPiece[] = cutPieces.map((piece): IPiece => ({ points: piece.world.map(toQ), closed: piece.closed }));
     const main: number = charted.reduce((best: number, piece: IPiece, k: number): number => (piece.closed && (best < 0 || area(piece.points) > area(charted[best]!.points)) ? k : best), -1);
@@ -2170,7 +2193,7 @@ namespace FamilyConicArmscyeRule {
     progress("2. the loops");
 
     // 3. The bands: each loop to today's arm family's ring at the ordinary margin, paired by the share of their lengths from their tops.
-    const loft: AutoMovieViewLoft.IResult = H.create({ ...arm, tips: undefined, reliefs: undefined }, [s0, s0 + ARM_RAIL_MM, s0 + 2 * ARM_RAIL_MM]);
+    const loft: IAutoMovieViewLoft.IResult = H.create({ ...arm, tips: undefined, reliefs: undefined }, [s0, s0 + ARM_RAIL_MM, s0 + 2 * ARM_RAIL_MM]);
     if (loft.chain === null) throw new Error("the arm's first stations do not loft");
     const railRead = AutoMovieLoftChain.sampler(loft.chain, s0 + ARM_RAIL_MM);
     const rail: V[] = resample(Array.from({ length: RAYS }, (_: unknown, j: number): V => railRead((2 * Math.PI * j) / RAYS) as V), RAYS, n);
@@ -2269,9 +2292,9 @@ namespace FamilyConicArmscyeRule {
     const girdle = plane(0, 0);
     const n: V = girdle.normal;
     const elbow: V = P.frame("forearm").origin as V;
-    const frame: AutoMovieLoftFrame.IFrame = girdle.frame;
+    const frame: IAutoMovieLoftSectionFrame = girdle.frame;
     const origin: V = [...frame.origin] as V;
-    const pieces: IPiece[] = M.outline(trunkMesh(), { origin, axes: [cross(frame.v as V, frame.u as V), [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): IPiece => ({ points: [...loop.points], closed: loop.closed }));
+    const pieces: IPiece[] = M.outline(trunkMesh(), { origin, axes: [cross(frame.v as V, frame.u as V), [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: IAutoMovieMeshSectionChain): IPiece => ({ points: [...loop.points], closed: loop.closed }));
     const loop: IPiece = pieces.filter((piece: IPiece): boolean => piece.closed).sort((a: IPiece, b: IPiece): number => area(b.points) - area(a.points))[0]!;
     const c: C.P = areaCentroid(loop.points);
     const byRule: V = add(origin, add(scale(frame.u as V, c[0]), scale(frame.v as V, c[1])));
@@ -2308,7 +2331,7 @@ namespace FamilyConicArmscyeRule {
     if (process.argv[2] === "course") return armCourse();
     const root: string = path.resolve(process.cwd(), "..");
     const source: R.ISource = await R.load(root);
-    const trunk: M.IMesh = trunkMesh();
+    const trunk: IAutoMovieMillimeterMesh = trunkMesh();
     const breast: V[] = breastPort(trunk);
     const chart = trunkChart();
     const arms: { pose: string; ring: ReturnType<typeof armRing> }[] = [
@@ -2322,7 +2345,7 @@ namespace FamilyConicArmscyeRule {
     for (const { beta, basis } of BETAS)
       for (const k of KS) {
         const p = plane(beta, k);
-        for (const [skin, mesh] of [["reference", source.all], ["trunk wall", trunk]] as [string, M.IMesh][]) {
+        for (const [skin, mesh] of [["reference", source.all], ["trunk wall", trunk]] as [string, IAutoMovieMillimeterMesh][]) {
           const hits: (V | null)[] = ring(mesh, p.frame);
           const points: V[] = hits.filter((h: V | null): h is V => h !== null);
           const radii: number[] = hits.map((h: V | null): number => (h === null ? NaN : norm(sub(h, p.centre))));
@@ -2349,7 +2372,7 @@ namespace FamilyConicArmscyeRule {
     await fs.mkdir(out, { recursive: true });
     NodeCanvasRaster.initialize();
     const gh: V = P.frame("humerus").origin as V;
-    const crop = (m: M.IMesh, radius: number, k: number): N.Mesh => {
+    const crop = (m: IAutoMovieMillimeterMesh, radius: number, k: number): N.Mesh => {
       const positions: number[] = [];
       const indices: number[] = [];
       const remap: Map<number, number> = new Map();
@@ -2369,14 +2392,14 @@ namespace FamilyConicArmscyeRule {
       }
       return { id: "skin", positions, indices, colour: [0.64, 0.65, 0.67] };
     };
-    const pieces: AutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
+    const pieces: IAutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
     const generatedIndices: number[] = [];
     let offset: number = 0;
     for (const piece of pieces) {
       for (const i of piece.indices) generatedIndices.push(i + offset);
       offset += piece.positions.length / 3;
     }
-    const generated: M.IMesh = { positions: pieces.flatMap((piece: AutoMovieHumanF1.IPiece): number[] => piece.positions), indices: generatedIndices };
+    const generated: IAutoMovieMillimeterMesh = { positions: pieces.flatMap((piece: IAutoMovieHumanF1.IPiece): number[] => piece.positions), indices: generatedIndices };
     const marks: N.Curve[] = Object.values(LANDMARKS).flatMap((q: V): N.Curve[] => [0, 1, 2].map((c: number): N.Curve => {
       const a: V = [...q];
       const b: V = [...q];

@@ -5,16 +5,18 @@ import {
 import type {
   IAutoMovieConvexSupportLoft,
   IAutoMovieRecoveryImageObservation,
+  IAutoMovieRecoveryImageProfileSample,
+  IAutoMovieRecoveryImageSource,
+  IAutoMovieRecoveryImageSupportsPreparationOperation,
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryResult,
+  IAutoMovieRecoveryScalarProfilesFittingOperation,
+  IAutoMovieRecoverySupportFit,
+  IAutoMovieRecoverySupportFitPolicy,
 } from "@automovie/interface";
 
 import { fitRecoveryScalarProfiles } from "../internal/fitRecoveryScalarProfiles";
 import { prepareRecoveryImageSupports } from "../internal/prepareRecoveryImageSupports";
-import type { IAutoMovieRecoveryImageProfileSample } from "../structures/image/IAutoMovieRecoveryImageProfileSample";
-import type { IAutoMovieRecoveryImageSource } from "../structures/image/IAutoMovieRecoveryImageSource";
-import type { IAutoMovieRecoverySupportFit } from "../structures/image/IAutoMovieRecoverySupportFit";
-import type { IAutoMovieRecoverySupportFitPolicy } from "../structures/image/IAutoMovieRecoverySupportFitPolicy";
-import type { IAutoMovieRecoveryOptions } from "../structures/operation/IAutoMovieRecoveryOptions";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
 
 /**
  * Fit compact continuous support profiles from supplied-camera image envelopes.
@@ -40,16 +42,37 @@ export function fitAutoMovieRecoveryImageSupportLoft(
 ): IAutoMovieRecoveryResult<IAutoMovieRecoverySupportFit> {
   const operator: IAutoMovieRecoveryResult<unknown>["operator"] =
     "image-support-loft-v1";
-  const cancelled: () => boolean = (): boolean =>
-    options.signal?.aborted === true;
-  if (cancelled())
-    return {
-      operator,
-      status: "cancelled",
-      diagnostics: ["Cancelled before support fitting"],
-    };
+  let cancellationRequested: boolean = false;
+  let cancellationCallback: boolean = false;
   let callback: boolean = false;
+  let probe: (() => boolean) | undefined;
+  const cancelled: () => boolean = (): boolean => {
+    cancellationCallback = true;
+    const requested: boolean | undefined = probe?.();
+    if (probe !== undefined && typeof requested !== "boolean")
+      throw new Error(
+        "Cancellation callback must return a boolean synchronously",
+      );
+    cancellationCallback = false;
+    cancellationRequested = requested === true;
+    return cancellationRequested;
+  };
   try {
+    probe = options?.cancelled;
+    if (probe !== undefined && typeof probe !== "function")
+      return {
+        operator,
+        status: "refused",
+        diagnostics: ["Cancellation callback must be a function"],
+      };
+
+    if (cancelled())
+      return {
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before support fitting"],
+      };
+
     if (
       !policy ||
       policy.family !== "finite-view-convex-support" ||
@@ -77,7 +100,7 @@ export function fitAutoMovieRecoveryImageSupportLoft(
       throw new Error(
         "invalid-support-fit: explicit family, residual/rank and generation budgets required",
       );
-    const prepared: ReturnType<typeof prepareRecoveryImageSupports> =
+    const prepared: ReturnType<IAutoMovieRecoveryImageSupportsPreparationOperation.Operation> =
       prepareRecoveryImageSupports(observation, policy);
     if (2 * observation.views.length > policy.generation.maxPlanes)
       throw new Error(
@@ -134,7 +157,7 @@ export function fitAutoMovieRecoveryImageSupportLoft(
           status: "cancelled",
           diagnostics: ["Cancelled between support candidates"],
         };
-      const fit: ReturnType<typeof fitRecoveryScalarProfiles> =
+      const fit: ReturnType<IAutoMovieRecoveryScalarProfilesFittingOperation.Operation> =
         fitRecoveryScalarProfiles(samples, count, policy.minimumSplineRatio);
       const loft: IAutoMovieConvexSupportLoft = {
         planes: normals.map(
@@ -279,7 +302,11 @@ export function fitAutoMovieRecoveryImageSupportLoft(
   } catch (failure: unknown) {
     return {
       operator,
-      status: cancelled() ? "cancelled" : callback ? "failed" : "refused",
+      status: cancellationRequested
+        ? "cancelled"
+        : cancellationCallback || callback
+          ? "failed"
+          : "refused",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
       ],

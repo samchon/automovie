@@ -1,13 +1,18 @@
+import { nclose } from "../../internal/nclose";
 import {
   AutoMovieLoftViewFullSource as Full,
   AutoMovieViewAxis,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
 import { AutoMovieHumanF1NativeRootLaw as Root } from "@automovie/human";
-import type { IAutoMovieConstructionPort } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionPortLoop,
+  IAutoMovieHumanF1NativeRoot,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { nclose } from "../../internal/nclose";
 
 /**
  * A parent root cut belongs to the actual curved source, with independent calipers.
@@ -73,13 +78,13 @@ export function test_human_native_root_membership(): void {
     [0, 4],
     AutoMovieViewAxis.straight([10, 0, 0], [0, 1, 0], [0, 0, -1]),
   );
-  const loop: IAutoMovieConstructionPort.ILoop = {
+  const loop: IAutoMovieConstructionPortLoop = {
     centre: [0, 0],
     semi: [0.001, 0.3],
     sense: -1,
     shape: Array.from({ length: count }, (): number => 1),
   };
-  const original: Root.ICalibration = Root.calibrate({
+  const original: IAutoMovieHumanF1NativeRoot.ICalibration = Root.calibrate({
     name: "made-cylinder-ellipse",
     parent,
     child,
@@ -92,11 +97,11 @@ export function test_human_native_root_membership(): void {
   });
 
   scenario("unchanged original controls and clock", (): void => {
-    const same: Root.IRootSpec = Root.prepare(original, parent, [1, 1]).resolve(child);
+    const same: IAutoMovieHumanF1NativeRoot.IRootSpec = Root.prepare(original, parent, [1, 1]).resolve(child);
     if (same.loop !== loop) failures.push("unchanged loop was replaced");
     exact("unchanged rail length", same.railStations.length, 1);
     exact("unchanged rail station", same.railStations[0]!, 1);
-    same.rows.forEach((row: Root.IRootRow, k: number): void => {
+    same.rows.forEach((row: IAutoMovieHumanF1NativeRoot.IRootRow, k: number): void => {
       exact("original clock " + k, row.sourceClock, (2 * Math.PI * k) / count);
       exact("original child phase " + k, row.targetChildAddress[1], original.childPhases[k]!);
       row.actualParent.forEach((value: number, axis: number): void =>
@@ -106,7 +111,7 @@ export function test_human_native_root_membership(): void {
   });
 
   scenario("actual calipers and curved parent membership", (): void => {
-    const prepared: Root.IPrepared = Root.prepare(original, parent, [1, 2]);
+    const prepared: IAutoMovieHumanF1NativeRoot.IPrepared = Root.prepare(original, parent, [1, 2]);
     const candidate: IAutoMovieViewPart = ellipse(
       "made-child",
       1,
@@ -114,16 +119,16 @@ export function test_human_native_root_membership(): void {
       [0, 4],
       prepared.axis,
     );
-    const source: Full.IReader = Full.create(candidate);
-    const up: Root.V = source.point(1, 0);
-    const down: Root.V = source.point(1, Math.PI);
-    const side: Root.V = source.point(1, Math.PI / 2);
-    const twin: Root.V = source.point(1, (3 * Math.PI) / 2);
+    const source: IAutoMovieLoftViewFullSource.IReader = Full.create(candidate);
+    const up: AutoMovieVector3Tuple = source.point(1, 0);
+    const down: AutoMovieVector3Tuple = source.point(1, Math.PI);
+    const side: AutoMovieVector3Tuple = source.point(1, Math.PI / 2);
+    const twin: AutoMovieVector3Tuple = source.point(1, (3 * Math.PI) / 2);
     close("independent source depth", up[1] - down[1], 2);
     close("independent source breadth", twin[2] - side[2], 12);
 
-    const made: Root.IRootSpec = prepared.resolve(candidate);
-    const row: Root.IRootRow = made.rows[count / 4]!;
+    const made: IAutoMovieHumanF1NativeRoot.IRootSpec = prepared.resolve(candidate);
+    const row: IAutoMovieHumanF1NativeRoot.IRootRow = made.rows[count / 4]!;
     const z: number = -20 * Math.sin(0.3);
     const x: number = Math.sqrt(100 - z * z);
     close("actual parent stays on cylinder", row.actualParent[0] ** 2 + row.actualParent[2] ** 2, 100);
@@ -152,7 +157,7 @@ function ellipse(
   depth: number,
   breadth: number,
   domain: readonly [number, number],
-  axis: AutoMovieViewAxis.IAxis,
+  axis: IAutoMovieViewAxis.IAxis,
 ): IAutoMovieViewPart {
   const outline: (value: number) => IAutoMovieViewPart.IOutline = (
     value: number,

@@ -1,14 +1,18 @@
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftRelief,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftSurfaceJet,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import {
   AutoMovieLoftChain,
-  type AutoMovieLoftFrame,
   AutoMovieLoftJet,
   AutoMovieLoftViewFullSource,
-  type AutoMovieViewAxis,
   AutoMovieViewLoft,
-  type IAutoMovieLoftChain,
-  type IAutoMovieLoftRelief,
-  type IAutoMovieSolidSurface,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -80,9 +84,9 @@ export function test_construction_native_full_source(): void {
     heights,
     shift,
   };
-  const input: AutoMovieLoftViewFullSource.IInput = cylinder([feature], true);
+  const input: IAutoMovieLoftViewFullSource.IInput = cylinder([feature], true);
   const before: string = JSON.stringify(input);
-  const reader: AutoMovieLoftViewFullSource.IReader =
+  const reader: IAutoMovieLoftViewFullSource.IReader =
     AutoMovieLoftViewFullSource.create(input);
   const s: number = 0.4;
   const t: number = 0.5;
@@ -108,7 +112,7 @@ export function test_construction_native_full_source(): void {
       AutoMovieLoftChain.point(chain, s, t),
       reader.point(s, t),
     );
-    const old: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, s, t);
+    const old: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, s, t);
     const published: IAutoMovieSolidSurface.IJet = {
       p: old.p,
       u: old.s,
@@ -121,11 +125,11 @@ export function test_construction_native_full_source(): void {
       check("existing physical2 consumer " + key, published[key], actual[key]);
   }
 
-  const without2: AutoMovieLoftViewFullSource.IReader =
+  const without2: IAutoMovieLoftViewFullSource.IReader =
     AutoMovieLoftViewFullSource.create(cylinder([feature], false));
   check("Point0 without physical2", without2.point(s, t), expected.p);
   refuses("missing axis2", (): unknown => without2.jet(s, t));
-  const bare: AutoMovieLoftViewFullSource.IReader =
+  const bare: IAutoMovieLoftViewFullSource.IReader =
     AutoMovieLoftViewFullSource.create(cylinder([], true));
   check("no features", bare.point(s, t), [2 * Math.cos(t), s, 2 * Math.sin(t)]);
   check("window boundary", reader.point(4, t), bare.point(4, t));
@@ -135,7 +139,7 @@ export function test_construction_native_full_source(): void {
   if (JSON.stringify(input) !== before)
     failures.push("original controls mutated");
 
-  const cap: AutoMovieLoftViewFullSource.IReader =
+  const cap: IAutoMovieLoftViewFullSource.IReader =
     AutoMovieLoftViewFullSource.create(cylinder([], true, true));
   check("collapsed Point0", cap.point(0, t), [0, 0, 0]);
   refuses("collapsed pole2", (): unknown => cap.jet(0, t));
@@ -144,7 +148,7 @@ export function test_construction_native_full_source(): void {
   check("cap station1", capJet.u, [Math.cos(t), 1, Math.sin(t)]);
   check("cap station2", capJet.uu, [-0.5 * Math.cos(t), 0, -0.5 * Math.sin(t)]);
   check("cap mixed", capJet.uv, [-Math.sin(t), 0, Math.cos(t)]);
-  const deformed: AutoMovieLoftViewFullSource.IReader =
+  const deformed: IAutoMovieLoftViewFullSource.IReader =
     AutoMovieLoftViewFullSource.create(
       cylinder([{ ...feature, stations: [-0.4, 3.6] }], true, true),
     );
@@ -154,16 +158,16 @@ export function test_construction_native_full_source(): void {
   refuses("nonfinite phase", (): unknown => reader.point(s, NaN));
 
   const sentinel: Error = new Error("actual axis callback");
-  const foreign: AutoMovieLoftViewFullSource.IInput = cylinder([], true);
-  const foreignAxis: AutoMovieViewAxis.IAxis = {
-    at: (): AutoMovieLoftFrame.IFrame => {
+  const foreign: IAutoMovieLoftViewFullSource.IInput = cylinder([], true);
+  const foreignAxis: IAutoMovieViewAxis.IAxis = {
+    at: (): IAutoMovieLoftSectionFrame => {
       throw sentinel;
     },
     jet: (): never => {
       throw sentinel;
     },
   };
-  const throwing: AutoMovieLoftViewFullSource.IReader =
+  const throwing: IAutoMovieLoftViewFullSource.IReader =
     AutoMovieLoftViewFullSource.create({ ...foreign, axis: foreignAxis });
   for (const read of [
     (): unknown => throwing.point(s, t),
@@ -188,14 +192,14 @@ function cylinder(
   reliefs: IAutoMovieLoftRelief[],
   physical2: boolean,
   cap: boolean = false,
-): AutoMovieLoftViewFullSource.IInput {
-  const zero: AutoMovieLoftFrame.IFrame = {
+): IAutoMovieLoftViewFullSource.IInput {
+  const zero: IAutoMovieLoftSectionFrame = {
     origin: [0, 0, 0],
     u: [0, 0, 0],
     v: [0, 0, 0],
   };
-  const axis: AutoMovieViewAxis.IAxis = {
-    at: (s: number): AutoMovieLoftFrame.IFrame => ({
+  const axis: IAutoMovieViewAxis.IAxis = {
+    at: (s: number): IAutoMovieLoftSectionFrame => ({
       origin: [0, s, 0],
       u: [1, 0, 0],
       v: [0, 0, 1],
@@ -205,9 +209,9 @@ function cylinder(
           jet: (
             s: number,
           ): {
-            value: AutoMovieLoftFrame.IFrame;
-            first: AutoMovieLoftFrame.IFrame;
-            second: AutoMovieLoftFrame.IFrame;
+            value: IAutoMovieLoftSectionFrame;
+            first: IAutoMovieLoftSectionFrame;
+            second: IAutoMovieLoftSectionFrame;
           } => ({
             value: axis.at(s),
             first: { ...zero, origin: [0, 1, 0] },

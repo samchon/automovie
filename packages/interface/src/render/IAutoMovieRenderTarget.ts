@@ -1,6 +1,6 @@
-import { IAutoMovieRenderTargetAsset } from "./IAutoMovieRenderTargetAsset";
-import { IAutoMovieRenderTargetRenderer } from "./IAutoMovieRenderTargetRenderer";
-import { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSettings";
+import type { IAutoMovieRenderTargetAsset } from "./IAutoMovieRenderTargetAsset";
+import type { IAutoMovieRenderTargetRenderer } from "./IAutoMovieRenderTargetRenderer";
+import type { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSettings";
 
 /**
  * The exact renderer, settings, and asset bytes a render report was measured against.

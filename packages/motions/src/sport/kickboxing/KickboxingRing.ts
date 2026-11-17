@@ -1,4 +1,13 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanKickboxingRing,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { HumanRefusal } from "../../law/HumanRefusal";
 
 /**
  * A bounded fighting area: a square ring on the floor, centred on a point
@@ -8,42 +17,101 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * The ring is a square of `size` metres between the ropes (GLORY rings are
  * 6.1 to 7.3 m inside the ropes; the size is the production's). Corners are
  * named in the ring's own frame: the red and blue corners on one diagonal,
- * the two neutral corners on the other.
+ * the two neutral corners on the other. A ring placed in the scene is read
+ * from its own contacts (`of`, `createRing`'s): its centre and floor from the
+ * `canvas`, its size from the top ropes on opposite sides, its heading from
+ * the placement, and its corners named on its posts' tops, `corner1` (`+X
+ * +Z`) blue, `corner3` red, `corner4` and `corner2` the neutral corners.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the ring's shape, frame, the source of its size range and the corner naming.
  * @evidence contracts/development/design.md#principled-representation A square on the floor as a centre, a side in metres and a heading in degrees, with corners as a closed union.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The ring, its corners and the three queries footwork, staging and the knockdown count read.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The ring, its corners, the reader of a placed ring and the three queries footwork, staging and the knockdown count read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector; the size is the production's, not fixed here.
  */
 export namespace KickboxingRing {
+  /** The posts' tops by corner (`createRing`'s `corner1` to `corner4`, counted round from `+X +Z`). */
+  export const POSTS: Readonly<
+    Record<IAutoMovieMotionHumanKickboxingRing.Corner, string>
+  > = {
+    blue: "corner1",
+    neutralB: "corner2",
+    red: "corner3",
+    neutralA: "corner4",
+  };
+
   /**
-   * A ring.
+   * The ring a placed prop is.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation A centre in world metres, a side in metres (positive) and a heading in degrees about +Y; positivity is left to the queries.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values every query reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector.
+   * @param prop The ring's prop.
+   * @returns Its centre on the canvas, its size between the ropes and its heading.
+   * @throws {HumanRefusal} When the prop declares no canvas, a top rope or a corner post, its ropes stand no square apart, or a post stands off its corner.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read from which contact and the refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation Each contact carried into the world by the prop's frame; the side is the distance across between opposite ropes, which bound the ring, and the posts are checked on the corners that side puts them at.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the contacts, then the square, then the posts.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A prop that is no square ring is refused with its contacts, never read as one.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the prop's contacts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per ring.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export interface IRing {
-    /** The centre on the floor, world metres. */
-    centre: IAutoMovieVector3;
-
-    /** The side between the ropes, metres; positive. */
-    size: number;
-
-    /** The heading of the ring's +Z side, degrees about +Y. */
-    yaw: number;
+  export function of(
+    prop: Pick<IAutoMovieMotionHumanProp, "subject" | "frame" | "affordances">,
+  ): IAutoMovieMotionHumanKickboxingRing.IRing {
+    const affordances: readonly IAutoMovieAffordance[] = prop.affordances ?? [];
+    const refuse = (reason: string): IAutoMovieMotionHumanRefusal =>
+      new HumanRefusal({
+        kind: "affordance",
+        axis: "ring",
+        value: prop.subject,
+        feasible: {
+          kind: "alternatives",
+          values: affordances.map((a: IAutoMovieAffordance): string => a.id),
+        },
+        reason,
+        fix: "name a ring whose canvas, top ropes and corner posts its contacts declare, as createRing does",
+      });
+    const at = (id: string): IAutoMovieVector3 => {
+      const found: IAutoMovieAffordance | undefined = affordances.find(
+        (a: IAutoMovieAffordance): boolean => a.id === id,
+      );
+      if (found === undefined)
+        throw refuse(`${prop.subject} declares no ${id}`);
+      return Vector3.add(
+        prop.frame.position,
+        Quaternion.rotateVector(prop.frame.rotation, found.frame.translation),
+      );
+    };
+    const canvas: IAutoMovieVector3 = at("canvas");
+    const across = (a: string, b: string): number => {
+      const d: IAutoMovieVector3 = Vector3.subtract(at(a), at(b));
+      return Math.hypot(d.x, d.z);
+    };
+    const size: number = across("northRope", "southRope");
+    if (!(Math.abs(across("eastRope", "westRope") - size) <= 1e-3))
+      throw refuse(
+        `${prop.subject}'s ropes stand ${size.toFixed(3)} m apart one way and ${across("eastRope", "westRope").toFixed(3)} m the other, no square`,
+      );
+    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+      prop.frame.rotation,
+      { x: 0, y: 0, z: 1 },
+    );
+    const ring: IAutoMovieMotionHumanKickboxingRing.IRing = {
+      centre: canvas,
+      size,
+      yaw: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
+    };
+    for (const name of Object.keys(
+      POSTS,
+    ) as IAutoMovieMotionHumanKickboxingRing.Corner[]) {
+      const post: IAutoMovieVector3 = at(POSTS[name]);
+      const foot: IAutoMovieVector3 = corner(ring, name);
+      if (!(Math.hypot(post.x - foot.x, post.z - foot.z) <= 1e-3))
+        throw refuse(
+          `${prop.subject}'s ${POSTS[name]} stands off the ${name} corner its ropes put it at`,
+        );
+    }
+    return ring;
   }
-
-  /**
-   * A corner's name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the four corners; the namespace places them on the diagonals.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the four corners a ring has.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The corners the corner query and the knockdown count name.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export type Corner = "red" | "blue" | "neutralA" | "neutralB";
 
   /**
    * A corner's floor point, a margin inside the ropes along both sides.
@@ -62,12 +130,15 @@ export namespace KickboxingRing {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function corner(
-    ring: IRing,
-    corner: Corner,
+    ring: IAutoMovieMotionHumanKickboxingRing.IRing,
+    corner: IAutoMovieMotionHumanKickboxingRing.Corner,
     margin: number = 0,
   ): IAutoMovieVector3 {
     const h: number = ring.size / 2 - margin;
-    const local: Record<Corner, [number, number]> = {
+    const local: Record<
+      IAutoMovieMotionHumanKickboxingRing.Corner,
+      [number, number]
+    > = {
       red: [-h, -h],
       blue: [h, h],
       neutralA: [h, -h],
@@ -94,7 +165,7 @@ export namespace KickboxingRing {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function inside(
-    ring: IRing,
+    ring: IAutoMovieMotionHumanKickboxingRing.IRing,
     point: IAutoMovieVector3,
     margin: number = 0,
   ): boolean {
@@ -121,7 +192,7 @@ export namespace KickboxingRing {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function clamp(
-    ring: IRing,
+    ring: IAutoMovieMotionHumanKickboxingRing.IRing,
     point: IAutoMovieVector3,
     margin: number = 0,
   ): IAutoMovieVector3 {
@@ -136,7 +207,11 @@ export namespace KickboxingRing {
   }
 
   /** A ring-local point in world metres. */
-  function world(ring: IRing, x: number, z: number): IAutoMovieVector3 {
+  function world(
+    ring: IAutoMovieMotionHumanKickboxingRing.IRing,
+    x: number,
+    z: number,
+  ): IAutoMovieVector3 {
     const r: number = (ring.yaw * Math.PI) / 180;
     const c: number = Math.cos(r);
     const s: number = Math.sin(r);
@@ -148,7 +223,10 @@ export namespace KickboxingRing {
   }
 
   /** A world point in ring-local coordinates. */
-  function local(ring: IRing, p: IAutoMovieVector3): [number, number] {
+  function local(
+    ring: IAutoMovieMotionHumanKickboxingRing.IRing,
+    p: IAutoMovieVector3,
+  ): [number, number] {
     const r: number = (ring.yaw * Math.PI) / 180;
     const c: number = Math.cos(r);
     const s: number = Math.sin(r);

@@ -1,9 +1,13 @@
-import type { AutoMovieConstructionSkinCut } from "./AutoMovieConstructionSkinCut";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionComposedEnd,
+  IAutoMovieConstructionSkinCut,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** World point or direction, mm. */
-type Vec3 = AutoMovieSolidVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 
 /** A point or a derivative in the end plane's own coordinates, mm. */
 type V2 = [number, number];
@@ -26,176 +30,6 @@ const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
  */
 export namespace AutoMovieConstructionComposedEnd {
   /**
-   * One child's section in the end plane.
-   *
-   * @evidence contracts/development/design.md#principled-representation A closed curve by the child's own phase with its tangent, and the child's axis, are what the forks and the bisector are computed from.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A name, one reader and one direction.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The reader is the child's own curve; no polygon stands in for it past the search for crossings.
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and direction.
-   */
-  export interface ISection {
-    /** The child's name in refusals. */
-    name: string;
-
-    /**
-     * The section's point at a child phase, mm, with its derivative in the phase; period `2 pi`.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the result, the units and the period.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `section` is its implementation for a cut skin.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    at: (psi: number) => { point: Vec3; first: Vec3; second?: Vec3 };
-
-    /** The child's axis at the section, unit, into the child. */
-    axis: Vec3;
-  }
-
-  /**
-   * One piece of the composed outline: a lobe of one section, read from one fork to the next.
-   *
-   * @evidence contracts/development/design.md#principled-representation The outline is the sections' own arcs joined at the forks, so a piece is a section and a phase interval in the direction the outline runs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A section index and two phases.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The piece names the child's own curve; no fitted curve stands in for it.
-   * @evidence contracts/development/common.md#meaningful-documentation States the direction and the unit.
-   */
-  export interface IPiece {
-    /** The section the piece lies on. */
-    section: number;
-
-    /** The phase the piece starts at, radians: a fork. */
-    from: number;
-
-    /** The phase it ends at, radians, above or below `from` as the outline runs: the next fork. */
-    to: number;
-  }
-
-  /**
-   * The composed outline as one closed curve: every section's lobes joined through the forks, in the order they bound the union.
-   *
-   * Sections that cross have no gap between them, so the saddle rule (a radius of half the gap between two root sections) gives each fork a zero radius: a fork is a corner of the outline, a point of both lobes, and needs no fillet.
-   *
-   * @evidence contracts/development/design.md#principled-representation The union outline of closed curves that cross pairwise is their outer arcs in order; a host family that adopts it for its last section ends on the children's own curves.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The pieces and one reader.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The reader evaluates the sections themselves; nothing is resampled or smoothed at a fork.
-   * @evidence contracts/development/common.md#meaningful-documentation States the pieces' order, the parameter and the fork's corner.
-   */
-  export interface IOutline {
-    /** The pieces in order round the outline, the first the first section's lobe read by increasing phase. */
-    pieces: IPiece[];
-
-    /**
-     * The outline at a parameter `t` in `[0, pieces.length)`: piece `floor(t)` at the share `t - floor(t)` of its phase interval, with
-     * its first derivative in `t` and, where the section supplies one, its second; the first derivative turns at each whole `t`, a fork.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the parameter, the results and where the tangent turns.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `create` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    at: (t: number) => { point: Vec3; first: Vec3; second?: Vec3 };
-
-    /**
-     * The distance in the end plane from a point's foot on the plane to the outline, mm: the least over the pieces, each solved on its
-     * section's own curve from its nearest sample.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the distance, its plane and how it is found.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `create` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
-     */
-    distance: (point: Vec3) => number;
-  }
-
-  /**
-   * What a composition is built from.
-   *
-   * @evidence contracts/development/design.md#principled-representation The end plane and the sections in the children's order are the whole composition.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four fields; the sample count is the caller's sampling input.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only.
-   * @evidence contracts/development/common.md#meaningful-documentation States each field's unit and order.
-   */
-  export interface IInput {
-    /** A point of the end plane, mm. */
-    point: Vec3;
-
-    /** The end plane's unit normal, out of the host. */
-    normal: Vec3;
-
-    /** The sections in the children's order, at least two; neighbours are consecutive. */
-    sections: readonly ISection[];
-
-    /** Phases round each section at which crossings are searched, at least 8. */
-    samples: number;
-  }
-
-  /**
-   * One fork: a point two neighbouring sections share.
-   *
-   * @evidence contracts/development/design.md#principled-representation The crossing point with its phase on each of the two curves, so each child reads its own lobe from it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A point and two phases.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The point is the lower child's curve at its phase; the upper child's curve passes through it to the solver's rounding.
-   * @evidence contracts/development/common.md#meaningful-documentation States the owner of the point and the phases' order.
-   */
-  export interface IFork {
-    /** The fork, mm: the lower child's section at its phase. */
-    point: Vec3;
-
-    /** The fork's phase on the lower child's section and on the upper child's, radians in `[0, 2 pi)`. */
-    phases: [number, number];
-  }
-
-  /**
-   * The seam between two neighbours.
-   *
-   * @evidence contracts/development/design.md#principled-representation Two forks and the plane through them that holds the axes' bisector.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The forks, the plane's normal and the bisector.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values derived from the two sections alone.
-   * @evidence contracts/development/common.md#meaningful-documentation States the forks' order and both directions' orientation.
-   */
-  export interface ISeam {
-    /** The forks: the first on the left of the direction from the lower child's centre to the upper child's, seen against the end plane's normal. */
-    forks: [IFork, IFork];
-
-    /** The seam plane's unit normal, from the lower child toward the upper one. */
-    normal: Vec3;
-
-    /** The unit bisector of the two children's axes, which the seam plane holds. */
-    heading: Vec3;
-  }
-
-  /**
-   * A built composition.
-   *
-   * @evidence contracts/development/design.md#principled-representation The seams between neighbours and each child's lobes are the composed outline's whole structure.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three arrays.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values derived from the sections alone.
-   * @evidence contracts/development/common.md#meaningful-documentation States each array's indexing and unit.
-   */
-  export interface IComposition {
-    /** Seam `j` between sections `j` and `j + 1`. */
-    seams: ISeam[];
-
-    /** Each section's lobes: the phase intervals `[from, to]`, `from < to <= from + 2 pi`, on which it is the composed outline. */
-    lobes: [number, number][][];
-
-    /** Each section's centre, the mean of its sampled points, mm. */
-    centres: Vec3[];
-
-    /** The composed outline as one closed curve. */
-    outline: IOutline;
-  }
-
-  /**
    * Build a composition, or the reason it cannot be built.
    *
    * Each section is sampled into a polygon in the plane's coordinates; polygon edges that cross bracket the two curves' crossings, and
@@ -213,8 +47,8 @@ export namespace AutoMovieConstructionComposedEnd {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each section's polygon serves every pair it belongs to and its lobes.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The polygons are released; the result is caller-owned.
    */
-  export function create(input: IInput): IComposition | string {
-    const { sections, normal }: IInput = input;
+  export function create(input: IAutoMovieConstructionComposedEnd.IInput): IAutoMovieConstructionComposedEnd.IComposition | string {
+    const { sections, normal }: IAutoMovieConstructionComposedEnd.IInput = input;
     const m: number = input.samples;
     const turn: number = 2 * Math.PI;
     if (sections.length < 2) return "an end is composed of at least two sections";
@@ -229,7 +63,7 @@ export namespace AutoMovieConstructionComposedEnd {
     const flat = (p: Vec3): V2 => [dot(sub(p, input.point), e1), dot(sub(p, input.point), e2)];
     const lean = (d: Vec3): V2 => [dot(d, e1), dot(d, e2)];
 
-    const polygons: V2[][] = sections.map((s: ISection): V2[] =>
+    const polygons: V2[][] = sections.map((s: IAutoMovieConstructionComposedEnd.ISection): V2[] =>
       Array.from({ length: m }, (_: unknown, k: number): V2 => flat(s.at((turn * k) / m).point)),
     );
     const centres: V2[] = polygons.map((q: V2[]): V2 => [
@@ -298,22 +132,22 @@ export namespace AutoMovieConstructionComposedEnd {
       }
 
     // Each neighbouring pair's forks and seam plane.
-    const seams: ISeam[] = [];
+    const seams: IAutoMovieConstructionComposedEnd.ISeam[] = [];
     for (let i: number = 0; i + 1 < sections.length; ++i) {
-      const [lower, upper]: [ISection, ISection] = [sections[i]!, sections[i + 1]!];
+      const [lower, upper]: [IAutoMovieConstructionComposedEnd.ISection, IAutoMovieConstructionComposedEnd.ISection] = [sections[i]!, sections[i + 1]!];
       const met: [number, number][] | string = crossings(i, i + 1);
       if (typeof met === "string") return met;
       if (met.length !== 2)
         return `the sections of ${lower.name} and ${upper.name} cross ${met.length} times in the end plane, not twice`;
-      const forks: IFork[] = met.map(
-        (phases: [number, number]): IFork => ({ point: lower.at(phases[0]).point, phases }),
+      const forks: IAutoMovieConstructionComposedEnd.IFork[] = met.map(
+        (phases: [number, number]): IAutoMovieConstructionComposedEnd.IFork => ({ point: lower.at(phases[0]).point, phases }),
       );
       const across: V2 = [centres[i + 1]![0] - centres[i]![0], centres[i + 1]![1] - centres[i]![1]];
-      const side = (f: IFork): number => {
+      const side = (f: IAutoMovieConstructionComposedEnd.IFork): number => {
         const p: V2 = flat(f.point);
         return across[0] * (p[1] - centres[i]![1]) - across[1] * (p[0] - centres[i]![0]);
       };
-      const [first, second]: [IFork, IFork] = side(forks[0]!) >= side(forks[1]!) ? [forks[0]!, forks[1]!] : [forks[1]!, forks[0]!];
+      const [first, second]: [IAutoMovieConstructionComposedEnd.IFork, IAutoMovieConstructionComposedEnd.IFork] = side(forks[0]!) >= side(forks[1]!) ? [forks[0]!, forks[1]!] : [forks[1]!, forks[0]!];
       const chord: Vec3 | null = unit(sub(second.point, first.point));
       const heading: Vec3 | null = unit(add(lower.axis, upper.axis));
       if (chord === null) return `the forks between ${lower.name} and ${upper.name} coincide`;
@@ -332,10 +166,10 @@ export namespace AutoMovieConstructionComposedEnd {
     // Each section's lobes: the arcs between its forks whose middle lies outside its neighbours.
     // Each lobe remembers the fork at each of its ends, as `seam * 2 + fork`.
     type Lobe = { from: number; to: number; first: number; last: number };
-    const tagged: Lobe[][] = sections.map((s: ISection, i: number): Lobe[] => {
+    const tagged: Lobe[][] = sections.map((s: IAutoMovieConstructionComposedEnd.ISection, i: number): Lobe[] => {
       const cuts: { phase: number; fork: number }[] = [
-        ...(i > 0 ? seams[i - 1]!.forks.map((f: IFork, k: number): { phase: number; fork: number } => ({ phase: f.phases[1], fork: 2 * (i - 1) + k })) : []),
-        ...(i < seams.length ? seams[i]!.forks.map((f: IFork, k: number): { phase: number; fork: number } => ({ phase: f.phases[0], fork: 2 * i + k })) : []),
+        ...(i > 0 ? seams[i - 1]!.forks.map((f: IAutoMovieConstructionComposedEnd.IFork, k: number): { phase: number; fork: number } => ({ phase: f.phases[1], fork: 2 * (i - 1) + k })) : []),
+        ...(i < seams.length ? seams[i]!.forks.map((f: IAutoMovieConstructionComposedEnd.IFork, k: number): { phase: number; fork: number } => ({ phase: f.phases[0], fork: 2 * i + k })) : []),
       ].sort((a: { phase: number }, b: { phase: number }): number => a.phase - b.phase);
       const out: Lobe[] = [];
       cuts.forEach((from: { phase: number; fork: number }, k: number): void => {
@@ -350,7 +184,7 @@ export namespace AutoMovieConstructionComposedEnd {
     });
 
     // The outline: from the first section's lobe, each piece ends in a fork at which the neighbouring section's lobe begins.
-    const pieces: IPiece[] = [];
+    const pieces: IAutoMovieConstructionComposedEnd.IPiece[] = [];
     const total: number = tagged.reduce((sum: number, list: Lobe[]): number => sum + list.length, 0);
     if (tagged[0]!.length !== 1) return `the section of ${sections[0]!.name} keeps ${tagged[0]!.length} lobes on the outline, not one`;
     let section: number = 0;
@@ -369,13 +203,13 @@ export namespace AutoMovieConstructionComposedEnd {
     if (pieces.length !== total || section !== 1 || fork !== tagged[0]![0]!.first)
       return "the sections' lobes do not close into one outline";
 
-    const read = (piece: IPiece, share: number): { point: Vec3; first: Vec3; second?: Vec3 } => {
+    const read = (piece: IAutoMovieConstructionComposedEnd.IPiece, share: number): { point: Vec3; first: Vec3; second?: Vec3 } => {
       const span: number = piece.to - piece.from;
       const r: { point: Vec3; first: Vec3; second?: Vec3 } = sections[piece.section]!.at(piece.from + span * share);
       return { point: r.point, first: scale(r.first, span), ...(r.second === undefined ? {} : { second: scale(r.second, span * span) }) };
     };
     // Each piece at `samples + 1` equal shares, in the plane: where a distance to the outline starts from.
-    const samples: V2[][] = pieces.map((piece: IPiece): V2[] => Array.from({ length: m + 1 }, (_: unknown, k: number): V2 => flat(read(piece, k / m).point)));
+    const samples: V2[][] = pieces.map((piece: IAutoMovieConstructionComposedEnd.IPiece): V2[] => Array.from({ length: m + 1 }, (_: unknown, k: number): V2 => flat(read(piece, k / m).point)));
     return {
       seams,
       lobes: tagged.map((list: Lobe[]): [number, number][] => list.map((l: Lobe): [number, number] => [l.from, l.to])),
@@ -404,7 +238,7 @@ export namespace AutoMovieConstructionComposedEnd {
             .sort((a: { d: number }, b: { d: number }): number => a.d - b.d);
           let best: number = nearest[0]!.d;
           for (const start of nearest.slice(0, 2)) {
-            const piece: IPiece = pieces[start.piece]!;
+            const piece: IAutoMovieConstructionComposedEnd.IPiece = pieces[start.piece]!;
             let share: number = start.share;
             for (let step: number = 0; step < 32; ++step) {
               const r: { point: Vec3; first: Vec3 } = read(piece, share);
@@ -444,10 +278,10 @@ export namespace AutoMovieConstructionComposedEnd {
   export function section(
     name: string,
     surface: IAutoMovieSolidSurface,
-    cut: AutoMovieConstructionSkinCut.ICut,
+    cut: IAutoMovieConstructionSkinCut.ICut,
     into: 1 | -1,
     samples: number,
-  ): ISection | string {
+  ): IAutoMovieConstructionComposedEnd.ISection | string {
     let sum: Vec3 = [0, 0, 0];
     for (let k: number = 0; k < samples; ++k) {
       const psi: number = (2 * Math.PI * k) / samples;

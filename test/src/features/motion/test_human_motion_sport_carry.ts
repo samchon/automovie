@@ -1,17 +1,22 @@
 import { createKettlebell } from "@automovie/archetypes";
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
+import type {
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+  IAutoMoviePhysicalShape,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanSignature,
   HumanSportCarry,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -22,8 +27,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * it): a kettlebell picked up in each hand and carried over a walk, the
  * arms let down to hang and the trunk upright.
  *
- * Each body stands with a kettlebell on a rack beside each hand, its handle
- * 0.9 of the arm below the shoulder joint and under it, each lifted 2 cm
+ * Each body stands with a kettlebell on a rack beside each hip, its handle
+ * 0.9 of the arm below the shoulder joint and out from the hip's surface by
+ * the bell's own half-width, so neither hand nor bell starts inside the
+ * body, each lifted 2 cm
  * off its rack so the arm stays long, takes the
  * right bell, then the left, and walks 3 m. The bells start on racks, not
  * the floor: the lift from the floor is the deadlift's.
@@ -50,21 +57,40 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_sport_carry(): void {
   const bell: ReturnType<typeof createKettlebell> = createKettlebell({});
   const handle: IAutoMovieVector3 = bell.affordance("grip").frame.translation;
+  // The bell's half-width across the body, from its own colliders about its
+  // vertical axis.
+  const across: number = Math.max(
+    ...bell.shapes().map((shape: IAutoMoviePhysicalShape): number => {
+      const bounds: { min: IAutoMovieVector3; max: IAutoMovieVector3 } =
+        physicalShapeBounds(
+          { position: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },
+          shape,
+        );
+      return Math.max(-bounds.min.x, bounds.max.x);
+    }),
+  );
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const name of ["f-small", "m-average"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const shoulder: IAutoMovieVector3 = body.rest.get("rightUpperArm")!;
     const arm: number = body.measure.upperArm + body.measure.forearm;
-    const rack = (sign: number): HumanObject.Placement => ({
-      at: {
-        x: sign * body.measure.shoulderHalfWidth,
-        y: shoulder.y - 0.9 * arm - handle.y,
-        z: 0.05,
-      },
-      yaw: 0,
-    });
-    let performance: HumanPerformance;
+    // Each rack stands beside its hip: the hip region's surface at rest
+    // (the rig rests unrotated), out by the bell's own half-width across, so
+    // neither the hand nor the bell starts inside the body.
+    const rack = (sign: 1 | -1): IAutoMovieMotionHumanObject.Placement => {
+      const frame: IAutoMovieHumanoidSurfaces.IFrame =
+        body.surfaces.regions[sign === 1 ? "hipLeft" : "hipRight"];
+      return {
+        at: {
+          x: body.rest.get(frame.bone)!.x + frame.point.x + sign * across,
+          y: shoulder.y - 0.9 * arm - handle.y,
+          z: 0.05,
+        },
+        yaw: 0,
+      };
+    };
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "farmer",
@@ -87,7 +113,7 @@ export function test_human_motion_sport_carry(): void {
           .pickUp({ prop: "bellL", handle: "grip", hand: "left", lift: 0.02 })
           .registered("farmersWalk", { to: { x: 0, y: 0, z: 3 } })
           .over(
-            (o: HumanChain): HumanChain =>
+            (o: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
               o.registered("farmersHold", {
                 left: "bellL",
                 right: "bellR",
@@ -102,7 +128,7 @@ export function test_human_motion_sport_carry(): void {
       continue;
     }
     const walking = performance.segments("a")[2]!;
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
       body,

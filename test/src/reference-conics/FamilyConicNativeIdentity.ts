@@ -1,7 +1,18 @@
+import { AutoMovieLoftViewFullSource } from "@automovie/engine";
+import {
+  AutoMovieHumanConicLoft as H,
+  AutoMovieHumanF1,
+  AutoMovieHumanF1NativeLaw,
+} from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1,
+  IAutoMovieHumanF1NativeLaw,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { AutoMovieLoftViewFullSource, type IAutoMovieViewPart } from "@automovie/engine";
-import { AutoMovieHumanConicLoft as H, AutoMovieHumanF1, AutoMovieHumanF1NativeLaw } from "@automovie/human";
 
 /**
  * f1's native families at f1's own measures, written as numbers, and compared with an earlier writing: the reading that shows whether a
@@ -50,9 +61,9 @@ namespace FamilyConicNativeIdentity {
   /** f1's native families at f1's own fields. */
   function record(): { families: IRecord[]; milliseconds: number } {
     const started: number = performance.now();
-    const original: AutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
-    const prepared: AutoMovieHumanF1NativeLaw.IPrepared = AutoMovieHumanF1NativeLaw.prepare(original, AutoMovieHumanF1.constructionFrom(original).sources);
-    const person: AutoMovieHumanF1.IAssembly = AutoMovieHumanF1.nativeFrom(prepared.fields, prepared);
+    const original: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
+    const prepared: IAutoMovieHumanF1NativeLaw.IPrepared = AutoMovieHumanF1NativeLaw.prepare(original, AutoMovieHumanF1.constructionFrom(original).sources);
+    const person: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.nativeFrom(prepared.fields, prepared);
 
     // The sources the construction itself asks for: a limb's source without the distal cap its digits replace, as production reads it.
     // A family the construction names no source for is read in its own cap scope.
@@ -62,11 +73,11 @@ namespace FamilyConicNativeIdentity {
     } catch (error: unknown) {
       asked = error instanceof Error ? error.message : String(error);
     }
-    const families: IRecord[] = person.families.map((family: H.IFamily): IRecord => {
+    const families: IRecord[] = person.families.map((family: IAutoMovieHumanConicLoft.IFamily): IRecord => {
       let points: number[] | string;
       try {
         if (typeof asked === "string") throw new Error("the person's construction: " + asked);
-        const reader: AutoMovieLoftViewFullSource.IReader = AutoMovieLoftViewFullSource.create(asked.get(family.name) ?? H.source(family));
+        const reader: IAutoMovieLoftViewFullSource.IReader = AutoMovieLoftViewFullSource.create(asked.get(family.name) ?? H.source(family));
         const out: number[] = [];
         for (let i: number = 0; i < STATIONS; ++i) {
           // The two ends are left out: a pole has no chart and an open end is the neighbour's.

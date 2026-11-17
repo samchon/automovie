@@ -1,8 +1,8 @@
-import {
-  type AutoMovieBuiltinTexturePurpose,
-  type IAutoMovieRenderTextureSource,
-  measureAutoMovieRenderTextureClosure,
-} from "@automovie/engine";
+import { measureAutoMovieRenderTextureClosure } from "@automovie/engine";
+import type {
+  AutoMovieBuiltinTexturePurpose,
+  IAutoMovieRenderTextureSource,
+} from "@automovie/interface";
 import { readAutoMovieMaterialTextureSources } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type * as ThreeTypes from "three";

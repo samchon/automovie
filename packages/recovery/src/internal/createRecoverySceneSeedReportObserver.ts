@@ -1,9 +1,8 @@
-import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryMapJointFit,
+  IAutoMovieRecoverySceneSeedReportObserverCreationOperation,
+} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryCameraSceneEstimate } from "../structures/image/IAutoMovieRecoveryCameraSceneEstimate";
-import type { IAutoMovieRecoveryMapJointFit } from "../structures/image/IAutoMovieRecoveryMapJointFit";
-import type { IAutoMovieRecoverySceneWork } from "../structures/image/IAutoMovieRecoverySceneWork";
-import type { completeRecoverySceneCheckpoint } from "./completeRecoverySceneCheckpoint";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 
 /**
@@ -21,10 +20,10 @@ import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Three captured references, one phase flag and one target reference are bounded fixed JS metadata, not numeric buffers or a byte/RSS guarantee. Completion already retains lastJoint during the next fit; replacing its alias adds no numeric report history. The callback expires with seed completion and the caller removes its target reference on acceptance.
  */
 export function createRecoverySceneSeedReportObserver(
-  target: Pick<IAutoMovieRecoveryCameraSceneEstimate, "refusedSeedJoint">,
-  work: IAutoMovieRecoverySceneWork,
-  budget: IAutoMovieRecoveryCameraSceneBudget,
-): NonNullable<Parameters<typeof completeRecoverySceneCheckpoint>[8]> {
+  target: Parameters<IAutoMovieRecoverySceneSeedReportObserverCreationOperation.Operation>[0],
+  work: Parameters<IAutoMovieRecoverySceneSeedReportObserverCreationOperation.Operation>[1],
+  budget: Parameters<IAutoMovieRecoverySceneSeedReportObserverCreationOperation.Operation>[2],
+): ReturnType<IAutoMovieRecoverySceneSeedReportObserverCreationOperation.Operation> {
   spendRecoverySceneWork(work, budget, "linearWork", 32);
   let pending: boolean = false;
   return (

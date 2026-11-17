@@ -1,6 +1,9 @@
+import type {
+  IAutoMovieHumanHeadNoseFrame,
+  IAutoMovieHumanHeadPrior,
+} from "@automovie/interface";
+
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
-import type { AutoMovieHumanHeadNoseFrame } from "./AutoMovieHumanHeadNoseFrame";
-import type { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
 
 /**
  * The nasal tip as a relief window centred on the pronasale in the nose's
@@ -23,8 +26,8 @@ export namespace AutoMovieHumanHeadNoseTip {
    * @returns Height in millimetres.
    */
   export function ball(
-    frame: AutoMovieHumanHeadNoseFrame.IFrame,
-    ball: AutoMovieHumanHeadPrior.IFace["tipBall"],
+    frame: IAutoMovieHumanHeadNoseFrame.IFrame,
+    ball: IAutoMovieHumanHeadPrior.IFace["tipBall"],
     a: number,
   ): number {
     return (

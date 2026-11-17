@@ -1,9 +1,13 @@
-import type { AutoMovieHumanFootBody } from "./AutoMovieHumanFootBody";
-import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootBody,
+  IAutoMovieHumanFootMalleolusWindow,
+} from "@automovie/interface";
+
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootMalleolusBump } from "./AutoMovieHumanFootMalleolusBump";
 
-type Vec3 = G.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 
 /**
  * Where a malleolus's relief window stands on the body's chain: the stations
@@ -18,39 +22,11 @@ type Vec3 = G.Vec3;
  * about the border's own phase. The right foot's phases are reversed.
  */
 export namespace AutoMovieHumanFootMalleolusWindow {
-  /** What a window's place reads. */
-  export interface IInput {
-    /** The foot's frame. */
-    frame: AutoMovieHumanFootFrame.IFrame;
-
-    /** The body whose guide the malleolus stands on. */
-    body: AutoMovieHumanFootBody.IBody;
-
-    /** Which border. */
-    which: "lateral" | "medial";
-
-    /** The malleolus's centre height, lateral malleolus heights. */
-    height: number;
-
-    /** The malleolus's radius, mm. */
-    radius: number;
-
-    /** 1 for the left foot, -1 for the right's reflection. */
-    sign: 1 | -1;
-  }
-
-  /** A window's place. */
-  export interface IPlace {
-    /** The stations the window covers, lowest first. */
-    stations: [number, number];
-
-    /** The phases it covers, in the side's ring order. */
-    phases: [number, number];
-  }
-
   /** The place of a malleolus's window. */
-  export function of(input: IInput): IPlace {
-    const body: AutoMovieHumanFootBody.IBody = input.body;
+  export function of(
+    input: IAutoMovieHumanFootMalleolusWindow.IInput,
+  ): IAutoMovieHumanFootMalleolusWindow.IPlace {
+    const body: IAutoMovieHumanFootBody.IBody = input.body;
     const height: number = input.height * input.frame.H;
 
     // The station where the border's guide reaches the malleolus's height.
@@ -65,24 +41,34 @@ export namespace AutoMovieHumanFootMalleolusWindow {
 
     // The guide's pace there, to turn the window's reach into stations.
     const at: Vec3 = body.guide(input.which, station);
-    const near: Vec3 = body.guide(input.which, Math.min(body.fan.end, station + 1));
+    const near: Vec3 = body.guide(
+      input.which,
+      Math.min(body.fan.end, station + 1),
+    );
     const perMm: number = 1 / Math.max(1e-3, Math.hypot(...G.sub(near, at)));
 
     // The reach round the section, in phase, from the section's perimeter.
-    const section: AutoMovieHumanFootBody.ISection = body.section(station);
+    const section: IAutoMovieHumanFootBody.ISection = body.section(station);
     const ring: Vec3[] = section.ring;
     let perimeter: number = 0;
     ring.forEach((p: Vec3, i: number): void => {
       perimeter += Math.hypot(...G.sub(ring[(i + 1) % ring.length]!, p));
     });
     const reach: number = AutoMovieHumanFootMalleolusBump.WINDOW * input.radius;
-    const centre: number = input.which === "lateral" ? section.lateral : section.medial;
+    const centre: number =
+      input.which === "lateral" ? section.lateral : section.medial;
     const half: number = (reach / perimeter) * G.TWO_PI;
-    const left: [number, number] = [G.wrap(centre - half), G.wrap(centre + half)];
+    const left: [number, number] = [
+      G.wrap(centre - half),
+      G.wrap(centre + half),
+    ];
 
     return {
       stations: [station - reach * perMm, station + reach * perMm],
-      phases: input.sign === 1 ? left : [G.wrap(G.TWO_PI - left[1]), G.wrap(G.TWO_PI - left[0])],
+      phases:
+        input.sign === 1
+          ? left
+          : [G.wrap(G.TWO_PI - left[1]), G.wrap(G.TWO_PI - left[0])],
     };
   }
 }

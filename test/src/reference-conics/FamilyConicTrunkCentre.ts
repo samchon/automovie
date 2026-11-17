@@ -1,15 +1,10 @@
-import fs from "node:fs/promises";
 import {
   AutoMovieConstructionPortAddress,
   AutoMovieLoftChain,
   AutoMovieNaturalSpline,
   AutoMoviePeriodicCubic,
-  type AutoMovieViewAxis,
   AutoMovieViewChain,
   AutoMovieViewLoft,
-  type IAutoMovieLoftChain,
-  type IAutoMovieLoftRelief,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
@@ -26,7 +21,21 @@ import {
   AutoMovieHumanF1TrunkCentre as TrunkCentre,
   AutoMovieHumanSegmentFrame as F,
 } from "@automovie/human";
-import type { IAutoMovieConstructionPort } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionPortLoop,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicRecentre,
+  IAutoMovieHumanConicSection,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftRelief,
+  IAutoMovieNaturalCubicSpline,
+  IAutoMovieViewAxis,
+  IAutoMovieViewChain,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
+import fs from "node:fs/promises";
 
 /**
  * The stored trunk re-expressed about candidate centre lines, measured before anything is switched (the Human skill's step 2, Re-base, and
@@ -84,8 +93,8 @@ namespace FamilyConicTrunkCentre {
   const fixed = (x: number, digits: number = 1): string => x.toFixed(digits);
 
   /** A section's reading about the origin its field vector is written about. */
-  function reading(values: readonly number[], layout: S.ILayout): IReading {
-    const section: AutoMovieViewChain.ISection = S.chain(values, layout);
+  function reading(values: readonly number[], layout: IAutoMovieHumanConicSection.ILayout): IReading {
+    const section: IAutoMovieViewChain.ISection = S.chain(values, layout);
     if (section.fault !== null) return { fault: section.fault, front: NaN, back: NaN, star: NaN, spacing: NaN };
     const points: [number, number][] = Array.from({ length: ROUND }, (_: unknown, j: number): [number, number] => {
       const t: number = (2 * Math.PI * j) / ROUND;
@@ -105,10 +114,10 @@ namespace FamilyConicTrunkCentre {
   }
 
   /** The family's knot values about the line, by the subtraction `AutoMovieHumanConicRecentre.shift` makes, with no admission. */
-  function moved(family: H.IFamily, line: Recentre.ILine): number[][] {
+  function moved(family: IAutoMovieHumanConicLoft.IFamily, line: IAutoMovieHumanConicRecentre.ILine): number[][] {
     const { at }: { at: number[] } = S.offsets(family.layout);
     const values: number[][] = family.values.map((row: number[]): number[] => [...row]);
-    family.layout.anchors.forEach((anchor: S.IAnchor, k: number): void => {
+    family.layout.anchors.forEach((anchor: IAutoMovieHumanConicSection.IAnchor, k: number): void => {
       if (anchor.kind !== "u" && anchor.kind !== "v") return;
       values[at[k]!] = values[at[k]!]!.map((x: number, m: number): number => x - line.u[m]!);
     });
@@ -116,8 +125,8 @@ namespace FamilyConicTrunkCentre {
   }
 
   /** The straight line of least squares through the raw section centres, each knot weighted by the course it stands for. */
-  function straight(family: H.IFamily): Recentre.ILine {
-    const raw: Recentre.ILine = Law.centreLine(family, "sections", 0);
+  function straight(family: IAutoMovieHumanConicLoft.IFamily): IAutoMovieHumanConicRecentre.ILine {
+    const raw: IAutoMovieHumanConicRecentre.ILine = Law.centreLine(family, "sections", 0);
     const knots: number[] = family.knots;
     const span: number[] = knots.map((s: number, k: number): number => ((knots[k + 1] ?? s) - (knots[k - 1] ?? s)) / 2);
     const total: number = span.reduce((sum: number, w: number): number => sum + w, 0);
@@ -129,7 +138,7 @@ namespace FamilyConicTrunkCentre {
 
   /** Loft a view part and return its chain, or throw the engine's diagnostics. */
   function loft(part: IAutoMovieViewPart): IAutoMovieLoftChain {
-    const result: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+    const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
     if (result.chain === null) throw new Error(part.name + " does not loft: " + JSON.stringify(result.diagnostics).slice(0, 2000));
     return result.chain;
   }
@@ -143,13 +152,13 @@ namespace FamilyConicTrunkCentre {
 
   /** A lofted chain as a surface with the course it is charted about. */
   interface ISurface {
-    axis: AutoMovieViewAxis.IAxis;
+    axis: IAutoMovieViewAxis.IAxis;
     point: (s: number, t: number) => V3;
     range: [number, number];
   }
 
   /** The chart angle of a world point about a course at a station. */
-  function angleAt(axis: AutoMovieViewAxis.IAxis, s: number, p: readonly number[]): number {
+  function angleAt(axis: IAutoMovieViewAxis.IAxis, s: number, p: readonly number[]): number {
     const frame = axis.at(s);
     const d: V3 = sub(p, frame.origin);
     return Math.atan2(dot(d, frame.v), dot(d, frame.u));
@@ -202,7 +211,7 @@ namespace FamilyConicTrunkCentre {
    * and half extent of the points' box, and each column's share of the ellipse's distance at its clock, between the two points either
    * side of it.
    */
-  function around(outline: readonly [number, number][], columns: number, sense: 1 | -1): IAutoMovieConstructionPort.ILoop {
+  function around(outline: readonly [number, number][], columns: number, sense: 1 | -1): IAutoMovieConstructionPortLoop {
     const span = (c: 0 | 1): [number, number] => [Math.min(...outline.map((q: [number, number]): number => q[c])), Math.max(...outline.map((q: [number, number]): number => q[c]))];
     const [stations, phases]: [number, number][] = [span(0), span(1)];
     const centre: [number, number] = [(stations![0] + stations![1]) / 2, (phases![0] + phases![1]) / 2];
@@ -224,7 +233,7 @@ namespace FamilyConicTrunkCentre {
   }
 
   /** A loop's column addresses, `[station mm, phase rad]`. */
-  const columnsOf = (loop: IAutoMovieConstructionPort.ILoop): [number, number][] =>
+  const columnsOf = (loop: IAutoMovieConstructionPortLoop): [number, number][] =>
     (loop.shape ?? []).map((share: number, k: number, all: number[]): [number, number] => AutoMovieConstructionPortAddress(loop, (2 * Math.PI * k) / all.length, share));
 
   /**
@@ -270,16 +279,16 @@ namespace FamilyConicTrunkCentre {
    *
    * @param folder Where the switch-in texts are written.
    */
-  async function stage(trunk: H.IFamily, line: Recentre.ILine, requested: number[], lines: string[], folder: string): Promise<void> {
+  async function stage(trunk: IAutoMovieHumanConicLoft.IFamily, line: IAutoMovieHumanConicRecentre.ILine, requested: number[], lines: string[], folder: string): Promise<void> {
     const knots: number[] = trunk.knots;
     const round = (x: number, digits: number): number => Math.round(x * 10 ** digits) / 10 ** digits;
-    const tip: H.ITip = trunk.tips![1]!;
-    const originU: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(knots, line.u);
+    const tip: IAutoMovieHumanConicLoft.ITip = trunk.tips![1]!;
+    const originU: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(knots, line.u);
     const move = (s: number): number => AutoMovieNaturalSpline.evaluate(originU, s);
     const values: number[][] = Recentre.shift(trunk, line).map((row: number[]): number[] => row.map((x: number): number => round(x, 4)));
     const centre: [number, number] = [round((tip.centre?.[0] ?? 0) - move(tip.from), 2), 0];
-    const laid: H.IFamily = { ...trunk, values, origin: line, turn: undefined, reliefs: undefined, tips: [null, { ...tip, centre }] };
-    const surface = (family: H.IFamily): ISurface => {
+    const laid: IAutoMovieHumanConicLoft.IFamily = { ...trunk, values, origin: line, turn: undefined, reliefs: undefined, tips: [null, { ...tip, centre }] };
+    const surface = (family: IAutoMovieHumanConicLoft.IFamily): ISurface => {
       const chain: IAutoMovieLoftChain = loft(H.part(family, requested));
       return { axis: H.axis(family), range: [knots[0]!, tip.tip], point: (s: number, t: number): V3 => AutoMovieLoftChain.point(chain, s, t) as V3 };
     };
@@ -370,7 +379,7 @@ namespace FamilyConicTrunkCentre {
     // The nets.
     const directions: Map<string, { axis: V3; turn?: V3 }> = new Map();
     const inFrame = (name: string, d: readonly number[]): { local: V3; world: V3 } => {
-      const frame: F.IFrame = Placement.frame(Placing.DIRECTIONS[name]!.frame);
+      const frame: IAutoMovieHumanSegmentFrame = Placement.frame(Placing.DIRECTIONS[name]!.frame);
       const local: V3 = F.toLocalDirection(frame, [d[0]!, d[1]!, d[2]!]).map((x: number): number => round(x, 4) + 0) as V3;
       return { local, world: F.toWorldDirection(frame, local) };
     };
@@ -485,13 +494,13 @@ namespace FamilyConicTrunkCentre {
 
     // The port loops.
     lines.push("", "-- the port loops --");
-    const worldOf = (onto: ISurface, loop: IAutoMovieConstructionPort.ILoop): V3[] => columnsOf(loop).map(([s, t]: [number, number]): V3 => onto.point(s, t));
+    const worldOf = (onto: ISurface, loop: IAutoMovieConstructionPortLoop): V3[] => columnsOf(loop).map(([s, t]: [number, number]): V3 => onto.point(s, t));
     const off = (from: readonly V3[], onto: readonly V3[]): string => {
       const all: number[] = from.map((p: V3): number => toPolyline(p, onto));
       const most: number = Math.max(...all);
       return `mean ${fixed(all.reduce((sum: number, x: number): number => sum + x, 0) / all.length, 3)}, greatest ${fixed(most, 3)} mm (at column ${all.indexOf(most)})`;
     };
-    const clock = (loop: IAutoMovieConstructionPort.ILoop): number => {
+    const clock = (loop: IAutoMovieConstructionPortLoop): number => {
       // `AutoMovieHumanF1NativeRootClock.reclock`'s premise: the columns' angle about the loop's pole on its own ellipse strictly increases.
       const angles: number[] = columnsOf(loop).map(([s, t]: [number, number]): number => Math.atan2((t - loop.centre[1]) / (loop.sense * loop.semi[1]), (s - loop.centre[0] * 1000) / (loop.semi[0] * 1000)));
       return Math.min(...angles.map((a: number, k: number): number => {
@@ -499,7 +508,7 @@ namespace FamilyConicTrunkCentre {
         return x - 2 * Math.PI * Math.round(x / (2 * Math.PI));
       }));
     };
-    const child = (family: H.IFamily): IAutoMovieLoftChain => loft(H.part({ ...family, turn: undefined }, family.knots));
+    const child = (family: IAutoMovieHumanConicLoft.IFamily): IAutoMovieLoftChain => loft(H.part({ ...family, turn: undefined }, family.knots));
     const armRail = AutoMoviePeriodicCubic.create(RootRails.forArm(1));
     const children: Record<string, { chain: IAutoMovieLoftChain; rail: (psi: number) => number } | null> = {
       arm: { chain: child(AutoMovieHumanF1.BODY.arm), rail: (psi: number): number => AutoMovieHumanF1.BODY.arm.knots[0]! + armRail.at(psi) },
@@ -516,12 +525,12 @@ namespace FamilyConicTrunkCentre {
         return "not read: " + (error instanceof Error ? error.message.slice(0, 200) : String(error));
       }
     };
-    const describe = (loop: IAutoMovieConstructionPort.ILoop): string =>
+    const describe = (loop: IAutoMovieConstructionPortLoop): string =>
       `centre [${fixed(loop.centre[0] * 1000, 2)} mm, ${fixed(loop.centre[1], 5)} rad] semi [${fixed(loop.semi[0] * 1000, 2)} mm, ${fixed(loop.semi[1], 5)} rad] sense ${loop.sense}`;
     const loopsText: string[] = [];
-    const emit = (name: string, loop: IAutoMovieConstructionPort.ILoop): number =>
+    const emit = (name: string, loop: IAutoMovieConstructionPortLoop): number =>
       loopsText.push(`// ${name}`, `{ centre: ${numbers([...loop.centre])}, semi: ${numbers([...loop.semi])}, sense: ${loop.sense}, shape: ${numbers(loop.shape ?? [])} },`);
-    const recorded: [string, string, IAutoMovieConstructionPort.ILoop][] = [
+    const recorded: [string, string, IAutoMovieConstructionPortLoop][] = [
       ["arm", "arm[0]", RootControls.arm[0]],
       ["arm", "arm[1]", RootControls.arm[1]],
       ["breast", "breast[0]", RootControls.breast[0]],
@@ -534,7 +543,7 @@ namespace FamilyConicTrunkCentre {
         const mapped: number = angleAt(madeBare.axis, s, before[k]!);
         return [s, mapped + 2 * Math.PI * Math.round((loop.centre[1] - mapped) / (2 * Math.PI))];
       });
-      const again: IAutoMovieConstructionPort.ILoop = around(carried, carried.length, loop.sense as 1 | -1);
+      const again: IAutoMovieConstructionPortLoop = around(carried, carried.length, loop.sense as 1 | -1);
       const after: V3[] = worldOf(madeFull, again);
       emit(name + " carried", again);
       lines.push(
@@ -579,7 +588,7 @@ namespace FamilyConicTrunkCentre {
       const cut: [number, number][] = [...front, ...back.reverse()];
       const ruleWorld: V3[] = cut.map(([s, t]: [number, number]): V3 => storedFull.point(s, t));
       const inNew: [number, number][] = cut.map(([s]: [number, number], k: number): [number, number] => [s, angleAt(madeBare.axis, s, ruleWorld[k]!)]);
-      const rule: IAutoMovieConstructionPort.ILoop = around(inNew, 192, 1);
+      const rule: IAutoMovieConstructionPortLoop = around(inNew, 192, 1);
       const ruleColumns: V3[] = worldOf(madeFull, rule);
       const today: V3[] = worldOf(storedFull, RootControls.arm[0]);
       emit("arm[0] by rule", rule);
@@ -635,14 +644,14 @@ namespace FamilyConicTrunkCentre {
 
   /** Measure every candidate and write the report. */
   export async function main(): Promise<void> {
-    const trunk: H.IFamily = AutoMovieHumanF1.BODY.trunk;
+    const trunk: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.BODY.trunk;
     const knots: number[] = trunk.knots;
-    const layout: S.ILayout = trunk.layout;
+    const layout: IAutoMovieHumanConicSection.ILayout = trunk.layout;
     const step: number = Number(argument("step") ?? "0.5");
     const old: (s: number) => number[] = H.reader(trunk);
     const reach: number =
       knots.reduce((sum: number, s: number): number => {
-        const chain: S.IChain = S.resolve(old(s), layout);
+        const chain: IAutoMovieHumanConicSection.IChain = S.resolve(old(s), layout);
         return sum + chain.guides.reduce((inner: number, k: number): number => inner + Math.hypot(chain.input.points[k]![0], chain.input.points[k]![1]), 0) / chain.guides.length;
       }, 0) / knots.length;
     const lines: string[] = [`trunk: ${knots.length} knots ${knots[0]} to ${knots.at(-1)} mm; mean guide reach ${fixed(reach, 2)} mm; sweep every ${step} mm`];
@@ -654,7 +663,7 @@ namespace FamilyConicTrunkCentre {
 
     // The skeletal datum line and the raw centres, at the knots.
     const skeleton: ([number, number] | null)[] = Law.skeleton(trunk);
-    const raw: Recentre.ILine = Law.centreLine(trunk, "sections", 0);
+    const raw: IAutoMovieHumanConicRecentre.ILine = Law.centreLine(trunk, "sections", 0);
 
     // Two other readings of a section's own centre, beside the mean of the four guides the course law takes: the middle of the depth on the
     // median line, about which the front and the back reach are equal, and the centroid of the section's area. Each is smoothed as the
@@ -663,10 +672,10 @@ namespace FamilyConicTrunkCentre {
     // A scale written `local` or `local*<factor>` is each knot's own mean guide reach (times the factor): the centre at a station is then
     // averaged over the stretch of course its own section is wide, a neck over less of it than a pelvis.
     const local: number[] = knots.map((s: number): number => {
-      const chain: S.IChain = S.resolve(old(s), layout);
+      const chain: IAutoMovieHumanConicSection.IChain = S.resolve(old(s), layout);
       return chain.guides.reduce((sum: number, k: number): number => sum + Math.hypot(chain.input.points[k]![0], chain.input.points[k]![1]), 0) / chain.guides.length;
     });
-    const smooth = (centres: readonly number[], widths: readonly number[]): Recentre.ILine => ({
+    const smooth = (centres: readonly number[], widths: readonly number[]): IAutoMovieHumanConicRecentre.ILine => ({
       v: knots.map((): number => 0),
       u: knots.map((s: number, k: number): number => {
         const width: number = widths[k]!;
@@ -685,7 +694,7 @@ namespace FamilyConicTrunkCentre {
       return (r.front - r.back) / 2;
     });
     const area: number[] = knots.map((s: number): number => {
-      const section: AutoMovieViewChain.ISection = S.chain(old(s), layout);
+      const section: IAutoMovieViewChain.ISection = S.chain(old(s), layout);
       let [moment, total]: [number, number] = [0, 0];
       for (let j: number = 0; j < ROUND; ++j) {
         const [a, b]: number[] = [(2 * Math.PI * j) / ROUND, (2 * Math.PI * (j + 1)) / ROUND];
@@ -698,7 +707,7 @@ namespace FamilyConicTrunkCentre {
     });
     const scale = (text: string): number[] =>
       text.startsWith("local") ? local.map((r: number): number => r * (text.length > 5 ? Number(text.slice(6)) : 1)) : knots.map((): number => (text === "reach" ? reach : Number(text)));
-    const candidates: [string, Recentre.ILine][] = (argument("scales") ?? "0,reach,line").split(",").map((text: string): [string, Recentre.ILine] => {
+    const candidates: [string, IAutoMovieHumanConicRecentre.ILine][] = (argument("scales") ?? "0,reach,line").split(",").map((text: string): [string, IAutoMovieHumanConicRecentre.ILine] => {
       if (text === "line") return ["line", straight(trunk)];
       if (text === "centre") return ["centre", TrunkCentre.line(trunk)];
       if (text.startsWith("depth@")) return [text, smooth(depth, scale(text.slice(6)))];
@@ -719,7 +728,7 @@ namespace FamilyConicTrunkCentre {
         verdict = "REFUSED: " + (error instanceof Error ? error.message : String(error));
       }
       lines.push(`Recentre.shift: ${verdict}`);
-      const origin: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(knots, line.u);
+      const origin: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(knots, line.u);
       const own: (s: number) => number[] = H.reader({ knots, values });
 
       // The line's own slope and bend.
@@ -760,7 +769,7 @@ namespace FamilyConicTrunkCentre {
           return;
         }
         // Every anchor of the old chain less the move against the new chain's.
-        const [p, q]: AutoMovieViewChain.IInput[] = [S.resolve(a!, layout).input, S.resolve(b!, layout).input];
+        const [p, q]: IAutoMovieViewChain.IInput[] = [S.resolve(a!, layout).input, S.resolve(b!, layout).input];
         p!.points.forEach((point: number[], k: number): void => {
           const d: number = Math.hypot(point[0]! - c - q!.points[k]![0]!, point[1]! - q!.points[k]![1]!);
           if (d > anchors) [anchors, anchorsAt] = [d, s];
@@ -770,7 +779,7 @@ namespace FamilyConicTrunkCentre {
         });
         // The old skin point along the same ray from the new origin.
         if (was.fault === null) {
-          const [sectionOld, sectionNew]: AutoMovieViewChain.ISection[] = [S.chain(a!, layout), S.chain(b!, layout)];
+          const [sectionOld, sectionNew]: IAutoMovieViewChain.ISection[] = [S.chain(a!, layout), S.chain(b!, layout)];
           for (let j: number = 0; j < 48; ++j) {
             const t: number = (2 * Math.PI * (j + 0.37)) / 48;
             const r: number = AutoMovieViewChain.radius(sectionOld!, t);
@@ -827,8 +836,8 @@ namespace FamilyConicTrunkCentre {
       if (label !== chosen) continue;
 
       // Through the engine: the stored wall and the re-centred wall on its moved course, bare and open, compared between the layers.
-      const base: AutoMovieViewAxis.IAxis = H.axis(trunk);
-      const course: AutoMovieViewAxis.IAxis = Recentre.axis(base, knots, line);
+      const base: IAutoMovieViewAxis.IAxis = H.axis(trunk);
+      const course: IAutoMovieViewAxis.IAxis = Recentre.axis(base, knots, line);
       const requested: number[] = [];
       for (let s: number = knots[0]!; s <= knots.at(-1)!; s += 2) requested.push(s);
       const world = (chain: IAutoMovieLoftChain, s: number, t: number): V3 => AutoMovieLoftChain.point(chain, s, t) as V3;
@@ -853,7 +862,7 @@ namespace FamilyConicTrunkCentre {
         lines.push(`${what}: stations ${from} to ${to} every ${pace} mm, 96 phases: mean ${(sum / count).toExponential(2)} mm, greatest ${gap.toExponential(2)} mm at station ${gapAt[0]} phase ${fixed(gapAt[1]!, 3)}; the stored chain's phase is the polar angle within ${polar.toExponential(2)} rad`);
       };
       lines.push("", `-- through the engine's view loft (${label}) --`);
-      const bare: H.IFamily = { ...trunk, reliefs: undefined, tips: undefined, turn: undefined };
+      const bare: IAutoMovieHumanConicLoft.IFamily = { ...trunk, reliefs: undefined, tips: undefined, turn: undefined };
       const storedWall: IAutoMovieLoftChain = loft(H.part(bare, requested));
       const madeWall: IAutoMovieLoftChain = loft({ ...H.part({ ...bare, values }, requested), axis: course });
       compare("bare open wall", storedWall, madeWall, knots[0]! + 0.5, knots.at(-1)! - 0.5, 1);

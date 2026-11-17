@@ -1,6 +1,4 @@
 import {
-  IAutoMoviePlaybackSample,
-  IAutoMoviePlaybackTimeline,
   foldRoot,
   playbackCursor,
   projectToNdc,
@@ -14,18 +12,20 @@ import type {
   IAutoMovieCamera,
   IAutoMovieDeliveryCrop,
   IAutoMovieMotion,
+  IAutoMoviePlanPoseKeypointSidecarProps,
+  IAutoMoviePlaybackSample,
+  IAutoMoviePlaybackTimeline,
   IAutoMoviePose,
+  IAutoMoviePoseKeypointActor,
+  IAutoMoviePoseKeypointFrame,
+  IAutoMoviePoseKeypointSidecar,
   IAutoMovieScene,
   IAutoMovieSceneNode,
-  IAutoMovieSequence,
   IAutoMovieShot,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMoviePoseKeypointActor } from "./IAutoMoviePoseKeypointActor.js";
-import type { IAutoMoviePoseKeypointFrame } from "./IAutoMoviePoseKeypointFrame.js";
-import type { IAutoMoviePoseKeypointSidecar } from "./IAutoMoviePoseKeypointSidecar.js";
 import { frameTimes } from "./frameTimes.js";
 import { shotBeat } from "./shotBeat.js";
 
@@ -44,40 +44,11 @@ import { shotBeat } from "./shotBeat.js";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A shot's staging, its scene, camera and node index, is resolved once per call and shared by all its frames, which is equivalent because the inputs are immutable for the call and the staging depends only on the shot's `scene` and `camera` ids; the cache is dropped on return.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local maps reference every supplied shot, scene, motion and skeleton; at most one staging entry per supplied shot also holds a camera and node map, which can repeat one scene's node population across shots. The F-time schedule, motion samples and projection intermediates become collectable when their calls finish. The caller retains every returned frame, actor and keypoint, with no frame or population cap here; no native handle or background task is acquired.
  */
-export const planPoseKeypointSidecar: (props: {
-  sequence: IAutoMovieSequence;
-  shots: IAutoMovieShot[];
-  scenes: readonly IAutoMovieScene[];
-  motions: readonly IAutoMovieMotion[];
-  skeletons: readonly IAutoMovieSkeleton[];
-  fps: number;
-  aspect?: number;
-  crop?: IAutoMovieDeliveryCrop;
-}) => IAutoMoviePoseKeypointSidecar = (props: {
-  /** The cut being rendered. */
-  sequence: IAutoMovieSequence;
-
-  /** Every shot the cut references; extra shots are ignored. */
-  shots: IAutoMovieShot[];
-
-  /** The staged scenes the shots play over. */
-  scenes: readonly IAutoMovieScene[];
-
-  /** The motions the shots' performances reference. */
-  motions: readonly IAutoMovieMotion[];
-
-  /** The skeletons the motions target. */
-  skeletons: readonly IAutoMovieSkeleton[];
-
-  /** Output frames per second, the render clock, not necessarily `sequence.fps`. */
-  fps: number;
-
-  /** Render aspect, width over height; `resolvePoseKeypoints` assumes 16/9 when omitted. */
-  aspect?: number;
-
-  /** Normalized delivery crop the keypoints are expressed in; the whole frame when omitted. */
-  crop?: IAutoMovieDeliveryCrop;
-}): IAutoMoviePoseKeypointSidecar => {
+export const planPoseKeypointSidecar: (
+  props: IAutoMoviePlanPoseKeypointSidecarProps,
+) => IAutoMoviePoseKeypointSidecar = (
+  props: IAutoMoviePlanPoseKeypointSidecarProps,
+): IAutoMoviePoseKeypointSidecar => {
   if (Number.isFinite(props.fps) === false || props.fps <= 0)
     throw new Error(`fps must be a finite number > 0, but was ${props.fps}`);
   const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(

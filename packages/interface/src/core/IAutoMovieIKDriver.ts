@@ -1,4 +1,4 @@
-import { IAutoMovieIKPole } from "./IAutoMovieIKPole";
+import type { IAutoMovieIKPole } from "./IAutoMovieIKPole";
 
 /**
  * Inverse kinematics: back-solve a bone chain so its tip reaches a goal.

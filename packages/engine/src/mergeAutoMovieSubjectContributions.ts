@@ -1,4 +1,4 @@
-import { IAutoMovieSubjectContribution } from "./IAutoMovieSubjectContribution";
+import type { IAutoMovieSubjectContribution } from "@automovie/interface";
 
 /**
  * Every contribution field, typed as a complete record so the compiler refuses

@@ -1,4 +1,4 @@
-/** One of the site's bodies as the Human page lists it, from the bake's record. */
+/** One of the site's bodies as the Human page shows it, prepared in the take worker. */
 export interface IHumanEntry {
   /** Its id. */
   id: string;

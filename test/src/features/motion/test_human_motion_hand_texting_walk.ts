@@ -1,11 +1,16 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanHabit,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -40,11 +45,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule with its sources, why one body is enough and the 4 scenarios with their bounds.
  */
 export function test_human_motion_hand_texting_walk(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
-  const perform = (read: boolean): HumanPerformance => {
+  const perform = (read: boolean): IAutoMovieMotionHumanPerformance => {
     // The free walk, or the reading walk the lexicon gives a read to ride.
-    const walk: HumanChain = read
+    const walk: IAutoMovieMotionHumanChain = read
       ? HumanChain.subject("a").registered("readingWalk", {
           to: { x: 0, y: 0, z: 3 },
         })
@@ -63,7 +68,8 @@ export function test_human_motion_hand_texting_walk(): void {
       ],
       composition: (read
         ? walk.over(
-            (u: HumanChain): HumanChain => u.handToFace({ task: "read" }),
+            (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+              u.handToFace({ task: "read" }),
           )
         : walk
       ).node,
@@ -71,8 +77,8 @@ export function test_human_motion_hand_texting_walk(): void {
   };
 
   // 1. The read rides the walk.
-  let free: HumanPerformance;
-  let reading: HumanPerformance;
+  let free: IAutoMovieMotionHumanPerformance;
+  let reading: IAutoMovieMotionHumanPerformance;
   try {
     free = perform(false);
     reading = perform(true);
@@ -84,14 +90,18 @@ export function test_human_motion_hand_texting_walk(): void {
     );
     return;
   }
-  const overlay: HumanSegment.IOverlay = reading.overlays("a")[0]!;
+  const overlay: IAutoMovieMotionHumanSegment.IOverlay =
+    reading.overlays("a")[0]!;
   const instant = (event: string): number =>
     overlay.start +
     (overlay.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       overlay.plan.duration;
   const from: number = instant("atSheet");
   const to: number = instant("taskEnd");
-  const readers: Record<"free" | "reading", HumanSignature.IReader> = {
+  const readers: Record<
+    "free" | "reading",
+    IAutoMovieMotionHumanSignature.IReader
+  > = {
     free: HumanSignature.of(free, "a", body, 0),
     reading: HumanSignature.of(reading, "a", body, 0),
   };
@@ -106,7 +116,10 @@ export function test_human_motion_hand_texting_walk(): void {
     );
 
   // 3. The reading arm held with the trunk.
-  const wander = (reader: HumanSignature.IReader, end: number): number => {
+  const wander = (
+    reader: IAutoMovieMotionHumanSignature.IReader,
+    end: number,
+  ): number => {
     const seat = (seconds: number): IAutoMovieVector3 => {
       const wrist: IAutoMovieVector3 = HumanSignature.joint(
         reader,

@@ -1,4 +1,4 @@
-import { AutoMovieViolationKind } from "./AutoMovieViolationKind";
+import type { AutoMovieViolationKind } from "./AutoMovieViolationKind";
 
 /**
  * One deterministic constraint violation: the unit of feedback a direct authoring caller or build boundary turns into a located correction.

@@ -1,4 +1,4 @@
-import type { IAutoMovieConstructionPort } from "@automovie/interface";
+import type { IAutoMovieConstructionPortLoop } from "@automovie/interface";
 
 /**
  * One original radial port-chart address in kernel mm and radians.
@@ -18,7 +18,7 @@ import type { IAutoMovieConstructionPort } from "@automovie/interface";
  * @evidence contracts/development/common.md#meaningful-documentation States public metres/radians input, kernel mm/radians output, caller admission and the reason the product order is binding.
  */
 export function AutoMovieConstructionPortAddress(
-  loop: IAutoMovieConstructionPort.ILoop,
+  loop: IAutoMovieConstructionPortLoop,
   clock: number,
   share: number,
 ): [number, number] {

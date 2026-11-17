@@ -1,6 +1,4 @@
 import {
-  type IAutoMovieCompiledDefinedShot,
-  type IAutoMovieResolvedCamera,
   compileDefinedShot,
   defineShot,
   resolveCameraAt,
@@ -10,8 +8,10 @@ import type {
   IAutoMovieBlocking,
   IAutoMovieCamera,
   IAutoMovieCameraDepthPrecisionReport,
+  IAutoMovieCompiledDefinedShot,
   IAutoMoviePerformance,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedCamera,
   IAutoMovieShotProgram,
   IAutoMovieSkeleton,
   IAutoMovieVector3,

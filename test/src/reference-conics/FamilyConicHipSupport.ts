@@ -4,20 +4,27 @@ import {
   AutoMovieConstructionSplitSeam,
   AutoMovieConstructionViews,
   AutoMovieSolidChain,
-  AutoMovieViewLoft,
-  type IAutoMovieLoftChain,
-  type IAutoMovieSolidSurface,
-  type IAutoMovieViewPart,
   AutoMovieSolidVector as V,
+  AutoMovieViewLoft,
 } from "@automovie/engine";
 import {
-  AutoMovieHumanSegmentFrame as F,
   AutoMovieHumanF1 as H,
   AutoMovieHumanF1Placing as T,
+  AutoMovieHumanSegmentFrame as F,
 } from "@automovie/human";
 import type {
-  AutoMovieConstructionNode,
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionNode,
   IAutoMovieConstructionSplit,
+  IAutoMovieConstructionSplitBand,
+  IAutoMovieConstructionSplitSeam,
+  IAutoMovieHumanF1,
+  IAutoMovieHumanSegmentFrame,
+  IAutoMovieHumanSegmentJoint,
+  IAutoMovieLoftChain,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
 } from "@automovie/interface";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
@@ -49,10 +56,10 @@ namespace FamilyConicHipSupport {
   /** Baseline source data and independent accepted-constructor AST. */
   interface Baseline {
     sources: Map<string, Source>;
-    assembly: H.IAssembly;
+    assembly: IAutoMovieHumanF1.IAssembly;
     original: {
-      root: AutoMovieConstructionNode;
-      fills: H.IConstruction["fills"];
+      root: IAutoMovieConstructionNode;
+      fills: IAutoMovieHumanF1.IConstruction["fills"];
     };
   }
 
@@ -114,8 +121,8 @@ namespace FamilyConicHipSupport {
       let current: string | null = frame;
       while (current !== null) {
         if (current === "femur") return true;
-        const entry: F.IJoint | undefined = T.CHAIN.find(
-          (joint: F.IJoint): boolean => joint.name === current,
+        const entry: IAutoMovieHumanSegmentJoint | undefined = T.CHAIN.find(
+          (joint: IAutoMovieHumanSegmentJoint): boolean => joint.name === current,
         );
         if (entry === undefined)
           throw new Error("Missing declared course frame " + current);
@@ -133,7 +140,7 @@ namespace FamilyConicHipSupport {
   }
   /** Find an actual declaration without fabricating a smaller construction. */
   function crotch(
-    node: AutoMovieConstructionNode,
+    node: IAutoMovieConstructionNode,
   ): IAutoMovieConstructionSplit | undefined {
     if (node.type === "split" && node.name === "crotch") return node;
     if ("host" in node) return crotch(node.host);
@@ -154,13 +161,13 @@ namespace FamilyConicHipSupport {
       ]!;
     if (layer.frame === undefined)
       return { unavailable: "Actual host end frame absent" };
-    const normal: V.Vec3 | null = V.unit(
+    const normal: AutoMovieVector3Tuple | null = V.unit(
       V.scale(V.cross(layer.frame.v, layer.frame.u), hostInto),
     );
     if (normal === null)
       return { unavailable: "Actual host end plane degenerate" };
     const scale: number = AutoMovieConstructionViews.SCALE;
-    const curve: AutoMovieConstructionSplitSeam.ISeam | string | undefined =
+    const curve: IAutoMovieConstructionSplitSeam.ISeam | string | undefined =
       split.profile === undefined
         ? undefined
         : AutoMovieConstructionSplitSeam.create({
@@ -216,7 +223,7 @@ namespace FamilyConicHipSupport {
               domain,
               unavailable: "Actual child rail leaves its open owned domain",
             };
-          const band: AutoMovieConstructionSplitBand.IBand | string =
+          const band: IAutoMovieConstructionSplitBand.IBand | string =
             AutoMovieConstructionSplitBand.create({
               name: child.band,
               host: { surface: host.surface, station: layer.y, into: hostInto },
@@ -260,7 +267,7 @@ namespace FamilyConicHipSupport {
               jet(source.surface, rail, phase),
             ),
             boundaryJets: band.loop.map(
-              (_: V.Vec3, column: number): unknown => ({
+              (_: AutoMovieVector3Tuple, column: number): unknown => ({
                 clock: (2 * Math.PI * column) / band.loop.length,
                 host: jet(
                   band.surface,
@@ -283,11 +290,11 @@ namespace FamilyConicHipSupport {
   function inspect(
     breadth: number,
     baseline: Baseline,
-  ): { report: unknown; sources: Map<string, Source>; assembly: H.IAssembly } {
-    const assembly: H.IAssembly = H.assembleBody({
+  ): { report: unknown; sources: Map<string, Source>; assembly: IAutoMovieHumanF1.IAssembly } {
+    const assembly: IAutoMovieHumanF1.IAssembly = H.assembleBody({
       hipJointCentreBreadth: breadth,
     });
-    const declared: H.IConstruction = H.constructionFrom(assembly);
+    const declared: IAutoMovieHumanF1.IConstruction = H.constructionFrom(assembly);
     const failures: { owner: string; detail: string }[] = [];
     try {
       AutoMovieConstructionAdmission.admit(declared.root);
@@ -301,7 +308,7 @@ namespace FamilyConicHipSupport {
     const rows: unknown[] = [];
     for (const [name, part] of declared.sources) {
       try {
-        const raw: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+        const raw: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
         if (raw.chain === null) {
           failures.push({
             owner: name,
@@ -420,7 +427,7 @@ namespace FamilyConicHipSupport {
     }
     const frames: unknown[] = [...assembly.frames].map(
       ([name, frame]): unknown => {
-        const old: F.IFrame | undefined = baseline.assembly.frames.get(name);
+        const old: IAutoMovieHumanSegmentFrame | undefined = baseline.assembly.frames.get(name);
         return {
           name,
           origin: frame.origin,

@@ -1,32 +1,38 @@
 import {
-  type IAutoMovieResolvedBone,
+  AutoMovieGravity,
   minimumJerk,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanJump,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStandUpright,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { tags } from "typia";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { jumpAirborne } from "./jumpAirborne";
 import { jumpFlight } from "./jumpFlight";
 import { jumpLanding } from "./jumpLanding";
 import { jumpPath } from "./jumpPath";
 import { jumpPush } from "./jumpPush";
+import { jumpTakeoff } from "./jumpTakeoff";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 
@@ -38,7 +44,8 @@ import { standUpright } from "./standUpright";
  * foot is planted continues without a jump in position or velocity: the root
  * follows a quintic Hermite path from the entry root and velocity to the
  * take-off root and velocity over `PUSH` seconds. The take-off foot is the
- * planted one (the front one when both are, the rear being about to leave),
+ * planted one (the front one in the entered body's own frame when both are,
+ * the rear being about to leave),
  * held on the floor while it comes down about its heel if it was still in its
  * heel rocker and then rises about the toes' joint from its entry pitch to
  * 40°, its toes extending, the stance rockers in order and the forefoot rocker of a
@@ -95,10 +102,10 @@ import { standUpright } from "./standUpright";
  */
 export namespace jump {
   /** The action's name. */
-  export const name: HumanActionName = "jump";
+  export const name: AutoMovieMotionHumanActionName = "jump";
 
   /** Cancel table: once landed and settled, a jump gives way to standing or walking. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
@@ -106,18 +113,6 @@ export namespace jump {
       { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
   };
-
-  /** Parameters. */
-  export interface IParams {
-    /** The point to land on, world metres: its height is the landing surface's, the floor's 0, a box's top or a step's. */
-    to: IAutoMovieVector3;
-
-    /** The prop whose top is landed on, its subject id, so the feet bear on it; the floor when absent. */
-    on?: string;
-
-    /** Apex height of the flight above take-off, metres; positive. */
-    apex?: number & tags.ExclusiveMinimum<0> & HumanUnit<"m">;
-  }
 
   /** Push-off duration, seconds (provisional; take-off contact of a one-foot jump from walking). */
   export const PUSH: number = 0.3;
@@ -128,9 +123,6 @@ export namespace jump {
   /** Rise to standing after the absorption, seconds (provisional). */
   export const RISE: number = 0.45;
 
-  /** Gravity, m/s² (jumpFlight.G). */
-  const G: number = jumpFlight.G;
-
   /**
    * Plan a jump.
    *
@@ -139,9 +131,9 @@ export namespace jump {
    * @throws {HumanRefusal} When no foot is planted to push off from, or the apex is not positive or does not clear a raised landing (jumpFlight).
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanJump.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
     const l: number = m.hipHeight;
     const entry = context.entry;
@@ -159,7 +151,7 @@ export namespace jump {
       (Math.atan2(to.x - root0.x, to.z - root0.z) * 180) / Math.PI,
       entry.posture.yaw,
     );
-    const frame = (origin: IAutoMovieVector3): HumanFrame.IFrame => ({
+    const frame = (origin: IAutoMovieVector3): IAutoMovieMotionHumanFrame => ({
       origin: { ...origin, y: 0 },
       yaw: heading,
     });
@@ -174,17 +166,10 @@ export namespace jump {
         reason: `a jump takes off from a planted foot, and neither is planted`,
         fix: "enter the jump from an action that leaves a foot planted, such as stand or walk",
       });
-    // In double support the front foot bears the body forward; the rear one is the reaching leg.
-    const ahead = (s: "left" | "right"): number =>
-      HumanFrame.local(frame(root0), entry.feet[s].ankle).z;
-    const takeoff: "left" | "right" =
-      planted.length === 1
-        ? planted[0]!
-        : ahead("left") >= ahead("right")
-          ? "left"
-          : "right";
+    // A symmetric double support must choose the same foot after a rigid move.
+    const takeoff: "left" | "right" = jumpTakeoff(body, entry);
     const reaching: "left" | "right" = takeoff === "left" ? "right" : "left";
-    const support: HumanFoot.IPlacement = {
+    const support: IAutoMovieMotionHumanFoot.IPlacement = {
       ankle: entry.feet[takeoff].ankle,
       rotation: entry.feet[takeoff].rotation,
     };
@@ -200,14 +185,17 @@ export namespace jump {
       "heel",
       support,
     );
-    const flat: HumanFoot.IPlacement =
+    const flat: IAutoMovieMotionHumanFoot.IPlacement =
       supportPitch > 0
         ? HumanFoot.pivot(body, takeoff, "heel", heel, supportHeading, 0)
         : support;
     const ball: IAutoMovieVector3 = HumanFoot.point(body, takeoff, "mtp", flat);
-    const upright: standUpright.IAlignment = standUpright.of(body);
+    const upright: IAutoMovieMotionHumanStandUpright.IAlignment =
+      standUpright.of(body);
     const model = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
-    const offset = (posture: IHumanPosture): IAutoMovieVector3 => {
+    const offset = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieVector3 => {
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(body, resolveHumanPosture(body, posture));
       const c: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
@@ -234,7 +222,10 @@ export namespace jump {
       rise,
       upright.lean,
     );
-    const landing: Record<"left" | "right", HumanFoot.IPlacement> = landed.feet;
+    const landing: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = landed.feet;
     const rootL: IAutoMovieVector3 = landed.touched;
     const rootS: IAutoMovieVector3 = landed.stood;
     const rootA: IAutoMovieVector3 = landed.absorbed;
@@ -247,7 +238,7 @@ export namespace jump {
       y: 0.3 * l,
       z: 0.1 * l,
     };
-    const pushed: HumanFoot.IPlacement = HumanFoot.pivot(
+    const pushed: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
       body,
       takeoff,
       "mtp",
@@ -272,21 +263,23 @@ export namespace jump {
       root: IAutoMovieVector3,
       side: "left" | "right",
       yaw: number,
-    ): IAutoMovieVector3 =>
-      HumanFrame.point(
-        {
-          origin: HumanFrame.point(
-            { origin: root, yaw: heading },
-            body.rest.get(`${side}LowerLeg`)!,
-          ),
-          yaw,
-        },
-        { x: 0, y: 0, z: 1 },
-      );
+    ): IAutoMovieVector3 => jumpAirborne.knee(body, heading, root, side, yaw);
+
+    // The flight's shape, and the turns the flight pass hands back.
+    const shape: jumpAirborne.IShape = {
+      body,
+      takeoff,
+      joints: upright.joints,
+      start: startLocal,
+      end: endLocal,
+      heading,
+    };
 
     // The ballistic flight of the centre of mass, from its take-off to its touchdown place.
-    const flightPosture = (root: IAutoMovieVector3, u: number): IHumanPosture =>
-      airborne(root, u);
+    const flightPosture = (
+      root: IAutoMovieVector3,
+      u: number,
+    ): IAutoMovieMotionHumanPosture => jumpAirborne.posture(shape, root, u);
     const offT: IAutoMovieVector3 = offset(flightPosture(rootT, 0));
     const offL: IAutoMovieVector3 = offset(flightPosture(rootL, 1));
     const comT: IAutoMovieVector3 = {
@@ -308,21 +301,26 @@ export namespace jump {
     );
     const { vy, T, launch, land } = flight;
 
-    const P: number = PUSH;
+    // A manner retimes what the performer does, not the flight gravity fixes.
+    const tempo: number = AutoMovieMotionManner.of(
+      context,
+      context.params.manner,
+    ).tempo;
+    const P: number = PUSH * tempo;
     const touchdown: number = P + T;
-    const settled: number = touchdown + ABSORB;
-    const duration: number = settled + RISE;
-    const bearing: IHumanContactWindow["support"] =
+    const settled: number = touchdown + ABSORB * tempo;
+    const duration: number = settled + RISE * tempo;
+    const bearing: IAutoMovieMotionHumanContactWindow["support"] =
       context.params.on === undefined
         ? { kind: "ground" }
         : { kind: "prop", subject: context.params.on };
     const events: IAutoMovieMotionEvent[] = [
       { name: "takeoff", share: P / duration },
-      { name: "apex", share: (P + vy / G) / duration },
+      { name: "apex", share: (P + vy / AutoMovieGravity.STANDARD) / duration },
       { name: "touchdown", share: touchdown / duration },
       { name: "settled", share: settled / duration },
     ];
-    const contacts: IHumanContactWindow[] = [
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         part: `${takeoff}Foot`,
         kind: "plant",
@@ -361,7 +359,7 @@ export namespace jump {
         const u: number = t - P;
         const c: IAutoMovieVector3 = {
           x: comT.x + launch.x * u,
-          y: comT.y + launch.y * u - 0.5 * G * u * u,
+          y: comT.y + launch.y * u - 0.5 * AutoMovieGravity.STANDARD * u * u,
           z: comT.z + launch.z * u,
         };
         const o: IAutoMovieVector3 = offset(flightPosture(rootT, u / T));
@@ -406,50 +404,19 @@ export namespace jump {
       knee,
     });
 
-    /** The airborne posture at a root and a share of the flight. */
-    function airborne(root: IAutoMovieVector3, u: number): IHumanPosture {
-      const s: number = minimumJerk(u).s;
-      const arms: number = 60 - 30 * s;
-      const joints: Partial<
-        Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-      > = {
-        ...stand.RELAXED,
-        ...upright.joints,
-        leftUpperArm: [arms, 5, 0],
-        rightUpperArm: [arms, 5, 0],
-        leftLowerArm: [12 + arms / 3, 0, 0],
-        rightLowerArm: [12 + arms / 3, 0, 0],
-        [`${takeoff}Toes`]: [40 * (1 - s), 0, 0],
-      };
-      const limbs: IHumanPosture["limbs"] = {};
-      for (const side of ["left", "right"] as const) {
-        const p: IAutoMovieVector3 = jumpPath.lerp(
-          startLocal[side],
-          endLocal[side],
-          s,
-        );
-        const point: IAutoMovieVector3 = HumanFrame.point(
-          { origin: root, yaw: heading },
-          { ...p, y: p.y + 0.1 * l * Math.sin(Math.PI * u) },
-        );
-        const pitch: number = side === takeoff ? -40 * (1 - s) : 0;
-        limbs[`${side}Leg`] = {
-          point,
-          rotation: HumanFoot.rotation(
-            heading + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT) * s,
-            pitch,
-          ),
-          bend: knee(root, side, heading),
-        };
-      }
-      return { root, yaw: heading, pitch: 0, roll: 0, joints, limbs };
-    }
+    const turning: jumpAirborne.ITurning = jumpAirborne.turning(
+      context.params.rotation,
+      P,
+      touchdown,
+      duration,
+    );
 
     return {
       duration,
       events,
       contacts,
-      posture: (seconds: number): IHumanPosture => {
+      ...turning.declared,
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const root: IAutoMovieVector3 = rootAt(t);
         const yaw: number = push.yawAt(t);
@@ -466,16 +433,17 @@ export namespace jump {
         const joints: Partial<
           Record<AutoMovieHumanoidBone, readonly [number, number, number]>
         > = {
-          ...stand.RELAXED,
+          ...stand.relaxed(body),
           ...upright.joints,
-          leftUpperArm: [arms, 5, 0],
-          rightUpperArm: [raise("right"), 5, 0],
+          leftUpperArm: [arms, stand.abduction(body), 0],
+          rightUpperArm: [raise("right"), stand.abduction(body), 0],
           leftLowerArm: [12 + arms / 3, 0, 0],
           rightLowerArm: [12 + raise("right") / 3, 0, 0],
         };
-        const limbs: IHumanPosture["limbs"] = {};
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
         if (t <= P) push.write(t, root, joints, limbs);
-        else if (t <= touchdown) return airborne(root, (t - P) / T);
+        else if (t <= touchdown)
+          return turning.turned(flightPosture(root, (t - P) / T), t);
         else
           for (const side of ["left", "right"] as const)
             limbs[`${side}Leg`] = {

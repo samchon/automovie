@@ -1,3 +1,9 @@
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanWorkoutKind,
+  IAutoMovieMotionHumanWorkoutStanding,
+} from "@automovie/interface";
+
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 import { WorkoutStance } from "./WorkoutStance";
@@ -25,20 +31,13 @@ import { WorkoutStance } from "./WorkoutStance";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres; a hop is a share of the stature.
  */
 export namespace WorkoutStanding {
-  /** The exercises' names. */
-  export type Name =
-    | "deadlift"
-    | "backSquat"
-    | "kettlebellSwing"
-    | "overheadPress"
-    | "armCircles"
-    | "legSwings"
-    | "buttKicks"
-    | "bSkip"
-    | "jumpRope";
-
   /** The exercises. */
-  export const KINDS: Readonly<Record<Name, WorkoutKind>> = {
+  export const KINDS: Readonly<
+    Record<
+      IAutoMovieMotionHumanWorkoutStanding.Name,
+      IAutoMovieMotionHumanWorkoutKind
+    >
+  > = {
     /** A deadlift: from standing down to the bar's height at the shins, the trunk at 70 degrees over knees bent 75, the arms hanging, and back. */
     deadlift: {
       midfoot: true,
@@ -47,10 +46,13 @@ export namespace WorkoutStanding {
         WorkoutStance.FEET,
         0,
         5,
-        (): WorkoutKind.IStep[] => [
-          WorkoutStance.rest(1.2),
+        (
+          body: IAutoMovieMotionHumanBody,
+        ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+          WorkoutStance.rest(body, 1.2),
           WorkoutKind.step(
-            ExerciseKey.of(
+            ExerciseKey.from(
+              body,
               { pitch: 70, neck: -25 },
               { ...ExerciseKey.stood(70, 75, 25), shoulder: 70, elbow: 3 },
             ),
@@ -68,15 +70,18 @@ export namespace WorkoutStanding {
       WorkoutStance.FEET,
       0.8,
       5,
-      (): WorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of({}, { shoulder: 20, raise: 60, elbow: 140 }),
+          ExerciseKey.from(body, {}, { shoulder: 20, raise: 60, elbow: 140 }),
           1.2,
           "rise",
           "top",
         ),
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 35, neck: -10 },
             {
               ...ExerciseKey.stood(35, 115, 30),
@@ -98,9 +103,12 @@ export namespace WorkoutStanding {
       WorkoutStance.FEET,
       0.8,
       8,
-      (): WorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 50, neck: -20 },
             {
               ...ExerciseKey.stood(50, 30, 10),
@@ -114,7 +122,8 @@ export namespace WorkoutStanding {
           "back",
         ),
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: -3 },
             { hip: -3, shoulder: 87, raise: 0, elbow: 3 },
           ),
@@ -133,15 +142,17 @@ export namespace WorkoutStanding {
         WorkoutStance.FEET,
         0.8,
         5,
-        (): WorkoutKind.IStep[] => [
+        (
+          body: IAutoMovieMotionHumanBody,
+        ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
           WorkoutKind.step(
-            ExerciseKey.of({}, { shoulder: 70, raise: 20, elbow: 140 }),
+            ExerciseKey.from(body, {}, { shoulder: 70, raise: 20, elbow: 140 }),
             1,
             "lower",
             "rack",
           ),
           WorkoutKind.step(
-            ExerciseKey.of({}, { shoulder: 178, raise: 0, elbow: 3 }),
+            ExerciseKey.from(body, {}, { shoulder: 178, raise: 0, elbow: 3 }),
             1,
             "press",
             "lockout",
@@ -156,27 +167,29 @@ export namespace WorkoutStanding {
       WorkoutStance.FEET,
       0.3,
       5,
-      (): WorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of({}, { elbow: 3 }),
+          ExerciseKey.from(body, {}, { elbow: 3 }),
           0.35,
           "lower",
           "down",
         ),
         WorkoutKind.step(
-          ExerciseKey.of({}, { shoulder: 90, elbow: 3 }),
+          ExerciseKey.from(body, {}, { shoulder: 90, elbow: 3 }),
           0.35,
           "lift",
           "front",
         ),
         WorkoutKind.step(
-          ExerciseKey.of({}, { shoulder: 175, elbow: 3 }),
+          ExerciseKey.from(body, {}, { shoulder: 175, elbow: 3 }),
           0.35,
           "raise",
           "up",
         ),
         WorkoutKind.step(
-          ExerciseKey.of({}, { raise: 90, elbow: 3 }),
+          ExerciseKey.from(body, {}, { raise: 90, elbow: 3 }),
           0.35,
           "open",
           "side",
@@ -190,16 +203,24 @@ export namespace WorkoutStanding {
       WorkoutStance.LEFT,
       0,
       6,
-      (): WorkoutKind.IStep[] => [
-        WorkoutStance.rest(0.4),
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+        WorkoutStance.rest(body, 0.4),
         WorkoutKind.step(
-          ExerciseKey.of({}, {}, {}, { hip: 60, knee: 5 }),
+          ExerciseKey.from(body, {}, {}, {}, { hip: 60, knee: 5 }),
           0.4,
           "swing",
           "front",
         ),
         WorkoutKind.step(
-          ExerciseKey.of({ pitch: 5 }, {}, { hip: 5 }, { hip: -15, knee: 15 }),
+          ExerciseKey.from(
+            body,
+            { pitch: 5 },
+            {},
+            { hip: 5 },
+            { hip: -15, knee: 15 },
+          ),
           0.5,
           "swingBack",
           "behind",
@@ -213,10 +234,12 @@ export namespace WorkoutStanding {
       [],
       0,
       8,
-      (): WorkoutKind.IStep[] => [
-        WorkoutStance.rest(0.2),
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+        WorkoutStance.rest(body, 0.2),
         WorkoutKind.step(
-          ExerciseKey.of({}, { elbow: 80 }, {}, { knee: 120 }),
+          ExerciseKey.from(body, {}, { elbow: 80 }, {}, { knee: 120 }),
           0.2,
           "kick",
           "heelUp",
@@ -231,16 +254,18 @@ export namespace WorkoutStanding {
       [],
       0,
       6,
-      (): WorkoutKind.IStep[] => [
-        WorkoutStance.rest(0.25),
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+        WorkoutStance.rest(body, 0.25),
         WorkoutKind.step(
-          ExerciseKey.of({}, { elbow: 80 }, {}, { hip: 90, knee: 90 }),
+          ExerciseKey.from(body, {}, { elbow: 80 }, {}, { hip: 90, knee: 90 }),
           0.25,
           "drive",
           "kneeUp",
         ),
         WorkoutKind.step(
-          ExerciseKey.of({}, { elbow: 80 }, {}, { hip: 70, knee: 10 }),
+          ExerciseKey.from(body, {}, { elbow: 80 }, {}, { hip: 70, knee: 10 }),
           0.15,
           "extend",
           "reach",
@@ -255,15 +280,21 @@ export namespace WorkoutStanding {
       [],
       0.3,
       10,
-      (): WorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of({}, { raise: 15, elbow: 80 }),
+          ExerciseKey.from(body, {}, { raise: 15, elbow: 80 }),
           0.15,
           "land",
           "landed",
         ),
         WorkoutKind.step(
-          ExerciseKey.of({ lift: 0.03 }, { ankle: -25, raise: 15, elbow: 80 }),
+          ExerciseKey.from(
+            body,
+            { lift: 0.03 },
+            { ankle: -25, raise: 15, elbow: 80 },
+          ),
           0.15,
           "hop",
           "airborne",

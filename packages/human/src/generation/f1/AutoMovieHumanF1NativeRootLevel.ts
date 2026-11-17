@@ -1,76 +1,36 @@
 import {
-  AutoMovieSolidVector as Vector,
-  bracketedRoot,
   AutoMovieConstructionPortAddress,
   AutoMovieConstructionPortRadialRange,
-  type AutoMovieLoftFrame,
-  type AutoMovieLoftViewFullSource,
-  type IAutoMovieViewPart,
-  type IAutoMovieSolidSurface,
+  AutoMovieSolidVector as Vector,
+  bracketedRoot,
 } from "@automovie/engine";
-import type { IAutoMovieConstructionPort } from "@automovie/interface";
-
-import type { AutoMovieHumanF1NativeRootTypes as Types } from "./AutoMovieHumanF1NativeRootTypes";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionPortLoop,
+  IAutoMovieHumanF1NativeRoot,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /** A qualified elliptic-radius cut on the actual parent source, in its original chart branch. */
 export namespace AutoMovieHumanF1NativeRootLevel {
   /** Existing physical point and vector representation. */
-  type V = Types.V;
+  type V = AutoMovieVector3Tuple;
   /** The explicitly supplied original bare calipers and their material site. */
-  type Metric = NonNullable<Types.IOriginal["metric"]>;
-
-  /** Prepared original level controls; unavailable original derivatives stay absent. */
-  export interface IOriginal {
-    /** Source metric, mm, with no clinical interpretation added. */
-    metric: Metric;
-    /** Original dimensionless radius level at every original parent control. */
-    levels: number[];
-    /** Actual derivative in original radial chart share, or null if unavailable. */
-    derivatives: (number | null)[];
-    /** Exact source failure for an unavailable derivative, otherwise null. */
-    unavailable: (string | null)[];
-  }
-
-  /** Actual numerical branch evidence; no root-target geometric budget is implied. */
-  export interface IColumn {
-    /** Original radial share and the newly solved share. */
-    originalShare: number;
-    /** Generated radial share on the same declared chart ray. */
-    share: number;
-    /** Original level, actual level and their signed dimensionless residual. */
-    reference: number;
-    /** Actual current-source level at the emitted control. */
-    actual: number;
-    /** Actual minus original, dimensionless. */
-    signed: number;
-    /** Actual local radial derivative; null only for identical source-control borrowing. */
-    derivative: number | null;
-    /** Original local radial derivative; null remains explicit. */
-    originalDerivative: number | null;
-    /** The one source-domain bracket used, or null when the original control already solves the level. */
-    bracket: readonly [number, number] | null;
-    /** Explicit method and unsupported-domain qualification. */
-    method: string;
-  }
-
-  /** One actual-source loop and its numerical membership observations. */
-  export interface IResult {
-    /** The current radial chart controls, retaining their original clock. */
-    loop: IAutoMovieConstructionPort.ILoop;
-    /** One dimensionless observation at each emitted original clock. */
-    columns: IColumn[];
-  }
+  type Metric = NonNullable<IAutoMovieHumanF1NativeRoot.IOriginal["metric"]>;
 
   /** Current immutable native inputs; no other part or loft is built. */
   interface IInput {
     /** Shared original source calibration. */
-    original: Types.ICalibration;
+    original: IAutoMovieHumanF1NativeRoot.ICalibration;
     /** Reused original metric/derivative preparation. */
-    prepared: IOriginal;
+    prepared: IAutoMovieHumanF1NativeRoot.ILevelOriginal;
     /** Current actual parent descriptor. */
     parent: IAutoMovieViewPart;
     /** Its already prepared full source reader. */
-    reader: AutoMovieLoftViewFullSource.IReader;
+    reader: IAutoMovieLoftViewFullSource.IReader;
     /** Current independently generated child descriptor. */
     candidate: IAutoMovieViewPart;
     /** Independent positive root-caliper ratios. */
@@ -87,11 +47,11 @@ export namespace AutoMovieHumanF1NativeRootLevel {
 
   /** Prepare original reference levels and actual radial derivatives once per original root. */
   export function original(
-    input: Types.IOriginal,
-    reader: AutoMovieLoftViewFullSource.IReader,
+    input: IAutoMovieHumanF1NativeRoot.IOriginal,
+    reader: IAutoMovieLoftViewFullSource.IReader,
     charts: readonly (readonly [number, number])[],
     points: readonly V[],
-  ): IOriginal {
+  ): IAutoMovieHumanF1NativeRoot.ILevelOriginal {
     const metric: Metric | undefined = input.metric;
     if (metric === undefined)
       throw new Error("root elliptic level requires its explicit material-site calipers");
@@ -118,12 +78,12 @@ export namespace AutoMovieHumanF1NativeRootLevel {
   }
 
   /** Solve each original chart ray on the current parent; every emitted point belongs to that source. */
-  export function create(input: IInput): IResult {
+  export function create(input: IInput): IAutoMovieHumanF1NativeRoot.ILevelResult {
     const { original: old, prepared, parent, reader, candidate, scale }: IInput = input;
     if (parent.name !== old.input.parent.name || candidate.name !== old.input.child.name)
       throw new Error("root level source identity differs from its original material owner");
-    const oldLoop: IAutoMovieConstructionPort.ILoop = old.input.loop;
-    const frame: AutoMovieLoftFrame.IFrame = candidate.axis.at(prepared.metric.station);
+    const oldLoop: IAutoMovieConstructionPortLoop = old.input.loop;
+    const frame: IAutoMovieLoftSectionFrame = candidate.axis.at(prepared.metric.station);
     const field: IField = radius(
       frame,
       prepared.metric.depth * scale[0],
@@ -141,7 +101,7 @@ export namespace AutoMovieHumanF1NativeRootLevel {
         ),
       );
     const facing: number = oldLoop.centre[1];
-    const columns: IColumn[] = [];
+    const columns: IAutoMovieHumanF1NativeRoot.ILevelColumn[] = [];
     const shares: number[] = [];
     for (let k: number = 0; k < old.input.count; k++) {
       const c: number = (2 * Math.PI * k) / old.input.count;
@@ -283,7 +243,7 @@ export namespace AutoMovieHumanF1NativeRootLevel {
   }
 
   /** Normalize two independently supplied bare calipers in their actual fixed source frame. */
-  function radius(frame: AutoMovieLoftFrame.IFrame, depth: number, breadth: number): IField {
+  function radius(frame: IAutoMovieLoftSectionFrame, depth: number, breadth: number): IField {
     if (![depth, breadth].every((value: number): boolean => Number.isFinite(value) && value > 0))
       throw new Error("elliptic root level needs positive finite calipers");
     const a: number = depth / 2;
@@ -308,6 +268,3 @@ export namespace AutoMovieHumanF1NativeRootLevel {
     };
   }
 }
-
-
-

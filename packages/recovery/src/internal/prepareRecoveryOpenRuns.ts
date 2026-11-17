@@ -1,13 +1,10 @@
-import type { IAutoMovieRecoveryOpenContinuation } from "../structures/curve/IAutoMovieRecoveryOpenContinuation";
-import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
+import type {
+  IAutoMovieRecoveryOpenArcAddress,
+  IAutoMovieRecoveryOpenContinuation,
+  IAutoMovieRecoveryOpenContinuationEdge,
+  IAutoMovieRecoveryOpenRunsPreparationOperation,
+} from "@automovie/interface";
 
-type Node = { section: number; arc: number };
-type Edge = {
-  before: Node;
-  after: Node;
-  reverse: boolean;
-  pairOrdinal: number;
-};
 /**
  * Admit saved open continuation and prepare one-to-one ordinary run ownership.
  *
@@ -20,17 +17,13 @@ type Edge = {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned maps live for one reconstruction call; source geometry is never read or retained.
  */
 export function prepareRecoveryOpenRuns(
-  bundle: IAutoMovieRecoveryMeshSections,
-  graph: IAutoMovieRecoveryOpenContinuation,
-  operator: "quadratic" | "ruled",
-): {
-  outgoing: Map<string, Edge>;
-  incoming: Map<string, Edge>;
-  pairs: number;
-  unsupportedGroups: number;
-  unsupportedGroupsWithOpenArcs: number;
-} {
-  const key: (n: Node) => string = (n: Node): string => `${n.section}:${n.arc}`;
+  bundle: Parameters<IAutoMovieRecoveryOpenRunsPreparationOperation.Operation>[0],
+  graph: Parameters<IAutoMovieRecoveryOpenRunsPreparationOperation.Operation>[1],
+  operator: Parameters<IAutoMovieRecoveryOpenRunsPreparationOperation.Operation>[2],
+): ReturnType<IAutoMovieRecoveryOpenRunsPreparationOperation.Operation> {
+  const key: (n: IAutoMovieRecoveryOpenArcAddress) => string = (
+    n: IAutoMovieRecoveryOpenArcAddress,
+  ): string => `${n.section}:${n.arc}`;
   if (
     (operator !== "quadratic" && operator !== "ruled") ||
     !(
@@ -51,8 +44,9 @@ export function prepareRecoveryOpenRuns(
     throw new Error(
       "A complete source-free open-continuation sidecar is required",
     );
-  const outgoing: Map<string, Edge> = new Map(),
-    incoming: Map<string, Edge> = new Map();
+  const outgoing: Map<string, IAutoMovieRecoveryOpenContinuationEdge> =
+      new Map(),
+    incoming: Map<string, IAutoMovieRecoveryOpenContinuationEdge> = new Map();
   let pairs: number = 0,
     unsupportedGroups: number = 0,
     unsupportedGroupsWithOpenArcs: number = 0;
@@ -95,7 +89,7 @@ export function prepareRecoveryOpenRuns(
       claim(1, pair.after);
       if (typeof pair.reverseAfter !== "boolean")
         throw new Error("Endpoint reversal must be explicit");
-      const edge: Edge = {
+      const edge: IAutoMovieRecoveryOpenContinuationEdge = {
         before: { section: i, arc: pair.before },
         after: { section: i + 1, arc: pair.after },
         reverse: pair.reverseAfter,
