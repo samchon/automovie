@@ -29,7 +29,7 @@ export namespace hingedArmCandidate {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its content.
    * @evidence contracts/development/design.md#principled-representation The branch's poser, scorer, coarse steps by index and refinements by step.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members read by the sweeps and the pole search.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members read by the sweeps and the pole search.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Holds actual candidates only, no time or target history.
    */
   export interface ISweep {
@@ -44,6 +44,12 @@ export namespace hingedArmCandidate {
 
     /** Final actual candidate of each already-refined original step bracket. */
     refined: Map<number, IScored>;
+
+    /** The caller's certified refusal of swivel intervals on this branch (`excluded`), built at its first reading and read by every later stage of the solve; absent until then or when the caller has none. */
+    refused?: (low: number, high: number) => boolean;
+
+    /** The caller's certified lower bound of the deviation over swivel intervals on this branch (`bound`), built at its first reading; absent until then or when the caller has none. */
+    bound?: (low: number, high: number) => number;
   }
 
   /**

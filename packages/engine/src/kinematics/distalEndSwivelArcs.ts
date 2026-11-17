@@ -16,8 +16,9 @@ import { swivelArcs } from "./swivelArcs";
  * joint's box.
  *
  * The arcs say nothing of the mid segment's own twist range: the twist the
- * request leaves it is not a sinusoid of the swivel and is the caller's to
- * check at the swivel chosen.
+ * request leaves it is not a sinusoid of the swivel, though where it meets
+ * an end of its range is (`distalTwistSwivelRange`), and the swivel chosen
+ * is the caller's to verify.
  *
  * @param props The end joint, the mid segment's direction by swivel and the margin.
  * @returns The refused arcs merged over a turn, every swivel, or null when the analysis does not apply (`distalEndSwivelReadings.of`).

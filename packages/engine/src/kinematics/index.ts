@@ -66,6 +66,8 @@ export * from "./markAutoMovieBalance";
 export * from "./markAutoMovieRomOvershoot";
 export * from "./distalEndSwivelArcs";
 export * from "./distalEndSwivelMiss";
+export * from "./distalEndSwivelNearest";
 export * from "./distalEndSwivelReadings";
+export * from "./distalTwistSwivelRange";
 export * from "./immobileAxisSwivels";
 export * from "./swivelJointReadings";

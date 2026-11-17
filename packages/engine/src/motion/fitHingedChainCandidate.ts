@@ -16,7 +16,7 @@ import { distalEndSwivelArcs } from "../kinematics/distalEndSwivelArcs";
 import { distalEndSwivelMiss } from "../kinematics/distalEndSwivelMiss";
 import type { distalEndSwivelReadings } from "../kinematics/distalEndSwivelReadings";
 import { immobileAxisSwivels } from "../kinematics/immobileAxisSwivels";
-import { swivelArcs } from "../kinematics/swivelArcs";
+import { distalEndSwivelNearest } from "../kinematics/distalEndSwivelNearest";
 import type { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
@@ -29,12 +29,14 @@ import { getConstraint } from "../rom/getConstraint";
 import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { basisOf } from "./basisOf";
+import { distalTwistRange } from "./distalTwistRange";
 import { fitHingedRotationError } from "./fitHingedRotationError";
 import { hingedChainSide } from "./hingedChainSide";
 import { hingedRotationStart } from "./hingedRotationStart";
 import { hingedTwistStart } from "./hingedTwistStart";
 import { posedHingeSwing } from "./posedHingeSwing";
 import { readHingeRange } from "./readHingeRange";
+import { solveDistalTwist } from "./solveDistalTwist";
 import type { prepareChainFit } from "./prepareChainFit";
 import type { prepareChainPlant } from "./prepareChainPlant";
 
@@ -69,8 +71,10 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * form (`immobileAxisSwivels`), and the best of them under the same score
  * is the fit when it is legal and the rotation is met. A limb whose mid
  * segment twists distally (an arm) offers one candidate the same way: the
- * swivel inside its end joint's box (`distalEndSwivelArcs`) nearest the
- * hint's pole. Where that candidate does not answer, the sweep is bounded
+ * swivel nearest the hint's pole that its end joint's box
+ * (`distalEndSwivelArcs`) and its mid segment's twist range
+ * (`distalTwistSwivelRange`) both admit, an interval end in closed form
+ * (`distalEndSwivelNearest`). Where that candidate does not answer, the sweep is bounded
  * from below by the least the end joint must miss the rotation by at each
  * swivel (`distalEndSwivelMiss`) besides the hint's side, so a rotation no
  * swivel lets the wrist take is fitted by scoring only the swivels near the
@@ -85,8 +89,11 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * fit (`near`) refines that fit's seed instead of sweeping, and the candidate
  * carries the seed it was chosen at. A request with a `strain` ranks the
  * swivels by task priority instead (Siciliano and Slotine 1991): legality,
- * then the hand's rotation error, two errors within the joints' tolerance
- * (`ROM_TOLERANCE`) being one, then the turn from a `referencePose` when one
+ * then the hand's rotation error, two errors in one bucket of the joints'
+ * tolerance (`ROM_TOLERANCE`) being one (a quantisation, so the ranking is
+ * transitive and its choice independent of the order candidates are met in;
+ * the rotation's certified miss bounds that first key, so swivels whose miss
+ * lies in a later bucket are not scored), then the turn from a `referencePose` when one
  * is given (which keeps a stroke's side), else the strain, with no bend
  * hint; the
  * candidate carries the value it was chosen by, so a caller ranking keys by
@@ -104,7 +111,7 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through hingedArmArticulation, scored through actual clinical decomposition and ROM overshoot. The mid joint circles the root-to-target axis as the swivel turns, so the side term is a sinusoid whose peak is the pole direction in closed form; the local search then minimises the full score in that basin. An end joint with one immobile axis has two degrees of freedom, so the swivel supplies the third of a requested rotation and the admissible swivels are the roots of that axis's sinusoid, the analytic joint-limit swivels of the same paper. Without strain, obstruction, reference or a hint side, every raw cost term is non-negative: ROM excess, quaternion angle and squared clinical effort. A zero global lower bound then certifies only an exact-zero original first candidate, retaining its original tie and seed.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. A requested rotation on a distal-twist limb costs one score a bend branch when its closed-form candidate (the wrist's admitted swivel nearest the pole) is legal and met (measured: 9 of 119 hand fits of test_human_motion_core_overlay_hold, since a hand's rotation is seldom met exactly and the rest go to the sweep, which the rotation's certified miss bounds by branch and bound, unmeasured); a continued fit refines its seed first. A requested rotation on a limb without distal twist whose end joint has one immobile axis costs two scores a bend branch and no search when its best closed-form candidate is legal and met (measured: every one of 2,707 leg fits of test_human_motion_signature_run_m_average, 19.3 scores a fit before, 2 after). Eligibility for a closed-form start is exactly no strain and no minimum certificate, with either no requested rotation and a hint side (the pole; one score per branch when neither reference nor obstruction is asked and the pole is unrefused), or a requested rotation on a mid joint without distal twist (the least-articulation swivel). The local search scores the start, its two neighbours, each further downhill step and one refinement per branch. The full sweep runs when the best branch result keeps an overshoot (range or obstruction), when a rotation start leaves the rotation error above ROM_TOLERANCE degrees, and when the limb is straight to within rounding. An exact-zero first candidate can end cold search only under its certified nonnegative objective; other searches remain. An absent hint side and obstruction need no midpoint FK or cross-axis vectors. Task priority omits unused effort; a reference-only second key needs no unused world prefix. Reference geodesic/strain composition remain lazy. Rotation keeps its existing distal/fallback work. No speedup is measured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. A requested rotation on a distal-twist limb costs one score a bend branch when its closed-form candidate (the swivel nearest the pole that the wrist's box and the forearm's twist range admit) is legal and met (measured with the box alone: 9 of 119 hand fits of test_human_motion_core_overlay_hold; with the twist range, unmeasured; a rotation no swivel meets goes to the sweep, which the rotation's certified miss bounds by branch and bound, unmeasured); a continued fit refines its seed first. A requested rotation on a limb without distal twist whose end joint has one immobile axis costs two scores a bend branch and no search when its best closed-form candidate is legal and met (measured: every one of 2,707 leg fits of test_human_motion_signature_run_m_average, 19.3 scores a fit before, 2 after). A fit with no hint side keeps its exact-zero first-candidate certificate and, with a requested rotation, is bounded by the miss as well; a strain fit with a requested rotation scores only the swivels whose miss shares the least legal error's bucket (both unmeasured). Eligibility for a closed-form start is exactly no strain and no minimum certificate, with either no requested rotation and a hint side (the pole; one score per branch when neither reference nor obstruction is asked and the pole is unrefused), or a requested rotation on a mid joint without distal twist (the least-articulation swivel). The local search scores the start, its two neighbours, each further downhill step and one refinement per branch. The full sweep runs when the best branch result keeps an overshoot (range or obstruction), when a rotation start leaves the rotation error above ROM_TOLERANCE degrees, and when the limb is straight to within rounding. An exact-zero first candidate can end cold search only under its certified nonnegative objective; other searches remain. An absent hint side and obstruction need no midpoint FK or cross-axis vectors. Task priority omits unused effort; a reference-only second key needs no unused world prefix. Reference geodesic/strain composition remain lazy. Rotation keeps its existing distal/fallback work. No speedup is measured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied lazy workspace shares admitted bases, fixed references/weight, hinge range and posed source swing at the same first-use sites. A candidate reads its upper joint and shared lower record once without a discarded joint-pair array; an absent reference needs no unused quaternion normalization. Its already computed lower-preceding world frame also serves its rotation scorer in the original grouping. Source dependencies stay unchanged; target readings, scores, seed selection and caller callbacks still run per target. Standalone callers retain original setup and recomputation fallback.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns any borrowed workspace rig; this target's scoring closures and bounded sweep data are released when the search returns. Only the selected candidate escapes, and no target history, handle or background task is retained.
  */
@@ -320,8 +327,8 @@ export function fitHingedChainCandidate(
     };
   };
   // With a strain the swivels are ranked by task priority (Siciliano and
-  // Slotine 1991): legality, then the hand's rotation error, errors within
-  // the joints' tolerance (`ROM_TOLERANCE`) being one, then the strain; the
+  // Slotine 1991): legality, then the hand's rotation error, errors in one
+  // bucket of the joints' tolerance (`ROM_TOLERANCE`) being one, then the strain; the
   // bend hint's side plays no part.
   const strain:
     | ((
@@ -367,7 +374,7 @@ export function fitHingedChainCandidate(
   // the line to its end, so that no twist moves where the segment points
   // (the bound's premise; a twist axis off that line by an angle would move
   // the direction by up to twice it).
-  const missed: boolean = strain === undefined && turn !== null && rotation !== undefined &&
+  const missed: boolean = turn !== null && rotation !== undefined &&
     along !== null && lowerBasis.twistPlacement === "distal" &&
     Math.abs(Vector3.dot(Vector3.normalize(lowerBasis.twist), along)) > 1 - 1e-9;
   let ended: IEnd | undefined;
@@ -407,15 +414,21 @@ export function fitHingedChainCandidate(
       // limb whose mid segment twists distally adds the least the end joint
       // must miss it by (`distalEndSwivelMiss`): where no swivel lets the
       // wrist take the rotation, the fit is a minimisation of that miss, and
-      // the bound leaves only the swivels near its minimum to score.
-      ...(strain === undefined && (side !== null || missed)
+      // the bound leaves only the swivels near its minimum to score. Under
+      // task priority (a strain) the first key is that rotation error alone,
+      // so the miss alone bounds it and the hint's side plays no part: the
+      // swivels whose miss lies in a later bucket of the tie than a legal
+      // candidate's error are never scored, and the strain is read only
+      // among the rest.
+      ...((strain === undefined && side !== null) || missed
         ? {
             bound: (
               upper: (swivel: number) => IAutoMovieQuaternion,
               posed: ReturnType<typeof hingedArmSwivel.pose>,
             ): ((low: number, high: number) => number) => {
               const sided: ((low: number, high: number) => number) | null =
-                side === null ? null : hingedChainSide.bound(offsetOf(upper), side);
+                side === null || strain !== undefined
+                  ? null : hingedChainSide.bound(offsetOf(upper), side);
               const miss: ((low: number, high: number) => number) | null =
                 missed ? distalEndSwivelMiss(pointing(posed)) : null;
               return sided === null
@@ -482,7 +495,29 @@ export function fitHingedChainCandidate(
                             offsetOf((swivel: number): IAutoMovieQuaternion => posed(swivel).upper), side)) ??
                           hingedTwistStart(prepared, posed, rotation!);
                         if (desired === null) return null;
-                        const nearest: number | null = swivelArcs.nearest(arcs, desired);
+
+                        // The forearm's own twist range admits an interval
+                        // of swivels too (`distalTwistSwivelRange`): the
+                        // candidate is the swivel nearest the desired one
+                        // that both the box and that range admit.
+                        const end: IEnd = (ended ??= endOf(props, prepared, rig));
+                        const nearest: number | null = distalEndSwivelNearest(
+                          arcs,
+                          distalTwistRange({
+                            prepared,
+                            axis: lowerBasis.twist,
+                            frame: props.restFrames?.[props.chain.lower]?.twist,
+                            flexion: end.basis.flexion,
+                            fixed: rig?.distalTwist() ?? solveDistalTwist.prepare({
+                              effectorRest: prepared.effectorBaseRotation,
+                              effectorBasis: end.basis,
+                              effectorFrame: end.frame,
+                            }),
+                            posed,
+                            rotation: rotation!,
+                          }),
+                          desired,
+                        );
                         return nearest === null ? null : [nearest];
                       },
                     }

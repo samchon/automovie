@@ -8,6 +8,7 @@ import { hingedArmSwivel } from "./hingedArmSwivel";
 import { hingedSwivelAhead } from "./hingedSwivelAhead";
 import { hingedSwivelBounded } from "./hingedSwivelBounded";
 import { hingedSwivelPole } from "./hingedSwivelPole";
+import { hingedSwivelSwept } from "./hingedSwivelSwept";
 import { refineHingedSwivel } from "./refineHingedSwivel";
 
 /** The sweep's swivel step, degrees (`hingedArmSwivel.STEP`). */
@@ -107,7 +108,7 @@ const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pure chain geometry with the ROM policy injected through `score`, so `reachPose` owns the clinical decomposition and constraints while this function owns the branches and the sweep; the shared `aimRotation` aims the root.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rig, side or target is special-cased; the degeneracy thresholds are the engine's shared length scale, and a chain that cannot reach legally returns its least overshoot instead of being clamped into range.
  * @evidence contracts/development/common.md#meaningful-documentation States the hinge-only elbow, the span formula and its branches, the out-of-span behavior, the swivel sweep and its ordering, who owns scoring, every `null` case with its threshold, and each input's frame.
- * @evidence contracts/development/implementation.md#efficient-algorithms A cold fit with `closed` candidates scores those alone, at most two a branch, and returns a legal, met best with no search. Eligible cold fits (a `pole`, no `tie`, no `minimum`) first score per branch the pole start, each downhill step and one golden refinement, returning when legal; otherwise, at most two branches times 360 swivel steps plus bounded per-minimum golden refinement remain; with a certified `bound` under exact ties, branch and bound (`hingedSwivelBounded`) scores only the steps and refines only the minima the bound cannot place behind a legal candidate, with the full sweep's choice. Near mode retains its original tolerance-derived count. An exact first-candidate global-minimum certificate ends cold search after that one actual score. Failed pruned passes reuse identical completed steps/refinements. The shared comparator may read a required exact(a) before b and prove it ahead of b's lower bound without exact(b). Runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A cold fit with `closed` candidates scores those alone, at most two a branch, and returns a legal, met best with no search. Eligible cold fits (a `pole`, no `tie`, no `minimum`) first score per branch the pole start, each downhill step and one golden refinement, returning when legal; otherwise, at most two branches times 360 swivel steps plus bounded per-minimum golden refinement remain; with a certified `bound`, branch and bound (`hingedSwivelBounded`) scores only the steps and refines only the minima the bound cannot place behind a legal candidate, with the full sweep's choice, also under a `tie` (by buckets) and beside a `minimum` certificate (tested first on the sweep's first candidate). The caller's refusal and bound are built once a branch for the solve. Near mode retains its original tolerance-derived count. An exact first-candidate global-minimum certificate ends cold search after that one actual score. Failed pruned passes reuse identical completed steps/refinements. The shared comparator may read a required exact(a) before b and prove it ahead of b's lower bound without exact(b). Runtime speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each hinge branch computes its mid direction and aim once for the solve. Within that unchanged branch/target/score, a full fallback reuses each actual step and completed refinement of the same bracket; it still compares all original candidates in their original order. An optional matching prepared target also shares source span coefficients/inverse root and this point's lowered goal. No scored answer crosses targets or solves.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A solve retains at most two branches' 360 step candidates and one selected candidate per refined step, with their branch pose/probe closures. The bounded workspace releases at return or throw; only the selected rotations escape, with no history or external handle.
  */
@@ -168,7 +169,7 @@ export const hingedArmArticulation: (props: {
    * whose tie-break ends in a costly non-negative term passes the rest as
    * the bound, and the term is computed only for a comparison the bound
    * cannot decide. With `tie`, `tiebreak` is a second key: two deviations
-   * within `tie` of each other are one, and the lesser `tiebreak` decides
+   * in one bucket of width `tie` are one, and the lesser `tiebreak` decides
    * (task priority, Siciliano and Slotine 1991: the second objective only
    * among the first's optima). The score and its lazy readers describe the
    * same unchanged objective throughout this synchronous solve.
@@ -198,9 +199,9 @@ export const hingedArmArticulation: (props: {
    * Given the root's bone-local rotation at a swivel on one bend branch,
    * degrees, and that branch's poser, a certified lower bound of the exact
    * `deviation` of every candidate at a swivel from `low` to `high` degrees;
-   * omitted, every step is scored. Read only by a cold sweep with no `tie` and no `minimum`,
-   * which then scores only the steps the bound cannot place behind a legal
-   * candidate (`hingedSwivelBounded`), with the full sweep's choice.
+   * omitted, every step is scored. The cold sweep then scores only the steps
+   * the bound cannot place behind a legal candidate (`hingedSwivelBounded`),
+   * with the full sweep's choice: under a `tie` by the deviation's bucket, and after the `minimum` certificate's test of the sweep's first candidate.
    */
   bound?: (
     upper: (swivel: number) => IAutoMovieQuaternion,
@@ -240,7 +241,7 @@ export const hingedArmArticulation: (props: {
   near?: IAutoMovieSwivelNear;
 
   /**
-   * How far apart two deviations may lie and still be one, the unit of
+   * The positive width of the buckets two deviations are one in, the unit of
    * `deviation`, for a score with a second key (`tiebreak`); omitted, deviations
    * are compared exactly and `tiebreak` is not read.
    */
@@ -328,116 +329,78 @@ export const hingedArmArticulation: (props: {
     return branch;
   };
 
-  // The sweep, with or without the steps `excluded` refuses: a step is
-  // skipped when the swivels within two steps of it are refused, and a step
-  // whose bracket (a step either way) is refused is not refined. With a
-  // certified bound under exact ties, branch and bound gives the same choice
-  // from fewer scored steps (`hingedSwivelBounded`).
+  // The caller's certified refusal on a branch, built once for the solve:
+  // the closed, pole and sweep stages all read the same unchanged arcs.
+  const refusal = (
+    branch: ISweep,
+  ): ((low: number, high: number) => boolean) | null =>
+    props.excluded === undefined
+      ? null
+      : (branch.refused ??= props.excluded(
+          (angle: number): IAutoMovieQuaternion => branch.posed(angle).upper,
+        ));
+
+  // The sweep, with or without the steps `excluded` refuses
+  // (`hingedSwivelSwept`). With a certified bound, branch and bound gives the
+  // same choice from fewer scored steps (`hingedSwivelBounded`); the
+  // first-candidate certificate is the full sweep's own, so it is tested on
+  // that same candidate first, and the bounded sweep decides every other
+  // case, where the full sweep makes no use of the certificate either.
+  const certified: ((candidate: IScored) => boolean) | undefined =
+    props.tie === undefined && props.minimum !== undefined
+      ? (candidate: IScored): boolean =>
+          candidate.overshoot === props.minimum!.overshoot &&
+          candidate.deviation === props.minimum!.deviation &&
+          hingedSwivelAhead.exact(candidate) === props.minimum!.deviation
+      : undefined;
+  const refine = (probe: (angle: number) => IScored, angle: number): IScored =>
+    refineHingedSwivel(probe, better, angle, REFINEMENTS);
   const sweep = (
     excluding: boolean,
   ): { chosen: IScored | null; skipped: boolean } => {
-    const shortest: IBranch[] = stops.filter(
-      (stop: IBranch): boolean => stop.shortfall === shortfall,
-    );
-    if (
-      props.bound !== undefined &&
-      props.tie === undefined &&
-      props.minimum === undefined
-    )
-      return hingedSwivelBounded.sweep<IScored>({
-        branches: shortest.map(
-          (stop: IBranch): hingedSwivelBounded.IBranch<IScored> => {
-            const branch: ISweep = record(stop);
-            const upper: (angle: number) => IAutoMovieQuaternion = (
-              angle: number,
-            ): IAutoMovieQuaternion => branch.posed(angle).upper;
-            return {
-              probe: branch.probe,
-              steps: branch.steps,
-              refined: branch.refined,
-              refused:
-                excluding && props.excluded !== undefined
-                  ? props.excluded(upper)
-                  : null,
-              bound: props.bound!(upper, branch.posed),
-            };
-          },
-        ),
-        better,
-        refine: (probe: (angle: number) => IScored, angle: number): IScored =>
-          refineHingedSwivel(probe, better, angle, REFINEMENTS),
+    const branches: IPass[] = stops
+      .filter((stop: IBranch): boolean => stop.shortfall === shortfall)
+      .map((stop: IBranch): IPass => {
+        const branch: ISweep = record(stop);
+        return {
+          probe: branch.probe,
+          steps: branch.steps,
+          refined: branch.refined,
+          refused: excluding ? refusal(branch) : null,
+          posed: branch.posed,
+          record: branch,
+        };
       });
-    let chosen: IScored | null = null;
-    let skipped: boolean = false;
-    let first: boolean = true;
-    for (const stop of shortest) {
-      const branch: ISweep = record(stop);
-      const posed: ReturnType<typeof hingedArmSwivel.pose> = branch.posed;
-      const probe: (angle: number) => IScored = branch.probe;
-      const refused: ((low: number, high: number) => boolean) | null =
-        excluding && props.excluded !== undefined
-          ? props.excluded(
-              (angle: number): IAutoMovieQuaternion => posed(angle).upper,
-            )
-          : null;
-      const swept: (IScored | null)[] = [];
-      for (let step: number = 0; step * SWIVEL_STEP < 360; ++step) {
-        const angle: number = step * SWIVEL_STEP;
-        const out: boolean =
-          refused !== null &&
-          refused(angle - 2 * SWIVEL_STEP, angle + 2 * SWIVEL_STEP);
-        if (out) skipped = true;
-        if (out) swept.push(null);
-        else {
-          let candidate: IScored | undefined = branch.steps[step];
-          if (candidate === undefined) {
-            candidate = probe(angle);
-            branch.steps[step] = candidate;
-          }
-          if (first && props.tie === undefined && props.minimum !== undefined &&
-            candidate.overshoot === props.minimum.overshoot &&
-            candidate.deviation === props.minimum.deviation &&
-            hingedSwivelAhead.exact(candidate) === props.minimum.deviation)
-            return { chosen: candidate, skipped };
-          first = false;
-          swept.push(candidate);
-        }
-      }
-      for (let step: number = 0; step < swept.length; ++step) {
-        const at: IScored | null = swept[step]!;
-        if (at === null) continue;
-        const before: IScored | null =
-          swept[(step + swept.length - 1) % swept.length]!;
-        const after: IScored | null = swept[(step + 1) % swept.length]!;
-        if (chosen === null || better(at, chosen)) chosen = at;
-
-        // Every local minimum of the sweep is refined, not only the sweep's
-        // best step: a legal sliver narrower than one step shows in the sweep
-        // only as a dip of the overshoot, and of two basins the one that is
-        // truly better must win, not the one whose sample fell nearer its
-        // bottom. A step level with both neighbours has nothing to refine.
-        if (before === null || after === null) continue;
-        if (
-          refused !== null &&
-          refused(
-            step * SWIVEL_STEP - SWIVEL_STEP,
-            step * SWIVEL_STEP + SWIVEL_STEP,
-          )
-        )
-          continue;
-        if (better(before, at) || better(after, at)) continue;
-        if (!better(at, before) && !better(at, after)) continue;
-        let refined: IScored | undefined = branch.refined.get(step);
-        if (refined === undefined) {
-          refined = refineHingedSwivel(
-            probe, better, step * SWIVEL_STEP, REFINEMENTS,
-          );
-          branch.refined.set(step, refined);
-        }
-        if (better(refined, chosen)) chosen = refined;
-      }
+    if (props.bound === undefined)
+      return hingedSwivelSwept.sweep<IScored>({
+        branches,
+        better,
+        refine,
+        ...(certified === undefined ? {} : { certified }),
+      });
+    if (certified !== undefined) {
+      const opening: { candidate: IScored | null; skipped: boolean } =
+        hingedSwivelSwept.first<IScored>(branches);
+      if (opening.candidate !== null && certified(opening.candidate))
+        return { chosen: opening.candidate, skipped: opening.skipped };
     }
-    return { chosen, skipped };
+    return hingedSwivelBounded.sweep<IScored>({
+      branches: branches.map(
+        (branch: IPass): hingedSwivelBounded.IBranch<IScored> => ({
+          probe: branch.probe,
+          steps: branch.steps,
+          refined: branch.refined,
+          refused: branch.refused,
+          bound: (branch.record.bound ??= props.bound!(
+            (angle: number): IAutoMovieQuaternion => branch.posed(angle).upper,
+            branch.posed,
+          )),
+        }),
+      ),
+      better,
+      refine,
+      ...(props.tie === undefined ? {} : { tie: props.tie }),
+    });
   };
   // A chosen candidate's result, with its own branch's shortfall when continued.
   const answer = (chosen: IScored, at: number = shortfall): IAutoMovieHingedArticulation => ({
@@ -495,15 +458,11 @@ export const hingedArmArticulation: (props: {
       branches: stops.filter((s: IBranch): boolean => s.shortfall === shortfall).map(
         (stop: IBranch): hingedSwivelPole.IBranch<IScored> => {
           const branch: ISweep = record(stop);
-          const upper: (angle: number) => IAutoMovieQuaternion = (angle: number): IAutoMovieQuaternion =>
-            branch.posed(angle).upper;
-          return { probe: branch.probe, posed: branch.posed,
-            refused: props.excluded === undefined ? null : props.excluded(upper) };
+          return { probe: branch.probe, posed: branch.posed, refused: refusal(branch) };
         }),
       pole: props.pole,
       better,
-      refine: (probe: (angle: number) => IScored, angle: number): IScored =>
-        refineHingedSwivel(probe, better, angle, REFINEMENTS),
+      refine,
       step: SWIVEL_STEP,
       ...(props.direct === true ? { direct: true } : {}),
     });
@@ -533,3 +492,6 @@ type ISweep = hingedArmCandidate.ISweep;
 
 /** One scored candidate (`hingedArmCandidate.IScored`). */
 type IScored = hingedArmCandidate.IScored;
+
+/** One branch as a sweep pass reads it, with its poser and its completed-work record. */
+type IPass = hingedSwivelSwept.IBranch<IScored> & { posed: ISweep["posed"]; record: ISweep };

@@ -87,15 +87,21 @@ export namespace hingedSwivelBounded {
    * then folded over the scored steps and the visited minima's refinements
    * in the sweep's own order, so ties keep the same candidate.
    *
-   * The proof needs exact deviation ties (no tie band) and no
-   * first-candidate certificate, the articulation's continuous-cost policy,
-   * which is the only one it calls this with.
+   * With a tie width (`tie`) the comparator ranks a deviation by its bucket
+   * of that width and decides equal buckets by a second key this search has
+   * no bound of. The same argument holds on the buckets: the bucket is
+   * monotone in the deviation, so a bound whose bucket exceeds a legal
+   * candidate's exact bucket marks candidates strictly behind it, and every
+   * step whose bracket may hold a candidate of the least bucket is visited
+   * and its second key read. The proof needs the comparator to be a total
+   * preorder, which the buckets make it, and no first-candidate certificate:
+   * the articulation tests that certificate itself before calling this.
    *
-   * @param props The branches with their scorers, caches, refusals and bounds; the candidate order; the refinement.
+   * @param props The branches with their scorers, caches, refusals and bounds; the candidate order; the refinement; the comparator's tie width when it has one.
    * @returns The chosen candidate, none when every step is refused, and whether any step was refused.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order, the stop, why skipped candidates cannot change the choice or a minimum, the fold and the premise.
-   * @evidence contracts/development/implementation.md#principled-implementation Branch and bound with a certified lower bound: a candidate whose bound exceeds an actual legal candidate's exact deviation is strictly behind it in the lexicographic order (legality first, exact deviation second), so it is never the sweep's choice and never decides another step's refinement differently.
+   * @evidence contracts/development/implementation.md#principled-implementation Branch and bound with a certified lower bound: a candidate whose bound's key (the deviation, or its bucket under a tie width) exceeds an actual legal candidate's exact key is strictly behind it in the lexicographic order (legality first, the deviation's key second), so it is never the sweep's choice and never decides another step's refinement differently.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Per branch: the refusals, the bounded visit with its exact local-minimum tests, then the sweep-ordered fold.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No step, tolerance, refinement count or score changes; a bound that cannot decide scores the candidate, and a sweep with no legal candidate visits every unrefused step.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two constant bound reads per step and one sort of at most 360 steps per branch; scoring, refinement and obstruction work run only for the steps the bound cannot exclude. Unmeasured.
@@ -106,10 +112,18 @@ export namespace hingedSwivelBounded {
     branches: readonly IBranch<T>[];
     better: (a: T, b: T) => boolean;
     refine: (probe: (angle: number) => T, angle: number) => T;
+    tie?: number;
   }): { chosen: T | null; skipped: boolean } {
     let chosen: T | null = null;
     let skipped: boolean = false;
     let best: number = Infinity;
+
+    // The key the comparator ranks a deviation by: itself, or its bucket
+    // under a tie width (`hingedSwivelAhead.rank`). Monotone either way, so
+    // a bound's key never exceeds its exact value's.
+    const tie: number | undefined = props.tie;
+    const key = (deviation: number): number =>
+      tie === undefined ? deviation : hingedSwivelAhead.rank(deviation, tie);
     let count: number = 0;
     while (count * STEP < 360) ++count;
     for (const branch of props.branches) {
@@ -137,17 +151,17 @@ export namespace hingedSwivelBounded {
         (branch.steps[step] ??= branch.probe(step * STEP));
       const note = (candidate: T): void => {
         if (candidate.overshoot === 0)
-          best = Math.min(best, hingedSwivelAhead.exact(candidate));
+          best = Math.min(best, key(hingedSwivelAhead.exact(candidate)));
       };
 
       // A legal candidate is ahead of the step at `k` without scoring it
       // when that step's bound already exceeds its exact deviation.
       const dominates = (candidate: T, k: number): boolean =>
         candidate.overshoot === 0 &&
-        at[k]! > hingedSwivelAhead.exact(candidate);
+        key(at[k]!) > key(hingedSwivelAhead.exact(candidate));
       const minima: Set<number> = new Set();
       for (const step of order) {
-        if (bracket[step]! > best) break;
+        if (key(bracket[step]!) > best) break;
         const here: T = value(step);
         note(here);
         const before: number = (step + count - 1) % count;
