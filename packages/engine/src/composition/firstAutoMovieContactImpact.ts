@@ -152,21 +152,25 @@ export namespace firstAutoMovieContactImpact {
       // seconds within the gap over the two bounds together where that time
       // lies inside the window, and every second to the live end where the
       // window reaches it. So neither side is read farther than twice the
-      // stretch certified, nor past the end.
+      // stretch certified, nor past the end. A window either side cannot
+      // bound keeps what the window before it certified: the whole of it,
+      // since the time that window gave was no shorter.
       const rest: number = until - t;
+      let kept: number = 0;
       for (let h: number = Math.min(input.step, rest); ; h = Math.min(2 * h, rest)) {
         const own: number | undefined = certified(
           moving(t, t + h),
           `weapon ${weapon.id}`,
         );
-        if (own === undefined) return 0;
+        if (own === undefined) return kept;
         const other: number | undefined = certified(
           reader(t, t + h),
           `body ${body.id}`,
         );
-        if (other === undefined) return 0;
+        if (other === undefined) return kept;
         const time: number = own + other > 0 ? d / (own + other) : Infinity;
         if (time < h || !(h < rest)) return time;
+        kept = h;
       }
     };
 
