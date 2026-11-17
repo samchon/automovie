@@ -5,6 +5,16 @@ import type {
 } from "@automovie/interface";
 
 /**
+ * The costal margin's lowest point as a share of stature: the tenth rib
+ * height of ANSUR II (Gordon et al. 2014, NATICK/TR-15/007; means of the
+ * public records, 1,986 women and 4,082 men: tenth rib 1056.3 and 1120.7 mm,
+ * stature 1628.5 and 1756.2 mm), the greater of the women's and the men's
+ * shares, so the station stands at or just above the margin on either body.
+ * Declared before the table, whose initialiser reads it.
+ */
+const COSTAL_MARGIN: number = Math.max(1056.3 / 1628.5, 1120.7 / 1756.2);
+
+/**
  * The definitions of the anatomical regions a humanoid's surfaces resolve
  * (`resolveAutoMovieHumanoidSurfaces`): each region's station on a bone's
  * segment and its outward direction in the rest frame, the ray that finds
@@ -38,17 +48,41 @@ export namespace AutoMovieHumanoidSurfaceRegions {
   }
 
   /**
+   * Where on a segment a region's ray starts by the body's own measure: the
+   * point of the segment from a bone's joint toward a child joint that stands,
+   * at rest, at a share of the body's stature above the floor. A landmark
+   * that anthropometry measures as a height (the tenth rib's) lies between
+   * two joints at a share of the segment that differs from body to body, so
+   * it is placed by its height and not by a share of the bone.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the level means, its frame (rest, floor at zero) and why a landmark is placed by it.
+   * @evidence contracts/development/design.md#principled-representation A bone, the child joint it leans toward and a dimensionless share of stature; the surface resolver reads the stature off the body's colliders as `measureAutoMovieHumanoidBody` does.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The three members the surface resolver reads; the trunk's lower rib regions use it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Bones are the interface's closed bone union; a level outside the segment's span is refused by the resolver, not clamped.
+   */
+  export interface ILevel {
+    /** The bone. */
+    bone: AutoMovieHumanoidBone;
+
+    /** The child joint the segment runs toward. */
+    toward: AutoMovieHumanoidBone;
+
+    /** Height above the floor at rest, as a share of the body's stature. */
+    level: number;
+  }
+
+  /**
    * A region's station and rest-frame outward direction: the ray whose exit
    * through the segment's colliders is the region's point.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the pair defines.
-   * @evidence contracts/development/design.md#principled-representation A ray: an origin on the segment and a direction in the rest frame.
+   * @evidence contracts/development/design.md#principled-representation A ray: an origin on the segment, by a share of it or by a level of the body's stature, and a direction in the rest frame.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The two members a region needs.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None; the point itself is read from the colliders, never stored.
    */
   export interface IDefinition {
     /** Ray origin. */
-    station: IStation;
+    station: IStation | ILevel;
 
     /** Outward direction in the T-pose rest frame. */
     direction: IAutoMovieVector3;
@@ -75,6 +109,12 @@ export namespace AutoMovieHumanoidSurfaceRegions {
       toward: "chest",
       share,
     });
+
+    // The lower rib cage: the costal margin's lowest point, the tenth rib,
+    // which a body kick, a hook to the liver or a punch to the kidney lands
+    // on or just above. The rig's spine runs from the omphalion to the
+    // xiphion, so the margin lies on it, at the tenth rib's height.
+    const costal: ILevel = { bone: "spine", toward: "chest", level: COSTAL_MARGIN };
     const table: Partial<Record<AutoMovieHumanoidRegion, IDefinition>> = {
       crown: { station: head, direction: v(0, 1, 0) },
       forehead: { station: head, direction: v(0, 0.45, 1) },
@@ -88,8 +128,13 @@ export namespace AutoMovieHumanoidSurfaceRegions {
       nape: { station: neck, direction: v(0, 0, -1) },
       sternum: { station: chest(0.5), direction: v(0, 0, 1) },
       solarPlexus: { station: chest(0), direction: v(0, 0, 1) },
-      liver: { station: chest(0.1), direction: v(-0.8, 0, 0.6) },
-      spleen: { station: chest(0.1), direction: v(0.8, 0, 0.6) },
+
+      // The liver lies under the right lower ribs and the spleen under the
+      // left ninth to eleventh, both above the costal margin's lowest point
+      // (Moore, Dalley and Agur, Clinically Oriented Anatomy, 7th ed., ch.
+      // 2); a strike reaches them through the margin, front and side.
+      liver: { station: costal, direction: v(-0.8, 0, 0.6) },
+      spleen: { station: costal, direction: v(0.8, 0, 0.6) },
       upperBack: { station: chest(0.5), direction: v(0, 0, -1) },
       abdomen: { station: spine(0.4), direction: v(0, 0, 1) },
       lowerBack: { station: spine(0.4), direction: v(0, 0, -1) },
@@ -116,8 +161,12 @@ export namespace AutoMovieHumanoidSurfaceRegions {
       set("ear", { station: head, direction: v(x, 0, 0) });
       set("neck", { station: neck, direction: v(x, 0, 0) });
       set("chest", { station: chest(0.55), direction: v(0.45 * x, 0, 1) });
-      set("ribs", { station: chest(0.25), direction: v(x, 0, 0.15) });
-      set("kidney", { station: spine(0.8), direction: v(0.6 * x, 0, -0.8) });
+      set("ribs", { station: costal, direction: v(x, 0, 0.15) });
+
+      // The kidney lies behind the lowest ribs, from the twelfth thoracic to
+      // the third lumbar vertebra (Moore, Dalley and Agur, ch. 2), so the
+      // flank at the costal margin's height is over it.
+      set("kidney", { station: costal, direction: v(0.6 * x, 0, -0.8) });
       set("hip", {
         station: { bone: s("UpperLeg"), toward: s("LowerLeg"), share: 0 },
         direction: v(x, 0, 0),

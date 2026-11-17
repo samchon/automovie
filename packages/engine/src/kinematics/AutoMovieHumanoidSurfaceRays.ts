@@ -76,8 +76,8 @@ export namespace AutoMovieHumanoidSurfaceRays {
     /** Express the actual world point/directions relative to the current rest joint. */
     local: (bone: AutoMovieHumanoidBone, world: IAutoMovieVector3, direction: IAutoMovieVector3, forward?: IAutoMovieVector3) => resolveAutoMovieHumanoidSurfaces.IFrame;
 
-    /** Actual anatomical station from rest joints or exact collider centre. */
-    station: (station: AutoMovieHumanoidSurfaceRegions.IStation) => IAutoMovieVector3;
+    /** Actual anatomical station from rest joints, exact collider centre or a level of the body's stature on a segment. */
+    station: (station: AutoMovieHumanoidSurfaceRegions.IStation | AutoMovieHumanoidSurfaceRegions.ILevel) => IAutoMovieVector3;
 
     /** Actual farthest collider exit point for the current ray. */
     exit: (bone: AutoMovieHumanoidBone, origin: IAutoMovieVector3, direction: IAutoMovieVector3) => IAutoMovieVector3;
@@ -255,7 +255,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
    * rig/profile edit. Returned bounds own their vectors independently.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the readers, unchanged-body epoch, bundle release point and independent returned bounds.
-   * @evidence contracts/development/implementation.md#principled-implementation The rest pose resolved once; bounds are the union of the colliders' exact bounds; a ray's exit is the farthest exit over the segment's convex colliders, its normal that collider's.
+   * @evidence contracts/development/implementation.md#principled-implementation The rest pose resolved once; bounds are the union of the colliders' exact bounds; a ray's exit is the farthest exit over the segment's convex colliders, its normal that collider's. A level station reads the stature as the top of every collider at rest, as `measureAutoMovieHumanoidBody` does, and stands at the share of its segment that reaches the level's height; a level outside the segment throws.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One rest pose and first-name index serve the bundle; lazy bounds and fixed rest-shape exit/physical-normal reader pairs keep invariant geometry separate from every current station, ray and normal. One private trace owns farthest-hit selection for both point-only exit and complete surface observations.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing bone, segment or hit still throws. Every current ray tests all original colliders with the same discriminants, plane/slab order, BOUNDARY and 1e-12 branches; only fixed frames, capsule axes/endpoints and hull planes are prepared.
    * @evidence contracts/development/implementation.md#efficient-algorithms One pose indexed directly without a mapped B-tuple array and an O(S) profile index precede lazy bounds/exits. Fixed exits, centre stations and ray points reuse fresh offset/sum storage; spheres omit unused orientation. Repeated actual head/neck/chest stations share local origins and lazily observed hull heights after three exact scalar matches; changing directions retain every plane speed/clip. Point-only exits omit unused normals; full surfaces prepare their winner's normal. Local conversion compares four quaternion coordinates before inverse reuse; hull bounds rotate V points once.
@@ -339,9 +339,29 @@ export namespace AutoMovieHumanoidSurfaceRays {
             }),
       };
     };
+    // The body's stature, the top of its colliders at rest above the floor
+    // at zero, as `measureAutoMovieHumanoidBody` reads it; read by the first
+    // station placed by a level.
+    let stature: number | undefined;
     const station = (
-      s: AutoMovieHumanoidSurfaceRegions.IStation,
+      s: AutoMovieHumanoidSurfaceRegions.IStation | AutoMovieHumanoidSurfaceRegions.ILevel,
     ): IAutoMovieVector3 => {
+      if ("level" in s) {
+        if (stature === undefined) {
+          let top: number = -Infinity;
+          for (const part of profile.segments)
+            top = Math.max(top, AutoMovieHumanoidNeutralBounds.read(profile, part, neutral).max.y);
+          stature = top;
+        }
+        const from: IAutoMovieVector3 = at(s.bone).worldPosition;
+        const to: IAutoMovieVector3 = at(s.toward).worldPosition;
+        const share: number = (s.level * stature - from.y) / (to.y - from.y);
+        if (!(share >= 0 && share <= 1))
+          throw new Error(
+            `Surfaces place a level of ${s.level} of the stature on the segment from ${s.bone} to ${s.toward}, which spans ${from.y} to ${to.y} m`,
+          );
+        return Vector3.lerp(from, to, share);
+      }
       if (s.toward === "centre") {
         const b: ReturnType<typeof bounds> = bounds(s.bone);
         const middle: IAutoMovieVector3 = Vector3.add(b.min, b.max);
