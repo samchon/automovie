@@ -256,7 +256,11 @@ export function createSpacecraft(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Historical references supply visual analogies. The bands are explicitly fictional set decisions, not inferred spacecraft specifications.
  */
 export namespace createSpacecraft {
-  /** Contacts for the walking route, hatch articulation and forward crew station. */
+  /**
+   * Contacts for the walking route, hatch articulation and forward crew station.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the authored sites consumed for scene blocking.
+   */
   export type Affordance =
     | "boardingWalkway"
     | "boardingOpening"
@@ -266,7 +270,11 @@ export namespace createSpacecraft {
     | "crewSeat"
     | "controlConsole";
 
-  /** Drawn dimensions, in metres. Length excludes the walkway and width is at the cabin. */
+  /**
+   * Drawn dimensions, in metres. Length excludes the walkway and width is at the cabin.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the drawing inputs and their envelope references.
+   */
   export type DrawnDimension =
     | "length"
     | "width"
@@ -275,16 +283,28 @@ export namespace createSpacecraft {
     | "hatchHeight"
     | "walkwayLength";
 
-  /** The drawn dimensions plus the derived scenic mass in kilograms. */
+  /**
+   * The drawn dimensions plus the derived scenic mass in kilograms.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Separates the output-only mass from drawn dimensions.
+   */
   export type Dimension = DrawnDimension | "mass";
 
-  /** Optional fixed dimensions in metres. Omitted fields are drawn from their bands. */
+  /**
+   * Optional fixed dimensions in metres. Omitted fields are drawn from their bands.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines how fixed and seeded dimensions are selected.
+   */
   export interface IParams extends Partial<Record<DrawnDimension, number>> {
     /** The scene model id, which defaults to spacecraft. */
     id?: string;
   }
 
-  /** Units of the controlled dimensions and derived mass. */
+  /**
+   * Units of the controlled dimensions and derived mass.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Covers each returned dimension in its recorded unit.
+   */
   export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
     length: "m",
     width: "m",
@@ -295,7 +315,11 @@ export namespace createSpacecraft {
     mass: "kg",
   };
 
-  /** Set design bounds. The references identify the visual cue each dimension supports. */
+  /**
+   * Set design bounds. The references identify the visual cue each dimension supports.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Associates the scenery bounds with public reference material.
+   */
   export const BANDS: Readonly<Record<DrawnDimension, IArchetypeBand>> = {
     length: ArchetypeBand.metres(6, 9, `Fictional set length for a blunt tapered silhouette. Analogy: ${CAPSULE}`),
     width: ArchetypeBand.metres(3.4, 5, `Fictional cabin width for the central route beside the crew station. Analogy: ${CREW_COMPARTMENT}`),

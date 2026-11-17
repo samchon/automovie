@@ -131,16 +131,32 @@ export function createScenicStandard(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Bands give full positive dimensions and a rigid silhouette for film staging.
  */
 export namespace createScenicStandard {
-  /** A carried textile-shaped panel or a circular emblem. */
+  /**
+   * A carried textile-shaped panel or a circular emblem.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two supported scenic forms.
+   */
   export type Kind = "banner" | "roundel";
 
-  /** The recognized silhouette choices. */
+  /**
+   * The recognized silhouette choices.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Lists all forms in the public discriminator.
+   */
   export const KINDS: readonly Kind[] = ["banner", "roundel"];
 
-  /** The clear shaft handle and the front of the displayed head. */
+  /**
+   * The clear shaft handle and the front of the displayed head.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes the grip and front contact sites.
+   */
   export type Affordance = "grip" | "face";
 
-  /** The overall shaft height, diameter, head width, head depth and model mass. */
+  /**
+   * The overall shaft height, diameter, head width, head depth and model mass.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the measures available to the author.
+   */
   export type Dimension =
     | "length"
     | "shaftDiameter"
@@ -148,7 +164,11 @@ export namespace createScenicStandard {
     | "faceDepth"
     | "mass";
 
-  /** Each dimension uses metres or kilograms. */
+  /**
+   * Each dimension uses metres or kilograms.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Supplies distinct length and mass units to the draw.
+   */
   export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
     length: "m",
     shaftDiameter: "m",
@@ -157,7 +177,11 @@ export namespace createScenicStandard {
     mass: "kg",
   };
 
-  /** Set dimensions sized for a hand-carried silhouette with an exposed shaft. */
+  /**
+   * Set dimensions sized for a hand-carried silhouette with an exposed shaft.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The sizing intervals state their visual provenance.
+   */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
     length: ArchetypeBand.metres(1.2, 2.1, SCENIC, true),
     shaftDiameter: ArchetypeBand.metres(0.026, 0.048, SCENIC, true),
@@ -166,7 +190,11 @@ export namespace createScenicStandard {
     mass: ArchetypeBand.of("kg", 0.3, 1.5, SCENIC, true),
   };
 
-  /** The named silhouette and optional fixed dimensions of the standard. */
+  /**
+   * The named silhouette and optional fixed dimensions of the standard.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents what the author selects and can override.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** The principal outline. */
     kind: Kind;

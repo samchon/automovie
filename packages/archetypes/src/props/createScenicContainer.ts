@@ -251,19 +251,39 @@ function pod(builder: Builder, width: number, depth: number, height: number): vo
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Illustrative bands carry provenance and the fictional kind is identified as such.
  */
 export namespace createScenicContainer {
-  /** The four historical scene forms and one fictional design. */
+  /**
+   * The four historical scene forms and one fictional design.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Declares the alternatives selected by scene period.
+   */
   export type Kind = "coilBasket" | "woodenFishBasket" | "plankCoffer" | "moldedCrate" | "cargoPod";
 
-  /** The kinds in order from ancient through fictional future. */
+  /**
+   * The kinds in order from ancient through fictional future.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies the stable historical ordering.
+   */
   export const KINDS: readonly Kind[] = ["coilBasket", "woodenFishBasket", "plankCoffer", "moldedCrate", "cargoPod"];
 
-  /** The closed lid or the floor of an open container, respectively. */
+  /**
+   * The closed lid or the floor of an open container, respectively.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes the location of each contact.
+   */
   export type Affordance = "top" | "inside";
 
-  /** Overall width along X, depth along Z, height along Y in metres, and estimated prop mass in kilograms. */
+  /**
+   * Overall width along X, depth along Z, height along Y in metres, and estimated prop mass in kilograms.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents axes and units.
+   */
   export type Dimension = "width" | "depth" | "height" | "mass";
 
-  /** Units used by the dimension draw. */
+  /**
+   * Units used by the dimension draw.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Matches each length and mass key to its draw unit.
+   */
   export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
     width: "m",
     depth: "m",
@@ -271,7 +291,11 @@ export namespace createScenicContainer {
     mass: "kg",
   };
 
-  /** A selected silhouette and optional fixed members of its dimension bands. */
+  /**
+   * A selected silhouette and optional fixed members of its dimension bands.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the required form and its optional size overrides.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** The selected silhouette. */
     kind: Kind;
@@ -280,7 +304,11 @@ export namespace createScenicContainer {
     id?: string;
   }
 
-  /** Illustrative sizing bands and their sources by kind. */
+  /**
+   * Illustrative sizing bands and their sources by kind.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Exposes the same provenance used by generation.
+   */
   export const BANDS: Readonly<Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>> =
     SCENIC_CONTAINER_BANDS;
 }
