@@ -137,11 +137,11 @@ export namespace hingedSwivelBounded {
    * preorder, which the buckets make it, and no first-candidate certificate:
    * the articulation tests that certificate itself before calling this.
    *
-   * @param props The branches with their scorers, caches, refusals and bounds; the candidate order; the refinement; the comparator's tie width when it has one.
+   * @param props The branches with their scorers, caches, refusals and bounds; the candidate order; the refinement; the comparator's tie width when it has one; and the exact deviation of a legal candidate the caller read (`incumbent`), which starts the visit's stop: kept where the choice is legal and no worse than it, every unvisited bracket then holding only candidates strictly behind the choice, and dropped otherwise for the visit without it.
    * @returns The chosen candidate, none when every step is refused, and whether any step was refused.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order, the stop, why skipped candidates cannot change the choice or a minimum, the fold and the premise.
-   * @evidence contracts/development/implementation.md#principled-implementation Branch and bound with a certified lower bound: a candidate whose bound's key (the deviation, or its bucket under a tie width) exceeds an actual legal candidate's exact key is strictly behind it in the lexicographic order (legality first, the deviation's key second), so it is never the sweep's choice and never decides another step's refinement differently.
+   * @evidence contracts/development/implementation.md#principled-implementation Branch and bound with a certified lower bound: a candidate whose bound's key (the deviation, or its bucket under a tie width) exceeds an actual legal candidate's exact key is strictly behind it in the lexicographic order (legality first, the deviation's key second), so it is never the sweep's choice and never decides another step's refinement differently. A caller's incumbent stops the visit the same way and is kept only where the choice is legal and no worse than it, so the pruned brackets are strictly behind the choice; otherwise the visit runs without it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Per branch: the refusals, the bounded visit with its exact local-minimum tests, then the sweep-ordered fold.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No step, tolerance, refinement count or score changes; a bound that cannot decide scores the candidate, and a sweep with no legal candidate visits every unrefused step.
    * @evidence contracts/development/implementation.md#efficient-algorithms One constant bracket-bound read per step, one more for each neighbour of a visited step, and one sort of at most 360 steps per branch; scoring, refinement and obstruction work run only for the steps the bound cannot exclude. Unmeasured.
@@ -153,10 +153,10 @@ export namespace hingedSwivelBounded {
     better: (a: T, b: T) => boolean;
     refine: (probe: (angle: number) => T, angle: number) => T;
     tie?: number;
+    incumbent?: number;
   }): { chosen: T | null; skipped: boolean } {
     let chosen: T | null = null;
     let skipped: boolean = false;
-    let best: number = Infinity;
 
     // The key the comparator ranks a deviation by: itself, or its bucket
     // under a tie width (`hingedSwivelAhead.rank`). Monotone either way, so
@@ -164,6 +164,12 @@ export namespace hingedSwivelBounded {
     const tie: number | undefined = props.tie;
     const key = (deviation: number): number =>
       tie === undefined ? deviation : hingedSwivelAhead.rank(deviation, tie);
+
+    // A legal candidate's exact deviation the caller has read off the sweep
+    // (`incumbent`) stops the visit from the start, as one read here would.
+    const incumbent: number | undefined =
+      props.incumbent === undefined ? undefined : key(props.incumbent);
+    let best: number = incumbent ?? Infinity;
     let count: number = 0;
     while (count * STEP < 360) ++count;
     for (const branch of props.branches) {
@@ -242,6 +248,26 @@ export namespace hingedSwivelBounded {
         }
       }
     }
+
+    // The incumbent is the caller's candidate, not necessarily one of the
+    // sweep's: every bracket it left unvisited holds candidates strictly
+    // behind it, so behind the choice only where the choice is legal and no
+    // worse than it. Elsewhere the sweep decides without it, on the steps and
+    // refinements already read.
+    if (
+      incumbent !== undefined &&
+      !(
+        chosen !== null &&
+        chosen.overshoot === 0 &&
+        key(hingedSwivelAhead.exact(chosen)) <= incumbent
+      )
+    )
+      return sweep({
+        branches: props.branches,
+        better: props.better,
+        refine: props.refine,
+        ...(props.tie === undefined ? {} : { tie: props.tie }),
+      });
     return { chosen, skipped };
   }
 }

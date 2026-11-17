@@ -4,6 +4,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieSeededChainFit,
   IAutoMovieSwivelNear,
+  IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -96,6 +97,10 @@ export namespace fitSeededChainToTarget {
      * An optional `near` replaces the source's cold/near mode for this target
      * only: the fit continues that seed (a later contact re-aim pass
      * continuing the previous pass's answer for a target millimetres away).
+     * An optional `incumbent` (ignored with `near`) is a seed the caller holds
+     * for this swept fit: it only starts the bounded sweep's stop
+     * (`IAutoMovieFitChainToTargetProps.incumbent`), so the answer is the
+     * swept fit's either way.
      *
      * States model-metre input, fixed source/search meaning and the per-target continuation.
      * Signature only; prepare owns the fit composition.
@@ -105,7 +110,7 @@ export namespace fitSeededChainToTarget {
      * The producer owns invariant sharing.
      * The signature acquires nothing.
      */
-    fit(target: IAutoMovieVector3, near?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit;
+    fit(target: IAutoMovieVector3, near?: IAutoMovieSwivelNear, incumbent?: IAutoMovieSwivelSeed): IAutoMovieSeededChainFit;
 
     /**
      * Evaluate an explicit continuous-curve candidate at the current target.
@@ -252,9 +257,9 @@ function preparedWorkspace(
     ...(bend.value === undefined ? {} : { value: bend.value }),
   });
   return {
-      fit: (target: IAutoMovieVector3, near?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit => {
+      fit: (target: IAutoMovieVector3, near?: IAutoMovieSwivelNear, incumbent?: IAutoMovieSwivelSeed): IAutoMovieSeededChainFit => {
         const props: IAutoMovieFitChainToTargetProps = near === undefined
-          ? { ...workspace.props, target } : { ...workspace.props, target, near };
+          ? { ...workspace.props, target, ...(incumbent === undefined ? {} : { incumbent }) } : { ...workspace.props, target, near };
         return finish(props, fitChainBend(props, workspace));
       },
       continued: (target: IAutoMovieVector3,

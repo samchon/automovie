@@ -4,6 +4,7 @@ import type {
   IAutoMovieHingedArticulation,
   IAutoMovieQuaternion,
   IAutoMovieSwivelNear,
+  IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
 import type { hingedArmCandidate } from "./hingedArmCandidate";
@@ -265,7 +266,23 @@ export function hingedArmArticulation(
       if (opening.candidate !== null && certified(opening.candidate))
         return { chosen: opening.candidate, skipped: opening.skipped };
     }
+    // A seed the caller holds (`incumbent`), scored on its own swept branch:
+    // where it is legal, its exact deviation starts the bounded visit's stop.
+    let incumbent: number | undefined;
+    const seed: IAutoMovieSwivelSeed | undefined = props.incumbent;
+    if (seed !== undefined) {
+      const stop: IBranch | undefined = stops.find(
+        (s: IBranch): boolean => s.branch === seed.branch && s.shortfall === shortfall,
+      );
+      const on: IPass | undefined =
+        stop === undefined ? undefined : branches.find((branch: IPass): boolean => branch.record === record(stop));
+      if (on !== undefined && Number.isFinite(seed.swivel)) {
+        const candidate: IScored = on.probe(seed.swivel);
+        if (candidate.overshoot === 0) incumbent = hingedSwivelAhead.exact(candidate);
+      }
+    }
     return hingedSwivelBounded.sweep<IScored>({
+      ...(incumbent === undefined ? {} : { incumbent }),
       branches: branches.map(
         (branch: IPass): hingedSwivelBounded.IBranch<IScored> => ({
           probe: branch.probe,
@@ -449,6 +466,16 @@ export namespace hingedArmArticulation {
     IAutoMovieHingedArmArticulation.IProps,
     "score" | "tie"
   > {
+    /**
+     * A seed the caller holds for a cold fit, a branch and swivel it chose
+     * for a nearby target: never the answer by itself, only a legal
+     * candidate whose exact deviation starts the bounded sweep's stop
+     * (`hingedSwivelBounded`), which keeps it only where the sweep's choice
+     * is legal and no worse than it; read only with `bound`, never with
+     * `near`.
+     */
+    incumbent?: IAutoMovieSwivelSeed;
+
     /**
      * Score one candidate's bone-local root and mid rotations: `overshoot` is
      * the total ROM overshoot in degrees, compared first, and `deviation` the

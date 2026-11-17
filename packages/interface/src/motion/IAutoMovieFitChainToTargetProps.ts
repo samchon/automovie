@@ -4,6 +4,7 @@ import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
 import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { IAutoMovieSkeletonTopology } from "../pose/IAutoMovieSkeletonTopology";
 import type { IAutoMovieSwivelNear } from "../pose/IAutoMovieSwivelNear";
+import type { IAutoMovieSwivelSeed } from "../pose/IAutoMovieSwivelSeed";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
@@ -136,4 +137,13 @@ export interface IAutoMovieFitChainToTargetProps {
    * a seed from `fitSeededChainToTarget`.
    */
   near?: IAutoMovieSwivelNear;
+
+  /**
+   * A seed a caller holds for a swept (not continued) fit, the branch and
+   * swivel it chose for a nearby target: never the answer by itself, only a
+   * legal candidate whose exact score starts the bounded sweep's stop, kept
+   * only where the sweep's own choice is legal and no worse than it, so the
+   * answer is the sweep's either way. Ignored with `near`.
+   */
+  incumbent?: IAutoMovieSwivelSeed;
 }

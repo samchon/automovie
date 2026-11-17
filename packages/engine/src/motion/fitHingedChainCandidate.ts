@@ -638,6 +638,9 @@ export function fitHingedChainCandidate(
       // A fit of a nearby target continued from its seed refines that seed
       // alone (`IAutoMovieSwivelNear`).
       ...(props.near === undefined ? {} : { near: props.near }),
+      // A swept fit's seed only starts the bounded sweep's stop
+      // (`IAutoMovieFitChainToTargetProps.incumbent`).
+      ...(props.near !== undefined || props.incumbent === undefined ? {} : { incumbent: props.incumbent }),
       // Such a fit of a requested rotation on a limb whose mid segment twists
       // distally starts from the swivel nearest its seed at which the end
       // joint's box and the mid segment's twist range both admit the
