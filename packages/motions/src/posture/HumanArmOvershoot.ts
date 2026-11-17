@@ -1,6 +1,5 @@
 import {
   Quaternion,
-  Vector3,
   closestPointsBetweenSegments,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
@@ -141,7 +140,13 @@ interface IQueries {
   readers?: Map<IShape, IDistanceReader>;
 }
 
-/** Evaluate one candidate, sharing only operation-owned unchanged geometry. */
+/**
+ * Evaluate one candidate, sharing only operation-owned unchanged geometry.
+ * A hinged fit calls it at every candidate, so it builds nothing per call:
+ * the near shapes go into one module list it alone writes, reset at each
+ * call, the samples into one module point, and the readers' queries read
+ * them before the next is written; no reading calls back into it.
+ */
 function evaluate(
   body: IAutoMovieMotionHumanBody,
   room: IRoom,
@@ -153,8 +158,6 @@ function evaluate(
   shared?: IQueries,
 ): number {
   const radius: number = body.measure.forearmRadius;
-  const degrees: (metres: number) => number = (metres: number): number =>
-    ((metres / body.measure.upperArm) * 180) / Math.PI;
 
   // The elbow's side: it goes no farther across the chest's median plane
   // than its goal asks, by the wrist or by the elbow's own hint, so a hand
@@ -174,25 +177,25 @@ function evaluate(
   // hand on its own side, was lifted 50 mm off its place by the margin.
   let depth: number = 0;
   if (room.chest !== undefined) {
-    const chest: IAutoMovieMotionHumanColliders.IPlaced = room.chest;
+    const centre: IAutoMovieVector3 = room.chest.pose.position;
     const out: IAutoMovieVector3 = room.out;
-    const own: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
-      Vector3.dot(Vector3.subtract(p, chest.pose.position), out);
     const kept: boolean =
-      !room.present && (rival === undefined || own(rival) > -radius);
+      !room.present &&
+      (rival === undefined || own(rival, centre, out) > -radius);
     depth = Math.max(
       0,
       Math.min(
         kept ? radius : 0,
-        own(wrist),
-        hint === undefined ? Infinity : own(hint) - radius,
-      ) - own(elbow),
+        own(wrist, centre, out),
+        hint === undefined ? Infinity : own(hint, centre, out) - radius,
+      ) - own(elbow, centre, out),
     );
   }
 
   // A shape whose bounding sphere the forearm's axis stays a radius from
   // cannot be within a radius of any axis point, so it is not sampled.
-  const near: IShape[] = [];
+  const near: IShape[] = NEAR;
+  let count: number = 0;
   for (const shape of room.shapes) {
     const bound: HumanShapeFraming.IFramed = shape.framed;
 
@@ -211,75 +214,59 @@ function evaluate(
       )
         continue;
     }
-    near.push(shape);
+    near[count++] = shape;
   }
-  if (near.length === 0) return degrees(depth);
-
-  // Only fixed posed geometry is shared through this candidate; every
-  // selected wrist/sample still runs its actual signed-distance query.
-  let queries: Map<IShape, IDistanceReader> | undefined = shared?.readers;
-  const distance: (shape: IShape, point: IAutoMovieVector3) => number = (
-    shape: IShape,
-    point: IAutoMovieVector3,
-  ): number => {
-    let query: IDistanceReader | undefined = queries?.get(shape);
-    if (query === undefined) {
-      query = physicalShapeSegmentDistance.prepare(shape.pose, shape.shape);
-      if (queries === undefined) {
-        queries = new Map();
-        if (shared !== undefined) shared.readers = queries;
-      }
-      queries.set(shape, query);
-    }
-    return query(point, point);
-  };
+  if (count === 0) return degrees(depth, body.measure.upperArm);
+  const queries: IQueries = shared ?? {};
 
   // The wrist's own signed clearance when the goal puts it inside a shape,
   // which no elbow place changes; 0 for a wrist outside the body. A shape
   // the wrist surely lies outside of has a positive distance, which the
-  // least with 0 ignores, so it is not queried.
+  // least with 0 ignores, so it is not queried. Only fixed posed geometry
+  // is shared through this candidate; every selected wrist/sample still
+  // runs its actual signed-distance query.
   let grazing: number = 0;
-  for (const shape of near)
+  for (let n: number = 0; n < count; n++) {
+    const shape: IShape = near[n]!;
     if (
       goal &&
       !shape.free &&
       !(BROAD.on && HumanShapeFraming.beyond(wrist, shape.framed, MARGIN))
     )
-      grazing = Math.min(
-        grazing,
-        distance(shape, wrist),
-      );
+      grazing = Math.min(grazing, distance(shape, wrist, queries));
+  }
 
   // The wrist's shortfall from the room it needs from a shape the goal
   // lays the hand on: the goal puts the hand on its surface.
   let resting: number = 0;
-  for (const shape of near)
+  for (let n: number = 0; n < count; n++) {
+    const shape: IShape = near[n]!;
     if (
       goal &&
       shape.rest &&
       !(
         BROAD.on &&
-        HumanShapeFraming.beyond(
-          wrist,
-          shape.framed,
-          radius - TISSUE + MARGIN,
-        )
+        HumanShapeFraming.beyond(wrist, shape.framed, radius - TISSUE + MARGIN)
       )
     )
       resting = Math.min(
         resting,
-        distance(shape, wrist) -
-          (radius - TISSUE),
+        distance(shape, wrist, queries) - (radius - TISSUE),
       );
+  }
 
+  const at: IAutoMovieVector3 = AT;
   for (let i: number = 0; i < SAMPLES; i++) {
     const s: number = i / SAMPLES;
-    const at: IAutoMovieVector3 = Vector3.lerp(elbow, wrist, s);
+    at.x = elbow.x + (wrist.x - elbow.x) * s;
+    at.y = elbow.y + (wrist.y - elbow.y) * s;
+    at.z = elbow.z + (wrist.z - elbow.z) * s;
 
     // The skin may press `TISSUE` into a surface anywhere along the
     // forearm, as the contact verdicts allow, and no deeper.
     const needed: number = Math.max(radius * (1 - s), radius - TISSUE);
-    for (const shape of near) {
+    for (let n: number = 0; n < count; n++) {
+      const shape: IShape = near[n]!;
       // A shape that cannot ask more than the depth already found leaves
       // the greatest as it is: the needed clearance less the least the
       // distance can be, `grazing` only lowering it.
@@ -292,12 +279,51 @@ function evaluate(
         depth,
         needed +
           (shape.rest ? resting * s : shape.free ? 0 : grazing * s) -
-          distance(shape, at),
+          distance(shape, at, queries),
       );
     }
   }
-  return degrees(depth);
+  return degrees(depth, body.measure.upperArm);
 }
+
+/** A point's signed offset from the chest's median plane toward the arm's side, metres. */
+function own(
+  p: IAutoMovieVector3,
+  centre: IAutoMovieVector3,
+  out: IAutoMovieVector3,
+): number {
+  return (
+    (p.x - centre.x) * out.x +
+    (p.y - centre.y) * out.y +
+    (p.z - centre.z) * out.z
+  );
+}
+
+/** A depth as degrees of turn at the shoulder, over the upper arm's length. */
+function degrees(metres: number, upperArm: number): number {
+  return ((metres / upperArm) * 180) / Math.PI;
+}
+
+/** A shape's signed distance to a point, its fixed-geometry reader made once per operation. */
+function distance(
+  shape: IShape,
+  point: IAutoMovieVector3,
+  shared: IQueries,
+): number {
+  const queries: Map<IShape, IDistanceReader> = (shared.readers ??= new Map());
+  let query: IDistanceReader | undefined = queries.get(shape);
+  if (query === undefined) {
+    query = physicalShapeSegmentDistance.prepare(shape.pose, shape.shape);
+    queries.set(shape, query);
+  }
+  return query(point, point);
+}
+
+/** The near shapes of the candidate `evaluate` reads, written only by it, from index 0 at each call. */
+const NEAR: IShape[] = [];
+
+/** The axis sample `evaluate` reads, written only by it before each sample's queries. */
+const AT: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /** One shape with the posed frame of its segment. */
 interface IShape {
@@ -357,8 +383,11 @@ function roomOf(
   rests: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   side: "left" | "right",
 ): IRoom {
-  const key: (list: readonly IAutoMovieMotionHumanColliders.IPlaced[]) => object = (list: readonly IAutoMovieMotionHumanColliders.IPlaced[]): object => (
-    list.length === 0 ? EMPTY : list);
+  const key: (
+    list: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  ) => object = (
+    list: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  ): object => (list.length === 0 ? EMPTY : list);
   let byOthers:
     | WeakMap<object, WeakMap<object, Partial<Record<"left" | "right", IRoom>>>>
     | undefined = ROOMS.get(key(shapes));
@@ -383,8 +412,14 @@ function roomOf(
   const known: IRoom | undefined = sides[side];
   if (known !== undefined) return known;
   const chest: IAutoMovieMotionHumanColliders.IPlaced | undefined =
-    shapes.find((s: IAutoMovieMotionHumanColliders.IPlaced): boolean => s.bone === "upperChest") ??
-    shapes.find((s: IAutoMovieMotionHumanColliders.IPlaced): boolean => s.bone === "chest");
+    shapes.find(
+      (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+        s.bone === "upperChest",
+    ) ??
+    shapes.find(
+      (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+        s.bone === "chest",
+    );
   const other: "left" | "right" = side === "left" ? "right" : "left";
   const room: IRoom = {
     chest,
@@ -401,19 +436,50 @@ function roomOf(
         s.bone === `${other}UpperArm` || s.bone === `${other}LowerArm`,
     ),
     shapes: [
-      ...shapes.map((s: IAutoMovieMotionHumanColliders.IPlaced): readonly [IAutoMovieMotionHumanColliders.IPlaced, boolean, boolean] => [s, false, false]),
-      ...others.map((s: IAutoMovieMotionHumanColliders.IPlaced): readonly [IAutoMovieMotionHumanColliders.IPlaced, boolean, boolean] => [s, true, false]),
-      ...rests.map((s: IAutoMovieMotionHumanColliders.IPlaced): readonly [IAutoMovieMotionHumanColliders.IPlaced, boolean, boolean] => [s, true, true]),
-    ].flatMap(([segment, free, rest]: readonly [IAutoMovieMotionHumanColliders.IPlaced, boolean, boolean]): IShape[] =>
-      segment.shapes.map(
-        (shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number]): IShape => ({
-          pose: segment.pose,
-          shape,
-          free,
-          rest,
-          framed: HumanShapeFraming.of(segment.pose, shape),
-        }),
+      ...shapes.map(
+        (
+          s: IAutoMovieMotionHumanColliders.IPlaced,
+        ): readonly [
+          IAutoMovieMotionHumanColliders.IPlaced,
+          boolean,
+          boolean,
+        ] => [s, false, false],
       ),
+      ...others.map(
+        (
+          s: IAutoMovieMotionHumanColliders.IPlaced,
+        ): readonly [
+          IAutoMovieMotionHumanColliders.IPlaced,
+          boolean,
+          boolean,
+        ] => [s, true, false],
+      ),
+      ...rests.map(
+        (
+          s: IAutoMovieMotionHumanColliders.IPlaced,
+        ): readonly [
+          IAutoMovieMotionHumanColliders.IPlaced,
+          boolean,
+          boolean,
+        ] => [s, true, true],
+      ),
+    ].flatMap(
+      ([segment, free, rest]: readonly [
+        IAutoMovieMotionHumanColliders.IPlaced,
+        boolean,
+        boolean,
+      ]): IShape[] =>
+        segment.shapes.map(
+          (
+            shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
+          ): IShape => ({
+            pose: segment.pose,
+            shape,
+            free,
+            rest,
+            framed: HumanShapeFraming.of(segment.pose, shape),
+          }),
+        ),
     ),
   };
   sides[side] = room;
