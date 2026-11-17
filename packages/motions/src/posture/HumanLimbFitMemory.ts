@@ -118,7 +118,7 @@ export namespace HumanLimbFitMemory {
    * @evidence contracts/development/implementation.md#principled-implementation The key is every input of a pure function; the body owns its fits.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One key, one lookup, one insertion in recency order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All actual numerical inputs remain keyed, using the original mirror, heading and grid policy with full relative translation. World/on/clear/rests exclusions remain; root/target/bend/rival move together, fixed world goals still change their relative key, and no tolerance, raw demand or admission path is weakened.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The original key takes O(B+G). Public misses keep complete cloning without new raw schema probes; private native misses may store one output inspection's 3B nullable values, B names/order codes and constant header/seed/value packet. Every hit reconstructs the complete selected output without inspecting current joints; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A request with plain records and a goal of point, bend, rotation, planted, contact, elbow and reference takes an O(B+G) numeric key on the JSON key's own grid (`prepareHumanContinuationKey`), with no serialization; attached, collider or limit goals keep the O(B+G) JSON key. Public misses keep complete cloning without new raw schema probes; private native misses may store one output inspection's 3B nullable values, B names/order codes and constant header/seed/value packet. Every hit reconstructs the complete selected output without inspecting current joints; speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged complete key/grid selects the fit. Flat snapshots retain every exact cached value/order beyond grid equality and reconstruct fresh records rather than compare mutable current input. Public capture preserves the original full-clone boundary; only module-owned native consumers can use compact output inspection and same-source miss transfer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each weak body keeps at most FIT_MEMORY independent full graphs or flat O(B) primitive snapshots plus owned header/seed/value packets. Hits issue B fresh records and public outputs remain independent. Cache entries contain no caller records, readers, continuations or query history.
    */
@@ -354,11 +354,14 @@ export namespace HumanLimbFitMemory {
       frame === null || rival === undefined
         ? rival
         : HumanLimbFitFrame.point(frame, rival);
+    // A numeric key where the request's schema allows one: every ordinary
+    // request on the same grid as its JSON key, a continuous one for a free
+    // right leg exactly; anything else keeps the JSON key.
     let key: IKey | undefined;
-    if (policy === "continuous" && limb === "rightLeg") {
+    if (policy === "ordinary" || limb === "rightLeg") {
       const owner: IPool = pool(body);
       owner.numeric ??= prepareHumanContinuationKey(own);
-      key = owner.numeric.read(own, limb, aim, placed, away, near);
+      key = owner.numeric.read(own, limb, aim, placed, away, near, policy, HumanLimbFitFrame.GRID);
       if (FITS.get(body) !== owner) key = undefined;
     }
     if (key === undefined) {
