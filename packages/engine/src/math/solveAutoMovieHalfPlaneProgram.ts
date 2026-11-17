@@ -64,7 +64,15 @@ export function solveAutoMovieHalfPlaneProgram(
       throw new Error(
         `solveAutoMovieHalfPlaneProgram: half-plane ${i} holds a value that is not finite`,
       );
-    if (Math.abs(Math.hypot(line.direction.x, line.direction.y) - 1) > 1e-6)
+    // The squared length decides a direction plainly inside or outside the
+    // unit band (its square lies within 1 - 2e-6 + 1e-12 to 1 + 2e-6 + 1e-12),
+    // with room to spare for the rounding of either form; only a square near
+    // the band's edge takes the length itself.
+    const dx: number = line.direction.x;
+    const dy: number = line.direction.y;
+    const square: number = dx * dx + dy * dy;
+    if (Math.abs(square - 1) < UNIT_INSIDE) continue;
+    if (Math.abs(square - 1) > UNIT_OUTSIDE || Math.abs(Math.hypot(dx, dy) - 1) > 1e-6)
       throw new Error(
         `solveAutoMovieHalfPlaneProgram: half-plane ${i}'s direction is not a unit vector`,
       );
@@ -88,6 +96,12 @@ type ILine = IAutoMovieSolveHalfPlaneProgram.ILine;
 
 /** Below this, two directions count as parallel and a determinant as zero. */
 const EPSILON: number = 1e-9;
+
+/** A squared direction length this close to 1 has its length inside the 1e-6 unit band: (1 - 1e-6)^2 = 1 - 2e-6 + 1e-12 bounds it, less a margin far above rounding. */
+const UNIT_INSIDE: number = 1.99e-6;
+
+/** A squared length this far from 1 has its length outside the band: (1 + 1e-6)^2 = 1 + 2e-6 + 1e-12 bounds it, plus the same margin. */
+const UNIT_OUTSIDE: number = 2.01e-6;
 
 /** The determinant of two plane vectors, `a.x b.y - a.y b.x`. */
 function det(a: IPoint, b: IPoint): number {
