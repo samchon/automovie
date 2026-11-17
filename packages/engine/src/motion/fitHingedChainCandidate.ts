@@ -32,6 +32,7 @@ import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { basisOf } from "./basisOf";
 import { distalTwistRange } from "./distalTwistRange";
+import { fitHingedClosedRoots } from "./fitHingedClosedRoots";
 import { fitHingedRotationError } from "./fitHingedRotationError";
 import { hingedChainSide } from "./hingedChainSide";
 import { hingedRotationStart } from "./hingedRotationStart";
@@ -141,7 +142,21 @@ export function fitHingedChainCandidate(
     | null =
     rotation === undefined
       ? null
-      : fitHingedRotationError(props, prepared, axes, rotation, rig);
+      : (
+          upper: IAutoMovieQuaternion,
+          lower: IAutoMovieQuaternion,
+          preparedAbove?: IAutoMovieQuaternion,
+        ): number =>
+          (erring ??= fitHingedRotationError(
+            props,
+            prepared,
+            axes,
+            rotation,
+            rig,
+          ))(upper, lower, preparedAbove);
+  // The scorer of the displayed rotation error is prepared by the first
+  // candidate measured: a fit its closed roots answer measures none.
+  let erring: ReturnType<typeof fitHingedRotationError> | undefined;
   // One candidate's rotation error is read by its exact score and again by
   // the acceptance of the chosen one: the same pure reading of the same
   // candidate record, so it is measured once for this solve.
@@ -760,6 +775,58 @@ export function fitHingedChainCandidate(
         };
       },
     });
+
+  // A requested rotation on a limb without distal twist, with a hint side:
+  // the closed roots of its end joint answer in one pass wherever their order
+  // is certain (`fitHingedClosedRoots`); the search below answers the rest.
+  if (
+    rotation !== undefined &&
+    strain === undefined &&
+    side !== null &&
+    lowerBasis.twistPlacement !== "distal"
+  ) {
+    const geometry: hingedArmSwivel.IPreparedTarget | undefined = rig
+      ?.hingedGeometry()
+      ?.target(props.target, range ?? undefined);
+    const rooted: fitHingedClosedRoots.ISolved | null =
+      geometry === undefined
+        ? null
+        : fitHingedClosedRoots({
+            prepared,
+            geometry,
+            near: props.near,
+            rotation,
+            end: (ended ??= endOf(props, prepared, rig)),
+            score: (
+              upper: IAutoMovieQuaternion,
+              lower: IAutoMovieQuaternion,
+            ): fitHingedClosedRoots.IScore => {
+              const read: IReading = reading(upper, lower);
+              const offset: IAutoMovieVector3 = across(read.mid!);
+              const off: number = Vector3.length(offset);
+              const away: number =
+                off < 1e-12
+                  ? 0
+                  : (1 - Vector3.dot(Vector3.scale(offset, 1 / off), side)) *
+                    Math.min(1, off / SIDED);
+              return {
+                joint: latest!.joint,
+                above: read.above!,
+                overshoot: read.overshoot,
+                deviation: 0 + 2 * away + read.turned + 1e-9 * read.effort,
+              };
+            },
+            error: measure,
+          });
+    if (rooted !== null)
+      return {
+        hinge: prepared.hinge,
+        upper: rooted.joint,
+        lower: midOf(rooted.lower).joint,
+        shortfall: rooted.shortfall,
+        seed: { swivel: rooted.swivel, branch: rooted.branch },
+      };
+  }
   let solved: ReturnType<typeof hingedArmArticulation> = search(certifying);
   if (solved !== null && certifying &&
     hingedSwivelAhead.rank(measure(solved.upper, solved.lower), ROM_TOLERANCE) !==
