@@ -74,7 +74,8 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * swivel nearest the hint's pole that its end joint's box
  * (`distalEndSwivelArcs`) and its mid segment's twist range
  * (`distalTwistSwivelRange`) both admit, an interval end in closed form
- * (`distalEndSwivelNearest`). Where that candidate does not answer, the sweep is bounded
+ * (`distalEndSwivelNearest`); with a reference pose, the box's alone, since
+ * the reference's turn then ranks beside the hint. Where that candidate does not answer, the sweep is bounded
  * from below by the least the end joint must miss the rotation by at each
  * swivel (`distalEndSwivelMiss`) besides the hint's side, so a rotation no
  * swivel lets the wrist take is fitted by scoring only the swivels near the
@@ -499,11 +500,15 @@ export function fitHingedChainCandidate(
                         // The forearm's own twist range admits an interval
                         // of swivels too (`distalTwistSwivelRange`): the
                         // candidate is the swivel nearest the desired one
-                        // that both the box and that range admit.
+                        // that both the box and that range admit. A reference
+                        // pose weighs a degree of turn from it like a degree
+                        // of error, so the admissible swivel nearest the pole
+                        // is not its ranking's choice: such a fit keeps the
+                        // box's own candidate and the search behind it.
                         const end: IEnd = (ended ??= endOf(props, prepared, rig));
                         const nearest: number | null = distalEndSwivelNearest(
                           arcs,
-                          distalTwistRange({
+                          props.referencePose !== undefined ? null : distalTwistRange({
                             prepared,
                             axis: lowerBasis.twist,
                             frame: props.restFrames?.[props.chain.lower]?.twist,
