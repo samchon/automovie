@@ -1,43 +1,64 @@
-import { hingedArmSwivel, minimumJerk } from "@automovie/engine";
-import type { IAutoMoviePose } from "@automovie/interface";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+  hingedArmSwivel,
+  minimumJerk,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
-import type { HumanColliders } from "../posture/HumanColliders";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
+import { HumanColliders } from "../posture/HumanColliders";
+import { HumanLimbFitFrame } from "../posture/HumanLimbFitFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { blendHumanJoint } from "../posture/blendHumanJoint";
+import { poseBones } from "../posture/poseBones";
 import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 
 /**
- * An arm group's action laid as an animation system lays a reach, without
- * trajectory optimisation, and admitted only when it meets every bound a
- * solved trajectory meets (`HumanArmTrajectory.admitted`); a group it does
- * not meet is solved by the optimiser instead (`HumanArmTrajectory.solve`).
+ * An arm group's action laid as an animation system lays a reach, an
+ * effector course and an analytic limb solve at every frame, without
+ * trajectory optimisation: kept when it meets every bound a solved
+ * trajectory meets (`HumanArmTrajectory.admitted`), else the optimiser's
+ * seed (`HumanArmTrajectory.solve`).
  *
  * On the frame grid of the span (and its `ready` and `relax`):
  *
- * - the hold: every arm fitted to its goal at each instant in one posture
- *   solve, the riding arm after the one it rides (`resolveHumanPosture`),
- *   each fit after the first continuing the last one's swivel and branch
- *   (`IAutoMovieSwivelNear`), the temporal coherence of an analytic
- *   two-bone solve (Tolani, Goswami and Badler 2000) that a game's per-frame
- *   IK keeps;
- * - the reach and the return: each joint blended between the rest and the
- *   hold's end on a minimum-jerk share (Flash and Hogan 1985), since free
- *   arm movements are smooth in joint space (Soechting and Lacquaniti 1981),
- *   and kept clear of the trunk, the thighs, the other arm and the bodies
- *   the goal names by the shoulder's abduction and the elbow's flexion
- *   (`HumanArmClearance.cleared`), each end keeping its room, as the joint
- *   carry does.
+ * - the hold: every arm's goal at the instant, each arm fitted alone on the
+ *   base the planner already solved (`resolveHumanPosture.limbSeeded`), the
+ *   riding arm after the one it rides, on the pose that one placed;
+ * - the reach and the return: the wrist on a course from one end's wrist to
+ *   the other's, laid relative to the moving shoulder (a path on the body
+ *   that carries it), its share minimum jerk in time (Flash and Hogan
+ *   1985), the hand's rotation slerped on the same share, and the elbow
+ *   hinted between the two ends' elbows. Where the straight course would
+ *   come within `HumanArmTrajectoryTerms.REACH` (the reach the model reads
+ *   a shape against a probe within) of the body without the group's arms,
+ *   it bends through one via-point that reach off the nearest surface point
+ *   along its outward normal (`HumanColliders.nearest`), passed at half the
+ *   share by a quadratic Bezier.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the two phases, their sources, the admission and the fallback.
+ * Every instant's arms are the two-bone fit of the rig (Tolani, Goswami and
+ * Badler 2000, the engine's hinged articulation with its swivel kept inside
+ * the joints' ranges and the forearm off the body), each fit after a
+ * phase's first continuing the swivel and branch the instant before chose
+ * (`IAutoMovieSwivelNear`), the per-frame coherence a game's IK keeps.
+ * Timing is the law's span: a course too fast for the speed bound is not
+ * admitted and goes to the optimiser, whose refusal names the time needed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the instants, the hold, the effector course with its frame, share, via-point and elbow, the fit, the admission and the fallback.
  * @evidence contracts/development/design.md#principled-representation The course is the arms' clinical triples at the planner's instants, read through the same playback as a solved trajectory.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One input record and one function, read by `AutoMovieMotionHumanArmPlanned.planned`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No bound is the course's own: the admission is the trajectory model's reading.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No bound is the course's own: the admission is the trajectory model's reading, and the via-point's reach is the model's own constant.
  */
 export namespace AutoMovieMotionHumanArmCourse {
   /**
@@ -55,11 +76,12 @@ export namespace AutoMovieMotionHumanArmCourse {
     /** The span's instants, seconds. */
     span: { start: number; ready: number; relax: number; end: number };
 
-    /** Each arm's side, rest and return, in the group's order. */
+    /** Each arm's side, rest, return and the bone of another arm its grip rides, in the group's order. */
     arms: readonly {
       side: "left" | "right";
       rest: AutoMovieMotionHumanArmAngles.IAngles;
       back?: AutoMovieMotionHumanArmAngles.IAngles;
+      on?: string;
     }[];
 
     /** The posture so far and its pose with the group's arms left out, at an instant. */
@@ -73,30 +95,27 @@ export namespace AutoMovieMotionHumanArmCourse {
 
     /** The plan's exact FK reader. */
     resolution: ReturnType<typeof prepareHumanPoseResolution>;
-
-    /** The plan's ROM projector. */
-    projection: ReturnType<typeof prepareHumanPostureProjection>;
   }
 
   /**
-   * The group's trajectories laid and admitted, or none when the laid course
-   * misses a bound and the optimiser must solve it.
+   * The group's course: its trajectories and whether the model admits them;
+   * none when the span holds no instant on the hold.
    *
    * @param props The planner's readers.
-   * @returns Each arm's trajectory, in the group's order; none when not admitted.
+   * @returns The trajectories in the group's order and the admission; none without a hold instant.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the instants, the phases, the admission and the absent result.
-   * @evidence contracts/development/implementation.md#principled-implementation Per-instant analytic fits on the hold continued from the last instant, joint-space minimum-jerk transport with closed-form clearance off it, and the trajectory model's own feasibility reading as the admission.
+   * @evidence contracts/development/common.md#meaningful-documentation States the instants, the phases, the result and when there is none.
+   * @evidence contracts/development/implementation.md#principled-implementation An effector course with minimum-jerk timing and a closed-form via-point, solved per instant by the rig's analytic two-bone fit continued from the last instant, admitted by the trajectory model's own feasibility reading.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The instants, the hold, the two transports, the admission.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is admitted that the model refuses; a missed bound hands the group to the optimiser with every requirement intact.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per hold instant (continued fits after the first), constant joint blends and one clearance reading per arm per transport instant, and one model evaluation, in place of the optimiser's penalty rounds of convexified programmes. Unmeasured.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is admitted that the model refuses; a refused course only seeds the optimiser, every requirement intact.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One two-bone limb fit per arm per instant on the planner's solved base (a golden refinement about the last instant's swivel after each phase's first, no posture solve), one collider query per transport arm, one model evaluation and the admission counters, in place of the optimiser's penalty rounds of convexified programmes and its sampling planner. Unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the planner's cached postures, bases and goals, and the trajectory's playback.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-instant arms live until the admission; the readers returned keep only the trajectory's playback data.
    */
   export function course(
     props: IProps,
-  ): HumanArmTrajectory.Trajectory[] | undefined {
-    const { body, span, arms } = props;
+  ): ReturnType<typeof HumanArmTrajectory.admitted> | undefined {
+    const { span, arms } = props;
 
     // The frame grid over the span, with the hold's two ends.
     const times: number[] = [span.start];
@@ -107,138 +126,213 @@ export namespace AutoMovieMotionHumanArmCourse {
       if (!times.some((s: number): boolean => Math.abs(s - t) <= 1e-9))
         times.push(t);
     times.sort((p: number, q: number): number => p - q);
-    const holding = (t: number): boolean =>
+    const holding: (t: number) => boolean = (t: number): boolean =>
       t >= span.ready - 1e-9 && t <= span.relax + 1e-9;
-
-    // The hold: one posture solve of every arm's goal per instant, each
-    // continuing the swivel the instant before chose.
     const course: Map<number, HumanArmClearance.IArm[]> = new Map();
+    const fit: (t: number, goals: readonly IHumanPosture.IGoal[], near: resolveHumanPosture.INear)
+      => { arms: HumanArmClearance.IArm[]; near: resolveHumanPosture.INear } = solver(props);
+
+    // The hold: every arm's own goal.
     let near: resolveHumanPosture.INear = {};
     for (const t of times) {
       if (!holding(t)) continue;
-      const posture: IHumanPosture = props.at(t).posture;
-      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-      arms.forEach((arm: IProps["arms"][number], a: number): void => {
-        limbs[`${arm.side}Arm`] = props.aimed(a, t);
-      });
-      const seeded: resolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
-        body, { ...posture, limbs }, undefined, near,
-        props.resolution, undefined, props.projection,
-      );
-      course.set(t, arms.map(
-        (arm: IProps["arms"][number]): HumanArmClearance.IArm =>
-          AutoMovieMotionHumanArmAngles.angles(seeded.pose, arm.side),
-      ));
-      const next: Partial<Record<IHumanPosture.Limb, ReturnType<typeof continued>>> = {};
-      for (const arm of arms) {
-        const seed: resolveHumanPosture.ISeeded["seeds"][IHumanPosture.Limb] =
-          seeded.seeds[`${arm.side}Arm`];
-        if (seed !== undefined && seed !== null)
-          next[`${arm.side}Arm`] = continued(seed);
-      }
-      near = next;
+      const solved: ReturnType<typeof fit> = fit(t,
+        arms.map((_: IProps["arms"][number], a: number): IHumanPosture.IGoal => props.aimed(a, t)), near);
+      course.set(t, solved.arms);
+      near = solved.near;
     }
-    const first: HumanArmClearance.IArm[] | undefined = course.get(
-      times.find(holding) ?? NaN,
-    );
-    const last: HumanArmClearance.IArm[] | undefined = course.get(
-      [...times].reverse().find(holding) ?? NaN,
-    );
+    const first: number | undefined = times.find(holding);
+    const last: number | undefined = [...times].reverse().find(holding);
     if (first === undefined || last === undefined) return undefined;
 
-    // A transport: each joint blended on a minimum-jerk share between its
-    // two ends and kept clear of the body, each arm in the pose the others
-    // take at the same share (an earlier arm cleared, a later one plain).
-    const transport = (
-      from: number,
-      to: number,
-      start: readonly HumanArmClearance.IArm[],
-      end: readonly HumanArmClearance.IArm[],
-    ): void => {
-      const blends: ((share: number) => HumanArmClearance.IArm)[] = arms.map(
-        (arm: IProps["arms"][number], a: number): ((share: number) => HumanArmClearance.IArm) => {
-          const upper: (share: number) => readonly [number, number, number] =
-            blendHumanJoint.between(body, `${arm.side}UpperArm`, start[a]!.upper, end[a]!.upper);
-          const lower: (share: number) => readonly [number, number, number] =
-            blendHumanJoint.between(body, `${arm.side}LowerArm`, start[a]!.lower, end[a]!.lower);
-          const hand: (share: number) => readonly [number, number, number] =
-            blendHumanJoint.between(body, `${arm.side}Hand`, start[a]!.hand, end[a]!.hand);
-          return (share: number): HumanArmClearance.IArm => ({
-            upper: upper(share), lower: lower(share), hand: hand(share),
-          });
-        },
-      );
-      const others: HumanColliders.IPlaced[][] = arms.map(
-        (_: IProps["arms"][number], a: number): HumanColliders.IPlaced[] =>
-          [...(props.aimed(a, span.ready).clear ?? [])],
-      );
-
-      // Each end keeps the room it holds, so the transport leaves and joins
-      // it without a step.
-      const rooms: HumanArmClearance.IBaseline[][] = arms.map(
-        (arm: IProps["arms"][number], a: number): HumanArmClearance.IBaseline[] => [
-          HumanArmClearance.baseline(body, props.at(from).pose, arm.side,
-            start[a]!, others[a]!, props.resolution()),
-          HumanArmClearance.baseline(body, props.at(to).pose, arm.side,
-            end[a]!, others[a]!, props.resolution()),
-        ],
-      );
-      for (const t of times) {
-        if (!(t > from + 1e-9 && t < to - 1e-9)) continue;
-        const share: number = minimumJerk.share((t - from) / (to - from));
-        const plain: HumanArmClearance.IArm[] = blends.map(
-          (blend: (share: number) => HumanArmClearance.IArm): HumanArmClearance.IArm =>
-            blend(share),
-        );
-        const cleared: HumanArmClearance.IArm[] = [];
-        arms.forEach((arm: IProps["arms"][number], a: number): void => {
-          let pose: IAutoMoviePose = props.at(t).pose;
-          arms.forEach((other: IProps["arms"][number], o: number): void => {
-            if (o !== a)
-              pose = HumanArmClearance.posed(pose, other.side,
-                o < a ? cleared[o]! : plain[o]!);
-          });
-          const room: HumanArmClearance.IBaseline[] = rooms[a]!;
-          cleared[a] = HumanArmClearance.cleared(body, pose, arm.side,
-            plain[a]!, 0, others[a]!, {
-              forearm: room[0]!.forearm * (1 - share) + room[1]!.forearm * share,
-              segments: room[0]!.segments * (1 - share) + room[1]!.segments * share,
-            }, props.resolution);
-        });
-        course.set(t, cleared);
-      }
-    };
+    // The reach from the rest to the hold's first instant, and the return
+    // from its last to the arm it goes back to.
     const rest: HumanArmClearance.IArm[] = arms.map(
       (arm: IProps["arms"][number]): HumanArmClearance.IArm => arm.rest,
     );
-    transport(span.start, span.ready, rest, first);
-
-    // The ends are the problem's own (`HumanArmTrajectory.admitted`); every
-    // other instant is the course's.
     course.set(span.start, rest);
+    transport(props, times, fit, course, span.start, first, rest, course.get(first)!);
     if (span.relax < span.end - 1e-9) {
       const back: HumanArmClearance.IArm[] = arms.map(
         (arm: IProps["arms"][number]): HumanArmClearance.IArm => arm.back ?? arm.rest,
       );
-      transport(span.relax, span.end, last, back);
+      transport(props, times, fit, course, last, span.end, course.get(last)!, back);
       course.set(span.end, back);
     }
     if (times.some((t: number): boolean => !course.has(t))) return undefined;
-    return HumanArmTrajectory.admitted(
+    const read: ReturnType<typeof HumanArmTrajectory.admitted> = HumanArmTrajectory.admitted(
       props.problem(times),
       arms.map((_: IProps["arms"][number], a: number): HumanArmClearance.IArm[] =>
         times.map((t: number): HumanArmClearance.IArm => course.get(t)![a]!),
       ),
     );
+
+    // How often a course is admitted, and which term refuses the others.
+    HumanLimbFitFrame.work(props.body, read.admitted ? "courseAdmitted" : "courseFallbacks");
+    const term: Parameters<typeof HumanLimbFitFrame.work>[1] | undefined = REFUSED[read.refused];
+    if (!read.admitted && term !== undefined) HumanLimbFitFrame.work(props.body, term);
+    return read;
   }
 }
 
 /** The frame grid, seconds: the finest the optimiser's waypoints are spaced (`HumanArmTrajectory`). */
 const STEP: number = 1 / 30;
 
-/** A fit continued from the last instant's seed, refined to the cold sweep's own resolution. */
-function continued(
-  seed: NonNullable<resolveHumanPosture.ISeeded["seeds"][IHumanPosture.Limb]>,
-): NonNullable<resolveHumanPosture.INear[IHumanPosture.Limb]> {
-  return { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
+/** The counter of each model term that refuses a laid course (`HumanArmTrajectory.admitted`'s `refused`). */
+const REFUSED: Readonly<Record<string, Parameters<typeof HumanLimbFitFrame.work>[1]>> = {
+  speed: "courseRefusedSpeed",
+  swept: "courseRefusedSwept",
+  site: "courseRefusedSite",
+  lift: "courseRefusedLift",
+  limit: "courseRefusedLimit",
+  probe: "courseRefusedProbe",
+  embedded: "courseRefusedEmbedded",
+  crossing: "courseRefusedCrossing",
+};
+
+/** The posture solve of every arm's goal at an instant, continued from the seeds the last instant chose. */
+function solver(props: AutoMovieMotionHumanArmCourse.IProps): (
+  t: number,
+  goals: readonly IHumanPosture.IGoal[],
+  near: resolveHumanPosture.INear,
+) => { arms: HumanArmClearance.IArm[]; near: resolveHumanPosture.INear } {
+  // An arm that rides another is fitted after it, on the pose it placed.
+  const order: number[] = props.arms
+    .map((_: AutoMovieMotionHumanArmCourse.IProps["arms"][number], a: number): number => a)
+    .sort((p: number, q: number): number =>
+      Number(props.arms[p]!.on !== undefined) - Number(props.arms[q]!.on !== undefined) || p - q);
+  return (t: number, goals: readonly IHumanPosture.IGoal[], near: resolveHumanPosture.INear):
+    { arms: HumanArmClearance.IArm[]; near: resolveHumanPosture.INear } => {
+    // Each arm alone on the base the planner already solved, the rest of
+    // the body as it stands: one two-bone fit per arm, no posture solve.
+    let pose: IAutoMoviePose = props.at(t).pose;
+    const next: Partial<Record<IHumanPosture.Limb, NonNullable<resolveHumanPosture.INear[IHumanPosture.Limb]>>> = {};
+    for (const a of order) {
+      const limb: IHumanPosture.Limb = `${props.arms[a]!.side}Arm`;
+      const fitted: ReturnType<typeof resolveHumanPosture.limbSeeded> =
+        resolveHumanPosture.limbSeeded(props.body, pose, limb, goals[a]!, near[limb], props.resolution);
+      pose = fitted.pose;
+
+      // Refined to the cold sweep's own resolution, so a continued fit
+      // resolves its swivel as finely as a cold one.
+      if (fitted.seed !== undefined && fitted.seed !== null)
+        next[limb] = { ...fitted.seed, tolerance: hingedArmSwivel.RESOLUTION };
+    }
+    return {
+      arms: props.arms.map((arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number]): HumanArmClearance.IArm =>
+        AutoMovieMotionHumanArmAngles.angles(pose, arm.side)),
+      near: next,
+    };
+  };
+}
+
+/** Where a transport's course stands at a share: the wrist and the elbow from the shoulder, and the hand's rotation, world axes. */
+interface IOn {
+  /** The wrist from the shoulder, metres. */
+  wrist: IAutoMovieVector3;
+
+  /** The hand's world rotation. */
+  rotation: IAutoMovieQuaternion;
+
+  /** The elbow from the shoulder, metres: the fit's bend hint. */
+  elbow: IAutoMovieVector3;
+}
+
+/** One end of a transport, read on the base it stands on: its course point and the shoulder it is relative to. */
+interface IEnd extends IOn {
+  /** The shoulder, world metres. */
+  shoulder: IAutoMovieVector3;
+}
+
+/** Lay one transport's instants between two ends into the course (the module documentation states the course). */
+function transport(
+  props: AutoMovieMotionHumanArmCourse.IProps,
+  times: readonly number[],
+  fit: ReturnType<typeof solver>,
+  course: Map<number, HumanArmClearance.IArm[]>,
+  from: number,
+  to: number,
+  start: readonly HumanArmClearance.IArm[],
+  end: readonly HumanArmClearance.IArm[],
+): void {
+  const { body, arms } = props;
+  const shoulder: (t: number, side: "left" | "right") => IAutoMovieVector3 = (
+    t: number,
+    side: "left" | "right",
+  ): IAutoMovieVector3 =>
+    poseBones(body, props.at(t).pose, props.resolution(),
+      new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(`${side}UpperArm`)!.worldPosition;
+  const read: (t: number, side: "left" | "right", arm: HumanArmClearance.IArm) => IEnd = (
+    t: number,
+    side: "left" | "right",
+    arm: HumanArmClearance.IArm,
+  ): IEnd => {
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body,
+      HumanArmClearance.posed(props.at(t).pose, side, arm), props.resolution(),
+      new Set<AutoMovieHumanoidBone>([`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`]));
+    const at: IAutoMovieVector3 = bones.get(`${side}UpperArm`)!.worldPosition;
+    return {
+      shoulder: at,
+      wrist: Vector3.subtract(bones.get(`${side}Hand`)!.worldPosition, at),
+      rotation: bones.get(`${side}Hand`)!.worldRotation,
+      elbow: Vector3.subtract(bones.get(`${side}LowerArm`)!.worldPosition, at),
+    };
+  };
+
+  // Each arm's course between its two ends, relative to its shoulder, bent
+  // through a via-point where the straight course nears the body.
+  const body0: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body,
+    props.at(from).pose, props.resolution());
+  const moving: RegExp = new RegExp(`^(${arms.map((arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number]): string =>
+    arm.side).join("|")})(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)`);
+  const still: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+  for (const [bone, frame] of body0) if (!moving.test(bone)) still.set(bone, frame);
+  const courses: ((share: number) => IOn)[] =
+    arms.map((arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number], a: number): ((share: number) => IOn) => {
+      const p: IEnd = read(from, arm.side, start[a]!);
+      const q: IEnd = read(to, arm.side, end[a]!);
+      const near: ReturnType<typeof HumanColliders.nearest> = HumanColliders.nearest(body, still,
+        Vector3.add(p.shoulder, p.wrist), Vector3.add(p.shoulder, q.wrist));
+      const reach: number = HumanArmTrajectoryTerms.REACH;
+      const control: IAutoMovieVector3 | undefined = near.distance >= reach
+        ? undefined
+        : Vector3.subtract(
+            Vector3.scale(Vector3.subtract(Vector3.add(near.point, Vector3.scale(near.normal, reach)), p.shoulder), 2),
+            Vector3.scale(Vector3.add(p.wrist, q.wrist), 0.5),
+          );
+      return (share: number): IOn => ({
+        wrist: control === undefined
+          ? Vector3.lerp(p.wrist, q.wrist, share)
+          : Vector3.add(
+              Vector3.add(Vector3.scale(p.wrist, (1 - share) ** 2), Vector3.scale(control, 2 * share * (1 - share))),
+              Vector3.scale(q.wrist, share * share),
+            ),
+        rotation: Quaternion.slerp(p.rotation, q.rotation, share),
+        elbow: Vector3.lerp(p.elbow, q.elbow, share),
+      });
+    });
+  const clear: IHumanPosture.IGoal["clear"][] = arms.map(
+    (_: AutoMovieMotionHumanArmCourse.IProps["arms"][number], a: number): IHumanPosture.IGoal["clear"] =>
+      props.aimed(a, props.span.ready).clear,
+  );
+  let near: resolveHumanPosture.INear = {};
+  for (const t of times) {
+    if (!(t > from + 1e-9 && t < to - 1e-9)) continue;
+    const share: number = minimumJerk.share((t - from) / (to - from));
+    const goals: IHumanPosture.IGoal[] = arms.map(
+      (arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number], a: number): IHumanPosture.IGoal => {
+        const at: IAutoMovieVector3 = shoulder(t, arm.side);
+        const on: IOn = courses[a]!(share);
+        return {
+          point: Vector3.add(at, on.wrist),
+          rotation: on.rotation,
+          bend: Vector3.add(at, on.elbow),
+          ...(clear[a] === undefined ? {} : { clear: clear[a] }),
+        };
+      },
+    );
+    const solved: ReturnType<typeof fit> = fit(t, goals, near);
+    course.set(t, solved.arms);
+    near = solved.near;
+  }
 }

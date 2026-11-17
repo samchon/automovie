@@ -128,11 +128,12 @@ export namespace HumanArmTrajectory {
    *
    * @param read The problem on given waypoints' seconds.
    * @param times The first waypoints' seconds, ascending.
+   * @param course A laid course the model refused (`admitted`), each arm's in the problem's order, read at the first waypoints as the seed; the sampling planner's seed (`HumanArmSeed`) when absent, and after it when the course leads to no feasible path.
    * @returns Each arm's trajectory, in the problem's order.
    * @throws {HumanRefusal} When no trajectory meets the constraints.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States seed/solution refinement, ordered action seconds, original paired-arm/mirror solve and refusal; playback borrows the final setup/time/coordinate data through a separate factory.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the existing seed, penalty optimiser and continuous-check refinement, then reads the selected coordinates through the same Hermite interpolation and arm conversion.
+   * @evidence contracts/development/common.md#meaningful-documentation States the seeds, seed/solution refinement, ordered action seconds, original paired-arm/mirror solve and refusal; playback borrows the final setup/time/coordinate data through a separate factory.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the laid course or the existing seed, penalty optimiser and continuous-check refinement, a second initialisation only when the first ends infeasible (Schulman et al. 2014 restart TrajOpt from several initialisations), then reads the selected coordinates through the same Hermite interpolation and arm conversion.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Planning stays in this builder; a module-private factory creates each returned reader from the original setup list, final times, solved coordinates and arm index, outside the builder's lexical environment.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every grid instant, split, optimiser call, acceptance/refusal and playback expression; no cloning, freezing, weakened constraint or sampled pose shortcut changes input ownership.
    * @evidence contracts/development/implementation.md#efficient-algorithms Builds the original duration-scaled fine grid and waypoint contexts, retaining all actual optimisation/refinement work and its peak populations. Playback still performs one Hermite query and one arm conversion; the factory adds one fixed-size call per arm, with no measured time or heap-byte claim.
@@ -142,6 +143,7 @@ export namespace HumanArmTrajectory {
   export function solve(
     read: (times: readonly number[]) => IProblem,
     times: readonly number[],
+    course?: readonly Trajectory[],
   ): Trajectory[] {
     const first: IProblem = read(times);
     const reading: (times: readonly number[]) => IProblem = leftFirst(first)
@@ -195,27 +197,45 @@ export namespace HumanArmTrajectory {
       context = contextOf(problem, context);
       return carried;
     };
-    let seed: number[][][] = HumanArmSeed.seed(problem, context);
-    for (
-      let again: number[][][] | undefined = refined(seed);
-      again !== undefined;
-      again = refined(seed)
-    )
-      seed = again;
-    let solved: {
-      x: number[][][];
-      evaluation: M.IEvaluation;
-      penalty: number;
-    } = HumanArmOptimiser.optimise(context, seed);
-    for (
-      let again: number[][][] | undefined = refined(
-        solved.x,
-        solved.evaluation,
-      );
-      again !== undefined;
-      again = refined(solved.x, solved.evaluation)
-    )
-      solved = HumanArmOptimiser.optimise(context, again, solved.penalty);
+    type Solved = { x: number[][][]; evaluation: M.IEvaluation; penalty: number };
+    const optimised: (from: number[][][]) => Solved = (
+      from: number[][][],
+    ): Solved => {
+      let seed: number[][][] = from;
+      for (
+        let again: number[][][] | undefined = refined(seed);
+        again !== undefined;
+        again = refined(seed)
+      )
+        seed = again;
+      let solved: Solved = HumanArmOptimiser.optimise(context, seed);
+      for (
+        let again: number[][][] | undefined = refined(
+          solved.x,
+          solved.evaluation,
+        );
+        again !== undefined;
+        again = refined(solved.x, solved.evaluation)
+      )
+        solved = HumanArmOptimiser.optimise(context, again, solved.penalty);
+      return solved;
+    };
+
+    // A laid course seeds the optimiser in place of the sampling planner;
+    // a course that leads it to no feasible path is followed by the
+    // planner's seed on the first waypoints, TrajOpt's multiple
+    // initialisations (Schulman et al. 2014).
+    const initial: IProblem = problem;
+    let solved: Solved = optimised(
+      course === undefined
+        ? HumanArmSeed.seed(problem, context)
+        : coursed(context, course),
+    );
+    if (course !== undefined && solved.evaluation.worst.value > M.TOLERANCE) {
+      problem = initial;
+      context = contextOf(problem);
+      solved = optimised(HumanArmSeed.seed(problem, context));
+    }
     const {
       x,
       evaluation: current,
@@ -269,7 +289,7 @@ export namespace HumanArmTrajectory {
    *
    * @param problem The problem on the course's waypoints.
    * @param arms Each arm's clinical triples at each waypoint, in the problem's order.
-   * @returns Each arm's trajectory through the course, read as `solve`'s are; none when any bound is missed.
+   * @returns Each arm's trajectory through the course, read as `solve`'s are, whether it is admitted, and the model term that refuses it (`M.IEvaluation.worst.term`; empty when admitted); a course not admitted is `solve`'s seed.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is read, the fixed ends, the admission and its equivalence to `solve`'s refusal test.
    * @evidence contracts/development/implementation.md#principled-implementation The same context, coordinates, hard-range projection and evaluation the optimiser's iterates are read by, so an admitted course meets every requirement a solved one meets.
@@ -282,7 +302,7 @@ export namespace HumanArmTrajectory {
   export function admitted(
     problem: IProblem,
     arms: readonly (readonly HumanArmClearance.IArm[])[],
-  ): Trajectory[] | undefined {
+  ): { trajectories: Trajectory[]; admitted: boolean; refused: string } {
     const context: M.IContext = HumanArmTrajectoryContext.prepare(
       problem.body,
       problem.arms.map((arm: IArm): "left" | "right" => arm.side),
@@ -298,11 +318,15 @@ export namespace HumanArmTrajectory {
               : M.ranged(context, a, G.encode(context.setups[a]!, arm)),
         ),
     );
-    if (M.evaluate(context, x).worst.value > M.TOLERANCE) return undefined;
-    return problem.arms.map(
-      (_: IArm, a: number): Trajectory =>
-        trajectory(context.setups, context.times, x, a),
-    );
+    const worst: M.IEvaluation["worst"] = M.evaluate(context, x).worst;
+    return {
+      trajectories: problem.arms.map(
+        (_: IArm, a: number): Trajectory =>
+          trajectory(context.setups, context.times, x, a),
+      ),
+      admitted: worst.value <= M.TOLERANCE,
+      refused: worst.value <= M.TOLERANCE ? "" : worst.term,
+    };
   }
 
   /**
@@ -432,6 +456,22 @@ export namespace HumanArmTrajectory {
           }),
     };
   }
+}
+
+/** A course's arms at a context's waypoints as coordinates, its first and returned last waypoint the context's rest and back. */
+function coursed(
+  c: M.IContext,
+  course: readonly HumanArmTrajectory.Trajectory[],
+): number[][][] {
+  return course.map((reader: HumanArmTrajectory.Trajectory, a: number): number[][] =>
+    c.times.map((t: number, k: number): number[] =>
+      k === 0
+        ? [...c.rest[a]!]
+        : k === c.n - 1 && !c.open
+          ? [...c.back[a]!]
+          : M.ranged(c, a, G.encode(c.setups[a]!, reader(t))),
+    ),
+  );
 }
 
 /** Own only the original playback inputs, without the solve builder's problem/read/context environment. */

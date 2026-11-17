@@ -125,6 +125,36 @@ export namespace HumanLimbFitFrame {
 
     /** Actual ordinary cold-fit calls inside the explicit continuation dispatcher. */
     continuationColdAttempts: number;
+
+    /** Arm courses laid without optimisation and admitted by the trajectory model (`AutoMovieMotionHumanArmCourse`). */
+    courseAdmitted: number;
+
+    /** Arm courses the trajectory model refused, handed to the optimiser as its seed. */
+    courseFallbacks: number;
+
+    /** Refused courses whose worst term was a probe's speed (`HumanArmTrajectoryModel.IEvaluation.worst.term`). */
+    courseRefusedSpeed: number;
+
+    /** Refused courses whose worst term was a probe swept into a shape between waypoints. */
+    courseRefusedSwept: number;
+
+    /** Refused courses whose worst term was the hand off its site along the surface. */
+    courseRefusedSite: number;
+
+    /** Refused courses whose worst term was the hand inside its site. */
+    courseRefusedLift: number;
+
+    /** Refused courses whose worst term was a task point off its asked place. */
+    courseRefusedLimit: number;
+
+    /** Refused courses whose worst term was a probe inside a shape at a waypoint. */
+    courseRefusedProbe: number;
+
+    /** Refused courses whose worst term was a body corner inside the arm. */
+    courseRefusedEmbedded: number;
+
+    /** Refused courses whose worst term was one arm inside the other. */
+    courseRefusedCrossing: number;
   }
 
   /**
@@ -349,7 +379,10 @@ export namespace HumanLimbFitFrame {
         evictions: 0, cacheInvalidations: 0, serializedKeys: 0, serializedCharacters: 0,
         curveQueries: 0, curveProbes: 0, curveAccepted: 0, curveColdAnchors: 0,
         curveColdFallbacks: 0, curveRefinements: 0, orientationRootTrials: 0,
-        orientationRootAccepted: 0, continuationNearAttempts: 0, continuationColdAttempts: 0 };
+        orientationRootAccepted: 0, continuationNearAttempts: 0, continuationColdAttempts: 0,
+        courseAdmitted: 0, courseFallbacks: 0, courseRefusedSpeed: 0, courseRefusedSwept: 0,
+        courseRefusedSite: 0, courseRefusedLift: 0, courseRefusedLimit: 0, courseRefusedProbe: 0,
+        courseRefusedEmbedded: 0, courseRefusedCrossing: 0 };
       COUNTS.set(body, out);
     }
     return out;

@@ -218,7 +218,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @throws {HumanRefusal} When no trajectory meets the constraints (`HumanArmTrajectory.solve`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the problem, the waypoints and their spacing, the sites and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The arms' whole action is first laid as an animation system lays it (`AutoMovieMotionHumanArmCourse`: continued analytic fits on the hold, minimum-jerk joint transport cleared of the body) and kept when the trajectory model's own reading admits it (`HumanArmTrajectory.admitted`); otherwise it is one trajectory optimisation (TrajOpt). Either is read off the very postures it is written on, so the plan is a constant of the action.
+   * @evidence contracts/development/implementation.md#principled-implementation The arms' whole action is first laid as an animation system lays it (`AutoMovieMotionHumanArmCourse`: a minimum-jerk effector course with a closed-form via-point, the rig's analytic fit at every instant continued from the last) and kept when the trajectory model's own reading admits it (`HumanArmTrajectory.admitted`); otherwise it seeds one trajectory optimisation (TrajOpt). The course counts its admission and refusing term (`HumanLimbFitFrame.work`). Either is read off the very postures it is written on, so the plan is a constant of the action.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Waypoints, postures and poses, each arm's sites, the bases, one solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The waypoints are refined on the trajectory by what they must bound, never by a declared rate; the goal is read at every waypoint, not interpolated.
    * @evidence contracts/development/implementation.md#efficient-algorithms An admitted course costs one posture solve per hold instant, constant transport work and one model evaluation on the frame grid, with no optimiser round; the optimiser's waypoints are cut only on its fallback. Each raw posture, removed-arm base and perceived goal is read once per actual refinement instant. Native endpoint arm fits run once per arm/time for ready and relax; ready's initial guess shares that completed fit. A sole planned arm also reuses its exact removed-goal base for unchanged ARC travel sampling. Multiarm bases and all refinement/optimizer work remain native; speedup is unmeasured.
@@ -439,22 +439,16 @@ export namespace AutoMovieMotionHumanArmPlanned {
       ),
     });
     // The course an animation system lays (`AutoMovieMotionHumanArmCourse`),
-    // admitted by the model's own reading; the optimiser only for a course
-    // that misses a bound.
-    const laid: HumanArmTrajectory.Trajectory[] | undefined =
+    // kept when the model's own reading admits it; otherwise the
+    // optimiser's seed.
+    const laid: ReturnType<typeof AutoMovieMotionHumanArmCourse.course> =
       AutoMovieMotionHumanArmCourse.course({
-        body,
-        span,
-        arms: carries,
-        at,
-        aimed,
-        problem,
-        resolution,
-        projection,
+        body, span, arms: carries, at, aimed, problem, resolution,
       });
-    if (laid === undefined) waypoints();
-    const solved: HumanArmTrajectory.Trajectory[] =
-      laid ?? HumanArmTrajectory.solve(problem, times);
+    if (laid?.admitted !== true) waypoints();
+    const solved: HumanArmTrajectory.Trajectory[] = laid?.admitted === true
+      ? laid.trajectories
+      : HumanArmTrajectory.solve(problem, times, laid?.trajectories);
     return new Map(
       carries.map(
         (

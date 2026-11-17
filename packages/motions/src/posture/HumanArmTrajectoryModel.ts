@@ -157,8 +157,8 @@ export namespace HumanArmTrajectoryModel {
     objective: number;
     /** The constraints' violations summed, millimetres. */
     violation: number;
-    /** The worst violation past its slack, what it is, the refusal's axis and the waypoint it is read at (an interval's first, for a step or a sweep). */
-    worst: { value: number; what: string; axis: string; at: number };
+    /** The worst violation past its slack, what it is, the refusal's axis, the waypoint it is read at (an interval's first, for a step or a sweep) and the term it breaks: `speed`, `swept`, `site`, `lift`, `limit`, `probe`, `embedded` or `crossing`, empty when none does. */
+    worst: { value: number; what: string; axis: string; at: number; term: string };
     /** Each arm's deepest probe pairs (`HumanArmTrajectoryPairs.deepest`) and the body's corners in it (`embedded`) at each inner waypoint, as the reading found them, which the convex model reads again at the same iterate. */
     pairs: {
       deepest: Map<number, P.IPair>;
@@ -270,6 +270,7 @@ export namespace HumanArmTrajectoryModel {
       what: "",
       axis: "region",
       at: 0,
+      term: "",
     };
     // A clearance miss refuses only past the audit's own skin, the margin
     // the allowance keeps below it aside (`HumanArmTrajectoryTerms.SKIN`).
@@ -278,16 +279,18 @@ export namespace HumanArmTrajectoryModel {
     const pairs: IEvaluation["pairs"] = x.map(
       (): IEvaluation["pairs"][number] => [],
     );
+    // A term's refusal axis: a speed asks for time, a task point names its
+    // target, every other term the region.
     const note = (
       v: number,
-      axis: string,
+      term: "speed" | "swept" | "site" | "lift" | "limit" | "probe" | "embedded" | "crossing",
       what: () => string,
       slack: number = 0,
     ): void => {
       if (v <= 0) return;
       violation += v;
-      if (v - slack > worst.value)
-        worst = { value: v - slack, what: what(), axis, at: here };
+      if (v - slack > worst.value) worst = { value: v - slack, what: what(), at: here, term,
+        axis: term === "speed" ? "duration" : term === "limit" ? "target" : "region" };
     };
     const n: number = c.n;
     const times: readonly number[] = c.times;
@@ -333,7 +336,7 @@ export namespace HumanArmTrajectoryModel {
           const step: number = travel(p);
           note(
             step - 1000 * SPEED_LIMIT * dt,
-            "duration",
+            "speed",
             () =>
               `probe ${p} moves ${(step / dt / 1000).toFixed(2)} m/s at ${times[k]!.toFixed(3)} s`,
           );
@@ -363,7 +366,7 @@ export namespace HumanArmTrajectoryModel {
               1000 * (lower - (S.gap(c.frames[a]![k]!, shape, pa, pb) - r));
             note(
               short,
-              "region",
+              "swept",
               () =>
                 `probe ${probe} swept ${short.toFixed(1)} mm inside shape ${shape} after ${times[k]!.toFixed(3)} s`,
             );
@@ -401,14 +404,14 @@ export namespace HumanArmTrajectoryModel {
               : 1000 * (at.gap(contact) - at.gap(at.point));
           note(
             slide - 1000 * site.disc,
-            "region",
+            "site",
             () =>
               `the hand ${slide.toFixed(1)} mm off its site along the surface at ${times[k]!.toFixed(3)} s, beyond the region's ${(1000 * site.disc).toFixed(0)} mm`,
           );
           objective += T.SITE * slide * slide;
           note(
             -lift,
-            "region",
+            "lift",
             () =>
               `the hand ${(-lift).toFixed(1)} mm inside its site at ${times[k]!.toFixed(3)} s`,
           );
@@ -416,7 +419,7 @@ export namespace HumanArmTrajectoryModel {
           for (const limit of L.of(site, at, placed[a]![k]!))
             note(
               limit.distance - limit.allowance,
-              "target",
+              "limit",
               () =>
                 `a task point ${limit.distance.toFixed(1)} mm off its asked place at ${times[k]!.toFixed(3)} s`,
             );
@@ -448,7 +451,7 @@ export namespace HumanArmTrajectoryModel {
         for (const pair of deepest.values()) {
           note(
             pair.short,
-            "region",
+            "probe",
             () =>
               `probe ${pair.probe} ${pair.short.toFixed(1)} mm inside shape ${pair.shape} at ${times[k]!.toFixed(3)} s`,
             T.SKIN,
@@ -459,7 +462,7 @@ export namespace HumanArmTrajectoryModel {
         for (const pair of embedded.values()) {
           note(
             pair.short,
-            "region",
+            "embedded",
             () =>
               `the body's ${pair.bone} ${pair.short.toFixed(1)} mm inside the arm's ${pair.shape.bone} at ${times[k]!.toFixed(3)} s`,
             T.SKIN,
@@ -476,7 +479,7 @@ export namespace HumanArmTrajectoryModel {
           here = k;
           note(
             pair.short,
-            "region",
+            "crossing",
             () =>
               `probe ${pair.probe} of the ${pair.a === 0 ? "first" : "second"} arm ${pair.short.toFixed(1)} mm inside the other's ${pair.bone} at ${times[k]!.toFixed(3)} s`,
             T.SKIN,
