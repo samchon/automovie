@@ -44,6 +44,7 @@ const files: string[] = [
   "src/audit/AutoMovieMotionHumanAuditTangle.ts",
   "src/audit/AutoMovieMotionHumanAuditTangleModel.ts",
   "src/audit/IAutoMovieMotionHumanAuditExemption.ts",
+  "src/audit/prepareAutoMovieMotionHumanAuditDepths.ts",
   "src/body/IHumanBody.ts",
   "src/body/createHumanBody.ts",
   "src/climbing/climbLadderHands.ts",

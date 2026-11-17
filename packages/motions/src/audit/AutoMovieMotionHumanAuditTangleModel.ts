@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalHullFaces,
-  physicalShapeSegmentDistance,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -19,6 +14,7 @@ import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
+import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotionHumanAuditDepths";
 
 /**
  * The per-body model the tangle audit (`AutoMovieMotionHumanAuditTangle`)
@@ -80,6 +76,9 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
 
     /** Whether two segments are one part or share a joint. */
     related: boolean[][];
+
+    /** Whether each segment is of that side's arm: its upper arm, its forearm, or its hand with the fingers. */
+    arms: Record<"left" | "right", boolean[]>;
 
     /** The segments placed in the rest T-pose. */
     rest: HumanColliders.IPlaced[];
@@ -228,7 +227,10 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
         resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
       ),
     );
-    const built: IModel = { parts, related, rest, stance, baseline: new Map() };
+    const arm: (side: "left" | "right") => boolean[] = (side: "left" | "right"): boolean[] =>
+      parts.map((p: IPart): boolean =>
+        p.bone === `${side}UpperArm` || p.bone === `${side}LowerArm` || group(p.bone) === `${side}Hand`);
+    const built: IModel = { parts, related, arms: { left: arm("left"), right: arm("right") }, rest, stance, baseline: new Map() };
     MODELS.set(body, built);
     return built;
   }
@@ -268,87 +270,18 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the outside value.
    * @evidence contracts/development/implementation.md#principled-implementation Interior depth of a point in a convex hull is its least distance to the face planes; other shapes are read by the engine's shape distance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One segment-relative transform precedes the original probe/shape/face loops; each selected hull's fixed inverse is prepared lazily at its first original use.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading through `prepareAutoMovieMotionHumanAuditDepths`, which owns the arithmetic; a caller reading many segments against `b` in one pose prepares `b` once there (`beyond`'s `targets`).
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The engine still owns every hull face and shape distance. Shape DTO transforms remain unchanged during this synchronous depth read; no query, bound, face order, deepest comparison or tolerance changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps sphere screening, selected point transforms and the original face early cut. For P probes and H selected hulls, fixed inverses are computed at most H times instead of up to P*H. A non-hull or fully screened read creates no inverse array; face and distance-query costs remain unchanged.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only a selected hull's completed Quaternion.inverse of its unchanged local transform is shared within this one depth read. Each original sphere norm uses Vector3.distance's exact length/subtract arithmetic without an unused displacement object. Different segment pairs call independently; every point, bound and face reading remains.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A private shape-indexed array holds at most one inverse per selected hull until return or throw. No shape, pose, inverse or score history survives this call; only the fresh depth array escapes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One preparation of `b` and one reading: sphere screening, selected point transforms and the face loop's early cut, with each selected hull's inverse computed once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Nothing is shared between calls here; the preparation lives for this one reading.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The preparation is dropped on return; only the fresh depth array escapes.
    */
   export function depths(
     probes: readonly IAutoMovieVector3[],
     a: HumanColliders.IPlaced,
     b: HumanColliders.IPlaced,
   ): Float64Array {
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(b.pose.rotation);
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-      inverse,
-      a.pose.rotation,
-    );
-    const position: IAutoMovieVector3 = Quaternion.rotateVector(
-      inverse,
-      Vector3.subtract(a.pose.position, b.pose.position),
-    );
-    const out: Float64Array = new Float64Array(probes.length);
-
-    // Each shape's bounding sphere in segment j's frame: a probe outside it
-    // is outside the shape, which then adds no depth.
-    const balls: { centre: IAutoMovieVector3; radius: number }[] = b.shapes.map(
-      (shape: IAutoMoviePhysicalProfile.IShape): { centre: IAutoMovieVector3; radius: number } => {
-        const ball: HumanColliders.IBall = HumanColliders.bound(shape);
-        return {
-          centre: Vector3.add(
-            shape.transform.position,
-            Quaternion.rotateVector(shape.transform.rotation, ball.centre),
-          ),
-          radius: ball.radius,
-        };
-      },
-    );
-    let inverses: IAutoMovieQuaternion[] | undefined;
-    for (let k: number = 0; k < probes.length; k++) {
-      // The probe in segment j's frame.
-      const local: IAutoMovieVector3 = Vector3.add(
-        position,
-        Quaternion.rotateVector(rotation, probes[k]!),
-      );
-      let deepest: number = 0;
-      for (let s: number = 0; s < b.shapes.length; s++) {
-        const shape: IAutoMoviePhysicalProfile.IShape = b.shapes[s]!;
-        if (
-          Vector3.distance(local, balls[s]!.centre) >=
-          balls[s]!.radius
-        )
-          continue;
-        if (shape.kind !== "hull") {
-          deepest = Math.max(
-            deepest,
-            -physicalShapeSegmentDistance(IDENTITY, shape, local, local),
-          );
-          continue;
-        }
-        let unturn: IAutoMovieQuaternion | undefined = inverses?.[s];
-        if (unturn === undefined) {
-          unturn = Quaternion.inverse(shape.transform.rotation);
-          if (inverses === undefined) inverses = [];
-          inverses[s] = unturn;
-        }
-        const point: IAutoMovieVector3 = Quaternion.rotateVector(
-          unturn,
-          Vector3.subtract(local, shape.transform.position),
-        );
-        let inside: number = Infinity;
-        for (const face of physicalHullFaces(shape.points).faces) {
-          inside = Math.min(
-            inside,
-            face.offset - Vector3.dot(face.normal, point),
-          );
-          if (inside <= deepest) break;
-        }
-        if (inside !== Infinity) deepest = Math.max(deepest, inside);
-      }
-      out[k] = deepest;
-    }
-    return out;
+    return prepareAutoMovieMotionHumanAuditDepths(b)(probes, a);
   }
 
   /**
@@ -405,25 +338,29 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @param placed The body's placed segments.
    * @param i The segment whose probes are read.
    * @param j The segment they are read in.
+   * @param targets The caller's own list for this one reading of `placed`, empty when first given: each segment read in is prepared into it once (`prepareAutoMovieMotionHumanAuditDepths`) and read from it after. The caller drops it with `placed` and gives it with no other placement.
    * @returns Metres per probe; zero or less where it lies no deeper.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the sign.
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit, the sign, and whose the list of prepared segments is and how long it holds.
    * @evidence contracts/development/implementation.md#principled-implementation The depth now less the reference depth, probe by probe.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The reference, then one subtraction per probe.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every probe is read against its own reference, none skipped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One depth reading per call; the reference is computed once per ordered pair.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads `reference`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh array and retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One depth reading per call; the reference is computed once per ordered pair, and with `targets` what a reading needs of segment `j` alone once per pose rather than once per pair.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads `reference`. A prepared segment is shared only through the list its caller made for the same `placed`, by that segment's index, so it is the preparation of `placed[j]` as placed.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh array; the list, one entry per segment read in, is the caller's and ends with its reading.
    */
   export function beyond(
     m: IModel,
     placed: readonly HumanColliders.IPlaced[],
     i: number,
     j: number,
+    targets?: (ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths> | undefined)[],
   ): Float64Array {
     const probes: IAutoMovieVector3[] = m.parts[i]!.probes;
     const baseline: Float64Array = reference(m, i, j);
-    const now: Float64Array = depths(probes, placed[i]!, placed[j]!);
+    const now: Float64Array = targets === undefined
+      ? depths(probes, placed[i]!, placed[j]!)
+      : (targets[j] ??= prepareAutoMovieMotionHumanAuditDepths(placed[j]!))(probes, placed[i]!);
     for (let k: number = 0; k < now.length; k++)
       now[k] = now[k]! - baseline[k]!;
     return now;
@@ -437,6 +374,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @param placed The body's placed segments.
    * @param i The segment whose probes are read.
    * @param j The segment they are read in.
+   * @param targets The caller's list of prepared segments for this reading of `placed` (`beyond`).
    * @returns Metres; zero when no probe lies deeper.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the zero.
@@ -452,9 +390,10 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     placed: readonly HumanColliders.IPlaced[],
     i: number,
     j: number,
+    targets?: Parameters<typeof beyond>[4],
   ): number {
     let worst: number = 0;
-    for (const d of beyond(m, placed, i, j)) worst = Math.max(worst, d);
+    for (const d of beyond(m, placed, i, j, targets)) worst = Math.max(worst, d);
     return worst;
   }
 }
@@ -465,9 +404,3 @@ const MODELS: WeakMap<IHumanBody, AutoMovieMotionHumanAuditTangleModel.IModel> =
 
 /** The fingers' part of a bone name. */
 const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/u;
-
-/** The identity frame a shape's distance is read in. */
-const IDENTITY: IAutoMoviePhysicalProfile.ITransform = {
-  position: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-};

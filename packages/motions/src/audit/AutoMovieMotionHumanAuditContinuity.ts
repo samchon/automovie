@@ -114,21 +114,42 @@ export namespace AutoMovieMotionHumanAuditContinuity {
       }
       return found;
     };
-    const step = (i: number, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
-      subtract(frames[i + 1]!.get(bone)!, frames[i]!.get(bone)!);
     for (let i: number = 0; i + 1 < times.length; i++) {
       let departs: boolean = false;
       for (const bone of frames[i]!.keys()) {
-        const now: IAutoMovieVector3 = step(i, bone);
-        const before: IAutoMovieVector3 = i > 0 ? step(i - 1, bone) : now;
-        const after: IAutoMovieVector3 =
-          i + 2 < times.length ? step(i + 1, bone) : now;
-        const speed: number = length(now) / (times[i + 1]! - times[i]!);
+        // This interval's displacement, the one before and the one after (this
+        // one's at either end of the motion), a component each: the numbers
+        // the vector forms gave, without a record per displacement.
+        const here: IAutoMovieVector3 = frames[i]!.get(bone)!;
+        const next: IAutoMovieVector3 = frames[i + 1]!.get(bone)!;
+        const nx: number = next.x - here.x;
+        const ny: number = next.y - here.y;
+        const nz: number = next.z - here.z;
+        let bx: number = nx;
+        let by: number = ny;
+        let bz: number = nz;
+        if (i > 0) {
+          const last: IAutoMovieVector3 = frames[i - 1]!.get(bone)!;
+          bx = here.x - last.x;
+          by = here.y - last.y;
+          bz = here.z - last.z;
+        }
+        let ax: number = nx;
+        let ay: number = ny;
+        let az: number = nz;
+        if (i + 2 < times.length) {
+          const far: IAutoMovieVector3 = frames[i + 2]!.get(bone)!;
+          ax = far.x - next.x;
+          ay = far.y - next.y;
+          az = far.z - next.z;
+        }
+        const travelled: number = Math.hypot(nx, ny, nz);
+        const speed: number = travelled / (times[i + 1]! - times[i]!);
         if (speed > result.speed.value)
           result.speed = { value: speed, seconds: times[i]!, where: bone };
         const coarse: number =
           i + 2 < times.length
-            ? -dot(now, after) / Math.max(length(now), length(after))
+            ? -(nx * ax + ny * ay + nz * az) / Math.max(travelled, Math.hypot(ax, ay, az))
             : 0;
         if (coarse > result.reversal.value && coarse <= floor)
           result.reversal = {
@@ -166,13 +187,7 @@ export namespace AutoMovieMotionHumanAuditContinuity {
               };
           }
         }
-        if (
-          length({
-            x: now.x - (before.x + after.x) / 2,
-            y: now.y - (before.y + after.y) / 2,
-            z: now.z - (before.z + after.z) / 2,
-          }) > limit
-        )
+        if (Math.hypot(nx - (bx + ax) / 2, ny - (by + ay) / 2, nz - (bz + az) / 2) > limit)
           departs = true;
       }
       if (!departs) continue;
@@ -267,27 +282,34 @@ const quarter = (
     last,
   ];
   const departures: number[] = [0, 0, 0, 0];
+
+  // One joint's four displacements, a component each, written anew for every
+  // joint: the differences, their sums and each departure are the numbers the
+  // vector forms gave, without a record per displacement.
+  const dx: number[] = [0, 0, 0, 0];
+  const dy: number[] = [0, 0, 0, 0];
+  const dz: number[] = [0, 0, 0, 0];
   for (const bone of first.keys()) {
-    const steps: IAutoMovieVector3[] = [0, 1, 2, 3].map(
-      (k: number): IAutoMovieVector3 =>
-        subtract(frames[k + 1]!.get(bone)!, frames[k]!.get(bone)!),
-    );
-    const sum: IAutoMovieVector3 = {
-      x: steps[0]!.x + steps[1]!.x + steps[2]!.x + steps[3]!.x,
-      y: steps[0]!.y + steps[1]!.y + steps[2]!.y + steps[3]!.y,
-      z: steps[0]!.z + steps[1]!.z + steps[2]!.z + steps[3]!.z,
-    };
+    let earlier: IAutoMovieVector3 = frames[0]!.get(bone)!;
     for (let k: number = 0; k < 4; k++) {
-      const s: IAutoMovieVector3 = steps[k]!;
+      const later: IAutoMovieVector3 = frames[k + 1]!.get(bone)!;
+      dx[k] = later.x - earlier.x;
+      dy[k] = later.y - earlier.y;
+      dz[k] = later.z - earlier.z;
+      earlier = later;
+    }
+    const sumX: number = dx[0]! + dx[1]! + dx[2]! + dx[3]!;
+    const sumY: number = dy[0]! + dy[1]! + dy[2]! + dy[3]!;
+    const sumZ: number = dz[0]! + dz[1]! + dz[2]! + dz[3]!;
+    for (let k: number = 0; k < 4; k++)
       departures[k] = Math.max(
         departures[k]!,
-        length({
-          x: s.x - (sum.x - s.x) / 3,
-          y: s.y - (sum.y - s.y) / 3,
-          z: s.z - (sum.z - s.z) / 3,
-        }),
+        Math.hypot(
+          dx[k]! - (sumX - dx[k]!) / 3,
+          dy[k]! - (sumY - dy[k]!) / 3,
+          dz[k]! - (sumZ - dz[k]!) / 3,
+        ),
       );
-    }
   }
   const largest: number = Math.max(...departures);
   for (let k: number = 0; k < 4; k++) {
