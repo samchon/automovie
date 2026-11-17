@@ -31,7 +31,7 @@ export namespace HumanArmTrajectoryConvex {
    * The convex subproblem about an iterate: the objective's quadratic model
    * (exact in the accelerations, Gauss-Newton in the steps and the
    * rotation) and each constraint linearised, as soft l1 rows of weight
-   * `mu`; the ranges hard. A pair that cannot come within its bound by what
+   * `mu`, the domain ranges too (only the trust region is hard). A pair that cannot come within its bound by what
    * the trust region lets its probe move is left out.
    *
    * @param c The context.
@@ -377,8 +377,8 @@ export namespace HumanArmTrajectoryConvex {
           });
           if (pair.rested) square(T.LIFT, -pair.short, v.idx, v.coef);
         }
-        // Hard chart and coordinate domains have one row owner.
-        rows.push(...HumanArmTrajectoryRanges.of(c, a, k, arm[k]!, index));
+        // The chart and coordinate domains, elastic, have one row owner.
+        rows.push(...HumanArmTrajectoryRanges.of(c, a, k, arm[k]!, index, mu));
       }
     });
     // Each arm's probes clear of the other arm's own colliders as both

@@ -14,9 +14,8 @@ import { HumanSequentialConvex as SCO } from "./HumanSequentialConvex";
  * (`HumanArmTrajectoryConvex`) is solved within the region by the
  * interior-point method of `HumanQuadraticProgram.interior`, whose
  * iteration count does not grow with the conditioning of a trajectory's
- * second-difference curvature as an operator splitting's does, and by the
- * OSQP solve (`HumanQuadraticProgram.prepare`) where the interior method
- * does not converge; a step is taken where the merit falls by a tenth of
+ * second-difference curvature as an operator splitting's does; every row but
+ * the trust region's is elastic, so each subproblem has a solution; a step is taken where the merit falls by a tenth of
  * what the model predicts and the region shrunk where not. The penalty is
  * steered (Byrd, Nocedal and Waltz 2008,
  * `HumanSequentialConvex.IOptions.steer`): each round it grows tenfold
@@ -41,11 +40,11 @@ export namespace HumanArmOptimiser {
    * @returns The last iterate at the waypoints, its evaluation (the grid's where a grid was read) and the penalty it was reached at.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States unchanged waypoint endpoints, penalty continuation and actual final evaluation.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the TrajOpt merit/trust loop and actual nonlinear evaluation; each convexification fixes P/q/A and only its trust intervals vary across retries, and each subproblem is solved to the interior method's accuracy or, failing that, to OSQP's.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure TrajectoryConvex owns rows, TrajectorySmooth the exact curvature, the quadratic program its two solves, and the shared sequential-convex loop acceptance; one model shell holds a linearisation and gives its repriced and objective-free variants.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every model row, penalty, trust schedule and actual trial evaluation; no previous answer or relaxed feasibility supplies a result, and an interior solve that misses its accuracy is solved again by OSQP rather than used.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the TrajOpt merit/trust loop and actual nonlinear evaluation; each convexification fixes P/q/A and only its trust intervals vary across retries, and each subproblem, its domain rows elastic as TrajOpt's, is solved by the interior method alone.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure TrajectoryConvex owns rows, TrajectorySmooth the exact curvature, the quadratic program its interior solve, and the shared sequential-convex loop acceptance; one model shell holds a linearisation and gives its repriced and objective-free variants.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every model row, penalty, trust schedule and actual trial evaluation; no previous answer or relaxed feasibility supplies a result, and an interior solve that misses its accuracy proposes no step rather than an inaccurate one.
    * @evidence contracts/development/implementation.md#efficient-algorithms One linearisation per round serves the round's model, its repriced variants and the steering's objective-free model; the exact curvature is built once per solve; a subproblem costs a bounded number of banded factorisations. No measured speedup is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The context's exact curvature and each model's trust rows are values built once by their owner and handed on; the OSQP fallback keeps its prepared model and warm iterates across a model's retries, and its keyed multipliers across models.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The context's exact curvature and each model's trust rows are values built once by their owner and handed on; nothing of a subproblem's solve is kept past it.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each convexification owns one numeric snapshot and bounded solver scratch until replacement or return; returned coordinates/evaluation remain independent and no trajectory/fit result history is cached.
    */
   export function optimise(
@@ -54,10 +53,6 @@ export namespace HumanArmOptimiser {
     from?: number,
     fine?: M.IContext,
   ): { x: number[][][]; evaluation: M.IEvaluation; penalty: number } {
-    // The multipliers of the last step taken, which the OSQP fallback's
-    // next subproblem starts from.
-    let duals: Map<string, number> | undefined;
-
     // With a frame grid finer than the waypoints, the waypoints are knots:
     // the model is read and linearised at every grid instant on their
     // interpolant, and each subproblem is carried onto the knots' steps
@@ -110,9 +105,6 @@ export namespace HumanArmOptimiser {
     // again.
     const shell = (model: QP.IProblem, x: number[][][]): SCO.IModel<number[][][]> => {
       let zero: number | undefined;
-      let prepared: ReturnType<typeof QP.prepare> | undefined;
-      let warm: QP.IState | undefined;
-      let last: QP.IState | undefined;
 
       // The region's rows, one per variable, built once for the model: a
       // retry in a smaller region changes only their two ends.
@@ -137,17 +129,13 @@ export namespace HumanArmOptimiser {
             row.u = r;
           }
 
-          // The interior-point solve; where it does not converge, the OSQP
-          // solve of the same rows, warm across this model's retries and
-          // from the multipliers of the last step taken.
-          let state: QP.IState | undefined = QP.interior(trusted);
-          if (state === undefined) {
-            prepared ??= QP.prepare(trusted);
-            warm = prepared.solve(trusted.rows, warm, duals);
-            state = warm;
-          }
-          last = state;
-          const solved: Float64Array = state.x;
+          // The interior-point solve. Every row but the trust region's is
+          // elastic (`HumanArmTrajectoryConvex`), so the subproblem has a
+          // solution, the zero step among its feasible points; a solve that
+          // ends short of its accuracy proposes no step, which the loop
+          // reads as no decrease and answers by shrinking the region.
+          const solved: Float64Array =
+            QP.interior(trusted)?.x ?? new Float64Array(trusted.n);
           let length: number = 0;
           for (let i: number = 0; i < solved.length; ++i)
             length = Math.max(length, Math.abs(solved[i]!));
@@ -179,9 +167,6 @@ export namespace HumanArmOptimiser {
             violation,
             met: most <= M.TOLERANCE,
           };
-        },
-        taken: (): void => {
-          duals = QP.multipliers(trusted, last!);
         },
         reprice: (penalty: number): SCO.IModel<number[][][]> =>
           shell(
