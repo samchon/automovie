@@ -330,7 +330,9 @@ export function AirborneTabulatedShapeHistory(
     return made;
   };
   HISTORIES.add(query);
-  NUMERIC.set(query, numeric);
+  // The history's own numeric reader, a non-enumerable member under a
+  // private key, so the history's enumerable surface stays `clear`.
+  Object.defineProperty(query, READING, { value: numeric });
   return Object.assign(query, {
     clear: (): void => {
       for (const instant of instants.values()) AirborneShapeInertia.release(instant);
@@ -347,8 +349,13 @@ interface INumeric extends AirborneTabulatedShapeHistory.IReading {
   matrix: number[][];
 }
 
-/** Each issued history's numeric reader. */
-const NUMERIC: WeakMap<IHistory, (seconds: number) => INumeric | IInstant> = new WeakMap();
+/** The private key of an issued history's numeric reader. */
+const READING: unique symbol = Symbol("AirborneTabulatedShapeHistory.reading");
+
+/** An issued history, carrying its numeric reader. */
+interface IReadable {
+  [READING]?: (seconds: number) => INumeric | IInstant;
+}
 
 /** A built table: nine scalars and their slopes a knot, the knots' seconds and how each uniform interval is divided. */
 interface ITable {
@@ -527,6 +534,6 @@ export namespace AirborneTabulatedShapeHistory {
    * instant would make. Undefined for a reader this producer did not issue.
    */
   export function reading(history: IHistory): ((seconds: number) => IReading | IInstant) | undefined {
-    return NUMERIC.get(history);
+    return (history as IHistory & IReadable)[READING];
   }
 }
