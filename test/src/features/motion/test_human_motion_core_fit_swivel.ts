@@ -27,6 +27,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * rests on the top; at 15 the arm wrestle measured it 22 mm off, where the
  * same configuration turned by 15 degrees still reaches.
  *
+ * The elbow's place and both wrists are carried `OWN` (60 mm) toward the
+ * arm's own side from where the arm wrestle recorded them, on the midline:
+ * since the shoulder's reach (130 degrees from the T-pose) the midline place
+ * lies outside this body's range, at a swing of 135 degrees at the pin of 0,
+ * where the fit rightly stops on the range's edge 20.8 mm short (39.5 mm at
+ * 15), and an elbow asked at a place is only kept where the place is legal.
+ * Carried 60 mm, both places lie inside the range (at 40 mm the pin of 15
+ * still stopped 7.8 mm short).
+ *
  * Scenarios:
  * 1. At both pins the fitted elbow lies within 5 mm of the place on its
  *    circle (every place the elbow can take with the shoulder and the wrist
@@ -45,7 +54,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_core_fit_swivel(): void {
   const body: IHumanBody = motionHumanBody("f-small");
   const TOP: number = 0.6929;
-  const bend: IAutoMovieVector3 = { x: 0, y: 0.6929, z: 0.4393 };
+  const OWN: number = 0.06;
+  const bend: IAutoMovieVector3 = { x: OWN, y: 0.6929, z: 0.4393 };
   const posture = (
     roll: number,
     twist: number,
@@ -95,8 +105,8 @@ export function test_human_motion_core_fit_swivel(): void {
     poseBones(body, resolveHumanPosture(body, of));
   const complaints: string[] = [];
   const pins: readonly (readonly [number, IHumanPosture])[] = [
-    [0, posture(0, 0, { x: 0, y: 0.8935, z: 0.315 })],
-    [15, posture(1.6667, -2.5, { x: 0.0519, y: 0.8866, z: 0.315 })],
+    [0, posture(0, 0, { x: OWN, y: 0.8935, z: 0.315 })],
+    [15, posture(1.6667, -2.5, { x: 0.0519 + OWN, y: 0.8866, z: 0.315 })],
   ];
   const upper: IAutoMovieResolvedBone[] = [];
   for (const [pin, of] of pins) {
