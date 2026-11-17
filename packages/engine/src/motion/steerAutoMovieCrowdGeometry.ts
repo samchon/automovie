@@ -210,27 +210,26 @@ export namespace steerAutoMovieCrowdGeometry {
     };
   }
 
-  /** The share of the product of two lengths under which their cross product counts as zero in `reciprocal`: several million times a double's rounding, far under any side a walker would choose. */
+  /** The share of the product of two lengths under which their cross product counts as zero in `change`: several million times a double's rounding, far under any side a walker would choose. */
   export const TIE: number = 1e-9;
 
   /**
-   * The half-plane of velocities that keeps an agent clear of another for a
-   * time horizon, taking its share of the avoidance: optimal reciprocal
-   * collision avoidance (van den Berg, Guy, Lin and Manocha 2011, section
-   * 5.1). The velocity obstacle of the other, truncated at the horizon, is
-   * left by the smallest change `u` of the relative velocity, and the agent
-   * takes its share `a` of it, the other `1 - a`: the half-plane passes
-   * through `v + a u` with its outward normal along `u`. The share is the
-   * α-weighted reciprocity of the reciprocal velocity obstacle (van den Berg,
-   * Lin and Manocha 2008, with the uneven split of its generalisations): one
-   * half while both can take their half within their speed caps
-   * (`capacity`), so the paper's even split stands wherever it is
-   * feasible; otherwise an agent at its cap takes what the cap allows and
-   * the other the rest, and against an agent that does not avoid, all it can. A relative velocity within `TIE` of the cone's
-   * axis, relative to the two lengths, takes the right leg, so the choice of
-   * side does not turn on the rounding of where the scene stands. Two discs that already overlap are separated
-   * within one step `step` instead of the horizon. Coordinates are the
-   * floor's `x` and `z` as the plane's two.
+   * The smallest change `u` of an agent's velocity relative to another's that
+   * leaves the other's velocity obstacle, truncated at a time horizon, and the
+   * direction of the half-plane boundary it defines, the admissible side on
+   * its left: the construction of optimal reciprocal collision avoidance (van
+   * den Berg, Guy, Lin and Manocha 2011, section 5.1), before either agent
+   * takes its share. A relative velocity within `TIE` of the cone's axis,
+   * relative to the two lengths, takes the right leg, so the choice of side
+   * does not turn on the rounding of where the scene stands. Two discs that
+   * already overlap are separated within one step `step` instead of the
+   * horizon. Coordinates are the floor's `x` and `z` as the plane's two.
+   *
+   * Read from the other agent's side, every input difference is negated and
+   * every operation is odd or even in them, so each nonzero component is
+   * exactly this one negated; the one exception is two overlapping discs with
+   * no separating velocity, whose fallback direction does not turn with the
+   * pair.
    *
    * @param px The agent's x, metres.
    * @param pz The agent's z, metres.
@@ -243,19 +242,19 @@ export namespace steerAutoMovieCrowdGeometry {
    * @param R The two radii summed, metres.
    * @param horizon The time horizon, seconds.
    * @param step The integration step, seconds, for an overlap.
-   * @param top The agent's speed cap, metres per second.
-   * @param other The other's speed cap, or 0 when it does not avoid (a standing agent that has not set off).
-   * @returns The half-plane, its direction a unit vector, the admissible side on its left.
+   * @param into Receives the boundary's unit direction x and z, then the change's x and z, metres per second.
+   * @param at Where in `into` the four values start.
+   * @returns Whether the pair read from the other's side negates this reading: false only for the overlap fallback.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the constraint, its source, the overlap case and the coordinates.
-   * @evidence contracts/development/implementation.md#principled-implementation The paper's construction: the truncated cone's cut-off disc or its nearer leg by the sign of the determinant, or the one-step disc for an overlap, with the alpha-weighted share of RVO, one half wherever both agents can take it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three cases, each one projection.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Coincident centres, which name no direction, take the relative velocity's own direction, or +x when that is zero, so the half-plane is always defined.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States the constraint, its source, the overlap case, the coordinates, the written values and when the other side's reading is this one negated.
+   * @evidence contracts/development/implementation.md#principled-implementation The paper's construction: the truncated cone's cut-off disc or its nearer leg by the sign of the determinant, or the one-step disc for an overlap.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three cases, each one projection, written as four numbers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Coincident centres, which name no direction, take the relative velocity's own direction, or +x when that is zero, so the half-plane is always defined; that fallback is reported as not negating.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and no record allocated.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; the caller shares a pair's reading between its two sides.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; writes the caller's four numbers.
    */
-  export function reciprocal(
+  export function change(
     px: number,
     pz: number,
     vx: number,
@@ -267,15 +266,14 @@ export namespace steerAutoMovieCrowdGeometry {
     R: number,
     horizon: number,
     step: number,
-    top: number,
-    other: number,
-  ): IAutoMovieSolveHalfPlaneProgram.ILine {
+    into: Float64Array,
+    at: number,
+  ): boolean {
     const rx: number = qx - px;
     const rz: number = qz - pz;
     const ux: number = vx - wx;
     const uz: number = vz - wz;
     const distance2: number = rx * rx + rz * rz;
-    let line: { dx: number; dz: number; cx: number; cz: number };
     if (distance2 > R * R) {
       // Not colliding: the cone truncated at the horizon.
       const inverse: number = 1 / horizon;
@@ -288,57 +286,49 @@ export namespace steerAutoMovieCrowdGeometry {
         const s: number = Math.sqrt(s2);
         const nx: number = sx / s;
         const nz: number = sz / s;
-        line = {
-          dx: nz,
-          dz: -nx,
-          cx: (R * inverse - s) * nx,
-          cz: (R * inverse - s) * nz,
-        };
-      } else {
-        // The nearer leg.
-        const leg: number = Math.sqrt(distance2 - R * R);
-        // A relative velocity on the cone's axis names no leg; within the rounding of the inputs the right leg is taken, so a pair met head-on or in file passes the same way however the scene is placed.
-        const cross: number = rx * sz - rz * sx;
-        const left: boolean =
-          Math.abs(cross) > TIE * Math.sqrt(distance2 * s2) && cross > 0;
-        const dx: number = left
-          ? (rx * leg - rz * R) / distance2
-          : -(rx * leg + rz * R) / distance2;
-        const dz: number = left
-          ? (rx * R + rz * leg) / distance2
-          : -(-rx * R + rz * leg) / distance2;
-        const along: number = ux * dx + uz * dz;
-        line = { dx, dz, cx: along * dx - ux, cz: along * dz - uz };
+        into[at] = nz;
+        into[at + 1] = -nx;
+        into[at + 2] = (R * inverse - s) * nx;
+        into[at + 3] = (R * inverse - s) * nz;
+        return true;
       }
-    } else {
-      // Colliding: separated within one step.
-      const inverse: number = 1 / step;
-      let sx: number = ux - inverse * rx;
-      let sz: number = uz - inverse * rz;
-      let s: number = Math.hypot(sx, sz);
-      if (s < 1e-12) {
-        sx = 1;
-        sz = 0;
-        s = 1;
-      }
-      const nx: number = sx / s;
-      const nz: number = sz / s;
-      line = {
-        dx: nz,
-        dz: -nx,
-        cx: (R * inverse - s) * nx,
-        cz: (R * inverse - s) * nz,
-      };
+      // The nearer leg.
+      const leg: number = Math.sqrt(distance2 - R * R);
+      // A relative velocity on the cone's axis names no leg; within the rounding of the inputs the right leg is taken, so a pair met head-on or in file passes the same way however the scene is placed.
+      const cross: number = rx * sz - rz * sx;
+      const left: boolean =
+        Math.abs(cross) > TIE * Math.sqrt(distance2 * s2) && cross > 0;
+      const dx: number = left
+        ? (rx * leg - rz * R) / distance2
+        : -(rx * leg + rz * R) / distance2;
+      const dz: number = left
+        ? (rx * R + rz * leg) / distance2
+        : -(-rx * R + rz * leg) / distance2;
+      const along: number = ux * dx + uz * dz;
+      into[at] = dx;
+      into[at + 1] = dz;
+      into[at + 2] = along * dx - ux;
+      into[at + 3] = along * dz - uz;
+      return true;
     }
-    // The share: half while both can take their half within their speed caps; otherwise the capped one takes what its cap allows and the other the rest.
-    const own: number = capacity(vx, vz, line.cx, line.cz, top);
-    const theirs: number =
-      other > 0 ? capacity(wx, wz, -line.cx, -line.cz, other) : 0;
-    const share: number = Math.min(own, Math.max(1 - theirs, 0.5));
-    return {
-      point: { x: vx + share * line.cx, y: vz + share * line.cz },
-      direction: { x: line.dx, y: line.dz },
-    };
+    // Colliding: separated within one step.
+    const inverse: number = 1 / step;
+    let sx: number = ux - inverse * rx;
+    let sz: number = uz - inverse * rz;
+    let s: number = Math.hypot(sx, sz);
+    const turns: boolean = !(s < 1e-12);
+    if (!turns) {
+      sx = 1;
+      sz = 0;
+      s = 1;
+    }
+    const nx: number = sx / s;
+    const nz: number = sz / s;
+    into[at] = nz;
+    into[at + 1] = -nx;
+    into[at + 2] = (R * inverse - s) * nx;
+    into[at + 3] = (R * inverse - s) * nz;
+    return turns;
   }
 
   /**
