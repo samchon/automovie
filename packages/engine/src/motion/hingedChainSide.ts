@@ -24,11 +24,6 @@ export namespace hingedChainSide {
    * The mid joint's distance from the line to the target, metres, from which
    * the bend hint's side weighs in full (provisional: a millimetre, past any
    * rounding of a limb's joints and short of any bend one sees).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit, its role and its provisional basis.
-   * @evidence contracts/development/design.md#principled-representation One length.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the candidate's side term and by bound.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Marked provisional with its reasoning.
    */
   export const SIDED: number = 1e-3;
 

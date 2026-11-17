@@ -65,7 +65,17 @@ export namespace distalTwistSwivelRange {
     /** The direction the twisted carried axis must have a positive component on for the reading to be the zero itself, same frame. */
     ahead: IAutoMovieVector3;
 
-    /** The end joint's flexion axis under the requested rotation, seen from the untwisted mid segment at a swivel, degrees (`K(s) e`), unit. */
+    /**
+     * The end joint's flexion axis under the requested rotation, seen from the untwisted mid segment at a swivel, degrees (`K(s) e`), unit.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the reading's argument, its unit and the frame of the vector returned.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     carried: (swivel: number) => IAutoMovieVector3;
 
     /** The mid segment's twist range about `axis`, rest-relative degrees, the lesser first. */
@@ -84,7 +94,17 @@ export namespace distalTwistSwivelRange {
     /** The swivels, degrees in [0, 360), at which the admission may change. */
     breaks: number[];
 
-    /** Whether the twist asked at a swivel, degrees, exists and lies inside the range. */
+    /**
+     * Whether the twist asked at a swivel, degrees, exists and lies inside the range.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and what a true answer means.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     admits: (swivel: number) => boolean;
 
     /**
@@ -109,6 +129,14 @@ export namespace distalTwistSwivelRange {
      * joints' tolerance (`ROM_TOLERANCE`), within which each of the two
      * angles may stand past its interval. Its premise is `ahead` unit and
      * perpendicular to `axis`.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the arguments, the interval reader returned and its unit.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
      */
     miss: (
       middle: readonly [number, number],

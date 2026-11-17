@@ -24,7 +24,17 @@ export namespace hingedSwivelSwept {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The caches are the articulation's, shared between its passes.
    */
   export interface IBranch<T> {
-    /** The actual scorer at a swivel, degrees. */
+    /**
+     * The actual scorer at a swivel, degrees.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and the candidate returned.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     probe: (angle: number) => T;
 
     /** Completed step candidates, indexed by sweep step. */

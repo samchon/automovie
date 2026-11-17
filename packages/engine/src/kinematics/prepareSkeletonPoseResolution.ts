@@ -415,11 +415,6 @@ export namespace prepareSkeletonPoseResolution {
   /**
    * One pose as this rig admitted it, handed by the pose's producer to the
    * readers of its bones.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the value is, who holds it and what a read returns.
-   * @evidence contracts/development/design.md#principled-representation The admitted articulations and root stay private; the value exposes only the bones they place, world frames in model metres, so a holder cannot edit what its other readers see.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One member for named demand, read by the displayed pose's bone readers; a fixed demand reads the same value through `IBoneDemand.read`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No pose, time or validity flag is carried: the value exists only after a completed admission.
    */
   export interface IReading {
     /** The requested reachable bones in parent-first order, all of them when no names are given, as a fresh map of fresh frames. */

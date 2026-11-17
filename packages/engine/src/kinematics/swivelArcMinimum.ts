@@ -48,13 +48,43 @@ export namespace swivelArcMinimum {
     /** The arcs searched, degrees, in the order ties are resolved in; an arc a full turn wide or wider is the whole circle. */
     arcs: readonly swivelArcs.IArc[];
 
-    /** The actual scorer at a swivel, degrees; periodic over a turn. */
+    /**
+     * The actual scorer at a swivel, degrees; periodic over a turn.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and the candidate returned.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     probe: (swivel: number) => T;
 
-    /** Whether the first candidate is strictly ahead of the second (`hingedSwivelAhead`). */
+    /**
+     * Whether the first candidate is strictly ahead of the second (`hingedSwivelAhead`).
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the strict ordering the two candidates are compared by.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     better: (a: T, b: T) => boolean;
 
-    /** The refinement of the two-step bracket about a swivel, degrees, with a scorer (`refineHingedSwivel` at the articulation's pass count). */
+    /**
+     * The refinement of the two-step bracket about a swivel, degrees, with a scorer (`refineHingedSwivel` at the articulation's pass count).
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the arguments and the refined candidate returned.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     refine: (probe: (swivel: number) => T, swivel: number) => T;
 
     /**

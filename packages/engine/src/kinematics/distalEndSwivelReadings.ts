@@ -89,7 +89,17 @@ export namespace distalEndSwivelReadings {
     /** The mid segment's long axis in the end joint's rest frame (`rest^-1 u`), unit. */
     axis: IAutoMovieVector3;
 
-    /** The mid segment's world long axis at a swivel, degrees, in the requested end rotation's frame (`R^-1 u_world`), unit. */
+    /**
+     * The mid segment's world long axis at a swivel, degrees, in the requested end rotation's frame (`R^-1 u_world`), unit.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the reading's argument, its unit and the frame of the direction returned.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     direction: (swivel: number) => IAutoMovieVector3;
   }
 

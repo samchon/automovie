@@ -43,10 +43,30 @@ export namespace hingedSwivelPole {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The refusal is null rather than optional when the caller has none.
    */
   export interface IBranch<T> {
-    /** The branch's scored candidate at a swivel, degrees. */
+    /**
+     * The branch's scored candidate at a swivel, degrees.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and the candidate returned.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     probe: (angle: number) => T;
 
-    /** The branch's bone-local root and mid rotations at a swivel, degrees, which the start reads. */
+    /**
+     * The branch's bone-local root and mid rotations at a swivel, degrees, which the start reads.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and the rotations returned.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     posed: (angle: number) => { upper: IAutoMovieQuaternion; lower: IAutoMovieQuaternion };
 
     /** Whether every swivel from `low` to `high` degrees certainly overshoots; null when nothing is refused. */

@@ -36,7 +36,17 @@ export namespace hingedArmCandidate {
     /** This branch's unchanged degree-valued swivel poser. */
     posed: ReturnType<typeof hingedArmSwivel.pose>;
 
-    /** The actual scorer under that poser and this solve's unchanged policy. */
+    /**
+     * The actual scorer under that poser and this solve's unchanged policy.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and the candidate returned.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     probe: (angle: number) => IScored;
 
     /** Completed coarse candidates, indexed by their original sweep step. */
@@ -45,10 +55,30 @@ export namespace hingedArmCandidate {
     /** Final actual candidate of each already-refined original step bracket. */
     refined: Map<number, IScored>;
 
-    /** The caller's certified refusal of swivel intervals on this branch (`excluded`), built at its first reading and read by every later stage of the solve; absent until then or when the caller has none. */
+    /**
+     * The caller's certified refusal of swivel intervals on this branch (`excluded`), built at its first reading and read by every later stage of the solve; absent until then or when the caller has none.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the interval's unit and what a true answer certifies.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     refused?: (low: number, high: number) => boolean;
 
-    /** The caller's certified lower bound of the deviation over swivel intervals on this branch (`bound`), built at its first reading; absent until then or when the caller has none. */
+    /**
+     * The caller's certified lower bound of the deviation over swivel intervals on this branch (`bound`), built at its first reading; absent until then or when the caller has none.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the interval's unit and what the bound is of.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     bound?: (low: number, high: number) => number;
   }
 
@@ -64,13 +94,33 @@ export namespace hingedArmCandidate {
     /** The effort tie-break, compared after the overshoot; a lower bound of it when `exact` is given. */
     deviation: number;
 
-    /** The exact tie-break, when `deviation` is only its lower bound; its value is kept in `known` once read. */
+    /**
+     * The exact tie-break, when `deviation` is only its lower bound; its value is kept in `known` once read.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what the reader returns and when it is read.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     exact?: () => number;
 
     /** The exact tie-break once read. */
     known?: number;
 
-    /** The second key, compared between deviations within the sweep's `tie` of each other. */
+    /**
+     * The second key, compared between deviations within the sweep's `tie` of each other.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what the reader returns and when it is read.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     tiebreak?: () => number;
 
     /** The second key once read. */

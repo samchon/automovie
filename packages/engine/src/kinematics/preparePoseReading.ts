@@ -99,11 +99,6 @@ export function preparePoseReading(
 export namespace preparePoseReading {
   /**
    * What a reading takes of an operation's state after a complete admission.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's content, frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The tracker's selected rest-relative articulation of each rooted bone and the root's owned rotation and model-metre translation: what the frames are a function of.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members of the prepared FK state, all read once at the reading's creation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The state's frame rows and joint reader are not reachable through it.
    */
   export interface IAdmitted {
     /** The selected articulation of each rooted bone. */
@@ -120,11 +115,6 @@ export namespace preparePoseReading {
    * The bones of one admitted pose: the demanded ones as a fresh map in
    * parent-first order, all reachable bones when neither argument is given;
    * `demand`, the rig's own bound indices, replaces `requested`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the arguments' precedence, the order and the ownership of the result.
-   * @evidence contracts/development/design.md#principled-representation The same demand forms and result as the operation reader's map read, without a pose argument, since the admission is already inside.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two optional arguments, each read by a current consumer: named demand and the rig's bound demand.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The indices are the rig's own; the rig does not hand this form to callers.
    */
   export type IReading = (
     requested?: ReadonlySet<AutoMovieHumanoidBone>,

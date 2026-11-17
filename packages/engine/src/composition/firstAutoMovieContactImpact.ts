@@ -54,6 +54,11 @@ export function firstAutoMovieContactImpact(
 /**
  * The scan behind {@link firstAutoMovieContactImpact}, for a reader of several
  * weapons a grid step at a time.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what the scan is, its grid, each member's meaning and unit, and when a scan has ended.
+ * @evidence contracts/development/design.md#principled-representation One weapon's search as a state read a grid step at a time: the initial contact, the next step's index, the last clear second and the step's reading, on the search's own grid so several scans share their seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One constructor and four readers, read by this entry alone against a horizon and by resolveAutoMovieContactEvents in step.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The scan keeps no pose, time table or result beyond its own last clear gap, and exposes neither its gap reader nor its departure certificates.
  */
 export namespace firstAutoMovieContactImpact {
   /**

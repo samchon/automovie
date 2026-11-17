@@ -115,11 +115,6 @@ export function prepareChainConstants(props: {
 export namespace prepareChainConstants {
   /**
    * A chain's rig constants.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and frame.
-   * @evidence contracts/development/design.md#principled-representation The chain's relative rest frames and ranges.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Eleven members, all read by the placement.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing here depends on a pose.
    */
   export interface IConstants {
     /** The chain. */

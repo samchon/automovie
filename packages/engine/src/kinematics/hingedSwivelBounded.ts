@@ -31,13 +31,33 @@ export namespace hingedSwivelBounded {
     /** The deviation, or its lower bound when `exact` is given. */
     deviation: number;
 
-    /** The exact deviation. */
+    /**
+     * The exact deviation.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what the reader returns and when it is read.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     exact?: () => number;
 
     /** The exact deviation once read. */
     known?: number;
 
-    /** A second key, unused by this search's policy. */
+    /**
+     * A second key, unused by this search's policy.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what the reader returns and when it is read.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     tiebreak?: () => number;
 
     /** The second key once read. */
@@ -53,7 +73,17 @@ export namespace hingedSwivelBounded {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The caches are the articulation's, shared with its full pass.
    */
   export interface IBranch<T> {
-    /** The actual scorer at a swivel, degrees. */
+    /**
+     * The actual scorer at a swivel, degrees.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and the candidate returned.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     probe: (angle: number) => T;
 
     /** Completed step candidates, indexed by sweep step. */
@@ -65,7 +95,17 @@ export namespace hingedSwivelBounded {
     /** Whether every swivel from `low` to `high` degrees is certain to overshoot; none to refuse nothing. */
     refused: ((low: number, high: number) => boolean) | null;
 
-    /** A certified lower bound of the exact deviation of every candidate at a swivel from `low` to `high` degrees. */
+    /**
+     * A certified lower bound of the exact deviation of every candidate at a swivel from `low` to `high` degrees.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the interval's unit and what the bound is of.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
+     */
     bound: (low: number, high: number) => number;
   }
 
