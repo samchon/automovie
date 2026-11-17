@@ -158,19 +158,19 @@ export namespace HumanPerformanceContacts {
     // their chain's evaluation. `apply` clears this with the bones.
     const limbs: Map<
       string,
-      { weapon: IAutoMovieMotionHumanActionPlan.IWeapon; from: number; to: number }[]
+      { weapon: IAutoMovieMotionWeaponPath; from: number; to: number }[]
     > = new Map();
     const axes: Map<
       number,
-      Map<IAutoMovieMotionHumanActionPlan.IWeapon, StrikingWeapon.IAxis>
+      Map<IAutoMovieMotionWeaponPath, StrikingWeapon.IAxis>
     > = new Map();
     const axis = (
-      weapon: IAutoMovieMotionHumanActionPlan.IWeapon,
+      weapon: IAutoMovieMotionWeaponPath,
       limb: string,
       t: number,
     ): StrikingWeapon.IAxis => {
       let known:
-        | Map<IAutoMovieMotionHumanActionPlan.IWeapon, StrikingWeapon.IAxis>
+        | Map<IAutoMovieMotionWeaponPath, StrikingWeapon.IAxis>
         | undefined = axes.get(t);
       if (known === undefined) {
         known = new Map();
@@ -178,21 +178,21 @@ export namespace HumanPerformanceContacts {
       }
       const found: StrikingWeapon.IAxis | undefined = known.get(weapon);
       if (found !== undefined) return found;
-      const live: IAutoMovieMotionHumanActionPlan.IWeapon[] = limbs
+      const live: IAutoMovieMotionWeaponPath[] = limbs
         .get(limb)!
         .filter(
           (w: {
-            weapon: IAutoMovieMotionHumanActionPlan.IWeapon;
+            weapon: IAutoMovieMotionWeaponPath;
             from: number;
             to: number;
           }): boolean => !(t < w.from || t > w.to),
         )
         .map(
           (w: {
-            weapon: IAutoMovieMotionHumanActionPlan.IWeapon;
+            weapon: IAutoMovieMotionWeaponPath;
             from: number;
             to: number;
-          }): IAutoMovieMotionHumanActionPlan.IWeapon => w.weapon,
+          }): IAutoMovieMotionWeaponPath => w.weapon,
         );
       for (const [w, a] of StrikingWeapon.sample(live, t)) known.set(w, a);
       return known.get(weapon)!;
@@ -216,7 +216,7 @@ export namespace HumanPerformanceContacts {
           const tail = w.tail;
           const group: string = `${person.performer.subject}|${segment.index}:${w.limb}`;
           const siblings: {
-            weapon: IAutoMovieMotionHumanActionPlan.IWeapon;
+            weapon: IAutoMovieMotionWeaponPath;
             from: number;
             to: number;
           }[] = limbs.get(group) ?? [];

@@ -145,12 +145,12 @@ export namespace HumanPerformanceContactSpeed {
       person.stops.size !== 0
     )
       return false;
-    const active: IAutoMovieMotionHumanSegment.ISegment | undefined =
+    const active: IAutoMovieMotionHumanSegment | undefined =
       HumanSegmentSelection.last(person.segments, from);
     if (HumanSegmentSelection.last(person.segments, to) !== active)
       return false;
     if (active === undefined) return true;
-    const transition: IAutoMovieMotionHumanSegment.ISegment["transition"] = active.transition;
+    const transition: IAutoMovieMotionHumanSegment["transition"] = active.transition;
     if (
       transition !== undefined &&
       transition.kind !== "redirect" &&

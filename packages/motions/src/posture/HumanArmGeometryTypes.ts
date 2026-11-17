@@ -1,18 +1,8 @@
-import type { swingTwistRange } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieJointAxes,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointPose,
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanColliders,
   IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { HumanColliders } from "./HumanColliders";
 
 /**
  * The rig, frame and placed-geometry records shared by arm trajectories.
