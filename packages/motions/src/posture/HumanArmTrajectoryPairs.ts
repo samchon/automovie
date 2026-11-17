@@ -10,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmShapeBox } from "./HumanArmShapeBox";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryOverlap } from "./HumanArmTrajectoryOverlap";
@@ -226,7 +227,15 @@ export namespace HumanArmTrajectoryPairs {
           // read exactly: it could not replace it (branch and bound).
           const bound: number = 1000 * (allowance - (gaps[shape]! - r));
           if (known !== undefined && bound <= known.short) continue;
+          // The hull's box bounds the distance tighter than its sphere: a
+          // probe the box shows no deeper than the pair's deepest so far
+          // could not replace it either.
           if (
+            known !== undefined &&
+            1000 * (allowance - (HumanArmShapeBox(frame.shapes[shape]!, p) - r)) <=
+              known.short
+          )
+            continue;          if (
             bound < -cut &&
             !c.rested(a, k, probe, frame.shapes[shape]!.bone)
           ) {
