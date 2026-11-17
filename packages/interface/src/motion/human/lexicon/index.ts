@@ -1,4 +1,5 @@
 export type { IAutoMovieMotionHumanAirborneShape } from "./IAutoMovieMotionHumanAirborneShape";
+export type { IAutoMovieMotionHumanBladeExchange } from "./IAutoMovieMotionHumanBladeExchange";
 export type { IAutoMovieMotionHumanCarried } from "./IAutoMovieMotionHumanCarried";
 export type { IAutoMovieMotionHumanCarriedCoupling } from "./IAutoMovieMotionHumanCarriedCoupling";
 export type { IAutoMovieMotionHumanCarriedCouplingFit } from "./IAutoMovieMotionHumanCarriedCouplingFit";
