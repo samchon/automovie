@@ -55,6 +55,7 @@ export function createRack(
   const half: number = d.width! / 2;
   const builder: ArchetypeBuilder<createRack.Affordance, createRack.Dimension> =
     new ArchetypeBuilder({
+      material: "steel",
       id: params.id,
       name: "squat rack",
       draw,

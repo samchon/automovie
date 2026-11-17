@@ -34,8 +34,11 @@ const LB: number = 0.45359237;
  */
 export function test_archetype_cannon_kinds(): void {
   const findings: string[] = [];
-  const close = (a: number, b: number, tolerance: number = 1e-9): boolean =>
-    Math.abs(a - b) <= tolerance * Math.max(1, Math.abs(b));
+  const close: (a: number, b: number, tolerance?: number) => boolean = (
+    a: number,
+    b: number,
+    tolerance: number = 1e-9,
+  ): boolean => Math.abs(a - b) <= tolerance * Math.max(1, Math.abs(b));
   const naval: Archetype<createCannon.Affordance, createCannon.Dimension> =
     createCannon({ kind: "navalGun" }, 1);
   const n: Readonly<Partial<Record<createCannon.Dimension, number>>> =
@@ -84,7 +87,7 @@ export function test_archetype_cannon_kinds(): void {
     const vent: IAutoMovieVector3 = mortar.affordance("vent").frame.translation;
     const angle: number =
       (Math.atan2(muzzle.y - vent.y, muzzle.z - vent.z) * 180) / Math.PI;
-    if (Math.abs(angle - 45) > 5)
+    if (!(Math.abs(angle - 45) <= 5))
       findings.push(`${model}: the bore points ${angle} degrees up`);
     for (const id of ["muzzle", "vent"] as const)
       if (mortar.affordance(id).kind !== "socket")

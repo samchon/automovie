@@ -75,6 +75,7 @@ export function createGate(
   };
   const builder: ArchetypeBuilder<createGate.Affordance, createGate.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: `${kind === "turnstile" ? "turnstile" : "speed gate"} ${model.name} mm`,
       draw,

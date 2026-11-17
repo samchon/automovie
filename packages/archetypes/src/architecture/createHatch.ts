@@ -67,6 +67,7 @@ export function createHatch(
     createHatch.Affordance,
     createHatch.Dimension
   > = new ArchetypeBuilder({
+    material: "steel",
     id: params.id,
     name: "roof hatch",
     draw,

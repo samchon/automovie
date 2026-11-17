@@ -68,6 +68,7 @@ export function createWearable(
     createWearable.Affordance,
     createWearable.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: kind,
     draw,

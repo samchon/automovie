@@ -68,6 +68,7 @@ export function createHighJump(
     createHighJump.Affordance,
     createHighJump.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: kind === "highJump" ? "high jump" : "pole vault",
     draw,

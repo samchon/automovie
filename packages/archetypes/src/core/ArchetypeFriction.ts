@@ -1,12 +1,4 @@
-import { ArchetypeRefusal } from "./ArchetypeRefusal";
-
-/** The College Physics textbook's table of measured pairs. */
-const OPENSTAX: string =
-  "OpenStax, College Physics 2e (2022), Table 5.1, Coefficients of Static and Kinetic Friction (https://openstax.org/books/college-physics-2e/pages/5-1-friction)";
-
-/** The Physics Hypertextbook's table, each row with its primary source. */
-const ELERT: string =
-  "G. Elert, The Physics Hypertextbook, Friction, coefficient table (https://physics.info/friction/)";
+import { ArchetypeMaterial } from "./ArchetypeMaterial";
 
 /**
  * Friction by material pair: what a part's surface is made of, and the static and kinetic coefficients of each measured pair of materials, each with the source it was read at.
@@ -59,136 +51,14 @@ export namespace ArchetypeFriction {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning.
    * @evidence contracts/development/design.md#principled-representation The static and kinetic coefficients as the measurement gives them, a value or a range.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; an entry of the measured pairs.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Aliases the shared material catalogue's one friction-record shape, used by builder and part queries.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Unsupported pairs and missing kinetic measurements remain explicit; this alias adds no duplicate coefficients.
    */
-  export interface ICoefficients {
-    /** The static coefficient, or the measured range's least and greatest values. */
-    static: number | readonly [number, number];
-
-    /** The kinetic coefficient, or its range; null when the source measured none. */
-    kinetic: number | readonly [number, number] | null;
-
-    /** Where it was read. */
-    source: string;
-  }
+  export type ICoefficients = ArchetypeMaterial.IFriction;
 
   /** Every measured pair, keyed by its two materials in alphabetical order joined by `/`. */
-  export const PAIRS: Readonly<Record<string, ICoefficients>> = {
-    "concrete/rubber": {
-      static: 1,
-      kinetic: 0.7,
-      source: `${OPENSTAX}: rubber on dry concrete`,
-    },
-    "wood/wood": {
-      static: 0.5,
-      kinetic: 0.3,
-      source: `${OPENSTAX}: wood on wood`,
-    },
-    "steel/wood": {
-      static: 0.5,
-      kinetic: 0.3,
-      source: `${OPENSTAX}: metal on wood`,
-    },
-    "steel/steel": {
-      static: 0.6,
-      kinetic: 0.3,
-      source: `${OPENSTAX}: steel on steel, dry`,
-    },
-    "steel/teflon": {
-      static: 0.04,
-      kinetic: 0.04,
-      source: `${OPENSTAX}: Teflon on steel`,
-    },
-    "sole/wood": {
-      static: 0.9,
-      kinetic: 0.7,
-      source: `${OPENSTAX}: shoes on wood`,
-    },
-    "ice/sole": {
-      static: 0.1,
-      kinetic: 0.05,
-      source: `${OPENSTAX}: shoes on ice`,
-    },
-    "ice/ice": {
-      static: 0.1,
-      kinetic: 0.03,
-      source: `${OPENSTAX}: ice on ice`,
-    },
-    "ice/steel": {
-      static: 0.04,
-      kinetic: 0.02,
-      source: `${OPENSTAX}: steel on ice`,
-    },
-    "asphalt/rubber": {
-      static: [0.84, 0.98],
-      kinetic: 0.72,
-      source: `${ELERT}: car tyre on asphalt, after the American Journal of Physics (https://doi.org/10.1119/1.1321812)`,
-    },
-    "concrete/hoof": {
-      static: 0.48,
-      kinetic: 0.47,
-      source: `${ELERT}: horseshoe on concrete (https://doi.org/10.1017/S1478061506617234)`,
-    },
-    "asphalt/hoof": {
-      static: 0.44,
-      kinetic: 0.42,
-      source: `${ELERT}: horseshoe on asphalt (https://doi.org/10.1017/S1478061506617234)`,
-    },
-    "hoof/stone": {
-      static: 0.42,
-      kinetic: 0.38,
-      source: `${ELERT}: horseshoe on cobblestone (https://doi.org/10.1017/S1478061506617234)`,
-    },
-    "hoof/rubber": {
-      static: 0.68,
-      kinetic: 0.67,
-      source: `${ELERT}: horseshoe on rubber (https://doi.org/10.1017/S1478061506617234)`,
-    },
-    "steel/stone": {
-      static: [0.3, 0.7],
-      kinetic: null,
-      source: `${ELERT}: iron on stone, after the Handbook of Chemistry and Physics, 8th edition (1920)`,
-    },
-    "brick/wood": {
-      static: 0.6,
-      kinetic: null,
-      source: `${ELERT}: wood on brick, after the Handbook of Chemistry and Physics, 8th edition (1920)`,
-    },
-    "stone/wood": {
-      static: 0.4,
-      kinetic: null,
-      source: `${ELERT}: wood on stone, after W. J. M. Rankine, A Manual of Applied Mechanics (1858)`,
-    },
-    "leather/steel": {
-      static: 0.56,
-      kinetic: null,
-      source: `${ELERT}: leather on metals, after the Handbook of Chemistry and Physics, 8th edition (1920)`,
-    },
-    "concrete/wood": {
-      static: [0.61, 0.88],
-      kinetic: null,
-      source:
-        "Araki, Lee, Endo, Yoshida and Uetani 2009, AIJ Journal of Technology and Design 15(30):405-409, case D, eq. (4): hinoki on an untreated concrete block, 0.88 at the first loading and 0.61 at the second (https://www.jstage.jst.go.jp/article/aijt/15/30/15_30_405/_pdf/-char/ja)",
-    },
-    "concrete/steel": {
-      static: 0.52,
-      kinetic: 0.46,
-      source:
-        "static: Ikenaga et al. 2008, Proceedings of the 14th World Conference on Earthquake Engineering, section 2.2, mill-scale steel on non-shrink mortar, with Rabbat and Russell 1985 (ASCE Journal of Structural Engineering 111(3):505, read at its abstract only, 0.57 to 0.70) as corroboration; kinetic: Gomez, Kanvinde and Deierlein 2011, AISC Engineering Journal Q4, Table 1, sliding after the bond breaks (https://ej.aisc.org/index.php/engj/article/download/1021/1020). Both primaries measure steel on grout or mortar, not on bare concrete",
-    },
-    "concrete/stone": {
-      static: 0.57,
-      kinetic: 0.53,
-      source:
-        "Badika et al. 2022, Applied Sciences 12:5643 (https://doi.org/10.3390/app12115643), p. 6: a smooth saw-cut granite-concrete interface, peak friction angle 29.7 degrees and residual 27.9 degrees, their tangents, bonding negligible per the authors. It is a cast interface tested in direct shear at 0.5 to 1.5 MPa normal stress, not a loose stone on a slab; a stone resting under its own weight sees far lower stress, so the row is the best measured analogue, not an exact match",
-    },
-    "leather/wood": {
-      static: [0.27, 0.38],
-      kinetic: null,
-      source: `${ELERT}: leather on wood, after the Handbook of Chemistry and Physics, 8th edition (1920)`,
-    },
-  };
+  export const PAIRS: Readonly<Record<string, ICoefficients>> =
+    ArchetypeMaterial.FRICTION;
 
   /**
    * The measured coefficients of a pair of materials, in either order.
@@ -201,7 +71,7 @@ export namespace ArchetypeFriction {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order-free lookup and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Coulomb friction between two surfaces is a property of the pair, not of either alone, so the key is the unordered pair.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key, one lookup.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to the shared physical material catalogue's unordered lookup.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unmeasured pair is refused rather than given a mean of its materials' other pairs.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function over a constant table.
@@ -212,19 +82,7 @@ export namespace ArchetypeFriction {
     b: Material,
     archetype: string,
   ): ICoefficients {
-    const key: string = a < b ? `${a}/${b}` : `${b}/${a}`;
-    const row: ICoefficients | undefined = PAIRS[key];
-    if (row === undefined)
-      throw new ArchetypeRefusal({
-        kind: "parameter",
-        archetype,
-        axis: "friction",
-        value: key,
-        feasible: { kind: "alternatives", values: Object.keys(PAIRS) },
-        reason: `no source read here measured the friction of ${a} on ${b}`,
-        fix: "declare surfaces whose pair a source measured, or read a source for this pair and add its row",
-      });
-    return row;
+    return ArchetypeMaterial.friction(a, b, archetype);
   }
 
   /**

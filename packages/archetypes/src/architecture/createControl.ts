@@ -69,6 +69,7 @@ export function createControl(
     createControl.Affordance,
     createControl.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: kind === "lever" ? "ball lever" : "selector dial",
     draw,

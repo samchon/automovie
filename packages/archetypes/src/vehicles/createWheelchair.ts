@@ -67,6 +67,7 @@ export function createWheelchair(
     createWheelchair.Affordance,
     createWheelchair.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: kind === "selfPropelled" ? "wheelchair" : "transport wheelchair",
     draw,

@@ -17,7 +17,7 @@ import { TestValidator } from "@nestia/e2e";
  * 5. At each of the thirty whole turns each string half keeps its braced length within the string's radius (`createBow.STRING`), the tolerance the limbs' table is bisected to: the string does not stretch.
  * 6. Turning the crank back past rest or past its thirty turns is refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Turns a real crossbow's crank and reads the posed string, nock and string halves; a string that does not follow, a wrong ratio, or halves that leave their tips is caught.
+ * @evidence contracts/development/testing.md#behavioral-verification Turns a real crossbow's crank and reads the posed string, nock and string halves with finite-safe comparisons; a string that does not follow, a wrong ratio, or halves that leave their tips is caught.
  * @evidence contracts/development/testing.md#independent-expectations The ratio is worked here from the book's 5½ in and thirty turns; the nock's place is read off the posed model.
  * @evidence contracts/development/testing.md#distinguishing-cases Rest, nine turns between and the full count, every whole turn for the string's length, the trigger and three refusals.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
@@ -29,8 +29,10 @@ export function test_archetype_weapon_crossbow_span(): void {
   const full: number = 30 * 360;
   const ratio: number = (5.5 * ArchetypeUnits.INCH) / full;
   const braced: IAutoMovieVector3 = bow.affordance("nock").frame.translation;
-  const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-    Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+  const distance: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): number => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   const centre: IAutoMovieVector3 =
     bow.affordance("upperLimb").frame.translation;
   const reach: Record<string, number> = {
@@ -43,36 +45,41 @@ export function test_archetype_weapon_crossbow_span(): void {
       crank: turned,
     });
     const travel: number = spanned.travel("string");
-    if (Math.abs(travel - turned * ratio) > 1e-12)
+    if (!(Math.abs(travel - turned * ratio) <= 1e-12))
       findings.push(
         `at ${turned} degrees the string is ${travel} m back, ${turned * ratio} m expected`,
       );
     const nock: IAutoMovieVector3 =
       spanned.affordance("nock").frame.translation;
     if (
-      Math.hypot(nock.x - braced.x, nock.y - braced.y) > 1e-4 ||
-      Math.abs(braced.z - nock.z - travel) > 1e-4
+      !(Math.hypot(nock.x - braced.x, nock.y - braced.y) <= 1e-4) ||
+      !(Math.abs(braced.z - nock.z - travel) <= 1e-4)
     )
       findings.push(`at ${turned} degrees the nock is off the stock's line`);
     for (const half of ["string-upper", "string-lower"] as const) {
       const line: ReturnType<typeof spanned.span> = spanned.span(half);
-      if (distance(line.to, nock) > 1e-9)
+      if (!(distance(line.to, nock) <= 1e-9))
         findings.push(`at ${turned} degrees ${half} leaves the nock`);
       // The bow's half turns about the bow's centre, so its tip keeps its braced distance from it.
-      if (Math.abs(distance(line.from, centre) - reach[half]!) > 1e-9)
+      if (!(Math.abs(distance(line.from, centre) - reach[half]!) <= 1e-9))
         findings.push(`at ${turned} degrees the tip of ${half} leaves its arc`);
     }
   }
   if (
-    Math.abs(
-      bow.articulate({ crank: full }).travel("string") -
-        5.5 * ArchetypeUnits.INCH,
-    ) > 1e-12
+    !(
+      Math.abs(
+        bow.articulate({ crank: full }).travel("string") -
+          5.5 * ArchetypeUnits.INCH,
+      ) <= 1e-12
+    )
   )
     findings.push("the full count does not span the string its 5½ in");
   if (
-    Math.abs(bow.affordance("trigger").travel! - 0.125 * ArchetypeUnits.INCH) >
-    1e-12
+    !(
+      Math.abs(
+        bow.affordance("trigger").travel! - 0.125 * ArchetypeUnits.INCH,
+      ) <= 1e-12
+    )
   )
     findings.push(`the trigger travels ${bow.affordance("trigger").travel} m`);
   // 5. The string does not stretch: each half keeps its braced length, within the string's radius the limbs' table is bisected to.
@@ -87,7 +94,7 @@ export function test_archetype_weapon_crossbow_span(): void {
     for (const half of ["string-upper", "string-lower"] as const) {
       const line: ReturnType<typeof spanned.span> = spanned.span(half);
       const stretch: number = distance(line.from, line.to) - braceLength[half]!;
-      if (Math.abs(stretch) > createBow.STRING)
+      if (!(Math.abs(stretch) <= createBow.STRING))
         findings.push(`at ${k} turns ${half} stretches ${stretch} m`);
     }
   }

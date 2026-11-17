@@ -63,6 +63,7 @@ export function createLongGun(
     createLongGun.Affordance,
     createLongGun.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: createLongGun.NAMES[kind],
     draw,

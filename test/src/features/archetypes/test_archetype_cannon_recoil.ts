@@ -24,12 +24,13 @@ const FT: number = 0.3048;
  * 3. The same shot second gives the same track; a later shot second shifts it whole.
  * 4. At the run's end the whole carriage and tube stand the run behind where they stood, and the pose is an admitted model.
  * 5. A naval gun, which has no recoil slider, is refused at `kind`.
+ * 6. Non-finite shot/sample seconds and a start so large that the interval collapses are refused. Endpoint playback itself can drive the articulation, exactly at its bound.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the track over its span and poses the gun at its end; a track that does not stop at the run, moves backward, depends on anything but the shot's second, or a gun that does not move with it is caught.
  * @evidence contracts/development/testing.md#independent-expectations The shot's mass and speed are the 1861 manual's, written here; the start speed and duration are worked from them by momentum and even slowing.
- * @evidence contracts/development/testing.md#distinguishing-cases Four seeds across the recoil band, two shot seconds and a refused kind.
+ * @evidence contracts/development/testing.md#distinguishing-cases Four seeds across the recoil band, two shot seconds, a refused kind, non-finite times and both signs of an unrepresentably large start, and direct endpoint playback through articulate.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists all six scenarios, the recoil derivation, invalid-time decisions and actual endpoint playback.
  */
 export function test_archetype_cannon_recoil(): void {
   const findings: string[] = [];
@@ -40,25 +41,31 @@ export function test_archetype_cannon_recoil(): void {
     const track: ArchetypeTrack.ITrack<createCannon.Affordance> =
       createCannon.recoil(gun, 2);
     const speed: number = (6.1 * LB * 1439 * FT) / gun.dimensions.mass!;
-    if (Math.abs(track.end - track.start - (2 * run) / speed) > 1e-9)
+    if (!(Math.abs(track.end - track.start - (2 * run) / speed) <= 1e-9))
       findings.push(`@${seed}: the recoil lasts ${track.end - track.start} s`);
     if (
       track.travel(1) !== 0 ||
-      Math.abs(track.travel(track.end + 1) - run) > 1e-9
+      track.travel(track.end) !== run ||
+      track.travel(track.end + 1) !== run
     )
       findings.push(`@${seed}: the track does not hold its ends`);
     const step: number = 1e-6;
     if (
-      Math.abs(
-        (track.travel(track.start + step) - track.travel(track.start)) / step -
-          speed,
-      ) > 1e-3
+      !(
+        Math.abs(
+          (track.travel(track.start + step) - track.travel(track.start)) /
+            step -
+            speed,
+        ) <= 1e-3
+      )
     )
       findings.push(`@${seed}: it does not start at the momentum's speed`);
     if (
-      Math.abs(
-        (track.travel(track.end) - track.travel(track.end - step)) / step,
-      ) > 1e-3
+      !(
+        Math.abs(
+          (track.travel(track.end) - track.travel(track.end - step)) / step,
+        ) <= 1e-3
+      )
     )
       findings.push(`@${seed}: it does not stop`);
     let last: number = -1;
@@ -66,7 +73,7 @@ export function test_archetype_cannon_recoil(): void {
       const x: number = track.travel(
         track.start + ((track.end - track.start) * k) / 100,
       );
-      if (x < last - 1e-12)
+      if (!(Number.isFinite(x) && x >= last - 1e-12 && x >= 0 && x <= run))
         findings.push(`@${seed}: the run goes forward at step ${k}`);
       last = x;
     }
@@ -77,20 +84,49 @@ export function test_archetype_cannon_recoil(): void {
     for (const t of [2, 2.5, 3, track.end])
       if (
         again.travel(t) !== track.travel(t) ||
-        Math.abs(later.travel(t + 3) - track.travel(t)) > 1e-12
+        !(Math.abs(later.travel(t + 3) - track.travel(t)) <= 1e-12)
       )
         findings.push(`@${seed}: the track is not the shot second's alone`);
     const back: Archetype<createCannon.Affordance, createCannon.Dimension> =
-      gun.articulate({ recoil: run });
+      gun.articulate({ recoil: track.travel(track.end) });
     for (const part of ["trail", "chase"]) {
       const moved: number =
         archetypeExtent(gun, "z", [part]).low -
         archetypeExtent(back, "z", [part]).low;
-      if (Math.abs(moved - run) > 1e-6)
+      if (!(Math.abs(moved - run) <= 1e-6))
         findings.push(`@${seed}: the ${part} runs back ${moved} m, not ${run}`);
     }
     if (!validateModel({ model: back }).success)
       findings.push(`@${seed}: the recoiled pose is refused`);
+    for (const seconds of [Number.NaN, Infinity, -Infinity]) {
+      let rejected: boolean = false;
+      try {
+        track.travel(seconds);
+      } catch (error) {
+        rejected =
+          error instanceof ArchetypeRefusal && error.axis === "seconds";
+      }
+      if (!rejected)
+        findings.push(`@${seed}: sample second ${seconds} was accepted`);
+    }
+    for (const start of [
+      Number.NaN,
+      Infinity,
+      -Infinity,
+      Number.MAX_VALUE,
+      -Number.MAX_VALUE,
+    ]) {
+      let rejected: boolean = false;
+      try {
+        createCannon.recoil(gun, start);
+      } catch (error) {
+        rejected = error instanceof ArchetypeRefusal && error.axis === "start";
+      }
+      if (!rejected)
+        findings.push(
+          `@${seed}: unrepresentable shot second ${start} was accepted`,
+        );
+    }
   }
   let refused: unknown = null;
   try {

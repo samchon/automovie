@@ -96,6 +96,7 @@ export function createBag(
   const depth: number = d.depth!;
   const builder: ArchetypeBuilder<createBag.Affordance, createBag.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: kind,
       draw,

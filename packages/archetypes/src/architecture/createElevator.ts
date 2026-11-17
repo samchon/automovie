@@ -97,6 +97,7 @@ export function createElevator(
     createElevator.Affordance,
     createElevator.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `lift car ${car.name} mm, door ${door.name} mm`,
     draw,

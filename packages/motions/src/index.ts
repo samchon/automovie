@@ -400,6 +400,7 @@ export * from "./lexicon/HumanToolRows";
 export * from "./perform/HumanForce";
 export * from "./perform/HumanLoad";
 export * from "./perform/HumanPropDynamics";
+export * from "./perform/HumanPropOutcome";
 export * from "./perform/HumanWater";
 export * from "./posture/mixHumanPosture";
 export * from "./posture/turnHumanPosture";

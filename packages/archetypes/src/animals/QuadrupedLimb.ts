@@ -75,7 +75,10 @@ export namespace QuadrupedLimb {
     const most: number = a! + lower;
     const drop: number = y - top[1];
     let ahead: number = z - top[0];
-    if (Math.hypot(ahead, drop) > most && Math.abs(drop) < most) {
+
+    // At full vertical extension the allowed horizontal offset is zero,
+    // still a defined boundary of this same reach projection.
+    if (Math.hypot(ahead, drop) > most && Math.abs(drop) <= most) {
       const within: number =
         Math.sign(ahead) * Math.sqrt(most * most - drop * drop);
       top[0] += ahead - within;

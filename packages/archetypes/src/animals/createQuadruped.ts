@@ -1,17 +1,35 @@
 import { type Archetype, ArchetypeDraw, ArchetypeRefusal } from "../core";
+import { CamelBody } from "./CamelBody";
+import { CamelGait } from "./CamelGait";
+import { DeerBody } from "./DeerBody";
+import { DeerGait } from "./DeerGait";
+import { DogBody } from "./DogBody";
+import { DogGait } from "./DogGait";
 import { HorseGait } from "./HorseGait";
 import { HorseHarness } from "./HorseHarness";
+import { OxBody } from "./OxBody";
+import { OxGait } from "./OxGait";
 import type { QuadrupedBody } from "./QuadrupedBody";
 import type { QuadrupedGait } from "./QuadrupedGait";
+import { createCamel } from "./createCamel";
+import type { createCohortQuadruped } from "./createCohortQuadruped";
+import { createDeer } from "./createDeer";
+import { createDog } from "./createDog";
 import { createDonkey } from "./createDonkey";
 import { createHorse } from "./createHorse";
 import { createMule } from "./createMule";
+import { createOx } from "./createOx";
 import { createPony } from "./createPony";
 
 /**
  * A four-legged animal of a kind, with its kind's tack: every kind shares one body of the horse's bone vocabulary (`QuadrupedBody`) and one ride (`rideQuadruped`), and differs from the others only by its species' data, its proportions, its gaits and its tack.
  *
- * A `horse` is `createHorse`'s, a `pony` `createPony`'s, a `donkey` `createDonkey`'s and a `mule` `createMule`'s, each with its saddle or harness.
+ * The four equids retain their existing producers and tack. A `dog` is
+ * createDog's coarse Husky cohort prototype with required authored mass and
+ * optional authored collar. Ox, single-hump camel and Boso sika are coherent
+ * coarse cohort references, with actual identifying parts and optional authored
+ * equipment. Source limitations remain with each body/gait owner; fixed cohort
+ * means are not measured population variation or complete animal dynamics.
  *
  * @param params The kind, and the kind's own parameters.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -30,13 +48,12 @@ export function createQuadruped(
   params: createQuadruped.IParams,
   seed?: number | string,
 ): Archetype<createQuadruped.Affordance, createQuadruped.Dimension> {
-  const kind: createQuadruped.Kind = ArchetypeDraw.choice(
-    "quadruped",
-    "kind",
-    params.kind,
-    createQuadruped.KINDS,
-  );
-  return createQuadruped.PRODUCERS[kind](params, seed);
+  ArchetypeDraw.choice("quadruped", "kind", params.kind, createQuadruped.KINDS);
+  if (params.kind === "dog") return createDog(params, seed);
+  if (params.kind === "ox") return createOx(params, seed);
+  if (params.kind === "camel") return createCamel(params, seed);
+  if (params.kind === "deer") return createDeer(params, seed);
+  return createQuadruped.PRODUCERS[params.kind](params, seed);
 }
 
 /**
@@ -49,35 +66,72 @@ export function createQuadruped(
  */
 export namespace createQuadruped {
   /** The kinds. */
-  export type Kind = "horse" | "pony" | "donkey" | "mule";
+  export type Kind =
+    | "horse"
+    | "pony"
+    | "donkey"
+    | "mule"
+    | "dog"
+    | "ox"
+    | "camel"
+    | "deer";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["horse", "pony", "donkey", "mule"];
+  export const KINDS: readonly Kind[] = [
+    "horse",
+    "pony",
+    "donkey",
+    "mule",
+    "dog",
+    "ox",
+    "camel",
+    "deer",
+  ];
+
+  /** The four existing equids, which share the horse tack contract. */
+  export const EQUIDS: readonly ("horse" | "pony" | "donkey" | "mule")[] = [
+    "horse",
+    "pony",
+    "donkey",
+    "mule",
+  ];
 
   /** The affordance ids of every kind: each kind's own, as its producer lists them. */
-  export type Affordance = createHorse.Affordance;
+  export type Affordance =
+    | createHorse.Affordance
+    | createCohortQuadruped.Affordance;
 
   /** The free dimensions of every kind: each kind's own, as its producer lists them. */
   export type Dimension = createHorse.Dimension;
 
   /** The parameters: the kind, and the kind's own parameters. */
-  export type IParams = { kind: Kind } & createPony.IParams &
-    createMule.IParams;
+  export type IParams =
+    | ({ kind: "horse" | "pony" | "donkey" | "mule" } & createPony.IParams &
+        createMule.IParams)
+    | ({ kind: "dog" } & createDog.IParams)
+    | ({ kind: "ox" } & createOx.IParams)
+    | ({ kind: "camel" } & createCamel.IParams)
+    | ({ kind: "deer" } & createDeer.IParams);
 
   /** Each kind's producer. */
-  export const PRODUCERS: Readonly<
-    Record<
-      Kind,
-      (
-        params: IParams,
-        seed?: number | string,
-      ) => Archetype<Affordance, Dimension>
-    >
-  > = {
+  export const PRODUCERS: Readonly<{
+    horse: typeof createHorse;
+    pony: typeof createPony;
+    donkey: typeof createDonkey;
+    mule: typeof createMule;
+    dog: typeof createDog;
+    ox: typeof createOx;
+    camel: typeof createCamel;
+    deer: typeof createDeer;
+  }> = {
     horse: createHorse,
     pony: createPony,
     donkey: createDonkey,
     mule: createMule,
+    dog: createDog,
+    ox: createOx,
+    camel: createCamel,
+    deer: createDeer,
   };
 
   /**
@@ -96,6 +150,9 @@ export namespace createQuadruped {
 
     /** The parts that pitch with the head as it nods, the neck and the head with any tack they wear. */
     nodding: readonly string[];
+
+    /** Explicit contact ids carried by the nodding head; absent preserves the legacy static-contact policy. */
+    noddingContacts?: readonly string[];
   }
 
   /** The parts an equid nods with its head: the neck, the head and a harness's bridle. */
@@ -108,24 +165,83 @@ export namespace createQuadruped {
       stance: createHorse.STANCE,
       table: HorseGait.TABLE,
       nodding: BRIDLED,
+      noddingContacts: [],
     },
     pony: {
       archetype: createPony.ARCHETYPE,
       stance: createHorse.STANCE,
       table: HorseGait.TABLE,
       nodding: BRIDLED,
+      noddingContacts: [],
     },
     donkey: {
       archetype: createDonkey.ARCHETYPE,
       stance: createHorse.STANCE,
       table: HorseGait.TABLE,
       nodding: BRIDLED,
+      noddingContacts: [],
     },
     mule: {
       archetype: createMule.ARCHETYPE,
       stance: createHorse.STANCE,
       table: HorseGait.TABLE,
       nodding: BRIDLED,
+      noddingContacts: [],
+    },
+    dog: {
+      archetype: "dog",
+
+      // Each cohort has its own constructed stance; species() reads it below.
+      stance: DogBody("pet").stance,
+      table: DogGait.TABLE,
+      nodding: ["neck", "head", "leftEar", "rightEar", "collar", "lead"],
+      noddingContacts: ["lead"],
+    },
+    ox: {
+      archetype: "ox",
+      stance: OxBody().stance,
+      table: OxGait.TABLE,
+      nodding: [
+        "neck",
+        "head",
+        "leftEar",
+        "rightEar",
+        "leftHorn",
+        "rightHorn",
+        "collar",
+        "lead",
+        "yoke-beam",
+        "yoke-hitch-link",
+        "yoke-hitch-base",
+        "yoke-hitch-upright--1",
+        "yoke-hitch-upright-1",
+      ],
+      noddingContacts: ["lead", "hitch"],
+    },
+    camel: {
+      archetype: "camel",
+      stance: CamelBody().stance,
+      table: CamelGait.TABLE,
+      nodding: ["neck", "head", "collar", "lead"],
+      noddingContacts: ["lead"],
+    },
+    deer: {
+      archetype: "deer",
+      stance: DeerBody().stance,
+      table: DeerGait.TABLE,
+      nodding: [
+        "neck",
+        "head",
+        "leftAntler",
+        "rightAntler",
+        "leftAntlerTine1",
+        "leftAntlerTine2",
+        "rightAntlerTine1",
+        "rightAntlerTine2",
+        "collar",
+        "lead",
+      ],
+      noddingContacts: ["lead"],
     },
   };
 
@@ -137,7 +253,10 @@ export namespace createQuadruped {
    * @throws {ArchetypeRefusal} When the animal is no quadruped's, listing the kinds.
    *
    */
-  export function species(animal: { archetype: string }): ISpecies {
+  export function species(animal: {
+    archetype: string;
+    provenance?: { models: Readonly<Record<string, string | undefined>> };
+  }): ISpecies {
     const kind: Kind | undefined = KINDS.find(
       (k: Kind): boolean => SPECIES[k].archetype === animal.archetype,
     );
@@ -151,6 +270,11 @@ export namespace createQuadruped {
         reason: `a ${animal.archetype} is no quadruped`,
         fix: "ride an animal createQuadruped builds",
       });
+    if (kind === "dog") {
+      const cohort: string | undefined = animal.provenance?.models.cohort;
+      if (cohort === "pet" || cohort === "show" || cohort === "sled")
+        return { ...SPECIES.dog, stance: DogBody(cohort).stance };
+    }
     return SPECIES[kind];
   }
 }

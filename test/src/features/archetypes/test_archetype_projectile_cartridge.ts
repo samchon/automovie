@@ -27,23 +27,23 @@ export function test_archetype_projectile_cartridge(): void {
   if (!validateModel({ model: cartridge }).success)
     findings.push("the cartridge is not admitted");
   const length: number = cartridge.dimensions.length!;
-  if (Math.abs(length - 2.6 * inch) > 1e-12)
+  if (!(Math.abs(length - 2.6 * inch) <= 1e-12))
     findings.push(`the cartridge is ${length} m long`);
-  if (Math.abs(cartridge.dimensions.diameter! - 0.65 * inch) > 1e-12)
+  if (!(Math.abs(cartridge.dimensions.diameter! - 0.65 * inch) <= 1e-12))
     findings.push(`the cartridge is ${cartridge.dimensions.diameter} m across`);
-  if (Math.abs(cartridge.body.mass - (13.2 * ounce) / 10) > 1e-12)
+  if (!(Math.abs(cartridge.body.mass - (13.2 * ounce) / 10) <= 1e-12))
     findings.push(`the cartridge weighs ${cartridge.body.mass} kg`);
   const grip: ReturnType<typeof cartridge.affordance> =
     cartridge.affordance("grip");
   if (
     grip.kind !== "handle" ||
     grip.grip !== "precision" ||
-    Math.abs(grip.frame.translation.y - length / 2) > 1e-12
+    !(Math.abs(grip.frame.translation.y - length / 2) <= 1e-12)
   )
     findings.push(`the grip is ${JSON.stringify(grip)}`);
   const end: ReturnType<typeof cartridge.affordance> =
     cartridge.affordance("end");
-  if (Math.abs(end.frame.translation.y - length) > 1e-12)
+  if (!(Math.abs(end.frame.translation.y - length) <= 1e-12))
     findings.push(`the torn end is at ${end.frame.translation.y} m`);
   // 4. Every band is the one read figure: any seed draws the same cartridge, and a figure fixed a step off it is refused on that dimension.
   for (const seed of [0, 1, "musket"])

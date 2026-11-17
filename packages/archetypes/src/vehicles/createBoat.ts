@@ -84,6 +84,7 @@ export function createBoat(
       : drawn;
   const builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: kind === "launch" ? "pulling boat" : kind,
       draw,

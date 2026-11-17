@@ -82,6 +82,7 @@ export function createBow(
   };
   const builder: ArchetypeBuilder<createBow.Affordance, createBow.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name:
         kind === "longbow"
@@ -423,7 +424,7 @@ export namespace createBow {
     thickness: 0.5 * ArchetypeUnits.INCH,
   };
 
-  /** Kooi's figures for the launch, each provisional for a kind he did not compute (B. W. Kooi, On the Mechanics of the Bow and Arrow, thesis, Groningen 1983, https://www.bio.vu.nl/thb/users/kooi/thesis.pdf): `straight`, the KL straight-end bow's energy factor `q`, 0.407, the stored energy over the full draw force times the power stroke, and its efficiency 0.765 with a 0.02 kg arrow (p. 117; Table 4.29, p. 161), taken for a longbow; `recurve`, the B1 "normal modern recurve bow for target shooting"'s `q`, 0.426 (Table 2.6, p. 46), taken for a recurve and, provisionally, a horse bow, whose efficiency no read gives, so the KL bow's is taken. */
+  /** Reference numbers for the provisional launch model (Kooi, On the Mechanics of the Bow and Arrow, 1983, https://www.bio.vu.nl/thb/users/kooi/thesis.pdf): straight-end KL q=0.407 and efficiency=0.765 at arrow mass0.02 kg (p.117; Table4.29,p.161), and modern-recurve B1 q=0.426 (Table2.6,p.46). Native q=A/(F D), with D the full grip-to-nock draw; the energy integral starts at brace H (Kooi1994, Eq3, https://www.bio.vu.nl/thb/users/kooi/kooi94.pdf). This prototype reuses those numbers as authored stroke factors A/(F X), X=D-H, without converting or calibrating their normalization. That reinterpretation, the power-law curve and the borrowed efficiency are provisional for these assets; launchSpeed does not reproduce native q or a measured force-draw curve. */
   export const KOOI: Readonly<{
     straight: number;
     recurve: number;
@@ -434,6 +435,6 @@ export namespace createBow {
   /** Each limb's turn against the string's travel, the table `upperLimb` and `lowerLimb` follow: `bowLimbs`, rows of the travel in metres and the turn in degrees. */
   export const limbs: typeof bowLimbs = bowLimbs;
 
-  /** The speed an arrow leaves a bow at, drawn to a travel of its string, metres per second, by Kooi's energy balance: `bowLaunchSpeed`, which refuses a bow whose draw weight is unread. */
+  /** The provisional launch speed at a string travel, metres per second: `bowLaunchSpeed`, under the explicit stroke-factor reinterpretation documented by KOOI. It refuses an unread draw weight and does not reconstruct a measured force-draw curve. */
   export const launchSpeed: typeof bowLaunchSpeed = bowLaunchSpeed;
 }

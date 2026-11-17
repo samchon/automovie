@@ -81,6 +81,7 @@ export function createLoad(
   const { length, height, depth }: Record<createLoad.Dimension, number> = d;
   const builder: ArchetypeBuilder<createLoad.Affordance, createLoad.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: kind,
       draw,

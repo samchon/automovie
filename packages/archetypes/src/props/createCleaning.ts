@@ -61,6 +61,7 @@ export function createCleaning(
     createCleaning.Affordance,
     createCleaning.Dimension
   > = new ArchetypeBuilder({
+    material: kind === "cloth" ? "fabric" : "foam",
     id: params.id,
     name: kind,
     draw,

@@ -30,6 +30,7 @@ function fixture(
   const frame: ReturnType<typeof ArchetypeFrame.upright> =
     ArchetypeFrame.upright(v(0, 0, 0));
   return new ArchetypeBuilder<Id, never>({
+    material: "steel",
     name: "reversible-fixture",
     draw: new ArchetypeDrawSession<never>("reversible-fixture", {}, undefined),
   })

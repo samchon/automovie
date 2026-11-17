@@ -53,6 +53,7 @@ export function createRacket(
     createRacket.Affordance,
     createRacket.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: createRacket.NAMES[kind],
     draw,

@@ -113,6 +113,14 @@ export function createDrinkware(
     createDrinkware.Affordance,
     createDrinkware.Dimension
   > = new ArchetypeBuilder({
+    material:
+      fill > 0
+        ? "composite"
+        : kind === "mug" || kind === "cup"
+          ? "ceramic"
+          : kind === "waterBottle"
+            ? "plastic"
+            : "glass",
     id: params.id,
     name: NAMES[kind],
     draw,

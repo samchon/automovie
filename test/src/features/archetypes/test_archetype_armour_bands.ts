@@ -38,7 +38,10 @@ export function test_archetype_armour_bands(): void {
   const m: IAutoMovieBodyMeasure = motionHumanBody(
     motionHumanBody.SWEEP[0]!,
   ).measure;
-  const part = (
+  const part: (
+    piece: ReturnType<typeof createArmour>,
+    id: string,
+  ) => AutoMoviePrimitiveShape | undefined = (
     piece: ReturnType<typeof createArmour>,
     id: string,
   ): AutoMoviePrimitiveShape | undefined => {
@@ -49,7 +52,9 @@ export function test_archetype_armour_bands(): void {
       ? found.geometry.shape
       : undefined;
   };
-  const refusal = (build: () => unknown): string | null => {
+  const refusal: (build: () => unknown) => string | null = (
+    build: () => unknown,
+  ): string | null => {
     try {
       build();
     } catch (thrown) {
@@ -61,7 +66,10 @@ export function test_archetype_armour_bands(): void {
   };
 
   // 1. The plate at both ends of its band, and a step past each.
-  const clearance = (
+  const clearance: (
+    kind: createArmour.Kind,
+    s: AutoMoviePrimitiveShape | undefined,
+  ) => number | null = (
     kind: createArmour.Kind,
     s: AutoMoviePrimitiveShape | undefined,
   ): number | null => {
@@ -85,7 +93,7 @@ export function test_archetype_armour_bands(): void {
         kind,
         part(createArmour({ kind, measure: m, thickness }), "piece"),
       );
-      if (got === null || Math.abs(got - thickness) > EPSILON)
+      if (got === null || !(Math.abs(got - thickness) <= EPSILON))
         findings.push(
           `${kind} with a ${thickness} m plate clears its body part by ${got} m`,
         );
@@ -109,7 +117,7 @@ export function test_archetype_armour_bands(): void {
     );
     if (
       s?.type !== "sphere" ||
-      s.radius - m.headRadius - PAD < PLATE[0] - EPSILON
+      !(s.radius - m.headRadius - PAD >= PLATE[0] - EPSILON)
     )
       findings.push(`${kind} with a ¾ in pad: ${JSON.stringify(s)}`);
     const axis: string | null = refusal(() =>
@@ -159,19 +167,23 @@ export function test_archetype_armour_bands(): void {
   }
 
   // 4. Seedless and seeded draws.
-  const grams = (kind: createArmour.Kind, record: string): number =>
-    ARMOUR_RECORDS[kind]![record]![3] / 1000;
+  const grams: (kind: createArmour.Kind, record: string) => number = (
+    kind: createArmour.Kind,
+    record: string,
+  ): number => ARMOUR_RECORDS[kind]![record]![3] / 1000;
   for (const kind of createArmour.KINDS) {
     const records: string[] = Object.keys(ARMOUR_RECORDS[kind]!);
     const seedless: ReturnType<typeof createArmour> = createArmour({ kind });
-    if (Math.abs(seedless.body.mass - grams(kind, records[0]!)) > EPSILON)
+    if (!(Math.abs(seedless.body.mass - grams(kind, records[0]!)) <= EPSILON))
       findings.push(
         `${kind} seedless weighs ${seedless.body.mass} kg, not its first record's ${grams(kind, records[0]!)} kg`,
       );
     if (
       kind !== "mail" &&
-      Math.abs(seedless.dimensions.thickness! - (PLATE[0] + PLATE[1]) / 2) >
+      !(
+        Math.abs(seedless.dimensions.thickness! - (PLATE[0] + PLATE[1]) / 2) <=
         EPSILON
+      )
     )
       findings.push(
         `${kind} seedless has a ${seedless.dimensions.thickness} m plate`,
@@ -184,7 +196,10 @@ export function test_archetype_armour_bands(): void {
       );
       drawn.add(piece.body.mass);
       const t: number | undefined = piece.dimensions.thickness;
-      if (kind !== "mail" && (t === undefined || t < PLATE[0] || t > PLATE[1]))
+      if (
+        kind !== "mail" &&
+        !(t !== undefined && t >= PLATE[0] && t <= PLATE[1])
+      )
         findings.push(`${kind} seed ${seed} has a ${t} m plate`);
     }
     for (const record of records) {
@@ -206,13 +221,14 @@ export function test_archetype_armour_bands(): void {
           measure,
         });
         const label: string = `${kind} ${record} ${measure === undefined ? "unfitted" : "fitted"}`;
-        if (Math.abs(piece.body.mass - grams(kind, record)) > EPSILON)
+        if (!(Math.abs(piece.body.mass - grams(kind, record)) <= EPSILON))
           findings.push(
             `${label} weighs ${piece.body.mass} kg, its record ${grams(kind, record)} kg`,
           );
-        const wear = piece.affordances.find(
-          (a: { id: string }): boolean => a.id === "wear",
-        );
+        const wear: (typeof piece.affordances)[number] | undefined =
+          piece.affordances.find(
+            (a: { id: string }): boolean => a.id === "wear",
+          );
         if (
           wear === undefined ||
           JSON.stringify(wear.frame.translation) !==
@@ -238,8 +254,10 @@ export function test_archetype_armour_bands(): void {
       const depth: number = ARMOUR_RECORDS.brimmedHelmet![record]![2] / 100;
       if (
         brim?.type !== "cylinder" ||
-        Math.abs(2 * brim.radius - depth) > EPSILON ||
-        Math.abs(brim.height - thickness) > EPSILON
+        !(
+          Math.abs(2 * brim.radius - depth) <= EPSILON &&
+          Math.abs(brim.height - thickness) <= EPSILON
+        )
       )
         findings.push(
           `a brimmed helmet ${record} with a ${thickness} m plate: brim ${JSON.stringify(brim)}, ${depth} m deep`,

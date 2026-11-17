@@ -68,7 +68,10 @@ export function test_human_motion_flight_outcome(): void {
         },
       ],
       composition: HumanChain.subject("a")
-        .pickUp({ prop: subject, handle: row === "throwGrenade" ? "body" : "shaft" })
+        .pickUp({
+          prop: subject,
+          handle: row === "throwGrenade" ? "body" : "shaft",
+        })
         .registered(row, {
           at: { kind: "point", frame: "world", at: target },
           prop: subject,
@@ -99,8 +102,14 @@ export function test_human_motion_flight_outcome(): void {
         contact.outcome === "bounce" &&
         leg !== undefined,
     );
-    if (contact !== undefined && leg !== undefined && leg.segment.kind === "flight") {
-      const e: number = grenade.body.restitution;
+    if (
+      contact !== undefined &&
+      leg !== undefined &&
+      leg.segment.kind === "flight"
+    ) {
+      const e: number | undefined = grenade.body.restitution;
+      if (e === undefined)
+        throw new Error("grenade lacks its cited soil restitution");
       const rebound: number = leg.segment.projectile.velocity.y;
       const expected: number = -e * contact.velocity.y;
       TestValidator.predicate(
@@ -110,7 +119,9 @@ export function test_human_motion_flight_outcome(): void {
       );
       const record: IAutoMovieInteractionEvent | undefined = thrown
         .hits()
-        .find((h: IAutoMovieInteractionEvent): boolean => h.object === "grenade");
+        .find(
+          (h: IAutoMovieInteractionEvent): boolean => h.object === "grenade",
+        );
       TestValidator.predicate(
         "the hit record states the bounce and the leg's exit",
         record?.outcome === "bounce" &&
@@ -120,7 +131,10 @@ export function test_human_motion_flight_outcome(): void {
           ) === 0,
       );
     }
-    const last: IAutoMovieVector3 = thrown.prop("grenade", thrown.duration).position;
+    const last: IAutoMovieVector3 = thrown.prop(
+      "grenade",
+      thrown.duration,
+    ).position;
     const before: IAutoMovieVector3 = thrown.prop(
       "grenade",
       thrown.duration - 1,
@@ -153,7 +167,10 @@ export function test_human_motion_flight_outcome(): void {
     );
     const depth: number | undefined = arrow.body.contact?.embed ?? undefined;
     if (flight !== undefined && contact !== undefined && depth !== undefined) {
-      const rest: IAutoMovieVector3 = shot.prop("arrow", shot.duration).position;
+      const rest: IAutoMovieVector3 = shot.prop(
+        "arrow",
+        shot.duration,
+      ).position;
       const along: IAutoMovieVector3 = Vector3.normalize(contact.velocity);
       // Where the flight met the floor, read from its own projectile.
       const struck: IAutoMovieVector3 = projectileAt(

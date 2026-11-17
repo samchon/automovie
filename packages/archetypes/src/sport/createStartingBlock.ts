@@ -66,6 +66,7 @@ export function createStartingBlock(
     createStartingBlock.Affordance,
     createStartingBlock.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `starting block ${model.name}`,
     draw,

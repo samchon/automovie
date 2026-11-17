@@ -10,8 +10,6 @@ import type { IAutoMovieInspectionPath } from "../scene/inspection/IAutoMovieIns
 import type { IAutoMovieInspectionRequest } from "../scene/inspection/IAutoMovieInspectionRequest.js";
 import type { IAutoMovieInspectionTrail } from "../scene/inspection/IAutoMovieInspectionTrail.js";
 import type { IAutoMovieInspectionView } from "../scene/inspection/IAutoMovieInspectionView.js";
-import { applyAutoMovieInspection } from "../scene/inspection/applyAutoMovieInspection.js";
-import { formatAutoMovieInspectionRequest } from "../scene/inspection/formatAutoMovieInspectionRequest.js";
 import { listAutoMovieInspectionPaths } from "../scene/inspection/listAutoMovieInspectionPaths.js";
 import { markAutoMovieInspectionTrails } from "../scene/inspection/markAutoMovieInspectionTrails.js";
 import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
@@ -30,6 +28,7 @@ import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import type { IAutoMovieDrawSubject } from "./IAutoMovieDrawSubject.js";
 import { describeAutoMovieDrawScene } from "./describeAutoMovieDrawScene.js";
 import { encodeAutoMovieDrawPixels } from "./encodeAutoMovieDrawPixels.js";
+import { replaceAutoMovieDrawInspection } from "./replaceAutoMovieDrawInspection.js";
 import { selectAutoMovieDrawSubject } from "./selectAutoMovieDrawSubject.js";
 
 /**
@@ -42,9 +41,9 @@ const SUPERSAMPLE: number = 2;
  *
  * The page's script calls it once with its module's `subjects`. The subject is created on the first call, with one WebGL renderer on a canvas that is never attached to the document, without antialiasing. A draw then:
  *
- * 1. applies the call's inspection to the scene, or keeps the one applied when the request is the same, restoring the previous one first;
- * 2. for a fitted view, frames it on the union of what the inspection leaves drawn, or its focus, over the call's `frame` seconds, measured once per view and selection;
- * 3. for each `trail` pattern of the request, samples the matched objects over `planAutoMovieInspectionTrailTimes` with `sampleAutoMovieInspectionTrails`, then seeks the call's second and waits for the subject to report ready, and brings the inspection to it with the subject's marks of that second and `markAutoMovieInspectionTrails` of the samples; every seek is awaited, the sampler's and the drawn second's, so a subject that becomes ready only after an await is never read or drawn at another second;
+ * 1. restores the previous inspection before placement, so a subject may replace its objects during a seek;
+ * 2. for a fitted view, places and inspects each framing second and frames the union of what the current inspection leaves drawn, or its focus, measured once per view and selection;
+ * 3. for each `trail` pattern of the request, samples the matched objects over `planAutoMovieInspectionTrailTimes` with `sampleAutoMovieInspectionTrails`, then seeks the call's second, awaits readiness and applies a fresh inspection to the resulting objects with their current marks and sampled trails; no seek occurs between this application and drawing;
  * 4. draws through the camera `resolveAutoMovieInspectionView` gives, at the call's raster, or for the `beauty` shade at twice each side with mark lines twice as wide;
  * 5. reads the drawn pixels back, flips them to rows from the top and averages a supersampled picture down, places the request's labels at the label scale, copies the inspection's legend of the marks drawn, and resolves every pattern of the request and view by `resolveAutoMovieCapturePatterns` against the scene's object paths and the selected mark paths, so the record names what each matched.
  *
@@ -58,10 +57,10 @@ const SUPERSAMPLE: number = 2;
  *
  * @evidence contracts/development/common.md#meaningful-documentation States who calls it, when the subject and renderer are made, every step of a draw in order, why the canvas is read instead of a render target, and the supersampling rule.
  * @evidence contracts/development/implementation.md#principled-implementation WebGL's `readPixels` on the default framebuffer, read before the task ends, returns what the page shows; the inspection, the view grammar and the camera resolution are the inspection core's, so a still and the page draw the same scene through the same code. Framing on all the run's seconds keeps one camera per view, as `.agents/skills/visual-debugging/capture.md` asks for a view a later round compares.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loader for the subject and renderer, one applier keyed by the request, one placer that seeks and gathers a second's marks with its trails, one bounds cache keyed by view, selection and trails, and one draw that composes them; describing, pixel encoding and pattern resolution are their own modules.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One loader owns the subject/renderer, one placer seeks and gathers marks/trails, one inspection lifecycle restores before placement and binds current objects, and one bounds cache is keyed by view/selection/trails. Describing, pixel encoding and pattern resolution retain their owners.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A subject that is not ready is awaited, never drawn half placed; a view or request the inspection refuses throws to the host, which records the cell as not drawn.
- * @evidence contracts/development/implementation.md#efficient-algorithms A draw costs one seek, one inspection update, a trail's seeks over its window when asked, one render, one readback linear in the picture's pixels and one walk of the scene's paths for the resolution; a new request adds one inspection apply, and a new fitted view one seek and update per framing second.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The subject, the renderer, the applied inspection while its request text is unchanged, and each view's framing box while its view text, selection and seconds are unchanged, are reused across draws.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A draw places the actual second and applies inspection to its current objects, then renders and reads back linearly in pixels. A new fitted view additionally places and inspects each framing second; trails add their requested samples. Each necessary inspection includes its mesh/triangle measurements rather than silently measuring removed objects.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The subject, renderer and framing boxes keyed by view/selection/seconds are shared across draws. Inspection handles are recreated after placement because seek may replace geometry; unchanged request text proves no object identity or measurement equivalence.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The page holds one subject, one renderer, one applied inspection and one box per framed view for its life; leaving the page restores the inspection and disposes the subject and renderer.
  */
 export function installAutoMovieDraw(
@@ -131,9 +130,8 @@ export function installAutoMovieDraw(
     ];
   };
 
-  // The applied inspection, kept while its request is unchanged.
-  let applied: { key: string; handle: IAutoMovieInspectionHandle } | null =
-    null;
+  // The current inspection ends before any placement can replace its objects.
+  let applied: { handle: IAutoMovieInspectionHandle } | null = null;
   const inspect: (
     loaded: ILoaded,
     request: IAutoMovieInspectionRequest,
@@ -143,20 +141,17 @@ export function installAutoMovieDraw(
     request: IAutoMovieInspectionRequest,
     seconds: number,
   ): Promise<IAutoMovieInspectionHandle> => {
-    const key: string = JSON.stringify(
-      formatAutoMovieInspectionRequest(request),
-    );
-    if (applied !== null && applied.key === key) return applied.handle;
-    applied?.handle.restore();
+    const previous: IAutoMovieInspectionHandle | null = applied?.handle ?? null;
     applied = null;
-    const marks: IAutoMovieMark[] = await place(loaded, request, seconds);
-    const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
-      scene: loaded.scene.scene,
-      request,
-      renderer: loaded.renderer,
-      marks,
-    });
-    applied = { key, handle };
+    const handle: IAutoMovieInspectionHandle =
+      await replaceAutoMovieDrawInspection({
+        previous,
+        scene: loaded.scene.scene,
+        request,
+        renderer: loaded.renderer,
+        place: (): Promise<IAutoMovieMark[]> => place(loaded, request, seconds),
+      });
+    applied = { handle };
     return handle;
   };
 
@@ -164,12 +159,10 @@ export function installAutoMovieDraw(
   const framings: Map<string, IAutoMovieViewerSubjectBounds | null> = new Map();
   const frame: (
     loaded: ILoaded,
-    handle: IAutoMovieInspectionHandle,
     call: IAutoMovieDrawCall,
     view: IAutoMovieInspectionView.INamed,
   ) => Promise<IAutoMovieViewerSubjectBounds | null> = async (
     loaded: ILoaded,
-    handle: IAutoMovieInspectionHandle,
     call: IAutoMovieDrawCall,
     view: IAutoMovieInspectionView.INamed,
   ): Promise<IAutoMovieViewerSubjectBounds | null> => {
@@ -187,7 +180,11 @@ export function installAutoMovieDraw(
     if (framings.has(key)) return framings.get(key)!;
     let union: IAutoMovieViewerSubjectBounds | null = null;
     for (const seconds of call.frame) {
-      handle.update(await place(loaded, call.request, seconds));
+      const handle: IAutoMovieInspectionHandle = await inspect(
+        loaded,
+        call.request,
+        seconds,
+      );
       union = unite(union, handle.bounds(view.focus));
     }
     framings.set(key, union);
@@ -215,13 +212,8 @@ export function installAutoMovieDraw(
       const loaded: ILoaded = await load();
       const { scene, renderer } = loaded;
 
-      // 1. The inspection, its marks drawn the stated width in output pixels.
+      // The supersampled surface keeps marks at the requested output-pixel width.
       const factor: number = call.request.shade === "beauty" ? SUPERSAMPLE : 1;
-      const handle: IAutoMovieInspectionHandle = await inspect(
-        loaded,
-        { ...call.request, stroke: call.request.stroke * factor },
-        call.seconds,
-      );
 
       // 2. A fitted view's framing over the call's seconds.
       const view: IAutoMovieInspectionView = parseAutoMovieInspectionView(
@@ -232,11 +224,15 @@ export function installAutoMovieDraw(
         !(scene.views !== undefined && Object.hasOwn(scene.views, view.name));
       const bounds: IAutoMovieViewerSubjectBounds | null =
         fitted && view.type === "named"
-          ? await frame(loaded, handle, call, view)
+          ? await frame(loaded, call, view)
           : null;
 
       // 3. The second itself, once the subject is ready.
-      handle.update(await place(loaded, call.request, call.seconds));
+      const handle: IAutoMovieInspectionHandle = await inspect(
+        loaded,
+        { ...call.request, stroke: call.request.stroke * factor },
+        call.seconds,
+      );
 
       // 4. Draw through the resolved camera at the drawn raster.
       const width: number = call.width * factor;

@@ -79,6 +79,7 @@ export function createStick(
     createStick.Affordance,
     createStick.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: NAMES[kind],
     draw,

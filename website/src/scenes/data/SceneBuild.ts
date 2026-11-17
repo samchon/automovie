@@ -287,6 +287,7 @@ export namespace SceneBuild {
    * @param performers Who does what.
    * @param objects What is placed.
    * @param mutuals What several of them do together, each after every performer's own actions.
+   * @param forces Authored impulses on the performers, at film seconds; none by default.
    * @returns The record.
    */
   export function scene(
@@ -295,13 +296,15 @@ export namespace SceneBuild {
     performers: IPlaygroundComposition.IPerformer[],
     objects: IPlaygroundComposition.IObject[] = [],
     mutuals: IPlaygroundComposition.IMutual[] = [],
+    forces: NonNullable<IPlaygroundComposition["forces"]> = [],
   ): IScene {
     const composition: IPlaygroundComposition = {
-      version: objects.length === 0 ? 1 : 2,
+      version: forces.length !== 0 ? 3 : objects.length === 0 ? 1 : 2,
       seed,
       performers,
       mutuals,
       ...(objects.length === 0 ? {} : { objects }),
+      ...(forces.length === 0 ? {} : { forces }),
     };
     return {
       id: about.id,

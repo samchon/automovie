@@ -63,6 +63,7 @@ export function createPoolEdge(
     createPoolEdge.Affordance,
     createPoolEdge.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: kind === "deckEdge" ? "pool edge" : "starting platform",
     draw,

@@ -15,6 +15,9 @@ import type { createHorse } from "./createHorse";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every size no source gives is a named estimate; the saddle's weight is its maker's.
  */
 export namespace HorseSaddle {
+  /** The riding reins and lead geometry carried by the head when its rig moves. */
+  export const HEAD: readonly string[] = ["rein-left", "rein-right", "lead"];
+
   /** The length of strap a hand closes on, metres, for a rein and for the lead rope: a hand's breadth and a half, and two; estimates, no source read gives them. */
   export const HELD: Readonly<{ rein: number; lead: number }> = {
     rein: 0.2,

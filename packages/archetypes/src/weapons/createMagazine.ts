@@ -61,6 +61,7 @@ export function createMagazine(
     createMagazine.Affordance,
     createMagazine.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `${kind} magazine`,
     draw,

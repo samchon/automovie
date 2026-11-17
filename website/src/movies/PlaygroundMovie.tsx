@@ -21,6 +21,7 @@ import { applyPlaygroundFix } from "../playground/applyPlaygroundFix";
 import { findPlaygroundRefusedAction } from "../playground/findPlaygroundRefusedAction";
 import { formatPlaygroundReport } from "../playground/formatPlaygroundReport";
 import { loadPlaygroundAdapter } from "../playground/loadPlaygroundAdapter";
+import { performPlaygroundComposition } from "../playground/performPlaygroundComposition";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
 import type { IPlaygroundVerdicts } from "../playground/structures/IPlaygroundVerdicts";
 import type { IPlaygroundVocabulary } from "../playground/structures/IPlaygroundVocabulary";
@@ -100,12 +101,18 @@ export default function PlaygroundMovie(): ReactElement {
       setOutcome({ kind: "building" });
       setVerdicts({ kind: "idle" });
       setPerformed(next);
-      window.history.replaceState(
-        window.history.state,
-        "",
-        `${window.location.pathname}${window.location.search}${PlaygroundAddress.encode(next)}`,
-      );
-      const result: IPlaygroundAdapter.Result = await adapter.perform(next);
+      const result: IPlaygroundAdapter.Result =
+        await performPlaygroundComposition(
+          adapter,
+          next,
+          (hash: string): void => {
+            window.history.replaceState(
+              window.history.state,
+              "",
+              `${window.location.pathname}${window.location.search}${hash}`,
+            );
+          },
+        );
       if (mine === generation.current) setOutcome(result);
     },
     [],

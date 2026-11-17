@@ -8,13 +8,13 @@ import type { createQuadruped } from "./createQuadruped";
  * Where a quadruped changes gait with its speed: each gait is changed into from the one below at a change point its species' `Rule` gives, worked from the animal's own dimensions, and past each point by the species' gap that keeps the gait from flickering.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a change point is, where it comes from and the gap.
- * @evidence contracts/development/design.md#principled-representation A speed in metres per second per pair of neighbouring gaits, by one of three rules a species states with its source.
+ * @evidence contracts/development/design.md#principled-representation A speed in metres per second per pair of neighbouring gaits, by one of four closed rules a species states with its source.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The change points `rideQuadruped` reads when the speed chooses the gait.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No species branch: a species states its rules as data, each with its source or as provisional.
  */
 export namespace QuadrupedChange {
   /**
-   * How a gait is changed into from the one below: `froude`, at a Froude number on the hip joint's height; `mass`, at a speed that scales with body mass as a power law through a measured point; `overlap`, at the middle of the two gaits' overlapping measured ranges.
+   * How a gait is changed into from the one below: froude on hip height, mass through a measured scaling law, overlap at the middle of common measured ranges, or speed at an inclusive declared reference-height boundary. A declared speed may be authored; its producer must distinguish that from a measured biological transition. Froude, mass and overlap keep their existing strict upward policy.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each rule and its members' units.
    * @evidence contracts/development/design.md#principled-representation A closed union of the change rules the sources give, with their own variables.
@@ -24,6 +24,7 @@ export namespace QuadrupedChange {
   export type Rule =
     | { kind: "froude"; froude: number }
     | { kind: "mass"; speed: number; mass: number; exponent: number }
+    | { kind: "speed"; speed: number }
     | { kind: "overlap" };
 
   /**
@@ -37,7 +38,7 @@ export namespace QuadrupedChange {
    * @returns The change point, metres per second.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation By the faster gait's rule: the square root of the Froude number times gravity times the hip joint's height at rest; the measured speed times the mass ratio to the exponent; or the middle of the overlap of the two gaits' ranges scaled to the animal.
+   * @evidence contracts/development/implementation.md#principled-implementation By the declared rule: Froude scaling on hip height, a mass power law, a stated reference speed times the table's existing scale, or the midpoint of overlapping ranges. A producer labels authored speed thresholds instead of claiming measured transitions.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per rule.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -57,6 +58,10 @@ export namespace QuadrupedChange {
       return Math.sqrt(rule.froude * AutoMovieGravity.STANDARD * hip);
     if (rule.kind === "mass")
       return rule.speed * (dimensions.mass! / rule.mass) ** rule.exponent;
+    if (rule.kind === "speed")
+      return (
+        rule.speed * QuadrupedGait.scale(species, dimensions.withersHeight!)
+      );
     const a: { minimum: number; maximum: number } = QuadrupedGait.range(
       species,
       low,
@@ -73,7 +78,7 @@ export namespace QuadrupedChange {
   }
 
   /**
-   * The gait a speed calls for, from the gait the animal is in: up past each change point above it by the species' hysteresis, down below it by as much.
+   * The gait a speed calls for: up at a declared speed boundary plus hysteresis, strictly past other rule boundaries, and down strictly below a boundary minus hysteresis. With zero hysteresis the exact speed boundary belongs to the faster gait independently of the starting gait.
    *
    * @param species The species.
    * @param speed The speed, metres per second.
@@ -83,7 +88,7 @@ export namespace QuadrupedChange {
    * @returns The gait.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the rule.
-   * @evidence contracts/development/implementation.md#principled-implementation Step up through the species' gaits while the speed passes the next change point by the gap, then down while it falls short of the one below by the gap; the gap scales with the gait's speeds by `QuadrupedGait.scale`.
+   * @evidence contracts/development/implementation.md#principled-implementation A declared speed rule includes its upper-gait boundary, admitting the first authored speed exactly; other rules retain strict upward comparison. All downward comparisons remain strict, and the hysteresis gap scales with the table's existing rule.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two loops over the species' gaits.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most one step each way per gait.
@@ -102,11 +107,13 @@ export namespace QuadrupedChange {
       species.table.hysteresis *
       QuadrupedGait.scale(species, dimensions.withersHeight!);
     let k: number = order.indexOf(from);
-    while (
-      k < order.length - 1 &&
-      speed > point(species, order[k]!, order[k + 1]!, dimensions, hip) + gap
-    )
+    while (k < order.length - 1) {
+      const higher: QuadrupedGait.Gait = order[k + 1]!;
+      const boundary: number = point(species, order[k]!, higher, dimensions, hip) + gap;
+      const inclusive: boolean = QuadrupedGait.of(species, higher).change!.kind === "speed";
+      if (!(inclusive ? speed >= boundary : speed > boundary)) break;
       k++;
+    }
     while (
       k > 0 &&
       speed < point(species, order[k - 1]!, order[k]!, dimensions, hip) - gap

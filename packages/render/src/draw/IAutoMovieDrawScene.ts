@@ -69,7 +69,7 @@ export interface IAutoMovieDrawScene {
   marks?: (seconds: number) => readonly IAutoMovieMark[];
 
   /**
-   * Put every object and the delivery camera at a second; the returned promise resolves once the subject is ready to be drawn at it, such as when its textures for that second have loaded.
+   * Put every object and the delivery camera at a second; objects may be replaced. The returned promise resolves once the subject is ready, including its textures. The draw host binds inspection after this placement, so no removed object's masks or measurements stand in for the current geometry.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is placed and what the promise means.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the subject that implements it answers.

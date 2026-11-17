@@ -64,6 +64,7 @@ export function createBarbell(
     createBarbell.Affordance,
     createBarbell.Dimension
   > = new ArchetypeBuilder({
+    material: "steel",
     id: params.id,
     name: kind === "mens" ? "men's barbell" : "women's barbell",
     draw,

@@ -54,6 +54,7 @@ export function createTent(
   );
   const builder: ArchetypeBuilder<createTent.Affordance, createTent.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: "relief family tent",
       draw,

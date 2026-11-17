@@ -12,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
  * 4. Each string half stays its braced length within the string's radius (`createBow.STRING`), the inextensible string the limbs' table keeps.
  * 5. Naming a limb in a state is refused, its leader being `string`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Articulates real bows through their draw and measures the posed parts and contacts; limbs that do not follow, a string that leaves its tips or the nock, or a nock that drifts off the arrow's line is caught.
+ * @evidence contracts/development/testing.md#behavioral-verification Articulates real bows through their draw and measures the posed parts and contacts with finite-safe comparisons; limbs that do not follow, a string that leaves its tips or the nock, or a nock that drifts off the arrow's line is caught.
  * @evidence contracts/development/testing.md#independent-expectations A limb tip's distance from the grip, the string halves' ends and lengths and the nock's place are read off the posed model, not off the table that poses it.
  * @evidence contracts/development/testing.md#distinguishing-cases Three kinds, 11 travels each including brace and full draw, and the refusal.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
@@ -20,16 +20,26 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_archetype_weapon_bow_draw(): void {
   const findings: string[] = [];
-  const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-    Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+  const distance: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): number => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   // A crossbow's string follows its crank, which `test_archetype_weapon_crossbow_span` turns.
   const bows: { kind: createBow.Kind; model: createBow.Model }[] =
     createBow.KINDS.filter(
       (k: createBow.Kind): boolean => k !== "crossbow",
-    ).flatMap((kind: createBow.Kind) =>
-      (Object.keys(createBow.MODELS[kind]) as createBow.Model[]).map(
-        (model: createBow.Model) => ({ kind, model }),
-      ),
+    ).flatMap(
+      (
+        kind: createBow.Kind,
+      ): { kind: createBow.Kind; model: createBow.Model }[] =>
+        (Object.keys(createBow.MODELS[kind]) as createBow.Model[]).map(
+          (
+            model: createBow.Model,
+          ): { kind: createBow.Kind; model: createBow.Model } => ({
+            kind,
+            model,
+          }),
+        ),
     );
   for (const { kind: k, model } of bows) {
     const kind: string = `${k} ${model}`;
@@ -37,7 +47,10 @@ export function test_archetype_weapon_bow_draw(): void {
     const stroke: number = bow.affordance("string").travel!;
     const grip: IAutoMovieVector3 = bow.affordance("grip").frame.translation;
     const braced: IAutoMovieVector3 = bow.affordance("nock").frame.translation;
-    const tip = (
+    const tip: (
+      posed: ReturnType<typeof createBow>,
+      limb: "upperLimb" | "lowerLimb",
+    ) => IAutoMovieVector3 = (
       posed: ReturnType<typeof createBow>,
       limb: "upperLimb" | "lowerLimb",
     ): IAutoMovieVector3 => {
@@ -62,26 +75,28 @@ export function test_archetype_weapon_bow_draw(): void {
         drawn.affordance("nock").frame.translation;
       for (const limb of ["upperLimb", "lowerLimb"] as const) {
         const at: IAutoMovieVector3 = tip(drawn, limb);
-        if (Math.abs(distance(at, grip) - rest[limb]) > 1e-9)
+        if (!(Math.abs(distance(at, grip) - rest[limb]) <= 1e-9))
           findings.push(
             `${kind} at ${travel} m: the ${limb}'s tip leaves its arc`,
           );
       }
       for (const half of ["string-upper", "string-lower"] as const) {
         const line: ReturnType<typeof drawn.span> = drawn.span(half);
-        if (distance(line.to, nock) > 1e-9)
+        if (!(distance(line.to, nock) <= 1e-9))
           findings.push(`${kind} at ${travel} m: ${half} leaves the nock`);
         if (
-          Math.abs(distance(line.from, line.to) - halves[half]!) >
-          createBow.STRING
+          !(
+            Math.abs(distance(line.from, line.to) - halves[half]!) <=
+            createBow.STRING
+          )
         )
           findings.push(
             `${kind} at ${travel} m: ${half} is ${distance(line.from, line.to)} m, ${halves[half]} m braced`,
           );
       }
       if (
-        Math.hypot(nock.x - braced.x, nock.y - braced.y) > 1e-4 ||
-        Math.abs(nock.z - braced.z - travel) > 1e-4
+        !(Math.hypot(nock.x - braced.x, nock.y - braced.y) <= 1e-4) ||
+        !(Math.abs(nock.z - braced.z - travel) <= 1e-4)
       )
         findings.push(
           `${kind} at ${travel} m: the nock is off the arrow's line`,

@@ -14,6 +14,7 @@ import { nclose, vclose } from "../internal/predicates";
 /** An empty builder for a made-up solid. */
 function builder(): ArchetypeBuilder<never, never> {
   return new ArchetypeBuilder<never, never>({
+    material: "steel",
     name: "solid",
     draw: new ArchetypeDrawSession<never>("solid", {}, undefined),
   });

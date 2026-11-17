@@ -15,5 +15,6 @@ export * from "./IAutoMovieDrawSubject.js";
 export * from "./installAutoMovieDraw.js";
 export * from "./planAutoMovieDrawCall.js";
 export * from "./renderAutoMovieDrawnVideo.js";
+export * from "./replaceAutoMovieDrawInspection.js";
 export * from "./selectAutoMovieDrawSubject.js";
 export * from "./stampAutoMovieDrawLegend.js";

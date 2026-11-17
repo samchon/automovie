@@ -64,6 +64,7 @@ export function createLight(
     createLight.Affordance,
     createLight.Dimension
   > = new ArchetypeBuilder({
+    material: kind === "candle" ? "wax" : "composite",
     id: params.id,
     name: NAMES[kind],
     draw,

@@ -56,6 +56,7 @@ export function createAppliance(
     createAppliance.Affordance,
     createAppliance.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: NAMES[kind],
     draw,

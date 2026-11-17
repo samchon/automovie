@@ -21,7 +21,7 @@ import type { ISceneChainNames } from "../../src/scenes/structures/ISceneChainNa
  * Scenarios:
  * 1. For every scene a page computes, refused ones included, objects and mutual actions included, the shown code, compiled from TypeScript and run with the names it imports from `@automovie/motions`, with `@automovie/archetypes` and with a stand-in for each body, up to its last line, `const performance = new HumanPerformance(input);`, which it must end with and which is not run because planning costs seconds a scene: gives a `scene` whose composition node equals the playground's, and a `laws` list of the same laws.
  * 2. The code names every performer's subject.
- * 3. The shown `input` carries that composition node, each performer's subject, body, floor point, heading and skill, the laws only when there are some, and the props only when the scene places objects; its props are those `PlaygroundObjects.props` builds: the same subjects in order, the same `worn` wearer, bone and offset, and the same placed frame within a micrometre and a millionth of a quaternion component.
+ * 3. The shown `input` carries that composition node, each performer's subject, body, floor point, heading and skill, the same authored impulses, the laws only when there are some, and the props only when the scene places objects; its props are those `PlaygroundObjects.props` builds: the same subjects in order, the same `worn` wearer, bone and offset, and the same placed frame within a micrometre and a millionth of a quaternion component.
  */
 export function test_website_scene_chain(): void {
   const exported: Readonly<Record<string, unknown>> = motions as Readonly<
@@ -121,7 +121,7 @@ export function test_website_scene_chain(): void {
     [],
   );
   TestValidator.predicate(
-    "scenes with objects, worn objects and mutual actions were checked",
+    "scenes with objects, worn objects, mutual actions and impulses were checked",
     checked > 0 &&
       SCENES.some(
         (s: IScene): boolean =>
@@ -142,6 +142,12 @@ export function test_website_scene_chain(): void {
         (s: IScene): boolean =>
           s.composition !== null &&
           s.composition.mutuals.length !== 0 &&
+          SceneStatus.computes(SceneStatus.of(s)),
+      ) &&
+      SCENES.some(
+        (s: IScene): boolean =>
+          s.composition !== null &&
+          (s.composition.forces ?? []).length !== 0 &&
           SceneStatus.computes(SceneStatus.of(s)),
       ),
   );
@@ -166,6 +172,7 @@ interface IShown {
       proficiency: { level: string };
     }[];
     composition: unknown;
+    forces?: IPlaygroundComposition["forces"];
     props?: IHumanProp[];
     laws?: unknown[];
   };
@@ -183,6 +190,8 @@ function input(
   if (given.seed !== composition.seed) findings.push(`${id}: another seed`);
   if (given.composition !== shown.scene.node)
     findings.push(`${id}: the input is not the shown composition`);
+  if (JSON.stringify(given.forces) !== JSON.stringify(composition.forces))
+    findings.push(`${id}: the input's authored impulses differ`);
   if (
     JSON.stringify(given.performers) !==
     JSON.stringify(

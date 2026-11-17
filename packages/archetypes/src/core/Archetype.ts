@@ -10,16 +10,19 @@ import type {
 } from "@automovie/interface";
 
 import { ArchetypeArticulation } from "./ArchetypeArticulation";
+import { ArchetypeBody } from "./ArchetypeBody";
 import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
 import { ArchetypeFracture } from "./ArchetypeFracture";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
+import type { ArchetypeMaterial } from "./ArchetypeMaterial";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeShapes } from "./ArchetypeShapes";
 import { ArchetypeSite } from "./ArchetypeSite";
 import { ArchetypeSpan } from "./ArchetypeSpan";
 import type { IArchetypeProps } from "./IArchetypeProps";
+import { reposeArchetype } from "./reposeArchetype";
 
 /**
  * What a producer returns: a model of one thing people hold, use, sit on, ride or fight with, with typed access to what a person's act reads from it.
@@ -114,17 +117,7 @@ export class Archetype<
       posed.affordances,
     );
     this.#travels = posed.travels;
-    this.body = {
-      mass: props.properties.mass,
-      centerOfMass: { ...props.properties.centerOfMass },
-      ...(props.friction === null ? {} : { friction: props.friction }),
-      ...(props.kineticFriction === null
-        ? {}
-        : { kineticFriction: props.kineticFriction }),
-      restitution: props.restitution,
-      ...(props.drag === null ? {} : { drag: { ...props.drag } }),
-      ...(props.contact === null ? {} : { contact: { ...props.contact } }),
-    };
+    this.body = ArchetypeBody(props);
     this.affordances = posed.affordances;
     this.materials = props.materials;
     this.#rest = props;
@@ -149,6 +142,11 @@ export class Archetype<
   /** Mass, centre of mass and inertia about it, at rest. */
   public get properties(): ArchetypeMass.IProperties {
     return this.#rest.properties;
+  }
+
+  /** The physical reference material declared by the producer; null for a mixed assembly, independently of optical colours or per-part friction surfaces. */
+  public get physicalMaterial(): ArchetypeMaterial.Kind | null {
+    return this.#rest.material;
   }
 
   /** The travel of each articulation that was set, by id; a follower's is read through `travel`. */
@@ -329,21 +327,25 @@ export class Archetype<
   }
 
   /**
-   * This archetype with its rest parts replaced, keeping its identity, affordances, materials, dimensions and mass properties: how a rig that is not an articulation, such as an animal's skeleton, poses it.
+   * This archetype with its rest parts replaced, keeping its identity, materials, dimensions and mass properties: how an animal's skeleton poses it. A rig may also supply its explicitly moved contact frames; absent those, affordances retain their previous rest positions.
    *
    * @param parts The parts in the new pose, in the model's space; the same ids as this archetype's.
+   * @param frames Complete posed contact frames, or omitted to retain rest contacts.
    * @returns A new archetype at rest in that pose; this one is unchanged.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is kept, what is replaced and who calls it.
-   * @evidence contracts/development/implementation.md#principled-implementation A copy of the rest record with the part list swapped; the affordances stay where the rest model has them, and mass properties stay the rest pose's, as `body` documents.
+   * @evidence contracts/development/implementation.md#principled-implementation The shared repose owner preserves each producer-declared contact identity and semantic record, changing only explicitly supplied frames. Omitted frames retain rest contacts and mass properties stay the rest pose's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One construction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The caller owns the pose's correctness; ids are not re-checked here because `validateModel` admits the result like any model.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work beyond the constructor's pass.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A supplied frame map must bind every original contact exactly once; arbitrary replacement contacts cannot erase or widen the producer's Id contract. The caller owns geometric correctness, which validateModel admits.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The shared repose owner performs O(A) lookups for A supplied contact frames, beyond the constructor's pass.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Materials and mass properties are shared with the new archetype.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The new archetype holds its own rest record; nothing else is retained.
    */
-  public reposed(parts: IAutoMovieModelPart[]): Archetype<Id, Dimension> {
-    return new Archetype<Id, Dimension>({ ...this.#rest, parts });
+  public reposed(
+    parts: IAutoMovieModelPart[],
+    frames?: ReadonlyMap<string, IAutoMovieTransform>,
+  ): Archetype<Id, Dimension> {
+    return new Archetype<Id, Dimension>(reposeArchetype(this.#rest, parts, frames));
   }
 
   /**
@@ -444,7 +446,7 @@ export class Archetype<
    * What a hit leaves of this archetype at rest: its remainder and its fragments, each an archetype, or null when it does not break.
    *
    * @param hit The hit's energy and momentum.
-   * @returns The remainder, null when every part breaks off, and each fragment with its velocity; null when the archetype declares no fracture or the hit's energy is below its body's `contact.fracture`.
+   * @returns The remainder, null when every part breaks off, and each fragment with its velocity; null when no fracture sets or no calibrated `contact.fracture` threshold are declared, or the hit is below that threshold.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and when nothing breaks.
    * @evidence contracts/development/implementation.md#principled-implementation `ArchetypeFracture.split` over the rest record, each record made an archetype at rest.
@@ -467,10 +469,10 @@ export class Archetype<
           : new Archetype<Id, Dimension>(split.remainder),
       fragments: split.fragments.map(
         (
-          f: ArchetypeFracture.IFragment<Dimension>,
-        ): ArchetypeFracture.IPiece<Dimension> => ({
+          f: ArchetypeFracture.IFragment<Dimension, Id>,
+        ): ArchetypeFracture.IPiece<Dimension, Id> => ({
           id: f.id,
-          archetype: new Archetype<never, Dimension>(f.props),
+          archetype: new Archetype<Id, Dimension>(f.props),
           velocity: f.velocity,
         }),
       ),

@@ -59,6 +59,7 @@ export function createBoxingGlove(
     createBoxingGlove.Affordance,
     createBoxingGlove.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `boxing glove ${weight.name}`,
     draw,

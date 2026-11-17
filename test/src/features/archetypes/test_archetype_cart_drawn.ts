@@ -182,6 +182,7 @@ const COURSE: ArchetypeCourse.ICourse = {
  */
 function hitched(): Archetype<"hitch", never> {
   return new ArchetypeBuilder<"hitch", never>({
+    material: "steel",
     name: "leader",
     draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
   })
