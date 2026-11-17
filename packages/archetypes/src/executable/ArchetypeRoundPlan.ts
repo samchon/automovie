@@ -1,13 +1,15 @@
 import type {
+  IAutoMovieCapturePlan,
   IAutoMovieCaptureSubject,
   IAutoMovieDrawScene,
   IAutoMovieInspectionHandle,
 } from "@automovie/render";
+import { planAutoMovieDrawCall } from "@automovie/render";
 
 /**
  * Data admission and native request records for the current archetype round.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the current 25-purpose host contract, actual subject ownership and string-only execution boundary.
+ * @evidence contracts/development/common.md#meaningful-documentation States the current 26-purpose host contract, actual subject ownership, string-only execution boundary and complete native restart/layout admission.
  * @evidence contracts/development/design.md#principled-representation Existing render types carry scenes, clocks and legends; runtime readers admit finite JSON values and the exact reviewed purpose set.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The coordinator, purpose expander and camera resolver share only the records/readers and native text construction each currently consumes.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts This inspection-only module introduces no product registry, recipe framework, species runtime policy or renderer substitute.
@@ -39,6 +41,9 @@ export namespace ArchetypeRoundPlan {
 
     /** Explicit native-normalized subject seconds; finite at admission. */
     seconds: number[];
+
+    /** Native inspection text resolved from the actual scene before admission. */
+    inspection?: Record<string, string>;
   }
 
   /**
@@ -121,13 +126,13 @@ export namespace ArchetypeRoundPlan {
   }
 
   /**
-   * Admit only the reviewed v2, 25-group, 536-cell source-ready plan.
+   * Admit only the reviewed v3, 26-purpose, 536-cell source-ready plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the source-ready gate, schema, exact purpose set and finite cap; malformed plan data throws.
    * @evidence contracts/development/implementation.md#principled-implementation Plain JSON field checks enforce the current reviewed inspection contract before model preparation.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One top-level object check, one exact purpose-identity set and one return.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unknown purpose, repeated group or dirty-stage substitute widens this tool's scope.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the fixed 25 purpose identities.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the fixed 26 purpose identities.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This value operation owns no cross-request work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No resource or retained state is acquired.
    */
@@ -164,20 +169,21 @@ export namespace ArchetypeRoundPlan {
       "car-closed-baselines",
       "car-open-right-construction",
       "car-open-left-rear",
+      "van-side-passage",
     ]);
     if (
-      plan.schemaVersion !== 2 ||
-      groups.length !== 25 ||
+      plan.schemaVersion !== 3 ||
+      groups.length !== 26 ||
       object(plan.finiteBudget).maximumDrawnCellsPerRound !== 536
     )
       throw new Error(
-        "This materializer owns the reviewed v2, 25-group, 536-cell plan only",
+        "This materializer owns the reviewed v3, 26-purpose, 536-cell plan only",
       );
     const identities: string[] = groups.map(
       (group: Record<string, unknown>): string => text(group.id),
     );
     if (
-      new Set(identities).size !== 25 ||
+      new Set(identities).size !== 26 ||
       identities.some((id: string): boolean => !expected.has(id))
     )
       throw new Error("The reviewed purpose identities changed or repeat");
@@ -187,8 +193,8 @@ export namespace ArchetypeRoundPlan {
   /**
    * Construct the execution driver's native string-only request.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Reads one existing pass recipe and exact subject/member/times/fixed view; shared sheet defaults are explicit.
-   * @evidence contracts/development/implementation.md#principled-implementation The admitted pass text is combined with the current finite draft, leaving native request semantics to render.
+   * @evidence contracts/development/common.md#meaningful-documentation Reads an existing pass recipe, exact subject/member/times/view and actual subject raster. The native smallest budget equals that raster's shortest edge, preserving scale1 across different job lengths.
+   * @evidence contracts/development/implementation.md#principled-implementation Native request text combines the finite draft, actual-scene section override and actual raster budget. Native layout and draw-call admission independently require one cell per sheet and label scale1.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Copy the pass fields, then write subject, selection, seconds, view and reader budget.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No invented pass name or unsupported CLI option is emitted.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the pass fields and explicit time text.
@@ -199,20 +205,22 @@ export namespace ArchetypeRoundPlan {
     plan: Record<string, unknown>,
     draft: IDraft,
     view: string,
+    raster: Pick<IAutoMovieCaptureSubject, "width" | "height">,
   ): Record<string, string> {
     const request: Record<string, string> = {};
     for (const [key, value] of Object.entries(
       object(object(object(plan.passes)[draft.pass]).request),
     ))
-      request[key] = text(value);
+      request[key] = text(value).replaceAll("{member}", draft.member);
     return {
       ...request,
+      ...draft.inspection,
       subject: draft.subject,
       parts: draft.member === "" ? "ground,set" : `ground,set/${draft.member}`,
       at: draft.seconds.join(","),
       views: view,
       longest: "1568",
-      smallest: "200",
+      smallest: String(Math.min(raster.width, raster.height)),
       reduction: "area",
     };
   }
@@ -230,6 +238,98 @@ export namespace ArchetypeRoundPlan {
    */
   export function cameraKey(draft: IDraft): string {
     return JSON.stringify([draft.subject, draft.member, draft.view]);
+  }
+
+  /**
+   * Compare exact purpose cells while allowing their jobs to be split.
+   *
+   * @param items Current or previously recorded finite drafts.
+   * @returns Their sorted exact purpose/subject/member/view/pass/time identities.
+   * @evidence contracts/development/common.md#meaningful-documentation States that grouping may differ while every original exact cell remains accounted for.
+   * @evidence contracts/development/implementation.md#principled-implementation Admits the recorded fields, unfolds every actual time and sorts exact JSON tuples as a multiset.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One field-admission pass and one sorted serialization.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance, rounded time, set deduplication or group removal hides a missing original.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(C log C) sorting for C finite purpose cells.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure value comparison owns no shared work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only invocation-local strings are allocated.
+   */
+  export function identity(items: readonly unknown[]): string {
+    return JSON.stringify(
+      items.flatMap((value: unknown): string[] => {
+        const draft: Record<string, unknown> = object(value);
+        const key: string[] = ["group", "subject", "member", "view", "pass"].map(
+          (name: string): string => text(draft[name]),
+        );
+        return numbers(draft.seconds).map((seconds: number): string =>
+          JSON.stringify([...key, seconds]),
+        );
+      }).sort(),
+    );
+  }
+
+  /**
+   * Admit restart pairs only with identical complete native draw calls.
+   *
+   * @param jobs All original and repeat native plans in this finite round.
+   * @returns Four pairs with their full native drawing inputs and unchanged label size.
+   * @throws {Error} For missing, ambiguous or unequal originals, or enlarged labels.
+   * @evidence contracts/development/common.md#meaningful-documentation States exact pair count, complete frame/raster/request/scale comparison and native layout admission. Actual source/backend equality remains the capture record's obligation.
+   * @evidence contracts/development/implementation.md#principled-implementation Render's planAutoMovieDrawCall supplies the complete drawing inputs. Original/repeat jobs contain the same two times, so their frame arrays agree without removing a field.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit every layout, then require one identical original per repeated cell.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No reduced equality, tolerance or dropped label scale admits a mismatch; refusal prevents a manifest.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four repeats each scan the finite round's actual cells.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the native plans and draw-call owner.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain result records retain no external resource.
+   */
+  export function replay(
+    jobs: readonly {
+      job: string;
+      group: string;
+      plan: IAutoMovieCapturePlan;
+    }[],
+  ): object[] {
+    const admitted: object[] = [];
+    for (const item of jobs)
+      if (
+        item.plan.layout.perSheet !== 1 ||
+        item.plan.cells.some(
+          (cell: IAutoMovieCapturePlan["cells"][number]): boolean =>
+            planAutoMovieDrawCall(cell, item.plan).scale !== 1,
+        )
+      )
+        throw new Error(`${item.job} does not preserve native-size labels`);
+    for (const repeat of jobs.filter(
+      (item: (typeof jobs)[number]): boolean =>
+        item.group === "rest-fresh-session-comparison",
+    ))
+      for (const cell of repeat.plan.cells) {
+        const call: ReturnType<typeof planAutoMovieDrawCall> =
+          planAutoMovieDrawCall(cell, repeat.plan);
+        const originals: (typeof jobs)[number][] = jobs.filter(
+          (item: (typeof jobs)[number]): boolean =>
+            item.group === "rest-side-complete" &&
+            item.plan.subject.name === repeat.plan.subject.name &&
+            item.plan.cells.some(
+              (candidate: IAutoMovieCapturePlan["cells"][number]): boolean =>
+                JSON.stringify(planAutoMovieDrawCall(candidate, item.plan)) ===
+                JSON.stringify(call),
+            ),
+        );
+        if (originals.length !== 1)
+          throw new Error(
+            `${repeat.job}/${cell.name} lacks one identical native original`,
+          );
+        admitted.push({
+          original: originals[0]!.job,
+          repeat: repeat.job,
+          drawCall: call,
+        });
+      }
+    if (admitted.length !== 4)
+      throw new Error(
+        `Expected four exact restart pairs, received ${admitted.length}`,
+      );
+    return admitted;
   }
 
   /**

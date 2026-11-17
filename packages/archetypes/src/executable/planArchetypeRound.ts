@@ -10,6 +10,7 @@ import {
   describeAutoMovieDrawScene,
   parseAutoMovieCapturePlanRequest,
   planAutoMovieCapture,
+  planAutoMovieDrawCall,
 } from "@automovie/render";
 import { readAutoMovieRevision } from "automovie";
 import * as fs from "node:fs/promises";
@@ -20,7 +21,7 @@ import { materializeArchetypeRoundGroups } from "./materializeArchetypeRoundGrou
 import { subjects } from "./subjects";
 
 /**
- * Materialize the current 25-purpose, at-most-536-cell archetype inspection round.
+ * Materialize the current 26-purpose, at-most-536-cell archetype inspection round.
  *
  * Run from packages/archetypes only after the source batch is committed and
  * clean: `pnpm exec ttsx --no-plugins --noCheck src/executable/planArchetypeRound.ts
@@ -33,11 +34,11 @@ import { subjects } from "./subjects";
  * @throws {Error} For dirty/drifting source, invalid plan/round, unavailable subjects, times, marks or selections, native planning failure or a purpose/round budget overflow. A refused ledger never issues an executable partial manifest.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States cwd, command, clean source gate, current plan scope, exact driver manifest, explicit times/fixed cameras, ignored output ownership, failure ledger and absence of drawing.
- * @evidence contracts/development/implementation.md#principled-implementation Actual subjects prepare the same catalog models, clocks, events and marks used by capture. Native frame planning resolves sample/event times; actual inspected scene bounds and the native camera resolver fix one camera across each subject/member/view's complete time/pass union. Native request and cell planners admit every emitted all-string job. No surrogate geometry, phase snapshot or renderer supplies expectations.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure ArchetypeRoundPlan owns data admission/request records, materializeArchetypeRoundGroups owns the 25 purpose recipes and the private camera helper resolves matching native bounds. This coordinator owns actual scene lifetime, final native plans, complete ledgers and manifest issuance.
+ * @evidence contracts/development/implementation.md#principled-implementation Actual subjects prepare the catalog models, clocks, events and marks used by capture. The pinned previous ledger supplies verbatim cameras for its unchanged 496 purpose cells; only the new van aperture section fits actual current bounds. Native plans and complete drawing inputs admit every all-string job and four exact restart pairs before drawing.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure ArchetypeRoundPlan owns admission, request text and exact native restart matching; materializeArchetypeRoundGroups expands 26 purposes and separates existing restart anchors. This coordinator owns actual scene lifetime, explicit previous cameras, actual van half-space selection, complete ledgers and manifest issuance.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Explicit fixture/group recipes are inspection content, not product runtime policy. Actual cruise/leftForeOn/catch/release events determine moving times; missing data and mark/selection failures remain failures instead of neutral substitutions. Dense continuity keeps the plan's selected overlays and matched anchor triplets without a blind cross product.
  * @evidence contracts/development/implementation.md#efficient-algorithms For S finite subjects, C<=536 cells and P actual primitive vertices per sampled scene, preparation retains O(SP) scene data and camera fitting costs O(CP). Each subject is created once; per-camera time/pass inputs are deduplicated. No unmeasured performance claim is made.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared actual scenes/descriptions serve all groups of their subject. A camera is shared by identical subject/member/view and fitted over the union of every associated time and pass, so separate native capture jobs replay exactly the same fixed text. Duplicate non-restart cells reuse their first job's evidence.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared scenes/descriptions serve all groups of their subject. Original camera text is reused verbatim by subject/member/view; only newly declared van aperture views are fitted over all matching times/passes. Reframing cannot hide changed geometry outside the old view, which remains visually unverified. Duplicate non-restart cells reuse their first job's evidence.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One invocation owns at most one scene per finite selected subject and disposes every successfully prepared scene in finally. Inspection handles restore after every sampled bound. Files remain in the caller's task-owned round directory; no host, renderer, GPU, watcher or background process is created.
  */
 export async function planArchetypeRound(round: string): Promise<void> {
@@ -84,6 +85,18 @@ export async function planArchetypeRound(round: string): Promise<void> {
     [];
   const cameras: Map<string, string> = new Map();
   const observations: Round.IObservation[] = [];
+  const replay: object[] = [];
+  const reuse: Record<string, unknown> = Round.object(plan.cameraReuse);
+  const previous: Record<string, unknown> = Round.object(
+    JSON.parse(
+      await fs.readFile(path.resolve(root, Round.text(reuse.resolvedPlan)), "utf8"),
+    ),
+  );
+  if (previous.revision !== reuse.revision || previous.actualCells !== 496)
+    throw new Error(
+      "Camera reuse requires the explicitly pinned 496-cell baseline",
+    );
+  const previousCameras: Record<string, unknown> = Round.object(previous.cameras);
   let source: ReturnType<typeof subjects> = {};
   try {
     try {
@@ -96,8 +109,19 @@ export async function planArchetypeRound(round: string): Promise<void> {
     drafts.push(...expanded.drafts);
     reused.push(...expanded.reused);
     comparisons.push(...expanded.comparisons);
+    if (
+      Round.identity(
+        drafts.filter(
+          (draft: Round.IDraft): boolean => draft.group !== "van-side-passage",
+        ),
+      ) !== Round.identity(Round.list(previous.drafts))
+    )
+      failures.push({
+        group: "baseline",
+        cause: "The original 496 purpose cells changed",
+      });
 
-    // Every pass sharing a view uses a camera fitted over the entire shared time union.
+    // Preserve original framing; only the new van section fits a camera.
     const fits: Map<string, Round.IDraft[]> = new Map();
     for (const draft of drafts) {
       const key: string = Round.cameraKey(draft);
@@ -123,6 +147,7 @@ export async function planArchetypeRound(round: string): Promise<void> {
           plan,
           draft,
           fixed,
+          (await get(draft.subject)).metadata,
         );
         const native: IAutoMovieCapturePlan = planAutoMovieCapture({
           request: parseAutoMovieCapturePlanRequest(
@@ -137,6 +162,11 @@ export async function planArchetypeRound(round: string): Promise<void> {
       } catch (error) {
         failures.push({ group: draft.group, cause: Round.describe(error) });
       }
+    }
+    try {
+      replay.push(...Round.replay(cells));
+    } catch (error) {
+      failures.push({ group: "restart-admission", cause: Round.describe(error) });
     }
     if (readAutoMovieRevision(root) !== revision)
       failures.push({
@@ -180,6 +210,16 @@ export async function planArchetypeRound(round: string): Promise<void> {
         failures,
         reused,
         comparisons,
+        replay,
+        cameraReuse: reuse,
+        drawingConditions: {
+          sourceRevision: revision,
+          backend: "software; actual capture record must agree for every pair",
+          labelScale: 1,
+          layoutPolicy: "Native raster shortest edge; one cell per sheet",
+          limits:
+            "Changed geometry may exceed the reused frame; no automatic refit or visibility verdict is made",
+        },
         drafts,
         observations,
         cameras: Object.fromEntries(cameras),
@@ -195,6 +235,11 @@ export async function planArchetypeRound(round: string): Promise<void> {
           times: item.plan.times,
           windows: item.plan.windows,
           cells: item.plan.cells,
+          layout: item.plan.layout,
+          drawCalls: item.plan.cells.map(
+            (cell: IAutoMovieCapturePlan["cells"][number]): object =>
+              planAutoMovieDrawCall(cell, item.plan),
+          ),
         })),
       },
       null,
@@ -261,7 +306,7 @@ export async function planArchetypeRound(round: string): Promise<void> {
     }
   }
 
-  /** Fit actual current geometry/marks over every associated time and pass without drawing. */
+  /** Admit actual selections, preserve original framing and fit only the new van section. */
   async function camera(items: Round.IDraft[]): Promise<string> {
     const first: Round.IDraft = items[0]!;
     const item: Round.IPrepared = await get(first.subject);
@@ -271,6 +316,48 @@ export async function planArchetypeRound(round: string): Promise<void> {
       throw new Error(
         "Purpose views must be fixed once from native named directions",
       );
+    const fixed: unknown = previousCameras[Round.cameraKey(first)];
+    if (fixed === undefined && first.group !== "van-side-passage")
+      throw new Error(
+        `The pinned baseline has no camera for ${Round.cameraKey(first)}`,
+      );
+    if (
+      fixed !== undefined &&
+      parseAutoMovieInspectionView(Round.text(fixed)).type !== "fixed"
+    )
+      throw new Error("The baseline camera is not explicit native camera text");
+    const prior: Record<string, unknown> | undefined = Round.list(previous.subjects)
+      .map(Round.object)
+      .find((subject: Record<string, unknown>): boolean =>
+        subject.name === first.subject,
+      );
+    if (
+      prior === undefined ||
+      Round.object(prior.metadata).width !== item.metadata.width ||
+      Round.object(prior.metadata).height !== item.metadata.height
+    )
+      throw new Error("Reusing a camera requires the original actual subject raster");
+    if (first.group === "van-side-passage") {
+      item.scene.scene.updateMatrixWorld(true);
+      const member: ReturnType<typeof item.scene.scene.getObjectByName> =
+        item.scene.scene.getObjectByName("set")?.getObjectByName(first.member);
+      const driver: ReturnType<typeof item.scene.scene.getObjectByName> =
+        member?.getObjectByName("side-driver");
+      if (member === undefined || driver === undefined)
+        throw new Error(
+          "Van section requires the actual member and opposite side-driver wall",
+        );
+      const middle: number = member.matrixWorld.elements[12]!;
+      if (
+        !Number.isFinite(middle) ||
+        !Number.isFinite(driver.matrixWorld.elements[12]) ||
+        driver.matrixWorld.elements[12] === middle
+      )
+        throw new Error("The actual opposite van wall does not define a half-space");
+      const sign: string = driver.matrixWorld.elements[12]! > middle ? "" : "-";
+      for (const draft of items)
+        draft.inspection = { section: `${sign}x:${middle}` };
+    }
     let bounds: IAutoMovieViewerSubjectBounds | null = null;
     const sampled: Set<string> = new Set();
     for (const draft of items)
@@ -281,7 +368,9 @@ export async function planArchetypeRound(round: string): Promise<void> {
         await item.scene.seek(seconds);
         const request: ReturnType<typeof parseAutoMovieCapturePlanRequest> =
           parseAutoMovieCapturePlanRequest(
-            new URLSearchParams(Round.request(plan, draft, draft.view)),
+            new URLSearchParams(
+              Round.request(plan, draft, draft.view, item.metadata),
+            ),
           );
         const contactFocus: boolean =
           view.focus?.type === "pattern" &&
@@ -309,7 +398,7 @@ export async function planArchetypeRound(round: string): Promise<void> {
           // by its real overlay mark rather than fabricated geometry in clay.
           if (
             request.inspection.surface &&
-            (!contactFocus || draft.pass !== "surface")
+            (!contactFocus || request.inspection.marks.length !== 0)
           ) {
             const current: IAutoMovieViewerSubjectBounds | null = handle.bounds(
               view.focus,
@@ -336,6 +425,7 @@ export async function planArchetypeRound(round: string): Promise<void> {
           handle.restore();
         }
       }
+    if (fixed !== undefined) return Round.text(fixed);
     return formatAutoMovieInspectionCameraView(
       resolveAutoMovieInspectionView({
         view,

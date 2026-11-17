@@ -12,7 +12,7 @@ import { ArchetypeRoundTiming } from "./ArchetypeRoundTiming";
  * @param props The admitted plan, its groups, cached actual-subject reader and shared failure collector.
  * @returns Draft requests, ordinary reused cells and the four explicit fresh-session comparisons.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the finite 25-group inspection scope, actual clock/event inputs, native time normalization, duplicate-cell reuse, restart comparisons and failure collection.
+ * @evidence contracts/development/common.md#meaningful-documentation States the finite 26-purpose inspection scope, actual clock/event inputs, native time normalization, duplicate-cell reuse, existing restart-anchor job separation and failure collection.
  * @evidence contracts/development/implementation.md#principled-implementation Purpose recipes read actual subject durations and instants; native frame planning owns rounding and event windows. A steady stride uses consecutive leftForeOn events inside cruise/brake, and source depart/stop events set the three towing branches. The source plan supplies static identities and finite allowances.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One expansion dispatch serves the existing purpose groups; timing, request admission and source-field readers stay separate. Source preparation and lifetime remain with the injected reader.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No neutral replacement, guessed missing event or dropped required frame repairs unavailable evidence. Millisecond filename collisions split requests rather than discard distinct instants; authored inspection choices remain review content.
@@ -349,22 +349,41 @@ export async function materializeArchetypeRoundGroups(props: {
           }
         }
 
-        // Native filenames resolve milliseconds. Separate jobs preserve distinct
-        // exact instants that would otherwise collide, without dropping a frame.
+        // Existing restart anchors form the same two-time job as their repeat.
+        // All other original cells remain; native millisecond collisions split
+        // into further jobs without dropping an exact instant.
         const buckets: number[][] = [];
-        for (const time of seconds) {
-          let bucket: number[] | undefined = buckets.find(
-            (values: number[]): boolean =>
-              values.every(
-                (value: number): boolean =>
-                  value.toFixed(3) !== time.toFixed(3),
-              ),
-          );
-          if (bucket === undefined) {
-            bucket = [];
-            buckets.push(bucket);
+        const restartTimes: number[] = Round.numbers(
+          Round.object(plan.restartComparison).atSeconds,
+        );
+        const batches: number[][] =
+          Round.text(g.id) === "rest-side-complete"
+            ? [
+                seconds.filter(
+                  (time: number): boolean => restartTimes.includes(time),
+                ),
+                seconds.filter(
+                  (time: number): boolean => !restartTimes.includes(time),
+                ),
+              ]
+            : [seconds];
+        for (const batch of batches) {
+          const firstBucket: number = buckets.length;
+          for (const time of batch) {
+            let bucket: number[] | undefined = buckets.find(
+              (values: number[], index: number): boolean =>
+                index >= firstBucket &&
+                values.every(
+                  (value: number): boolean =>
+                    value.toFixed(3) !== time.toFixed(3),
+                ),
+            );
+            if (bucket === undefined) {
+              bucket = [];
+              buckets.push(bucket);
+            }
+            bucket.push(time);
           }
-          bucket.push(time);
         }
         for (const bucket of buckets)
           drafts.push({
