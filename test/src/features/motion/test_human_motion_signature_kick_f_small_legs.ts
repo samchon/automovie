@@ -3,7 +3,7 @@ import { motionKickSignature } from "../internal/motionKickSignature";
 
 /**
  * A kick looks like a martial-arts kick: the lead leg's and the rear leg's kick on the small woman, against
- * the average man's ribs from the striking captures' range, read between the
+ * the average man's trunk from the striking captures' range, read between the
  * law's `launch`, `chamber` and `impact`.
  *
  * Bounds and sources:
@@ -19,14 +19,15 @@ import { motionKickSignature } from "../internal/motionKickSignature";
  *   and the kick takes some tenths of a second (Kim et al. 2010). Bound: hip
  *   flexion at least 50 degrees and launch to impact in [0.2, 1.0] s
  *   (provisional).
- * - Target: a kick lands on the ribs it is aimed at. Bound: the kicking
- *   ankle within a foot length of the partner's ribs region at impact.
+ * - Target: a kick lands on the region it is aimed at (`motionKickTarget`:
+ *   a round kick on the flank its leg faces, a push kick on the abdomen).
+ *   Bound: the kicking ankle within a foot length of that region at impact.
  * - Range: at `set` no joint centre of either fighter lies inside the
  *   other's colliders.
  * - Support: the support foot stays on the floor from chamber to impact.
- * - Height: a kick at the ribs lands at the ribs. Bound: the kicking foot's
+ * - Height: a kick at the trunk lands at the trunk. Bound: the kicking foot's
  *   joint at impact at least half the kicker's hip height above the floor
- *   (provisional, the ribs stand above the hips).
+ *   (provisional, the trunk's regions stand above the hips).
  *
  * Scenarios, on the small woman (`f-small`):
  * 1. Each staged row plans and every bound above holds at its `launch`,

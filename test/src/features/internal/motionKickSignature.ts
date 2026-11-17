@@ -1,9 +1,13 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanFoot, type IHumanBody } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanSignature as M } from "./motionHumanSignature";
+import { motionKickTarget } from "./motionKickTarget";
 
 /**
  * The reading of a kick's signature on one body, which the kick signature
@@ -68,18 +72,20 @@ export function motionKickSignature(
       `${cell}: launch to impact ${(impact - launch).toFixed(3)} s, [0.2, 1.0] expected (Kim et al. 2010; provisional)`,
       impact - launch >= 0.2 && impact - launch <= 1.0,
     );
-    const ribs: IAutoMovieVector3 = M.region(
-      s,
-      "b",
-      partner,
-      "ribsLeft",
-      impact,
+    // The region the stage aimed the row at, read from the row's one
+    // `param=value` as the stage reads it.
+    const value = (param: string): string | undefined =>
+      row.startsWith(`${param}=`) ? row.slice(param.length + 1) : undefined;
+    const target: AutoMovieHumanoidRegion = motionKickTarget(
+      value("technique"),
+      value("leg"),
     );
+    const aimed: IAutoMovieVector3 = M.region(s, "b", partner, target, impact);
     const ankle: IAutoMovieVector3 = M.joint(s, impact, `${side}Foot`);
     const reach: number = Math.hypot(
-      ribs.x - ankle.x,
-      ribs.y - ankle.y,
-      ribs.z - ankle.z,
+      aimed.x - ankle.x,
+      aimed.y - ankle.y,
+      aimed.z - ankle.z,
     );
     const heel: IAutoMovieVector3 = HumanFoot.offset(s.body, side, "heel");
     const toe: IAutoMovieVector3 = HumanFoot.offset(s.body, side, "toe");
@@ -89,7 +95,7 @@ export function motionKickSignature(
       toe.z - heel.z,
     );
     complaints.check(
-      `${cell}: the kicking ankle is ${(reach * 1000).toFixed(0)} mm from the partner's ribs at impact, within a foot length (${(footLength * 1000).toFixed(0)} mm) expected`,
+      `${cell}: the kicking ankle is ${(reach * 1000).toFixed(0)} mm from the partner's ${target} at impact, within a foot length (${(footLength * 1000).toFixed(0)} mm) expected`,
       reach <= footLength,
     );
     const set: number = M.event(s, "set") ?? launch;
