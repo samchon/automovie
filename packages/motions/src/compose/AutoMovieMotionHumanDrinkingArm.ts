@@ -200,12 +200,14 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     // fitted on it, as the posture solve fits it. The referred fit's
     // reference is the same posture's solve of the unreferred goal, so it
     // is that one arm fit on the same base too.
+    const lent: ((posture: IHumanPosture) => IAutoMoviePose) | undefined =
+      isHumanArmAlone(posture.limbs, side) ? base : undefined;
     const only: ((fitted: IHumanPosture.IGoal) => IAutoMoviePose) | undefined =
-      base !== undefined && isHumanArmAlone(posture.limbs, side)
-        ? (fitted: IHumanPosture.IGoal): IAutoMoviePose =>
-            HumanLimbFit.fit(body, base(posture), limb, fitted, ["left", "right"],
-              undefined, undefined, resolution).pose
-        : undefined;
+      lent === undefined
+        ? undefined
+        : (fitted: IHumanPosture.IGoal): IAutoMoviePose =>
+            HumanLimbFit.fit(body, lent(posture), limb, fitted, ["left", "right"],
+              undefined, undefined, resolution).pose;
     const attached: IHumanPosture.IGoal = referred
       ? {
           ...goal,
