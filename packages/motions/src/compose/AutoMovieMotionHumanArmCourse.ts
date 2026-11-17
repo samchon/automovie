@@ -231,12 +231,8 @@ export namespace AutoMovieMotionHumanArmCourse {
   /**
    * The frame grid, seconds: the finest the optimiser's waypoints are spaced
    * (`HumanArmTrajectory`), the course's instants and the grid a law's arm
-   * chain continues on (`AutoMovieMotionHumanArmChain`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit, the source and the readers.
-   * @evidence contracts/development/design.md#principled-representation One grid for every course of continued fits.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One constant, read here and by the chain.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The optimiser's own waypoint spacing, not a value of its own.
+   * chain continues on (`AutoMovieMotionHumanArmChain`): the optimiser's own
+   * waypoint spacing, not a value of its own.
    */
   export const STEP: number = 1 / 30;
 }

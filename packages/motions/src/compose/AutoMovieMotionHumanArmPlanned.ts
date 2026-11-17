@@ -38,7 +38,15 @@ import { AutoMovieMotionHumanArmStated } from "./AutoMovieMotionHumanArmStated";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The trajectory's problem is the planner's own (`HumanArmTrajectory`); this file only reads it off the action.
  */
 export namespace AutoMovieMotionHumanArmPlanned {
-  /** The interface contract (`IAutoMovieMotionHumanArmPlanned.IWarm`). */
+  /**
+   * An earlier plan's solution of a group's arms, handed to the next plan
+   * of the same action (`IAutoMovieMotionHumanArmPlanned.IWarm`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the record and its owner.
+   * @evidence contracts/development/design.md#principled-representation The interface's own record, read under the planner's name.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One alias, read by the group and the planner.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No second definition: the alias is the interface record.
+   */
   export type IWarm = IAutoMovieMotionHumanArmPlanned.IWarm;
 
   /**
