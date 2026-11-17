@@ -162,7 +162,7 @@ export namespace HumanArmTrajectory {
    * continuous collision check, on every term of the model.
    *
    * @param read The problem on given waypoints' seconds.
-   * @param times The first knots' seconds, ascending.
+   * @param times The first knots' seconds, ascending, each taken to the frame grid's nearest instant: knots are grid instants, so a stretch refined to the end is bounded at the very instants it is admitted at, and the admission there is the knots' own evaluation.
    * @param course A laid course the model refused (`admitted`), read at the knots as the seed, its reading's context the frame grid; the sampling planner's seed (`HumanArmSeed`) on a grid of thirtieths of a second when absent, and after the course when it leads to no admitted trajectory.
    * @returns Each arm's trajectory, in the problem's order.
    * @throws {HumanRefusal} When no trajectory meets the constraints at its knots and on the frame grid.
@@ -180,7 +180,28 @@ export namespace HumanArmTrajectory {
     times: readonly number[],
     course?: IAdmitted,
   ): Trajectory[] {
-    const first: IProblem = read(times);
+    // The frame grid over the span, the instants the played trajectory is
+    // admitted at: the course's own where one was read. The knots are
+    // instants of that grid, the nearest to the caller's, so a stretch
+    // refined to the end is bounded at exactly the instants it is read at.
+    const grid: readonly number[] =
+      course?.read.context.times ?? uniform(times[0]!, times[times.length - 1]!);
+    const snapped: number[] = [0];
+    let near: number = 0;
+    for (const t of times) {
+      while (
+        near + 1 < grid.length &&
+        Math.abs(grid[near + 1]! - t) <= Math.abs(grid[near]! - t)
+      )
+        ++near;
+      if (near > snapped[snapped.length - 1]!) snapped.push(near);
+    }
+    if (snapped[snapped.length - 1] !== grid.length - 1)
+      snapped.push(grid.length - 1);
+    let knots: number[] = snapped;
+    const seconds = (of: readonly number[]): number[] =>
+      of.map((g: number): number => grid[g]!);
+    const first: IProblem = read(seconds(knots));
     const flip: boolean = Mirror.leftFirst(first);
     const reading: (times: readonly number[]) => IProblem = flip
       ? (t: readonly number[]): IProblem => Mirror.mirrored(read(t))
@@ -192,31 +213,20 @@ export namespace HumanArmTrajectory {
         problem.body,
         problem.arms.map((arm: IArm): "left" | "right" => arm.side),
       );
-    let context: M.IContext = contextOf(problem, course?.read.context);
-
-    // The frame grid over the span, the instants the played trajectory is
-    // admitted at: the course's own where one was read.
-    const fine: M.IContext = course?.read.context ?? gridded();
-    function gridded(): M.IContext {
-      const start: number = times[0]!;
-      const end: number = times[times.length - 1]!;
-      const grid: number[] = [start];
-      for (let j: number = 1; start + j * STEP < end - 1e-9; ++j)
-        grid.push(start + j * STEP);
-      grid.push(end);
-      return contextOf(reading(grid), context);
-    }
+    const fine: M.IContext = course?.read.context ?? contextOf(reading(grid));
+    let context: M.IContext = contextOf(problem, fine);
 
     // The arms carried by their own interpolant onto knots with the given
     // intervals split; the knots kept keep what the last context built.
     const refine = (x: number[][][], split: readonly number[]): number[][][] => {
-      const next: number[] = HumanArmRefine.split(context.times, split);
+      const next: number[] = HumanArmRefine.split(knots, split);
       const carried: number[][][] = x.map((arm: number[][]): number[][] =>
-        next.map((t: number): number[] =>
-          HumanArmRefine.hermite(context.times, arm, t),
+        next.map((g: number): number[] =>
+          HumanArmRefine.hermite(context.times, arm, grid[g]!),
         ),
       );
-      problem = reading(next);
+      knots = next;
+      problem = reading(seconds(next));
       context = contextOf(problem, context);
       return carried;
     };
@@ -240,19 +250,13 @@ export namespace HumanArmTrajectory {
         HumanArmOptimiser.optimise(context, seed);
       let played: Admission.IReading = Admission.read(context, fine, solved.x);
       for (;;) {
-        const split: Set<number> = new Set(
-          Admission.unbounded(context, fine, played, STEP),
-        );
+        const split: Set<number> = new Set(Admission.unbounded(knots, played));
         if (solved.evaluation.worst.value > M.TOLERANCE)
           for (const k of [
             solved.evaluation.worst.at - 1,
             solved.evaluation.worst.at,
           ])
-            if (
-              k >= 0 &&
-              k + 1 < context.n &&
-              context.times[k + 1]! - context.times[k]! >= 2 * STEP - 1e-9
-            )
+            if (k >= 0 && k + 1 < knots.length && knots[k + 1]! - knots[k]! >= 2)
               split.add(k);
         if (split.size === 0) break;
         const carried: number[][][] = refine(
@@ -284,6 +288,7 @@ export namespace HumanArmTrajectory {
       laid === undefined ? undefined : HumanArmSeed.held(problem, context, laid);
     let solved: Solved = optimised(laid ?? HumanArmSeed.seed(problem, context));
     if (course !== undefined && !met(solved)) {
+      knots = snapped;
       problem = initial;
       context = contextOf(problem, fine);
       solved = optimised(HumanArmSeed.seed(problem, context, hold));
@@ -531,7 +536,16 @@ function trajectory(
     G.arm(setups[arm]!, HumanArmRefine.hermite(times, coordinates[arm]!, seconds));
 }
 
-/** The frame grid, seconds: the instants a played trajectory is admitted at where no course gives its own, and the least two knots are spaced. */
+/** A span's instants a frame apart, its two ends among them: the frame grid where no course gives its own. */
+function uniform(start: number, end: number): number[] {
+  const grid: number[] = [start];
+  for (let j: number = 1; start + j * STEP < end - 1e-9; ++j)
+    grid.push(start + j * STEP);
+  grid.push(end);
+  return grid;
+}
+
+/** The frame grid's step, seconds, where no course gives its own grid. */
 const STEP: number = 1 / 30;
 
 /** The share of the audit's bound a laid transport's plateau runs at: the margin its sampled arc and its waypoints' chords leave (provisional). */

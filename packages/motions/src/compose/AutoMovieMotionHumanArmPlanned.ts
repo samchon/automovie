@@ -293,10 +293,22 @@ export namespace AutoMovieMotionHumanArmPlanned {
         // One planned arm stands alone on the base already resolved without
         // it: the rest of the body is that base's, so only the arm is fitted
         // (the limbs fit in order and nothing reads an arm fitted last).
-        // Two planned arms keep the posture solve, which pairs them.
+        // Two planned arms neither of which rides the other are each the
+        // same: the posture solve of one arm's goal, where the posture so
+        // far gives the other planned arm no goal, fits that one arm on the
+        // very base with the other arm as placed (`refitHumanPosture`). A
+        // riding pair, or a posture that already aims the other arm, keeps
+        // the posture solve.
+        const apart: boolean =
+          carries.length === 2 &&
+          carries.every((o: IPlanned): boolean => o.on === undefined) &&
+          carries.every((o: IPlanned): boolean => o === c || p.limbs[`${o.side}Arm`] === undefined);
         found = AutoMovieMotionHumanArmAngles.angles(carries.length === 1
           ? HumanLimbFit.fit(body, at(t).pose, `${c.side}Arm`, aimed(a, t), ["left", "right"],
               undefined, undefined, resolution).pose
+          : apart
+            ? HumanLimbFit.fit(body, at(t).pose, `${c.side}Arm`, aimed(a, t),
+                [c.side === "left" ? "right" : "left"], undefined, undefined, resolution).pose
           : resolveHumanPosture.seeded(body,
               { ...p, limbs: { ...p.limbs, [`${c.side}Arm`]: aimed(a, t) } },
               undefined, undefined, resolution, undefined, projection).pose, c.side);

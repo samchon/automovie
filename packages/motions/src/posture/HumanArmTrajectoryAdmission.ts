@@ -137,12 +137,12 @@ export namespace HumanArmTrajectoryAdmission {
   /**
    * The knots' intervals a failed reading asks to split: each interval that
    * holds a failing grid instant, both intervals beside a knot one falls
-   * on, an interval shorter than twice the least spacing left as it is.
+   * on, an interval that holds no grid instant left as it is. Knots are
+   * grid instants, so a stretch split to the end has every grid instant
+   * for a knot, and there the reading is the knots' own evaluation.
    *
-   * @param c The knots' context.
-   * @param fine The grid's context the reading was taken on.
+   * @param knots The knots' indices in the frame grid, ascending.
    * @param reading The reading.
-   * @param least The least spacing of two knots, seconds: the frame grid's step.
    * @returns The intervals, by their first knot, ascending.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which intervals are returned and which are never split.
@@ -154,20 +154,16 @@ export namespace HumanArmTrajectoryAdmission {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list and retains nothing.
    */
   export function unbounded(
-    c: M.IContext,
-    fine: M.IContext,
+    knots: readonly number[],
     reading: IReading,
-    least: number,
   ): number[] {
     const out: Set<number> = new Set();
     let k: number = 0;
     for (const g of reading.failed) {
-      const t: number = fine.times[g]!;
-      while (k + 2 < c.n && c.times[k + 1]! <= t - 1e-9) ++k;
+      while (k + 2 < knots.length && knots[k + 1]! < g) ++k;
       const beside: number[] =
-        k + 2 < c.n && Math.abs(c.times[k + 1]! - t) <= 1e-9 ? [k, k + 1] : [k];
-      for (const j of beside)
-        if (c.times[j + 1]! - c.times[j]! >= 2 * least - 1e-9) out.add(j);
+        k + 2 < knots.length && knots[k + 1] === g ? [k, k + 1] : [k];
+      for (const j of beside) if (knots[j + 1]! - knots[j]! >= 2) out.add(j);
     }
     return [...out].sort((p: number, q: number): number => p - q);
   }

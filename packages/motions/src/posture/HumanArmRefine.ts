@@ -12,8 +12,9 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * within `TOLERANCE` of the act's own site at every instant of the frame
  * grid, so no stroke is cut short between samples: the waypoints' sites are
  * all the optimiser knows of the act between them. An interval whose site
- * strays is split at its middle, and an interval of less than two frames
- * is never split, so the waypoints are never finer than the frame grid.
+ * strays is split at the grid instant in its middle (`split`), and an
+ * interval that holds no grid instant is never split, so the waypoints are
+ * never finer than the frame grid.
  * What the arms themselves must meet between waypoints, their clearance,
  * their speed and their contact, is read on the played trajectory by
  * `HumanArmTrajectoryAdmission`.
@@ -26,9 +27,8 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 export namespace HumanArmRefine {
   /**
    * The intervals whose waypoints do not bound their site's path: each `k`
-   * whose interval from waypoint `k` to `k + 1` is two frames or longer and
-   * whose interpolated site leaves the act's own at an instant of the frame
-   * grid inside it.
+   * whose interval from waypoint `k` to `k + 1` holds an instant of the
+   * frame grid at which its interpolated site leaves the act's own.
    *
    * @param c The waypoints' context.
    * @param fine The context at the frame grid's instants over the same span, the first and the last the waypoints'.
@@ -49,7 +49,6 @@ export namespace HumanArmRefine {
     for (let k: number = 0; k + 1 < c.n; ++k) {
       const from: number = c.times[k]!;
       const to: number = c.times[k + 1]!;
-      if (to - from < 2 * STEP - 1e-9) continue;
       const inner: number[] = [];
       ft.forEach((t: number, g: number): void => {
         if (t > from + 1e-9 && t < to - 1e-9) inner.push(g);
@@ -61,28 +60,33 @@ export namespace HumanArmRefine {
   }
 
   /**
-   * The waypoints' seconds with each given interval split at its middle.
+   * The waypoints, as instants of the frame grid, with each given interval
+   * split at the grid instant in its middle. Waypoints that are grid
+   * instants stay grid instants however often they are split, so where
+   * every grid instant of a stretch is a waypoint, what the waypoints are
+   * bounded by is what the grid reads.
    *
-   * @param times The seconds.
-   * @param split The intervals, by their first waypoint.
-   * @returns The seconds, ascending.
+   * @param knots The waypoints' indices in the frame grid, ascending.
+   * @param split The intervals, by their first waypoint; an interval that holds no grid instant is left as it is.
+   * @returns The indices, ascending.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies ordered seconds, interval indices and the returned grid with selected midpoints.
-   * @evidence contracts/development/implementation.md#principled-implementation Inserts the arithmetic midpoint after each selected interval's original first instant, preserving the existing dyadic refinement.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered time traversal appends the original instant and its optional midpoint.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains includes membership, midpoint grouping, duplicates and order; does not round instants or introduce a finer-grid policy.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For N instants and S split indices, the existing includes lookup costs O(N*S); output storage is O(N+S) for valid interval indices.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the original time array and arithmetic midpoint directly, without another grid generator or retained lookup.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh numeric array and retains neither the source grid nor the selected intervals.
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies the indices, which intervals are split, where, and what is left.
+   * @evidence contracts/development/implementation.md#principled-implementation The dyadic refinement of a continuous check on the grid the check itself reads, so the refinement ends exactly on that grid.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered traversal appends each waypoint and its interval's optional middle.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No instant off the grid is made and no interval is forced below one grid cell.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(N S) for N waypoints and S intervals by the membership lookup; output O(N + S).
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of two lists.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh array and retains nothing.
    */
   export function split(
-    times: readonly number[],
+    knots: readonly number[],
     split: readonly number[],
   ): number[] {
     const out: number[] = [];
-    times.forEach((t: number, k: number): void => {
-      out.push(t);
-      if (split.includes(k)) out.push((t + times[k + 1]!) / 2);
+    knots.forEach((g: number, k: number): void => {
+      out.push(g);
+      if (split.includes(k) && knots[k + 1]! - g >= 2)
+        out.push(Math.floor((g + knots[k + 1]!) / 2));
     });
     return out;
   }
@@ -207,9 +211,6 @@ function strayed(
     },
   );
 }
-
-/** The frame grid, seconds: the finest the waypoints are spaced. */
-const STEP: number = 1 / 30;
 
 /** How far an interpolated site may leave the act's own between waypoints, metres: the millimetre the solve lets a hand miss its site at a waypoint (`HumanArmTrajectoryModel.TOLERANCE`). */
 const TOLERANCE: number = M.TOLERANCE / 1000;
