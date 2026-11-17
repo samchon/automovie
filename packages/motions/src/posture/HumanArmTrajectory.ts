@@ -229,7 +229,15 @@ export namespace HumanArmTrajectory {
       if (out[out.length - 1] !== grid.length - 1) out.push(grid.length - 1);
       return out;
     };
-    const snapped: number[] = snap(times);
+    // The first knots: the caller's, and the seconds at which a laid
+    // transport's time law turns from its ramp to its cruise and back
+    // (`IAdmitted.ramps`), so the knots' cubic can draw the cruise at the
+    // speed bound the law timed the transport by.
+    const snapped: number[] = snap(
+      course === undefined || course.ramps.length === 0
+        ? times
+        : [...times, ...course.ramps].sort((p: number, q: number): number => p - q),
+    );
     let knots: number[] = snapped;
     const seconds = (of: readonly number[]): number[] =>
       of.map((g: number): number => grid[g]!);
@@ -262,6 +270,10 @@ export namespace HumanArmTrajectory {
       context = contextOf(problem, context);
       return carried;
     };
+    const intervals = (of: readonly number[]): number[] =>
+      of.flatMap((g: number, k: number): number[] =>
+        k + 1 < of.length && of[k + 1]! - g >= 2 ? [k] : [],
+      );
     type Solved = {
       x: number[][][];
       evaluation: M.IEvaluation;
@@ -282,10 +294,27 @@ export namespace HumanArmTrajectory {
       // The waypoints are knots of the frame grid: the optimiser reads and
       // linearises every grid instant on their interpolant and steps the
       // knots (`HumanArmTrajectoryKnots`), so its last evaluation is the
-      // played trajectory's own reading and nothing is refined or solved
-      // again. Where the knots are the grid itself, the reading is theirs.
-      const solved: ReturnType<typeof HumanArmOptimiser.optimise> =
+      // played trajectory's own reading. Where the knots are the grid
+      // itself, the reading is theirs.
+      //
+      // The solve has two levels and no loop. The knots first; and where
+      // their trajectory ends infeasible on the grid, the grid's own
+      // instants as knots, the whole problem a frame-grid trajectory always
+      // was, continued from the knots' result at its penalty. Nothing is
+      // chosen by where a reading failed, so a problem and its mirror take
+      // the same level.
+      let solved: ReturnType<typeof HumanArmOptimiser.optimise> =
         HumanArmOptimiser.optimise(context, seed, penalty, fine);
+      if (solved.evaluation.worst.value > M.TOLERANCE && context.n < fine.n) {
+        let carried: number[][][] = solved.x;
+        for (
+          let wide: number[] = intervals(knots);
+          wide.length > 0;
+          wide = intervals(knots)
+        )
+          carried = refine(carried, wide);
+        solved = HumanArmOptimiser.optimise(context, carried, solved.penalty, fine);
+      }
       const played: Admission.IReading =
         !context.still && fine.n > context.n
           ? {

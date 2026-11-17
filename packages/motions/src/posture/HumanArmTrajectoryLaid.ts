@@ -40,6 +40,9 @@ export namespace HumanArmTrajectoryLaid {
     /** The model term that refuses the course (`M.IEvaluation.worst.term`); empty when admitted. */
     refused: string;
 
+    /** The seconds at which a transport's time law changes its piece: the end of its ramp up to the cruise and the start of its ramp down, for each transport laid with a ramp. A trajectory planned on few knots takes them as knots, since a cubic between two knots draws a ramp or a cruise, not the corner between them. */
+    ramps: number[];
+
     /** The reading: the context builder bound to the problem's body and arms (`HumanArmTrajectoryContext.prepare`) and the context of the course's waypoints, in the mirror image `solve` reads the problem in. */
     read: {
       /** The context builder. */
@@ -125,6 +128,7 @@ export namespace HumanArmTrajectoryLaid {
                 : M.ranged(context, a, G.encode(context.setups[a]!, arm)),
         ),
     );
+    const ramps: number[] = [];
     const mix = (p: readonly number[], q: readonly number[], w: number): number[] =>
       p.map((v: number, d: number): number => v + (q[d]! - v) * w);
 
@@ -154,6 +158,8 @@ export namespace HumanArmTrajectoryLaid {
       const arc: number = along[ARC]!;
       const seconds: number = times[to]! - times[from]!;
       const ramp: number = Math.max(0, Math.min(0.5, 1 - arc / (PACE * M.SPEED_LIMIT * seconds)));
+      if (ramp >= 1e-9 && ramp < 0.5)
+        ramps.push(times[from]! + ramp * seconds, times[to]! - ramp * seconds);
       const run = (w: number): number =>
         ramp < 1e-9
           ? w
@@ -183,6 +189,7 @@ export namespace HumanArmTrajectoryLaid {
       ),
       admitted: worst.value <= M.TOLERANCE,
       refused: worst.value <= M.TOLERANCE ? "" : worst.term,
+      ramps,
       read: { of, context },
     };
   }
