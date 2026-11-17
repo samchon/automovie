@@ -32,6 +32,7 @@ export namespace staggerLimit {
    * @param entry The posture the push meets.
    * @param push The push's horizontal unit direction, world.
    * @param above A speed it does not catch, m/s.
+   * @param fixed The entry's geometry (`StaggerPendulum.prepare`) of this same body and entry, shared with the plan that was refused; read here when absent.
    * @returns m/s, a whole centimetre per second.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the bracket, its premise and the result's precision.
@@ -39,7 +40,7 @@ export namespace staggerLimit {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two bisections over `recover`: the pendulum's, then the whole model's.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The limit is the whole model's, never the pendulum's bound.
    * @evidence contracts/development/implementation.md#efficient-algorithms About log2(above / RESOLUTION) closed-form pendulum probes, then at most as many whole-model probes and VERIFIED / RESOLUTION band probes per refused band speed; a whole-model probe solves no stance course, and admits only the prefixes of orders the pendulum catches.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The entry's fixed geometry (`StaggerPendulum.prepare`: one whole-body centre of mass read and the soles' extents) is read once and shared by every probe, as it depends on the body and entry alone; each probe's pendulum state and admissions are its own speed's.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The entry's fixed geometry (`StaggerPendulum.prepare`) is read once and shared by every probe, as it depends on the body and entry alone; each grid speed's answer is kept per model within the search, since probing it again would run the same deterministic recovery; each probe's pendulum state and admissions are its own speed's.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only scalar bracket/grid state, the fixed geometry and local callbacks until return or failure.
    */
   export function of(
@@ -47,47 +48,68 @@ export namespace staggerLimit {
     entry: IHumanActionContext["entry"],
     push: IAutoMovieVector3,
     above: number,
+    fixed: ReturnType<typeof StaggerPendulum.prepare> = StaggerPendulum.prepare(body, entry),
   ): number {
-    const fixed: ReturnType<typeof StaggerPendulum.prepare> = StaggerPendulum.prepare(body, entry);
-    const bisect: (lo: number, hi: number, catches: (speed: number) => boolean) => number = (
+    // The search runs on the fixed grid of `RESOLUTION` multiples, so the
+    // limit does not depend on the refused speed that asked for it: index
+    // 0 (no push) is caught, and the first index at or over `above` is not.
+    const R: number = staggerBounds.RESOLUTION;
+    const top: number = Math.ceil(above / R - 1e-9);
+    const probe: (catches: (speed: number) => boolean) => (k: number) => boolean = (
+      catches: (speed: number) => boolean,
+    ): ((k: number) => boolean) => {
+      // One answer per grid speed and model within this search: a speed
+      // probed again (the band's, a bisection's end) is the same recovery.
+      const known: Map<number, boolean> = new Map();
+      return (k: number): boolean => {
+        if (k <= 0) return true;
+        if (k >= top) return false;
+        let caught: boolean | undefined = known.get(k);
+        if (caught === undefined) {
+          caught = catches(k * R);
+          known.set(k, caught);
+        }
+        return caught;
+      };
+    };
+    const bisect: (lo: number, hi: number, caught: (k: number) => boolean) => number = (
       lo: number,
       hi: number,
-      catches: (speed: number) => boolean,
+      caught: (k: number) => boolean,
     ): number => {
-      while (hi - lo > staggerBounds.RESOLUTION) {
-        const mid: number = (lo + hi) / 2;
-        if (catches(mid)) lo = mid;
+      while (hi - lo > 1) {
+        const mid: number = (lo + hi) >> 1;
+        if (caught(mid)) lo = mid;
         else hi = mid;
       }
       return lo;
     };
-    const bound: number = bisect(
-      0,
-      above,
+    const pendulum: (k: number) => boolean = probe(
       (speed: number): boolean =>
         staggerRecover.recover(body, entry, push, speed, 1, false, fixed) !== null,
     );
-    const whole: (speed: number) => boolean = (speed: number): boolean =>
-      staggerRecover.recover(body, entry, push, speed, 1, true, fixed) !== null;
+    const whole: (k: number) => boolean = probe(
+      (speed: number): boolean =>
+        staggerRecover.recover(body, entry, push, speed, 1, true, fixed) !== null,
+    );
+    const bound: number = bisect(0, top, pendulum);
 
     // The limit stands with its band verified: every speed of the grid over
     // `VERIFIED` below it is caught too; a refused one below it moves the
     // search under it.
+    const band: number = Math.round(staggerBounds.VERIFIED / R);
     let found: number = whole(bound) ? bound : bisect(0, bound, whole);
     for (;;) {
       let refused: number = -1;
-      for (let i: number = 1; i * staggerBounds.RESOLUTION <= staggerBounds.VERIFIED + 1e-9; i++) {
-        const speed: number = found - i * staggerBounds.RESOLUTION;
-        if (speed <= 0) break;
-        if (!whole(speed)) {
-          refused = speed;
+      for (let i: number = 1; i <= band && found - i > 0; i++)
+        if (!whole(found - i)) {
+          refused = found - i;
           break;
         }
-      }
       if (refused < 0) break;
       found = bisect(0, refused, whole);
     }
-    return Math.floor(found * 100) / 100;
+    return Math.floor(found * R * 100 + 1e-9) / 100;
   }
 
 }

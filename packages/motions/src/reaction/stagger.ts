@@ -9,6 +9,7 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -25,6 +26,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
 import { StaggerFeet } from "./StaggerFeet";
+import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
 import { staggerKnots } from "./staggerKnots";
 import { staggerLimit } from "./staggerLimit";
@@ -91,12 +93,15 @@ import { staggerRecover } from "./staggerRecover";
  * millimetre.
  *
  * The body over its feet is read at each second from prepared courses
- * (`StaggerFeet`): the pelvis carries the centre of mass's course with the
- * trunk upright and is lowered to the height its planted legs allow, as the
- * walk settles its pelvis (`walkReach.ground`), each heel rising about its
- * ball where the ankle runs out of room. The trunk's hip strategy (Horak and
- * Nashner 1986, J Neurophysiol 55:1369) is not modelled: a step the upright
- * legs do not hold is refused by the admission instead. A stepping foot
+ * (`StaggerFeet`): the trunk bends about the hips against the fall, the hip
+ * strategy (Horak and Nashner 1986, J Neurophysiol 55:1369), by the
+ * inclination of the extrapolated centre of mass's lead over the pendulum's
+ * length, bounded by the hip's extension and eased in from the measured
+ * reaction (`staggerLean`, the relation provisional); the pelvis carries the
+ * centre of mass's course less the shift that tilt makes of it, and is
+ * lowered to the height its planted legs allow, as the walk settles its
+ * pelvis (`walkReach.ground`), each heel rising about its ball where the
+ * ankle runs out of room. A stepping foot
  * first rises clear of the floor by the minimum toe clearance of walking
  * (`walkFoot.CLEARANCE`, Killeen et al. 2017), over the share of its swing a
  * walking foot takes to set down from that height, then swings as a walking
@@ -210,12 +215,18 @@ export namespace stagger {
       y: 0,
     });
 
+    const fixed: ReturnType<typeof StaggerPendulum.prepare> = StaggerPendulum.prepare(
+      body,
+      context.entry,
+    );
     const recovery: staggerRecover.IRecovery | null = staggerRecover.recover(
       body,
       context.entry,
       push,
       p.speed,
       righting,
+      true,
+      fixed,
     );
     if (recovery === null) {
       const caught: number = staggerLimit.of(
@@ -223,6 +234,7 @@ export namespace stagger {
         context.entry,
         push,
         p.speed,
+        fixed,
       );
       throw new HumanRefusal({
         kind: "parameter",
@@ -246,7 +258,7 @@ export namespace stagger {
     );
     const duration: number = clock.duration;
     const last: () => number = (): number => recovery.steps.at(-1)!.land;
-    const feet: StaggerFeet = new StaggerFeet(body, context.entry, recovery);
+    const feet: StaggerFeet = new StaggerFeet(body, context.entry, recovery, fixed.bend);
     const legs: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
@@ -257,7 +269,7 @@ export namespace stagger {
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
         resolution?: Parameters<IHumanActionPlan["posture"]>[2],
       ): IHumanPosture => {
-        const { feet: scheduled, settled, reached }: ReturnType<StaggerFeet["solve"]> = feet.solve(seconds, resolution);
+        const { feet: scheduled, settled, reached, trunk }: ReturnType<StaggerFeet["solve"]> = feet.solve(seconds, resolution);
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
         for (const side of ["left", "right"] as const) {
           // The knee points over the foot's own heading.
@@ -277,18 +289,23 @@ export namespace stagger {
               : {}),
           };
         }
-        // The pelvis on the centre of mass's course, the trunk upright over it.
-        return {
-          ...posture,
-          root: settled.root,
-          yaw: settled.yaw,
-          joints: {
-            ...posture.joints,
-            leftToes: [reached.left.toes, 0, 0],
-            rightToes: [reached.right.toes, 0, 0],
+        // The trunk tilts about the hips against the fall (`staggerLean`),
+        // so the legs stay on their feet.
+        return AutoMovieMotionHumanLean.pivot(
+          body,
+          {
+            ...posture,
+            root: settled.root,
+            yaw: settled.yaw,
+            joints: {
+              ...posture.joints,
+              leftToes: [reached.left.toes, 0, 0],
+              rightToes: [reached.right.toes, 0, 0],
+            },
+            limbs,
           },
-          limbs,
-        };
+          trunk,
+        );
       },
     };
     // Both arms abduct from the entry's angles as balance reactions and come

@@ -53,7 +53,7 @@ export namespace staggerClose {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The closing step from its prediction, its capture test, the settling loop, the courses.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A close that leaves the extrapolated centre of mass outside the base, or never settles, is null rather than a course that ends off balance.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for the closing step and one millisecond loop of at most `(righting + 20 / omega) / STEP` held spans for the settling.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed support prepares ordered edge differences/spans once, and fixed righting/frequency/STEP prepare the same rate and growth/decay coefficients; paired reads share phase selection before settling.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed support prepares ordered edge differences/spans once, and fixed righting/frequency/STEP prepare the same rate and growth/decay coefficients; before settling the pendulum's own course readers answer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned readers retain the settling arrays and the pendulum's course readers with their recovery record, and no time-keyed samples.
    */
   export function of(
@@ -204,18 +204,7 @@ export namespace staggerClose {
       steps,
       caught: caughtAt,
       settled,
-      sample: (seconds: number, extrapolated: boolean): staggerRecover.IReading => {
-        if (!(seconds >= last)) {
-          const sample: staggerRecover.IReading | undefined =
-            swung.sample?.(seconds, extrapolated);
-          if (sample !== undefined) return sample;
-        }
-        return {
-          course: recovery.course(seconds),
-          pressure: recovery.pressure(seconds),
-          ...(extrapolated ? { extrapolated: recovery.extrapolated(seconds) } : {}),
-        };
-      },
+      centre,
       course: (seconds: number): IAutoMovieVector3 => {
         if (seconds >= last) {
           const at: number = Math.min(settle.length - 1, (seconds - last) / STEP);

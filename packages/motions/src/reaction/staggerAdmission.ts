@@ -15,12 +15,14 @@ import { HumanLegChain } from "../posture/HumanLegChain";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerKnots } from "./staggerKnots";
+import { staggerLean } from "./staggerLean";
 import type { staggerRecover } from "./staggerRecover";
 
 /**
  * Whether a stagger's legs hold its recovery at the given instants
  * (`staggerRecover`): at each, the pelvis carried by the centre of mass's
- * course (the entry's root plus its travel, the trunk upright) and lowered
+ * course less the trunk's shift of it (`staggerLean`; the hips read upright,
+ * the trunk's tilt about them left out of the legs' reading) and lowered
  * to the height its planted legs allow (`walkReach.ground`, the walk's own
  * closed-form claim of each leg's reach with its knee `walkReach`'s least
  * bend), and every planted leg then solved as the two-bone chain it is: its
@@ -38,7 +40,8 @@ import type { staggerRecover } from "./staggerRecover";
  *
  * @param body The body.
  * @param entry The posture the push meets.
- * @param walk The recovery's steps and the centre of mass's course from the entry's, seconds since the action's start.
+ * @param walk The recovery's steps, the centre of mass's course from the entry's, the extrapolated centre of mass and the entry's centre, at seconds since the action's start.
+ * @param bend The centre of mass's shift per sine of the trunk's pitch and roll (`staggerKnots.bending`).
  * @param instants The seconds to read, since the action's start.
  * @param crossing Whether the feet cross at these instants, so the two planted legs' clearance is read.
  * @returns Whether every planted leg holds at every instant.
@@ -57,10 +60,14 @@ export function staggerAdmission(
   walk: {
     steps: readonly staggerRecover.IStep[];
     course: (seconds: number) => IAutoMovieVector3;
+    extrapolated: (seconds: number) => IAutoMovieVector3;
+    centre: IAutoMovieVector3;
   },
+  bend: Record<"pitch" | "roll", IAutoMovieVector3>,
   instants: readonly number[],
   crossing: boolean,
 ): boolean {
+  const lean: ReturnType<typeof staggerLean> = staggerLean(body, entry, walk, bend);
   const entered: Record<"left" | "right", HumanFoot.IPlacement> =
     StrikingTarget.feet(entry);
   const thigh: number = body.measure.thigh;
@@ -94,16 +101,11 @@ export function staggerAdmission(
           },
         };
 
-    // The pelvis on the centre of mass's course, lowered as the legs ask.
-    const travel: IAutoMovieVector3 = walk.course(t);
-    const root: IAutoMovieVector3 = {
-      x: entry.posture.root.x + travel.x,
-      y: entry.posture.root.y,
-      z: entry.posture.root.z + travel.z,
-    };
+    // The pelvis on the centre of mass's course less the trunk's shift of
+    // it (`staggerLean`), lowered as the legs ask.
     const ground: walkReach.IGround = walkReach.ground(
       body,
-      root,
+      lean(t).root,
       entry.posture.yaw,
       entry.posture.joints.hips ?? [0, 0, 0],
       feet,

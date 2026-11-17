@@ -12,6 +12,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
+import { staggerKnots } from "./staggerKnots";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerPendulumCourses } from "./staggerPendulumCourses";
 import { staggerNearest } from "./staggerNearest";
@@ -78,6 +79,9 @@ export class StaggerPendulum {
   /** A sole's length along the heading. */
   public readonly length: number;
 
+  /** The centre of mass's shift per sine of the trunk's pitch and roll on the entry's feet, metres (`staggerKnots.bending`). */
+  public readonly bend: Record<"pitch" | "roll", IAutoMovieVector3>;
+
   /** The feet as the steps so far placed them. */
   public feet: Record<"left" | "right", HumanFoot.IPlacement>;
 
@@ -132,13 +136,16 @@ export class StaggerPendulum {
     this.v = Vector3.scale(StaggerPendulum.flat(push), speed);
     this.width = fixed.width;
     this.length = fixed.length;
+    this.bend = fixed.bend;
   }
 
   /**
    * The entry's geometry a pendulum starts from, which depends on the body
    * and the entry alone: the frequency, the whole-body centre of mass (one
-   * full forward-kinematics read), the root, the heading's axes, the feet and
-   * the soles' narrowest side-by-side width and length.
+   * full forward-kinematics read), the root, the heading's axes, the feet,
+   * the soles' narrowest side-by-side width and length, and the trunk's
+   * shift of the centre of mass per sine of its tilt (`staggerKnots.bending`,
+   * three more centre-of-mass reads).
    *
    * @param body The body.
    * @param entry The posture the push meets.
@@ -148,14 +155,14 @@ export class StaggerPendulum {
    * @evidence contracts/development/implementation.md#principled-implementation The pendulum's frequency from Hof's leg length, the centre of mass read from the entry posture, and the soles' extents along the heading's axes.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One record of every speed-independent quantity the constructor used to read per pendulum.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every value is read from the actual body and entry; nothing is a constant of one body.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One centre-of-mass read and two sole-extent scans per search instead of one per probed speed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four centre-of-mass reads (the entry's and the bending's three) and two sole-extent scans per search instead of per probed speed.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The record depends on the body and the entry alone, so a search over speeds and pushes on one entry shares it; a different entry prepares its own.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record that its search owns until it returns.
    */
   public static prepare(
     body: IHumanActionContext["body"],
     entry: IHumanActionContext["entry"],
-  ): Pick<StaggerPendulum, "w" | "centre" | "root" | "forward" | "across" | "entered" | "width" | "length"> {
+  ): Pick<StaggerPendulum, "w" | "centre" | "root" | "forward" | "across" | "entered" | "width" | "length" | "bend"> {
     const forward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.posture.yaw },
       { x: 0, y: 0, z: 1 },
@@ -171,6 +178,7 @@ export class StaggerPendulum {
       entered,
       width: StaggerPendulum.extent(body, entered, across),
       length: StaggerPendulum.extent(body, entered, forward),
+      bend: staggerKnots.bending(body, entry),
     };
   }
 
@@ -419,12 +427,12 @@ export class StaggerPendulum {
   /** The current spans as world-metre, action-local-second course readers.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frame, units, common clock and phase-array lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the original latest-from<=seconds linear scan and closed-form cosh/sinh/exp expressions, including the original before-first clamp and duplicate-start rule.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One phase selector and the original travel/pressure/extrapolation formulas serve independent and paired readings.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not assume sorted immutable phases, add a time cache or skip a requested value; unrequested extrapolation is not evaluated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Individual reads retain one linear phase scan; a paired sample reduces two or three scans to one, with unchanged formulas and speedup unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Stance knots consume a single selected phase for their course and pressure and, when caught, extrapolated centre.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned readers retain the same phase array and constants as before; each sample returns fresh vectors and retains no time-keyed reading.
+   * @evidence contracts/development/implementation.md#principled-implementation Selects the latest span starting at or before the second, the first before every start, and evaluates the closed-form cosh/sinh/exp expressions (`staggerPendulumCourses`).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One phase selector and the travel/pressure/extrapolation formulas.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no time cache; the spans are this pendulum's own.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A binary search over the spans per read, valid because this pendulum appends spans at its advancing clock.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The admission, the close and the displayed feet read these same spans.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned readers retain the phase array and constants; each read returns fresh vectors and retains no time-keyed reading.
    */
   public courses(): staggerRecover.ICourses {
     return staggerPendulumCourses(this.phases, this.w, this.centre);

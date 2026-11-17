@@ -10,6 +10,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
 import { staggerKnots } from "./staggerKnots";
+import { staggerLean } from "./staggerLean";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerSwingBow } from "./staggerSwingBow";
 
@@ -21,9 +22,9 @@ import { staggerSwingBow } from "./staggerSwingBow";
  * standing foot where it would pass into it.
  *
  * Every reading is a prepared curve evaluated at the second plus the walk's
- * own settling of the pelvis over its feet: the root is the entry's moved by
- * the centre of mass's travel (`staggerRecover.ICourses.course`), the trunk
- * upright over it, and lowered to the height its planted legs allow
+ * own settling of the pelvis over its feet: the trunk leans and the root
+ * carries the centre of mass's travel less the lean's shift of it
+ * (`staggerLean`), lowered to the height its planted legs allow
  * (`walkReach.ground`, a scalar root of each leg's closed-form reach claim,
  * its heel rising about the ball where the ankle runs out of room); a
  * swinging foot follows its prepared walking-foot curve (`walkFoot.prepareSwing`)
@@ -73,6 +74,9 @@ export class StaggerFeet {
   /** Each side's body-only swing range and floor-clearance prerequisites. */
   private readonly swingReaches: Record<"left" | "right", ReturnType<typeof walkReach.prepareSwing>>;
 
+  /** The trunk's lean and the root carrying it, at a second (`staggerLean`). */
+  private readonly lean: ReturnType<typeof staggerLean>;
+
   /**
    * Keep one plan's body, entry posture and recovery, and prepare each
    * side's body-only swing reach; endpoint, swing and bow work remains lazy
@@ -86,10 +90,12 @@ export class StaggerFeet {
     body: IHumanActionContext["body"],
     entry: IHumanActionContext["entry"],
     recovery: staggerRecover.IRecovery,
+    bend: Record<"pitch" | "roll", IAutoMovieVector3>,
   ) {
     this.body = body;
     this.recovery = recovery;
     this.posture = entry.posture;
+    this.lean = staggerLean(body, entry, recovery, bend);
     this.entered = StrikingTarget.feet(entry);
     this.rising = staggerKnots.risingOf(body);
     this.swingReaches = {
@@ -99,17 +105,18 @@ export class StaggerFeet {
   }
 
   /**
-   * The pelvis and stances at a second: the entry's root moved by the
-   * centre of mass's travel, the trunk upright, settled over the feet as
-   * the walk settles its pelvis.
+   * The pelvis and stances at a second: the root carrying the centre of
+   * mass's travel less the trunk lean's shift of it, settled over the feet
+   * as the walk settles its pelvis, the hips read upright.
    *
    * @param seconds Seconds since the push.
    * @param feet The scheduled feet at that second.
    * @param resolution Optional exact FK source borrowed by the same synchronous settlement.
+   * @param root The upright root before lowering (`staggerLean`); read at the second when absent.
    * @returns The settled pelvis, feet and contacts.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the time, the root's course, the upright trunk and the settling.
-   * @evidence contracts/development/implementation.md#principled-implementation The pelvis carries the centre of mass's course (Hof's pendulum and its settling) and the walk's ground settling lowers it to the closed-form height the planted legs allow, each heel rising about its ball where the ankle runs out of room.
+   * @evidence contracts/development/common.md#meaningful-documentation States the time, the root's course, the hips read upright and the settling.
+   * @evidence contracts/development/implementation.md#principled-implementation The pelvis carries the centre of mass's course (Hof's pendulum and its settling) less the trunk's measured mass shift, and the walk's ground settling lowers it to the closed-form height the planted legs allow, each heel rising about its ball where the ankle runs out of room.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the course, place the root, settle with the walk's owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fit, tolerance, time memo or posed-result cache is introduced; the settling is the walk's own.
    * @evidence contracts/development/implementation.md#efficient-algorithms One course read and one ground settling: a bracketed scalar root over at most two stance readers.
@@ -120,12 +127,12 @@ export class StaggerFeet {
     seconds: number,
     feet: Record<"left" | "right", walkFoot.IScheduled>,
     resolution?: Parameters<typeof walkReach.ground>[7],
+    root: IAutoMovieVector3 = this.lean(seconds).root,
   ): walkReach.IGround {
     const entry: IHumanPosture = this.posture;
-    const travel: IAutoMovieVector3 = this.recovery.course(seconds);
     return walkReach.ground(
       this.body,
-      { x: entry.root.x + travel.x, y: entry.root.y, z: entry.root.z + travel.z },
+      root,
       entry.yaw,
       entry.joints.hips ?? [0, 0, 0],
       feet,
@@ -201,10 +208,12 @@ export class StaggerFeet {
     feet: Record<"left" | "right", walkFoot.IScheduled>;
     settled: walkReach.IGround;
     reached: Record<"left" | "right", walkFoot.IEnd>;
+    trunk: { pitch: number; roll: number };
   } {
     const feet: Record<"left" | "right", walkFoot.IScheduled> =
       this.scheduled(seconds);
-    const settled: walkReach.IGround = this.settle(seconds, feet, resolution);
+    const { trunk, root }: ReturnType<StaggerFeet["lean"]> = this.lean(seconds);
+    const settled: walkReach.IGround = this.settle(seconds, feet, resolution, root);
     const reached: Record<"left" | "right", walkFoot.IEnd> = {
       ...settled.feet,
     };
@@ -215,7 +224,7 @@ export class StaggerFeet {
           feet[side],
           this.swinging(side, seconds),
         );
-    return { feet, settled, reached };
+    return { feet, settled, reached, trunk };
   }
 
   /**
