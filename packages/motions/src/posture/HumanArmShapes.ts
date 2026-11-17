@@ -119,6 +119,7 @@ export namespace HumanArmShapes {
    * @param at The frame.
    * @param placed The arm placed.
    * @param reach The reach, metres.
+   * @param among The frame's shapes any placement of the arm can come within the reach of (`reachable` at this reach), ascending; every shape when absent.
    * @returns The shapes' indices by segment.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input, its unit and the result.
@@ -133,6 +134,7 @@ export namespace HumanArmShapes {
     at: G.IFrame,
     placed: G.IPlaced,
     reach: number,
+    among?: readonly number[],
   ): IScreen {
     const of: (
       owner: "upper" | "lower" | "hand",
@@ -147,6 +149,8 @@ export namespace HumanArmShapes {
         at,
         Vector3.add(o, Quaternion.rotateVector(w, at.bounds[owner].centre)),
         at.bounds[owner].radius + reach,
+        undefined,
+        among,
       );
     return {
       upper: of("upper", placed.shoulder, placed.upper),
@@ -237,7 +241,8 @@ export namespace HumanArmShapes {
    * @param p The point.
    * @param reach The reach, metres.
    * @param gaps Optional caller-owned scratch receiving each traversed shape's sphere gap, metres, by index; no scratch is retained here.
-   * @returns The shapes' indices.
+   * @param among The only shapes read, ascending indices (`reachable`, for a point of the arm it was taken for and a reach no greater than its own); every shape when absent.
+   * @returns The shapes' indices, ascending.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input, its unit and the result.
    * @evidence contracts/development/implementation.md#principled-implementation A shape whose bounding sphere lies beyond the reach cannot come within it.
@@ -252,12 +257,97 @@ export namespace HumanArmShapes {
     p: IAutoMovieVector3,
     reach: number,
     gaps?: number[],
+    among?: readonly number[],
   ): number[] {
     const out: number[] = [];
-    at.shapes.forEach((shape: G.IShape, i: number): void => {
+    const read: (shape: G.IShape, i: number) => void = (
+      shape: G.IShape,
+      i: number,
+    ): void => {
       const gap: number = Vector3.distance(p, shape.centre) - shape.radius;
       if (gaps !== undefined) gaps[i] = gap;
       if (gap < reach) out.push(i);
+    };
+    if (among === undefined) at.shapes.forEach(read);
+    else for (const i of among) read(at.shapes[i]!, i);
+    return out;
+  }
+
+  /**
+   * The frame's shapes some placement of the arm can bring a probe or a
+   * segment's bounding sphere within a reach of, whatever its coordinates:
+   * the shapes the sphere screens (`near`, `screen`) can ever return, so a
+   * screen reads only these.
+   *
+   * The shoulder's point is the frame's own and every link is rigid, so a
+   * probe riding a segment lies no farther from the shoulder than the links
+   * before its segment's joint plus its own distance from that joint (the
+   * triangle inequality along the chain), and a segment's bounding sphere
+   * no farther than the links plus its centre's offset and its radius. With
+   * `far` the greatest of those, each plus its probe's radius, a shape whose
+   * sphere stands `far + reach` or more from the shoulder has a sphere gap
+   * of at least `radius + reach` to every probe, which `near` leaves out.
+   *
+   * @param at The frame.
+   * @param placed The arm placed at any coordinates in this frame, with its collider probes; only its rigid distances are read.
+   * @param reach The greatest reach the screens are asked, metres, beyond a probe's radius.
+   * @returns The shapes' indices, ascending.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the list is for, the bound's derivation, which placement is read and the ordering.
+   * @evidence contracts/development/implementation.md#principled-implementation A triangle-inequality bound on a serial chain of rigid links from a fixed shoulder; the premise holds because forward kinematics composes fixed rest offsets and rotations only (`resolveHumanArmChain`) and probes are fixed in their segments (`placeHumanArmGeometry`).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The chain's two link lengths, one maximum over probes and segment spheres, one pass over the shapes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only shapes no placement can reach are left out, with `ROUNDING` kept on the keeping side for the distances' rounding; no reach, radius or allowance changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(P + S) once per frame for P probes and S shapes, so every later screen of that frame reads the kept shapes instead of S.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The list depends on the frame and the arm's rigid geometry alone, so one list serves every placement, probe and iterate at that frame.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list and retains nothing.
+   */
+  export function reachable(
+    at: G.IFrame,
+    placed: G.IPlaced,
+    reach: number,
+  ): number[] {
+    const upper: number = Vector3.distance(placed.elbow, placed.shoulder);
+    const before: Record<"upper" | "lower" | "hand", number> = {
+      upper: 0,
+      lower: upper,
+      hand: upper + Vector3.distance(placed.wrist, placed.elbow),
+    };
+    const origin: Record<"upper" | "lower" | "hand", IAutoMovieVector3> = {
+      upper: placed.shoulder,
+      lower: placed.elbow,
+      hand: placed.wrist,
+    };
+    let far: number = 0;
+    placed.probes.forEach(
+      ([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {
+        const owner: "upper" | "lower" | "hand" =
+          probe >= G.SURFACE
+            ? at.owners[probe - G.SURFACE]!
+            : probe < 2
+              ? "upper"
+              : probe < 6
+                ? "lower"
+                : "hand";
+        far = Math.max(
+          far,
+          before[owner] + Vector3.distance(p, origin[owner]) + r,
+        );
+      },
+    );
+    for (const owner of ["upper", "lower", "hand"] as const)
+      far = Math.max(
+        far,
+        before[owner] +
+          Vector3.length(at.bounds[owner].centre) +
+          at.bounds[owner].radius,
+      );
+    const out: number[] = [];
+    at.shapes.forEach((shape: G.IShape, i: number): void => {
+      if (
+        Vector3.distance(shape.centre, placed.shoulder) - shape.radius <
+        far + reach + ROUNDING
+      )
+        out.push(i);
     });
     return out;
   }
@@ -384,3 +474,6 @@ export namespace HumanArmShapes {
     };
   }
 }
+
+/** What `reachable` keeps a shape by beyond its bound, metres: a nanometre, far above the rounding of distances of a metre in doubles (about 1e-16 m) and far below any reach asked, so rounding never drops a shape a screen would return. */
+const ROUNDING: number = 1e-9;

@@ -5,10 +5,10 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
-import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryInvalid } from "./HumanArmTrajectoryInvalid";
 import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
+import { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 import type { IHumanPosture } from "./IHumanPosture";
@@ -147,6 +147,8 @@ export namespace HumanArmTrajectoryModel {
     rested: (a: number, k: number, probe: number, bone: string) => boolean;
     /** Each site's touched collider, the shape nearest its point; -1 where none. */
     touched: number[][];
+    /** Each arm's frame's shapes any placement of the arm can come within the pairs' reach of, at each waypoint, ascending (`HumanArmShapes.reachable`): the only shapes a sphere screen reads there. */
+    reachable: readonly (readonly number[])[][];
   }
 
   /** An iterate's reading. */
@@ -164,6 +166,10 @@ export namespace HumanArmTrajectoryModel {
       deepest: Map<number, P.IPair>;
       embedded: Map<number, P.IEmbedded>;
     }[][];
+    /** Each arm's axis spheres' sweeps over each interval, by its first waypoint (`HumanArmTrajectorySweep.of`), as the reading found them; none for a still configuration. */
+    swept: HumanArmTrajectorySweep.ISwept[][][];
+    /** The two arms' pairs with each other at each inner waypoint (`HumanArmTrajectoryPairs.crossing`, read to `CUT`), as the reading found them; no entry at a waypoint that is not solved for, and none for one arm. */
+    crossing: Map<string, P.ICrossing>[];
   }
 
   /**
@@ -279,6 +285,10 @@ export namespace HumanArmTrajectoryModel {
     const pairs: IEvaluation["pairs"] = x.map(
       (): IEvaluation["pairs"][number] => [],
     );
+    const swept: IEvaluation["swept"] = x.map(
+      (): IEvaluation["swept"][number] => [],
+    );
+    const crossing: IEvaluation["crossing"] = [];
     // A term's refusal axis: a speed asks for time, a task point names its
     // target, every other term the region.
     const note = (
@@ -341,36 +351,18 @@ export namespace HumanArmTrajectoryModel {
               `probe ${p} moves ${(step / dt / 1000).toFixed(2)} m/s at ${times[k]!.toFixed(3)} s`,
           );
         }
-        for (
-          let probe: number = 0;
-          probe < (c.still ? 0 : G.SURFACE);
-          ++probe
-        ) {
-          const [pa, r]: readonly [IAutoMovieVector3, number] =
-            placed[a]![k]!.probes[probe]!;
-          for (const shape of S.near(c.frames[a]![k]!, pa, r + T.REACH)) {
-            // The probe's motion relative to the shape, which may move too.
-            const pb: IAutoMovieVector3 = P.relative(
-              c,
-              a,
-              k,
-              shape,
-              placed[a]![k + 1]!.probes[probe]![0],
-            ).point;
-            if (Vector3.length(Vector3.subtract(pa, pb)) < r) continue;
-            const lower: number = Math.min(
-              c.allowed(a, k, probe, shape),
-              c.allowed(a, k + 1, probe, shape),
-            );
-            const short: number =
-              1000 * (lower - (S.gap(c.frames[a]![k]!, shape, pa, pb) - r));
-            note(
-              short,
-              "swept",
-              () =>
-                `probe ${probe} swept ${short.toFixed(1)} mm inside shape ${shape} after ${times[k]!.toFixed(3)} s`,
-            );
-          }
+        const sweeps: HumanArmTrajectorySweep.ISwept[] = c.still
+          ? []
+          : HumanArmTrajectorySweep.of(c, a, k, placed[a]![k]!, placed[a]![k + 1]!);
+        swept[a]![k] = sweeps;
+        for (const sweep of sweeps) {
+          const short: number = 1000 * (sweep.lower - sweep.clear);
+          note(
+            short,
+            "swept",
+            () =>
+              `probe ${sweep.probe} swept ${short.toFixed(1)} mm inside shape ${sweep.shape} after ${times[k]!.toFixed(3)} s`,
+          );
         }
       }
       for (let k: number = 1; k < n; ++k) {
@@ -472,10 +464,10 @@ export namespace HumanArmTrajectoryModel {
       }
     });
     if (x.length === 2)
-      for (let k: number = 1; k < n; ++k)
-        for (const pair of inner(c, k)
-          ? P.crossing(c, k, placed[0]![k]!, placed[1]![k]!, P.CUT).values()
-          : []) {
+      for (let k: number = 1; k < n; ++k) {
+        if (!inner(c, k)) continue;
+        crossing[k] = P.crossing(c, k, placed[0]![k]!, placed[1]![k]!, P.CUT);
+        for (const pair of crossing[k]!.values()) {
           here = k;
           note(
             pair.short,
@@ -486,7 +478,8 @@ export namespace HumanArmTrajectoryModel {
           );
           if (pair.rested) objective += T.LIFT * pair.short * pair.short;
         }
-    return { placed, objective, violation, worst, pairs };
+      }
+    return { placed, objective, violation, worst, pairs, swept, crossing };
   }
 
   /** Configuration validity owned by HumanArmTrajectoryInvalid.of. */

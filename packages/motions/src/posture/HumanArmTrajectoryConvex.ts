@@ -11,6 +11,7 @@ import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryRanges } from "./HumanArmTrajectoryRanges";
+import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 import type { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
@@ -190,90 +191,63 @@ export namespace HumanArmTrajectoryConvex {
               });
           }
         }
-        // Swept spheres.
-        for (
-          let probe: number = 0;
-          probe < (c.still ? 0 : G.SURFACE);
-          ++probe
-        ) {
+        // Swept spheres, as the iterate's reading found them
+        // (`HumanArmTrajectorySweep`): the far end is already in the shape's
+        // frame at this waypoint, and its gradient is carried back by the
+        // same turn.
+        for (const sweep of at.swept[a]![k] ?? []) {
+          const { probe, shape, to: pb }: HumanArmTrajectorySweep.ISwept = sweep;
           const [pa, r] = at.placed[a]![k]!.probes[probe]!;
-          for (const shape of S.near(c.frames[a]![k]!, pa, r + T.REACH)) {
-            // The probe's motion relative to the shape, which may move too;
-            // the far end's gradient is carried back by the same turn.
-            const moved: {
-              point: IAutoMovieVector3;
-              turn: IAutoMovieQuaternion;
-            } = P.relative(
-              c,
-              a,
-              k,
-              shape,
-              at.placed[a]![k + 1]!.probes[probe]![0],
-            );
-            const pb: IAutoMovieVector3 = moved.point;
-            if (Vector3.length(Vector3.subtract(pa, pb)) < r) continue;
-            const frame: G.IFrame = c.frames[a]![k]!;
-            const d0: number = 1000 * (S.gap(frame, shape, pa, pb) - r);
-            const lower: number =
-              1000 *
-              Math.min(
-                c.allowed(a, k, probe, shape),
-                c.allowed(a, k + 1, probe, shape),
-              );
-            const pointsClear: boolean =
-              S.gap(frame, shape, pa, pa) - r > lower / 1000 &&
-              S.gap(frame, shape, pb, pb) - r > lower / 1000;
-            if (
-              d0 - lower >
-                Math.min(T.CHECK, reach(a, k) + reach(a, k + 1) + 2) ||
-              (pointsClear && d0 > lower)
-            )
-              continue;
-            // The swept distance's gradient in each end: the shape's normal at
-            // the nearer end, shared by where along the capsule it is nearest.
-            const span: IAutoMovieVector3 = Vector3.subtract(pb, pa);
-            const u: number = Math.min(
-              1,
-              Math.max(
-                0,
-                Vector3.dot(
-                  Vector3.subtract(frame.shapes[shape]!.centre, pa),
-                  span,
-                ) / Math.max(1e-12, Vector3.dot(span, span)),
-              ),
-            );
-            const nearer: number =
-              S.gap(frame, shape, pa, pa) <= S.gap(frame, shape, pb, pb)
-                ? 0
-                : 1;
-            const g: IAutoMovieVector3 = S.normal(
-              frame,
-              shape,
-              nearer === 0 ? pa : pb,
-            );
-            const ga: IAutoMovieVector3 = Vector3.scale(g, 1 - u);
-            const gb: IAutoMovieVector3 = Quaternion.rotateVector(
-              Quaternion.inverse(moved.turn),
-              Vector3.scale(g, u),
-            );
-            const s: ILinear = join(
-              ...(inner(k)
-                ? [along(a, k, jac[a]![k]!.probes[probe]!, ga)]
-                : []),
-              ...(inner(k + 1)
-                ? [along(a, k + 1, jac[a]![k + 1]!.probes[probe]!, gb)]
-                : []),
-            );
-            if (s.idx.length > 0)
-              rows.push({
-                key: `w|${a}|${k}|${probe}|${shape}`,
-                index: s.idx,
-                coef: s.coef,
-                l: lower - d0,
-                u: Infinity,
-                weight: mu,
-              });
-          }
+          const frame: G.IFrame = c.frames[a]![k]!;
+          const d0: number = 1000 * sweep.clear;
+          const lower: number = 1000 * sweep.lower;
+          if (d0 - lower > Math.min(T.CHECK, reach(a, k) + reach(a, k + 1) + 2))
+            continue;
+
+          // Each end's own distance, read once for the pair that stays.
+          const first: number = S.gap(frame, shape, pa, pa);
+          const second: number = S.gap(frame, shape, pb, pb);
+          if (first - r > lower / 1000 && second - r > lower / 1000 && d0 > lower)
+            continue;
+
+          // The swept distance's gradient in each end: the shape's normal at
+          // the nearer end, shared by where along the capsule it is nearest.
+          const span: IAutoMovieVector3 = Vector3.subtract(pb, pa);
+          const u: number = Math.min(
+            1,
+            Math.max(
+              0,
+              Vector3.dot(
+                Vector3.subtract(frame.shapes[shape]!.centre, pa),
+                span,
+              ) / Math.max(1e-12, Vector3.dot(span, span)),
+            ),
+          );
+          const g: IAutoMovieVector3 = S.normal(
+            frame,
+            shape,
+            first <= second ? pa : pb,
+          );
+          const ga: IAutoMovieVector3 = Vector3.scale(g, 1 - u);
+          const gb: IAutoMovieVector3 = Quaternion.rotateVector(
+            Quaternion.inverse(sweep.turn),
+            Vector3.scale(g, u),
+          );
+          const s: ILinear = join(
+            ...(inner(k) ? [along(a, k, jac[a]![k]!.probes[probe]!, ga)] : []),
+            ...(inner(k + 1)
+              ? [along(a, k + 1, jac[a]![k + 1]!.probes[probe]!, gb)]
+              : []),
+          );
+          if (s.idx.length > 0)
+            rows.push({
+              key: `w|${a}|${k}|${probe}|${shape}`,
+              index: s.idx,
+              coef: s.coef,
+              l: lower - d0,
+              u: Infinity,
+              weight: mu,
+            });
         }
       }
       for (let k: number = 1; k < n; ++k) {
@@ -436,7 +410,10 @@ export namespace HumanArmTrajectoryConvex {
     if (x.length === 2)
       for (let k: number = 1; k < n; ++k)
         for (const pair of inner(k)
-          ? P.crossing(c, k, at.placed[0]![k]!, at.placed[1]![k]!).values()
+          ? (
+              at.crossing[k] ??
+              P.crossing(c, k, at.placed[0]![k]!, at.placed[1]![k]!, P.CUT)
+            ).values()
           : []) {
           if (-pair.short > Math.min(T.CHECK, reach(0, k) + reach(1, k) + 2))
             continue;

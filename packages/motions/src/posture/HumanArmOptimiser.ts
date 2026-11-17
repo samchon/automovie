@@ -49,6 +49,13 @@ export namespace HumanArmOptimiser {
     // The multipliers of the last step taken, which the next subproblem
     // starts from.
     let duals: Map<string, number> | undefined;
+
+    // The last linearisation built: the steering asks for the same iterate,
+    // penalty and region twice, with and without the objective, and both are
+    // the same rows.
+    let kept:
+      | { x: number[][][]; mu: number; radius: number; built: QP.IProblem }
+      | undefined;
     const problem: SCO.IProblem<number[][][], M.IEvaluation> = {
       evaluate: (x: number[][][]): M.IEvaluation => M.evaluate(context, x),
       feasible: (evaluation: M.IEvaluation): boolean =>
@@ -62,13 +69,25 @@ export namespace HumanArmOptimiser {
       ): SCO.IModel<number[][][]> => {
         // The pairs that can enter the subproblem are read one growth of the
         // region beyond it.
-        const built: QP.IProblem = HumanArmTrajectoryConvex.convexify(
-          context,
-          x,
-          evaluation,
-          mu,
-          SCHEDULE.expand * radius,
-        );
+        if (
+          kept === undefined ||
+          kept.x !== x ||
+          kept.mu !== mu ||
+          kept.radius !== radius
+        )
+          kept = {
+            x,
+            mu,
+            radius,
+            built: HumanArmTrajectoryConvex.convexify(
+              context,
+              x,
+              evaluation,
+              mu,
+              SCHEDULE.expand * radius,
+            ),
+          };
+        const built: QP.IProblem = kept.built;
 
         // The steering's step of the violation alone is the same rows with
         // no objective (Byrd, Nocedal and Waltz's (5.10)).
@@ -92,26 +111,30 @@ export namespace HumanArmOptimiser {
     const shell = (model: QP.IProblem, x: number[][][]): SCO.IModel<number[][][]> => {
       let zero: number | undefined;
       let prepared: ReturnType<typeof QP.prepare> | undefined;
-      let trusted: QP.IProblem | undefined;
       let warm: QP.IState | undefined;
+
+      // The region's rows, one per variable, built once for the model: a
+      // retry in a smaller region changes only their two ends.
+      const trust: QP.IRow[] = Array.from(
+        { length: model.n },
+        (_: unknown, i: number): QP.IRow => ({
+          index: [i],
+          coef: [1],
+          l: 0,
+          u: 0,
+          key: `t|${i}`,
+        }),
+      );
+      const trusted: QP.IProblem = {
+        ...model,
+        rows: [...model.rows, ...trust],
+      };
       return {
         solve: (r: number): SCO.IStep<number[][][]> => {
-          trusted = {
-            ...model,
-            rows: [
-              ...model.rows,
-              ...Array.from(
-                { length: model.n },
-                (_: unknown, i: number): QP.IRow => ({
-                  index: [i],
-                  coef: [1],
-                  l: -r,
-                  u: r,
-                  key: `t|${i}`,
-                }),
-              ),
-            ],
-          };
+          for (const row of trust) {
+            row.l = -r;
+            row.u = r;
+          }
           prepared ??= QP.prepare(trusted);
           warm = prepared.solve(trusted.rows, warm, duals);
           const solved: Float64Array = warm.x;
@@ -147,7 +170,7 @@ export namespace HumanArmOptimiser {
           };
         },
         taken: (): void => {
-          duals = QP.multipliers(trusted!, warm!);
+          duals = QP.multipliers(trusted, warm!);
         },
         reprice: (penalty: number): SCO.IModel<number[][][]> =>
           shell(

@@ -443,6 +443,9 @@ export namespace HumanArmTrajectoryContext {
       touched: setups.map((_: G.ISetup, a: number): number[] =>
         points.map((p: W.IWaypoint): number => p.touched[a]!),
       ),
+      reachable: setups.map((_: G.ISetup, a: number): number[][] =>
+        points.map((p: W.IWaypoint): number[] => p.reachable[a]!),
+      ),
       rested: declared,
     };
     STORES.set(context, store);

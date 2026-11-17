@@ -10,6 +10,7 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import type { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
 /**
  * What an arms' trajectory reads at one waypoint, built once per waypoint
@@ -45,6 +46,8 @@ export namespace HumanArmTrajectoryWaypoint {
     inside: Map<number, number>[];
     /** Each arm's colliders, one entry per shape, once read. */
     flat: (G.IFrame["colliders"] | undefined)[];
+    /** Each arm's frame's shapes any placement of the arm can come within the pairs' reach of, ascending (`HumanArmShapes.reachable`). */
+    reachable: number[][];
   }
 
   /**
@@ -136,6 +139,9 @@ export namespace HumanArmTrajectoryWaypoint {
       between: sites.map((): Map<number, number> => new Map()),
       inside: sites.map((): Map<number, number> => new Map()),
       flat: sites.map((): undefined => undefined),
+      reachable: frames.map((frame: G.IFrame, a: number): number[] =>
+        S.reachable(frame, placed[a]!, T.REACH),
+      ),
     };
   }
 }

@@ -266,7 +266,7 @@ function certified(
   );
   const screens: S.IScreen[] = [k, k + 1].map(
     (j: number, e: number): S.IScreen =>
-      S.screen(c.frames[a]![j]!, ends[e]!, T.REACH),
+      S.screen(c.frames[a]![j]!, ends[e]!, T.REACH, c.reachable[a]![j]!),
   );
   const clear: (end: 0 | 1, probe: number) => boolean = (
     end: 0 | 1,

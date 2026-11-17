@@ -200,7 +200,12 @@ export namespace HumanArmTrajectoryPairs {
   ): Map<number, IPair> {
     const frame: G.IFrame = c.frames[a]![k]!;
     const out: Map<number, IPair> = new Map();
-    const screened: S.IScreen = S.screen(frame, placed, T.REACH);
+    const screened: S.IScreen = S.screen(
+      frame,
+      placed,
+      T.REACH,
+      c.reachable[a]![k]!,
+    );
     const gaps: number[] = [];
     let queries: ReturnType<typeof S.prepareGap>[] | undefined;
     placed.probes.forEach(
