@@ -63,8 +63,9 @@ import { prepareGestureTransport } from "./prepareGestureTransport";
  * back to keep the body balanced over the feet ({@link HumanBalance}).
  *
  * Transport time is the free-space time of the distance moved
- * (`AutoMovieMotionHumanTiming.transport`),
- * 0.3 s for head and shoulder gestures and one second per 30 degrees of a
+ * (`AutoMovieMotionHumanTiming.transport`), and at least the time each
+ * moving arm's arc takes within the audit's travel bound
+ * (`gestureHands.reaching`), 0.3 s for head and shoulder gestures and one second per 30 degrees of a
  * bow (provisional). The Effort's tempo scales every phase, its extent the
  * gesture's size and its elbow term the arm's width ({@link HumanEffort}).
  *
@@ -323,17 +324,25 @@ export namespace gesture {
     const transport: number = travel === undefined ? named : span();
     // The retraction keeps the named length; only the preparation varies, so
     // the stroke's start moves and the stroke's own length does not.
-    const retract: number =
+    const timed: number =
       T *
       (p.kind === "bow"
         ? depth / 30
         : sides.length === 0
           ? 0.3
           : AutoMovieMotionHumanTiming.transport(transport));
-    const prepare: number = AutoMovieMotionHumanVariation.duration(
-      source,
-      "prepare",
-      retract,
+
+    // Each transport lasts at least what its arms need to keep within the
+    // audit's travel bound (`gestureHands.reaching`), from the entry to the
+    // stroke's start and from its end to rest.
+    const arcs = (u: number, from: typeof begin): number =>
+      Math.max(0, ...sides.map((side: HumanHand.Side): number =>
+        gestureHands.reaching(body, at0, side, from[side]!, hands[side]!,
+          gestureStroke.hand(p.kind, side, u, cycles, input(at0, 0, side)))));
+    const retract: number = Math.max(timed, arcs(1, rest));
+    const prepare: number = Math.max(
+      AutoMovieMotionHumanVariation.duration(source, "prepare", timed),
+      arcs(0, begin),
     );
     const stroke: number =
       T * cycles * AutoMovieMotionHumanTiming.seconds(rhythm.period);

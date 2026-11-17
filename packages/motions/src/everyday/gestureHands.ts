@@ -7,6 +7,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmObservation } from "../compose/AutoMovieMotionHumanArmObservation";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -224,6 +225,47 @@ export namespace gestureHands {
       envelope: number,
       output?: IHumanPosture["joints"],
     ): IHumanPosture["joints"];
+  }
+
+  /**
+   * The shortest transport that keeps one moving arm within the audit's
+   * travel bound between an arm and the hand on a stroke goal
+   * (`AutoMovieMotionHumanArmObservation.reachingGoal`), which the gesture's
+   * preparation and retraction last at least: a time read off the hand's
+   * straight distance alone asks an arm whose fingertips sweep a longer arc
+   * to pass the bound on any path.
+   *
+   * @param body The body.
+   * @param posture The posture before the arms the arm moves in.
+   * @param side The moving hand.
+   * @param from The arm at the transport's other end: the entry's or the rest's.
+   * @param hand The hand's prepared geometry.
+   * @param goal The stroke's goal at the transport's stroke end.
+   * @returns Seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the bound, the two ends, why the straight distance does not do, and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand's request on the goal at full envelope, as the stroke asks it, made the arm's goal and measured by the observation the touch and hand-to-face laws time their transports by.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One request, one goal, one measurement.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arc is the arm's fitted blend, not a distance; the bound is the audit's own.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve without the arm, one arm fit and the observation's arc samples, a few milliseconds, against the optimiser rounds a transport too short for its arc sent the plan to.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each end is measured once by its caller.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the request and the goal end with the call.
+   */
+  export function reaching(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    side: HumanHand.Side,
+    from: AutoMovieMotionHumanArm.IAngles,
+    hand: IPrepared,
+    goal: gestureStroke.IHand,
+  ): number {
+    return AutoMovieMotionHumanArmObservation.reachingGoal(
+      body,
+      posture,
+      side,
+      from,
+      AutoMovieMotionHumanArm.goal(body, side, hand.hand(posture, goal, 1).request),
+    );
   }
 
   /**
