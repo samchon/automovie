@@ -8,6 +8,8 @@ Acceptance happens only in the catalog film, because it replays every case after
 
 ## Capture and review
 
+Resolve the case's performance once for its mount, and run its physical report in a separate check rather than during mounting, playback or capture. Repeating a whole-case audit for a view or seek delays inspection without checking a different performance. Keep the report with the inputs it checked, and reuse it only while those inputs and package versions remain unchanged.
+
 Capture each case's interval with the README's capture command, from the [views](../visual-debugging/capture.md#views) and at the [times](../visual-debugging/capture.md#times) visual debugging sets, with `joint` marks where the capture offers them. Review every still against the [performance study](../story/planning/research.md#performance-study) and the cast, prop and set records, then repair each failing case at its module by cause and recapture it.
 
 ## A person's case
