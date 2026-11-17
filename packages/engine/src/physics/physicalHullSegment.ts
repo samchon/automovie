@@ -304,22 +304,23 @@ const deepest = (
   b: IAutoMovieVector3,
 ): number | null => {
   const e: IAutoMovieVector3 = minus(b, a);
-  const level: number[] = hull.faces.map(
-    (f: IAutoMoviePhysicalHullFaces.IFace): number =>
-      dot(f.normal, a) - f.offset,
-  );
-  const slope: number[] = hull.faces.map(
-    (f: IAutoMoviePhysicalHullFaces.IFace): number => dot(f.normal, e),
-  );
+  const faces: readonly IAutoMoviePhysicalHullFaces.IFace[] = hull.faces;
+  const level: Float64Array = new Float64Array(faces.length);
+  const slope: Float64Array = new Float64Array(faces.length);
+  for (let f: number = 0; f < faces.length; f++) {
+    level[f] = dot(faces[f]!.normal, a) - faces[f]!.offset;
+    slope[f] = dot(faces[f]!.normal, e);
+  }
   // The plane greatest just after the start: the steepest among equals.
   let current: number = 0;
-  level.forEach((l: number, f: number): void => {
+  for (let f: number = 0; f < level.length; f++) {
+    const l: number = level[f]!;
     if (
       l > level[current]! ||
       (l === level[current]! && slope[f]! > slope[current]!)
     )
       current = f;
-  });
+  }
   let t: number = 0;
   while (slope[current]! < 0) {
     let meet: number = 1;
