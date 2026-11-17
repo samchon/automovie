@@ -1,3 +1,4 @@
+import { HumanQuadraticInterior } from "./HumanQuadraticInterior";
 import { HumanQuadraticModel } from "./HumanQuadraticModel";
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 import { HumanQuadraticValue } from "./HumanQuadraticValue";
@@ -219,6 +220,28 @@ export namespace HumanQuadraticProgram {
    */
   export function prepare(problem: IProblem): HumanQuadraticModel.IModel {
     return HumanQuadraticModel.of(problem, TOLERANCE);
+  }
+
+  /**
+   * The minimiser by the interior-point method (`HumanQuadraticInterior`),
+   * for a caller whose curvature is badly conditioned for the operator
+   * splitting of `solve`: a second-order method's iteration count does not
+   * grow with that conditioning.
+   *
+   * @param problem The problem; its numeric storage remains unchanged during this synchronous solve.
+   * @returns The unscaled iterates with status `solved`, to the interior method's own accuracy; undefined when it did not converge, and the caller solves by `solve` or a prepared model.
+   * @throws {RangeError} For malformed or nonfinite input or noninvertible scaling, as `solve` throws.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the primal-dual predictor-corrector iteration documented with its derivation at `HumanQuadraticInterior`, on the same admitted and equilibrated data as `solve`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation; the method, its parameters and its failure cases have one owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A solve that misses its accuracy returns nothing instead of an approximate iterate; no row or penalty differs from `solve`'s reading of the problem.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(n w^2) an iteration for n variables and band w, a bounded number of iterations; no speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the numeric preparation of `solve` for exactly equal data; nothing else is kept.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All scratch is released on return; the returned arrays are the caller's.
+   * @evidence contracts/development/common.md#meaningful-documentation States when to use it, the absent result's meaning and the failure cases.
+   */
+  export function interior(problem: IProblem): IState | undefined {
+    return HumanQuadraticInterior(problem);
   }
 
   /**

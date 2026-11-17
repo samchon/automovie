@@ -11,6 +11,7 @@ import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryRanges } from "./HumanArmTrajectoryRanges";
+import { HumanArmTrajectorySmooth } from "./HumanArmTrajectorySmooth";
 import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
@@ -38,6 +39,7 @@ export namespace HumanArmTrajectoryConvex {
    * @param at0 The iterate's evaluation.
    * @param mu The penalty's weight.
    * @param radius How far a coordinate may move, coordinate units: the trust region, which bounds the active set.
+   * @param smooth The context's exact quadratic terms (`HumanArmTrajectorySmooth.of` of this context), built once by the caller.
    * @returns The subproblem in the inner waypoints' free coordinates, waypoint by waypoint.
    */
   export function convexify(
@@ -46,17 +48,20 @@ export namespace HumanArmTrajectoryConvex {
     at0: M.IEvaluation,
     mu: number,
     radius: number,
+    smooth: HumanArmTrajectorySmooth.ISmooth,
   ): QP.IProblem {
     const at: M.IEvaluation = at0;
     const n: number = c.n;
     const width: number = c.width;
-    const vars: number = (c.open ? n - 1 : n - 2) * width;
-    const band: number = 3 * width - 1;
-    const p: Float64Array[] = Array.from(
-      { length: vars },
-      () => new Float64Array(band + 1),
+    const { vars, band }: HumanArmTrajectorySmooth.ISmooth = smooth;
+
+    // The accelerations' and the anchor's terms are exact: their curvature
+    // is the context's own, copied, and their gradient the iterate's.
+    const p: Float64Array[] = smooth.p.map(
+      (row: Float64Array): Float64Array => Float64Array.from(row),
     );
     const q: Float64Array = new Float64Array(vars);
+    HumanArmTrajectorySmooth.gradient(smooth, x, q);
     const rows: QP.IRow[] = [];
     const index = (a: number, k: number, f: number): number =>
       (k - 1) * width + c.offset[a]! + f;
@@ -102,35 +107,6 @@ export namespace HumanArmTrajectoryConvex {
     const reach = (a: number, k: number): number =>
       inner(k) ? jac[a]![k]!.move * radius : 0;
     x.forEach((arm, a: number): void => {
-      // Accelerations, exact; a still configuration's among its own waypoints.
-      for (let k: number = c.still ? 2 : 0; k < (c.still ? n - 2 : n); ++k)
-        c.free[a]!.forEach((d: number, f: number): void => {
-          let r0: number = 0;
-          const idx: number[] = [];
-          const coef: number[] = [];
-          for (const [j, w] of [
-            [Math.min(n - 1, k + 1), 1],
-            [k, -2],
-            [Math.max(0, k - 1), 1],
-          ] as const) {
-            r0 += w * arm[j]![d]!;
-            if (!inner(j)) continue;
-            const at2: number = idx.indexOf(index(a, j, f));
-            if (at2 >= 0) coef[at2]! += w;
-            else {
-              idx.push(index(a, j, f));
-              coef.push(w);
-            }
-          }
-          if (idx.length > 0) square(T.ACCELERATION, r0, idx, coef);
-        });
-      // A still configuration drawn to its anchor, exact.
-      const anchor: readonly number[] | undefined = c.anchor?.[a];
-      if (anchor !== undefined)
-        for (let k: number = 1; k + 1 < n; ++k)
-          c.free[a]!.forEach((d: number, f: number): void =>
-            square(T.ANCHOR, arm[k]![d]! - anchor[d]!, [index(a, k, f)], [1]),
-          );
       for (let k: number = 0; k + 1 < n; ++k) {
         const dt: number = c.times[k + 1]! - c.times[k]!;
         // Cartesian steps and speed, read against the arm's own base

@@ -84,6 +84,24 @@ export namespace HumanSequentialConvex {
      * @evidence contracts/development/common.md#meaningful-documentation States optional fallback, exact dependency premises, changed penalty, fresh warm-state shell and shared-data ownership.
      */
     reprice?(penalty: number): IModel<X>;
+
+    /**
+     * This same linearisation at this same penalty without the objective,
+     * the model of the steering's step of the violation alone (their
+     * (5.10)), for a producer whose rows do not depend on the objective.
+     * Absent, the steering asks `IProblem.convexify` for it.
+     *
+     * @returns The model of the violation alone, with its own cold start.
+     *
+     * @evidence contracts/development/implementation.md#principled-implementation The violation's model is the merit's model less the objective's terms; a producer that built the rows once states that by giving the model itself.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The producer owns its rows; the steering selects this member when given and its convexify callback otherwise.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same iterate, penalty, rows and region; only the objective's curvature and gradient are left out, and no step or decision is carried over.
+     * @evidence contracts/development/implementation.md#efficient-algorithms O(1) selection here; the producer skips a second linearisation of the same iterate.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The linearisation is the producer's value, handed on by the model that holds it, not found again by comparing iterates.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned model shares only its linearisation's data and is released with the round.
+     * @evidence contracts/development/common.md#meaningful-documentation States what the model is, when it may be given and the fallback.
+     */
+    feasibility?(): IModel<X>;
   }
 
   /** The problem, as the caller reads it. */
@@ -241,6 +259,9 @@ export namespace HumanSequentialConvex {
      * first penalty and `from` a continued one. False when absent.
      */
     steer?: boolean;
+
+    /** The greatest penalty the steering may reach: a growth that would pass it is not made, and the round goes on with the step at the penalty reached, as it does when `STEERING.increases` are spent. Unbounded when absent; read only with `steer`. */
+    ceiling?: number;
   }
   /** A solve's result. */
   export interface IResult<X, E> {
@@ -330,7 +351,15 @@ export namespace HumanSequentialConvex {
         let pending: IStep<X> | undefined;
         if (steer) {
           const steered: { mu: number; model: IModel<X>; step: IStep<X> } =
-            steering(problem, x, current, mu, radius, model);
+            steering(
+              problem,
+              x,
+              current,
+              mu,
+              radius,
+              model,
+              options.ceiling ?? Infinity,
+            );
           mu = steered.mu;
           model = steered.model;
           pending = steered.step;
@@ -446,8 +475,13 @@ export namespace HumanSequentialConvex {
     penalty: number,
     radius: number,
     first: IModel<X>,
+    ceiling: number,
   ): { mu: number; model: IModel<X>; step: IStep<X> } {
     let mu: number = penalty;
+
+    // Whether the penalty may still grow under the caller's ceiling.
+    const room: () => boolean = (): boolean =>
+      mu * STEERING.increase <= ceiling;
     let model: IModel<X> = first;
     let step: IStep<X> = model.solve(radius);
     const reduced: (d: IStep<X>) => number = (d: IStep<X>): number => {
@@ -471,14 +505,19 @@ export namespace HumanSequentialConvex {
       // its reduction (step 3, (5.13), p. 10). Linear feasibility is the caller's, to its
       // tolerance, since a subproblem solved to a relative accuracy meets its
       // rows only to that accuracy.
-      const best: IStep<X> = problem
-        .convexify(x, current, mu, radius, false)
-        .solve(radius);
+      const best: IStep<X> = (
+        model.feasibility?.() ??
+        problem.convexify(x, current, mu, radius, false)
+      ).solve(radius);
       const enough: (d: IStep<X>) => boolean = (d: IStep<X>): boolean =>
         best.met === true
           ? d.met === true
           : reduced(d) >= STEERING.feasibility * reduced(best);
-      for (let k: number = 0; k < STEERING.increases && !enough(step); ++k)
+      for (
+        let k: number = 0;
+        k < STEERING.increases && room() && !enough(step);
+        ++k
+      )
         grow();
     }
 
@@ -488,6 +527,7 @@ export namespace HumanSequentialConvex {
     for (
       let k: number = 0;
       k < STEERING.increases &&
+      room() &&
       reduced(step) > 0 &&
       step.predicted < STEERING.merit * mu * reduced(step);
       ++k
