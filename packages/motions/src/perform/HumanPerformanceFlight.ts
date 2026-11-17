@@ -29,7 +29,6 @@ import { HumanPoseKnots } from "./HumanPoseKnots";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 import type { HumanSegment } from "./HumanSegment";
-import { HumanSegmentPose } from "./HumanSegmentPose";
 
 /**
  * Hand each placed flight its rigid turn after placement and contacts.
@@ -60,17 +59,21 @@ import { HumanSegmentPose } from "./HumanSegmentPose";
  * handed back is `q(t) R(t)⁻¹` about the composed centre of mass, `R(t)` the
  * unturned root's own rotation, so the turned root is exactly `q(t)` and
  * the centre stays where the composed shape put it. `R(t)` and the centre
- * are tabulated on the integrator's default step and read between those
+ * are tabulated at the flight's knots (the fewest equal intervals no longer
+ * than `1 / HumanPoseKnots.RATE` s; a staged flight keeps the integrator's
+ * default step) and read between those
  * instants by slerp and by line, so the plan's posture reads no displayed
  * pose and the pass has no cycle; `q(t)` is integrated under error control
  * (`ACCURACY` and an independent physical momentum budget), its steps as short as the shape's changes need, and read
  * between its knots by the integrator's own continuous extension, so a
  * shape that changes fast turns at its momentum's rate there too.
- * The shape is read off the film's pose track, so its history is tabulated
- * once on that track's own spacing (`integrateAirborneRotation.tabulated`):
- * the inertia and the relative momentum at the knots, read between them by a
+ * The shape's history is tabulated once at those knots
+ * (`integrateAirborneRotation.tabulated`): the inertia and the relative
+ * momentum of the exact unturned pose at each knot, read between them by a
  * cubic, in place of a shape read at every stage and a millisecond either
- * side of it; every physical acceptance bound remains unchanged.
+ * side of it. One unturned pose a knot serves the shape, the take-off
+ * attitude and the playback table; the take-off's momentum ceiling reads its
+ * two own instants. Every physical acceptance bound remains unchanged.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States staged authored-turn default, mandatory physics for supplied momentum, current heading/COM/articulation preservation and numeric-only handback. The physical path states root/world frames, momentum source, refusal and independent dense-control budget without applying those conservation claims to staged motion.
  * @evidence contracts/development/design.md#principled-representation One post-contact dispatcher selects an explicit authored-turn policy before preparing physics. Staged turn counts are an unwrapped kinematic curve; physical requests retain one unchanged composed shape history. Both use the same numeric COM/root playback owner and plan handback.
@@ -79,7 +82,7 @@ import { HumanSegmentPose } from "./HumanSegmentPose";
  * Torque-free flight of the composed multibody through the engine's airborne integrator and take-off solver; the rotation is the integrated orientation relative to the unturned one, about the centre of mass, so the composed body is turned rigidly as a whole.
  * One pass over the people's flights: tabulate the shape, find the momentum, integrate, tabulate the rotation, hand it back.
  * Under physical policy, a turn the take-off cannot give is refused, never clamped.
- * Takeoff attitude requests only the original displayed root, without unrelated bone observations; unsupported composition retains ordinary complete fitting. Each new history query reduces at most four posed instants. FK admits every authored joint but computes only mass-bearing bones and ancestors. Root-space FK omits rigid world placement and reversal. Adaptive shooting controls the query population and runtime improvement remains unmeasured.
+ * Takeoff attitude is the root of the first knot's unturned pose, the one the shape and the playback table read; unsupported composition retains ordinary complete fitting. A physical flight evaluates one unturned pose a knot plus the ceiling's two. FK admits every authored joint but computes only mass-bearing bones and ancestors. Root-space FK omits rigid world placement and reversal. Adaptive shooting controls the query population and runtime improvement remains unmeasured.
  * Exact query times share numeric inertia/momentum and mass nodes; fixed stencils share moments, and playback uses the judged flight. One planning-owned mass snapshot shares local offsets, principal frames, intrinsic tensors and endpoint quaternion differences. The displayed workspace lends clamp metadata and one lazy operation reader/key to composition/IK and mass FK. The body's prepared rig owns exact dynamic rows under that weak key; the raw adapter itself retains no tuples. Every actual goal, shape, orbital shift, interval rate and momentum check remains evaluated with normal context fallbacks.
  * Numeric table/trajectory escape only through HumanPerformanceFlightRotation, outside performance/model/history/workspace scope. Each flight owns O(B+D) clamp metadata and one live key for the body's O(J+B) weak FK rows; the person's pass owns O(S) mass prerequisites. N exact I/h queries retain at most 3N+6 numeric mass nodes, O(N*S), plus O(N) I/h until finally clears every node. Releasing the flight key ends its rig-row lifetime, and outer finally releases the mass token. No full pose, raw bone map or live reader enters playback.
  */
@@ -237,33 +240,47 @@ export namespace HumanPerformanceFlight {
     // Contacts and IK have already resolved the composed joints. FK with no
     // rigid world root gives their root-frame shape directly, rather than
     // applying that root to every bone and then undoing it again.
+    // The flight's knots: the fewest equal intervals no longer than the
+    // film's knot spacing, from take-off to touchdown, as the tabulated
+    // history divides its span (`AirborneTabulatedShapeHistory`). The
+    // unturned pose is evaluated once at each and read there by the shape,
+    // the take-off attitude and the playback table alike; a second that is
+    // no knot is evaluated as asked.
+    const step: number = 1 / HumanPoseKnots.RATE;
+    const intervals: number = Math.max(1, Math.ceil((t1 - t0) / step - 1e-9));
+    const spacing: number = (t1 - t0) / intervals;
+    const knots: number[] = Array.from(
+      { length: intervals + 1 },
+      (_: unknown, k: number): number => (k === intervals ? t1 : t0 + k * spacing),
+    );
+    const posed: Map<number, IAutoMoviePose> = new Map();
+    const at: (seconds: number) => IAutoMoviePose = (seconds: number): IAutoMoviePose => {
+      let pose: IAutoMoviePose | undefined = posed.get(seconds);
+      if (pose === undefined) {
+        pose = unturned(seconds);
+        posed.set(seconds, pose);
+      }
+      return pose;
+    };
     const shape: (
       seconds: number,
     ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
       seconds: number,
-    ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-      // The shape is read off the film's grid (`HumanSegmentPose.tracked`),
-      // so the history's knots cost the flight's grid knots, not a displayed
-      // pose each.
-      const pose: IAutoMoviePose = HumanSegmentPose.tracked(person, seconds, evaluation);
-      return readBones({ ...pose, root: null }, readResolution());
-    };
+    ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+      readBones({ ...at(seconds), root: null }, readResolution());
 
-    // The track holds nothing finer than its knots, so the shape's inertia
-    // and relative momentum are tabulated once at that spacing for every
-    // stage and shooting trial (`integrateAirborneRotation.tabulated`). A
-    // free-foot curve's own instantaneous bone rates are not asked for:
-    // read through the track they were accepted at 27 of the 2,293 instants
-    // of test_human_motion_core_flight_sample, and the other 2,266 fell
-    // back to the millisecond stencil after 6,777 shape reads and as many
-    // rate attempts.
+    // The shape's inertia and relative momentum are tabulated once at the
+    // knots for every stage and shooting trial
+    // (`integrateAirborneRotation.tabulated`), so the flight reads no pose
+    // between them. A free-foot curve's own instantaneous bone rates are not
+    // asked for: on test_human_motion_core_flight_sample they were accepted
+    // at 27 of 2,293 instants, and the other 2,266 fell back to the
+    // millisecond stencil after 6,777 shape reads and as many rate attempts.
     const history: ReturnType<typeof integrateAirborneRotation.history> =
-      integrateAirborneRotation.tabulated(prepared, shape, { from: t0, to: t1, step: 1 / HumanPoseKnots.RATE }, observation);
+      integrateAirborneRotation.tabulated(prepared, shape, { from: t0, to: t1, step }, observation);
     const errorScope: symbol = Symbol("human flight");
     try {
-      const q0: IAutoMovieQuaternion = root(
-        HumanPerformanceRead.pose(self, subject, t0, ROOT_ONLY, evaluation),
-      );
+      const q0: IAutoMovieQuaternion = root(at(t0));
 
       // The largest angular momentum the take-off can give: the momentum about
       // the centre is the moment of the ground's impulse, `|L| <= r |J|`, with
@@ -345,20 +362,24 @@ export namespace HumanPerformanceFlight {
           errorScope,
         });
 
-      // The unturned root and the composed centre on the default step's grid,
-      // whatever steps the error control took; the turn from the one to the
-      // integrated root, whose own read between its knots keeps the rate the
-      // integration gave them.
-      const data: IPlayback = samples(t0, t1, (t: number): IPlayback["table"][number] => {
-        const pose: IAutoMoviePose = unturned(t);
-        return {
-          about: prepareAutoMovieMassModel.place(
-            prepared,
-            readBones(pose, readResolution()),
-          ),
-          root: root(pose),
-        };
-      });
+      // The unturned root and the composed centre at the flight's knots, the
+      // poses the shape was read from, whatever steps the error control
+      // took; the turn from the one to the integrated root, whose own read
+      // between its knots keeps the rate the integration gave them.
+      const data: IPlayback = {
+        step: spacing,
+        times: knots,
+        table: knots.map((t: number): IPlayback["table"][number] => {
+          const pose: IAutoMoviePose = at(t);
+          return {
+            about: prepareAutoMovieMassModel.place(
+              prepared,
+              readBones(pose, readResolution()),
+            ),
+            root: root(pose),
+          };
+        }),
+      };
       const rotation: ReturnType<typeof HumanPerformanceFlightRotation> =
         HumanPerformanceFlightRotation({
           start: segment.start,
@@ -384,9 +405,6 @@ export namespace HumanPerformanceFlight {
     }
   }
 }
-
-/** Takeoff attitude observes the original root and demands no fitted bone frame. */
-const ROOT_ONLY: ReadonlySet<AutoMovieHumanoidBone> = new Set();
 
 /** Numeric playback data shared by staged and physical rotation policies. */
 type IPlayback = Pick<Parameters<typeof HumanPerformanceFlightRotation>[0], "step" | "times" | "table">;
