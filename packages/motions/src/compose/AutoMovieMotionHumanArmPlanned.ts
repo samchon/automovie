@@ -320,7 +320,11 @@ export namespace AutoMovieMotionHumanArmPlanned {
     const spaced = (seconds: number, arc: number): number =>
       Math.min(
         Math.ceil(seconds / STEP),
-        Math.max(Math.ceil(seconds * LEAST), Math.ceil(arc / SPACING), 1),
+        Math.max(
+          Math.ceil(seconds * LEAST),
+          Math.min(Math.ceil(arc / SPACING), TRANSPORT),
+          1,
+        ),
       );
     // The optimiser's first waypoints, cut only when the laid course is not
     // admitted.
@@ -354,9 +358,11 @@ export namespace AutoMovieMotionHumanArmPlanned {
     };
     const holding = (t: number): boolean =>
       t >= span.ready - 1e-9 && t <= span.relax + 1e-9;
-    const guesses: AutoMovieMotionHumanArmAngles.IAngles[] = carries.map(
-      (_: IPlanned, a: number): AutoMovieMotionHumanArmAngles.IAngles => fitted(a, span.ready),
-    );
+
+    // Each arm's own fit at the hold's start, the optimiser's seed's first
+    // start: fitted only once the laid course is refused, since an admitted
+    // course reads no guess.
+    let guesses: AutoMovieMotionHumanArmAngles.IAngles[] | undefined;
 
     // Each arm's site at an instant, read once however often the refinement
     // reads the problem again: a refinement adds instants, and the site at
@@ -439,7 +445,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
           ...(c.rests === undefined ? {} : { rests: c.rests }),
           ...(c.grasp === undefined ? {} : { grasp: c.grasp }),
           sites: waypoints.map(read),
-          guess: guesses[a]!,
+          ...(guesses === undefined ? {} : { guess: guesses[a]! }),
         };
       }),
       bases: waypoints.map(
@@ -453,10 +459,16 @@ export namespace AutoMovieMotionHumanArmPlanned {
       AutoMovieMotionHumanArmCourse.course({
         body, span, arms: carries, at, aimed, problem, resolution,
       });
-    if (laid?.admitted !== true) waypoints();
+    if (laid?.admitted !== true) {
+      guesses = carries.map(
+        (_: IPlanned, a: number): AutoMovieMotionHumanArmAngles.IAngles =>
+          fitted(a, span.ready),
+      );
+      waypoints();
+    }
     const solved: HumanArmTrajectory.Trajectory[] = laid?.admitted === true
       ? laid.trajectories
-      : HumanArmTrajectory.solve(problem, times, laid?.trajectories);
+      : HumanArmTrajectory.solve(problem, times, laid);
     return new Map(
       carries.map(
         (
@@ -488,4 +500,7 @@ const LEAST: number = 6;
 
 /** The farthest probe's travel between two waypoints of a reach, metres. */
 const SPACING: number = 0.08;
+
+/** The intervals a reach or a return is first cut into at most, by its arc: TrajOpt plans an arm's whole path on eleven timesteps, ten intervals (Schulman et al. 2013, section VI); the solve adds knots where the played trajectory's frame-grid reading asks (`HumanArmTrajectoryAdmission`). */
+const TRANSPORT: number = 10;
 

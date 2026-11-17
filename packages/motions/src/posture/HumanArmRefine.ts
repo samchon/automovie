@@ -1,75 +1,48 @@
-import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanArmGeometry as G } from "./HumanArmGeometry";
-import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
-import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
 /**
- * Where a trajectory's waypoints are too far apart for what they must bound
- * between them, read on the trajectory itself, the refinement of a
- * continuous check (conservative advancement: Mirtich 1996, "Impulse-based
- * dynamic simulation of rigid body systems", PhD thesis, UC Berkeley; for
- * articulated bodies Zhang, Redon, Lee and Manocha 2007, "Fast continuous
- * collision detection for articulated models", J Comput Inf Sci Eng 7:2).
+ * A trajectory's interpolant between its waypoints, and where the waypoints
+ * are too far apart for the path their sites must follow.
  *
- * Two things must hold between two waypoints, read at the instants of the
- * frame grid between them:
+ * The arms are played back, and read between waypoints, on one cubic
+ * Hermite through the waypoints (`hermite`). On the hold, the site's path
+ * interpolated through the waypoints' sites by that same Hermite must stay
+ * within `TOLERANCE` of the act's own site at every instant of the frame
+ * grid, so no stroke is cut short between samples: the waypoints' sites are
+ * all the optimiser knows of the act between them. An interval whose site
+ * strays is split at its middle, and an interval of less than two frames
+ * is never split, so the waypoints are never finer than the frame grid.
+ * What the arms themselves must meet between waypoints, their clearance,
+ * their speed and their contact, is read on the played trajectory by
+ * `HumanArmTrajectoryAdmission`.
  *
- * 1. On the hold, the site's path interpolated through the waypoints' sites
- *    (the cubic Hermite the arm is interpolated by, `hermite`) stays within
- *    `TOLERANCE` of the act's own site at every instant, so no stroke is
- *    cut short between samples.
- * 2. The arms pass the refusal's own reading between them
- *    (`HumanArmTrajectoryModel.invalid`: the probes' and the body's corners'
- *    depths, the two arms' crossings and the ranges). The forward surface
- *    reading alone is spared where every surface probe (the tangle audit's
- *    corners) travels in each nearby collider's actual rigid frame no farther
- *    than its clearance at one end before the path is refused
- *    (`HumanArmTrajectoryTerms.SKIN`), a probe farther than the pairs' reach
- *    from every collider no farther than that reach; an interval the bound
- *    cannot certify, a hand resting or sliding on the skin, is read at each
- *    inner instant on the arms' interpolant. Reverse corners, crossings,
- *    hard task points and ranges are always read at those inner instants:
- *    a bound on forward probes proves none of those constraints.
- *
- * An interval whose site strays or whose reading fails at an inner instant
- * is split at its middle, and an interval of less than two frames is never
- * split, so the waypoints are never finer than the frame grid. The frame
- * grid (30 a second) is finer than the tangle audit's own reading (24 a
- * second, `AutoMovieMotionHumanAuditTangle`), so nothing the audit reads
- * falls farther than half a frame from an instant read here.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the method, its sources, the two conditions, how they are read and the cap.
- * @evidence contracts/development/design.md#principled-representation The waypoints' spacing is derived from what they must bound, the site's path and the probes' clearance, read on the trajectory, not from a declared period.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The interpolant, the two-condition reading and the split, read by `HumanArmTrajectory.solve`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts One rule for every hold, still or stroked, and every reach and return.
+ * @evidence contracts/development/common.md#meaningful-documentation States the interpolant, the one condition read here, how it is read, the cap and the owner of the arms' own reading.
+ * @evidence contracts/development/design.md#principled-representation The waypoints' spacing on the hold is derived from the site's own path, read against the act's site at the grid's instants, not from a declared period.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The interpolant, the site reading and the split, read by `HumanArmTrajectory.solve` and `HumanArmTrajectoryAdmission`.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts One rule for every hold, still or stroked.
  */
 export namespace HumanArmRefine {
   /**
-   * The intervals that do not bound what they must: each `k` whose interval
-   * from waypoint `k` to `k + 1` is two frames or longer and fails a
-   * condition.
+   * The intervals whose waypoints do not bound their site's path: each `k`
+   * whose interval from waypoint `k` to `k + 1` is two frames or longer and
+   * whose interpolated site leaves the act's own at an instant of the frame
+   * grid inside it.
    *
    * @param c The waypoints' context.
    * @param fine The context at the frame grid's instants over the same span, the first and the last the waypoints'.
-   * @param x Each arm's coordinates at each waypoint.
    * @returns The intervals to split, ascending.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what an interval must bound and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Conservative advancement spares only forward pairs whose relative motion stays within their clearance; reverse pairs, crossings, hard task points and ranges are checked at every actual inner waypoint, and the site's interpolant against the site itself.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over intervals; per interval the site reading, then the probes'. A lazy arm-local workspace reuses only the held-site arrays, refreshing their original scalar inputs before each interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every arm, every surface probe and every instant of the frame grid inside an interval is read; an interval below two frames is left as it is, never forced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps the full frame-grid scan per interval and all original placements and queries. Held-site index, time and active-point arrays are reused; each arm allocates at most its largest actually read hold's number of three-coordinate rows during this call, rather than that many rows for every held interval. Runtime speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanArmGeometry.placed`, `nearby` and `gap` and the context's `allowed`. Only private array storage is shared across held intervals; every site's presence, time and current point components are read again in their original order, so no target or interpolation result is replayed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Lazily holds one workspace per actually read arm, each bounded by that call's largest hold, and releases all workspaces on return or throw. Only interval indices escape; contexts, targets and numeric rows are not added to a persistent cache.
+   * @evidence contracts/development/implementation.md#principled-implementation The site's interpolant is read against the site itself at every grid instant inside the interval, the check-and-refine loop of a continuous check on the one quantity the waypoints sample from the act.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over intervals; per interval the site reading. A lazy arm-local workspace reuses only the held-site arrays, refreshing their original scalar inputs before each interpolation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every arm and every instant of the frame grid inside an interval is read; an interval below two frames is left as it is, never forced.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One Hermite read of three numbers per arm and inner grid instant; no arm is placed. Held-site index, time and point arrays are reused across intervals.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only private array storage is shared across held intervals; every site's presence, time and current point components are read again in their original order, so no target or interpolation result is replayed.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Lazily holds one workspace per actually read arm, each bounded by that call's largest hold, and releases all workspaces on return or throw. Only interval indices escape.
    */
-  export function unbounded(
-    c: M.IContext,
-    fine: M.IContext,
-    x: readonly (readonly (readonly number[])[])[],
-  ): number[] {
+  export function unbounded(c: M.IContext, fine: M.IContext): number[] {
     const out: number[] = [];
     const ft: readonly number[] = fine.times;
     let paths: (ISitePath | undefined)[] | undefined;
@@ -82,15 +55,7 @@ export namespace HumanArmRefine {
         if (t > from + 1e-9 && t < to - 1e-9) inner.push(g);
       });
       if (inner.length === 0) continue;
-      if (strayed(c, fine, k, inner, (paths ??= []))) {
-        out.push(k);
-        continue;
-      }
-      const forwardCertified: boolean = x.every(
-        (_: readonly (readonly number[])[], a: number): boolean =>
-          certified(c, fine, x, a, k, inner),
-      );
-      if (tangled(c, fine, x, inner, forwardCertified)) out.push(k);
+      if (strayed(c, fine, k, inner, (paths ??= []))) out.push(k);
     }
     return out;
   }
@@ -243,104 +208,6 @@ function strayed(
   );
 }
 
-/** Whether every surface probe of an arm is certified clear over an interval by one of its ends (conservative advancement). */
-function certified(
-  c: M.IContext,
-  fine: M.IContext,
-  x: readonly (readonly (readonly number[])[])[],
-  a: number,
-  k: number,
-  inner: readonly number[],
-): boolean {
-  const setup: G.ISetup = c.setups[a]!;
-  const inside: G.IPlaced[] = inner.map(
-    (g: number): G.IPlaced =>
-      G.placed(
-        setup,
-        fine.frames[a]![g]!,
-        HumanArmRefine.hermite(c.times, x[a]!, fine.times[g]!),
-      ),
-  );
-  const ends: G.IPlaced[] = [k, k + 1].map(
-    (j: number): G.IPlaced => G.placed(setup, c.frames[a]![j]!, x[a]![j]!),
-  );
-  const screens: S.IScreen[] = [k, k + 1].map(
-    (j: number, e: number): S.IScreen =>
-      S.screen(c.frames[a]![j]!, ends[e]!, T.REACH, c.reachable[a]![j]!),
-  );
-  const clear: (end: 0 | 1, probe: number) => boolean = (
-    end: 0 | 1,
-    probe: number,
-  ): boolean => {
-    const j: number = k + end;
-    const frame: G.IFrame = c.frames[a]![j]!;
-    const placed: G.IPlaced = ends[end]!;
-    const [p, r]: readonly [IAutoMovieVector3, number] = placed.probes[probe]!;
-    const part: number = frame.segments[probe - G.SURFACE]!;
-    const near: number[] = S.nearby(
-      frame,
-      placed,
-      probe,
-      T.REACH,
-      screens[end],
-    ).filter((shape: number): boolean => {
-      const other: number = frame.shapes[shape]!.part;
-      return frame.related[part]?.[other] !== true;
-    });
-    // Far from every collider: the pairs' reach is the probe's clearance.
-    if (near.length === 0)
-      return inside.every(
-        (q: G.IPlaced): boolean =>
-          Vector3.length(Vector3.subtract(q.probes[probe]![0], p)) <= T.REACH,
-      );
-    return near.every((shape: number): boolean => {
-      const short: number =
-        1000 *
-        (c.allowed(a, j, probe, shape) - (S.gap(frame, shape, p, p) - r));
-      const slack: number = (T.SKIN + T.TOLERANCE - short) / 1000;
-      return inner.every((g: number, i: number): boolean => {
-        const there: G.IShape | undefined = fine.frames[a]![g]!.shapes[shape];
-        const here: G.IShape = frame.shapes[shape]!;
-        if (
-          there === undefined ||
-          there.bone !== here.bone ||
-          there.part !== here.part
-        )
-          return false;
-        const relative: IAutoMovieVector3 = S.relative(
-          here,
-          there,
-          inside[i]!.probes[probe]![0],
-        ).point;
-        return Vector3.length(Vector3.subtract(relative, p)) <= slack;
-      });
-    });
-  };
-  for (let probe: number = G.SURFACE; probe < ends[0]!.probes.length; ++probe)
-    if (!clear(0, probe) && !clear(1, probe)) return false;
-  return true;
-}
-
-/** Whether the arms placed on their interpolant at an inner instant pass the refusal's own reading there (`HumanArmTrajectoryModel.invalid`). */
-function tangled(
-  c: M.IContext,
-  fine: M.IContext,
-  x: readonly (readonly (readonly number[])[])[],
-  inner: readonly number[],
-  forwardCertified: boolean,
-): boolean {
-  return inner.some(
-    (g: number): boolean =>
-      M.invalid(
-        fine,
-        g,
-        x.map((arm: readonly (readonly number[])[]): number[] =>
-          HumanArmRefine.hermite(c.times, arm, fine.times[g]!),
-        ),
-        forwardCertified,
-      ).value > M.TOLERANCE,
-  );
-}
 /** The frame grid, seconds: the finest the waypoints are spaced. */
 const STEP: number = 1 / 30;
 

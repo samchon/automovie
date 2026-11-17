@@ -51,10 +51,15 @@ export namespace HumanArmSeed {
    *
    * @param problem The problem.
    * @param context Its context.
+   * @param hold The arms' configuration at the hold's first waypoint of this context, already solved for this problem (`held`); solved here when absent.
    * @returns The seed.
    * @throws {HumanRefusal} When no start gives a feasible hold, or no path joins the rest arms to it.
    */
-  export function seed(problem: IProblem, context: M.IContext): number[][][] {
+  export function seed(
+    problem: IProblem,
+    context: M.IContext,
+    hold?: readonly (readonly number[])[],
+  ): number[][][] {
     const n: number = context.n;
     const times: readonly number[] = context.times;
     const holds: number[] = [];
@@ -63,7 +68,7 @@ export namespace HumanArmSeed {
         holds.push(k);
     const first: number = holds[0]!;
     const last: number = holds[holds.length - 1]!;
-    const hold: number[][][] = goal(problem, context, first, last);
+    const held: number[][][] = goal(problem, context, first, last, hold);
     const space: ISpace = sampler(context);
     // A path from an end of the action to the hold, through the waypoints
     // `passes` from that end's to the hold's: each configuration carries its
@@ -124,17 +129,18 @@ export namespace HumanArmSeed {
         { length: b - a + 1 },
         (_: unknown, i: number): number => a + i,
       );
-    const reach: number[][] = path(context.rest, hold[0]!, span(0, first));
+    const reach: number[][] = path(context.rest, held[0]!, span(0, first));
+
     // A hold that lasts to the end has no return to join.
     const back: number[][] = context.open
       ? []
-      : path(context.back, hold[hold.length - 1]!, span(last, n - 1).reverse());
+      : path(context.back, held[held.length - 1]!, span(last, n - 1).reverse());
     return problem.arms.map(
       (_: IProblem["arms"][number], a: number): number[][] =>
         times.map((t: number, k: number): number[] => {
           if (k === 0) return [...context.rest[a]!];
           if (!M.inner(context, k)) return [...context.back[a]!];
-          if (k >= first && k <= last) return [...hold[k - first]![a]!];
+          if (k >= first && k <= last) return [...held[k - first]![a]!];
           const along: number[] = at(
             k < first ? reach : back,
             Math.min(1, Math.max(0, problem.share(t))),
@@ -158,10 +164,13 @@ export namespace HumanArmSeed {
     context: M.IContext,
     first: number,
     last: number,
+    known?: readonly (readonly number[])[],
   ): number[][][] {
     const hold: number[][][] = carried(
       context,
-      instant(problem, context, first),
+      known === undefined
+        ? instant(problem, context, first)
+        : known.map((v: readonly number[]): number[] => [...v]),
       first,
       last,
     );
@@ -187,6 +196,7 @@ export namespace HumanArmSeed {
    * @param problem The problem.
    * @param context Its context.
    * @param from Each arm's coordinates at each waypoint of a course, whose hold arm is the first start.
+   * @returns The configuration found, each arm's coordinates at the hold's first waypoint, which `seed` of the same problem and context takes as its hold; none for a problem without a hold.
    * @throws {HumanRefusal} When no start gives the hold a feasible configuration, as `seed` refuses it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is solved, why its failure refuses the whole problem and what it starts from.
@@ -201,12 +211,11 @@ export namespace HumanArmSeed {
     problem: IProblem,
     context: M.IContext,
     from: readonly (readonly (readonly number[])[])[],
-  ): void {
+  ): number[][] | undefined {
     for (let k: number = 1; k < context.n; ++k)
-      if (M.inner(context, k) && problem.arms[0]!.sites[k] !== undefined) {
-        instant(problem, context, k, from.map((arm: readonly (readonly number[])[]): number[] => [...arm[k]!]));
-        return;
-      }
+      if (M.inner(context, k) && problem.arms[0]!.sites[k] !== undefined)
+        return instant(problem, context, k, from.map((arm: readonly (readonly number[])[]): number[] => [...arm[k]!]));
+    return undefined;
   }
   /**
    * The arms' configuration at one waypoint of the hold with every hand on
