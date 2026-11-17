@@ -73,6 +73,10 @@ import { standUpright } from "./standUpright";
  * flight shifts the trunk the way it would. The free legs travel between
  * achieved endpoints with the existing sine arch of a tenth of hip height;
  * original planted and landing targets remain unchanged.
+ * Requested turns follow the performance's staged authored-turn clock by
+ * default. Explicit physical mode instead derives rotation from the composed
+ * body's angular momentum; that conservation claim does not apply to staged
+ * rotation. Both policies retain the same ballistic COM and limb goals.
  * Both feet land flat on footprints at the destination and at its height (a
  * box's top, a step; the flight's default apex then also clears that rise,
  * and an apex that does not is refused), at the body's rest
@@ -125,10 +129,11 @@ export namespace jump {
      * Turns the body makes in flight (#3428): somersaults about the axis
      * across the heading (`forward` or `backward`) or about the axis along it
      * (`left` or `right`, a side salto), and twists about the body's long
-     * axis, signed by the right-hand rule about up. The flight turns by the
-     * angular momentum that lands these turns on the composed body's shape
-     * (`HumanPerformanceFlight`), so a tuck laid over the flight turns it
-     * faster. No turn when absent.
+     * axis, signed by the right-hand rule about up. The performance's staged
+     * default follows the authored turn clock and requires a complete net
+     * rotation for this feet-first landing. Explicit physical mode solves
+     * angular momentum on the composed body, so a tuck can change its rate.
+     * Staged turns make no momentum-conservation claim. No turn when absent.
      */
     rotation?: jumpAirborne.IRotation;
 

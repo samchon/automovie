@@ -7708,7 +7708,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds of the sitting down; `sit`'s own when absent."
+            "description": "Seated hold forwarded to sit, seconds; sit's own when absent."
           }
         },
         "required": [
@@ -7716,7 +7716,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "through"
         ],
         "additionalProperties": false,
-        "description": "Parameters of getting in."
+        "description": "The existing seat and doorway affordances used by the entry, together\nwith an optional seated hold forwarded to the sitting law."
       },
       "seated.ISeat": {
         "type": "object",
@@ -8179,7 +8179,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds"
         ],
         "additionalProperties": false,
-        "description": "Parameters of opening a door."
+        "description": "Parameters of opening a scene door by one of its moving handle points."
       },
       "HumanTravelDoor.IParams": {
         "type": "object",
@@ -16405,7 +16405,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           "rotation": {
             "$ref": "#/components/schemas/jumpAirborne.IRotation",
-            "description": "Turns the body makes in flight (#3428): somersaults about the axis\nacross the heading (`forward` or `backward`) or about the axis along it\n(`left` or `right`, a side salto), and twists about the body's long\naxis, signed by the right-hand rule about up. The flight turns by the\nangular momentum that lands these turns on the composed body's shape\n(`HumanPerformanceFlight`), so a tuck laid over the flight turns it\nfaster. No turn when absent."
+            "description": "Turns the body makes in flight (#3428): somersaults about the axis\nacross the heading (`forward` or `backward`) or about the axis along it\n(`left` or `right`, a side salto), and twists about the body's long\naxis, signed by the right-hand rule about up. The performance's staged\ndefault follows the authored turn clock and requires a complete net\nrotation for this feet-first landing. Explicit physical mode solves\nangular momentum on the composed body, so a tuck can change its rate.\nStaged turns make no momentum-conservation claim. No turn when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -21743,7 +21743,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           "rotation": {
             "$ref": "#/components/schemas/jumpAirborne.IRotation",
-            "description": "Turns the body makes in flight (#3428): somersaults about the axis\nacross the heading (`forward` or `backward`) or about the axis along it\n(`left` or `right`, a side salto), and twists about the body's long\naxis, signed by the right-hand rule about up. The flight turns by the\nangular momentum that lands these turns on the composed body's shape\n(`HumanPerformanceFlight`), so a tuck laid over the flight turns it\nfaster. No turn when absent."
+            "description": "Turns the body makes in flight (#3428): somersaults about the axis\nacross the heading (`forward` or `backward`) or about the axis along it\n(`left` or `right`, a side salto), and twists about the body's long\naxis, signed by the right-hand rule about up. The performance's staged\ndefault follows the authored turn clock and requires a complete net\nrotation for this feet-first landing. Explicit physical mode solves\nangular momentum on the composed body, so a tuck can change its rate.\nStaged turns make no momentum-conservation claim. No turn when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -21754,7 +21754,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "to"
         ],
         "additionalProperties": false,
-        "description": "Parameters."
+        "description": "Authored landing, apex, airborne turns and manner."
       },
       "approach.IParams": {
         "type": "object",
@@ -24183,7 +24183,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "handle"
         ],
         "additionalProperties": false,
-        "description": "Parameters."
+        "description": "The actual held prop, receiving partner and original transfer choices."
       },
       "receive.IParams": {
         "type": "object",
@@ -26384,7 +26384,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "depth"
         ],
         "additionalProperties": false,
-        "description": "A held prop inserted into a socket."
+        "description": "A held prop inserted into a world-target socket along its outward axis."
       },
       "lieDown.IParams": {
         "type": "object",
@@ -28132,7 +28132,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "const": "hat"
           }
         ],
-        "description": "An item put on."
+        "description": "An item put on with its original receiving region and support-hand law."
       },
       "carry.IParams": {
         "type": "object",

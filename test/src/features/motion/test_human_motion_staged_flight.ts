@@ -17,6 +17,7 @@ import {
   AutoMovieMotionHumanAuditGround,
   HumanChain,
   HumanPerformance,
+  HumanRefusal,
   type HumanSegment,
   type IHumanBody,
   type IHumanPosture,
@@ -24,6 +25,7 @@ import {
   resolveHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
+import { performance } from "node:perf_hooks";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanFrame } from "../internal/motionHumanFrame";
@@ -51,17 +53,28 @@ import { qunit } from "../internal/qunit";
  *    work, without asserting angular-momentum or impulse conservation.
  * 4. One small stand-only input checks public memo identity: omitted and
  *    explicit undefined/staged modes share one resolution; physical has another.
- *    These two tiny contexts add no second turned film or physical solve.
+ *    Tiny stand-only contexts add no second turned film or physical solve.
+ *    Enumerable, non-enumerable and inherited physical inputs retain that
+ *    physical identity. Invalid modes refuse even beside a cached staged
+ *    state, including an invalid cyclic object before serialization; a
+ *    stateful getter is observed once and its first mode governs.
+ * 5. Diagnostic timers bracket only the existing body acquisition, turned
+ *    construction and each existing pose/bone observation. First and new-time
+ *    nearest-rank percentiles remain separate from independent verification,
+ *    contact audits and mode checks. Timing never changes acceptance and is
+ *    not compared as equivalent work to the physical representative.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the actual body, noncardinal placement, signed counts, independent quaternion/winding formulas, sampled ROM/contact/COM bounds, all eight physical counters and the two stand-only mode-key contexts across four scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the actual body, noncardinal placement, signed counts, independent quaternion/winding formulas, sampled ROM/contact/COM bounds, all eight physical counters, effective mode property/getter admission and diagnostic timing scopes across five scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Constructs one real default turned performance with a native observer, reads actual roots/joints/FK and the same law's unturned raw articulation, then checks geometric contacts and public mode memo identity. Ignored counts, wrong rotation order/frame/time, nonfinite data, anatomical faults, moved COM, slipping/lifted plants, unexpected physical work or a staged/physical key collision fail.
- * @evidence contracts/development/testing.md#independent-expectations Quaternion multiplication gives the written Rx*Ry components; the long axis is independent of the rightmost Y twist and winds twice. A rigid rotation about a mass-weighted centre leaves that centre fixed. The existing ROM table/scan and5mm campaign bounds govern anatomy/contacts/COM. Zero physical-work events follow the explicit staged product policy, while public resolution identity distinguishes normalized default/staged keys from physical mode.
- * @evidence contracts/development/testing.md#distinguishing-cases One nonzero heading, two full somersaults plus one twist, the whole flight including both boundaries, independent timewise attitude and unwrapped winding, zero-safe finite geometric bounds, all eight counters and omitted/staged/physical modes. This does not certify unsampled motion or physical conservation; unchanged physical flight specifications explicitly opt into that separate mode.
- * @evidence contracts/development/testing.md#execution-ownership One portable named unit borrows one existing canonical body, owns one observed turned performance and two stand-only memo resolutions, and edits only its own unturned posture copy. Public APIs provide every observation; no internal import, test-only law/export, renderer, compiler, process or foreign replacement is used.
+ * @evidence contracts/development/testing.md#independent-expectations Quaternion multiplication gives the written Rx*Ry components; the long axis is independent of the rightmost Y twist and winds twice. A rigid rotation about a mass-weighted centre leaves that centre fixed. The existing ROM table/scan and5mm campaign bounds govern anatomy/contacts/COM. Zero physical-work events follow the explicit staged product policy. The first effective mode observation must govern key and state together; invalid literals require a parameter/flight refusal independently of cached states. Timings are observations with nearest-rank summaries and supply no acceptance bound.
+ * @evidence contracts/development/testing.md#distinguishing-cases One nonzero heading, two full somersaults plus one twist, the whole flight including both boundaries, independent timewise attitude and unwrapped winding, zero-safe finite geometric bounds and all eight counters. Mode checks distinguish omitted/undefined/staged/physical, three property storage forms, null/unknown/cyclic invalid values and cold stateful getters. This does not certify unsampled motion or physical conservation; unchanged physical flight specifications explicitly opt into that separate mode.
+ * @evidence contracts/development/testing.md#execution-ownership One portable named unit borrows one existing canonical body, owns one observed turned performance plus five tiny stand-only resolutions for mode identity and cold getter admission, and edits only its own input descriptors/prototypes and unturned posture copy. Invalid modes create no successful resolution. Public APIs provide every observation; no internal import, test-only law/export, renderer, compiler, process or foreign replacement is used.
  */
 export function test_human_motion_staged_flight(): void {
   const findings: string[] = [];
+  const bodyStarted: number = performance.now();
   const body: IHumanBody = motionHumanBody("m-average");
+  const bodyMs: number = performance.now() - bodyStarted;
   const observation: ReturnType<typeof integrateAirborneRotation.observe> = integrateAirborneRotation.observe();
   const yaw: number = 37;
   const heading: number = yaw * Math.PI / 180;
@@ -73,7 +86,17 @@ export function test_human_motion_staged_flight(): void {
       .jump({ to: { x: 3 + Math.sin(heading), y: 0, z: -2 + Math.cos(heading) },
         apex: 0.5, rotation: { somersault: 2, twist: 1 } }, "leap").node,
   };
-  const film: HumanPerformance = new HumanPerformance(input, observation);
+  const planningStarted: number = performance.now();
+  let film: HumanPerformance;
+  try {
+    film = new HumanPerformance(input, observation);
+  } catch (error) {
+    console.log(JSON.stringify({ sample: "staged-human-flight", phase: "planning-failed", bodyMs,
+      planningMs: performance.now() - planningStarted, physicalWork: observation.read(),
+      error: error instanceof Error ? error.message : String(error) }));
+    throw error;
+  }
+  const planningMs: number = performance.now() - planningStarted;
   const segment: HumanSegment.ISegment = film.segments("a")[1]!;
   const event: (name: string) => number = (name: string): number => {
     const declared: IAutoMovieMotionEvent | undefined = segment.plan.events.find(
@@ -90,11 +113,19 @@ export function test_human_motion_staged_flight(): void {
   let previous: number = 0;
   let winding: number = 0;
   let observable: boolean = true;
+  const poseMs: number[] = [];
+  const bonesMs: number[] = [];
+  let independentChecksMs: number = 0;
   for (let index: number = 0; index <= count; index++) {
     const seconds: number = index === count ? to : from + (to - from) * index / count;
     const u: number = (seconds - from) / (to - from);
+    const poseStarted: number = performance.now();
     const pose: IAutoMoviePose = film.pose("a", seconds);
+    poseMs.push(performance.now() - poseStarted);
+    const bonesStarted: number = performance.now();
     const bones: ReturnType<typeof film.bones> = film.bones("a", seconds);
+    bonesMs.push(performance.now() - bonesStarted);
+    const checksStarted: number = performance.now();
     try {
       motionHumanFrame(bones, `staged flight at${seconds}`);
     } catch (error) {
@@ -116,6 +147,7 @@ export function test_human_motion_staged_flight(): void {
     if (pose.root === null || unturned.root === null || !qunit(pose.root.rotation) || !qunit(unturned.root.rotation)) {
       findings.push(`staged flight at${seconds} lacks finite unit roots`);
       observable = false;
+      independentChecksMs += performance.now() - checksStarted;
       continue;
     }
     const relative: IAutoMovieQuaternion = Quaternion.normalize(
@@ -143,23 +175,32 @@ export function test_human_motion_staged_flight(): void {
     const unturnedCentre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(body.massModel, poseBones(body, unturned));
     if (!(Vector3.distance(actualCentre, unturnedCentre) <= 0.005))
       findings.push(`staged flight at${seconds} moves its composed centre by more than5mm`);
+    independentChecksMs += performance.now() - checksStarted;
   }
   if (!observable || !(Math.abs(winding - 4 * Math.PI) <= 1e-6))
     findings.push(`staged flight winds${winding / (2 * Math.PI)} turns, expected2`);
+  const contactStarted: number = performance.now();
   const slip: number = AutoMovieMotionHumanAuditGround.slip(film, "a", body).value;
   const lift: number = AutoMovieMotionHumanAuditGround.lift(film, "a", body).value;
+  const contactAuditsMs: number = performance.now() - contactStarted;
   if (!(Number.isFinite(slip) && slip <= 0.005 && Number.isFinite(lift) && lift <= 0.005))
     findings.push(`staged jump plant slip/lift is${slip}/${lift}m, at most5mm each`);
+  const modeStarted: number = performance.now();
+  findings.push(...modeIdentity(body));
+  const modeChecksMs: number = performance.now() - modeStarted;
+  console.log(JSON.stringify({ sample: "staged-human-flight", phase: "complete", bodyMs, planningMs,
+    playback: { pose: timing(poseMs), bonesAfterPose: timing(bonesMs) },
+    independentChecksMs, contactAuditsMs, modeChecksMs, physicalWork: observation.read(), findings: findings.length }));
   TestValidator.equals("staged authoring performs no physical history or solve work", observation.read(), {
     queries: 0, memoHits: 0, uniqueNumericNodes: 0, factorizations: 0, publicJacobi: 0,
     analyticAttempts: 0, analyticAccepted: 0, analyticFallbacks: 0,
   });
-  modeIdentity(body);
   TestValidator.equals("default staged flight keeps authored geometry and winding", findings, []);
 }
 
 /** Public memo identities test policy keys without another turned or physical flight. */
-function modeIdentity(body: IHumanBody): void {
+function modeIdentity(body: IHumanBody): string[] {
+  const findings: string[] = [];
   const input: HumanPerformance.IInput = {
     seed: "staged-flight-mode-key",
     performers: [{ subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0,
@@ -170,9 +211,57 @@ function modeIdentity(body: IHumanBody): void {
   const undefinedMode: HumanPerformance = new HumanPerformance({ ...input, flight: undefined });
   const explicit: HumanPerformance = new HumanPerformance({ ...input, flight: "staged" });
   const physical: HumanPerformance = new HumanPerformance({ ...input, flight: "physical" });
-  TestValidator.predicate("omitted, undefined and staged policy share one resolution while physical owns another",
-    implicit.segments("a").length === 1 &&
+  const cyclic: { self?: unknown } = {};
+  cyclic.self = cyclic;
+  if (!(implicit.segments("a").length === 1 &&
     implicit.segments("a") === undefinedMode.segments("a") &&
     implicit.segments("a") === explicit.segments("a") &&
-    implicit.segments("a") !== physical.segments("a"));
+    implicit.segments("a") !== physical.segments("a")))
+    findings.push("omitted, undefined and staged policy must share one resolution while physical owns another");
+  for (const storage of ["enumerable", "non-enumerable", "inherited"] as const) {
+    const selected: HumanPerformance = new HumanPerformance(policy(input, "physical", storage));
+    if (selected.segments("a") !== physical.segments("a"))
+      findings.push(`${storage} physical mode selected a different resolved policy`);
+    for (const invalid of [null, "unknown", cyclic]) {
+      let refused: boolean = false;
+      try {
+        new HumanPerformance(policy(input, invalid, storage));
+      } catch (error) {
+        refused = error instanceof HumanRefusal && error.kind === "parameter" && error.axis === "flight";
+        if (!refused) findings.push(`${storage} invalid mode failed outside parameter/flight admission: ${String(error)}`);
+      }
+      if (!refused) findings.push(`${storage} invalid mode ${String(invalid)} reused or constructed an admitted state`);
+    }
+  }
+  for (const storage of ["enumerable", "non-enumerable", "inherited"] as const) {
+    let reads: number = 0;
+    const seed: string = `staged-flight-cold-${storage}`;
+    const supplied: HumanPerformance.IInput = { ...input, seed };
+    const target: object = storage === "inherited" ? {} : supplied;
+    if (storage === "inherited") Object.setPrototypeOf(supplied, target);
+    Object.defineProperty(target, "flight", { enumerable: storage === "enumerable",
+      get: (): "physical" | "staged" => ++reads === 1 ? "physical" : "staged" });
+    const first: HumanPerformance = new HumanPerformance(supplied);
+    const expected: HumanPerformance = new HumanPerformance({ ...input, seed, flight: "physical" });
+    if (reads !== 1 || first.segments("a") !== expected.segments("a"))
+      findings.push(`${storage} mode getter was read ${reads} times or its first physical value did not govern resolution`);
+  }
+  return findings;
+}
+
+/** Put only an owned test input's effective property in the requested storage form. */
+function policy(input: HumanPerformance.IInput, value: unknown,
+  storage: "enumerable" | "non-enumerable" | "inherited"): HumanPerformance.IInput {
+  const supplied: HumanPerformance.IInput = { ...input };
+  if (storage === "inherited") Object.setPrototypeOf(supplied, { flight: value });
+  else Object.defineProperty(supplied, "flight", { value, enumerable: storage === "enumerable" });
+  return supplied;
+}
+
+/** Summarize only existing observations; nearest ranks never interpolate a measurement. */
+function timing(values: readonly number[]): { queries: number; firstMs: number; newTimeP50Ms: number; newTimeP95Ms: number; newTimeMaxMs: number } {
+  const ordered: number[] = values.slice(1).sort((a: number, b: number): number => a - b);
+  return { queries: values.length, firstMs: values[0]!,
+    newTimeP50Ms: ordered[Math.ceil(ordered.length * 0.5) - 1]!,
+    newTimeP95Ms: ordered[Math.ceil(ordered.length * 0.95) - 1]!, newTimeMaxMs: ordered[ordered.length - 1]! };
 }

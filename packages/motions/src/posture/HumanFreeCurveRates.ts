@@ -37,6 +37,9 @@ import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
  * resolved pose. A raw record acquires provenance only in prepareJumpFlight,
  * from its actual immutable goal construction and canonical solve. The
  * displayed consumer separately excludes composition and phase boundaries.
+ * The existing HumanJacobian compiled-body contract also applies: rig,
+ * topology and clinical bases remain unchanged for that body's lifetime;
+ * recompiling changed model data requires a new compiled body.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents direct clinical degrees/second, root-frame goal velocities, exact current-pose comparison, strict interior support, numerical refusal and independent outputs.
  * @evidence contracts/development/design.md#principled-representation Constructor-owned analytic demands and the actual geometric Jacobian define the implicit six-coordinate derivative; no time samples or static flags represent derivatives.
@@ -115,15 +118,19 @@ export namespace HumanFreeCurveRates {
       group.set(source, record);
     }
     ++record.count;
-    const retained: { count: number } = record;
-    const pairs: typeof group = group;
-    let released: boolean = false;
+    let lease: {
+      owner: prepareHumanSegmentPose.IPrepared;
+      source: prepareHumanSegmentPose.IPrepared["resolution"];
+      pairs: WeakMap<prepareHumanSegmentPose.IPrepared["resolution"], { count: number }>;
+      record: { count: number };
+    } | undefined = { owner, source, pairs: group, record };
     return (): void => {
-      if (released) return;
-      released = true;
-      if (--retained.count === 0) {
-        pairs.delete(source);
-        release(owner);
+      const current: typeof lease = lease;
+      if (current === undefined) return;
+      lease = undefined;
+      if (--current.record.count === 0) {
+        current.pairs.delete(current.source);
+        release(current.owner);
       }
     };
   }

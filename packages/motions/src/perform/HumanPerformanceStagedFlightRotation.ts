@@ -14,13 +14,17 @@ import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation
  * The current unturned root supplies heading; its articulation and centre
  * path remain those of the law and the ordinary displayed-pose pipeline.
  * This staged curve states no torque, impulse or momentum conservation.
+ * Its finite phase returns to the existing law's landing orientation:
+ * each axis must complete whole revolutions. Nonclosing fractional turns
+ * need a compatible landing outcome and are refused, never rounded. The
+ * explicit physical policy does not repair that legacy landing limitation.
  *
  * @param props Numeric playback data, film/action seconds and authored turns.
  * @returns The action-local rigid turn about the sampled world centre.
- * @throws {HumanRefusal} For a nonfinite/nonpositive span, nonfinite turn angles or an invalid reference frame.
+ * @throws {HumanRefusal} For a nonfinite/nonpositive span, nonfinite turn angles, an invalid reference frame or a turn that does not close onto the law's landing orientation.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States film/action seconds, signed unwrapped revolutions, linear phase, current heading, centre/articulation preservation and absence of a physical-conservation claim. Invalid numeric spans, angles and frames refuse.
- * @evidence contracts/development/implementation.md#principled-implementation The root-local curve is F Rx(360*s*u) Ry(360*t*u) F^-1 for the declared axis frame F and flight share u. Left multiplication by the current unturned root expresses the requested local attitude in world coordinates; the shared playback owner returns its relative rigid turn about the same COM.
+ * @evidence contracts/development/common.md#meaningful-documentation States film/action seconds, signed unwrapped revolutions, linear phase, current heading, centre/articulation preservation and absence of a physical-conservation claim. Invalid numeric spans, angles and frames refuse. Complete axis revolutions close the finite phase onto its authoritative landing orientation; nonclosing fractional requests require a compatible landing outcome, which explicit physics also does not currently supply.
+ * @evidence contracts/development/implementation.md#principled-implementation The root-local curve is F Rx(360*s*u) Ry(360*t*u) F^-1 for the declared axis frame F and flight share u. Left multiplication by the current unturned root expresses the requested local attitude in world coordinates; the shared playback owner returns its relative rigid turn about the same COM. Rx(a)Ry(b) is identity in SO(3) exactly when both requested revolution counts are integers, so exact complete-cycle admission preserves the current landing pose/contact without rounding intent or adding a new landing outcome.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Snapshot and admit the finite scalar request/frame, construct its current analytic orientation reader, then delegate numeric centre/root interpolation to the existing playback owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts This is an explicit staged authoring policy, not a physical flight or a fabricated momentum result. It creates no history, inertia solve, take-off search, controller or conservation verdict, and preserves every requested winding without clipping or nearest-angle substitution.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant setup plus constant quaternion work per playback query. The existing numeric table owns centre/root lookup; authored angle evaluation has no integration grid, iterations or state-dependent search.
@@ -42,6 +46,12 @@ export function HumanPerformanceStagedFlightRotation(props:
       kind: "parameter", axis: "turns", value: { somersault: props.turns.somersault, twist: props.turns.twist },
       reason: "staged flight needs finite turns, a positive finite span and a nonzero finite axis frame",
       fix: "give finite turn counts and a valid flight interval and frame",
+    });
+  if (!Number.isInteger(props.turns.somersault) || !Number.isInteger(props.turns.twist))
+    throw new HumanRefusal({
+      kind: "parameter", axis: "turns", value: { somersault: props.turns.somersault, twist: props.turns.twist },
+      reason: "the staged flight must close onto the law's existing landing orientation; nonclosing fractional turns need a compatible landing outcome",
+      fix: "author complete revolutions until a compatible fractional landing outcome is available; physical mode does not repair that landing limitation",
     });
   const axes: IAutoMovieQuaternion = Quaternion.normalize({ x: frame.x, y: frame.y, z: frame.z, w: frame.w });
   const back: IAutoMovieQuaternion = Quaternion.inverse(axes);

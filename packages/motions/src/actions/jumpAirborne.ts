@@ -19,6 +19,9 @@ import type { jumpState } from "./jumpState";
  * touchdown, the knee hint its legs bend toward, and the turns it asks the
  * performance's flight pass for (#3428), with the hook that hands the
  * rotation back (`IHumanActionPlan.airborne`).
+ * Authored turns use that pass's staged default; explicit physical mode
+ * instead solves angular momentum on the composed shape. This declaration
+ * and handback own neither policy nor a conservation verdict.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three parts of the flight it owns and who turns it.
  * @evidence contracts/development/design.md#principled-representation The flight's shape, its knee hint and its turns, apart from the push-off and the landing.
@@ -231,7 +234,25 @@ export namespace jumpAirborne {
   export interface IPrepared {
     /** Original actual world target at a root and normalized flight share. */
     (root: IAutoMovieVector3, u: number): IHumanPosture;
-    /** Actual analytic direct/goal derivative on the open phase. */
+
+    /**
+     * Differentiate this construction's actual authored joints and free-foot
+     * goals before IK, strictly inside the airborne phase. Clinical rates are
+     * degrees per physical second; foot-origin and spatial angular rates are
+     * root-frame metres and radians per physical second.
+     *
+     * @param u Dimensionless flight share, strictly between zero and one.
+     * @param duration Positive finite physical flight duration, seconds.
+     * @returns Fresh complete direct/goal rates, or undefined outside the open phase, for an invalid duration or when either quaternion derivative is unavailable, preserving the consumer's ordinary fallback.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines normalized open-phase input, physical duration, pre-IK clinical/root-frame rate units, fresh output and every explicit unavailable path.
+     * @evidence contracts/development/implementation.md#principled-implementation Differentiates the same owned achieved endpoints as the posture reader: minimumJerk.rate(u)/duration multiplies joint and foot-point deltas, the sine arch contributes archHeight*pi*cos(pi*u)/duration, and prepareQuaternionSlerpRate differentiates the actual shorter-arc SLERP/NLERP foot rotations. These are authored derivatives, not an IK solution or a cross-phase C1 proof.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One open-phase/duration gate precedes complete clinical initialization and changed-track updates; one shared leg reader forms each linear/angular task velocity and refuses the whole record if either angular derivative is unavailable.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No finite-difference sample, inferred missing coordinate, constant-spin substitute, boundary guess, fitted-joint derivative or conservation verdict replaces the analytic construction. Unsupported boundaries, duration and quaternion arithmetic return undefined for the existing consumer fallback.
+     * @evidence contracts/development/implementation.md#efficient-algorithms For B captured rig bone names and T fixed joint tracks, each supported read takes O(B+T) time and O(B+T) fresh clinical storage plus two constant-size goal velocities; endpoint/arc preparation is shared with the owning prepared construction. No pose resolution, IK or sampled history is computed here and speedup is unmeasured.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The prepared construction privately owns copied endpoint data, fixed joint/toe deltas, arch height, bone names and two copied-endpoint quaternion derivative readers. These unchanged prerequisites serve both actual targets and their derivatives; each new share/duration recomputes its own rates without caching a time, pose or result.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed coefficient data lives with the prepared airborne construction; each invocation returns independently owned clinical triples and two task-velocity records, or releases its temporaries on unavailable return. No query population, derivative history, fitted workspace, handle or task is retained by this method.
+     */
     rates(u: number, duration: number): HumanFreeCurveRates.IAuthored | undefined;
   }
 
@@ -278,7 +299,7 @@ export namespace jumpAirborne {
    * @returns The turning.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the signs, the side salto's frame and when the rotation applies.
-   * @evidence contracts/development/implementation.md#principled-implementation Turns become the plan's flight request; the flight pass solves the momentum and hands the rotation back once.
+   * @evidence contracts/development/implementation.md#principled-implementation Turns become the plan's request. The performance's staged default constructs the authored unwrapped turn clock, while explicit physical mode solves the composed body's momentum; either policy hands back one numeric rigid-rotation reader. This declaration itself makes no conservation or landing-feasibility claim.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One request and one held rotation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No turn is scripted here.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.

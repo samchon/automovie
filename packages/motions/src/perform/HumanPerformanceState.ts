@@ -132,20 +132,14 @@ export class HumanPerformanceState {
    * Resolve a performance.
    *
    * @param input The chain seed, the performers, the props and the composition.
+   * @param flight The same admitted effective policy captured for this input's structural key, without rereading input.flight.
    * @param observation Optional native numeric observer forwarded only during this physical planning operation; it is never stored in the resulting state.
    */
   public constructor(
     input: HumanPerformance.IInput,
+    flight: NonNullable<HumanPerformance.IInput["flight"]>,
     observation?: ReturnType<typeof integrateAirborneRotation.observe>,
   ) {
-    const selected: HumanPerformance.IInput["flight"] = input.flight;
-    const flight: NonNullable<HumanPerformance.IInput["flight"]> = selected === undefined ? "staged" : selected;
-    if (flight !== "staged" && flight !== "physical")
-      throw new HumanRefusal({
-        kind: "parameter", axis: "flight", value: flight,
-        reason: "the authored-flight mode must be staged or physical",
-        fix: "choose staged for authored turns or physical for angular-momentum flight",
-      });
     this.flight = flight;
     this.props = new Map(
       (input.props ?? []).map((p: IHumanProp): [string, IHumanProp] => [
@@ -402,9 +396,9 @@ export namespace HumanPerformanceState {
    * @throws {HumanRefusal} When the input does not resolve.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States ordinary equal-input memo reuse and explicit diagnostic cold planning without retaining an observer in the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Pure unobserved resolution uses structural-key memoization with LRU eviction; requested physical-work observation is an effect and therefore resolves afresh rather than replaying a complete answer.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Both paths perform the original key walk; an observation then constructs a new state, while ordinary inputs keep the original lookup and miss resolution.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Diagnostics changes no authored input, physical bound or refusal; it cannot report a whole-plan cache hit as cold work. Ordinary keys remain content/identity keys rather than mutable caller references.
+   * @evidence contracts/development/implementation.md#principled-implementation Pure unobserved resolution uses structural-key memoization with LRU eviction; requested physical-work observation resolves afresh. Both paths pass the key owner's single effective flight-policy capture into construction, so getters, inherited fields and non-enumerable fields cannot classify the cache and constructed state differently.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Obtain key plus admitted captured policy together; observed planning constructs with that policy, while ordinary inputs keep lookup and miss construction with the same policy. Neither constructor branch adds another input.flight access.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Diagnostics changes no authored input, physical bound or refusal. Neither cold branch rereads the flight getter after keying; an invalid captured policy refuses before serialization or lookup and cannot borrow a valid cached staged state. Keys remain content/identity values rather than mutable caller references.
    * @evidence contracts/development/implementation.md#efficient-algorithms Both paths pay the original key walk and one observer branch; an ordinary memo hit still skips resolution. Explicit observation pays full cold construction without concealing the ordinary key cost and is not a speedup path.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Equal unobserved inputs retain the existing whole-performance sharing. Observed construction still shares only its actually equivalent internal preparation, never another completed performance.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most KEEP ordinary resolutions remain in the memo. Observed states are neither read from nor inserted into it, and the observer is passed through construction without becoming a retained state field.
@@ -413,15 +407,16 @@ export namespace HumanPerformanceState {
     input: HumanPerformance.IInput,
     observation?: ReturnType<typeof integrateAirborneRotation.observe>,
   ): HumanPerformanceState {
-    const key: string = HumanPerformanceKey.of(input);
-    if (observation !== undefined) return new HumanPerformanceState(input, observation);
+    const selection: ReturnType<typeof HumanPerformanceKey.of> = HumanPerformanceKey.of(input);
+    const key: string = selection.key;
+    if (observation !== undefined) return new HumanPerformanceState(input, selection.flight, observation);
     const kept: HumanPerformanceState | undefined = KEPT.get(key);
     if (kept !== undefined) {
       KEPT.delete(key);
       KEPT.set(key, kept);
       return kept;
     }
-    const state: HumanPerformanceState = new HumanPerformanceState(input);
+    const state: HumanPerformanceState = new HumanPerformanceState(input, selection.flight);
     KEPT.set(key, state);
     if (KEPT.size > KEEP) KEPT.delete(KEPT.keys().next().value!);
     return state;

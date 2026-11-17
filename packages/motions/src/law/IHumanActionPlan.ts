@@ -186,12 +186,12 @@ export interface IHumanActionPlan {
   aimed?: resolveAutoMovieHumanoidSurfaces.ITangent;
 
   /**
-   * The span in which the body flies, touching nothing, and the angular
-   * momentum it flies with (#3427). The performance turns the composed body
-   * through it after placement (`HumanPerformanceFlight`): the shape the
-   * carrier, its overlays and its layers give, integrated by conserved
-   * angular momentum, handed back through `airborne`. Absent for an action
-   * with no flight, or one whose flight does not turn.
+   * The span in which the body flies, touching nothing, and either its
+   * authored turns or given angular momentum (#3427). After placement the
+   * performance hands its composed-body turn back through `airborne`.
+   * Authored turns use staged rotation by default and the physical solver
+   * under explicit physical policy; given momentum always uses physics.
+   * Absent for an action with no flight, or one whose flight does not turn.
    */
   flight?: IHumanActionPlan.IFlight;
 
@@ -209,13 +209,13 @@ export interface IHumanActionPlan {
 /**
  * Companion types of {@link IHumanActionPlan}.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member's unit.
- * @evidence contracts/development/design.md#principled-representation A held prop by hand, share and finger angles.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the performance needs to carry a prop across actions.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents each member's units and the distinction between staged authored turns and mandatory physics for a supplied momentum; the maximum momentum is a physical-policy bound only.
+ * @evidence contracts/development/design.md#principled-representation Shared plan records include a held prop by hand/share/finger angles and a flight's span plus the existing closed given-momentum/authored-turn request union.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface What the performance needs to carry props and hand back flight rotation across actions. One performance policy selects authored-turn treatment without altering the given-momentum discriminator or duplicating physical state.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses clinical joint triples.
  */
 export namespace IHumanActionPlan {
-  /** A flight: its span and the angular momentum it turns by. */
+  /** A flight: its span and authored turns or supplied angular momentum. */
   export interface IFlight {
     /** Take-off, a share of the action's duration. */
     from: number;
@@ -224,9 +224,10 @@ export namespace IHumanActionPlan {
     to: number;
 
     /**
-     * The whole-body angular momentum about the centre of mass: given, world
-     * kg m²/s, or solved from the turns the flight must make
-     * (`solveAirborneTakeoff`).
+     * Given whole-body world angular momentum about the centre of mass in
+     * kg m²/s, always physical, or authored turns. The performance's staged
+     * default follows authored angles directly; explicit physical mode
+     * solves their momentum with `solveAirborneTakeoff`.
      */
     momentum: IFlightMomentum | IFlightTurns;
   }
@@ -240,7 +241,7 @@ export namespace IHumanActionPlan {
     momentum: IAutoMovieVector3;
   }
 
-  /** A flight's momentum solved from the turns it must make. */
+  /** Authored turns, staged by default or solved as physical momentum under the performance's explicit policy. */
   export interface IFlightTurns {
     /** The discriminator. */
     kind: "turns";
@@ -254,7 +255,7 @@ export namespace IHumanActionPlan {
     /** The somersault frame in the root's frame at take-off (a side salto turns it a quarter about the long axis); the root's own axes when absent. */
     frame?: IAutoMovieQuaternion;
 
-    /** The largest momentum the take-off can give, kg m²/s; when absent, the flight pass derives it from the take-off's own momentum and the centre's lever over the foot (`HumanPerformanceFlight`). */
+    /** Under physical policy, the largest momentum the take-off can give, kg m²/s; when absent, the flight pass derives it from the take-off's own momentum and the centre's lever over the foot. Staged rotation makes no impulse or conservation claim and does not use this physical ceiling. */
     maximum?: number;
   }
 

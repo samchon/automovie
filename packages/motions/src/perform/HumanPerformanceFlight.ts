@@ -76,7 +76,7 @@ import type { HumanSegment } from "./HumanSegment";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Staged motion is an explicit production policy and never fabricates physical momentum, skips a declared force outcome or reports conservation. Given momentum always reaches the engine's existing inertia/integration path; physical turns retain shooting and original refusals. Stable-id occurrence locates either path's refusal.
  * Torque-free flight of the composed multibody through the engine's airborne integrator and take-off solver; the rotation is the integrated orientation relative to the unturned one, about the centre of mass, so the composed body is turned rigidly as a whole.
  * One pass over the people's flights: tabulate the shape, find the momentum, integrate, tabulate the rotation, hand it back.
- * A turn the take-off cannot give is refused, never clamped.
+ * Under physical policy, a turn the take-off cannot give is refused, never clamped.
  * Takeoff attitude requests only the original displayed root, without unrelated bone observations; unsupported composition retains ordinary complete fitting. Each new history query reduces at most four posed instants. FK admits every authored joint but computes only mass-bearing bones and ancestors. Root-space FK omits rigid world placement and reversal. Adaptive shooting controls the query population and runtime improvement remains unmeasured.
  * Exact query times share numeric inertia/momentum and mass nodes; fixed stencils share moments, and playback uses the judged flight. One planning-owned mass snapshot shares local offsets, principal frames, intrinsic tensors and endpoint quaternion differences. The displayed workspace lends clamp metadata and one lazy operation reader/key to composition/IK and mass FK. The body's prepared rig owns exact dynamic rows under that weak key; the raw adapter itself retains no tuples. Every actual goal, shape, orbital shift, interval rate and momentum check remains evaluated with normal context fallbacks.
  * Numeric table/trajectory escape only through HumanPerformanceFlightRotation, outside performance/model/history/workspace scope. Each flight owns O(B+D) clamp metadata and one live key for the body's O(J+B) weak FK rows; the person's pass owns O(S) mass prerequisites. N exact I/h queries retain at most 3N+6 numeric mass nodes, O(N*S), plus O(N) I/h until finally clears every node. Releasing the flight key ends its rig-row lifetime, and outer finally releases the mass token. No full pose, raw bone map or live reader enters playback.
@@ -265,6 +265,7 @@ export namespace HumanPerformanceFlight {
     const history: ReturnType<typeof integrateAirborneRotation.history> =
       bare ? integrateAirborneRotation.rated(prepared, shape, analytic, { from: t0, to: t1 }, observation)
         : integrateAirborneRotation.history(prepared, shape, { from: t0, to: t1 }, observation);
+    const releaseRates: (() => void) | undefined = bare ? HumanFreeCurveRates.request(evaluation) : undefined;
     const errorScope: symbol = Symbol("human flight");
     try {
       const q0: IAutoMovieQuaternion = root(
@@ -386,6 +387,7 @@ export namespace HumanPerformanceFlight {
       // Playback was constructed in a numeric-only factory. Clearing the
       // numeric memo is cleared before this flight's history/shape closure,
       // evaluation workspace and borrowed FK key leave their local scope.
+      releaseRates?.();
       history.clear();
     }
   }

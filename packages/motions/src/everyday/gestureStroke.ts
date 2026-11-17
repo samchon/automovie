@@ -257,10 +257,10 @@ export namespace gestureStroke {
    * @returns The goal.
    * @throws {Error} For a gesture that moves no hand, or `point` without a target.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result, the stroke share's range and meaning, and the refusals; the namespace doc gives each gesture's goal and its provisional values.
+   * @evidence contracts/development/common.md#meaningful-documentation States the result, the stroke share's range and meaning, and the refusals; the namespace doc gives each gesture's goal and its provisional values. Every public kind retains the common body/measure, root/yaw, oscillation and extent observation order before its branch.
    * @evidence contracts/development/implementation.md#principled-implementation Builds each goal in the performer's frame from the body's own measure (arm length, shoulder and waist heights), on the eye-to-target line for pointing (Henriques and Crawford 2002, the reach solved as a ray-sphere intersection from the shoulder), or on the body's face regions offset by the finger's collider radius for self-touch, so every gesture fits any stature; periodic strokes ride {@link gestureSignal.oscillation}.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One exhaustive switch over the kind; pointing and self-touch, which need the posed trunk, live in {@link gestureTouch}; joint gestures live in {@link gestureJoints}.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arm-length shares, swing sizes and outward elbow shares are documented provisional values; no body or scene is special-cased.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arm-length shares, swing sizes and outward elbow shares are documented provisional values; no body or scene is special-cased. Pointing, self-touch and no-hand refusal occur only after the original common prelude, preserving getter/callback reads, their counts and the first thrown error; genuine prepared geometry remains inside its existing owner.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for frame gestures; one lazy coefficient pair serves this query's captured yaw across actual point/direction transforms, while each point reads its borrowed current origin. Pointing/self-touch use their actual demanded trunk FK and fixed geometry owners.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The query's private frame already owns one copied numeric yaw, so point/direction transforms share its lazy zero-origin HumanFrame preparation. Current local coordinates, borrowed origin and variation callbacks remain actual, with no prepared frame or result retained between queries.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new goal and retains nothing.
@@ -272,9 +272,6 @@ export namespace gestureStroke {
     cycles: number,
     input: IInput,
   ): IHand {
-    if (kind === "point") return gestureTouch.point(input, side);
-    if (kind === "touchFace" || kind === "pushGlasses" || kind === "scratchHead")
-      return gestureTouch.touch(kind, input, side, u, cycles);
     const { body } = input;
     const m: IHumanBody["measure"] = body.measure;
     const sign: number = side === "left" ? 1 : -1;
@@ -326,8 +323,7 @@ export namespace gestureStroke {
       palm: HumanHand.Direction,
     ): IAutoMovieQuaternion =>
       HumanHand.facing(side, frame.yaw, { fingers, palm });
-    const wave: number = kind === "wave" || kind === "cheer" || kind === "rubHands"
-      ? gestureSignal.oscillation(u, cycles) : 0;
+    const wave: number = gestureSignal.oscillation(u, cycles);
     const e: number = input.extent;
     switch (kind) {
       case "wave": {
@@ -408,6 +404,8 @@ export namespace gestureStroke {
           out: 0,
           elbow: { out: 0.9, up: 0, forward: 0.3 },
         };
+      case "point":
+        return gestureTouch.point(input, side);
       case "palmsUp":
       case "shrug":
         return {
@@ -465,6 +463,10 @@ export namespace gestureStroke {
           out: 0.1,
         };
       }
+      case "touchFace":
+      case "pushGlasses":
+      case "scratchHead":
+        return gestureTouch.touch(kind, input, side, u, cycles);
       case "nod":
       case "shakeHead":
       case "bow":
