@@ -17,28 +17,40 @@ import { ConstructionMound } from "../../../internal/construction/ConstructionMo
  * `h = 0` that is a right angle all round. The geometry is regular in all three scenarios: the loop is one ellipse and the ellipsoid is
  * smooth at its poles. Only the part's chart differs, by how near its poles the loop runs.
  *
+ * A shared contact finds the part's foot of each loop point by a solve in the part's own chart, from the foot before it
+ * (`AutoMovieSolidSharedCurve`), so its premise is a chart that is regular along the loop. At a pole the chart has no phase, and beside
+ * one a step between two stored points crosses phases faster than the solve can follow. The contact names that premise's failure
+ * `shared loop`, as it names any loop the part cannot be followed along. `SERVED_ROUND_A_POLE` states whether the kernel reads a
+ * closed end round its pole, as a lofted cap's root parameter does; while it does not, the two near scenarios pin the named refusal,
+ * and when it does they pin admission.
+ *
  * Scenarios:
  * 1. `h = 2.4`: the loop stays `asin(0.8)`, 53 degrees of station, from both poles. Admitted, no diagnostic, a rail at every stored point.
  * 2. `h = 0.3`: the loop passes `asin(0.1)`, 5.7 degrees of station, from each pole, and the part's phase sweeps 169 degrees while it
- *    does. The same geometry seen through a chart that turns fast: it must be admitted with a rail at every stored point.
- * 3. `h = 0`: the loop is the ellipsoid's own widest ellipse and runs through both poles. It must be admitted with a rail at every
- *    stored point: the closed end is read round its pole, as a lofted cap's root parameter does, where the chart has no phase.
+ *    does. Refused as `shared loop`, with no join; served round a pole, admitted with a rail at every stored point.
+ * 3. `h = 0`: the loop is the ellipsoid's own widest ellipse and runs through both poles. Refused as `shared loop`, with no join;
+ *    served round a pole, admitted with a rail at every stored point.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds each contact with `AutoMovieSolidSharedCurve.create`, the width laws with `AutoMovieConstructionWidths.create` and the join with `AutoMovieSolidJoin.create`, then reads the diagnostics and asks the join for a rail at every stored point. It catches a contact, a width law or a rail lost where the loop nears or crosses a pole of the part's chart; it does not read the rails' places or a drawn mesh.
- * @evidence contracts/development/testing.md#independent-expectations Admission follows from the made geometry, an ellipsoid cut by a plane in one ellipse at a turn that never vanishes; the loop's closed form is the plane section's. No value comes from a run.
- * @evidence contracts/development/testing.md#distinguishing-cases The three scenarios differ only in the depth `h`, which moves the loop from far from the poles to beside them to through them; the first is the adjacent positive case. A cap of another shape, a curved host and a diff are not covered.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each contact with `AutoMovieSolidSharedCurve.create`, the width laws with `AutoMovieConstructionWidths.create` and the join with `AutoMovieSolidJoin.create`, then reads the diagnostics' contracts and asks an admitted join for a rail at every stored point. It catches a contact near a pole that is admitted with a lost rail or refused under another name or silently, and a contact clear of the poles that is refused; it does not read the rails' places or a drawn mesh.
+ * @evidence contracts/development/testing.md#independent-expectations Admission clear of the poles follows from the made geometry, an ellipsoid cut by a plane in one ellipse at a turn that never vanishes. The refusal near a pole follows from the contact's stated premise, a foot solved in the part's chart, which the chart's pole breaks; its name is the contract's. The refusal's wording is not asserted. No value comes from a run.
+ * @evidence contracts/development/testing.md#distinguishing-cases The three scenarios differ only in the depth `h`, which moves the loop from far from the poles to beside them to through them; the first is the adjacent positive case and the other two the negative ones. A cap of another shape, a curved host and a diff are not covered.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_operator_capped_part`; it builds closed-form surfaces in process and starts no host, browser or GPU.
  * @evidence contracts/development/common.md#meaningful-documentation States the made surfaces, the loop's closed form, where the poles stand against it and what each scenario pins.
  */
 export function test_construction_operator_capped_part(): void {
   const failures: string[] = [];
   const rim: AutoMovieConstructionWidth = { type: "fold", radius: 0.2 / 1000, cap: 0.002 };
-  for (const [name, depth] of [
-    ["clear of the poles", 2.4],
-    ["beside the poles", 0.3],
-    ["through the poles", 0],
+  for (const [name, depth, clear] of [
+    ["clear of the poles", 2.4, true],
+    ["beside the poles", 0.3, false],
+    ["through the poles", 0, false],
   ] as const) {
     const made: ICase = compose(depth, rim);
+    if (!clear && !SERVED_ROUND_A_POLE) {
+      if (made.join !== null && made.join.join !== null) failures.push(`${name} (h = ${depth}): joined, expected the shared loop refusal`);
+      else if (!made.diagnostics.some((x: AutoMovieLoftContract.IDiagnostic): boolean => x.contract === "shared loop")) failures.push(`${name} (h = ${depth}): expected the shared loop refusal, got ${describe(made)}`);
+      continue;
+    }
     if (made.shared === null || made.join === null || made.join.join === null || made.diagnostics.length !== 0) {
       failures.push(`${name} (h = ${depth}): not admitted: ${describe(made)}`);
       continue;
@@ -49,6 +61,9 @@ export function test_construction_operator_capped_part(): void {
   }
   if (failures.length !== 0) throw new Error(`${failures.length} capped part failures:\n${failures.join("\n")}`);
 }
+
+/** Whether the kernel serves a loop that runs beside or through a pole of the part's chart; it does not, and the near scenarios pin the refusal. */
+const SERVED_ROUND_A_POLE: boolean = false;
 
 /** The ellipsoid's half axes along `x`, `y` and `z`, mm. */
 const AXES: [number, number, number] = [10, 5, 3];

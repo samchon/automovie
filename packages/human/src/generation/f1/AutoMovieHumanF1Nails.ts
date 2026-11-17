@@ -57,12 +57,13 @@ export namespace AutoMovieHumanF1Nails {
   }
 
   /**
-   * A lesser toe's crown radius over its width: the mean of the five fingers' published shares for women (Jung 2015: 9.6 / 13.2,
-   * 7.4 / 11.1, 7.3 / 11.5, 6.8 / 10.7, 5.2 / 8.8), an estimate, since no lesser toe's radius was found. The big toe takes 0.7: a
-   * hallux nail stands 3.3 mm high at its tip on a width of 13.8 to 16.1 mm (Jung DJ 2015, read as extracted text), a height of
-   * 0.21 of the width, and the circle through such an arc's crown and ends has a radius of `1 / (8 * 0.21) + 0.21 / 2` of the width.
+   * A toe's crown radius over its width. The big toe takes 0.7: a hallux nail stands 3.3 mm high at its tip on a width of 13.8 to
+   * 16.1 mm (Jung DJ 2015, read as extracted text), a height of 0.21 of the width, and the circle through such an arc's crown and
+   * ends has a radius of `1 / (8 * 0.21) + 0.21 / 2` of the width. No lesser toe's radius was found, so a lesser toe's row has none
+   * and its plate takes its bed's own arc (`AutoMovieHumanNail.IProportions.radius`); the mean of the fingers' shares, tried as an
+   * estimate, set the plate's edges up to 1.3 mm under a back that falls 0.9 mm over the same chord.
    */
-  const TOE_RADIUS: number = (9.6 / 13.2 + 7.4 / 11.1 + 7.3 / 11.5 + 6.8 / 10.7 + 5.2 / 8.8) / 5;
+  const HALLUX_RADIUS: number = 0.7;
 
   /** The fold's depth and the fingernails' mean thickness, mm (Bellinato 2023). */
   const PLATE: number = 0.46;
@@ -73,7 +74,7 @@ export namespace AutoMovieHumanF1Nails {
     hand: true,
     proportions: { width, aspect: 0.91, radius, thickness, fold: PLATE, lunula: 1, wrap: 0.4 },
   });
-  const toe = (digit: string, segment: string, aspect: number, radius: number, thickness: number, wrap: number): IRow => ({
+  const toe = (digit: string, segment: string, aspect: number, radius: number | null, thickness: number, wrap: number): IRow => ({
     digit,
     segment,
     hand: false,
@@ -87,11 +88,11 @@ export namespace AutoMovieHumanF1Nails {
     finger("finger.middle", "middle.distal", 11.5 / 15.1, 7.3 / 11.5, 0.47),
     finger("finger.ring", "ring.distal", 10.7 / 14.4, 6.8 / 10.7, 0.45),
     finger("finger.pinky", "pinky.distal", 8.8 / 12.0, 5.2 / 8.8, 0.42),
-    toe("toe.big", "bigtoe.distal", 1.1, 0.7, 1.38, 0.343),
-    toe("toe.index", "indextoe.distal", 8.8 / 5.68, TOE_RADIUS, PLATE, 0.317),
-    toe("toe.middle", "middletoe.distal", 8.8 / 5.68, TOE_RADIUS, PLATE, 0.317),
-    toe("toe.ring", "ringtoe.distal", 8.8 / 5.68, TOE_RADIUS, PLATE, 0.317),
-    toe("toe.little", "littletoe.distal", 8.8 / 5.68, TOE_RADIUS, PLATE, 0.317),
+    toe("toe.big", "bigtoe.distal", 1.1, HALLUX_RADIUS, 1.38, 0.343),
+    toe("toe.index", "indextoe.distal", 8.8 / 5.68, null, PLATE, 0.317),
+    toe("toe.middle", "middletoe.distal", 8.8 / 5.68, null, PLATE, 0.317),
+    toe("toe.ring", "ringtoe.distal", 8.8 / 5.68, null, PLATE, 0.317),
+    toe("toe.little", "littletoe.distal", 8.8 / 5.68, null, PLATE, 0.317),
   ];
 
   /** The chord of the merge's blend either side of the fold's curve, mm: the fold's rounding, a quarter of the bed's ramp. */

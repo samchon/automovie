@@ -842,6 +842,115 @@ namespace FamilyConicFace {
       const lower: V = band.reduce((a: V, b: V): V => (b[1] < a[1] ? b : a));
       out.push(`${s}..${s + 2} | ${upper[1].toFixed(1)}, ${Math.hypot(upper[0], upper[1]).toFixed(1)} | ${lower[1].toFixed(1)}, ${Math.hypot(lower[0], lower[1]).toFixed(1)}`);
     }
+
+    // The same rim in the level frame the published contours use: about the globe's centre in the head's frontal plane, the distance of
+    // the rim's points in each 15 degree sector from the nasal side (0 nasal, 90 up, 180 temporal), and its ratio to the sector straight
+    // up (upper margin) or straight down (lower margin).
+    const head: [V, V, V] = AutoMovieHumanF1Placement.frame("head").axes;
+    const polar: [number, number][] = rims(skin)
+      .flatMap((loop: number[]): V[] => loop.map((i: number): V => vertex(skin, i)))
+      .filter((p: V): boolean => p[2] > 0 && Math.hypot(...sub(p, m.globe)) < 22)
+      .map((p: V): [number, number] => {
+        const d: V = sub(p, m.globe);
+        const x: number = dot(d, head[2]);
+        const y: number = dot(d, head[1]);
+        return [(((Math.atan2(y, -x) * 180) / Math.PI) % 360 + 360) % 360, Math.hypot(x, y)];
+      });
+    const sector = (degrees: number): number => {
+      const near: number[] = polar.filter((q: [number, number]): boolean => Math.abs(((q[0] - degrees + 540) % 360) - 180) <= 7.5).map((q: [number, number]): number => q[1]);
+      return near.length === 0 ? NaN : near.reduce((sum: number, r: number): number => sum + r, 0) / near.length;
+    };
+    out.push("", "level frame about the globe's centre: direction from the nasal side | mean distance of the rim's points within 7.5 degrees | ratio to straight up (0 to 180) or straight down (195 to 345)");
+    for (let degrees: number = 0; degrees < 360; degrees += 15) {
+      const r: number = sector(degrees);
+      if (!Number.isNaN(r)) out.push(`${degrees} | ${r.toFixed(2)} | ${(r / sector(degrees <= 180 ? 90 : 270)).toFixed(2)}`);
+    }
+    return out;
+  }
+
+  /** The front profile of a plane cut's chains: the greatest first chart coordinate at a second one, or -Infinity where the cut has none. */
+  function profileOf(chains: { points: [number, number][]; closed: boolean }[]): (y: number) => number {
+    return (y: number): number => {
+      let best: number = -Infinity;
+      for (const chain of chains)
+        for (let k: number = 0; k + (chain.closed ? 0 : 1) < chain.points.length; ++k) {
+          const a: [number, number] = chain.points[k]!;
+          const b: [number, number] = chain.points[(k + 1) % chain.points.length]!;
+          if (a[1] > y === b[1] > y) continue;
+          best = Math.max(best, a[0] + ((b[0] - a[0]) * (y - a[1])) / (b[1] - a[1]));
+        }
+      return best;
+    };
+  }
+
+  /** The first local extreme of a profile from a height, going up (`way` 1) or down (-1) in 0.5 mm steps over 40 mm: a sample past both neighbours either side; or null. */
+  function extremeOf(front: (y: number) => number, from: number, way: 1 | -1, forward: boolean): [number, number] | null {
+    for (let k: number = 0; k < 80; ++k) {
+      const y: number = from + way * 0.5 * k;
+      const x: number = front(y);
+      if (Number.isFinite(x) && [front(y + 1), front(y + 0.5), front(y - 0.5), front(y - 1)].every((n: number): boolean => Number.isFinite(n) && (forward ? x > n : x < n))) return [x, y];
+    }
+    return null;
+  }
+
+  /**
+   * The lips' lines by station, in the mouth's frame (`AutoMovieHumanF1FaceCentres.muzzle`: origin the incisors' front, forward, up, and
+   * the station toward +Z): every 2 mm from the median plane to cheilion, in the sagittal cut there, the lips' line (the rim's points
+   * within 1 mm of the plane), the upper and the lower lip's crest (the profile's first forward extreme above and below the line: the
+   * lip's most forward point, since the mesh carries no vermilion colour) and the valley beyond each (the first backward extreme past
+   * the crest: under the nose, and the sulcus under the lower lip). Each as height above the mouth's line and distance ahead of it.
+   */
+  function lipLines(mesh: IMesh, found: number[][], skin: IMesh): string[] {
+    const m: ILandmarks = landmarks(mesh, found, skin);
+    const axes: [V, V, V] = AutoMovieHumanF1Placement.frame("head").axes;
+    const mouth: C.IMuzzle = C.muzzle(m.stomion, m.cheilion, axes[0], axes[2]);
+    const seal: V[] | undefined = rims(skin)
+      .map((loop: number[]): V[] => loop.map((i: number): V => vertex(skin, i)))
+      .find((points: V[]): boolean => points.length > 2 && Math.abs(points.reduce((sum: number, p: V): number => sum + p[2], 0) / points.length) < 5 && points.every((p: V): boolean => p[1] < m.subnasale[1] && p[1] > m.subnasale[1] - 35));
+    if (seal === undefined) return ["no rim between the lips"];
+    const o: V = mouth.frame.origin;
+    const read = (p: [number, number] | null): string => (p === null ? "-" : `${(p[1] - o[1]).toFixed(1)}, ${(p[0] - o[0]).toFixed(1)}`);
+    const out: string[] = [`mouth frame: origin ${fixed(o)}, half length ${mouth.half.toFixed(1)}; each point as height above the line's origin, distance ahead of it`, "station | valley under the nose | upper lip's crest | lips' line | lower lip's crest | valley under the lower lip"];
+    for (let z: number = 0; z <= mouth.half + 1e-9; z += 2) {
+      const near: V[] = seal.filter((p: V): boolean => Math.abs(p[2] - z) < 1);
+      if (near.length === 0) continue;
+      const line: [number, number] = [near.reduce((sum: number, p: V): number => sum + p[0], 0) / near.length, near.reduce((sum: number, p: V): number => sum + p[1], 0) / near.length];
+      const front: (y: number) => number = profileOf(R.chains(skin, { origin: [0, 0, z], u: [1, 0, 0], v: [0, 1, 0] }));
+      const upper: [number, number] | null = extremeOf(front, line[1] + 1, 1, true);
+      const lower: [number, number] | null = extremeOf(front, line[1] - 1, -1, true);
+      out.push(`${z} | ${read(upper === null ? null : extremeOf(front, upper[1] + 1, 1, false))} | ${read(upper)} | ${read(line)} | ${read(lower)} | ${read(lower === null ? null : extremeOf(front, lower[1] - 1, -1, false))}`);
+    }
+    return out;
+  }
+
+  /**
+   * The nose's lines by station, in the nose's own frame: the course parallel to subnasale to nasion through the median point level with
+   * the alar bases, stations along it from subnasale's level, every 4 mm; in the cut square to the course there, the median outline
+   * (the dorsum or the columella: the greatest distance ahead of the course on the median plane), the side outline (the greatest
+   * distance from the median plane of the skin more than 2 mm ahead of the course), and the groove beside the nose (the sharpest valley
+   * of the cut on +Z, its floor and its turn at 6 mm).
+   */
+  function noseLines(mesh: IMesh, found: number[][], skin: IMesh): string[] {
+    const m: ILandmarks = landmarks(mesh, found, skin);
+    const axes: [V, V, V] = AutoMovieHumanF1Placement.frame("head").axes;
+    const axis: V = unit(sub(m.nasion, m.subnasale));
+    const forward: V = unit(along(axes[0], axis, -dot(axes[0], axis)));
+    const root: V = [m.alarBase[0], m.alarBase[1], 0];
+    const base: number = dot(sub(m.subnasale, root), axis);
+    const length: number = dot(sub(m.nasion, m.subnasale), axis);
+    const out: string[] = [`nose frame: course from ${fixed(root)} along ${fixed(axis, 3)}, forward ${fixed(forward, 3)}; subnasale to nasion ${length.toFixed(1)} mm`, "station from subnasale | median outline ahead of the course | side outline from the median plane | groove: ahead, from the median plane, turn deg"];
+    for (let s: number = -4; s <= length + 4 + 1e-9; s += 4) {
+      const frame: { origin: V; u: V; v: V } = { origin: along(root, axis, base + s), u: forward, v: [0, 0, 1] };
+      const chains: { points: [number, number][]; closed: boolean }[] = R.chains(skin, frame);
+      const swapped: { points: [number, number][]; closed: boolean }[] = chains.map((chain: { points: [number, number][]; closed: boolean }): { points: [number, number][]; closed: boolean } => ({ points: chain.points.map((p: [number, number]): [number, number] => [p[0], p[1]]), closed: chain.closed }));
+      const median: number = profileOf(swapped)(0);
+      const side: number = Math.max(-Infinity, ...chains.flatMap((chain: { points: [number, number][] }): number[] => chain.points.filter((p: [number, number]): boolean => p[0] > 2 && p[1] > 0 && p[1] < 40).map((p: [number, number]): number => p[1])));
+
+      // The groove beside the nose is the valley lateral of the nostril's rim: no nearer the median plane than the crease reader's own
+      // 6 mm reading length inside the alar base, where the rim's roll would be read as a valley.
+      const groove: { u: number; v: number; turn: number } | null = crease(skin, frame, (p: [number, number]): boolean => p[0] > -10 && p[0] < 20 && p[1] > m.alarBase[2] - 6 && p[1] < 30, [0.7, 0.7]);
+      out.push(`${s} | ${Number.isFinite(median) ? median.toFixed(1) : "-"} | ${Number.isFinite(side) ? side.toFixed(1) : "-"} | ${groove === null ? "-" : `${groove.u.toFixed(1)}, ${groove.v.toFixed(1)}, ${groove.turn.toFixed(0)}`}`);
+    }
     return out;
   }
 
@@ -867,8 +976,10 @@ namespace FamilyConicFace {
       if (stored === null) await fs.writeFile(cache, JSON.stringify(indices));
       skin = { positions: mesh.positions, indices };
     }
-    const lines: string[] = process.argv.includes("--margins")
-      ? margins(mesh, found, skin)
+    const lines: string[] = process.argv.includes("--contours")
+      ? [...margins(mesh, found, skin), "", ...lipLines(mesh, found, skin), "", ...noseLines(mesh, found, skin)]
+      : process.argv.includes("--margins")
+        ? margins(mesh, found, skin)
       : process.argv.includes("--landmarks")
       ? Object.entries(landmarks(mesh, found, skin)).map(([name, p]: [string, V]): string => `${name} ${fixed(p)}`)
       : process.argv.includes("--divides")

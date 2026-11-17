@@ -558,6 +558,143 @@ So besides the three tip-end symptoms the sheets hold: square corners of the fol
 So: two records. The nail keeps its own law and its own record (`AutoMovieHumanNail.INail`) and shares the template's contract of place only, a centre and two directions in the distal segment's frame. **Request to the body worker: none for this batch**; the template is not asked to grow a nail class. What would let one record serve both later is a height given as a target surface over the footprint instead of a number, and a border width by side; neither is asked for now, and the two fields added for a nail's bed are not used by the nail.
 
 Then one run of all ten, every sheet opened, the table. If `clipped` remains, the engine's rule is recorded and the work stops there: a relief's three outer rings of controls are zero by contract (`IAutoMovieLoftRelief.ts` lines 7 to 8 and 60; `AutoMovieLoftRelief.ts` line 9).
+
+### The one run on the domed digits
+
+Run `2026-11-17T15-09-05.565Z-realize`, `--relief`, 00:09:04 to 00:09:24 (20 s), started on a process list with no fit and no test running. All ten realize, no diagnostic. Unit tests after it, 00:10:30 to 00:10:35: `test_human_nail` passes, 571 ms (under the second for the first time; the bisection's 24 halvings); `test_construction_operator_capped_part` fails as written (below).
+
+| Digit | Cap starts, mm before the pole (was) | Pitch, rad | Free edge before the tip, mm | `clipped`, mm (run before) | Where: along, aside | Vertices |
+| --- | --- | --- | --- | --- | --- | --- |
+| Middle finger | 9.21 (3.88) | -0.166 | 1.7 | 0.024 (2.1 to 4.0) | 18.72, 4.30 | 11,121 |
+| Ring finger | 8.04 (3.13) | -0.109 | 1.7 | 0.002 | 16.34, -4.51 | 9,937 |
+| Index finger | 8.58 (3.38) | -0.137 | 1.6 | 0.018 | 19.47, 4.26 | 9,793 |
+| Little finger | 7.06 (3.63) | -0.155 | 1.1 | 0.013 | 18.73, -3.63 | 7,553 |
+| Thumb | 7.12 (3.63) | -0.071 | 0.9 | 0.000 | 24.70, -5.17 | 9,601 |
+| Big toe | 7.70 (7.70) | 0.153 | 2.4 | 0.311 (0.29 to 0.54) | 24.60, 6.43 | 14,401 |
+| Second toe | 5.60 (5.60) | 0.007 | 1.2 | 0.534 | 26.12, 4.38 | 9,593 |
+| Third toe | 4.65 (4.65) | -0.072 | 0.7 | 0.564 | 23.26, 3.45 | 6,625 |
+| Fourth toe | 4.36 (4.36) | -0.213 | about 0 | 0.680 (2.8) | 20.08, 3.38 | 4,929 |
+| Little toe | 3.47 (3.41) | -0.163 | 0.6 | 0.675 (4.2) | 17.56, -2.63 | 3,865 |
+
+The free edge's distance is the tip's reading in the segment's frame less the free edge's in the nail's, so it is good to a tenth or two. No dome was `held`. Vertices: 87,418 on the ten digits against 48,712 the run before.
+
+**Against the paper.**
+
+| Symptom | Read |
+| --- | --- |
+| Clipping | Gone on the five fingers (0.000 to 0.024 mm). On toes 4 and 5 it fell from 2.8 and 4.2 to 0.68, and their domes did not change, so that fall is the window's and the row's-side rule, not the dome. On toes 1 to 3 it stands where it stood. On the fingers the dome and the rule changed together in this one run and their shares cannot be told apart from it |
+| My estimate of the free edge | Wrong. I put it 4 to 5 mm before the pole; it stands 0.9 to 1.7 mm before the tip. I took the plate's line as level over a half ellipse; the taut line from the fold pitches down 0.07 to 0.17 rad with the fingertip's own taper, so the plate follows the dome's back nearly to the tip. The cost I named, a visibly shorter plate, did not occur |
+| The strip's rings | The cap takes them now: the fingers hold 7,500 to 11,100 vertices against about 5,000. Fewer than the 15,000 I estimated, since the free edge stands nearer the pole than I put it |
+| The free edge | Reads as a line on every finger from above and from the near oblique, a chevron with its point on the middle line more than an arc; from the end it still does not cross the top as a ledge |
+
+**What remains on the toes, with its place.** On all five toes the greatest clipped height stands 0.3 to 0.4 mm before the free edge and inside the plate's width (aside 2.6 to 6.4 mm on half widths of 3.9 to 8.3): the plate's far corner over the tip's shoulder, at the window's edge. A toe's dome is 0.8 of a reach and its plate ends 0 to 2.4 mm before the tip, so the room past the free edge that the net's zero rings need is not there. By the order this run was made under, the work stops here on that: the contract is the engine's (`IAutoMovieLoftRelief.ts` lines 7 to 8, "three outer rings of control points are zero", and line 60; evaluated on that premise in `AutoMovieLoftRelief.ts`, line 9 and the note at line 28). No value is moved.
+
+**Every sheet of the run, opened.**
+
+| Sheet | Seen | Where (clay row) |
+| --- | --- | --- |
+| `dorsal.0` | The proximal fold is a U on all five fingers, running into a rim down each side; a line crosses the tip at the free edge. Along the fold the rim is toothed, a checker of facets | middle: U px 115-245 x 560-592, free edge px 140-215 x 474-482, teeth px 118-242 x 572-592; the same on ring, index, pinky; thumb's fold fainter px 1560-1680 x 560-590 |
+| `dorsal.1` | Big toe: a U fold and both rims; a faint level band behind the fold. Toes 2 and 3: the fold's corners are round now; a dark notch at each corner of the free edge. Toe 4: U and a band. Toe 5: a part panel with a nick | big px 100-250 x 475-580, band px 180-290 x 590-600; index notches px 497-512 and 578-590 x 462-476; middle px 872-885 x 455-468 and 938-950 x 468-482; little px 1640-1655 x 475-490 |
+| `lateral.0` | The back runs straight to a step at the fold, toothed; the tips are longer and rounder than the run before's | middle step px 118-140 x 575-600; thumb px 1580-1600 x 590-610 |
+| `lateral.1` | As the run before: a step at the fold, a notch where the free edge meets the tip; toe 4 in lengthwise strips | big px 150-180 x 545-565 and 155-175 x 478-490; ring px 1215-1340 x 470-640 |
+| `end.0` | The plate's face a lighter crescent on top; no ledge across. New: a small tab under the middle finger's and the thumb's dome | middle px 158-170 x 625-632; thumb px 1580-1625 x 640-652 |
+| `end.1` | Unchanged: big toe's ledge, a dimple on toe 2, a pit on toe 3 | big px 105-240 x 520-560; index px 560-580 x 535-550; middle px 935-950 x 515-530 |
+| `oblique.0` | The far wall a dark face along the plate; the fold curves into it, hatched at the corner; the tip beyond the free edge is a lighter cap bounded by a curve. Thumb: ripples on the back behind the fold | middle wall px 185-215 x 520-600, hatch px 170-210 x 595-615, cap px 130-180 x 480-500; thumb px 1560-1700 x 620-690 |
+| `oblique.1` | The dark pocket at the fold's corner remains on toes 1 to 4 | big px 200-240 x 520-600; index px 520-570 x 505-545; middle px 845-900 x 510-555; ring px 1235-1275 x 520-560 |
+| `oblique-twin.0` | The nail reads whole: plate, U fold, rim, and the free edge as a crease, a chevron pointed on the middle line; a corner where it meets the rim | middle chevron px 180-240 x 515-530, fold px 150-250 x 590-625; ring px 520-600 x 515-530; index px 880-950 x 510-525; pinky px 1250-1310 x 510-525; thumb px 1590-1660 x 495-510 |
+| `oblique-twin.1` | Big toe: the V at the free edge's middle remains. Toes 2 and 3: a slit at the free edge's corner. Toe 4: stairs down its side. Toe 5: a V notch | big px 120-170 x 505-530; index px 520-585 x 480-515; middle px 900-950 x 495-515; ring px 1215-1260 x 560-650; little px 1600-1640 x 500-530 |
+
+Not traced, named only: the tab under two fingers' domes; the chevron (the plate's own arc across against a dome, or flat shading of a few rings); the teeth along the fold (the rings cross a curved wall obliquely at one net cell); the toes' corner notches and slits (the clipping above, by their place); toe 4's strips and stairs, which earlier runs also show.
+
+### Every open finding in one table: cause read, answer decided, before one change
+
+Read for this, with no change to the law: the run's own record (`realize.json`: every digit's readings and profile; the median cut and the mid-plate section of the realized skin of the middle finger, the thumb and the second toe, vertex by vertex with its turn), and one reading of the law alone on all ten (`2026-11-17T15-16-00.423Z-realize`, `--law`, 00:15:56 to 00:16:20, no realization, no fit running) after the reading `clippedIn` was added: which net, which row and which column asked for the clipped height.
+
+**A correction first.** I wrote above that the free edge stands near the tip because the plate's line pitches down with the tip. That was not read. The profile says: in the nail's frame the middle finger's back is level at 6.14 to 6.15 mm from the fold to 15 mm along and has fallen 0.72 mm by 19.76 mm, 2.2 mm before the tip. The dome's back is far fuller than the half ellipse I assumed; the pitch (-0.07 to -0.17 rad) is the nail's frame against the segment's axis, which runs to the pad's far point.
+
+| Finding | Cause, with where it was read | Answer |
+| --- | --- | --- |
+| The proximal fold spans the breadth | Closed by the last change. Median cuts: the skin steps down to the plate over 2 mm in an S of four turns (middle finger 6.17 to 5.69 mm between 6.5 and 8.5 mm along, turns -6, -11, +12, +7 degrees; thumb -10, -10, +7, +17, +7; second toe -7, -3, -6, +4, +10), and the dorsal sheets show a U | None |
+| The free edge does not read | On the median it is drawn: a step of 0.50 mm over 0.57 mm on the middle finger (5.69 to 5.19 mm between 19.73 and 20.30 mm, turns -8, -20, -14, -5 then +3, +9, +8, +4), 0.48 mm on the thumb, 0.46 mm on the second toe. Off the median it is not a step of one thickness: the law places the free edge at one distance along for the whole width (`slope` and the strip's step read `free - x` alone), while the plate's face falls across by its own arc (sagitta 1.8 to 3.5 mm at the edges) and the dome's shoulders fall by theirs. So the step is one thickness on the middle line, shrinks to nothing where the two surfaces cross, and turns over beyond: the chevron on the fingers, the V on the big toe, the pointed corner at the rim, the least `under` of -0.08 to -1.18 mm (the plate over the skin by more than its thickness) | The free edge is where the plate's face stands one thickness over the skin, read at every offset across and not on the middle line alone: a curve `front(z)` that follows the tip. The step is then one thickness all across, the plate never stands higher over the skin than that, and its corners are rounded by the tip itself. The free edge's arc of radius `lunula W`, my estimate, is dropped for it |
+| Clipping near the tip, toes | `clippedIn`: on all five toes it is the strip, never the bed. Toes 1, 2, 3: its last rows (row 14 of 16, 25 of 27, 25 of 28) at inner columns. Toes 4, 5: an outer column (2 of 47, 36 of 39) at inner rows, inside the plate's half width (3.38 of 4.10, 2.63 of 3.92 mm). One cause: the strip's window is cut along the digit at one phase, the fold's, while the free edge is straight in the nail's frame; a row of the digit's chart is not a line across the nail (the course is pitched and rolled against it, 0.2 to 0.6 rad on these toes), so at the sides the window's last rows and outer columns still lie before the free edge, where the plate's corner is asked to stand millimetres over the shoulder | Two parts. The free edge by `front(z)` takes the corner's demand away at its root (nothing is asked past `front(z)`, and there the step is one thickness). And both nets' windows along the digit are read over all their columns, not at one phase: from the least station any column needs to the greatest |
+| Clipping, fingers | 0.000 to 0.024 mm, all in the strip's first rows (row 2 of 24) | Same answer; nothing of its own |
+| The strip adds no rings in the cap | Closed by the last change (`bedded` sets the cap's rings); the median's free-edge step above is sampled by 8 vertices | None. Cost stands: 87,418 vertices |
+| A dark pocket beside the plate on toes 1 to 4 | Second toe's mid-plate section: the plate's edge lies at 1.74 and 1.79 mm, 1.7 mm under its crown (3.47); beside it the skin is a level shelf at 1.68 mm from 4.7 to 5.4 mm aside before the toe's side falls. The toe's own back falls only about 0.9 mm over that chord (`under` reads up to 1.31 mm). The plate's arc is deeper than the toe's back, and the wall, as wide as the room, takes the whole back beside the plate down to the plate's edge. The arc is not published for a lesser toe: its radius share is my estimate, the mean of the fingers' | Where no radius is published the plate takes its bed's own arc: the circle through the skin's crown and its two points at the plate's edges midway along. The estimate `TOE_RADIUS` is removed. The fingers' and the big toe's radii are published or derived from a published height and stay; a finger's edge lies up to 1.1 mm under the skin near the fold, which is the lateral groove |
+| The plate reads dark and sunk against the reference's, which is nearly flush (the supervisor's reading of `oblique.0`) | Not the fold's depth: at the fold the reference steps 0.47 mm on the middle finger (6.21 to 5.74), 0.39 on the index, 0.67 on the thumb, against the law's 0.46. Not the edges either: at mid-plate the reference's lateral grooves lie at 3.49 and 3.88 mm and the generated plate's edges at 3.70 and 3.67. It is the crown along the length. The reference's plate rises again past the fold, to the skin's own level and over: middle finger 5.74 at the fold, 6.24 at 15 mm, 5.75 at the free edge; index 4.80, 5.41, 5.00; thumb 3.74, 4.24, 3.74; big toe 2.91, 3.30, 2.44: an arch about 0.5 mm high over the chord. The generated plate is one straight line, 5.69 mm from fold to free edge, 0.45 mm under the digit's own back all along. "A rigid plate is straight along its length" was my premise; the fingernail literature states the plate convex along its length as well as across, and I found no normal lengthwise radius in it (searched; only transverse radii are tabled) | The plate takes its bed's own lengthwise arch: between the fold and the free edge its crown stands over the straight line by as much as the skin's middle line stands over its own chord between those two places. Both ends keep their definitions (one fold under the skin at the fold, one thickness over it at the free edge), so the free edge's place does not move, and between them the crown runs from a fold under the digit's back to a thickness over it. No number is added, and none is taken from the reference; its arch is the check, not the source |
+| The lateral fold | Middle finger's section: at the plate's edge the surface turns +21 and +24 degrees concave and runs on down the finger's side; no wall rises, because the skin's side there is already at the edge's height. A crease, which is what the sheets show as a rim | None |
+| Teeth along the fold | The median's S is resolved (four turns of one sign, then four of the other). The wall is four cells wide, the rule's bound, and crosses the rings obliquely round the U; each quad is two flat triangles under the instrument's flat shading | The supervisor reads the same on `oblique.0` (a comb at the fold's corner on every finger). No change to the law in this batch: halving the cell is four times the controls and twice the phases round the whole digit. Stated as the net at its rule's bound; to be read under smooth shading in the whole-figure round, and the cell is the thing to change if it shows there |
+| Ripples behind the thumb's fold | Thumb's median behind the fold: turns 0, 0, -2, 0, -10, 0, -10, one sign, no ripple. The bands are the rings cut 0.46 mm apart inside the window against 2 mm outside it, flat shaded on a back that curves there | None |
+| No ledge from the end | A step at 41 to 45 degrees, 0.5 mm high, seen face on. A relief has one height at each point, so no overhang (stated when the relief was chosen) | None |
+| Toe 4's lengthwise strips and stairs | They run the toe's whole side, outside the nail's window as well (`lateral.1` px 1215-1340 x 560-640), in every run since the first: the toe's own rings round a tight side | Not the nail's. Passed to the body worker with the sheet |
+| A tab under two fingers' domes from the end | On the palmar side, where the nail's window does not reach; it came with the dome | Not the nail's. Passed to the body worker with the sheet |
+| The owner region | Closed: `owns`, tested | Its front becomes `front(z)` |
+| The test's time | Closed: 571 ms | Kept under a second with the new reading: the skin's height across is read off the rings already cached, not by a new search |
+
+**The one change, all of it together.**
+
+1. `front(z)`: at offsets one net cell apart across the plate, the distance along at which the plate's face stands one thickness over the skin, searched back from the tip on the same stations as the middle line's, the skin's height read off each station's cached ring; where the skin's side ends before the plate does, the side.
+2. The bed's slope and the strip's step read `front(z) - x`. The sections' edges no longer follow the estimated arc.
+3. Both nets' station windows from all their columns.
+4. A digit whose row has no radius takes its bed's arc; the lesser toes' rows have none.
+5. `owns` and `INail.plan` take the front.
+6. The crown's lengthwise arch from the bed, in the relief's face, the sections' `under` and the front. The plate's family, which nothing joins, stays the straight body.
+
+Then one run of all ten, every sheet, the table.
+
+### The one run on the six parts
+
+Run `2026-11-17T15-27-45.554Z-realize`, `--relief`, 00:27:45 to 00:28:24, process lists at 00:27:24 and 00:27:43 empty of fits and tests; the watch's 12:24:39 cycle read complete before it. All ten realize, no diagnostic. The unit tests were **not** run after it: a fit was alive at 00:29:31.
+
+| Reading | This run | The run before |
+| --- | --- | --- |
+| `clipped` | 0 on eight digits, 0.008 and 0.003 mm on toes 4 and 5 | 0.000 to 0.024 fingers, 0.31 to 0.68 toes |
+| Middle finger's crown along the median | 5.72 at the fold, 6.25 at 16.5 mm, 5.96 at 19.4, then the step to 5.23 at 20.2 | 5.69 all along |
+| The reference's, for the check | 5.74, 6.24 at 15 mm, 5.75 at the free edge | |
+| Lesser toes' radius, from their beds | 8.36, 7.79, 5.66, 4.57 mm | 6.58, 5.39, 5.34, 5.10 (the estimate) |
+| Second toe's greatest `under` | 0.64 mm | 1.31 |
+| Vertices, ten digits | 117,178 | 87,418 |
+| The law alone, a digit | 1.2 to 2.8 s | 0.7 to 1.1 s |
+
+Every sheet was opened.
+
+| Sheet | Seen | Where (clay row) |
+| --- | --- | --- |
+| `dorsal.0` | **New defect.** The free edge is no arc: it runs up from each rim to a point on the middle line, a peaked gable, toothed along one branch, with a tick where it meets each rim. The thumb's is the steepest. The fold's U and the rims are as before | middle: peak px 180,478, branches to px 130,505 and 232,505, teeth px 140-175 x 480-500; index px 850-945 x 475-500; pinky px 1215-1300 x 475-500; thumb px 1565-1675 x 460-520, teeth px 1570-1615 x 460-515 |
+| `dorsal.1` | Big toe: the free edge scalloped in two lobes with a tick at each rim. Toes 2 and 3: a round plate inside a U, no corner notch. Toes 4, 5: a plate and a U | big px 125-240 x 478-500; index px 495-590 x 465-520; middle px 860-950 x 460-510 |
+| `oblique.0` | The free edge stands as a bright raised ridge running obliquely down the plate, not a line across the tip; the fold's comb is unchanged | middle ridge px 130-185 x 510-555, comb px 160-210 x 595-620; thumb ridge px 1590-1650 x 495-555 |
+| `oblique.1` | Big toe: the ridge, bold, and the pocket beside the plate still (its radius is the derived one). Toes 2, 3: the pocket is shallower | big px 150-235 x 500-600; index px 500-570 x 480-545 |
+| `oblique-twin.0` | The plate stands flush with the finger's back and fuller than before; the free edge is a toothed diagonal on every finger | middle px 170-245 x 515-555; thumb px 1580-1665 x 500-555 |
+| `oblique-twin.1` | Toes 2 and 3 read as small nails with a clean lip. Big toe: a toothed diagonal across the plate. Toe 4: the stairs down its side, as ever | index px 505-585 x 485-545; big px 130-235 x 500-590; ring px 1215-1260 x 560-650 |
+| `lateral.0` | The back now rises a little past the fold and the free edge is a hooked lip at the tip | middle px 115-135 x 478-500; thumb px 1580-1612 x 470-520 |
+| `lateral.1` | A lip at each toe's tip where a notch was | big px 150-175 x 478-500 |
+| `end.0`, `end.1` | A thin toothed line across the top of each dome; the tab under two fingers' domes is still there | middle px 115-235 x 500-515; tab px 158-170 x 625-632 |
+
+**What the run says.**
+
+| Part of the change | Held? |
+| --- | --- |
+| Windows from all columns, and the front taking the corners' demand away | Yes: the clipping is gone on all ten |
+| The lengthwise arch | Yes on the median: the crown follows the reference's within 0.2 mm without reading it; the plate no longer reads sunk |
+| The lesser toes' arc from their beds | Yes: the pocket is shallower, the corner notches are gone |
+| The free edge as "one thickness over the skin at every offset across" | **No.** It made a gable. The rule is right only where the plate's arc across is the tip's own. The plate carries one published arc from fold to free edge (sagitta 2.4 to 2.8 mm at a finger's edges) and the tip's back across grows rounder toward the pole, so the place where the plate stands a thickness over the skin runs back fast with the offset aside, in a straight line each side |
+
+So the change answered four findings and exposed the one beneath the free edge's: **the plate's section across is not its bed's**. It is the same fact the straight plate was along the length, and the same one the lesser toes' estimate was: a form laid over the digit from a number, where the plate grows on its bed. Jung's radius was measured at the plate's crown by a gauge; the law spreads it as a circle over the whole width and the whole length. That is the next decision, on paper first, and it is not made here: what a published crown radius fixes (the curvature at the middle line, and where along the plate), and what the bed fixes (the edges' heights at every station, hence the free edge's line).
+
+No further change and no further run.
+
+### The kernel fact, pinned by a test that is red
+
+`test/src/features/geometry/construction/operator/test_construction_operator_capped_part.ts`, read first against `test_construction_operator_pointed_cut.ts` and `test_construction_operator_mixed_join.ts`, whose composition it follows. Made case: the ellipsoid with half axes 10, 5 and 3 mm, charted as a lofted part is (a station along its long axis, a phase round it, both closed ends the chart's poles), its centre `h` under the plane `z = 0`; the declared loop is the plane's own section, one ellipse; the part is kept above. The geometry is regular at every depth. One run, 52 ms:
+
+| Depth | The loop against the part's poles | Result |
+| --- | --- | --- |
+| 2.4 mm | 53 degrees of station clear | Admitted, a rail at every stored point |
+| 0.3 mm | passes 5.7 degrees from each | Refused: `shared loop: at clock 0.098: the part has no jet at [-0.071, 2.256] on the way to the loop point's foot` (the foot's Newton step leaves the chart past the pole) |
+| 0 | runs through both | Refused: `shared loop: at clock 0: the part's foot of the loop point is singular at [0, 1.571]` |
+
+So the fact stands as stated, with its adjacent positive case: a join on a declared loop serves a closed part only while the loop keeps clear of the part's poles.
+
+That run had the test expecting all three admitted, red on two. A test left failing breaks every full run, so it now pins today's behaviour the way `test_construction_operator_pointed_cut` pins its refusal: depths 0.3 and 0 must be refused under the contract `shared loop` with no join (the name, not the wording), depth 2.4 must be admitted with a rail at every point, and the capability is carried as the constant `SERVED_ROUND_A_POLE`, false today, under which the two near cases expect admission instead. The rewritten file passed the watch (cycle 12:24:39) and has **not been run**: a fit was alive when its turn came.
 ## Wiring, for the relief
 
 Replaces "Wiring" below for the joints worker's declaration step. No join, no plate source.

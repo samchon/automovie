@@ -1,74 +1,115 @@
 import { AutoMovieHumanF1FacePriors as P } from "./AutoMovieHumanF1FacePriors";
 
 /**
- * The lids' law in an eye's own frame: the two margins as phases about the canthal line, functions of the station along it, and what a
- * blink turns. It reads no family and no figure; `packages/human/docs/techniques/face-one-shot.md` holds the design it serves.
+ * The lids' law: the fissure's two canthi and two margins in the level frame the published contours are measured in, and what a blink
+ * turns. It reads no family and no figure; `packages/human/docs/techniques/face-one-shot.md` holds the design and the comparison with
+ * the f1 reference.
  *
- * Frame: the eye's (`AutoMovieHumanF1FaceCentres.eye`), origin the globe's centre, Z the canthal line toward exocanthion. A station `s`
- * is a distance along Z from the fissure's middle, which this law takes at the globe's centre; a phase is an angle about Z from the
- * forward axis, positive upward. The lid's outer face lies on the sphere of radius `rho`, the globe's radius plus the lid's thickness,
- * so at station `s` it stands `sqrt(rho^2 - s^2)` from the line.
+ * Frame: the frontal plane about the pupil's centre, `x` toward the temple and `y` up, millimetres, the head level. A direction is given
+ * as an angle from the nasal side, 0 nasal, 90 up, 180 temporal, 270 down, as the midpupil lid distances of the literature are.
  *
- * PROVISIONAL margin shape, refuted by the first reading it was checked against (`face-one-shot.md`, The eye's law against f1): on the
- * f1 reference the canthi stand 3.3 mm below the line through the globe's centre, the upper margin's apex 3.5 mm medial of the
- * fissure's middle and the lower's lowest point 3.5 mm lateral of it, and medial of 12 mm from the centre the lid leaves the globe's
- * sphere. The sphere's radius and the blink hold; the shape below is to be replaced by one that takes the canthi's drop and each apex's
- * station as inputs. Nothing reads this module yet.
+ * - The upper margin is the published radial profile of Shin et al. 2025 (PLOS One; 40 Korean women aged 20 to 39, a cubic Bezier
+ *   fitted to each margin and read every 15 degrees; this package's note `docs/sources/shin-2025-upper-eyelid-contour.md`), taken as
+ *   its ratio to the distance straight up and scaled by the person's own distance straight up (MRD1). Ratios keep a contour's shape
+ *   under a change of size; the absolute distances are one population's.
+ * - The lower margin is the radial profile of a Chinese cohort (540 healthy subjects; women in their twenties; PMC11179404), likewise as
+ *   ratios to the distance straight down and scaled by MRD2. That cohort's absolute sizes are small against every other source, so only
+ *   its ratios are used.
+ * - Between the published directions a ratio is read linearly: the law states the published samples and adds no curve of its own.
+ * - The canthi: the medial one stands `MEDIAL_CANTHUS_DROP_MM` below the pupil's centre (van den Bosch et al. 1999, 320 white Dutch
+ *   subjects, 3.7 mm, SD 1.1, no change with sex or age); the lateral one stands above it by the fissure's length times the sine of the
+ *   canthal tilt. The pupil is taken at the middle of the fissure's level extent, an assumption no source read here states.
  *
- * Each margin is the parabola through both canthi with its apex at the fissure's middle, in height above the line along the lid's face:
- * `h(s) = h0 (1 - (2 s / L)^2)`. The parabola is a declared shape, the even curve of least degree through the three measured points
- * (two canthi and the apex); a published contour replaces it when one is read (the package's notes name Shin's for the upper lid). The
- * heights `h0` come from the fissure's height by the share of it that lies above the canthal line, an input of the person.
+ * The lid's outer face lies on the sphere of the globe's radius plus the lid's thickness; on the f1 reference that holds within 0.3 mm
+ * over the middle 26 mm of the fissure and fails toward the medial canthus, which stands off the globe.
  */
 export namespace AutoMovieHumanF1EyeLaw {
+  /** A point of the level frame, mm: toward the temple, up. */
+  export type P2 = [number, number];
+
   /** One eye's measures. */
   export interface IEye {
-    /** Fissure length, endocanthion to exocanthion, mm (`IAutoMovieHumanEye.palpebralFissureLength`). */
+    /** Fissure length, endocanthion to exocanthion, mm. */
     length: number;
 
-    /** Fissure height at its middle, upper to lower margin, eye open at rest, mm (`IAutoMovieHumanEye.palpebralFissureHeight`). */
-    height: number;
-
-    /** The share of that height above the canthal line, in (0, 1). */
+    /** The upper margin above the pupil's centre, straight up, eye open at rest, mm (MRD1). */
     above: number;
 
-    /** The globe's radius, mm; half the axial length where the person's own is not given. */
-    globe: number;
+    /** The lower margin below the pupil's centre, straight down, mm (MRD2). */
+    below: number;
 
-    /** The lid's thickness over the globe, mm. */
-    lid: number;
+    /** Canthal tilt: the exocanthion above the endocanthion's level, degrees. */
+    tilt: number;
+
+    /**
+     * The person's own upper margin, by the published definition: its distance from the pupil's centre every 15 degrees from 0 to 180,
+     * thirteen values, in any one unit (only their ratios are read). Absent, the published profile. A published contour is one
+     * population's shape; on the f1 reference the margin agrees with it within a tenth of the distance straight up between 60 and 120
+     * degrees and stands up to 1.6 times farther out toward both ends.
+     */
+    upperProfile?: readonly number[];
+
+    /** The person's own lower margin likewise: every 15 degrees from 195 to 345, eleven values. Absent, the published profile. */
+    lowerProfile?: readonly number[];
   }
 
-  /** The published eye where a person's own measure is absent: the globe and the lid from `AutoMovieHumanF1FacePriors`. */
-  export function of(length: number, height: number, above: number, globe: number = P.GLOBE_AXIAL_MM / 2, lid: number = P.UPPER_LID_MM): IEye {
-    return { length, height, above, globe, lid };
-  }
+  /** The medial canthus below the pupil's centre, mm: van den Bosch et al. 1999, Br J Ophthalmol 83:347 (read in full), 3.7, SD 1.1. */
+  export const MEDIAL_CANTHUS_DROP_MM: number = 3.7;
 
-  /** The radius of the lid's outer face about the globe's centre, mm. */
-  export function radius(eye: IEye): number {
-    return eye.globe + eye.lid;
-  }
+  /**
+   * The upper margin's distance from the pupil's centre every 15 degrees from 0 (nasal) to 180 (temporal), mm: Shin et al. 2025, women,
+   * right eye (read through a page reader; the digits want one check against the paper's table before a fit relies on them).
+   */
+  const UPPER_MM: readonly number[] = [9.12, 7.24, 6.0, 5.23, 4.78, 4.59, 4.62, 4.87, 5.4, 6.28, 7.66, 9.73, 12.15];
 
-  /** The lid's face's distance from the canthal line at a station, mm; the station must lie inside the sphere. */
-  export function reach(eye: IEye, s: number): number {
-    return Math.sqrt(radius(eye) ** 2 - s * s);
+  /** The lower margin's distance every 15 degrees from 195 (temporal) to 345 (nasal), mm: PMC11179404, women aged 20 to 29 (page reader). */
+  const LOWER_MM: readonly number[] = [7.51, 5.86, 4.78, 4.12, 3.75, 3.58, 3.57, 3.87, 4.5, 5.86, 8.61];
+
+  /** A published profile read linearly at an angle, as its ratio to its value at the profile's sample `unit`. */
+  function ratio(profile: readonly number[], first: number, unit: number, degrees: number): number {
+    const at: number = (degrees - first) / 15;
+    const k: number = Math.min(profile.length - 2, Math.max(0, Math.floor(at)));
+    return (profile[k]! + (at - k) * (profile[k + 1]! - profile[k]!)) / profile[unit]!;
   }
 
   /**
-   * The two margins' phases at a station, radians, the upper first: `asin(h(s) / reach(s))` with the upper margin's apex `above * height`
-   * over the line and the lower's `(1 - above) * height` under it, each measured as a chord from the line's point so that the chord
-   * between the two apexes is the fissure's height when the two phases are equal and opposite, and within the reading otherwise.
+   * A margin's distance from the pupil's centre along a direction, mm: the upper margin for 0 to 180 degrees, the lower for 195 to 345.
+   * Between 180 and 195 and between 345 and 360 the margins run to the canthi and no profile is published; the law refuses those.
    *
-   * `blink` in [0, 1] carries the upper margin toward the lower by that share of the phase between them at every station, the lower
-   * margin staying: 0 is the eye open at rest, 1 the margins together. Past a canthus both phases are 0.
+   * `blink` in [0, 1] lowers the upper margin: at each of its directions the distance falls by that share of the way to the reflection of
+   * the lower margin's distance in the pupil's level, so at 1 the upper margin lies on the lower one's mirror through that level and the
+   * fissure is shut at the pupil. It is the measure a lid's turn about the canthal line is solved from, not that turn itself.
    */
-  export function margins(eye: IEye, s: number, blink: number = 0): [number, number] {
-    const t: number = (2 * s) / eye.length;
-    if (Math.abs(t) >= 1) return [0, 0];
-    const fall: number = 1 - t * t;
-    const r: number = reach(eye, s);
-    const upper: number = Math.asin((eye.above * eye.height * fall) / r);
-    const lower: number = -Math.asin(((1 - eye.above) * eye.height * fall) / r);
-    return [upper + blink * (lower - upper), lower];
+  export function margin(eye: IEye, degrees: number, blink: number = 0): number {
+    const upper: readonly number[] = eye.upperProfile ?? UPPER_MM;
+    const lower: readonly number[] = eye.lowerProfile ?? LOWER_MM;
+    if (upper.length !== UPPER_MM.length || lower.length !== LOWER_MM.length) throw new Error("eye law: a margin profile has thirteen values above and eleven below");
+    if (degrees >= 0 && degrees <= 180) {
+      const open: number = eye.above * ratio(upper, 0, 6, degrees);
+      return blink === 0 ? open : open - blink * (open + (degrees >= 15 && degrees <= 165 ? eye.below * ratio(lower, 195, 5, 360 - degrees) : 0));
+    }
+    if (degrees >= 195 && degrees <= 345) return eye.below * ratio(lower, 195, 5, degrees);
+    throw new Error("eye law: no margin profile is published at " + degrees + " degrees");
+  }
+
+  /** A margin's point in the level frame at a direction. */
+  export function point(eye: IEye, degrees: number, blink: number = 0): P2 {
+    const r: number = margin(eye, degrees, blink);
+    return [-r * Math.cos((degrees * Math.PI) / 180), r * Math.sin((degrees * Math.PI) / 180)];
+  }
+
+  /** The two canthi in the level frame, the medial first. */
+  export function canthi(eye: IEye): [P2, P2] {
+    const tilt: number = (eye.tilt * Math.PI) / 180;
+    const half: number = (eye.length * Math.cos(tilt)) / 2;
+    return [
+      [-half, -MEDIAL_CANTHUS_DROP_MM],
+      [half, -MEDIAL_CANTHUS_DROP_MM + eye.length * Math.sin(tilt)],
+    ];
+  }
+
+  /** The radius of the lid's outer face about the globe's centre, mm: the globe's radius plus the lid's thickness, published where the person's are absent. */
+  export function radius(globe: number = P.GLOBE_AXIAL_MM / 2, lid: number = P.UPPER_LID_MM): number {
+    return globe + lid;
   }
 }

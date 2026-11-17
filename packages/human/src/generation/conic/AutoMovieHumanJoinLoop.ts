@@ -51,6 +51,12 @@ export namespace AutoMovieHumanJoinLoop {
   /** The step a station line is walked in before a passing is bisected, mm. */
   const STEP_MM: number = 0.5;
 
+  /** How near a section plane a point is taken to lie in it, mm: a nanometre. */
+  const ADDRESS_MM: number = 1e-9;
+
+  /** Steps a point's station on the host is sought in: a point at half the turn's radius needs 30 to reach a nanometre from 1 mm. */
+  const ADDRESS_STEPS: number = 64;
+
   /**
    * How far past the loop's half extents on the host's chart a ray is walked for its crossing, as a share: a loop inside its own box
    * lies within `sqrt(2)` of its centre, and the host's skin is read where the part's stands off it by the gap, so twice the box is
@@ -59,16 +65,51 @@ export namespace AutoMovieHumanJoinLoop {
   const REACH: number = 2;
 
   /**
+   * A world point's address on a part's chart: the station at which the point lies in the course's section plane, mm, and its polar
+   * angle in that station's frame, rad.
+   *
+   * The section plane's normal is `v x u` (`AutoMovieLoftFrame`), and a point `d` ahead of a section along it lies about `d` of
+   * station ahead while it stands inside the course's radius of curvature, so the station is stepped by that distance until it is
+   * under a nanometre: on a straight course the first step lands, round a turn each step shrinks the rest by the point's distance
+   * over the turn's radius.
+   *
+   * @param part The part whose chart is read.
+   * @param domain The part's stations, mm.
+   * @param p The point, mm.
+   * @param guess The station the search starts at.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation A fixed-point step on the signed distance to the section plane, which contracts wherever the point is nearer the course than its centre of curvature; the phase is read in the found station's own frame.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop, one frame a step.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No straight-course premise and no nearest-sample search; a point the steps do not reach, or one past the part's stations, is refused with the station it stopped at.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One frame a step; one or two steps on a straight course, at most `ADDRESS_STEPS`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A caller walking a curve passes the last station as the next guess.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns two numbers.
+   * @evidence contracts/development/common.md#meaningful-documentation States units, the premise of convergence and the refusal.
+   */
+  export function address(part: IAutoMovieViewPart, domain: readonly [number, number], p: readonly number[], guess: number): [number, number] {
+    let station: number = guess;
+    for (let i: number = 0; i < ADDRESS_STEPS; ++i) {
+      const frame: AutoMovieLoftFrame.IFrame = part.axis.at(station);
+      const q: V = [p[0]! - frame.origin[0], p[1]! - frame.origin[1], p[2]! - frame.origin[2]];
+      const normal: V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
+      const ahead: number = q[0] * normal[0] + q[1] * normal[1] + q[2] * normal[2];
+      if (Math.abs(ahead) <= ADDRESS_MM) return [station, Math.atan2(q[0] * frame.v[0] + q[1] * frame.v[1] + q[2] * frame.v[2], q[0] * frame.u[0] + q[1] * frame.u[1] + q[2] * frame.u[2])];
+      station = Math.min(domain[1], Math.max(domain[0], station + ahead));
+    }
+    throw new Error("join loop: a point has no address on the chart of " + part.name + " (station " + station + " mm after " + ADDRESS_STEPS + " steps)");
+  }
+
+  /**
    * Generate the contact of a part on a host.
    *
-   * @param host The host's complete source, level sections on a straight course.
+   * @param host The host's complete source; every point of the part's cut stands inside its course's radius of curvature.
    * @param part The part's complete source on the stored side (+Z), carried inward past the surface.
    * @param count The join's column count: the loop's shares.
    * @param side The dividing surface, mm: positive on the part's side, zero on it.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Each part station line is walked for the one place it passes the surface and bisected; each point is given its address on the host's chart (a level section about a straight course: station its height along the course, phase its polar angle); the loop's centre and half extents are those addresses' centroid and extents; its shares are the host's own skin cut by the surface along each column's ray (`AutoMovieHumanSkinCutLoop.shares`), so the loop lies on the surface at every column and is interpolated nowhere.
+   * @evidence contracts/development/implementation.md#principled-implementation Each part station line is walked for the one place it passes the surface and bisected; each point is given its address on the host's chart (the station whose section plane holds it, found by stepping along the course by the point's distance ahead of the plane, and its polar angle in that station's frame); the loop's centre and half extents are those addresses' centroid and extents; its shares are the host's own skin cut by the surface along each column's ray (`AutoMovieHumanSkinCutLoop.shares`), so the loop lies on the surface at every column and is interpolated nowhere.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Cut the part, address the host, cut the host.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No stored loop, landmark or person enters and nothing is faired; a host that is not straight and level, a station line that passes the surface more or less than once, a loop that is not star-shaped about its centre and a ray without a crossing are refused with their numbers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No stored loop, landmark or person enters and nothing is faired; a point with no address on the host, a station line that passes the surface more or less than once, a loop that is not star-shaped about its centre and a ray without a crossing are refused with their numbers.
    * @evidence contracts/development/implementation.md#efficient-algorithms 360 station lines of at most the part's length in half millimetres with 40 bisections, and `count` rays of 256 steps with at most 60 bisections; no loft and no mesh.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both source readers are prepared once and serve every read.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain numbers; the readers die with the call.
@@ -79,17 +120,7 @@ export namespace AutoMovieHumanJoinLoop {
     const sub = (a: readonly number[], b: readonly number[]): V => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
     const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
 
-    // The host's chart of a world point: its course is straight and its frame constant, which is checked at both ends of its domain.
-    const [foot, head]: AutoMovieLoftFrame.IFrame[] = [host.axis.at(onto!.domain[0]), host.axis.at(onto!.domain[1])];
-    const along: V = sub(head!.origin, foot!.origin);
-    const length: number = Math.hypot(along[0], along[1], along[2]);
-    const tangent: V = [along[0] / length, along[1] / length, along[2] / length];
-    if (Math.abs(length - (onto!.domain[1] - onto!.domain[0])) > 1e-6 || Math.hypot(...sub(head!.u, foot!.u)) > 1e-9 || Math.abs(dot(tangent, foot!.u)) > 1e-9)
-      throw new Error("join loop: the host's course is not straight with level sections");
-    const chart = (p: readonly number[]): [number, number] => {
-      const q: V = sub(p, foot!.origin);
-      return [onto!.domain[0] + dot(q, tangent), Math.atan2(dot(q, foot!.v), dot(q, foot!.u))];
-    };
+    const chart = (p: readonly number[], guess: number): [number, number] => address(host, onto!.domain, p, guess);
 
     // The part's skin cut by the surface: on each station line, the one place the line passes from the host's side to the part's.
     const stations: number[] = Array.from({ length: PHASES }, (_: unknown, j: number): number => {
@@ -120,7 +151,7 @@ export namespace AutoMovieHumanJoinLoop {
     const points: [number, number][] = [];
     stations.forEach((station: number, j: number): void => {
       const p: readonly number[] = from!.point(station, (2 * Math.PI * j) / PHASES);
-      const [s, t]: [number, number] = chart(p);
+      const [s, t]: [number, number] = chart(p, points.length === 0 ? (onto!.domain[0] + onto!.domain[1]) / 2 : points.at(-1)![0]);
       const before: number = points.length === 0 ? t : points.at(-1)![1];
       const phase: number = before + Math.atan2(Math.sin(t - before), Math.cos(t - before));
       const q: readonly number[] = onto!.point(s, phase);

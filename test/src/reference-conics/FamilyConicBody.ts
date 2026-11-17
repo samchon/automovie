@@ -12,6 +12,7 @@ import { FamilyConicRelief as H } from "./FamilyConicRelief";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
+import { FamilyConicClosure } from "./FamilyConicClosure";
 import { FamilyConicDivide } from "./FamilyConicDivide";
 import { FamilyConicLoop } from "./FamilyConicLoop";
 
@@ -275,6 +276,13 @@ export namespace FamilyConicBody {
 
   /** The least shoulder of a closure across an opening (`without`): the model's share bound (`AutoMovieHumanConicSection`'s `EDGE`). */
   const CLOSURE_LEAST: number = 0.03;
+
+  /**
+   * How far out a closure round the course (`IPart.around`) may carry its far point, as a share of the kept skin's mean radius: twice
+   * it, a second section's breadth past the course. A closure that is not an admissible pair of arcs by then is no round of this
+   * section and falls to the closure across its chord, which the opening's report names.
+   */
+  const AROUND_MOST: number = 2;
 
   /**
    * The ear's box, mm: lateral of the sagittal plane the auricle leaves the skull at, and inside the auricle's extent fore and aft and in height,
@@ -1832,7 +1840,7 @@ export namespace FamilyConicBody {
           const whole: C.P[] | null = R.cut(skin, frame, part.around === undefined ? 3 : NECK_BRIDGE_MM).loop;
           if (whole === null) missed.set(s, "no loop round the course");
           if (whole === null || part.clip === undefined) return whole;
-          const clipped: C.P[] | null = without(whole, frame, part.clip, part.round, part.opening, (kind: Closure, detail?: string, span?: [number, number], rho?: { side: number; most: number; used: number }): void => void closures.push({ s, kind, ...(detail === undefined ? {} : { detail }), ...(span === undefined ? {} : { span }), ...(rho === undefined ? {} : { rho }) }), (side: number): number | undefined => closureCap?.(side, s), part.around);
+          const clipped: C.P[] | null = without(whole, frame, part.clip, part.round, part.opening, (kind: Closure, detail?: string, span?: [number, number], rho?: { side: number; most: number; used: number }): void => void closures.push({ s, kind, ...(detail === undefined ? {} : { detail }), ...(span === undefined ? {} : { span }), ...(rho === undefined ? {} : { rho }) }), (side: number): number | undefined => closureCap?.(side, s), part.around, part.margin ?? F.ADMISSIBLE_MARGIN);
           if (clipped === null) missed.set(s, "under three points kept");
           return clipped;
         }
@@ -1954,10 +1962,10 @@ export namespace FamilyConicBody {
         closures.length = 0;
         const smoothed: Map<number, { from: number; to: number; at: (s: number) => number }> = new Map();
         for (const [side, raw] of bySide) {
-          // A closure round the course (`IPart.around`, side 0) is smoothed under its lower envelope over `GAP_MM` either side: smoothed as
+          // A closure round the course (`IPart.around`, side 0, or 2 and -2 where a section has two) is smoothed under its lower envelope over `GAP_MM` either side: smoothed as
           // read, a station whose fullest shoulder fell to 0.04 between neighbours at 0.5 kept its own (the smaller is used) and its closed
           // section's area dipped by 1,200 mm2 (f1's arm at 100 mm).
-          const points: { s: number; most: number }[] = side !== 0 ? raw : raw.map((p) => ({ s: p.s, most: Math.min(...raw.filter((q): boolean => Math.abs(q.s - p.s) <= GAP_MM).map((q): number => q.most)) }));
+          const points: { s: number; most: number }[] = Math.abs(side) === 1 ? raw : raw.map((p) => ({ s: p.s, most: Math.min(...raw.filter((q): boolean => Math.abs(q.s - p.s) <= GAP_MM).map((q): number => q.most)) }));
           const from: number = Math.min(...points.map((p) => p.s)), to: number = Math.max(...points.map((p) => p.s));
           const count: number = Math.max(2, Math.round((to - from) / GAP_MM) + 1);
           const knots: number[] = Array.from({ length: count }, (_: unknown, k: number): number => from + ((to - from) * k) / (count - 1));
@@ -2052,8 +2060,10 @@ export namespace FamilyConicBody {
           // A loose part is measured against that hull as well: its loop need not be star-shaped about the course.
           // A loose part's section is closed by its clip's straight chords, and a hull edge carries no vertex between its ends, so a wall
           // fitted to the vertices alone bulged past a long chord unseen: the nose's, closed at the top of its box, stood 10 mm above it.
-          // Along a loose part's hull every edge carries a point at least every millimetre.
-          const wall: C.P[] = part.loose === true ? R.hull(loop).flatMap((p: C.P, k: number, hull: C.P[]): C.P[] => {
+          // Along a loose part's hull every edge carries a point at least every millimetre. So does a part's closed across an opening
+          // (`IPart.around`): where its closed loop is hollow between two closures the hull bridges it by one edge, and the seed's arc
+          // across that edge had no point on it for 9.8 to 10.2 mm (f1's middle finger at 14.5 and 16.5 mm, meetings 0.082 to 0.095).
+          const wall: C.P[] = part.loose === true || part.around !== undefined ? R.hull(loop).flatMap((p: C.P, k: number, hull: C.P[]): C.P[] => {
             const q: C.P = hull[(k + 1) % hull.length]!;
             const pieces: number = Math.max(1, Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1])));
             return Array.from({ length: pieces }, (_: unknown, t: number): C.P => [p[0] + ((q[0] - p[0]) * t) / pieces, p[1] + ((q[1] - p[1]) * t) / pieces]);
@@ -2596,7 +2606,10 @@ export namespace FamilyConicBody {
           if (layout === undefined) throw new Error("--seed-tail: no layout of " + part.name + " has the stored wall's fields");
           const fitting: F.IRow[] = rows.filter((row: F.IRow): boolean => !row.heldout && row.s < at!);
           const head: number[] = [];
-          for (let s: number = domain[0]; s < at! - GAP_MM / 2; s += GAP_MM) head.push(s);
+          // The root stretch's knots: one at its start whenever it has a stretch of its own before the tail, then one a gap. Laid only
+          // where half a gap remained before the tail, a root 4.5 mm long got no knot (f1's little finger, whose first joint stands
+          // 11.5 mm proximal of the heads' plane: its "root fit" was the tail's own three knots from 16 mm, read as fitted).
+          for (let s: number = domain[0]; s < at! - (s === domain[0] ? 1e-9 : GAP_MM / 2); s += GAP_MM) head.push(s);
           const near = (s: number): F.IRow => fitting.reduce((b: F.IRow, row: F.IRow): F.IRow => (Math.abs(row.s - s) < Math.abs(b.s - s) ? row : b));
           const own: number[][] = head.map((s: number): number[] => C.seed(near(s).points, layout));
           const tailKnots: number[] = tail.knots.map((k: number): number => k + shift).filter((k: number): boolean => k >= at! && k <= domain[1]);
@@ -3793,7 +3806,7 @@ export namespace FamilyConicBody {
    * A section loop without the stretch a neighbouring part owns: the vertices where `outside` is positive are dropped and each crossing of zero,
    * found by bisection on its edge, becomes a vertex, so the loop closes by a straight chord from where it leaves to where it returns.
    */
-  function without(loop: readonly C.P[], frame: AutoMovieLoftFrame.IFrame, outside: (p: R.V) => number, round?: (p: R.V) => number, opening?: (p: R.V) => number, report?: (kind: Closure, detail?: string, span?: [number, number], rho?: { side: number; most: number; used: number }) => void, cap?: (side: number) => number | undefined, around?: number): C.P[] | null {
+  function without(loop: readonly C.P[], frame: AutoMovieLoftFrame.IFrame, outside: (p: R.V) => number, round?: (p: R.V) => number, opening?: (p: R.V) => number, report?: (kind: Closure, detail?: string, span?: [number, number], rho?: { side: number; most: number; used: number }) => void, cap?: (side: number) => number | undefined, around?: number, margin: number = F.ADMISSIBLE_MARGIN): C.P[] | null {
     const world = (p: C.P): R.V => [frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]];
     const g = (p: C.P): number => outside(world(p));
     const values: number[] = loop.map(g);
@@ -3901,26 +3914,28 @@ export namespace FamilyConicBody {
         const mean: number = out.reduce((sum: number, p: C.P): number => sum + Math.hypot(p[0], p[1]), 0) / out.length;
         const a1: number = Math.atan2(e1[1], e1[0]);
         const gap: number = (((Math.atan2(e2[1], e2[0]) - a1) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-        const middle: number = a1 + gap / 2;
-        const tM: C.P = [-Math.sin(middle), Math.cos(middle)];
-        for (let share: number = around; share <= around + 0.25 + 1e-9; share += 0.05) {
-          const M: C.P = [share * mean * Math.cos(middle), share * mean * Math.sin(middle)];
-          const m1 = meet(e1, t1, M, [-tM[0], -tM[1]]), m2 = meet(M, tM, e2, [-t2[0], -t2[1]]);
-          if (!(m1.a > 0 && m1.b > 0 && m2.a > 0 && m2.b > 0)) continue;
-          // One closure a section, so its shoulder is smoothed along the stations as one (side 0), whichever side its ends lie on. It needs
-          // only to stay on the parent's side of the opening, not inside the reference's cut: the port removes the child's field there,
-          // short of its rail (construction.md, Ports). Held inside the cut as well, its shoulders fell to the model's least, 0.03, and
-          // the closed section became three near-chords with corners at its ends and its far point; the tape wall across them had arcs
-          // whose tangents met at shares down to 0.028, under the fit's margin of 0.1, and the arm's limb(1) seed was refused at 710 of
-          // 3,010 readings, all of them within the closure's stations (24 to 120 mm) and its phases.
+        // A section with one opening smooths its closure's shoulder along the stations as one (side 0), whichever side its ends lie on;
+        // a ray between two neighbours has two closures a section, and each is smoothed with its own along the stations, keyed by the
+        // side its opening's middle lies on (2 or -2, apart from the sides 1 and -1 of a closure across a chord). Smoothed as one, the
+        // middle finger's two webs shared a shoulder, and its first station's 0.03 (one opening of 212.6 degrees there) was carried
+        // over both webs' closures from 3.5 to 10.5 mm.
+        const key: number = opened.filter((o: boolean): boolean => o === true).length > 1 ? 2 * (Math.sign(Math.sin(a1 + gap / 2)) || 1) : 0;
+        // The far point at which both arcs are admissible by the fit's own margin (`FamilyConicClosure.far`).
+        const far: FamilyConicClosure.IFar | null = FamilyConicClosure.far(e1, t1, e2, t2, mean, around, AROUND_MOST, margin);
+        if (far !== null) {
+          // The closure needs only to stay on the parent's side of the opening, not inside the reference's cut: the port removes the
+          // child's field there, short of its rail (construction.md, Ports). Held inside the cut as well, its shoulders fell to the
+          // model's least, 0.03, and the closed section became three near-chords with corners at its ends and its far point; the tape
+          // wall across them had arcs whose tangents met at shares down to 0.028, under the fit's margin of 0.1, and the arm's limb(1)
+          // seed was refused at 710 of 3,010 readings, all of them within the closure's stations (24 to 120 mm) and its phases.
           const trunkSide = (points: readonly C.P[]): boolean => points.every((p: C.P): boolean => opening!(world(p)) >= -0.5);
-          const wrapped = fullest(0, (rho: number): C.P[] => [...arc(e1, m1.X, M, rho), M, ...arc(M, m2.X, e2, rho)], trunkSide);
+          const wrapped = fullest(key, (rho: number): C.P[] => [...arc(e1, far.first, far.point, rho), far.point, ...arc(far.point, far.second, e2, rho)], trunkSide);
           const lowest: number = Math.min(...wrapped.points.map((p: C.P): number => opening!(world(p))));
-          report?.(trunkSide(wrapped.points) ? "around" : "outside", `around: share ${share.toFixed(2)}, gap ${((gap * 180) / Math.PI).toFixed(1)} deg, rho ${wrapped.used.toFixed(2)}, opening down to ${lowest.toFixed(1)} mm`, [a1, Math.atan2(e2[1], e2[0])], { side: 0, most: wrapped.most, used: wrapped.used });
+          report?.(trunkSide(wrapped.points) ? "around" : "outside", `around: share ${far.share.toFixed(2)}, gap ${((gap * 180) / Math.PI).toFixed(1)} deg, rho ${wrapped.used.toFixed(2)}, meetings ${far.meetings.map((m: number): string => m.toFixed(3)).join(" and ")}, opening down to ${lowest.toFixed(1)} mm`, [a1, Math.atan2(e2[1], e2[0])], { side: key, most: wrapped.most, used: wrapped.used });
           return wrapped.points;
         }
-        // Where the opening has narrowed so far that no far point admits both corners ahead (f1's arm past 125 mm, a gap under 40
-        // degrees), the closure across the chord below surrounds the course point as well.
+        // Where no far point within `AROUND_MOST` gives two admissible arcs (f1's arm past 125 mm, a gap under 40 degrees), the
+        // closure across the chord below surrounds the course point as well.
       }
       const plain = meet(e1, t1, e2, [-t2[0], -t2[1]]);
       if (plain.a > 0 && plain.b > 0) {

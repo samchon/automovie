@@ -403,6 +403,44 @@ The queue, in order, to start when the joints queue is idle (`joints-batch-20261
 
 `--precheck` exists (code, `FamilyConicBody.ts` lines 2206 to 2230): it builds the part's sections and their tables and stops before the fit, logging for every section a `family-body-closed` row with its closure, its clearance and `admitted`, and a `family-body-observed` row with the sections read, skipped and missed. The head queue's first command is therefore `node .shots/esbuild/FamilyConicBody.cjs lips --precheck` once `lips` is a declared part of the tool.
 
+### The three parts' lines on f1, each in its own frame
+
+One run (`FamilyConicFace.ts --contours --outer`, tool `o-contours.txt`), +Z and the median plane. No part's law is written or rewritten before all three are laid beside their published shapes.
+
+**Eye**, stations along the canthal line from the globe's centre, heights above that line: the table under [The eye's law against f1](#the-eyes-law-against-f1).
+
+**Lips**, in the mouth's frame (origin `[100.6, 1522.0, 0]`, half length 22.1): height above the origin, then distance ahead of it. A crest is the lip's most forward point in the sagittal cut; the mesh carries no vermilion colour, so no vermilion border is read.
+
+| Station | Valley under the nose | Upper lip's crest | Lips' line | Lower lip's crest | Valley under the lower lip |
+| --- | --- | --- | --- | --- | --- |
+| 0 | 16.0, 20.0 | 8.5, 22.7 | 0.0, 12.8 | -10.0, 18.7 | -18.0, 9.2 |
+| 4 | 15.8, 20.4 | 8.8, 22.0 | -0.2, 13.1 | -9.7, 18.7 | -19.2, 9.0 |
+| 8 | 16.2, 19.6 | 11.7, 20.8 | -0.3, 12.7 | -8.3, 18.3 | -20.3, 8.4 |
+| 12 | 20.4, 15.8 | 9.9, 19.3 | -0.6, 11.3 | -8.1, 16.6 | -22.1, 7.1 |
+| 16 | 21.1, 13.0 | 7.6, 17.2 | -1.4, 8.6 | -9.9, 13.6 | -25.4, 4.9 |
+| 20 | 28.1, 9.4 | 4.6, 14.0 | -2.4, 5.5 | -8.9, 10.3 | - |
+| 22 | 27.5, 9.0 | 9.0, 12.6 | -2.5, 4.2 | -8.0, 8.5 | - |
+
+The lips' line is level within 0.6 mm to station 12 and falls 2.5 mm to the corner, drawing back from 12.8 to 4.2 mm ahead of the mouth's line. The upper lip's crest stands lowest at the median (7.9 at station 2), highest at station 8 (11.7), and falls to the corner: a bow whose crest lies 8 mm from the median. The row at station 22 reads the corner itself and its upper crest is not a lip's.
+
+**Nose**, in the nose's frame (course from `[111.6, 1545.0, 0]` along subnasale to nasion, 60.7 mm): stations from subnasale's level.
+
+| Station | Median outline ahead of the course | Sharpest valley on +Z: ahead, from the median plane, turn |
+| --- | --- | --- |
+| 0 | 8.4 | - |
+| 8 | 18.7 | 6.8, 9.4, 59 |
+| 12 | 23.7 | 5.4, 9.1, 113 |
+| 16 | 25.6 | 8.6, 9.0, 127 |
+| 20 | 25.6 | 1.5, 17.2, 59 |
+| 24 | 24.1 | 3.8, 15.8, 32 |
+| 32 | 18.8 | 3.0, 17.2, 17 |
+| 40 | 14.8 | -2.3, 20.9, 22 |
+| 48 | 11.3 | -5.0, 16.9, 44 |
+| 56 | 8.5 | -0.6, 13.5, 27 |
+| 60 | 8.3 | 0.6, 15.8, 24 |
+
+The median outline rises from 8.4 mm at subnasale to 25.6 at stations 16 to 20, the tip, and falls in a nearly straight line to 8.3 at nasion (about 0.43 mm a millimetre from station 20 to 60). The valley beside the nose is read as one line from station 20 up: 59 degrees at the ala's top, 15 to 17 between stations 28 and 36, 44 at station 48 beside the medial canthus. At stations 8 to 16 the reading takes the nostril's rim (9 mm from the median plane, 113 and 127 degrees), not the alar groove, which the level cuts read at 71 to 77 degrees 18.6 mm out: a limit of this mode's box. The side outline this mode prints is the edge of the nose's region on its own plane, not the ala's breadth, and is left out here.
+
 ### The eye's law against f1
 
 `AutoMovieHumanF1EyeLaw` was written with each margin as a parabola through both canthi with its apex at the fissure's middle, the middle at the globe's centre and the canthi on the canthal line. f1's margins, read in the eye's own frame (tool `o-margins.txt`, `--margins`: the skin's rim points by 2 mm bands of station along the canthal line from the globe's centre):
@@ -415,7 +453,93 @@ The queue, in order, to start when the joints queue is idle (`joints-batch-20261
 | Fissure height at the middle | The input | 13.3 mm (4.1 above, 9.2 below) |
 | The lid's face from the line | `sqrt(rho^2 - s^2)`, one sphere | 16.9 at the middle (upper) and 16.0 (lower); 12.5 at station -11 and 10.8 at 13, within 0.3 mm of a sphere of 16.7 between stations -12 and 14; the medial canthus, 18.8 from the centre, lies outside that sphere |
 
-So the parabola does not stay. Three things of the law are wrong on f1: the canthi do not lie on the line through the globe's centre, neither apex is at the middle (the upper medial, the lower lateral, as the supervisor's note says of the published fissure; no source for it was read here, so the skew stands on f1 alone), and medial of station -12 the lid leaves the globe's sphere toward the canthus. The sphere itself holds over the middle 26 mm. The law's next form takes the canthi's drop below the centre and each apex's station as inputs and joins each margin from canthus to apex to canthus; the package's notes name a published upper lid contour (Shin 2025) that is to be read for its shape. The module's blink and radius stand; its margin shape is provisional and its test pins only the closed form of that provisional shape.
+So the law as written does not stay: the canthi do not lie on the line through the globe's centre, and medial of station -12 the lid leaves the globe's sphere toward the canthus. The sphere itself holds over the middle 26 mm.
+
+The two apexes' skew is not a property of f1's margins. It is the canthal tilt read in a tilted frame: heights were taken square to a line that rises 10.2 degrees laterally, and an arch 30 mm wide and 7.7 mm high has its highest point against such a line where its own slope is `tan 10.2`, 3.5 mm toward the low end (`0.18 L^2 / (8 h)`), medial for the upper margin and lateral for the lower. In a level frame about the pupil both apexes stand within the reading's 2 mm band of the pupil's vertical. That is the frame the published contours use, and it is the frame the law must be written in.
+
+### Published shapes beside f1
+
+Read by a research subagent; the status of each source is its own (full text read, full text through a page reader whose tables want a spot check, or abstract).
+
+| Shape | Published | f1 |
+| --- | --- | --- |
+| Canthi against the pupil's level | Medial canthus 3.7 mm (SD 1.1) below the pupil's centre, lateral canthus 1.9 (1.4) above the medial one, 320 white Dutch subjects (van den Bosch 1999, full text read) | Endocanthion 6.3 mm below the globe's centre's level, exocanthion 0.2 below it (world heights 1,587.7 and 1,593.8 against 1,594.0) |
+| Canthal tilt | About 4.4 degrees from those two numbers; 9.3 (2.6) in Japanese women, 8.8 (3.2) in Koreans (page reader) | 10.2 |
+| Upper margin's contour | A radial profile about the pupil's centre every 15 degrees, Korean women (Shin 2025, page reader): 4.62 mm straight up, 6.28 at 45 degrees temporal of it, 5.23 at 45 nasal, 12.15 at the temporal end and 9.12 at the nasal; its highest point 1.67 mm (1.02) temporal of the pupil. Brazilian and Spanish cohorts put it 0.2 to 0.8 mm temporal. No number was found for "nasal in Caucasians" | 3.8 to 4.1 mm above the canthal line at the centre's station; not yet read in a level frame |
+| Lower margin's contour | A radial profile from one Chinese cohort whose scale is small and is used by ratio only; its deepest point 0.9 mm temporal of the pupil, flat within 0.04 mm; MRD2 5.2 to 5.6 mm against MRD1 3.5 to 3.65 (Adelaide, page reader) | 9.2 to 9.4 mm below the canthal line at the centre's station, 2.3 times the upper |
+| Margins' arc over the fissure's chord | Upper 1.32 to 1.35, lower 1.10 to 1.12 (from Gao 2025's arcs and widths) | Not read |
+| Philtral crests' spacing over mouth width | 0.245 to 0.26 in four groups (FaceBase, Jayaratne 2013) | The upper lip's forward crest is highest at station 8 of a half width of 22.1, which is the lip's fullness and not the vermilion's peak: not comparable |
+| Lip heights: ls to sto, sto to li, sn to sto, sto to sl, ch to ch | 7.4 (1.4), 8.5 (1.9), 20.5 (2.5), 17.6 (2.3), 48.1 (3.5) mm, white women 20 to 40 (FaceBase) | 8.5, 10.0, 16.0 (arithmetic on the median landmarks), 18.4, 44.2 |
+| Cupid's bow depth; the vermilion border's course; the lips' line's shape | Not found as numbers anywhere | The line level within 0.6 mm over the middle 24 mm, 2.5 mm lower at the corner |
+| Nose: n to sn, sn to prn, their ratio | 54.7 (3.9), 20.2 (1.9), 0.37 (FaceBase women) | 60.7, 24.7, 0.41 |
+| Dorsum's shape; columella to lobule; alar groove's course | Conventions in reviews only, no measured population | The median outline falls in a nearly straight line from the tip to nasion |
+
+What the published shapes allow, and so the three laws' forms, decided together:
+
+| Law | Frame | From published shape | From the person | Stays on f1 alone |
+| --- | --- | --- | --- | --- |
+| Eye | Level, about the pupil's centre; the result is turned into the eye's frame by the canthal tilt | The upper margin as Shin's radial profile scaled by MRD1; the lower margin's profile by ratio scaled by MRD2; the canthi's heights below the pupil | Fissure length and height (inputs today), the tilt | Where the lid leaves the globe's sphere toward the medial canthus |
+| Lips | The mouth's frame | Crest spacing a quarter of the mouth's width; the four lip heights | Mouth width, the two vermilion heights (inputs today) | The bow's depth, the edges' course between crest and corner, the line's fall to the corner |
+| Nose | The nose's frame | Height, protrusion and their ratio | The three nose inputs | The dorsum's line, the columella's, the groove's course |
+
+Each row's last column is shape no source gave. It enters as f1's own curve in the part's normalised coordinates and is marked estimated, to be checked on the other references before it is called a law. None of the three laws is rewritten yet; the eye's module keeps its provisional mark.
+
+### The three laws, written together, beside f1
+
+`AutoMovieHumanF1EyeLaw`, `AutoMovieHumanF1LipsLaw` and `AutoMovieHumanF1NoseLaw` are pure modules with unit tests on made measures (`test_human_f1_eye_law`, `test_human_f1_lips_nose_law`). Nothing reads them. f1's side of each comparison is the instrument's reading (`o-contours.txt`), never a number in a module.
+
+**Eye.** The law is written in the level frame about the pupil: each margin is a published radial profile taken as its ratio to the distance straight up (Shin 2025) or straight down (the Chinese cohort), scaled by the person's MRD1 and MRD2; the medial canthus stands 3.7 mm below the pupil (van den Bosch) and the lateral one above it by the fissure's length times the sine of the tilt. f1's rim in the same frame, as ratios (the sectors at 75 and 105 degrees hold no rim point):
+
+| Direction from the nasal side | 0 | 15 | 30 | 45 | 60 | 90 | 120 | 135 | 150 | 165 | 180 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Published upper ratio | 1.97 | 1.57 | 1.30 | 1.13 | 1.03 | 1 | 1.17 | 1.36 | 1.66 | 2.11 | 2.63 |
+| f1 (straight up 3.76 mm) | 2.51 | 1.90 | 1.38 | 1.32 | 1.10 | 1 | 1.20 | 1.67 | 2.47 | 3.17 | 4.11 |
+
+| Direction | 195 | 210 | 225 | 240 | 255 | 270 | 285 | 300 | 315 | 330 | 345 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Published lower ratio | 2.10 | 1.64 | 1.34 | 1.15 | 1.05 | 1 | 1.00 | 1.08 | 1.26 | 1.64 | 2.41 |
+| f1 (straight down 8.23 mm) | 1.71 | 1.42 | 1.30 | 1.10 | 1.04 | 1 | 1.03 | 1.07 | 1.28 | 1.84 | 1.85 |
+
+The lower margin agrees with the published shape within 0.05 from 225 to 315 degrees. The upper margin agrees within 0.07 from 60 to 120 degrees and stands 1.2 to 1.6 times farther out toward both ends: f1's fissure is long for its height (15.5 mm to the temporal end against a 3.76 mm rise, where the published eye has 12.15 against 4.62), and no single scale of the published contour gives that. By the verification rule a published shape that misses the person is the wrong population's, and the person's own value enters by the published definition: the law takes the person's own radial profile as a measured input (`upperProfile`, `lowerProfile`, the same thirteen and eleven directions) and falls back on the published one. f1's two sizes are also far from the published means: MRD2 8.2 mm against 5.2 to 5.6, and the medial canthus 6.3 mm below the pupil's level against 3.7.
+
+**Lips.** The law places the two vermilion edges from published lip heights, not from the reference: at the median the person's two vermilion heights above and below the lips' line (labiale superius to stomion, stomion to labiale inferius), the upper edge's crest an eighth of the mouth's width from the median (the published crest spacing of a quarter), both edges falling to the line at the corner. The bow's depth and the line's fall are inputs with no published prior, and the curves between the known points are declared polynomials. f1's mesh has no colour, so the reference cannot show a vermilion border; it checks only what geometry shows:
+
+| | Law with f1's own inputs (width 44.2, heights 8.5 and 10.0, fall 2.5) | f1 |
+| --- | --- | --- |
+| Lips' line at stations 8, 12, 16, 20 | -0.33, -0.74, -1.31, -2.05 | -0.3, -0.6, -1.4, -2.4 |
+| Upper edge at the median | 8.5 by its input | 8.5, labrale superius |
+| Lower edge at the median | -10.0 by its input | -10.0, labrale inferius |
+| Upper edge's crest | Station 5.5 | Not readable: the upper lip's most forward point peaks at station 8, which is the lip's fullness |
+| Edges from the crest to the corner | Fall to the line | Not readable: the forward points stay 4 to 9 mm off the line to the corner |
+
+**Nose.** The law gives the tip from the three lengths by the law of cosines and joins it to subnasale and to nasion by straight lines, a convention stated as one. With f1's lengths (60.7, 24.7, 46.6 by arithmetic on its landmarks) the tip stands 17.5 mm above subnasale and 17.4 ahead of the line; f1's outline, read ahead of a course 8.35 mm behind that line, is 17.25 ahead at stations 16 to 20. The straight dorsum stands 1.1 mm ahead of f1's at station 32, 1.9 at 40 and 2.1 at 48: f1's dorsum is slightly hollow. The straight columella stands 2.4 mm behind f1's at station 8: the lobule is fuller than a line. With the mode's rule corrected (the valley lateral of the nostril's rim), the alar groove reads 58, 75 and 73 degrees at stations 8, 12 and 16, 17.9 to 18.7 mm from the median plane, and runs on upward as tabled above; no law gives its course.
+
+So the three laws agree with f1 where a published shape or a closed form stands behind them (the lower lid's middle, the lips' line, the nose's tip) and miss it where only a convention or another population's shape does (the upper lid's ends, the dorsum, the columella). Those stay inputs of the person.
+
+### Templates: one record, widened
+
+The auricle's lateral nets, the brow ridge and the zygomatic relief go on the body work's one record, `AutoMovieHumanFeatureTemplate`, widened by four things, and not on a second mechanism of the head's own. The reason: each of the four is a general lack and not the head's (a clavicle and a spinal furrow curve, tendons part at the wrist, a shin's crest falls differently to either side, and any ridge long against its wall's radius needs the wall's own normal), and a second generator of height nets would be a second representation of one thing with its own continuity rule at every footprint's edge.
+
+| Lack | Fields asked for | Made case, closed form |
+| --- | --- | --- |
+| A centre line that is a curve | `through: V3[]` of three or more landmarks in the segment's frame in place of one `along`; the centre line is the C2 curve through them by chord length; `extent[0]` becomes its arc length | Three landmarks on a quarter circle of radius 30: a point 2 mm outside the circle reads the profile at `2 / half` whatever its angle |
+| A branch | `joins: { template: string; end: "start" or "end" }`: that end lies on another template's centre line and has no ramp of its own there; where two footprints overlap the height is the C2 maximum of the two, not their sum | Two equal straight ridges in a Y: at the junction the height is `h`, not `2 h`, and the surface has no step along either centre line |
+| A profile with two sides | `sides: [number, number]`, the half widths toward `across` and away from it, in place of `extent[1]` | Half widths 4 and 8: the points at +2 and -4 read the same height |
+| The direction the height stands along | `stands: "frame" or "host"`: along `along x across`, as today, or along the host wall's own normal at each point of the footprint | A ridge of height `h` on a cylinder of radius `R`, half round it: its crest stands `R + h` from the axis at every phase |
+
+On that record the head's templates are, as landmarks and spans (no fit read; no dimension inside the auricle was found published, so the spans' proportions are f1's own, estimated, until the other references are read):
+
+| Template | Class | Frame | Span |
+| --- | --- | --- | --- |
+| Helix rim | Pad over cartilage | Ear, height along the plate's normal | A curve from the helix's root above the tragus over superaurale and postaurale to the lobule; two sides, rolled inward and ending in the free edge outward |
+| Scapha | The same, a hollow | Ear | The curve one rim width inside the helix's |
+| Antihelix with its crura | The same | Ear | A curve from the antitragus up; two branches from its upper end that join the helix's rim |
+| Concha | The same, a hollow with a plateau | Ear | An ellipse between the antihelix, the tragus and the antitragus |
+| Tragus, antitragus | The same, bumps | Ear | One footprint each |
+| Brow ridge | Bone | Head, height along the wall's normal | A curve along the orbit's upper rim from above endocanthion to frontotemporale; two sides, steep toward the orbit |
+| Zygomatic prominence | Bone | Head, along the wall's normal | An ellipse about zygion along the arch |
+
+Published sizes for the auricle as a whole: length 59.4 (3.9), breadth 33.2 (2.8), protrusion 20.4 (2.7) mm, ANSUR II women.
 
 ### Kernel, Human and tool pieces
 

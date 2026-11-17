@@ -61,5 +61,10 @@ export function test_human_head_parts_complement(): void {
     ["on the forehead", [100, 1650, 30], "head"],
   ];
   for (const [label, p, want] of cases) if (owners(p) !== want) failures.push(`${label}: kept by ${owners(p)}, expected ${want}`);
+
+  // Red control: read by each part's own measure closed on its own side (`outside <= 0`), the rule this one replaced, the point on the
+  // nose's plane inside the eye's cylinder is two parts'. The check above must be able to see that.
+  const closed = (p: V): string[] => parts.filter((one: H.IPart): boolean => one.name !== "head" && one.outside(p) <= 0).map((one: H.IPart): string => one.name);
+  if (closed([110, 1594, 20]).join(" and ") !== "nose and eye") failures.push(`control: each measure closed on its own side keeps the shared point by ${closed([110, 1594, 20]).join(" and ") || "no part"}, expected nose and eye`);
   if (failures.length !== 0) throw new Error(`${failures.length} head complement failures:\n${failures.join("\n")}`);
 }
