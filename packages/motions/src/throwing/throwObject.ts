@@ -43,8 +43,9 @@ import { throwObjectRelease } from "./throwObjectRelease";
  * Throwing a held object to a target: overarm, underarm, or a gentle toss.
  *
  * The goal is a launch: the object, held at the hand's grip, leaves the
- * hand at the release point with the velocity whose drag-free ballistic path
- * passes through the target. The release angle is the style's
+ * hand at the release with the velocity whose drag-free ballistic path takes
+ * the point that flies, the held prop's own origin (or the grip of an empty
+ * hand, `throwObjectLever`), through the target. The release angle is the style's
  * (`throwObjectForm.ANGLE`, provisional; underarm precision throws regulate
  * speed and angle by distance, Dupuy, Mottet and Ripoll 2000, J Sports Sci
  * 18:375), and the speed follows from the range equation `v^2 = g d^2 / (2
@@ -238,6 +239,7 @@ export namespace throwObject {
       target,
       degrees,
       implement,
+      ...(context.params.prop === undefined ? {} : { prop: context.params.prop }),
     });
     if (lever === undefined)
       throw new HumanRefusal({

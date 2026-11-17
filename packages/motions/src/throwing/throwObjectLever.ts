@@ -30,8 +30,13 @@ import { throwObjectLaunch } from "./throwObjectLaunch";
  * shared velocity its part along that line, so the working point leaves
  * with the launch velocity while the hand, nearer the shoulder, moves only
  * as fast as the lever there: the implement's gain. Through the carry the
- * hand turns at `w`. With no implement the working point is the grip, and
- * the hand carries the launch velocity unturned, the throw as it was.
+ * hand turns at `w`. With no implement the hand carries the launch velocity
+ * unturned, a rigid translation every point of hand and prop shares, and the
+ * working point is the point that flies: the thrown prop's own origin where
+ * the grip holds it (its rigid offset in the hand's grip frame,
+ * `AutoMovieMotionHumanHeld.of`), the point the performance launches the
+ * prop from (`HumanPropFlight`), or the grip for an empty hand. Aiming the
+ * grip while the prop's origin flies shifted every landing by that offset.
  *
  * A thrown prop keeps the lever's angular velocity in flight, so a knife's
  * spin (`ITurns`) is the lever's rate, rounded by the act to the nearest
@@ -83,7 +88,7 @@ export namespace throwObjectLever {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain vectors, a rate and the hand's turn.
    */
   export interface ILever {
-    /** Where the thrown prop leaves: the implement's working point at the release, or the hand's grip without one, world metres. */
+    /** Where the thrown prop leaves: the implement's working point at the release, the held prop's origin without one, or the hand's grip for an empty hand, world metres. */
     point: IAutoMovieVector3;
 
     /** The launch velocity there, world metres per second. */
@@ -105,16 +110,16 @@ export namespace throwObjectLever {
   /**
    * Read the lever of a throw.
    *
-   * @param props The context, the throwing hand, the standing shoulder, the hand's release point, the hand's rotation there, the target, the release angle and the implement.
+   * @param props The context, the throwing hand, the standing shoulder, the hand's grip at the release, the hand's rotation there, the target, the release angle, the implement and the thrown prop (absent for an empty hand).
    * @returns The lever, or undefined when no path at that angle reaches the target from the release point.
    * @throws {HumanRefusal} When the implement lacks the named point (`StrikingHeld.of`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and when there is none.
-   * @evidence contracts/development/implementation.md#principled-implementation Rigid-body kinematics about the shoulder, v(p) = u + w x (p - s): the least turn carrying the velocity's part square to the lever, its part along it shared; the implement where the hand's grip holds it, so no wrist turn is asked.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The implement's point and its aim, the turn and the shared velocity, then the hand's velocity and turn.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable target returns undefined for the throw's refusal.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work after one held-tool reading.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The implement's point is the held-tool reading (`StrikingHeld.of`) and the aim the throw's (`throwObjectLaunch.aimed`).
+   * @evidence contracts/development/implementation.md#principled-implementation Rigid-body kinematics about the shoulder, v(p) = u + w x (p - s): the least turn carrying the velocity's part square to the lever, its part along it shared; the implement where the hand's grip holds it, so no wrist turn is asked. Without an implement the hand translates unturned through the carry, so the hand and the held prop share the launch velocity and the aim is solved for the prop's own origin, the point the performance flies.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The working point (implement, held prop or grip) and its aim, the turn and the shared velocity, then the hand's velocity and turn.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable target returns undefined for the throw's refusal; a prop the hand does not hold at the entry is aimed from the grip, the launch point the performance flies such a prop from.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work after one held-tool or held-prop reading.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The implement's point is the held-tool reading (`StrikingHeld.of`), the prop's the held-prop reading (`AutoMovieMotionHumanHeld.of`) the performance keeps, and the aim the throw's (`throwObjectLaunch.aimed`).
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned closure.
    */
   export function of(props: {
@@ -126,13 +131,21 @@ export namespace throwObjectLever {
     target: IAutoMovieVector3;
     degrees: number;
     implement?: IImplement;
+    prop?: string;
   }): ILever | undefined {
+    // The point that flies, in the hand's grip frame: the implement's
+    // working point, else the thrown prop's origin as the hand holds it,
+    // else the grip itself.
     const tip: IAutoMovieVector3 =
-      props.implement === undefined
-        ? { x: 0, y: 0, z: 0 }
-        : StrikingHeld.of(props.context, props.side, props.implement.prop, {
+      props.implement !== undefined
+        ? StrikingHeld.of(props.context, props.side, props.implement.prop, {
             tip: props.implement.point,
-          }).tip;
+          }).tip
+        : props.prop !== undefined &&
+            props.context.entry.holds[props.side] === props.prop
+          ? AutoMovieMotionHumanHeld.of(props.context, props.side, props.prop)
+              .frame.position
+          : { x: 0, y: 0, z: 0 };
 
     // The working point where the hand's grip at the release holds it.
     const point: IAutoMovieVector3 = Vector3.add(
@@ -160,10 +173,16 @@ export namespace throwObjectLever {
     );
     const omega: number = Vector3.length(turn);
     const axis: IAutoMovieVector3 = Vector3.normalize(turn);
-    const hand: IAutoMovieVector3 = Vector3.add(
-      shared,
-      Vector3.cross(turn, Vector3.subtract(props.release, props.shoulder)),
-    );
+
+    // An unturned hand translates, so it carries the launch velocity itself;
+    // an implement's hand moves as the lever does at the grip.
+    const hand: IAutoMovieVector3 =
+      props.implement === undefined
+        ? velocity
+        : Vector3.add(
+            shared,
+            Vector3.cross(turn, Vector3.subtract(props.release, props.shoulder)),
+          );
     return {
       point,
       velocity,
