@@ -413,19 +413,25 @@ export namespace AutoMovieMotionHumanDrinkingArm {
   /**
    * The nearer of an arm tried and the nearest so far: the one lying less
    * past what `drinks` admits: the flexion's or the abduction's excess over
-   * its bound, or the forearm twist's shortfall of the margin, the greatest,
-   * all in degrees. The shoulder alone ranked an arm whose forearm stood at
-   * its twist's end as nearest, though it was refused for that.
+   * its bound, the forearm twist's shortfall of the margin, or the excess of
+   * the vessel's axis over the miss the search admits, the greatest, all in
+   * degrees. The shoulder alone ranked an arm whose forearm stood at its
+   * twist's end as nearest, though it was refused for that; and without the
+   * vessel's axis an arm inside the whole drinking range, refused only
+   * because its hand held the vessel 8.9 degrees off the asked axis, ranked
+   * with every other such arm at no excess, so the refusal reported the
+   * first tried and not the one nearest to drinking.
    *
    * @param nearest The nearest so far; none before the first.
    * @param arm The arm tried.
    * @param at Where it was tried, in words.
+   * @param tilt The most the reached axis may lie off the asked one for the search to admit the arm, degrees.
    * @returns The nearer.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the comparison, its unit and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation `drinks` bounds each angle and the twist room on its own, so an arm lies past it by the greatest excess, every term in degrees.
+   * @evidence contracts/development/implementation.md#principled-implementation The searches admit an arm that `drinks` with the vessel's axis within their step, each bound on its own, so an arm lies past admission by the greatest excess, every term in degrees.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One comparison.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A tie keeps the earlier arm; the hand's tilt, bounded by the searches' own step, is not ranked here.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A tie keeps the earlier arm; the tilt's bound is the searching caller's own, passed in, not a second constant.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by both drinking searches.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
@@ -434,12 +440,14 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     nearest: INearest | undefined,
     arm: IArm,
     at: string,
+    tilt: number,
   ): INearest {
     const past = (of: IArm): number =>
       Math.max(
         of.flexion - FLEXION,
         of.abduction - ABDUCTION,
         AutoMovieMotionHumanTouchLaid.MARGIN - of.room,
+        of.tilt - tilt,
       );
     return nearest === undefined || past(arm) < past(nearest.arm)
       ? { arm, at }

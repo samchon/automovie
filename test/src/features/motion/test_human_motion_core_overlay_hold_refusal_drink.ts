@@ -18,8 +18,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * Scenarios, on the average man; a glass is picked up with the right hand by
  * its body grip with no `use`, then the person walks 2 m:
  * 1. A drink from the glass over the walk is a `reach` refusal on `facing`:
- *    at every lean up to 60 degrees and every turn the forearm's twist ends
- *    at its range (measured 2026-11-14: the nearest arm raised 58.3 degrees,
+ *    at every lean tried and every turn the forearm's twist ends at its
+ *    range (measured 2026-11-14 up to 60 degrees, the bound then; the bound
+ *    is now the level wall's 90: the nearest arm raised 58.3 degrees,
  *    the elbow 149 mm below the shoulder, the twist 0 degrees inside its
  *    range), and its fix names taking the glass for its use. Taken for its
  *    use, the same drink plans (`test_human_motion_core_overlay_hold`).

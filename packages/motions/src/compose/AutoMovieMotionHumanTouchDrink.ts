@@ -8,6 +8,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
+import { AutoMovieMotionHumanDrinkingLean } from "./AutoMovieMotionHumanDrinkingLean";
 import { AutoMovieMotionHumanDrinkingPool } from "./AutoMovieMotionHumanDrinkingPool";
 import type { AutoMovieMotionHumanDrinkingSwivel } from "./AutoMovieMotionHumanDrinkingSwivel";
 import type { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
@@ -34,10 +35,10 @@ import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpr
  */
 export namespace AutoMovieMotionHumanTouchDrink {
   /** The step between the leans toward the face a held vessel is tried at, degrees (provisional). */
-  export const LEAN_STEP: number = 5;
+  export const LEAN_STEP: number = AutoMovieMotionHumanDrinkingLean.STEP;
 
-  /** The most a held vessel is leaned toward the face to let the arm hold it as a drinker does, degrees (provisional: past it the vessel pours). */
-  const LEAN: number = 60;
+  /** The most a held vessel is leaned toward the face, degrees: the lean that lays its wall level (`AutoMovieMotionHumanDrinkingLean.MOST` states the basis). */
+  const LEAN: number = AutoMovieMotionHumanDrinkingLean.MOST;
 
   /**
    * A vessel held by a kept grasp, leaned toward the face: the lean and the
@@ -69,9 +70,6 @@ export namespace AutoMovieMotionHumanTouchDrink {
     /** The elbow's hint, world metres. */
     bend: IAutoMovieVector3;
   }
-
-  /** The step between the leans the search tries first, degrees, inside whose first admitting bracket it tries every `LEAN_STEP` (provisional). */
-  const COARSE: number = 15;
 
   /**
    * Where the vessel is held after it arrives, while the drinker drinks: the
@@ -119,9 +117,9 @@ export namespace AutoMovieMotionHumanTouchDrink {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order of the search, its assumption, the admission, the choice, the measured defect, the shared pool and the refusal; the namespace states the candidates.
    * @evidence contracts/development/implementation.md#principled-implementation Every candidate is solved by the resolver and read on its displayed bones; the arm is admitted by the shoulder range healthy drinkers use (Alt Murphy et al. 2006), the least lean that admits one is taken so the vessel tips no more than the arm needs, and of the admitted facings the hand's tilt decides.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk of the leans (`least`), each lean one `trial`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk of the leans (`AutoMovieMotionHumanDrinkingLean.least`), each lean one `trial`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The monotone admission the refinement relies on is stated here and read by the drinking signature spec, which checks that the lean a step below the returned one does not admit; with none admitted the law is refused, never given a raised arm.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most five coarse leans and two fine ones; each lean at most thirteen entry fits, a facing whose wrist leaves no reaching elbow in the drinking range dropped before its fit (`AutoMovieMotionHumanSwivelBound.admits`, exact), ending at the first admitted facing that holds the vessel exactly on its asked axis (no later facing can beat a tilt of 0), then for its best one referred fit and, with `after`, a referred fit in the drinking phase (two solves: its reference and the fit). Each facing's hint is bounded in constant work after one trunk solve per pool.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most seven coarse leans, three about a miss's zero and two fine ones (`AutoMovieMotionHumanDrinkingLean.least`); each lean at most thirteen entry fits, a facing whose wrist leaves no reaching elbow in the drinking range dropped before its fit (`AutoMovieMotionHumanSwivelBound.admits`, exact), ending at the first admitted facing that holds the vessel exactly on its asked axis (no later facing can beat a tilt of 0), then for its best one referred fit and, with `after`, a referred fit in the drinking phase (two solves: its reference and the fit). Each facing's hint is bounded in constant work after one trunk solve per pool.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One pool (fixed body/side reader and the fixed posture's lazy swivel bound) serves every candidate/reference/after fit, and every side of a rim search; each varying hint still runs the original closed-form bound, and every candidate fit remains actual.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns or borrows one pool until return or throw; the numeric answer/refusal captures no reader, candidate pose or new query history.
    */
@@ -138,13 +136,18 @@ export namespace AutoMovieMotionHumanTouchDrink {
     const level: number = Math.hypot(place.normal.x, place.normal.z);
     if (!(level > 1e-6))
       return { facing: place.normal, lean: 0, tilt: 0, bend: hint };
-    const found: IDrink | undefined = least(
-      (lean: number): IDrink | undefined =>
-        trial(body, posture, side, effector, place, hint, lean,
+    const missed: AutoMovieMotionHumanDrinkingLean.IMisses = AutoMovieMotionHumanDrinkingLean.misses();
+    const found: IDrink | undefined = AutoMovieMotionHumanDrinkingLean.least(
+      (lean: number): IDrink | undefined => {
+        missed.begin();
+        return trial(body, posture, side, effector, place, hint, lean,
           (arm: AutoMovieMotionHumanDrinkingArm.IArm, at: string): void => {
-            pool.nearest = AutoMovieMotionHumanDrinkingArm.nearer(pool.nearest, arm, at);
+            pool.nearest = AutoMovieMotionHumanDrinkingArm.nearer(pool.nearest, arm, at, LEAN_STEP);
+            missed.see(arm);
           },
-          after, pool.read, pool.bounds, pool.span, pool.admits()),
+          after, pool.read, pool.bounds, pool.span, pool.admits());
+      },
+      missed.least,
     );
     if (found !== undefined) return found;
     throw AutoMovieMotionHumanDrinkingArm.refused(
@@ -228,9 +231,9 @@ export namespace AutoMovieMotionHumanTouchDrink {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is fixed, what is sought, the order, the admission and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation A kept grasp fixes the hand-to-vessel rotation, not the hand, so the same drink is admitted by the same shoulder range (Alt Murphy et al. 2006) however the vessel came to the hand; the vessel's point stays on the region as the stroke keeps it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk (`least`) of a goal, a screen and an admission per lean.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk (`AutoMovieMotionHumanDrinkingLean.least`) of a goal, a screen and an admission per lean.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The admitted arm is the referred one the stroke shows; with none admitted the law is refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Per lean tried (at most five coarse and two fine): one entry fit, and for a lean that passes it one referred fit (its reference's entry fit in the resolver's memory) and, with `after`, the drinking phase's reference and referred fit, two solves.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Per lean tried (at most seven coarse, three about a miss's zero and two fine, `AutoMovieMotionHumanDrinkingLean.least`): one entry fit, and for a lean that passes it one referred fit (its reference's entry fit in the resolver's memory) and, with `after`, the drinking phase's reference and referred fit, two solves.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Rest/tip retain vessel geometry and one genuine fixed-body observation reader serves every current lean, reference and later-phase native fit; only rig/FK metadata is shared, never a candidate answer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous held search owns one reader until return or throw; returned lean/goal payloads remain numeric and retain no reader or new candidate history.
    */
@@ -266,8 +269,10 @@ export namespace AutoMovieMotionHumanTouchDrink {
       { x: 0, y: 1, z: 0 },
     );
     let nearest: AutoMovieMotionHumanDrinkingArm.INearest | undefined;
-    const found: IHeld | undefined = least(
+    const missed: AutoMovieMotionHumanDrinkingLean.IMisses = AutoMovieMotionHumanDrinkingLean.misses();
+    const found: IHeld | undefined = AutoMovieMotionHumanDrinkingLean.least(
       (lean: number): IHeld | undefined => {
+        missed.begin();
         const turned: IAutoMovieQuaternion = Quaternion.normalize(
           Quaternion.multiply(
             AutoMovieMotionHumanTouchUpright.tip(place.normal, lean),
@@ -320,7 +325,9 @@ export namespace AutoMovieMotionHumanTouchDrink {
           nearest,
           arm,
           `at a lean of ${lean} degrees`,
+          LEAN_STEP,
         );
+        missed.see(arm);
         return holds(arm) &&
           holds(
             read(
@@ -334,6 +341,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
           ? { lean, goal }
           : undefined;
       },
+      missed.least,
     );
     if (found !== undefined) return found;
     throw AutoMovieMotionHumanDrinkingArm.refused(
@@ -341,29 +349,6 @@ export namespace AutoMovieMotionHumanTouchDrink {
       `up to ${LEAN} degrees in the grasp it was taken up by`,
       nearest!,
     );
-  }
-
-  /**
-   * The least lean an attempt admits, in `LEAN_STEP` degrees up to `LEAN`:
-   * every `COARSE` degrees first, then every `LEAN_STEP` from the bracket's
-   * low end up to the coarse lean that admitted (`drinking` states the
-   * assumption).
-   */
-  function least<T>(attempt: (lean: number) => T | undefined): T | undefined {
-    for (let coarse: number = 0; coarse <= LEAN + 1e-9; coarse += COARSE) {
-      const found: T | undefined = attempt(coarse);
-      if (found === undefined) continue;
-      for (
-        let fine: number = Math.max(0, coarse - COARSE + LEAN_STEP);
-        fine < coarse - 1e-9;
-        fine += LEAN_STEP
-      ) {
-        const finer: T | undefined = attempt(fine);
-        if (finer !== undefined) return finer;
-      }
-      return found;
-    }
-    return undefined;
   }
 
   /** One lean of `drinking`'s search (`admitted`), each screened arm shown to `seen` with where it was tried. */
