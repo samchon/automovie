@@ -78,12 +78,13 @@ export namespace AutoMovieHumanNail {
     fold: number;
 
     /**
-     * The radius of the plate's upper face at its crown over the plate's width; `null` where none is published for the digit, and the
-     * plate then takes its bed's own arc, the circle through the skin's crown and its two points at the plate's edges midway along.
+     * The radius of the plate's upper face at its crown over the plate's width, as a gauge laid across the plate's open middle reads
+     * it: it holds midway between the fold and the free edge. `null` where none is published for the digit, and the plate is then its
+     * bed's own arc all along.
      */
     radius: number | null;
 
-    /** The radius the proximal fold turns on at its apex, and the free edge's arc, in the plate's plane, over the plate's width. */
+    /** The radius the proximal fold turns on at its apex, in the plate's plane, over the plate's width. */
     lunula: number;
 
     /** The farthest the plate's edges stand under its crown midway along it, over the digit's height there. */
@@ -130,6 +131,9 @@ export namespace AutoMovieHumanNail {
 
     /** The control `clipped` was asked of: `[0 the bed or 1 the strip, its row, its column, the net's rows, the net's columns]`. */
     clippedIn: [number, number, number, number, number];
+
+    /** How many passes the frame's fit took to its fixed point, each of which reads the bed's stations anew. */
+    passes: number;
   }
 
   /** One digit's nail. */
@@ -325,13 +329,6 @@ export namespace AutoMovieHumanNail {
 
     /** The skin's lateral extent at a distance along: `[least, greatest]`. */
     extent: (x: number) => [number, number];
-
-    /**
-     * The dorsal skin's height at a distance along and a lateral offset, read off that distance's ring, straight between two of its
-     * points (a digit's ring turns 2 degrees between them, so the chord stands a thousandth of its radius off the skin); `null` where
-     * the skin does not reach that far aside.
-     */
-    top: (x: number, z: number) => number | null;
   }
 
   /** Read a skin in a frame. */
@@ -395,18 +392,7 @@ export namespace AutoMovieHumanNail {
       }
       return [least, greatest];
     };
-    const top = (x: number, z: number): number | null => {
-      const around: V3[] = ring(x);
-      let best: number | null = null;
-      for (let k: number = 0; k < RING; ++k) {
-        const [p, q]: [V3, V3] = [around[k]!, around[(k + 1) % RING]!];
-        if (p[2] === q[2] || (p[2] - z) * (q[2] - z) > 0) continue;
-        const y: number = p[1] + ((q[1] - p[1]) * (z - p[2])) / (q[2] - p[2]);
-        if (best === null || y > best) best = y;
-      }
-      return best;
-    };
-    return { lateral, at, station, ring, find, extent, top };
+    return { lateral, at, station, ring, find, extent };
   }
 
   /**
@@ -444,7 +430,9 @@ export namespace AutoMovieHumanNail {
     const midway0: number = (fold0 + tip0) / 2;
     const bed0: number[] = Array.from({ length: BED }, (_: unknown, k: number): number => fold0 + (0.9 * (tip0 - fold0) * k) / (BED - 1));
     const mean = (values: readonly number[]): number => values.reduce((sum: number, x: number): number => sum + x, 0) / values.length;
+    let passes: number = 0;
     for (let i: number = 0, last: number = Infinity; i < 24 && Math.abs(last) > 1e-7; ++i) {
+      passes = i + 1;
       const off: IReader = reader(skin, frame);
       const middles: number[] = bed0.map((x: number): number => mid(off, x));
       const slope: number = bed0.reduce((sum: number, x: number, k: number): number => sum + (x - mean(bed0)) * (middles[k]! - mean(middles)), 0) / bed0.reduce((sum: number, x: number): number => sum + (x - mean(bed0)) ** 2, 0);
@@ -536,12 +524,6 @@ export namespace AutoMovieHumanNail {
     const free: number = (low + high) / 2;
     const edge: number = free - proportions.thickness;
     if (!(edge > fold)) throw new Error("nail: " + name + "'s plate is shorter than it is thick");
-    // The plate's arc across: the published radius at its crown, or, for a digit that has none, its bed's own arc midway along, the
-    // circle through the skin's crown and its two points at the plate's edges (a chord `2 a` with the sagitta `s` lies on the radius
-    // `(a^2 + s^2) / (2 s)`). A plate grows on its bed, so where nothing is published it has the bed's form. A bed that is flat or
-    // hollow across gives a plate as good as flat, a thousand widths.
-    const fallen: number = height((fold + edge) / 2) - (read.find((fold + edge) / 2, mid(read, (fold + edge) / 2) + half).height + read.find((fold + edge) / 2, mid(read, (fold + edge) / 2) - half).height) / 2;
-    const arcRadius: number = proportions.radius !== null ? proportions.radius * width : Math.min(1000 * width, fallen > 0 ? (half * half + fallen * fallen) / (2 * fallen) : Infinity);
     // The plate's arch along its length. A plate is convex along its length as well as across (the fingernail curvature literature
     // states it so; no normal lengthwise radius was found in it), and it grows on its bed, so its crown takes the bed's own arch:
     // over the straight line from the fold to the free edge it stands by as much as the skin's middle line stands over its own chord
@@ -571,6 +553,17 @@ export namespace AutoMovieHumanNail {
     const reachAtFold: number = reach(fold);
     // The plate keeps its share of the digit's breadth where the tip narrows, so its edges run along the skin and never past its sides.
     const edgeAt = (x: number): number => half * Math.min(1, reach(x) / reachAtFold);
+    // The plate's arc across. A plate lies on its bed across as it does along. At the fold and at the free edge its section is the
+    // bed's: its edges stand under its crown by what the skin's edges stand under the skin's crown there (`bedArc`), so the plate is
+    // one fold under the skin all across at the fold and one thickness over it all across at the free edge. The published radius is
+    // the plate's own arc where a gauge reads it, on its open middle: midway its edges stand the published circle's sagitta under its
+    // crown. Between, the difference of the two, read midway (`ownArc`), runs out to nothing at both ends by `4 t (1 - t)`, the lowest
+    // polynomial that is one midway and zero at both ends. A digit with no published radius has no difference to add. One circle held
+    // from fold to free edge set a finger's edges 1.1 mm under the skin at the fold and 1.7 mm over it at the far end (run 15-27-45).
+    const bedArc = (x: number, e: number): number => height(x) - (read.find(x, mid(read, x) + e).height + read.find(x, mid(read, x) - e).height) / 2;
+    const halfway: number = (fold + free) / 2;
+    const gauged: number = (proportions.radius ?? 0) * width;
+    const ownArc: number = proportions.radius === null ? 0 : gauged - Math.sqrt(gauged * gauged - edgeAt(halfway) ** 2) - bedArc(halfway, edgeAt(halfway));
     const section = (x: number): ISection => {
       const e: number = edgeAt(x);
       // A digit twists along its length (the big toe's two sides stand 2 mm apart in height at its fold and level midway), and the
@@ -579,9 +572,12 @@ export namespace AutoMovieHumanNail {
       // the lower side (probes 13-27-27 to 13-32-21: a lobe 2 to 3.7 mm long on the big toe).
       const [up, down]: [number, number] = [read.find(x, mid(read, x) + e).height, read.find(x, mid(read, x) - e).height];
       const turn: number = -Math.atan2(up - down, 2 * e);
-      // The plate has its own transverse curvature, the published radius at its crown: its edge stands the circle's sagitta under
-      // its crown, whatever the digit's own back does there, and the bed is lowered to the plate.
-      const sagitta: number = arcRadius - Math.sqrt(arcRadius * arcRadius - e * e);
+      // The edge's depth under the crown: the bed's own here and the plate's own share of the published difference. A bed that is flat
+      // or hollow across leaves a plate as good as flat, on a radius of a thousand widths. The section's circle is the one through
+      // its crown and its two edges: a chord `2 e` with the sagitta `s` lies on the radius `(e^2 + s^2) / (2 s)`.
+      const share: number = Math.max(0, Math.min(1, (x - fold) / (free - fold)));
+      const sagitta: number = Math.max((e * e) / (2000 * width), height(x) - (up + down) / 2 + 4 * share * (1 - share) * ownArc);
+      const arcRadius: number = (e * e + sagitta * sagitta) / (2 * sagitta);
       const under: number = (up + down) / 2 - (crown + lifted(x) - sagitta);
       // The side extreme stands outside the edge by the margin's share of the half width, so it narrows with the plate and stays within
       // the digit's breadth. The upper face is the conic from the level crown to the upright side extreme that turns on the published
@@ -666,24 +662,28 @@ export namespace AutoMovieHumanNail {
       for (let i: number = 0; i < 6; ++i) v = (z - over(v) * Math.sin(s.turn)) / Math.cos(s.turn);
       return crown + lifted(x) - below + over(v) * Math.cos(s.turn) - v * Math.sin(s.turn);
     };
-    // The free edge across the plate. A plate is one thickness thick all across, so its free edge is where its face stands one
-    // thickness over the skin at each offset aside, not on the middle line alone: a curve that follows the tip. Placed at one distance
-    // along for the whole width, the plate's corners stood up to 1.2 mm over the tip's shoulders (run 15-09-05, the least `under`),
-    // and the step turned over toward the edges. It is read at offsets one net cell apart, searched back from the tip over the middle
-    // line's own stations, a tenth of a millimetre apart, and placed between two of them by the straight line through their readings;
-    // where the skin's side ends before the plate's face is that far over it, the free edge is the side.
+    // The free edge across the plate: an edge of the plate, drawn by the outline's rule. A trimmed nail's free edge follows the tip,
+    // so its line is the tip's own plan contour moved back along the nail's axis by as far as its apex stands before the tip: an
+    // offset aside, it stands that distance behind the farthest place at which the digit's skin still reaches that offset. The
+    // contour is read on the skin's extents from the tip back, a tenth of a millimetre apart on the stations the apex was searched
+    // over, each side by its own extent, and placed between two stations by the straight line through their readings; the line is
+    // tabled at offsets one net cell apart. Derived instead as the place where the plate stands a thickness over the skin at each
+    // offset, it depended on the plate's arc and the tip's at once and came out a gable (run 15-27-45).
     const frontCount: number = 2 * Math.ceil(half / (NET * ramp)) + 1;
+    const sides: [number, number, number][] = [];
+    for (let x: number = tip - 1e-3; x > fold; x -= 0.1) {
+      const [least, greatest]: [number, number] = read.extent(x);
+      sides.push([x, least, greatest]);
+      if (least <= -half && greatest >= half) break;
+    }
+    const past = (row: [number, number, number], z: number): number => (z >= 0 ? row[2] - z : z - row[1]);
     const front: [number, number][] = Array.from({ length: frontCount }, (_: unknown, k: number): [number, number] => {
       const z: number = -half + (2 * half * k) / (frontCount - 1);
-      let before: number | null = null;
-      for (let x: number = tip - 1e-3; x > fold; x -= 0.1) {
-        const y: number | null = read.top(x, z);
-        if (y === null) continue;
-        const stands: number = face(x, z) - y - proportions.thickness;
-        if (stands < 0) return [z, before === null ? x : x + (0.1 * -stands) / (before - stands)];
-        before = stands;
-      }
-      return [z, fold];
+      const found: number = sides.findIndex((row: [number, number, number]): boolean => past(row, z) >= 0);
+      if (found < 0) return [z, sides[sides.length - 1]![0] - (tip - free)];
+      if (found === 0) return [z, sides[0]![0] - (tip - free)];
+      const [here, before]: [number, number] = [past(sides[found]!, z), past(sides[found - 1]!, z)];
+      return [z, sides[found]![0] + (0.1 * here) / (here - before) - (tip - free)];
     });
     const frontLeast: number = Math.min(...front.map((row: [number, number]): number => row[1]));
     const frontMost: number = Math.max(...front.map((row: [number, number]): number => row[1]));
@@ -842,6 +842,7 @@ export namespace AutoMovieHumanNail {
         clipped,
         clippedAt,
         clippedIn,
+        passes,
       },
     };
   }

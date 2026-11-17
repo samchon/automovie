@@ -167,9 +167,15 @@ export namespace AutoMovieHumanF1Nails {
    *
    * @param family The digit's family at the pose.
    * @param made Its nail.
+   * @param close Whether the family is lofted for a close-up of the nail, with the free edge's strip; absent, the figure's level.
    */
-  export function bedded(family: AutoMovieHumanConicLoft.IFamily, made: IMade): AutoMovieHumanConicLoft.IFamily {
-    const reliefs: AutoMovieHumanConicLoft.IFamily["reliefs"] = [...(family.reliefs ?? []), made.nail.bed, made.nail.strip];
+  export function bedded(family: AutoMovieHumanConicLoft.IFamily, made: IMade, close: boolean = false): AutoMovieHumanConicLoft.IFamily {
+    // The level. At the figure's cameras a hand 190 mm long fills 900 px, 0.21 mm a pixel, and a foot 0.28: the fold's wall, 1.84 mm,
+    // reads and its net's 0.46 mm cell is the lofting rule's quarter of it, while the free edge's step, one thickness long, is two
+    // pixels and cannot be told from the bed's slope. So the figure lofts the bed alone; the strip, whose 0.12 mm rows ask the cap
+    // for 100 to 160 rings, is the close-up's.
+    const nets: AutoMovieHumanNail.INail["bed"][] = close ? [made.nail.bed, made.nail.strip] : [made.nail.bed];
+    const reliefs: AutoMovieHumanConicLoft.IFamily["reliefs"] = [...(family.reliefs ?? []), ...nets];
     const end: AutoMovieHumanConicLoft.ITip | null = family.tips?.[1] ?? null;
     if (end === null) return { ...family, reliefs };
 
@@ -180,7 +186,7 @@ export namespace AutoMovieHumanF1Nails {
     const length: number = end.tip - end.from;
     const asked: number = Math.max(
       end.rings ?? 0,
-      ...[made.nail.bed, made.nail.strip].map((relief: AutoMovieHumanNail.INail["bed"]): number => {
+      ...nets.map((relief: AutoMovieHumanNail.INail["bed"]): number => {
         const far: number = Math.min(length, end.tip - relief.stations[0]);
         return far > 0 ? Math.ceil((2 * Math.sqrt(length * far) * (relief.rows - 3)) / (relief.stations[1] - relief.stations[0])) - 1 : 0;
       }),

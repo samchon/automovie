@@ -117,8 +117,6 @@ export namespace AutoMovieHumanJoinLoop {
    */
   export function create(host: IAutoMovieViewPart, part: IAutoMovieViewPart, count: number, side: (p: readonly number[]) => number): IContact {
     const [onto, from]: Full.IReader[] = [Full.create(host), Full.create(part)];
-    const sub = (a: readonly number[], b: readonly number[]): V => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
-    const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
 
     const chart = (p: readonly number[], guess: number): [number, number] => address(host, onto!.domain, p, guess);
 

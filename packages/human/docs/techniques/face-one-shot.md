@@ -2,7 +2,7 @@
 
 The investigation that precedes one implementation batch for the whole head of the f1 figure: the skull's wall, the forehead and brows, the eyes with their lids, the cheeks, the nose, the mouth, the chin and jaw, the auricle, and how each of them meets its neighbours. [Every joint in one shot](joints-one-shot.md) holds the body's joints and the kernel's operators with their premises, and [Centres and courses](centres-and-courses.md) holds how a course follows a person. This note does not repeat them.
 
-**State of this note.** Nothing here is implemented. Every statement carries how it was obtained, and what is not measured is said where it stands and collected under [Risks](#risks).
+**State of this note.** The face work is paused. Nothing of the figure is changed: no family is fitted, no node of the tree is declared, and no shared file but the Human package's barrel (seven export lines) is edited. What exists is the instrument, its readings, pure modules with unit tests and this plan; [State at the pause](#state-at-the-pause) lists it with what is unfinished and the first steps on resumption. Every statement carries how it was obtained, and what is not measured is said where it stands and collected under [Risks](#risks).
 
 | Mark | Meaning |
 | --- | --- |
@@ -612,6 +612,34 @@ The head's part of the shared round. Case f1. Cameras, each in curves, curves ov
 | Median seam | Nothing reads along the median plane on the forehead, the nose, the lips and the chin | - |
 
 Findings of the round are fixed together by cause.
+
+## State at the pause
+
+What exists:
+
+| Kind | Path | State |
+| --- | --- | --- |
+| Instrument | `test/src/reference-conics/FamilyConicFace.ts`: `--components`, `--profile`, `--cast`, `--radial`, `--wedge`, `--stills`, `--landmarks`, `--divides`, `--margins`, `--contours`, with `--outer` and `--mesh=trunk` | Compiles; every mode was run except the last patch's two additions (the level-frame margins and the corrected groove rule), which were run once |
+| Part declarations | `test/src/reference-conics/FamilyConicHeadParts.ts` | Head, nose, eye, lips: course centres, domains, layout kinds, clips and an exact membership rule |
+| Readings | `packages/human/.shots/face-one-shot-20261117/`: `o-*.txt` on the reference's outer skin, `g-*.txt` on the stored trunk family's loft, the stills | `o-contours.txt`, `o-divides-ruled.txt`, `o-margins.txt` are the latest |
+| Human modules | `src/generation/f1/AutoMovieHumanF1FacePriors.ts`, `...FaceCentres.ts`, `...EyeLaw.ts`, `...LipsLaw.ts`, `...NoseLaw.ts`; `src/generation/conic/AutoMovieHumanSkinCutLoop.ts` | Compile; nothing in the figure reads them |
+| Tests | `test_construction_operator_pointed_cut`, `test_human_f1_face_centres`, `test_human_skin_cut_loop`, `test_human_head_parts_complement`: run green. `test_human_f1_eye_law` as rewritten and `test_human_f1_lips_nose_law`: compile, never run | - |
+
+Unfinished:
+
+| Item | State |
+| --- | --- |
+| The eye's, the lips' and the nose's laws | Written and type-checked, their two tests never run; their f1 comparisons are in this note |
+| Made cases | Not written: the half-fitted symmetric family, the relief moved along a field of normals, a groove on a section that closes in a tip |
+| Templates | Decided: the body work's one record widened by four fields, written above as a request; no auricle, brow or zygoma template exists |
+| Fits, the tree, the shared round | Not started; they wait for the joints batch |
+| Wiring requests | Written above; none made |
+
+First steps on resumption:
+
+1. Run `test_human_f1_eye_law` and `test_human_f1_lips_nose_law` and fix what they find, with no fit running.
+2. Write the three made cases, each red first.
+3. Run the head queue's first command, the precheck of admitted sections, once the joints batch has landed and the tool reads the head's parts.
 
 ## Risks
 

@@ -380,6 +380,17 @@ Both notes end with edits they ask for in files this batch holds. Each goes into
 | [Face](face-one-shot.md), "Wiring": the head's landmark points, their constants, the `eye` and `mouth` frames, their rigid placement, the head's courses | `AutoMovieHumanF1Placing`, `AutoMovieHumanF1Landmarks`, `AutoMovieHumanF1Frames`, `AutoMovieHumanF1Placement` | The face's work | These files are not among the ones this batch keeps to itself; the face's work edits them, one writer a file at a time. The neck's two rings read the `head` frame's origin and the neck's course only, which those edits leave as they are |
 | Face: the nose's join, the nostrils' cuts, the lids' and lips' openings, the auricle's nets | `AutoMovieHumanF1.ts` | This batch writes the statements the face's note states, where the head's families are stored; until then the tree keeps the head's present statements unchanged | After the limbs' and the trunk's statements |
 
+### What this batch carries now that the body's laws and the head's parts are paused
+
+The one whole-figure round carries the joints and the nails. The body's requests W1 to W12 and the head's declarations are not wired by it, except what a joint needs to stand: a spliced digit keeps its stored tip record, and the digit's caliper site stays where the body's work already put it.
+
+| Joint | In this batch | Why |
+| --- | --- | --- |
+| The neck: its family, its two rings and their continuations | Deferred with the head | A neck family needs a head family to end against. Today the trunk's family is one wall from the hip to the crown on a straight course with level sections; the neck's upper ring, 74 mm below the head's origin on the neck's own course, is no section of that wall, and a ring cut into it would be judged against level sections it does not match. The ring's place stays as measured, for the head's work |
+| The ear's root | In | It stands on its own premises: the head's wall is fitted with the ear left out today, and the root is a join of the plate on that wall. It becomes a shared-loop join on a loop cut by the `ear.root` landmark surface, with the plate's root stretch refitted up to that surface. The helix's and the antihelix's tubes and the concha's cutter stay as they are: the plate as one sheet with its ridges in nets is the head's work |
+| The breast | In | Its host is the thorax's part of the trunk's wall, which this batch does not change |
+| The nose, the nostrils, the lids, the lips | Not this batch's | Today's nose port and cuts stay |
+
 ### What the fit tool has and needs
 
 Read in `FamilyConicBody.ts`: `without` (lines 3613 to 3791), the rows it hands the fit (1940 to 1960) and the part record (884 to 942).

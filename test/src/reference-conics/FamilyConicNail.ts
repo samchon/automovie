@@ -240,7 +240,7 @@ namespace FamilyConicNail {
 
       // `--law`: the law's readings and profile only, with no realization.
       if (process.argv.includes("--law")) continue;
-      const hosted: AutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Nails.bedded(family, made);
+      const hosted: AutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Nails.bedded(family, made, true);
       const cell: number = (bed.stations[1] - bed.stations[0]) / (bed.rows - 3);
       const stations: number[] = [];
       const strip: AutoMovieHumanNail.INail["strip"] = made.nail.strip;
@@ -331,17 +331,18 @@ namespace FamilyConicNail {
       row.median = { generated: clip(cut(mm, frame.origin, frame.distal, frame.dorsal), fold - 3, edge + 2, -1), reference: clip(cut(source.body, frame.origin, frame.distal, frame.dorsal), fold - 3, edge + 2, -1) };
       row.section = { generated: clip(cut(mm, middle, lateral, frame.dorsal), -readings.width, readings.width, -1), reference: clip(cut(source.body, middle, lateral, frame.dorsal), -readings.width, readings.width, -1) };
 
-      const palette: [number, number, number][] = [
-        [0.64, 0.65, 0.67],
-        [0.85, 0.25, 0.25],
-        [0.25, 0.4, 0.9],
-        [0.95, 0.8, 0.2],
-      ];
-      const owned: N.Mesh[] = mesh.owners.map((owner: string, k: number): N.Mesh => {
-        const indices: number[] = [];
-        for (let t: number = 0; t < mesh.indices.length; t += 3) if (mesh.coordinates[mesh.indices[t + 1]! * 3] === k) indices.push(mesh.indices[t]!, mesh.indices[t + 1]!, mesh.indices[t + 2]!);
-        return { id: owner, positions: mesh.positions, indices, colour: palette[k % palette.length]! };
-      });
+      // The figure's level beside the close-up's: the same digit with its bed alone, its layers cut to the bed's rows only.
+      const plain: AutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Nails.bedded(family, made);
+      const plainStations: number[] = [];
+      for (let s: number = family.knots[0]!; s < lastKnot; s += s >= bed.stations[0] - 2 ? cell : 2) plainStations.push(s);
+      plainStations.push(lastKnot);
+      let figured: ReturnType<typeof realizeAutoMovieConstruction>["mesh"] = null;
+      try {
+        figured = realizeAutoMovieConstruction({ name: "nail.figure." + family.name, root: base.host, fills: [] }, { chord: 0.001, sources: new Map([[plain.name, AutoMovieHumanConicLoft.part(plain, plainStations)]]) }).mesh;
+      } catch (error: unknown) {
+        row.figureThrown = error instanceof Error ? error.message : String(error);
+      }
+      row.figureVertices = figured === null ? null : figured.positions.length / 3;
       const keep = (positions: ArrayLike<number>, indices: ArrayLike<number>, scale: number): number[] => {
         const kept: number[] = [];
         for (let t: number = 0; t < indices.length; t += 3)
@@ -356,8 +357,8 @@ namespace FamilyConicNail {
       };
       const shown: [string, N.Mesh[]][] = [
         ["reference", [{ id: "reference", positions: Array.from(source.body.positions, (x: number): number => x / 1000), indices: keep(source.body.positions, source.body.indices, 1), colour: [0.64, 0.65, 0.67] }]],
-        ["clay", [{ id: "generated", positions: mesh.positions, indices: keep(mesh.positions, mesh.indices, 1000), colour: [0.64, 0.65, 0.67] }]],
-        ["owners", owned.map((m: N.Mesh): N.Mesh => ({ ...m, indices: keep(m.positions, m.indices, 1000) }))],
+        ["figure", figured === null ? [] : [{ id: "figure", positions: figured.positions, indices: keep(figured.positions, figured.indices, 1000), colour: [0.64, 0.65, 0.67] }]],
+        ["close", [{ id: "close", positions: mesh.positions, indices: keep(mesh.positions, mesh.indices, 1000), colour: [0.64, 0.65, 0.67] }]],
       ];
       const target: N.Point = [0, 1, 2].map((k: number): number => (frame.origin[k]! + frame.distal[k]! * readings.tip * 0.55) / 1000) as N.Point;
       const scale: number = 720 / ((readings.tip + 6) / 1000);
@@ -383,7 +384,7 @@ namespace FamilyConicNail {
         const context: SKRSContext2D = canvas.getContext("2d");
         for (const cell of cells) {
           const column: number = drawn.indexOf(cell.digit) - part * 5;
-          const row: number = ["reference", "clay", "owners"].indexOf(cell.pass);
+          const row: number = ["reference", "figure", "close"].indexOf(cell.pass);
           if (cell.view === view && column >= 0 && column < 5 && row >= 0) context.drawImage(await loadImage(cell.png), column * CELL, row * CELL);
         }
         await fs.writeFile(path.join(out, "sheet." + view + "." + part + ".png"), canvas.toBuffer("image/png"));

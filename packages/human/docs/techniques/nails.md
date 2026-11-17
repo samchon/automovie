@@ -682,6 +682,70 @@ So the change answered four findings and exposed the one beneath the free edge's
 
 No further change and no further run.
 
+### The free edge, the section across, the cost and the teeth: paper before the next change
+
+**1. The free edge is an outline, not a level set.** Derived as the place where the plate stands one thickness over the skin at every offset across, its line depended on two unrelated curvatures, the plate's arc and the tip's, and came out a gable. Anatomically it is an edge of the plate: a trimmed nail's free edge follows the fingertip's contour. So it is drawn by the outline's rule, in the nail's own frame:
+
+| Part | Rule | Basis |
+| --- | --- | --- |
+| Its apex, on the middle line | Where it is now: the place at which a straight edge laid from the fold stands one fold and one thickness clear of the back (`free`). On the ten digits 0 to 2.4 mm before the tip; the middle finger's 1.7 mm against the reference's 1.4 | The law's own two depths; no new number |
+| Its line across | The tip's own plan contour, moved back along the nail's axis by the apex's distance from the tip: at an offset `z` aside the free edge stands that same distance behind the farthest place at which the digit's skin still reaches `z` aside. Read on the dome's rings from the tip back, each side by its own extent, since a tip is not symmetric | "Follows the tip" taken literally. No radius is stated, so my estimate `lunula W` for the free edge stays dropped |
+| The plate's height on it | Whatever the plate's surface has there | - |
+| The step to the skin | The bed's slope and, at the close level, the strip's step, both measured back from that line | As before |
+
+**What the published radius fixes, and what the bed fixes.** Jung's radius is one number a nail, read by a gauge laid across the plate; a gauge sits on the plate's open middle, not under the proximal fold and not on the free margin. The law spread it as one circle over the whole width at every station. Against that, read on the last runs: along the length the bed's own form is the plate's (the median crown 5.72, 6.25, 5.96 against the reference's 5.74, 6.24, 5.75, with no number of the reference used); across, a constant circle set a finger's edges 1.1 mm under the skin at the fold and up to 1.7 mm over it at the far end, and the lesser toes' pocket came from the same thing.
+
+So the plate lies on its bed across as it does along, and the published radius is the plate's own arc where it was measured, midway:
+
+- At the fold and at the free edge the plate's section across is the bed's: its edges stand under its crown by what the skin's edges stand under the skin's crown there. With the crown one fold under the skin at the fold and one thickness over it at the free edge, the plate is then one fold under the skin all across at the fold (the lateral grooves start as deep as the proximal one) and one thickness over it all across at the free edge (the step is uniform, so the free edge can be any line across).
+- Midway between them its edges stand under its crown by the published circle's sagitta over the plate's width there.
+- Between, the difference of the two (published sagitta less the bed's own, read midway) runs out to nothing at both ends by `4 t (1 - t)`, the lowest polynomial that is one midway and zero at both ends, `t` the share of the way from fold to free edge.
+- A digit with no published radius has no difference to add: its plate is its bed's arc everywhere. That replaces the rule of the last change (the bed's circle midway, held all along) by the same rule every digit follows.
+
+Each section stays a conic through its crown and its edge that turns at the crown on the circle through those three points, as now; only the sagitta it is given changes.
+
+**2. The cost, and the density by viewing scale.**
+
+Where the 117,178 vertices of the ten digits come from (48,712 before any of this):
+
+| Source | What it sets | Size |
+| --- | --- | --- |
+| The bed's columns, 0.46 mm round the digit | The phases of every ring of the digit (one density a family) | Almost nothing: a finger's phases already stood about half a millimetre apart (`AutoMovieHumanConicLoft`, the phase pitch's note); 42 to 54 columns over the back is about 100 round |
+| The bed's rows, 0.46 mm | Wall rings inside its window, and through `bedded` the cap's rings: `2 sqrt(H d) / 0.46` | About 40 cap rings on a 9 mm cap in place of 12, and some 10 wall rings: about 4,000 vertices a finger |
+| The strip's rows, a quarter of one thickness, 0.12 mm | The cap's rings again, by the same formula with 0.12 | 100 to 160 rings: 7,000 to 11,000 vertices a finger, and more in the last run because the gable's free edge ran far back at the sides. This is nearly all of the cost |
+
+The viewing scale. At the figure's cameras a hand about 190 mm long fills 900 px, 0.21 mm a pixel, and a foot about 250 mm, 0.28 mm a pixel. The fold's wall, 1.84 mm, is 7 to 9 px: it reads, and the lofting rule's quarter of it is the bed's 0.46 mm cell, two pixels. The free edge's step, one thickness long, is two pixels at the hand and under two at the foot: a step and a slope 1.84 mm long cannot be told apart there. So:
+
+| Level | Nets | What reads | Vertices, estimated |
+| --- | --- | --- | --- |
+| Figure (what the figure's round lofts) | The bed alone | Proximal fold, lateral creases, the plate's form, the free edge as the bed's slope | About 4,000 more a digit, 80,000 on twenty, on a figure of about 750,000 |
+| Close-up (stated second level) | The bed and the strip | The free edge as a ledge | About 12,000 more a digit |
+
+`bedded` takes the level; the figure's is the default. A coarser bed for the figure is not chosen: a 0.92 mm cell would need the fold's wall 3.7 mm wide, wider than the room beside a finger's plate.
+
+The law's time, 1.2 to 2.8 s a digit. Every question the law asks of the skin starts from a ring: 180 phases, each a station found by 24 halvings, 4,320 points. What recomputes them: the frame's fit builds two readers a pass, each reading the bed's nine stations anew because the frame has moved (about 19 rings and 18 searched points a pass, some 100,000 points), for as many passes as the fixed point takes (24 at most; the count was never recorded); then about 100 rings once (sections, the free edge's search every 0.1 mm, the arch every cell). The last run doubled the time by the gable's level set: the plate's face evaluated at 25 offsets by up to 120 stations, with rings read back to the fold. The outline's rule reads only the extents of rings near the tip, most of them already read for the free edge's apex. The fit's pass count becomes a reading (`passes`), so the next decision about the fit is made on a number.
+
+**3. The teeth at the fold's corner.** Would the proximal fold as its own strip, fine along the digit, remove them? Read against the sheets: the comb stands at the U's two corners (`oblique.0` px 160-215 x 595-625), where the fold has turned to run along the digit. There the wall is crossed round the digit, not along it, and round the digit the sampling is the phases', 0.46 mm, on a wall as wide as the room beside the plate, 1.2 to 1.5 mm on a finger: 2.6 to 3.3 samples where the rule asks four. Across the fold's apex, where a strip fine along the digit would act, the median already shows a resolved S. So a fold strip would refine the part that is resolved and leave the corners as they are; it is not built. What would resolve the corners is phases 0.3 mm apart round the whole digit (half again the vertices of every ring) or a phase density local to a relief's window, the lack already named. At the figure's scale the comb is under two pixels. Stated as a limit of the close-up, not answered in this batch.
+
+**4. To the body worker: two findings outside the nail's window.** Run `2026-11-17T15-27-45.554Z-realize` (digits on the tip dome by W3, applied on the probe's copy), clay rows.
+
+| Finding | Where | Since |
+| --- | --- | --- |
+| Toe 4's side stands in lengthwise flat strips, and as stairs from the other oblique | `sheet.lateral.1.png` px 1215-1340 x 470-640; `sheet.oblique-twin.1.png` px 1215-1260 x 560-650. They run the whole side, proximal of the nail's window as well | Every nail run, before the dome too |
+| A small tab under the dome, on the palmar side | `sheet.end.0.png` middle finger px 158-170 x 625-632, thumb px 1580-1625 x 640-652 | Runs `15-09-05` and `15-27-45`, on the dome; absent in `14-49-02`'s `sheet.end.0.png` |
+
+Neither is touched by the nail's relief, whose window is dorsal. Not traced by me.
+
+**The one change.**
+
+1. The free edge by the outline's rule; the level-set search removed.
+2. The sections' sagitta by the bed at both ends and the published arc midway; the bed's-circle rule of the last change folded into it.
+3. `bedded` by level, the figure's (bed alone) the default; the probe draws both levels beside the reference, the figure's in the row the owners' pass held, which showed nothing a relief has.
+4. The reading `passes`; the stale line of `lunula`.
+5. `test_human_nail`: the plate's edge one fold under the skin's edge at the fold and the published sagitta midway, each by the made bar's closed form; the free edge's line against the bar's own plan contour.
+
+Before it, in a gap: the two unit tests as they stand, timed. After it: one run of all ten, every sheet, the table.
+
 ### The kernel fact, pinned by a test that is red
 
 `test/src/features/geometry/construction/operator/test_construction_operator_capped_part.ts`, read first against `test_construction_operator_pointed_cut.ts` and `test_construction_operator_mixed_join.ts`, whose composition it follows. Made case: the ellipsoid with half axes 10, 5 and 3 mm, charted as a lofted part is (a station along its long axis, a phase round it, both closed ends the chart's poles), its centre `h` under the plane `z = 0`; the declared loop is the plane's own section, one ellipse; the part is kept above. The geometry is regular at every depth. One run, 52 ms:

@@ -12,8 +12,14 @@ import { AutoMovieHumanConicLoft, AutoMovieHumanNail } from "@automovie/human";
  *    proximal fold a width over 0.91 before the tip.
  * 2. The frame is rolled back by the turn it was given, -0.2 rad, and is not pitched: the bar's top is level across and along.
  * 3. The free edge stands where the top has fallen one fold and one thickness: `10 + 4.6 sin(acos(1 - 0.93 / 2.5))` mm.
- * 4. The plate has its own arc: its greatest sagitta is the circle's of the published radius (0.7 of the width) over the plate's width,
- *    `R - sqrt(R^2 - (W / 2)^2)`; the lofted plate's crown lies one fold under the level top and each edge that sagitta under the crown.
+ * 4. The plate has its own arc midway: there the bar's section is the straight bar's shrunk by `c`, the cosine of the closing turn,
+ *    the plate's half width is `c W / 2`, and its greatest sagitta is the published circle's over that chord,
+ *    `R - sqrt(R^2 - (c W / 2)^2)`, `R = 0.7 W`. The plate's stations stand a millimetre apart at most, so the one nearest midway
+ *    holds at least `1 - (0.5 / 2.3)^2 = 0.95` of the published difference from the bed's own arc `c 2.5 (1 - (1 - (W / 7)^8)^(1/8))`;
+ *    the tolerance is a twentieth of that difference and 0.02 mm. The lofted plate's crown lies one fold under the level top.
+ * 8. The free edge's line follows the tip: the bar's plan contour is `x = 10 + 4.6 sqrt(1 - (z / 3.5)^2)`, and at half the half width
+ *    aside the line stands the apex's distance from the tip behind it; a point 0.1 mm inside it is the nail's on both sides and one
+ *    0.1 mm past it is not.
  * 5. The relief's net holds zero in its three outer rings, raises the skin nowhere by more than one thickness, and its greatest
  *    lowering lies between one fold (the skin one fold over the crown) and that plus the sagitta (the same at the edge).
  * 6. Red: a digit whose tip stands 4 mm from the joint is refused.
@@ -65,10 +71,12 @@ export function test_human_nail(): void {
   // 3. The free edge on the closing quarter circle.
   near("free edge", nail.readings.span[1], length + close * Math.sin(Math.acos(1 - (fold + thickness) / high)), 2e-3);
 
-  // 4. The plate's own arc, in the readings and on the lofted plate where the bar is straight, 9 mm along.
+  // 4. The plate's own arc midway, in the readings. Midway the bar's section is shrunk by the cosine of the closing turn there.
   const arc: number = 0.7 * nail.readings.width;
-  const sagitta: number = arc - Math.sqrt(arc ** 2 - (nail.readings.width / 2) ** 2);
-  near("greatest sagitta", nail.readings.sagitta[1], sagitta, 1e-3);
+  const shrunk: number = Math.sqrt(1 - (((nail.readings.span[0] + nail.readings.span[1]) / 2 - length) / close) ** 2);
+  const bedArc: number = shrunk * high * (1 - (1 - (nail.readings.width / 2 / broad) ** 8) ** 0.125);
+  const sagitta: number = arc - Math.sqrt(arc ** 2 - ((shrunk * nail.readings.width) / 2) ** 2);
+  near("greatest sagitta", nail.readings.sagitta[1], sagitta, 0.05 * (sagitta - bedArc) + 0.02);
   const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(nail.plate, nail.plate.knots);
   if (loft.chain === null) failures.push("the plate does not loft: " + JSON.stringify(loft.diagnostics).slice(0, 300));
   else {
@@ -77,16 +85,14 @@ export function test_human_nail(): void {
     // The crown stands at phase 0 of the plate's chart; each edge is found by bisection of the phase on its side.
     const on = (phase: number): number[] => AutoMovieLoftChain.point(chain, station, phase);
     near("crown under the skin", on(0)[1]!, high - fold, 1e-3);
-    for (const side of [1, -1]) {
-      const sense: number = Math.sign(on(0.3)[2]!) * side;
-      let [a, b]: [number, number] = [0, 1.5];
-      for (let i: number = 0; i < 30; ++i) {
-        const middle: number = (a + b) / 2;
-        if (Math.abs(on(sense * middle)[2]!) < nail.readings.width / 2) a = middle;
-        else b = middle;
-      }
-      near("edge under the crown, side " + side, on((sense * (a + b)) / 2)[1]!, high - fold - sagitta, 2e-2);
-    }
+  }
+
+  // 8. The free edge's line: the bar's plan contour moved back by the apex's distance from the tip.
+  const aside: number = 0.5 * (nail.readings.width / 2);
+  const line: number = length + close * Math.sqrt(1 - (aside / broad) ** 2) - (length + close - nail.readings.span[1]);
+  for (const side of [1, -1]) {
+    if (!AutoMovieHumanNail.owns(nail, [line - 0.1, high, side * aside])) failures.push(`a point 0.1 mm inside the free edge's line, side ${side}, is not the nail's`);
+    if (AutoMovieHumanNail.owns(nail, [line + 0.1, high, side * aside])) failures.push(`a point 0.1 mm past the free edge's line, side ${side}, is the nail's`);
   }
 
   // 5. The bed's net.
