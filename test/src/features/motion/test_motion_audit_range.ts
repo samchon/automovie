@@ -82,7 +82,8 @@ export function test_motion_audit_range(): void {
       joint("rightLowerArm", 0, 0, 90),
       joint("leftUpperLeg", 90, 20, 45),
       joint("neck", -50, 40, 70),
-      joint("leftIndexProximal", 100),
+      // A knuckle flexes to 90 degrees (the range table's metacarpophalangeal norm).
+      joint("leftIndexProximal", 90),
       joint("rightFoot", null),
     ]),
     clean,

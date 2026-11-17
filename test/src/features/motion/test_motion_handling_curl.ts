@@ -35,8 +35,9 @@ import { throwsError } from "../internal/throwsError";
  *    2 mm, judged by an independent dense sampling of the phalanx segments
  *    against the box's analytic distance.
  * 2. The same with a sphere and with a capsule across the finger.
- * 3. An object beyond reach: every joint ends exactly at the default finger
- *    range maximum and the reported gap is positive.
+ * 3. An object beyond reach: every joint ends exactly at its own default
+ *    range maximum (the knuckle's 90 degrees, the middle and end joints'
+ *    own) and the reported gap is positive.
  * 4. A finger already pressing into the object does not move.
  * 5. Proximal-first closing: with a small sphere under the proximal phalanx
  *    only, the proximal joint stops at the contact short of its range and the
@@ -45,7 +46,7 @@ import { throwsError } from "../internal/throwsError";
  * 6. Two runs give bit-identical angles; a non-positive radius or step throws.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public curl and reads the curled pose through forward kinematics; a phalanx stopped inside the object, stopped far from it, pushed past its range, a moved pressing finger or a distal joint frozen by a proximal contact fails.
- * @evidence contracts/development/testing.md#independent-expectations Clearances come from 400-point sampling of each phalanx against closed-form sphere, capsule and box distances written here, not from the curl's own distance; the 2 mm bound is the campaign's grasp acceptance (#3201 step 5); the range is DEFAULT_HUMANOID_ROM's finger flexion maximum.
+ * @evidence contracts/development/testing.md#independent-expectations Clearances come from 400-point sampling of each phalanx against closed-form sphere, capsule and box distances written here, not from the curl's own distance; the 2 mm bound is the campaign's grasp acceptance (#3201 step 5); the range is each joint's own flexion maximum in DEFAULT_HUMANOID_ROM.
  * @evidence contracts/development/testing.md#distinguishing-cases Three shape kinds, a reachable and an unreachable object, an initial penetration, a proximal-only contact, determinism and invalid input.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory engine unit with no body or render; it runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 scenarios and what each pins.
@@ -74,7 +75,11 @@ export function test_motion_handling_curl(): void {
       jointAxes: HUMANOID_JOINT_AXES,
       restFrames: HUMANOID_REST_FRAME,
     });
-  const maximum: number = DEFAULT_HUMANOID_ROM.leftIndexProximal!.flexion!.max;
+  // Each joint's own range maximum: the knuckle's is not the middle and end joints'.
+  const maxima: number[] = BONES.map(
+    (bone: AutoMovieHumanoidBone): number =>
+      DEFAULT_HUMANOID_ROM[bone]!.flexion!.max,
+  );
 
   // 1-2. Each shape kind under the finger: the curl ends touching, not inside.
   const below = (
@@ -129,7 +134,7 @@ export function test_motion_handling_curl(): void {
     TestValidator.predicate(
       `${label}: within range`,
       result.chains[0]!.flexion.every(
-        (a: number): boolean => a >= 0 && a <= maximum + 1e-9,
+        (a: number, i: number): boolean => a >= 0 && a <= maxima[i]! + 1e-9,
       ),
     );
   }
@@ -142,7 +147,7 @@ export function test_motion_handling_curl(): void {
   TestValidator.predicate(
     "unreached joints stop at the range maximum",
     free.chains[0]!.flexion.every(
-      (a: number): boolean => Math.abs(a - maximum) < 1e-9,
+      (a: number, i: number): boolean => Math.abs(a - maxima[i]!) < 1e-9,
     ),
   );
   TestValidator.predicate(
@@ -179,7 +184,7 @@ export function test_motion_handling_curl(): void {
   ];
   TestValidator.predicate(
     `proximal stops at the knob (${proximal.toFixed(2)})`,
-    proximal > 0 && proximal < maximum,
+    proximal > 0 && proximal < maxima[0]!,
   );
   TestValidator.predicate(
     `distal joints keep closing (${middle.toFixed(2)}, ${distal.toFixed(2)})`,

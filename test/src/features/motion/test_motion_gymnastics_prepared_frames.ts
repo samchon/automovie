@@ -101,7 +101,7 @@ export function test_motion_gymnastics_prepared_frames(): void {
   const last: IAutoMovieVector3 = centres[2]!;
   TestValidator.predicate("fixed articulated flight keeps drag-free COM acceleration",
     nclose(first.x - 2 * middle.x + last.x, 0, 4e-7) &&
-    nclose(first.y - 2 * middle.y + last.y, -9.81 * delta * delta, 4e-7) &&
+    nclose(first.y - 2 * middle.y + last.y, -9.80665 * delta * delta, 4e-7) &&
     nclose(first.z - 2 * middle.z + last.z, 0, 4e-7),
   );
 
