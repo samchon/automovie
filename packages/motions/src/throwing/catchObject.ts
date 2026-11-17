@@ -376,7 +376,12 @@ export namespace catchObject {
         AutoMovieMotionHumanBend.prepare({ body, posture: standing, side });
       const hand: ReturnType<typeof HumanHandTarget.prepareMoving> =
         HumanHandTarget.prepareMoving(body, side, { surface: "palm", shape: "relaxed" });
-      for (const degrees of ROLLS) {
+      for (const roll of ROLLS) {
+        // A turn about the palm's normal mirrors to the opposite turn about
+        // the mirrored normal, so the left hand reads the list negated: of
+        // two turns it holds alike, each hand keeps the one that is the
+        // other's mirror.
+        const degrees: number = side === "left" && roll !== 0 ? -roll : roll;
         const fingers: IAutoMovieVector3 = Quaternion.rotateVector(
           Quaternion.fromAxisAngle(outward, degrees),
           first,
