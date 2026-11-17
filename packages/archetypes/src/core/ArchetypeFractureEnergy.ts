@@ -55,17 +55,15 @@ export function ArchetypeFractureEnergy(
 
   const view: DataView = new DataView(new ArrayBuffer(8));
   const parts: ReturnType<typeof ArchetypeBinary64> = ArchetypeBinary64(view);
-  const squares: IDyadic[] = [momentum.x, momentum.y, momentum.z].filter(
-    (value: number): boolean => value !== 0,
-  ).map(
-    (value: number): IDyadic => {
+  const squares: IDyadic[] = [momentum.x, momentum.y, momentum.z]
+    .filter((value: number): boolean => value !== 0)
+    .map((value: number): IDyadic => {
       const term: IDyadic = parts(value);
       return {
         integer: term.integer * term.integer,
         exponent: 2 * term.exponent,
       };
-    },
-  );
+    });
   const lowest: number = Math.min(
     ...squares.map((term: IDyadic): number => term.exponent),
   );

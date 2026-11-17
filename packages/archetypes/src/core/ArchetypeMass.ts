@@ -78,11 +78,11 @@ export namespace ArchetypeMass {
    * @throws {Error} For invalid mass, density, share or dimensions, no positive solid weight, or unrepresentable local/derived mass properties.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs' units, the default density and the failure.
-   * @evidence contracts/development/implementation.md#principled-implementation ArchetypeMassPrimitive owns uniform-solid volume, centroid and principal moments. Weights normalize by their maximum before reduction; ratio and coordinate-scaled mean avoid overflowing mass products. Tensors rotate into the model and use direct transverse parallel-axis terms without squared-distance subtraction. Ordinary binary64 operations use exact exceptional arithmetic near representability boundaries. Unit rotations and scale remain the builder's premise.
+   * @evidence contracts/development/implementation.md#principled-implementation ArchetypeMassPrimitive owns uniform-solid volume, centroid and principal moments. Weights normalize by their maximum before reduction; ratio and coordinate-scaled mean avoid overflowing mass products. Tensors rotate into the model and use direct transverse parallel-axis terms without squared-distance subtraction. A normal allocated mass retains its existing product grouping; a subnormal/zero or highest-binade allocation remains factored with its geometric terms until the contribution rounds, so a scalar part mass cannot erase or distort a representable aggregate moment. Unit rotations and scale remain the builder's premise.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass for the masses and centre, one for the tensor.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid or unrepresentable numeric data are refused rather than capped or replaced. Relative weights, primitive local properties and final tensor must be representable; no density or mass is invented. Overlapping solids still count twice; producers keep overlaps to joints.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid or unrepresentable numeric data are refused rather than capped or replaced. Relative weights, primitive local properties and final tensor must be representable; an implicit positive volume-density product refuses zero or inexact subnormal representation before normalization, while exact subnormal weights and explicit authored zero shares remain supported; no density or mass is invented. Overlapping solids still count twice; producers keep overlaps to joints.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the number of parts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One local-solid record supplies each weight, centroid, axes and principal moments; one normalized total serves all part masses. Primitive properties and weight admission share their owners with parts.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One local-solid record supplies each weight, centroid, axes and principal moments; one normalized total serves all part masses. One weighted-product reader per positive-weight solid reuses its allocated mass on the ordinary path or its exact numerator/denominator on the exceptional path. Primitive properties and weight admission share their owners with parts; parts rounds its own scalar outputs independently of aggregate tensor contributions.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
@@ -137,13 +137,14 @@ export namespace ArchetypeMass {
     // I = sum of R diag(i) R^T m + m (|d|^2 E - d d^T), d from the common centre.
     const tensor: Record<keyof IInertia, number[]> = contributions();
     for (const solid of solids) {
-      const m: number = ArchetypeMassArithmetic.ratio(
-        mass,
-        solid.share,
-        normalized.scale,
-        normalized.total,
-      );
-      if (m === 0) continue;
+      if (solid.share === 0) continue;
+      const product: (a: number, b?: number, c?: number) => number =
+        ArchetypeMassArithmetic.weightedProduct(
+          mass,
+          solid.share,
+          normalized.scale,
+          normalized.total,
+        );
       const d: IAutoMovieVector3 = Vector3.subtract(solid.centre, centre);
       const principal: readonly number[] = [
         solid.unit.x,
@@ -156,18 +157,12 @@ export namespace ArchetypeMass {
       ): number => {
         const terms: number[] = principal.map(
           (value: number, k: number): number =>
-            ArchetypeMassArithmetic.product(
-              m,
-              value,
-              solid.axes[k]![a],
-              solid.axes[k]![b],
-            ),
+            product(value, solid.axes[k]![a], solid.axes[k]![b]),
         );
         if (a === b) {
           for (const axis of AXES)
-            if (axis !== a)
-              terms.push(ArchetypeMassArithmetic.product(m, d[axis], d[axis]));
-        } else terms.push(ArchetypeMassArithmetic.product(-m, d[a], d[b]));
+            if (axis !== a) terms.push(product(d[axis], d[axis]));
+        } else terms.push(product(-d[a], d[b]));
         return ArchetypeMassArithmetic.sum(terms);
       };
       tensor.xx.push(entry("x", "x"));
@@ -193,7 +188,7 @@ export namespace ArchetypeMass {
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the zero.
    * @evidence contracts/development/implementation.md#principled-implementation Uses of's same primitive and weight owners. An inventory with no solid primitives has only zero part masses; it does not construct a positive-mass body's properties, which of still refuses without solids. When solids exist, weights normalize by their maximum, and allocation evaluates mass*weight/(scale*normalizedTotal) with exact exceptional quotient fallback, retaining finite results when raw products overflow.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass for the weights, one for the masses.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid total mass is refused even for a no-solid inventory. Solid-bearing inputs still refuse invalid density/share and all-zero solid weights; only the geometry's actual absence of solid support yields zero part masses, never a failed-normalization fallback.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid total mass is refused even for a no-solid inventory. Solid-bearing inputs still refuse invalid density/share and all-zero solid weights; implicit volume-density products also require normal or exact positive subnormal local representation, preserving exact MIN_VALUE products and explicitly authored zero shares; only the geometry's actual absence of solid support yields zero part masses, never a failed-normalization fallback.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `of`'s volume rule.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -466,11 +461,11 @@ function weightOf(
   const relative: number = density[id] ?? 1;
   if (fixed === undefined && !(Number.isFinite(relative) && relative > 0))
     throw new Error(`Part ${id} needs finite positive relative density`);
-  const result: number =
-    fixed ?? ArchetypeMassArithmetic.product(volume, relative);
-  if (!(Number.isFinite(result) && result >= 0))
+  const result: number | null =
+    fixed ?? ArchetypeMassArithmetic.localProduct(volume, relative);
+  if (!(result !== null && Number.isFinite(result) && result >= 0))
     throw new Error(
-      `Part ${id} needs a representable finite nonnegative mass weight`,
+      `Part ${id} needs a representable finite ${fixed === undefined ? "positive local volume-density product" : "nonnegative authored mass weight"}`,
     );
   return result;
 }

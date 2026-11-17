@@ -17,7 +17,7 @@ import type { resolveAutoMovieContactEvents } from "./resolveAutoMovieContactEve
  * @evidence contracts/development/implementation.md#principled-implementation The signed-gap scan brackets the first admitted crossing and bisects it twenty-four times. Physical departure information establishes when a previously resolved pair can next enter; a clearance witness is checked against the actual pair gap before it is used.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pair-distance reader serves scan and witness validation; one minimum over eligible bodies serves the original crossing search. Event ordering remains in resolveAutoMovieContactEvents.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown departure preserves initial penetration/touch reporting. A clearance witness must be finite, strictly later, inside the live search and strictly outside the actual body. No epsilon, shifted query clock, permanent collider exclusion or bounce cap is introduced.
- * @evidence contracts/development/implementation.md#efficient-algorithms Original work is proportional to scan steps times bodies plus twenty-four bisections. Each initially contacting body may add its model's certificate cost and one actual witness check; opaque bodies add no certificate work.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Original work is proportional to bodies times the scan steps plus twenty-four bisections. Each initially contacting body may add its model's certificate cost and one actual witness check; opaque bodies add no certificate work.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Sphere, capsule and tapered-capsule gaps share one reader. The body supplies model-specific departure knowledge once per initial pair; all source/stop-dependent certificates are rebuilt for each event search.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A lazy call-local map holds at most one scalar release time or no-entry marker per certified body. Returned ids/times retain no callback, body, certificate object or map.
  */
@@ -56,7 +56,10 @@ export function firstAutoMovieContactImpact(
         ? body.axis!(p, q, t, stops) - weapon.radius
         : body.axis!(p, q, t, stops, [weapon.radius, weapon.tailRadius]);
   };
-  const gap = (
+  const gap: (
+    t: number,
+    initial?: boolean,
+  ) => { distance: number; against: string } = (
     t: number,
     initial: boolean = false,
   ): { distance: number; against: string } => {
@@ -106,16 +109,13 @@ export function firstAutoMovieContactImpact(
             throw new RangeError(
               "Contact departure clearance is outside its search",
             );
-          if (
-            !(
-              distance(
-                body,
-                proof.seconds,
-                weapon.position(proof.seconds, stops),
-                weapon.tail?.(proof.seconds, stops),
-              ) > 0
-            )
-          )
+          const clearance: number = distance(
+            body,
+            proof.seconds,
+            weapon.position(proof.seconds, stops),
+            weapon.tail?.(proof.seconds, stops),
+          );
+          if (!(Number.isFinite(clearance) && clearance > 0))
             throw new RangeError("Contact departure has no positive clearance");
           departures ??= new Map();
           departures.set(body, proof.seconds);

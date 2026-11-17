@@ -11,7 +11,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-
 /**
  * Finite mass allocation and centres survive intermediate overflow/underflow;
  * malformed or truly unrepresentable physical records are refused.
@@ -182,28 +181,53 @@ export function test_archetype_mass_numeric(): void {
     findings.push(
       "a small mass's finite distant-axis moment overflowed before multiplication",
     );
-  const subnormalMasses: Record<string, number> = ArchetypeMass.parts(made.parts, 2, {}, {
-    a: Number.MIN_VALUE, b: 2 * Number.MIN_VALUE,
-  });
+  const subnormalMasses: Record<string, number> = ArchetypeMass.parts(
+    made.parts,
+    2,
+    {},
+    {
+      a: Number.MIN_VALUE,
+      b: 2 * Number.MIN_VALUE,
+    },
+  );
   if (subnormalMasses.a !== 2 / 3 || subnormalMasses.b !== 4 / 3)
-    findings.push("subnormal relative weights lost their proportional allocation");
-  const point: ArchetypeMass.IProperties = { mass: Number.MIN_VALUE,
+    findings.push(
+      "subnormal relative weights lost their proportional allocation",
+    );
+  const point: ArchetypeMass.IProperties = {
+    mass: Number.MIN_VALUE,
     centerOfMass: { x: 1.5, y: 0, z: 0 },
-    inertia: { xx: 0, yy: 0, zz: 0, xy: 0, xz: 0, yz: 0 } };
-  if (ArchetypeMass.about(point, { x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }) !==
-    2 * Number.MIN_VALUE)
-    findings.push("a subnormal point-mass moment rounded before its final product");
+    inertia: { xx: 0, yy: 0, zz: 0, xy: 0, xz: 0, yz: 0 },
+  };
+  if (
+    ArchetypeMass.about(point, { x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }) !==
+    2 * Number.MIN_VALUE
+  )
+    findings.push(
+      "a subnormal point-mass moment rounded before its final product",
+    );
   const rescued: ArchetypeMass.IProperties = ArchetypeMass.combine([
-    { properties: properties(1e300, { x: 0, y: 0, z: 0 }),
-      placement: { translation: { x: 0, y: 0, z: 0 }, rotation: identity } },
-    { properties: properties(1e-300, { x: 1e300, y: 0, z: 0 }),
-      placement: { translation: { x: 0, y: 0, z: 0 }, rotation: identity } },
+    {
+      properties: properties(1e300, { x: 0, y: 0, z: 0 }),
+      placement: { translation: { x: 0, y: 0, z: 0 }, rotation: identity },
+    },
+    {
+      properties: properties(1e-300, { x: 1e300, y: 0, z: 0 }),
+      placement: { translation: { x: 0, y: 0, z: 0 }, rotation: identity },
+    },
   ]);
-  const maximumMean: ArchetypeMass.IProperties = ArchetypeMass.combine([0, 1].map(
-    (): ArchetypeMass.IPlaced => ({ properties: properties(1, { x: 0, y: 0, z: 0 }),
-      placement: { translation: { x: max, y: 0, z: 0 }, rotation: identity } }),
-  ));
-  if (!close(rescued.centerOfMass.x / 1e-300, 1) || maximumMean.centerOfMass.x !== max)
+  const maximumMean: ArchetypeMass.IProperties = ArchetypeMass.combine(
+    [0, 1].map(
+      (): ArchetypeMass.IPlaced => ({
+        properties: properties(1, { x: 0, y: 0, z: 0 }),
+        placement: { translation: { x: max, y: 0, z: 0 }, rotation: identity },
+      }),
+    ),
+  );
+  if (
+    !close(rescued.centerOfMass.x / 1e-300, 1) ||
+    maximumMean.centerOfMass.x !== max
+  )
     findings.push("a scaled convex mean lost a finite extreme result");
   for (const mass of [0, -1, Number.NaN, Infinity, -Infinity])
     if (
@@ -300,12 +324,17 @@ export function test_archetype_mass_numeric(): void {
   // Nondegenerate local moments must remain representable before later mass scaling.
   let localRefusal: boolean = false;
   try {
-    builder().box("a", { x: 1e-200, y: 1e-200, z: 1e100 }, { x: 0, y: 0, z: 0 }).build(1e100);
+    builder()
+      .box("a", { x: 1e-200, y: 1e-200, z: 1e100 }, { x: 0, y: 0, z: 0 })
+      .build(1e100);
   } catch (error) {
-    localRefusal = error instanceof Error && error.message.includes("principal moments");
+    localRefusal =
+      error instanceof Error && error.message.includes("principal moments");
   }
   if (!localRefusal)
-    findings.push("a nondegenerate local principal moment underflowed to a fabricated zero");
+    findings.push(
+      "a nondegenerate local principal moment underflowed to a fabricated zero",
+    );
   TestValidator.equals(
     "mass properties retain finite representable results",
     findings,

@@ -145,6 +145,18 @@ export function integrateMotionTrajectory(
     h,
     knots: times.length,
     times,
+    interval: (time: number): integrateMotionTrajectory.IInterval => {
+      const t: number = Math.max(t0, Math.min(t1, time));
+      const i: number = Math.min(steps - 1, Math.floor((t - t0) / h));
+      return {
+        from: times[i]!,
+        to: times[i + 1]!,
+        start: xs[i]!.slice(),
+        end: xs[i + 1]!.slice(),
+        first: ks[i]!.dx.slice(),
+        last: ks[i + 1]!.dx.slice(),
+      };
+    },
     at: (time: number): integrateMotionTrajectory.IState => {
       const t: number = Math.max(t0, Math.min(t1, time));
       const i: number = Math.min(steps - 1, Math.floor((t - t0) / h));
@@ -281,6 +293,29 @@ export namespace integrateMotionTrajectory {
   }
 
   /**
+   * One fixed Hermite interval's exact stored endpoint data.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member identifies its knot time, state vector or endpoint derivative.
+   * @evidence contracts/development/design.md#principled-representation Adjacent stored states and right-hand-side derivatives define the actual cubic vector interpolant.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The physical departure certificate needs actual dense coefficients without reconstructing them through rounded interpolation.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts All arrays are fresh copies; callers cannot change retained integration knots through this record.
+   */
+  export interface IInterval {
+    /** First knot time, seconds. */
+    from: number;
+    /** Next knot time, seconds. */
+    to: number;
+    /** State at the first knot. */
+    start: readonly number[];
+    /** State at the next knot. */
+    end: readonly number[];
+    /** State derivative at the first knot. */
+    first: readonly number[];
+    /** State derivative at the next knot. */
+    last: readonly number[];
+  }
+
+  /**
    * An integrated trajectory.
    *
    */
@@ -299,6 +334,21 @@ export namespace integrateMotionTrajectory {
 
     /** The knots' times, seconds, from `t0` to `t1`: a fixed grid, or the accepted steps' ends under a tolerance. */
     times: readonly number[];
+
+    /**
+     * Read adjacent actual fixed-step Hermite data; absent for adaptive continuous extensions.
+     *
+     * @param time Finite query second; outside the interval selects the nearest end interval.
+     * @returns Fresh copies of actual states and derivatives with their adjacent knot times.
+     * @evidence contracts/development/common.md#meaningful-documentation States fixed versus adaptive availability, finite-time premise, held-end selection and copied ownership.
+     * @evidence contracts/development/implementation.md#principled-implementation Selects exactly the interval used by at and copies its stored states and derivative vectors, avoiding a second rounded interpolation at nominal knots.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Select one interval index and copy its four stored numeric vectors.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No resampling, guessed coefficients, mutable knot loans or adaptive-as-Hermite classification are used.
+     * @evidence contracts/development/implementation.md#efficient-algorithms O(N) time and output space for N state components, independent of trajectory duration after planning.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the existing stored integration result without invoking the right-hand side or integrating again.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Four fresh numeric arrays transfer to the caller and no source state, trajectory or callback is retained by the returned record.
+     */
+    interval?: (time: number) => IInterval;
 
     /**
      * The state at a time, held at the ends outside `[t0, t1]`.

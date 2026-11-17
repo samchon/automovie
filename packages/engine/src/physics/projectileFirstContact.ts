@@ -35,18 +35,26 @@ import { projectilePlaneDeparture } from "./projectilePlaneDeparture";
  * states its own. The point and the normal are the struck collider's
  * nearest-point reading against the projectile at the contact second.
  *
+ * Initial touch or penetration is reported by default. After resolving that
+ * episode, `departing` names its collider. A fixed plane can then classify
+ * departure for a sphere or fixed-attitude tail from the normal motion of
+ * this flight, deferring only that pair until actual positive clearance or
+ * proving no fresh entry in the span. Later reentry and other colliders keep
+ * the original scan. Rotating tails and opaque colliders retain initial
+ * reporting unless their own physical model supplies a certificate.
+ *
  * @param projectile The flight.
  * @param colliders What it may meet; `projectileFirstContact.plane` and `projectileFirstContact.shape` build the common ones.
  * @param span Seconds since launch the search covers.
- * @param options The projectile's radius and tail, and the thinnest collider the step must not cross.
+ * @param options The projectile's radius and tail, thinnest collider and optional already-resolved initial collider.
  * @returns The first contact, or null when the flight meets nothing in the span.
- * @throws {RangeError} When the span is not forward, the thickness or the radius is not positive and finite, or a tail is given without an attitude.
+ * @throws {RangeError} When the span is not finite and forward, thickness is not finite and positive, radius is not finite and non-negative, a tail lacks an attitude, or a departure certificate is invalid.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the projectile's shape, the sweep's owner, the step rule, the blind spot and where the normal comes from.
  * @evidence contracts/development/implementation.md#principled-implementation Continuous collision detection by the resolver's conservative scan and bisection, with the step bounded by the largest point speed so no collider of the stated thickness is stepped over.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, bound the speed, sweep with the one resolver, read the contact's point and normal.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step derives from the flight and the stated thickness; nothing is sampled on a frame grid.
- * @evidence contracts/development/implementation.md#efficient-algorithms One nearest-point reading per collider per scan step and bisection, linear in the colliders and the span over the step.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step derives from the flight and stated thickness. Initial overlap is preserved unless the caller identifies a resolved episode and its collider supplies physical departure knowledge; no tolerance, time push, permanent collider removal or bounce cap masks that episode.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One nearest-point reading per eligible collider per scan step and bisection. An initially contacting collider may additionally classify departure once; the fixed plane probes actual normal clearance until a witness or representable-time exhaustion. This adds model work without changing the scan's thickness bound or blind spot.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the resolver's sweep, `physicalShapeNearest` for shapes and `projectileAt`'s memoised flight.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the flight's own memo.
  */
@@ -188,7 +196,7 @@ export function projectileFirstContact(
  * Companion types and collider builders of {@link projectileFirstContact}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
- * @evidence contracts/development/design.md#principled-representation A collider is a nearest-point reading of a segment at a second, the one query the sweep and the normal both need; a plane and a placed shape are two builders of it.
+ * @evidence contracts/development/design.md#principled-representation A collider is a nearest-point reading of a segment at a second, optionally with physical departure knowledge for a resolved initial episode; a plane and a placed shape are its builders. The resolved collider id is separate from geometry and never removes later entry.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What a caller gives and the two builders the engine's own colliders need.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A person's colliders are the caller's reading, never a shape the engine guesses.
  */

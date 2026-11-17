@@ -102,7 +102,9 @@ export function test_archetype_fracture_ownership(): void {
       ] as const)
         for (const id of ["a", "b", "c"])
           if (piece.surface(id) !== (id === own ? surface : null))
-            findings.push(`${piece.id}: surface ${id} belongs to a different piece`);
+            findings.push(
+              `${piece.id}: surface ${id} belongs to a different piece`,
+            );
       const movedB: Archetype<Id, never> = b.archetype.articulate({
         driver: 2,
       });
@@ -161,7 +163,7 @@ export function test_archetype_fracture_ownership(): void {
   function contacts(value: Archetype<Id, never>): string {
     return value.affordances
       .map((a: IAutoMovieAffordance): string => a.id)
-      .sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0)
+      .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
       .join(",");
   }
 
@@ -187,8 +189,12 @@ export function test_archetype_fracture_ownership(): void {
       },
     );
     for (const [index, id] of ["a", "b", "c"].entries())
-      result.box(id, { x: 1, y: 1, z: 1 }, { x: 0, y: index + 0.5, z: 0 },
-        { surface: id === "a" ? "steel" : id === "b" ? "wood" : "rubber" });
+      result.box(
+        id,
+        { x: 1, y: 1, z: 1 },
+        { x: 0, y: index + 0.5, z: 0 },
+        { surface: id === "a" ? "steel" : id === "b" ? "wood" : "rubber" },
+      );
     const frame: ReturnType<typeof ArchetypeFrame.upright> =
       ArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
     result.affordance({

@@ -36,22 +36,35 @@ export function cannonLaunch(
     });
   if (!(Number.isFinite(speed) && speed > 0))
     throw new ArchetypeRefusal({
-      kind: "parameter", archetype: "cannon", axis: "muzzleVelocity", value: speed,
-      feasible: null, reason: "launch velocity must be finite and positive",
+      kind: "parameter",
+      archetype: "cannon",
+      axis: "muzzleVelocity",
+      value: speed,
+      feasible: null,
+      reason: "launch velocity must be finite and positive",
       fix: "supply a recorded finite positive muzzle velocity in metres per second",
     });
   const calibre: number | undefined = gun.dimensions.ball;
   const bore: number | undefined = gun.dimensions.bore;
   if (!(calibre !== undefined && Number.isFinite(calibre) && calibre > 0))
     throw new ArchetypeRefusal({
-      kind: "parameter", archetype: "cannon", axis: "ball", value: calibre,
-      feasible: null, reason: "launch needs a known finite positive shot diameter, not a bore diameter",
+      kind: "parameter",
+      archetype: "cannon",
+      axis: "ball",
+      value: calibre,
+      feasible: null,
+      reason:
+        "launch needs a known finite positive shot diameter, not a bore diameter",
       fix: "supply the recorded shot diameter in metres",
     });
   if (bore !== undefined && !(Number.isFinite(bore) && bore > calibre))
     throw new ArchetypeRefusal({
-      kind: "parameter", archetype: "cannon", axis: "bore", value: bore,
-      feasible: null, reason: "the declared bore must be finite and wider than the shot",
+      kind: "parameter",
+      archetype: "cannon",
+      axis: "bore",
+      value: bore,
+      feasible: null,
+      reason: "the declared bore must be finite and wider than the shot",
       fix: "use a shot and bore with their recorded positive windage",
     });
   const posed: Archetype<createCannon.Affordance, createCannon.Dimension> =

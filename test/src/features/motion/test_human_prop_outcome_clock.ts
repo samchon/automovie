@@ -187,16 +187,27 @@ export function test_human_prop_outcome_clock(): void {
     { x: 0, y: 0, z: 0 },
     { x: 0, y: 1, z: 0 },
   );
-  const initial: ReturnType<typeof projectileFirstContact> = projectileFirstContact(
-    projectile,
-    [ground],
-    { from: 0, to: 2 },
-    { radius: 0, thickness: 1 },
-  );
-  if (initial === null || !nclose(initial.time, 0, 0) || initial.collider !== ground.id)
-    findings.push("an initial approaching contact did not identify the floor at zero");
+  const initial: ReturnType<typeof projectileFirstContact> =
+    projectileFirstContact(
+      projectile,
+      [ground],
+      { from: 0, to: 2 },
+      { radius: 0, thickness: 1 },
+    );
+  if (
+    initial === null ||
+    !nclose(initial.time, 0, 0) ||
+    initial.collider !== ground.id
+  )
+    findings.push(
+      "an initial approaching contact did not identify the floor at zero",
+    );
   if (initial !== null)
-    floor.meeting = { hit: initial, collider: ground.id, struck: { kind: "ground" } };
+    floor.meeting = {
+      hit: initial,
+      collider: ground.id,
+      struck: { kind: "ground" },
+    };
   floor.meet = (p: IAutoMovieProjectile): HumanPropOutcome.IMeeting | null => {
     sweeps++;
     if (sweeps > 1)

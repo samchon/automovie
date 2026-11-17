@@ -21,7 +21,7 @@ const HIGH: number = 2 ** 1023;
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the mass/centroid purpose, ordinary numeric path and exact exceptional path.
  * @evidence contracts/development/design.md#principled-representation Scaled convex means and products/quotients are the same physical formulas; binary64 inputs are exact dyadic rationals and round only at the exceptional path's final result.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Scalar/vector means, weight normalization, ratio, product and sum serve existing primitive, composite and line-moment consumers without geometry, material or model ownership.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Scalar/vector means, weight normalization, local products, ratio, weighted-product readers, product and sum serve existing primitive, composite and line-moment consumers without geometry, material or model ownership.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No physical cap, tolerance, clamp or cached scene state changes an input. A genuinely unrepresentable scalar remains infinite for its mass-property caller to refuse.
  */
 export namespace ArchetypeMassArithmetic {
@@ -77,6 +77,81 @@ export namespace ArchetypeMassArithmetic {
   }
 
   /**
+   * Form a positive local weight without admitting lost subnormal precision.
+   *
+   * @param a Finite positive first local factor.
+   * @param b Finite positive second local factor.
+   * @returns The ordinary normal product or an exact positive subnormal product; null for zero, overflow or inexact subnormal local representation.
+   * @throws {Error} For nonpositive or non-finite factors.
+   * @evidence contracts/development/common.md#meaningful-documentation States factor premises, normal grouping and the local representation refusal marker.
+   * @evidence contracts/development/implementation.md#principled-implementation Relative weight is a local datum consumed by normalization and weighted centres before aggregate mass allocation. Normal products retain the existing grouping. For a subnormal result, exact dyadic multiplication minus the represented result must be exactly zero, so quantization cannot change the weight before a large coordinate or lever magnifies it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit factors, compute the shared product, then compare exact and represented values only at the subnormal boundary.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact subnormal products remain supported; null is an explicit unsupported local datum for weightOf to refuse with its part id, never a replacement zero. Authored zero shares do not call this positive implicit-product path.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two fixed factors bound scalar work and exceptional integer width; ordinary normal products allocate no exact reader.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses product and the single Binary64/multiply/add owners for exact equality; no density or geometry representation is duplicated.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Scalars and exceptional dyadic records are call-local and no view, input or history escapes.
+   */
+  export function localProduct(a: number, b: number): number | null {
+    if (!(Number.isFinite(a) && a > 0 && Number.isFinite(b) && b > 0))
+      throw new Error("Local mass products need finite positive factors");
+    const result: number = product(a, b);
+    if (!(Number.isFinite(result) && result > 0)) return null;
+    if (result >= NORMAL) return result;
+    const read: Reader = ArchetypeBinary64();
+    const represented: IDyadic = read(result);
+    return add([
+      multiply([a, b], read),
+      { integer: -represented.integer, exponent: represented.exponent },
+    ]).integer === 0n
+      ? result
+      : null;
+  }
+  /**
+   * Factor one allocated mass into every signed geometric contribution.
+   *
+   * @param mass Finite nonnegative total mass.
+   * @param weight Finite nonnegative relative weight of this solid.
+   * @param scale Finite positive weight scale.
+   * @param total Finite positive dimensionless normalized weight total.
+   * @returns A call-local reader of up to three finite signed geometric factors; absent factors are one. Each result is mass*weight*a*b*c/(scale*total).
+   * @throws {Error} For invalid allocation premises or a non-finite geometric factor.
+   * @evidence contracts/development/common.md#meaningful-documentation States the physical allocation, signed factor domain, optional identities, result and synchronous reader lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation A normal allocated mass below the highest binade uses the existing product grouping. At underflow or overflow boundaries, its exact mass*weight numerator and scale*total denominator remain separate from geometric factors until one quotient rounds the complete contribution to nearest binary64, ties to even. A nonzero subnormal allocation is not an exact mass operand: its rounding error could be magnified by a large local moment or lever.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit and allocate once, then return either the ordinary product reader or a fixed-factor exact quotient reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No positive weight is omitted because its scalar allocated mass rounds to zero. Truly final underflow/overflow remains representational; parts still publishes its independently rounded scalar masses and local primitive admission is unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One allocation per solid and constant work per contribution. The exceptional numerator has at most five finite binary64 factors and the denominator two, bounding integer width independently of scene size.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses ratio, product, the single exact multiply/quotient owner and one exceptional binary64 reader. All intrinsic and parallel-axis terms of one solid share its fixed exact allocation factors.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned synchronous reader retains only allocation scalars or their bounded dyadic values and one call-local eight-byte view; of discards it after this solid's six tensor entries. No model, history or global buffer is retained.
+   */
+  export function weightedProduct(
+    mass: number,
+    weight: number,
+    scale: number,
+    total: number,
+  ): (a: number, b?: number, c?: number) => number {
+    const allocated: number = ratio(mass, weight, scale, total);
+    if (allocated >= NORMAL && allocated < HIGH)
+      return (a: number, b: number = 1, c: number = 1): number =>
+        product(allocated, a, b, c);
+    const read: Reader = ArchetypeBinary64();
+    const numerator: IDyadic = multiply([mass, weight], read);
+    const denominator: IDyadic = multiply([scale, total], read);
+    return (a: number, b: number = 1, c: number = 1): number => {
+      if (!(Number.isFinite(a) && Number.isFinite(b) && Number.isFinite(c)))
+        throw new Error("Mass products need finite factors");
+      if (a === 0 || b === 0 || c === 0) return 0;
+      const geometric: IDyadic = multiply([a, b, c], read);
+      return quotient(
+        {
+          integer: numerator.integer * geometric.integer,
+          exponent: numerator.exponent + geometric.exponent,
+        },
+        denominator,
+      );
+    };
+  }
+
+  /**
    * Multiply up to four signed finite factors, rounding an exceptional product once.
    *
    * @param a First factor.
@@ -118,7 +193,10 @@ export namespace ArchetypeMassArithmetic {
       Math.abs(result) >= NORMAL &&
       Math.abs(result) < HIGH
       ? result
-      : quotient(multiply([a, b, c, d], ArchetypeBinary64()), { integer: 1n, exponent: 0 });
+      : quotient(multiply([a, b, c, d], ArchetypeBinary64()), {
+          integer: 1n,
+          exponent: 0,
+        });
   }
 
   /**
@@ -144,7 +222,10 @@ export namespace ArchetypeMassArithmetic {
     }
     return Number.isFinite(result) && Math.abs(result) < HIGH
       ? result
-      : quotient(add(values.map(ArchetypeBinary64())), { integer: 1n, exponent: 0 });
+      : quotient(add(values.map(ArchetypeBinary64())), {
+          integer: 1n,
+          exponent: 0,
+        });
   }
 
   /**

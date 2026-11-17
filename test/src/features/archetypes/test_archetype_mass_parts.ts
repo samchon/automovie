@@ -109,20 +109,39 @@ export function test_archetype_mass_parts(): void {
 
   // 4. Planes alone weigh nothing.
   const planes: Record<string, number> = ArchetypeMass.parts([plane], 3);
-  if (!nclose(planes.floor ?? Number.NaN, 0, 0) || Object.keys(planes).length !== 1)
+  if (
+    !nclose(planes.floor ?? Number.NaN, 0, 0) ||
+    Object.keys(planes).length !== 1
+  )
     findings.push(`planes alone: the floor weighs ${planes.floor} kg`);
   if (Object.keys(ArchetypeMass.parts([], 3)).length !== 0)
     findings.push("an empty part inventory acquired a mass record");
   const invalid: readonly [string, () => unknown, string][] = [
-    ["positive-mass body without solids", (): ArchetypeMass.IProperties => ArchetypeMass.of([plane], 3), "positive solid volume or mass share"],
-    ["solid with zero shares", (): Record<string, number> => ArchetypeMass.parts([a], 3, {}, { a: 0 }), "positive solid volume or mass share"],
-    ["no-solid inventory with invalid total mass", (): Record<string, number> => ArchetypeMass.parts([plane], 0), "finite positive total mass"],
+    [
+      "positive-mass body without solids",
+      (): ArchetypeMass.IProperties => ArchetypeMass.of([plane], 3),
+      "positive solid volume or mass share",
+    ],
+    [
+      "solid with zero shares",
+      (): Record<string, number> => ArchetypeMass.parts([a], 3, {}, { a: 0 }),
+      "positive solid volume or mass share",
+    ],
+    [
+      "no-solid inventory with invalid total mass",
+      (): Record<string, number> => ArchetypeMass.parts([plane], 0),
+      "finite positive total mass",
+    ],
   ];
   for (const [label, read, reason] of invalid) {
     let refused: boolean = false;
-    try { read(); }
-    catch (error) { refused = error instanceof Error && error.message.includes(reason); }
-    if (!refused) findings.push(`${label}: the actual admission boundary was bypassed`);
+    try {
+      read();
+    } catch (error) {
+      refused = error instanceof Error && error.message.includes(reason);
+    }
+    if (!refused)
+      findings.push(`${label}: the actual admission boundary was bypassed`);
   }
   TestValidator.equals("parts weigh their share of the whole", findings, []);
 }

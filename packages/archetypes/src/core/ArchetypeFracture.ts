@@ -199,18 +199,16 @@ export namespace ArchetypeFracture {
       const parts: IAutoMovieModelPart[] = rest.parts.filter(
         (p: IAutoMovieModelPart): boolean => keep.has(p.id),
       );
-      const masses: number[] = parts.map(
-        (p: IAutoMovieModelPart): number => {
-          const value: number | undefined = rest.masses[p.id];
-          if (!(value !== undefined && Number.isFinite(value) && value >= 0))
-            throw massRefusal(
-              rest.archetype,
-              value,
-              `part ${p.id} needs its own finite nonnegative mass`,
-            );
-          return value;
-        },
-      );
+      const masses: number[] = parts.map((p: IAutoMovieModelPart): number => {
+        const value: number | undefined = rest.masses[p.id];
+        if (!(value !== undefined && Number.isFinite(value) && value >= 0))
+          throw massRefusal(
+            rest.archetype,
+            value,
+            `part ${p.id} needs its own finite nonnegative mass`,
+          );
+        return value;
+      });
       const mass: number = ArchetypeMassArithmetic.sum(masses);
       if (!(Number.isFinite(mass) && mass > 0))
         throw massRefusal(
@@ -225,8 +223,19 @@ export namespace ArchetypeFracture {
         affordances,
         properties: ArchetypeMass.of(parts, mass, {}, rest.masses),
         surfaces: Object.fromEntries(
-          parts.filter((p: IAutoMovieModelPart): boolean => rest.surfaces[p.id] !== undefined)
-            .map((p: IAutoMovieModelPart): [string, ArchetypeFriction.Material] => [p.id, rest.surfaces[p.id]!]),
+          parts
+            .filter(
+              (p: IAutoMovieModelPart): boolean =>
+                rest.surfaces[p.id] !== undefined,
+            )
+            .map(
+              (
+                p: IAutoMovieModelPart,
+              ): [string, ArchetypeFriction.Material] => [
+                p.id,
+                rest.surfaces[p.id]!,
+              ],
+            ),
         ),
         contact,
         spans: rest.spans.filter(

@@ -116,7 +116,7 @@ export function test_archetype_fracture_window(): void {
       const all: string[] = [
         ...ids(remainder.parts),
         ...ids(shards.archetype.parts),
-      ].sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0);
+      ].sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0));
       if (JSON.stringify(all) !== JSON.stringify(ids(window.parts)))
         findings.push(`${label}: a part was lost or duplicated`);
       if (
@@ -227,9 +227,9 @@ export function test_archetype_fracture_window(): void {
 
   /** Stable identities verify the pieces form a partition, independently of producer order. */
   function ids(parts: readonly IAutoMovieModelPart[]): string[] {
-    return parts.map((p: IAutoMovieModelPart): string => p.id).sort(
-      (a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0,
-    );
+    return parts
+      .map((p: IAutoMovieModelPart): string => p.id)
+      .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0));
   }
 
   /** Read the actual primitive solids and centres instead of a copied dimension record. */

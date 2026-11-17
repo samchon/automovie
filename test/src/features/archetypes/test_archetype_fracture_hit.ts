@@ -5,7 +5,10 @@ import {
   type ArchetypeFracture,
   ArchetypeRefusal,
 } from "@automovie/archetypes";
-import type { IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -240,23 +243,48 @@ export function test_archetype_fracture_hit(): void {
         { id: "a", parts: ["left"] },
         { id: "b", parts: ["right"] },
       ]);
-    const invalidMass: boolean = !(Number.isFinite(mass) && mass > 0) || mass === Number.MIN_VALUE;
-    const made: Archetype<never, never> = builder.build(invalidMass ? 3 : mass, {
-      restitution: 0,
-      ...(breakable ? { outcome: { fracture: threshold } } : {}),
-    });
+    const invalidMass: boolean =
+      !(Number.isFinite(mass) && mass > 0) || mass === Number.MIN_VALUE;
+    const made: Archetype<never, never> = builder.build(
+      invalidMass ? 3 : mass,
+      {
+        restitution: 0,
+        ...(breakable ? { outcome: { fracture: threshold } } : {}),
+      },
+    );
     if (!invalidMass) return made;
 
     // Deliberately malformed rest data bypass the builder's own total-mass admission.
     return new Archetype<never, never>({
-      archetype: "fracture-fixture", id: "fracture-fixture", name: "malformed fracture mass",
-      parts: made.parts, affordances: [], materials: made.materials,
+      archetype: "fracture-fixture",
+      id: "fracture-fixture",
+      name: "malformed fracture mass",
+      parts: made.parts,
+      affordances: [],
+      materials: made.materials,
       properties: { ...made.properties, mass },
-      friction: null, kineticFriction: null, surfaces: {}, material: "steel", restitution: 0,
-      drag: null, contact: breakable ? { fracture: threshold } : null,
-      fractures: breakable ? [{ id: "a", parts: ["left"] }, { id: "b", parts: ["right"] }] : [],
-      masses: Object.fromEntries(made.parts.map((p: IAutoMovieModelPart): [string, number] => [p.id, mass / 3])),
-      dimensions: {}, provenance: draw.provenance, spans: [],
+      friction: null,
+      kineticFriction: null,
+      surfaces: {},
+      material: "steel",
+      restitution: 0,
+      drag: null,
+      contact: breakable ? { fracture: threshold } : null,
+      fractures: breakable
+        ? [
+            { id: "a", parts: ["left"] },
+            { id: "b", parts: ["right"] },
+          ]
+        : [],
+      masses: Object.fromEntries(
+        made.parts.map((p: IAutoMovieModelPart): [string, number] => [
+          p.id,
+          mass / 3,
+        ]),
+      ),
+      dimensions: {},
+      provenance: draw.provenance,
+      spans: [],
     });
   }
 

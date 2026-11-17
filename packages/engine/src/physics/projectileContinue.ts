@@ -27,8 +27,10 @@ import { projectileAt } from "./projectileAt";
  * - `pass`: it continues through on the same flight, losing a share of its
  *   speed.
  *
- * Every coefficient is the caller's: the engine names no projectile. The
- * gravity's pull along a tilted surface is not modelled in a roll, so a roll
+ * Every coefficient is the caller's: the engine names no projectile.
+ * Restitution and the lost-speed share are finite values in [0, 1]; friction,
+ * rolling resistance and embedding depth remain finite and nonnegative.
+ * Gravity's pull along a tilted surface is not modelled in a roll, so a roll
  * on a slope keeps the deceleration of a level one (stated, not hidden).
  * An explicit roll with outward normal gravity is rejected: an unbound
  * surface cannot hold that body against gravity. Neutral normal gravity
@@ -38,12 +40,12 @@ import { projectileAt } from "./projectileAt";
  * @param hit Its contact, with the surface's normal.
  * @param outcome What happens.
  * @returns The segment that follows, timed from the original flight's launch.
- * @throws {RangeError} When the hit has no normal, a coefficient is negative or not finite, or an explicit roll would need a surface to pull against outward gravity.
+ * @throws {RangeError} When the hit has no normal, a coefficient is negative or not finite, restitution or speed loss exceeds one, or an explicit roll would need a surface to pull against outward gravity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States every outcome's law, its source and the slope it does not model.
  * @evidence contracts/development/implementation.md#principled-implementation Newton's restitution on the normal part and Coulomb's impulse limit on the tangential part. A roll's constant resistance uses compressive normal gravity only; the e²v_n²/(2g_n) rebound-height test is applicable only with inward gravity. Outward gravity cannot bind a body to a ceiling or wall.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the state at contact, split the velocity on the normal, one branch per outcome.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Coefficients are inputs; a rebound below the radius becomes a roll only when the caller gives one and gravity actually returns it to the surface. An explicit roll needing tensile surface force throws rather than fixing the body to that surface.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Restitution and lost-speed shares outside [0,1] refuse rather than adding energy or clamping an invalid loss to a stop. Other coefficients keep their finite nonnegative domain. A rebound below the radius becomes a roll only when the caller gives one and gravity actually returns it to the surface; an explicit roll needing tensile surface force throws.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per contact.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A new flight is a projectile record read by `projectileAt` like the first.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -62,11 +64,26 @@ export function projectileContinue(
   const vn: number = Vector3.dot(state.velocity, n);
   const normal: IAutoMovieVector3 = Vector3.scale(n, vn);
   const tangent: IAutoMovieVector3 = Vector3.subtract(state.velocity, normal);
-  const admit = (name: string, value: number): void => {
-    if (!(Number.isFinite(value) && value >= 0))
+  const admit: (name: string, value: number, maximum?: number) => void = (
+    name: string,
+    value: number,
+    maximum?: number,
+  ): void => {
+    if (
+      !(
+        Number.isFinite(value) &&
+        value >= 0 &&
+        (maximum === undefined || value <= maximum)
+      )
+    ) {
+      const range: string =
+        maximum === undefined
+          ? "finite and non-negative"
+          : `finite and between 0 and ${maximum}`;
       throw new RangeError(
-        `projectile ${name} must be finite and non-negative, but was ${value}`,
+        `projectile ${name} must be ${range}, but was ${value}`,
       );
+    }
   };
   const held: { rotation?: IAutoMovieQuaternion } =
     state.rotation === undefined ? {} : { rotation: state.rotation };
@@ -112,7 +129,7 @@ export function projectileContinue(
       };
     }
     case "bounce": {
-      admit("restitution", outcome.restitution);
+      admit("restitution", outcome.restitution, 1);
       admit("friction", outcome.friction);
       const rebound: number = -outcome.restitution * vn;
       const slip: number = Vector3.length(tangent);
@@ -170,17 +187,14 @@ export function projectileContinue(
         Vector3.dot(projectile.gravity, n),
       );
     case "pass": {
-      admit("speed loss", outcome.loss);
+      admit("speed loss", outcome.loss, 1);
       return {
         kind: "flight",
         from: hit.time,
         projectile: {
           ...projectile,
           origin: state.position,
-          velocity: Vector3.scale(
-            state.velocity,
-            Math.max(0, 1 - outcome.loss),
-          ),
+          velocity: Vector3.scale(state.velocity, 1 - outcome.loss),
           ...(projectile.attitude === undefined ||
           projectile.attitude.kind === "velocity"
             ? {}

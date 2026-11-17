@@ -32,7 +32,9 @@ export function test_archetype_contract_deterministic(): void {
     if (row.fixed !== true && distinct.size < 2)
       findings.push(`${row.name}: sixteen seeds gave one model`);
     if (row.fixed === true && distinct.size !== 1)
-      findings.push(`${row.name}: fixed, yet sixteen seeds gave ${distinct.size} models`);
+      findings.push(
+        `${row.name}: fixed, yet sixteen seeds gave ${distinct.size} models`,
+      );
     const keys: string = Object.keys(
       JSON.parse(JSON.stringify(row.create(1))) as object,
     )
@@ -48,8 +50,10 @@ export function test_archetype_contract_deterministic(): void {
   /** Observe authored variant facts without adding them to generated-model JSON. */
   function snapshot(model: Archetype): string {
     return JSON.stringify({
-      model, dimensions: model.dimensions,
-      properties: model.properties, provenance: model.provenance,
+      model,
+      dimensions: model.dimensions,
+      properties: model.properties,
+      provenance: model.provenance,
     });
   }
 }

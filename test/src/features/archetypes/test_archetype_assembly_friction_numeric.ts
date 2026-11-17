@@ -139,28 +139,59 @@ export function test_archetype_assembly_friction_numeric(): void {
     );
 
   /** Transfer one public builder's neutral solid into explicitly authored contact metadata. */
-  const authored: (mass: number, friction: number, kinetic: number) => Archetype = (
-    mass: number, friction: number, kinetic: number,
+  const authored: (
+    mass: number,
+    friction: number,
+    kinetic: number,
+  ) => Archetype = (
+    mass: number,
+    friction: number,
+    kinetic: number,
   ): Archetype => {
     const solid: Archetype = build(mass);
     const name: string | null = solid.name;
-    if (name === null) throw new Error("the authored contact fixture needs its builder's named solid");
+    if (name === null)
+      throw new Error(
+        "the authored contact fixture needs its builder's named solid",
+      );
     return new Archetype<never, never>({
-      archetype: solid.archetype, id: solid.id, name,
-      parts: solid.parts, affordances: [], materials: solid.materials,
-      properties: solid.properties, friction, kineticFriction: kinetic,
-      material: "composite", restitution: null, surfaces: {}, drag: null,
-      contact: null, fractures: [], masses: { body: mass }, dimensions: {},
-      provenance: { bands: {}, models: {}, figures: {}, units: {} }, spans: [],
+      archetype: solid.archetype,
+      id: solid.id,
+      name,
+      parts: solid.parts,
+      affordances: [],
+      materials: solid.materials,
+      properties: solid.properties,
+      friction,
+      kineticFriction: kinetic,
+      material: "composite",
+      restitution: null,
+      surfaces: {},
+      drag: null,
+      contact: null,
+      fractures: [],
+      masses: { body: mass },
+      dimensions: {},
+      provenance: { bands: {}, models: {}, figures: {}, units: {} },
+      spans: [],
     });
   };
   for (const scale of [1, 2 ** 200]) {
     const a: Archetype = authored(scale, 0.04, 0.04);
     const b: Archetype = authored(scale * 2 ** -200, 73 / 128, 0.5);
-    for (const pair of [[a, b], [b, a]] as const) {
+    for (const pair of [
+      [a, b],
+      [b, a],
+    ] as const) {
       const assembled: Archetype = combine(pair[0], pair[1]);
-      if (!nclose(assembled.body.friction ?? NaN, 0.04, 0) || !nclose(assembled.body.kineticFriction ?? NaN, 0.04, 0) || !validateModel({ model: assembled }).success)
-        findings.push("independent mean rounding reversed an authored static/kinetic order");
+      if (
+        !nclose(assembled.body.friction ?? NaN, 0.04, 0) ||
+        !nclose(assembled.body.kineticFriction ?? NaN, 0.04, 0) ||
+        !validateModel({ model: assembled }).success
+      )
+        findings.push(
+          "independent mean rounding reversed an authored static/kinetic order",
+        );
     }
   }
 

@@ -41,6 +41,14 @@ import { firstAutoMovieContactImpact } from "./firstAutoMovieContactImpact";
  * another stops is stopped at that same second, so the result does not
  * depend on the order the weapons are listed in.
  *
+ * Initial penetration or touch is a contact. A body may explicitly certify
+ * that this initial episode was resolved and is departing: either no new
+ * entry occurs in this search, or a finite positive-gap witness precedes any
+ * new entry. Only that pair is deferred until its witness; the scan clock,
+ * other bodies and later entry remain unchanged. Unknown departure retains
+ * initial reporting. The body's physical model owns this information because
+ * signed distance alone cannot establish it.
+ *
  * A contact is mutual. A weapon and the body that carries it are two
  * measures of one limb (a capsule and that body's signed distance), and they
  * need not agree to the millimetre, so of two limbs swung into each other
@@ -56,14 +64,14 @@ import { firstAutoMovieContactImpact } from "./firstAutoMovieContactImpact";
  *
  * @param input The weapons, the bodies and the span.
  * @returns The stops, in time order.
- * @throws {Error} When the span or the step is not positive, a weapon id repeats, a weapon's live span is not finite or ends before it begins, a tail radius is given without a tail or is not a finite non-negative length, a capsule weapon meets a body that measures no segment, or a body names a carried weapon that is not its own.
+ * @throws {Error} When the span or the step is not positive, a weapon id repeats, a weapon's live span is not finite or ends before it begins, a tail radius is given without a tail or is not a finite non-negative length, a capsule weapon meets a body that measures no segment, a departure witness is invalid, or a body names a carried weapon that is not its own.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the method, its determinism, its tie rule and what it does not model.
  * @evidence contracts/development/implementation.md#principled-implementation The time-ordered event loop of impulse-based simulation over continuous first-impact times.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over events and one first-impact search.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid spans, steps and repeated ids throw, and a capsule weapon is never reduced to its end points when a body cannot measure a segment: that throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each event re-scans the remaining weapons, each over the scan's samples inside its own live span and no later than the earliest impact found in that round: a performance of many strikes in sequence costs in proportion to its strikes, where scanning every weapon over the whole span after every event cost the square of them.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; callers memoise.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop orders events; firstAutoMovieContactImpact owns the single first-impact search, pair distances and departure admission.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid spans, steps and repeated ids throw, and a capsule weapon is never reduced to its end points when a body cannot measure a segment: that throws. Initial overlap remains a contact unless explicit physical departure is certified; a witness must have finite positive actual clearance. No clock nudge or permanent collider exclusion is used.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each event re-scans the remaining weapons, each over samples inside its own live span and no later than the earliest impact already found. Each initially contacting pair may additionally invoke its physical departure model once and validate one witness. Sequential strikes avoid scanning every weapon over the whole performance after every event.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All sphere/capsule/tapered pair measurements and first-impact scans share firstAutoMovieContactImpact; stop-dependent certificates are rebuilt for each search rather than reused after the pose changes.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function resolveAutoMovieContactEvents(

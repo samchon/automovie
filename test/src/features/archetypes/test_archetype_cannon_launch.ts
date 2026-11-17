@@ -96,10 +96,16 @@ export function test_archetype_cannon_launch(): void {
     findings.push("mutating a launch origin changed the gun or a later launch");
   for (const diameter of [6.14, 6.2]) {
     const naval: ReturnType<typeof createCannon> = createCannon({
-      kind: "navalGun", ball: diameter * IN,
+      kind: "navalGun",
+      ball: diameter * IN,
     });
     const shot: createCannon.ILaunch = createCannon.launch(naval);
-    if (!(Math.abs(shot.calibre - diameter * IN) <= 1e-12 && shot.calibre < 6.41 * IN))
+    if (
+      !(
+        Math.abs(shot.calibre - diameter * IN) <= 1e-12 &&
+        shot.calibre < 6.41 * IN
+      )
+    )
       findings.push(`naval shot ${diameter} in was replaced by its bore`);
   }
   for (const ball of [undefined, 0, -1, Number.NaN, Infinity, -Infinity])
@@ -121,26 +127,45 @@ export function test_archetype_cannon_launch(): void {
   );
 
   /** Authored metadata isolate launch admission without altering a producer or its methods. */
-  function metadata(ball: number | undefined, speed: number = 1, bore: number = 2):
-    Archetype<createCannon.Affordance, createCannon.Dimension> {
-    const draw: ArchetypeDrawSession<createCannon.Dimension> = new ArchetypeDrawSession(
-      "cannon", createCannon.UNITS, undefined, {},
-    );
+  function metadata(
+    ball: number | undefined,
+    speed: number = 1,
+    bore: number = 2,
+  ): Archetype<createCannon.Affordance, createCannon.Dimension> {
+    const draw: ArchetypeDrawSession<createCannon.Dimension> =
+      new ArchetypeDrawSession("cannon", createCannon.UNITS, undefined, {});
     draw.derive("muzzleVelocity", speed);
     draw.derive("bore", bore);
     if (ball !== undefined) draw.derive("ball", ball);
-    return new ArchetypeBuilder<createCannon.Affordance, createCannon.Dimension>({
-      name: "launch metadata fixture", material: "steel", draw,
-    }).box("body", { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }).affordance({
-      id: "muzzle", kind: "socket", direction: "along", extent: null,
-      frame: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
-    }).build(1);
+    return new ArchetypeBuilder<
+      createCannon.Affordance,
+      createCannon.Dimension
+    >({
+      name: "launch metadata fixture",
+      material: "steel",
+      draw,
+    })
+      .box("body", { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 })
+      .affordance({
+        id: "muzzle",
+        kind: "socket",
+        direction: "along",
+        extent: null,
+        frame: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+      })
+      .build(1);
   }
 
   /** Observe the public structured repair axis, never replace a launch implementation. */
-  function refuses(model: Archetype<createCannon.Affordance, createCannon.Dimension>, axis: string): boolean {
-    try { createCannon.launch(model); }
-    catch (error) { return error instanceof ArchetypeRefusal && error.axis === axis; }
+  function refuses(
+    model: Archetype<createCannon.Affordance, createCannon.Dimension>,
+    axis: string,
+  ): boolean {
+    try {
+      createCannon.launch(model);
+    } catch (error) {
+      return error instanceof ArchetypeRefusal && error.axis === axis;
+    }
     return false;
   }
 }

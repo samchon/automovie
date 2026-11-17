@@ -28,8 +28,9 @@ export function test_archetype_horse_replay(): void {
     }
 
   /** Build independent model and playback state for each query order. */
-  const makeRide: () => ReturnType<typeof rideHorse> =
-    (): ReturnType<typeof rideHorse> =>
+  const makeRide: () => ReturnType<typeof rideHorse> = (): ReturnType<
+    typeof rideHorse
+  > =>
     rideHorse(
       createHorse({}, 1),
       {

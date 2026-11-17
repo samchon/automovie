@@ -227,14 +227,18 @@ export namespace HumanPropOutcome {
   }): ILeg[] {
     if (!Number.isFinite(props.horizon) || props.horizon < 0)
       throw new HumanRefusal({
-        kind: "parameter", axis: "horizon", value: props.horizon,
+        kind: "parameter",
+        axis: "horizon",
+        value: props.horizon,
         feasible: { kind: "range", minimum: 0, maximum: null, unit: "s" },
         reason: `prop ${props.prop.subject} needs a finite nonnegative continuation horizon`,
         fix: "give the finite seconds remaining after the launch",
       });
     if (!Number.isFinite(props.meeting.hit.time) || props.meeting.hit.time < 0)
       throw new HumanRefusal({
-        kind: "parameter", axis: "contact.time", value: props.meeting.hit.time,
+        kind: "parameter",
+        axis: "contact.time",
+        value: props.meeting.hit.time,
         feasible: { kind: "range", minimum: 0, maximum: null, unit: "s" },
         reason: `prop ${props.prop.subject} needs a finite nonnegative first contact time`,
         fix: "supply the contact's seconds after this flight's launch",
@@ -277,11 +281,24 @@ export namespace HumanPropOutcome {
         outcome.kind === "bounce" ? meeting.collider : undefined,
       );
       const end: number = met === null ? Infinity : next.from + met.hit.time;
-      if (met !== null && (!Number.isFinite(met.hit.time) || met.hit.time < 0 ||
-        !Number.isFinite(end) || !(end > next.from)))
+      if (
+        met !== null &&
+        (!Number.isFinite(met.hit.time) ||
+          met.hit.time < 0 ||
+          !Number.isFinite(end) ||
+          !(end > next.from))
+      )
         throw new HumanRefusal({
-          kind: "parameter", axis: "contact.time", value: end,
-          feasible: { kind: "range", minimum: next.from, maximum: null, unit: "s", open: "minimum" },
+          kind: "parameter",
+          axis: "contact.time",
+          value: end,
+          feasible: {
+            kind: "range",
+            minimum: next.from,
+            maximum: null,
+            unit: "s",
+            open: "minimum",
+          },
           reason: `prop ${props.prop.subject} contact with ${met.collider} after relative ${met.hit.time} s reaches absolute ${end} s, which does not advance finitely beyond ${next.from} s`,
           fix: "supply the next strictly later contact; resolve departing or simultaneous contacts before continuing the flight",
         });

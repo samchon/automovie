@@ -209,9 +209,19 @@ export class ArchetypeAssembly<
     const weights: number[] = placed.map(
       (member: ArchetypeMass.IPlaced): number => member.properties.mass,
     );
-    let frictionValue: number | null = friction === null ? null : ArchetypeMassArithmetic.mean(friction, weights);
-    let kineticValue: number | null = kinetic === null ? null : ArchetypeMassArithmetic.mean(kinetic, weights);
-    if (friction !== null && kinetic !== null && frictionValue !== null && kineticValue !== null && kineticValue > frictionValue) {
+    let frictionValue: number | null =
+      friction === null
+        ? null
+        : ArchetypeMassArithmetic.mean(friction, weights);
+    let kineticValue: number | null =
+      kinetic === null ? null : ArchetypeMassArithmetic.mean(kinetic, weights);
+    if (
+      friction !== null &&
+      kinetic !== null &&
+      frictionValue !== null &&
+      kineticValue !== null &&
+      kineticValue > frictionValue
+    ) {
       frictionValue = ArchetypeMassArithmetic.mean(friction, weights, true);
       kineticValue = ArchetypeMassArithmetic.mean(kinetic, weights, true);
     }
