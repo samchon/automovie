@@ -1,24 +1,27 @@
 ---
 name: 3d-modeling
-description: Defines the form each subject of a production takes, namely the polygon man for a person, an installed archetype for an object people use, a coarse form of a few primitives for anything else, and on the user's request a generated, crafted or recovered form with its rig. Use before building or changing a subject's form; judging any picture belongs to the visual-debugging skill and body motion to the motion skill.
+description: Prepares a subject's form and attachments. Use for coarse models, rigs or commissioned detail; motion and picture judgment have their own skills.
 ---
 
 # 3D modeling
 
-3D modeling gives each subject its form: the coarse default every scene uses and, on request, a detailed one. Read [project context](../production/project-context.md) first for the representation the production adopted.
+Prepare each subject's form and attachments from its production record.
 
 ## Default form
 
-Each subject takes the least form its motion hint needs, as [coarse first](../development/entities.md#coarse-first) sets:
+Use [entity work](../development/entities.md#coarse-first) for people and provided objects. A needed subject without a provided model takes a [coarse form](coarse-forms.md).
 
-- no form for a subject the hint does not need, which stays a description in the generation prompt;
-- the polygon man for a [person](../development/entities.md#people);
-- an [installed archetype](../development/entities.md#objects), where one offers it, for an object a person holds, uses, sits on or rides;
-- a [coarse form](coarse-forms.md) for anything else a scene shows or touches.
+A subject the hint does not need stays a description in the generation prompt. Inspect each modeled form beside its neighbors at its use scale under [form inspection](inspection.md).
 
 ## Requested detail
 
-Go further only for a [detail option](../development/entities.md#detail), such as a [direct 3D film](../video/direct-film.md)'s, or when primitives cannot make a form identifiable. The user chooses its source: a diffusion model's output, code that shapes it in detail, or an existing mesh. Build only what the request names and the subject's visible role needs, because finer geometry takes the time motion needs and diffusion repaints it anyway.
+Use a [detail option](../development/entities.md#detail) when commissioned, such as for a [direct 3D film](../video/direct-film.md), or when primitives cannot make the form identifiable.
+
+The user chooses a generated, crafted or existing mesh. Build the detail its requested views and controls need.
+
+## Methods
+
+Read the method for the chosen representation or operation:
 
 | Task | Read |
 | --- | --- |
@@ -31,5 +34,3 @@ Go further only for a [detail option](../development/entities.md#detail), such a
 | Define parts, groups, placements or shared boundaries | [Modularization](modularization.md) |
 | Add or change a skeleton, skin, attachment or deformation control | [Rigging](rigging.md) |
 | Inspect a form's measures, coverage, construction or light | [Inspecting a form](inspection.md) |
-
-Whatever its source, a form is reproducible, rigged when it moves, and judged on screen under [visual debugging](../visual-debugging/SKILL.md), because a completed generation, fit, compilation or test establishes no visual result. The installed packages' documentation owns data formats and callable behavior.

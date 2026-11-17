@@ -20,6 +20,9 @@ export interface IFilmProduction {
   /** Camera the Viewer renders through; camera entities move it in `seek`. */
   camera: THREE.PerspectiveCamera;
 
+  /** Inspection mark kinds that may first appear after second zero; `marks` still supplies their actual geometry at the drawn second. */
+  markKinds?: readonly string[];
+
   /** Optional physical review source: `markFilmProduction` draws its bodies' skeleton and its contact forces as `joint`, `bone` and `contact` marks. */
   performance?: {
     /** Scene ids and profiles for the displayed bodies. */

@@ -29,6 +29,19 @@ Judge each output by what it promises:
 
 Ask the user for what only playback shows, as [what you can observe](../../../AGENTS.md#what-you-can-observe) sets, with the film time of each note, and record each report against that time so its repair can find the frames.
 
+## Motion judgment
+
+Judge the complete performed action in catalog cases, segments and the assembled film:
+
+- Are the complete forms correctly proportioned, oriented and attached beside the bodies and objects they meet, at the camera's use scale?
+- Do preparation, support, body movement, contact and recovery connect into the intended action, including the counterpart's response? Deliberate stillness remains valid.
+- Do blocking and camera preserve the required geography, participants, contacts and reactions through the action and its joins?
+- Does the picture show the screenplay's outcome, rather than only an event named for it?
+
+Use the [capture plan](../visual-debugging/capture.md#plan) for views, motion states and full-size observations. Answer from the pictures; successful checks, sheet counts and hashes establish no visual verdict.
+
+Record the observed cells, failing requirement and repair owner. Trace the cause through authored input, composition, native output and drawing under [correction rounds](../visual-debugging/correction-rounds.md#causes).
+
 ## Measurement and comparison
 
 Review the picture densely before any delivery claim, so a flaw anywhere in the film reaches you before its audience. Cut the film into review segments, each one capture of a stretch of the film, and inspect every segment on its contact sheets at the capture's default spacing. Around every contact, cut and join, add the film's own consecutive frames, as [capture](../visual-debugging/capture.md#times) requires; the README owns the window, the default spacing and the options that select exact frames. With motion already accepted in its [catalog cases](../motion/catalog-cases.md), this pass judges staging, camera and timing. Repeat it on every segment a fix touches.
@@ -43,6 +56,7 @@ Keep an accepted delivery's sheets and measures where [media records](../product
 
 Every acceptance records the revision, the media and output identities, the checks completed, the observations and the unverified limits. A film's record is `docs/acceptance/<film>.md`, one tracked file per film, so a later revision is accepted against the same list, and it also holds:
 
+- technical file completion and the separate verdict on the depicted practice, with rejected requirements and explicitly adopted limitations;
 - the checklist: every scene and beat seen, on-model entities, contacts, presences, camera and continuity;
 - the [measures](#measurement-and-comparison);
 - the views and passes reviewed;

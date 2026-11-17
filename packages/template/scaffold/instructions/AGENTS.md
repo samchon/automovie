@@ -6,7 +6,7 @@ The hint can guide a video model to create finished footage, or be rendered dire
 
 ## Starting work
 
-Read the production's `PROJECT.md` for its adopted scope and choices under [project context](.agents/skills/production/project-context.md). The [production workflow](.agents/skills/production/workflow.md) explains the stages, their handoffs and each delivery path.
+Read the production's `PROJECT.md` for its adopted scope and choices. [Project context](.agents/skills/production/project-context.md) owns that record; [production workflow](.agents/skills/production/workflow.md) owns the stages and handoffs.
 
 A production is the directory holding its `PROJECT.md`. Its location determines the [story route](.agents/skills/story/workflow/routes.md#choosing-the-route) inside a workspace:
 
@@ -18,7 +18,7 @@ A production is the directory holding its `PROJECT.md`. Its location determines 
 
 Every project path a skill names, such as `src`, `docs` or `media`, is relative to that production. Run commands from the directory whose README documents them.
 
-The installation root's `.agents/skills` holds the shared skills and bundled contracts. Each production keeps its own contracts in `docs/contracts`; workspace code shared between productions follows [shared modules](.agents/skills/development/source-layout.md#shared-modules).
+Shared skills and bundled contracts live in the installation root's `.agents/skills`; production contracts live in `docs/contracts`. Workspace code follows [shared modules](.agents/skills/development/source-layout.md#shared-modules).
 
 ## Attitude
 
@@ -35,55 +35,59 @@ Work by these rules:
 
 ## Principles
 
-| Principle | Owner |
-| --- | --- |
-| Keep geometry coarse and author motion in detail | [Entity work](.agents/skills/development/entities.md#coarse-first) |
-| The screenplay decides every exchange, outcome and reaction, and code never chooses one | [Screenplay layer](.agents/skills/story/layers/screenplay.md) |
-| Compose films only from accepted modules | [Composition contract](.agents/skills/contracts/development/composition.md#composition-only), [catalog cases](.agents/skills/motion/catalog-cases.md) |
-| Search installed packages first; vary modules instead of copying them | [Reuse](.agents/skills/development/reuse.md) |
-| Divide code by responsibility and test each module | [Development](.agents/skills/development/SKILL.md) |
+Keep 3D models simple and motion detailed.
+
+### People
+
+Use the polygon man from `@automovie/human`. [Entity work](.agents/skills/development/entities.md#people) owns preparation and commissioned detail.
+
+### Objects
+
+Use `@automovie/archetypes` for objects it provides. A needed object it lacks takes a coarse form with the connections its use needs, under [entity work](.agents/skills/development/entities.md#objects).
+
+### Motion
+
+Use `@automovie/motions` for behavior its actions and operators express. [Programmed motion](.agents/skills/motion/SKILL.md) owns detailed performance and extensions for genuinely missing actions.
+
+### Screenplay
+
+The [screenplay](.agents/skills/story/layers/screenplay.md) decides every exchange, outcome and reaction. Code realizes those decisions.
+
+### Modules
+
+Divide code by responsibility and test what each module owns under [development](.agents/skills/development/SKILL.md). Films compose modules accepted in their [catalog cases](.agents/skills/motion/catalog-cases.md).
 
 ## What you can observe
 
-You can inspect still images. Judge motion through [dense sampling](.agents/skills/visual-debugging/capture.md#times), including consecutive frames at every contact and cut.
+Inspect pictures through the [inspector and capture](.agents/skills/visual-debugging/capture.md#restoring-the-instrument). Judge motion through [dense stills](.agents/skills/visual-debugging/capture.md#times), including consecutive frames at contacts and cuts.
 
-Check the current model and available tools before claiming auditory access: audio attachments and voice dictation alone do not establish it. Without an audio-understanding model or tool, use decoded measurements and report that you have not heard the file under [listening](.agents/skills/audio/acquisition.md#listening).
+Check the current model and tools before claiming auditory access. Without it, use decoded measurements and disclose that the file remains unheard under [listening](.agents/skills/audio/acquisition.md#listening).
 
-Ask the user to watch playback for claims about continuous motion, and to listen to sound.
-
-Judge films through the inspector page and capture command. Keep both working under [restoring the instrument](.agents/skills/visual-debugging/capture.md#restoring-the-instrument).
+Ask the user for continuous-playback and listening judgments that your tools cannot establish.
 
 ## Finishing work
 
-A message without a tool call ends the turn. While work remains, do not end it with:
-
-- a summary that announces the next step;
-- an offer to continue;
-- a list of decisions that do not block the work;
-- a report because a stage finished;
-- a wait on background work.
-
-Put status notes in the same message as the next tool call.
+Continue until the commissioned work is complete. A progress report, proposed next step or wait on background work does not finish the task.
 
 Stop only when nothing can move without the user or a destructive or outward-facing action needs confirmation.
 
 ## Skills
 
-Read every skill whose trigger fits the task:
+Read every skill whose trigger fits the task. This list is alphabetical; the production workflow owns task order.
 
 | Skill | Use when |
 | --- | --- |
-| [production](.agents/skills/production/SKILL.md) | Learning the workflow, managing a production, or assembling and handing off its output |
-| [story](.agents/skills/story/SKILL.md) | Researching, planning, writing or repairing narrative, or answering story contracts |
-| [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | Building or changing a subject's form |
-| [motion](.agents/skills/motion/SKILL.md) | Authoring or verifying performance, staging, camera, physics, motion modules or control channels |
-| [image](.agents/skills/image/SKILL.md) | Choosing an image generator, or generating, editing or finishing images |
-| [video](.agents/skills/video/SKILL.md) | Finishing a direct 3D or generated film, choosing a video model, or working on takes |
+| [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | Preparing a subject's form, attachment or commissioned detail |
 | [audio](.agents/skills/audio/SKILL.md) | Planning, generating or finishing sound |
-| [development](.agents/skills/development/SKILL.md) | Implementing source, integrations, commands or behavioral tests |
-| [evidence](.agents/skills/evidence/SKILL.md) | Adopting requirements, configuring evidence, or answering source and test contracts |
 | [contracts](.agents/skills/contracts/SKILL.md) | Selecting, answering or citing a contract item |
-| [documentation](.agents/skills/documentation/SKILL.md) | Writing technical prose, evidence answers, READMEs or doc comments |
+| [development](.agents/skills/development/SKILL.md) | Implementing code, integrations, dependencies, commands or tests |
+| [documentation](.agents/skills/documentation/SKILL.md) | Writing technical prose, READMEs, evidence answers or doc comments |
+| [evidence](.agents/skills/evidence/SKILL.md) | Adopting requirements, configuring checks or writing and auditing source/test evidence |
+| [image](.agents/skills/image/SKILL.md) | Choosing a generator or creating and finishing images |
+| [motion](.agents/skills/motion/SKILL.md) | Composing, extending or verifying motion, staging, camera and control channels |
+| [production](.agents/skills/production/SKILL.md) | Managing scope, workflow, caches, assembly or handoff |
 | [prompting](.agents/skills/prompting/SKILL.md) | Changing `AGENTS.md`, `CLAUDE.md` or a skill |
-| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Judging pictures, verifying visual changes, or restoring the inspector or capture command |
-| [review](.agents/skills/review/SKILL.md) | Reviewing source or narrative, accepting deliveries, or estimating quality on request |
+| [review](.agents/skills/review/SKILL.md) | Reviewing work, accepting deliveries or estimating requested quality |
+| [story](.agents/skills/story/SKILL.md) | Researching, planning, writing or repairing narrative |
+| [video](.agents/skills/video/SKILL.md) | Choosing a video model, finishing a film or working on takes |
+| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Judging pictures or verifying viewer and capture behavior |

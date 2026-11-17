@@ -25,4 +25,4 @@ State what each capability returns and where the entity's state lives.
 
 Does one module serve every use of the subject: the controls its scenes drive, every version of the subject as a parameter or a seed, the coarse form and each commissioned detail from one definition, and a rebuild from a fixed source? A copied variant or a second definition for the detailed form drifts from the first at its next repair.
 
-State the controls and parameters it exposes, the detail options it builds, and its source with its usage rights.
+State its controls, parameters, detail options, source and usage rights. Trace an installed producer's result into the actual drawing and performance.

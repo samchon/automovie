@@ -5,7 +5,9 @@ description: Implements and tests production source, integrations, dependencies 
 
 # Development
 
-Read the production's current source and the [installed package APIs](reuse.md#reading-a-package) before choosing an implementation. Divide behavior into responsibilities with explicit inputs, outputs and state owners, give each module [unit tests](testing.md), then verify their composition through the actual consumer.
+Read the existing source and relevant [installed APIs](reuse.md#reading-a-package) before implementing a capability.
+
+Divide the production's own behavior by responsibility, with explicit inputs, outputs and state owners. Test what each module owns under [testing](testing.md), then verify the composition through its actual consumer.
 
 | Task | Read |
 | --- | --- |

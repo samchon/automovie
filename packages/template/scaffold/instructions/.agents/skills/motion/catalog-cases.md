@@ -2,13 +2,15 @@
 
 An entity or a motion module is accepted alone, in the catalog, before any film composes it.
 
-A catalog case plays one module alone: one action against one target, partner response and outcome, one movement, one official, bystander or group behavior, one fall, or one entity state the screenplay uses. Cases of one module differ only in parameters, so each module has one case composition that takes them, and the [catalog film](../development/source-layout.md#source) lists every case the screenplay uses in its own labeled interval.
+A case isolates one module with its target, partner response and outcome. Variants are parameters of the same case composition. The [catalog film](../development/source-layout.md#source) gives each required case a labeled interval.
 
 Acceptance happens only in the catalog film, because it replays every case after a repair. A rehearsal module the film registry does not list is scratch for work in progress.
 
 ## Capture and review
 
-Capture each case's interval with the README's capture command, from the [views](../visual-debugging/capture.md#views) and at the [times](../visual-debugging/capture.md#times) visual debugging sets, with `joint` marks where the capture offers them. Review every still against the [performance study](../story/planning/research.md#performance-study) and the cast, prop and set records, then repair each failing case at its module by cause and recapture it.
+Resolve the case's performance once for its mount, and run its physical report in a separate check rather than during mounting, playback or capture. Repeating a whole-case audit for a view or seek delays inspection without checking a different performance. Keep the report with the inputs it checked, and reuse it only while those inputs and package versions remain unchanged.
+
+Capture the case through the README's command at the [views](../visual-debugging/capture.md#views) and [times](../visual-debugging/capture.md#times) its inspection needs, with `joint` marks where available. Apply [motion judgment](../review/delivery-review.md#motion-judgment) against the case's study and subject records. Repair all findings by cause before recapturing or expanding it into a segment.
 
 ## A person's case
 
@@ -25,6 +27,12 @@ A finding that remains in a vocabulary action composed as its README shows is a 
 ## Any other case
 
 Accept any other case, a clip retargeted onto a person included, when its [tests](../development/testing.md) pass and no still shows a flaw.
+
+## Adopted limitations
+
+When the production's adopted scope explicitly retains a reported package limitation, a case can be accepted for that reduced scope. The record names the original unmet requirement, issue, affected inputs and remaining checks. Those checks still apply.
+
+This permits the scoped case to be composed into the film without declaring the original failure clean. An existing adopted decision needs no renewed approval. A limitation the production has not adopted follows [reuse](../development/reuse.md#a-defect-or-a-gap).
 
 ## Record
 
