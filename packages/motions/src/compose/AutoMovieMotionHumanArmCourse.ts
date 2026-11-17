@@ -122,15 +122,18 @@ export namespace AutoMovieMotionHumanArmCourse {
   ): ReturnType<typeof HumanArmTrajectory.admitted> | undefined {
     const { span, arms } = props;
 
-    // The frame grid over the span, with the hold's two ends.
-    const times: number[] = [span.start];
-    for (let j: number = 1; span.start + j * STEP < span.end - 1e-9; ++j)
-      times.push(span.start + j * STEP);
+    // Each phrase (the reach, the hold, the return) cut into equal pieces no
+    // longer than a frame, its end left to the next: the hold's two ends are
+    // instants of the grid themselves. Laid beside a span-wide grid instead,
+    // an end falls milliseconds from a grid instant, and the arm's frame of
+    // travel between the two reads as a speed of tens of metres a second.
+    const times: number[] = [];
+    for (const [from, to] of [[span.start, span.ready], [span.ready, span.relax], [span.relax, span.end]] as const) {
+      if (!(to > from + 1e-9)) continue;
+      const pieces: number = Math.max(1, Math.ceil((to - from) / STEP - 1e-9));
+      for (let j: number = 0; j < pieces; ++j) times.push(from + ((to - from) * j) / pieces);
+    }
     times.push(span.end);
-    for (const t of [span.ready, span.relax])
-      if (!times.some((s: number): boolean => Math.abs(s - t) <= 1e-9))
-        times.push(t);
-    times.sort((p: number, q: number): number => p - q);
     const holding: (t: number) => boolean = (t: number): boolean =>
       t >= span.ready - 1e-9 && t <= span.relax + 1e-9;
     const course: Map<number, HumanArmClearance.IArm[]> = new Map();
