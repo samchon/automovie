@@ -1,4 +1,10 @@
-import { indexSkeletonTopology } from "@automovie/engine";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  type IAutoMovieSkeletonTopology,
+  indexSkeletonTopology,
+  prepareSkeletonPoseResolution,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -57,9 +63,18 @@ export const motionArmRig: () => IHumanBody = (): IHumanBody => {
       z: parent.z + b.rest.translation.z,
     });
   }
+  const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton);
   return {
     skeleton,
-    topology: indexSkeletonTopology(skeleton),
+    topology,
+    // The rig as the body holds it: the solver reads the body's own
+    // prepared rig for its axes and its forward kinematics.
+    poseResolution: prepareSkeletonPoseResolution(
+      skeleton,
+      HUMANOID_JOINT_AXES,
+      HUMANOID_REST_FRAME,
+      topology,
+    ),
     rest,
     measure: { upperArm: 0.3, forearm: 0.25 },
     profile: { segments: [] },

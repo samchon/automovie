@@ -30,8 +30,11 @@ import { nclose } from "../internal/nclose";
  *    arm's length from the shoulder and the forearm's from the wrist within
  *    1e-9 m, and its shoulder reads inside the range by the source's measure
  *    (`AutoMovieMotionHumanDrinkingArm.measured`) within 1e-6 degrees, at
- *    its edge: the greater excess over `FLEXION` and `ABDUCTION` is 0 within
- *    1e-6.
+ *    its edge or the swivel's resolution inside it (0.0062 degrees of
+ *    swivel, the width a fit keeps a hint's swivel to), where the bound
+ *    stands a moved hint so that the fitted elbow lands inside: the greater
+ *    excess over `FLEXION` and `ABDUCTION` is 0 within 1e-6 at the hint or
+ *    at the elbow that resolution along the circle from it.
  * 2. A kept hint is the hint itself, and the elbow at its swivel reads
  *    inside the range within 1e-6 degrees, or no swivel of the circle does
  *    (read every degree).
@@ -139,6 +142,12 @@ export function test_motion_compose_drinking_swivel(): void {
     };
   };
 
+  // The width a fit keeps a hint's swivel to, degrees (the engine's
+  // `hingedArmSwivel.RESOLUTION`: a two-degree bracket shrunk by the golden
+  // ratio until it is within the joints' tolerance of 0.01 degrees).
+  const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
+  const RESOLUTION: number =
+    2 * GOLDEN ** Math.ceil(Math.log(0.01 / 2) / Math.log(GOLDEN));
   let moved: number = 0;
   let kept: number = 0;
   for (let ahead: number = 0.1; ahead <= 0.4 + 1e-9; ahead += 0.05)
@@ -162,9 +171,28 @@ export function test_motion_compose_drinking_swivel(): void {
             nclose(distance(result, shoulder), upper, 1e-9) &&
               nclose(distance(result, wrist), lower, 1e-9),
           );
+          // The hint's swivel on the circle, read off the circle's own points,
+          // and the elbow the swivel's resolution to either side of it.
+          const on: (swivel: number) => IAutoMovieVector3 = circle(wrist);
+          const centre: IAutoMovieVector3 = {
+            x: (on(0).x + on(180).x) / 2,
+            y: (on(0).y + on(180).y) / 2,
+            z: (on(0).z + on(180).z) / 2,
+          };
+          const along = (to: IAutoMovieVector3): number =>
+            (result.x - centre.x) * (to.x - centre.x) +
+            (result.y - centre.y) * (to.y - centre.y) +
+            (result.z - centre.z) * (to.z - centre.z);
+          const swivel: number =
+            (Math.atan2(along(on(90)), along(on(0))) * 180) / Math.PI;
+          const edge: number = Math.min(
+            Math.abs(past(result)),
+            Math.abs(past(on(swivel - RESOLUTION))),
+            Math.abs(past(on(swivel + RESOLUTION))),
+          );
           TestValidator.predicate(
-            `${where}: the moved hint's shoulder is at the range's edge (${past(result).toFixed(6)} degrees past it)`,
-            nclose(past(result), 0, 1e-6),
+            `${where}: the moved hint's shoulder is inside the range (${past(result).toFixed(6)} degrees past it), at its edge or the swivel's resolution inside it (${edge.toExponential(2)} degrees from the edge there)`,
+            past(result) <= 1e-6 && edge <= 1e-6,
           );
         } else {
           kept++;
