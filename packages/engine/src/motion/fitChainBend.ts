@@ -81,17 +81,14 @@ export const fitChainBend: (
     );
   };
 
-  // A bend hint picks the bend plane the way a pole vector does in game-engine
-  // two-bone IK (Unreal's Two Bone IK joint target, Unity's
-  // TwoBoneIKConstraint hint): the mid joint is displaced toward the hint's
-  // component across the root-to-target axis. Without a hint, the analytic
-  // default bends toward world-down and the search below takes over.
-  const pole: ReturnType<typeof solve> = solve(
-    props.bend === undefined
-      ? undefined
-      : hintNormal(prepared.upper.worldPosition, props.target, props.bend),
-  );
-  if (pole === null) return { pose: props.pose, seed: null };
+  // The analytic solve has an answer exactly where the source's triangle and
+  // this target admit one (`twoBoneChainArticulation`: neither segment and
+  // not the reach shorter than 1e-6), whatever the bend plane; a chain
+  // without one keeps its pose. The pole candidate itself is solved below,
+  // only when the hinged candidate is not the answer.
+  const source: ReturnType<typeof workspace.articulation> = workspace.articulation();
+  targetPreparation = source === null ? null : source.target(props.target);
+  if (targetPreparation === null) return { pose: props.pose, seed: null };
   const { authored }: prepareChainFit.IReading = workspace.read();
   const authoredContinuity: number =
     props.referencePose === undefined ? 0 : workspace.authoredContinuity();
@@ -191,6 +188,16 @@ export const fitChainBend: (
     consider(hinged.candidate);
   }
 
+  // A bend hint picks the bend plane the way a pole vector does in game-engine
+  // two-bone IK (Unreal's Two Bone IK joint target, Unity's
+  // TwoBoneIKConstraint hint): the mid joint is displaced toward the hint's
+  // component across the root-to-target axis. Without a hint, the analytic
+  // default bends toward world-down and the search below takes over.
+  const pole: NonNullable<ReturnType<typeof solve>> = solve(
+    props.bend === undefined
+      ? undefined
+      : hintNormal(prepared.upper.worldPosition, props.target, props.bend),
+  )!;
   consider(pole);
   if (canFinish(props, best)) return { pose: plantPose(props, workspace, best), seed: null };
 

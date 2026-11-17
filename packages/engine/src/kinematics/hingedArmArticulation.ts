@@ -7,6 +7,7 @@ import type { hingedArmCandidate } from "./hingedArmCandidate";
 import { hingedArmSwivel } from "./hingedArmSwivel";
 import { hingedSwivelAhead } from "./hingedSwivelAhead";
 import { hingedSwivelBounded } from "./hingedSwivelBounded";
+import { hingedSwivelNear } from "./hingedSwivelNear";
 import { hingedSwivelPole } from "./hingedSwivelPole";
 import { hingedSwivelSwept } from "./hingedSwivelSwept";
 import { refineHingedSwivel } from "./refineHingedSwivel";
@@ -14,8 +15,6 @@ import { refineHingedSwivel } from "./refineHingedSwivel";
 /** The sweep's swivel step, degrees (`hingedArmSwivel.STEP`). */
 const SWIVEL_STEP: number = hingedArmSwivel.STEP;
 
-/** The golden-section ratio (`hingedArmSwivel.GOLDEN`). */
-const GOLDEN: number = hingedArmSwivel.GOLDEN;
 
 /** Golden-section passes per refinement (`hingedArmSwivel.REFINEMENTS`). */
 const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
@@ -85,7 +84,12 @@ const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
  * it (`hingedSwivelPole`) and returns a legal result without the sweep, so
  * it follows the bend hint rather than jumping to a far, marginally better swivel.
  *
- * A caller continuing a fit of a nearby target (`near`) skips the sweep: the
+ * A cold fit whose caller certifies that no candidate can pass `met`
+ * (`unmet`) skips the pole start, whose result `met` would refuse.
+ *
+ * A caller continuing a fit of a nearby target (`near`) skips the sweep: a
+ * `closed` candidate less than a step from the seed answers when legal and
+ * met (`hingedSwivelNear`), and otherwise the
  * seed's branch, its swivel refined within one step either way by the same
  * golden-section search under the same ordering, to the seed's `tolerance`
  * (`IAutoMovieSwivelNear`). Every result names its branch and swivel, the
@@ -112,28 +116,7 @@ const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each hinge branch computes its mid direction and aim once for the solve. Within that unchanged branch/target/score, a full fallback reuses each actual step and completed refinement of the same bracket; it still compares all original candidates in their original order. An optional matching prepared target also shares source span coefficients/inverse root and this point's lowered goal. No scored answer crosses targets or solves.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A solve retains at most two branches' 360 step candidates and one selected candidate per refined step, with their branch pose/probe closures. The bounded workspace releases at return or throw; only the selected rotations escape, with no history or external handle.
  */
-export const hingedArmArticulation: (props: {
-  upper: IAutoMovieChainBone;
-  midOffset: IAutoMovieVector3;
-  midRest: IAutoMovieQuaternion;
-  endOffset: IAutoMovieVector3;
-  hinge: IAutoMovieVector3;
-  target: IAutoMovieVector3;
-  range?: { min: number; max: number };
-  score: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) =>
-    { overshoot: number; deviation: number; exact?: () => number; tiebreak?: () => number };
-  excluded?: (upper: (swivel: number) => IAutoMovieQuaternion) => (low: number, high: number) => boolean;
-  bound?: (upper: (swivel: number) => IAutoMovieQuaternion, posed: ReturnType<typeof hingedArmSwivel.pose>) =>
-    (low: number, high: number) => number;
-  pole?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => number | null;
-  closed?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => readonly number[] | null;
-  met?: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => boolean;
-  direct?: boolean;
-  near?: IAutoMovieSwivelNear;
-  tie?: number;
-  minimum?: { overshoot: number; deviation: number };
-  prepared?: hingedArmSwivel.IPreparedTarget;
-}) => IAutoMovieHingedArticulation | null = (props: {
+export function hingedArmArticulation(props: {
   /** Chain-root bone (the shoulder) resolved under the rig's rest FK. */
   upper: IAutoMovieChainBone;
 
@@ -229,6 +212,15 @@ export const hingedArmArticulation: (props: {
   /** Whether a pole-started result meets every requested term; absent, legality alone decides. */
   met?: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => boolean;
 
+  /**
+   * Given a branch's poser, whether it is certain that no candidate on the
+   * branch passes `met` (a certified lower bound of the requested term's
+   * miss above its tolerance at every swivel). Where every branch is so
+   * certified, a cold fit skips the pole start, whose result `met` would
+   * refuse, and the sweep decides at once; omitted, nothing is certified.
+   */
+  unmet?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => boolean;
+
   /** Whether the score is the start's own term alone, so an unrefused start is the answer. */
   direct?: boolean;
 
@@ -258,7 +250,7 @@ export const hingedArmArticulation: (props: {
 
   /** Exact source/target geometry of this same unchanged chain, point and hinge range. */
   prepared?: hingedArmSwivel.IPreparedTarget;
-}): IAutoMovieHingedArticulation | null => {
+}): IAutoMovieHingedArticulation | null {
   // The bend branches toward the target, each stopped inside the mid joint's
   // own range (`hingedArmSwivel.branches`): a hinge angle outside the range
   // stops at the nearer limit, so the effector rests on the legal shell along
@@ -417,16 +409,22 @@ export const hingedArmArticulation: (props: {
   // A continued fit refines its seed on the seed's branch alone.
   if (props.near !== undefined) {
     const near: IAutoMovieSwivelNear = props.near;
-    if (!(near.tolerance > 0) || !Number.isFinite(near.tolerance))
-      throw new Error("A continued fit needs a positive finite tolerance");
-    const ratio: number = near.tolerance / (2 * SWIVEL_STEP);
-    const contraction: number = ratio === 0
-      ? Math.log(near.tolerance) - Math.log(2 * SWIVEL_STEP)
-      : Math.log(ratio);
     const branch: number = Math.min(near.branch, found.length - 1);
     const stop: IBranch = { ...found[branch]!, branch };
-    const seeded: IScored = refineHingedSwivel(prober(stop, pose(stop.theta)), better, near.swivel,
-      Math.max(0, Math.ceil(contraction / Math.log(GOLDEN))));
+    const posed: ReturnType<typeof hingedArmSwivel.pose> = pose(stop.theta);
+
+    // A closed-form candidate inside the seed's bracket answers when legal
+    // and met (`hingedSwivelNear`); the seed is refined otherwise.
+    const met: typeof props.met = props.met;
+    const seeded: IScored = hingedSwivelNear<IScored>({
+      probe: prober(stop, posed),
+      better,
+      near,
+      ...(props.closed !== undefined && props.tie === undefined && props.minimum === undefined
+        ? { closed: props.closed(posed) } : {}),
+      ...(met === undefined ? {}
+        : { met: (candidate: IScored): boolean => met(candidate.upper, candidate.lower) }),
+    });
     return answer(seeded, seeded.shortfall);
   }
 
@@ -453,7 +451,10 @@ export const hingedArmArticulation: (props: {
 
   // The pole start (`hingedSwivelPole`): a legal result is the answer; an
   // overshoot left (range or obstruction) or no side falls to the sweep.
-  if (props.pole !== undefined && props.tie === undefined && props.minimum === undefined) {
+  const unmet: typeof props.unmet = props.unmet;
+  if (props.pole !== undefined && props.tie === undefined && props.minimum === undefined &&
+    !(props.met !== undefined && unmet !== undefined && stops.every((s: IBranch): boolean =>
+      s.shortfall !== shortfall || unmet(record(s).posed)))) {
     const poled: IScored | null = hingedSwivelPole.search<IScored>({
       branches: stops.filter((s: IBranch): boolean => s.shortfall === shortfall).map(
         (stop: IBranch): hingedSwivelPole.IBranch<IScored> => {
@@ -482,7 +483,7 @@ export const hingedArmArticulation: (props: {
   // `branches` is never empty and the full sweep scores 360 candidates, so
   // `chosen` is assigned by here.
   return answer(chosen!);
-};
+}
 
 /** One bend branch with its index (`hingedArmCandidate.IBranch`). */
 type IBranch = hingedArmCandidate.IBranch;

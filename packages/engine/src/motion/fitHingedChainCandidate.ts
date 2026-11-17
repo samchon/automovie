@@ -18,7 +18,7 @@ import { distalEndSwivelReadings } from "../kinematics/distalEndSwivelReadings";
 import type { distalTwistSwivelRange } from "../kinematics/distalTwistSwivelRange";
 import { immobileAxisSwivels } from "../kinematics/immobileAxisSwivels";
 import { distalEndSwivelNearest } from "../kinematics/distalEndSwivelNearest";
-import type { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
+import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
@@ -275,6 +275,10 @@ export function fitHingedChainCandidate(
       : rig.hingeRange((): { min: number; max: number } | null =>
           readHingeRange(props, prepared, axes, lowerBasis),
         );
+  // The root angles of the last two candidates read, kept for the answer.
+  let latest: { rotation: IAutoMovieQuaternion; joint: IAutoMovieJointPose } | undefined;
+  let earlier: { rotation: IAutoMovieQuaternion; joint: IAutoMovieJointPose } | undefined;
+
   // What a candidate reads besides the hint's side: its root's angles, its
   // mid joint's place, its overshoot, effort and turn from the reference.
   const reading = (
@@ -282,6 +286,8 @@ export function fitHingedChainCandidate(
     lower: IAutoMovieQuaternion,
   ): IReading => {
     const u: IAutoMovieJointPose = upperOf(upper);
+    earlier = latest;
+    latest = { rotation: upper, joint: u };
     const known: IMid = midOf(lower);
 
     // Task priority reads no hint midpoint. A reference also replaces its
@@ -432,6 +438,34 @@ export function fitHingedChainCandidate(
       read.sense === forward ? 1 : -1,
     );
   };
+
+  // A branch's certified lower bound of the rotation's miss, read once a
+  // branch by the sweep's bound and by the pole start's certificate alike.
+  // The miss is bounded twice, by what the end joint's box cannot take of
+  // where the mid segment points (`distalEndSwivelMiss`) and by what the mid
+  // segment's twist range cannot take of the twist left to it
+  // (`distalTwistSwivelRange`'s miss): a rotation no swivel meets fails one
+  // or the other at every swivel, and the greater of two lower bounds is one.
+  const misses: WeakMap<object, { miss: ((low: number, high: number) => number) | null }> = new WeakMap();
+  const missOf = (
+    posed: ReturnType<typeof hingedArmSwivel.pose>,
+  ): ((low: number, high: number) => number) | null => {
+    let known: { miss: ((low: number, high: number) => number) | null } | undefined = misses.get(posed);
+    if (known === undefined) {
+      const boxed: ((low: number, high: number) => number) | null =
+        distalEndSwivelMiss(pointing(posed));
+      const twisted: ((low: number, high: number) => number) | null =
+        boxed === null ? null : twistMiss(posed);
+      known = {
+        miss: boxed === null || twisted === null
+          ? boxed
+          : (low: number, high: number): number =>
+              Math.max(boxed(low, high), twisted(low, high)),
+      };
+      misses.set(posed, known);
+    }
+    return known.miss;
+  };
   const solved: ReturnType<typeof hingedArmArticulation> =
     hingedArmArticulation({
       upper: prepared.upper,
@@ -483,22 +517,8 @@ export function fitHingedChainCandidate(
               const sided: ((low: number, high: number) => number) | null =
                 side === null || strain !== undefined
                   ? null : hingedChainSide.bound(offsetOf(upper), side);
-              // The rotation's miss is bounded twice, by what the end
-              // joint's box cannot take of where the mid segment points
-              // (`distalEndSwivelMiss`) and by what the mid segment's twist
-              // range cannot take of the twist left to it
-              // (`distalTwistSwivelRange`'s miss): a rotation no swivel
-              // meets fails one or the other at every swivel, and the
-              // greater of two lower bounds is one.
-              const boxed: ((low: number, high: number) => number) | null =
-                missed ? distalEndSwivelMiss(pointing(posed)) : null;
-              const twisted: ((low: number, high: number) => number) | null =
-                boxed === null ? null : twistMiss(posed);
               const miss: ((low: number, high: number) => number) | null =
-                boxed === null || twisted === null
-                  ? boxed
-                  : (low: number, high: number): number =>
-                      Math.max(boxed(low, high), twisted(low, high));
+                missed ? missOf(posed) : null;
               return sided === null
                 ? (miss ?? ((): number => 0))
                 : miss === null
@@ -537,6 +557,21 @@ export function fitHingedChainCandidate(
                     : hingedRotationStart(prepared, posed, rotation!),
                 met: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion): boolean =>
                   measure(upper, lower) <= ROM_TOLERANCE,
+                // Where the rotation's certified miss exceeds the joints'
+                // tolerance over every step of a branch's turn, no swivel of
+                // the branch is met: the measured error is never below that
+                // miss, so the pole start, accepted only when met, is not run.
+                ...(missed
+                  ? {
+                      unmet: (posed: ReturnType<typeof hingedArmSwivel.pose>): boolean => {
+                        const miss: ((low: number, high: number) => number) | null = missOf(posed);
+                        if (miss === null) return false;
+                        for (let low: number = 0; low < 360; low += hingedArmSwivel.STEP)
+                          if (!(miss(low, low + hingedArmSwivel.STEP) > ROM_TOLERANCE)) return false;
+                        return true;
+                      },
+                    }
+                  : {}),
                 // An end joint with one immobile axis (an ankle) takes the
                 // rotation only where the rotation demanded of it reads that
                 // axis neutral: at most two swivels a branch, in closed form
@@ -671,7 +706,16 @@ export function fitHingedChainCandidate(
       },
     });
   if (solved === null) return null;
-  const upper: IAutoMovieJointPose = upperOf(solved.upper);
+
+  // The chosen candidate's root angles were read when it was scored; a
+  // closed-form answer is one of the last two scored, and any other chosen
+  // candidate is read again, the same pure reading of the same record.
+  const upper: IAutoMovieJointPose =
+    latest?.rotation === solved.upper
+      ? latest.joint
+      : earlier?.rotation === solved.upper
+        ? earlier.joint
+        : upperOf(solved.upper);
   const lower: IAutoMovieJointPose = midOf(solved.lower).joint;
   return {
     hinge: prepared.hinge,
