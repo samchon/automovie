@@ -15,7 +15,9 @@ const STEP: number = hingedArmSwivel.STEP;
  * requested term can be met as intervals in closed form, the admissible
  * swivel nearest the seed (the seed itself when it is admissible): a target
  * that moved the admissible set past the seed is followed there in one call,
- * however far, rather than one step a call.
+ * however far, rather than one step a call. A start whose result is not
+ * legal and met competes with the seed's own continuation and is kept only
+ * when ranked strictly ahead of it.
  *
  * Where the caller knows in closed form the swivels at which a requested
  * term is met (`closed`: an end joint's immobile-axis roots, or the
