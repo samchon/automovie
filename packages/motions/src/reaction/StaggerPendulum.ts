@@ -27,9 +27,11 @@ import { staggerNearest } from "./staggerNearest";
  * as the bearing feet reach, and is integrated in closed form; the spans
  * are kept as phases the courses read.
  *
- * Each construction observes the current centre, root, heading and feet in
- * their original order. This instance owns the actual state and phases; private source-footprint and
- * integration helpers serve the public support and advance operations.
+ * The entry's fixed geometry (`prepare`: the centre, root, heading, feet and
+ * soles' extents) is read once per search and shared by every speed and
+ * foot order it probes. This instance owns the actual state and phases;
+ * private source-footprint and integration helpers serve the public support
+ * and advance operations.
  * Exact footprint snapshots retain at most one outline per side, alongside
  * the actual phases and steps, until reset or release. Prefix snapshots
  * remain owned by the same complete body/entry/push/speed search.
@@ -101,38 +103,75 @@ export class StaggerPendulum {
   }>> = {};
 
   /**
-   * Start one push's actual pendulum by reading its current entry. Centre,
-   * root, heading, feet and sole extents retain their original ordering;
-   * no completed observation is borrowed from another recovery or speed.
+   * Start one push's pendulum on its entry's fixed geometry.
    *
    * @param body The body.
    * @param entry The posture the push meets.
    * @param push The push's horizontal unit direction, world.
    * @param speed The centre of mass's speed after the blow, m/s.
+   * @param fixed The entry's geometry (`prepare`) for this same body and entry, shared by every speed one search probes; read here when absent.
    */
   public constructor(
     body: IHumanActionContext["body"],
     entry: IHumanActionContext["entry"],
     push: IAutoMovieVector3,
     speed: number,
+    fixed: ReturnType<typeof StaggerPendulum.prepare> = StaggerPendulum.prepare(body, entry),
   ) {
     this.body = body;
     this.entry = entry;
     this.push = push;
     this.speed = speed;
-    this.w = staggerBounds.omega(body);
-    this.centre = HumanBalance.centre(body, entry.posture);
-    this.root = entry.posture.root;
-    this.forward = HumanFrame.point(
+    this.w = fixed.w;
+    this.centre = fixed.centre;
+    this.root = fixed.root;
+    this.forward = fixed.forward;
+    this.across = fixed.across;
+    this.entered = fixed.entered;
+    this.feet = { ...this.entered };
+    this.v = Vector3.scale(StaggerPendulum.flat(push), speed);
+    this.width = fixed.width;
+    this.length = fixed.length;
+  }
+
+  /**
+   * The entry's geometry a pendulum starts from, which depends on the body
+   * and the entry alone: the frequency, the whole-body centre of mass (one
+   * full forward-kinematics read), the root, the heading's axes, the feet and
+   * the soles' narrowest side-by-side width and length.
+   *
+   * @param body The body.
+   * @param entry The posture the push meets.
+   * @returns The fixed geometry, shared by every pendulum of one search over speeds and foot orders.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read, its frames and who shares it.
+   * @evidence contracts/development/implementation.md#principled-implementation The pendulum's frequency from Hof's leg length, the centre of mass read from the entry posture, and the soles' extents along the heading's axes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record of every speed-independent quantity the constructor used to read per pendulum.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every value is read from the actual body and entry; nothing is a constant of one body.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One centre-of-mass read and two sole-extent scans per search instead of one per probed speed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The record depends on the body and the entry alone, so a search over speeds and pushes on one entry shares it; a different entry prepares its own.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record that its search owns until it returns.
+   */
+  public static prepare(
+    body: IHumanActionContext["body"],
+    entry: IHumanActionContext["entry"],
+  ): Pick<StaggerPendulum, "w" | "centre" | "root" | "forward" | "across" | "entered" | "width" | "length"> {
+    const forward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.posture.yaw },
       { x: 0, y: 0, z: 1 },
     );
-    this.across = { x: this.forward.z, y: 0, z: -this.forward.x };
-    this.entered = StrikingTarget.feet(entry);
-    this.feet = { ...this.entered };
-    this.v = Vector3.scale(StaggerPendulum.flat(push), speed);
-    this.width = this.extent(this.across);
-    this.length = this.extent(this.forward);
+    const across: IAutoMovieVector3 = { x: forward.z, y: 0, z: -forward.x };
+    const entered: Record<"left" | "right", HumanFoot.IPlacement> = StrikingTarget.feet(entry);
+    return {
+      w: staggerBounds.omega(body),
+      centre: HumanBalance.centre(body, entry.posture),
+      root: entry.posture.root,
+      forward,
+      across,
+      entered,
+      width: StaggerPendulum.extent(body, entered, across),
+      length: StaggerPendulum.extent(body, entered, forward),
+    };
   }
 
   /** A point on the floor.
@@ -447,13 +486,17 @@ export class StaggerPendulum {
     return made;
   }
 
-  /** Observe each entry sole's ankle-relative extent along the current axis. */
-  private extent(axis: IAutoMovieVector3): number {
+  /** Each entry sole's ankle-relative extent along an axis, the larger of the two. */
+  private static extent(
+    body: IHumanActionContext["body"],
+    entered: Record<"left" | "right", HumanFoot.IPlacement>,
+    axis: IAutoMovieVector3,
+  ): number {
     return Math.max(
       ...(["left", "right"] as const).map((side: "left" | "right"): number => {
-        const along: number[] = HumanFoot.sole(this.body, side, this.entered[side]).map(
+        const along: number[] = HumanFoot.sole(body, side, entered[side]).map(
           (q: IAutoMovieVector3): number =>
-            Vector3.dot(Vector3.subtract(q, this.entered[side].ankle), axis),
+            Vector3.dot(Vector3.subtract(q, entered[side].ankle), axis),
         );
         return Math.max(...along) - Math.min(...along);
       }),

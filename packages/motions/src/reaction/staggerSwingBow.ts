@@ -1,166 +1,93 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { walkLegClearance } from "../actions/walkLegClearance";
 import type { walkFoot } from "../actions/walkFoot";
-import { walkReach } from "../actions/walkReach";
-import { HumanFoot } from "../posture/HumanFoot";
-import { HumanLegChain } from "../posture/HumanLegChain";
-import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanFoot } from "../posture/HumanFoot";
+import { staggerBounds } from "./staggerBounds";
 import type { staggerRecover } from "./staggerRecover";
-import { staggerKnots } from "./staggerKnots";
 
 /**
- * The original sampled and bisected lateral bow that keeps a stagger swing
- * clear of its standing leg. Every supplied instant has its already settled
- * pelvis; only the swinging foot target changes across candidate bows.
+ * The lateral bow that keeps a stagger's swinging foot clear of its
+ * standing foot, in closed form: the swing's prepared walking-foot curve is
+ * read at `KNOTS` a second inside the swing at no bow, and wherever the
+ * swinging sole's outline runs alongside the standing sole's (their extents
+ * along the swing overlap), the bow is the least that carries the swinging
+ * outline past the standing one across the swing, on either side, through
+ * the bow's own profile at that share (`16 u^2 (1 - u)^2`, the bump the
+ * displayed swing applies). The side needing the smaller bow is taken, no
+ * wider than two sole lengths; a swing whose outline already clears the
+ * standing one on a side bows not at all. The soles' outlines are the
+ * body's own (`HumanFoot.sole`), so the clearance scales with the feet, and
+ * the bow is fixed for the whole swing, so the foot leaves and joins its
+ * stances where they stand.
  *
- * @param body The performer with unchanged anatomy during this search.
- * @param step The recovery step and its fixed endpoint schedule.
- * @param instants The original course-knot observations strictly inside its swing.
- * @param swing The same walking-foot reader at a second and lateral bow metres.
- * @returns The original winning signed bow, metres.
+ * @param body The body.
+ * @param step The recovery step.
+ * @param standing The standing foot's placement through the swing.
+ * @param normal The horizontal unit the bow displaces the swinging ankle along, the swing's travel turned a quarter turn.
+ * @param swing The swinging foot at a second and a bow, metres, as displayed.
+ * @returns The signed bow, metres along `normal`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States fixed anatomy/instant frames, the varying target reader, metres and original clearance search.
- * @evidence contracts/development/implementation.md#principled-implementation Keeps the actual leg-fit knee, original tangle bound, two sole-length maximum bow and millimetre bisection on both sides, retaining original feasible/tie decisions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed observed frames prepare per-instant leg posing; one worst-clearance reader serves the original two-sided bisection.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every sampled instant, original fit, reach adjustment, bound, bisection width and signed winner; no candidate or leg fit is replaced by a cached answer.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each candidate still fits one swinging leg per instant, including the original second full widest sweep on a refused side. Standing legs, fixed pelvis/hip posing, rest-knee origins and swing shares prepare once. Existing clearance preparation lazily shares each fixed standing leg's capsule axes and only originally demanded collider placements, retaining all moving geometry and ordered pair/probe tests. Speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed sample body/side/pelvis/hip establish leg preparation; unchanged root/yaw establish only authored rest-knee origins. Each originally once-fitted standing leg also fixes that sample's collision geometry. Current heading still makes the actual hint, and every ankle/bend/rotation reaches its original cold remembered fit, with no moving answer or continuation seed reused.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns O(k) sample geometry/readers and scalar bisection state for k instants; per-sample standing collider preparation grows only to its fixed four bones and ends on return/failure. Private rest-knee points feed fresh hints, while no dynamic FK/ROM loan, moving target history or fitted answer survives the returned scalar.
+ * @evidence contracts/development/common.md#meaningful-documentation States the sampled curve, the clearance rule, the side, the bound and the units.
+ * @evidence contracts/development/implementation.md#principled-implementation Two convex outlines on the floor are apart along an axis once their extents along it are disjoint; the bow moves every point of the swinging outline by the bow times its profile, so the least bow per sample is a closed-form ratio and the swing's bow the largest of them.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The standing outline's extents, then one pass over the samples per side, then the side.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The outlines are the body's soles and the bound two of its sole lengths; no constant is tuned and no leg fit stands in for the clearance.
+ * @evidence contracts/development/implementation.md#efficient-algorithms O(k v) for k samples of a swing and v sole points: one prepared swing-curve read and one sole outline per sample, no leg fit and no search.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The standing outline is read once for every sample; `StaggerFeet` keeps the bow for its step.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains nothing.
  */
 export function staggerSwingBow(
   body: IHumanBody,
   step: staggerRecover.IStep,
-  instants: readonly { seconds: number; settled: walkReach.IGround }[],
+  standing: HumanFoot.IPlacement,
+  normal: IAutoMovieVector3,
   swing: (seconds: number, bow: number) => walkFoot.IScheduled,
 ): number {
   const stance: "left" | "right" = step.side === "left" ? "right" : "left";
-  const reach: ReturnType<typeof walkReach.prepareSwing> = walkReach.prepareSwing(body, step.side);
-
-  /** One fixed observed pelvis and its reusable swinging-leg source frame. */
-  type IObserved = (typeof instants)[number] & {
-    share: number;
-    pelvis: IAutoMovieQuaternion;
-    fit: ReturnType<typeof HumanLegChain.prepareSeeded>;
-    pose: ReturnType<typeof HumanLegChain.prepare>;
-    knees: Record<"left" | "right", IAutoMovieVector3>;
-  };
-  const observed: IObserved[] = instants.map(
-    (instant: (typeof instants)[number]): IObserved => {
-      const pelvis: IAutoMovieQuaternion = instant.settled.pelvis ??
-        resolveHumanPosture.heading({ yaw: instant.settled.yaw, pitch: 0, roll: 0 });
-
-      // Bow changes the moving ankle, never this observation's root or yaw.
-      const kneeAt: (side: "left" | "right") => IAutoMovieVector3 = (
-        side: "left" | "right",
-      ): IAutoMovieVector3 =>
-        HumanFrame.point(
-          { origin: instant.settled.root, yaw: instant.settled.yaw },
-          body.rest.get(`${side}LowerLeg`)!,
-        );
-      return {
-        ...instant,
-        share: (instant.seconds - step.start) / (step.land - step.start),
-        pelvis,
-        fit: HumanLegChain.prepareSeeded(body, step.side, pelvis, instant.settled.hips[step.side]),
-        pose: HumanLegChain.prepare(body, step.side, pelvis, instant.settled.hips[step.side]),
-        knees: {
-          left: kneeAt("left"),
-          right: kneeAt("right"),
-        },
-      };
-    },
-  );
-
-  // Each leg as the posture's own fit poses it there (`HumanLegChain`),
-  // its knee bent toward the hint the posture gives it.
-  const legOf: (side: "left" | "right", instant: IObserved, foot: walkFoot.IEnd) => walkLegClearance.ILeg = (
-    side: "left" | "right",
-    instant: IObserved,
-    foot: walkFoot.IEnd,
-  ): walkLegClearance.ILeg => {
-    const { settled, pelvis }: IObserved = instant;
-    const bend: IAutoMovieVector3 = staggerKnots.kneePole(
-      body,
-      settled.root,
-      settled.yaw,
-      side,
-      HumanFoot.heading(foot.rotation),
-      instant.knees[side],
-    );
-    const swivel: HumanLegChain.ISwivel = side === step.side
-      ? instant.fit(foot.ankle, bend, foot.rotation).swivel
-      : HumanLegChain.fit(body, side, pelvis, settled.hips[side], foot.ankle, bend, foot.rotation);
-    const posed: HumanLegChain.IPosed | null = side !== step.side
-      ? HumanLegChain.pose(
-        body,
-        side,
-        pelvis,
-        settled.hips[side],
-        foot.ankle,
-        swivel,
-      )
-      : instant.pose(foot.ankle, swivel);
-    return {
-      ...posed!,
-      side,
-      rotation: foot.rotation,
-    };
-  };
-
-  // The standing leg's fit is read once a knot.
-  const standingLegs: walkLegClearance.ILeg[] = observed.map((instant: IObserved): walkLegClearance.ILeg =>
-    legOf(stance, instant, instant.settled.feet[stance]),
-  );
-  const clearances: ReturnType<typeof walkLegClearance.prepareAgainst>[] = standingLegs.map(
-    (standing: walkLegClearance.ILeg): ReturnType<typeof walkLegClearance.prepareAgainst> =>
-      walkLegClearance.prepareAgainst(body, standing),
-  );
-  const worst: (bow: number) => number = (bow: number): number => {
-    let out: number = 0;
-    for (const [i, instant] of observed.entries()) {
-      const { seconds, settled, share }: IObserved = instant;
-      const reached: walkFoot.IEnd = reach(
-        settled,
-        swing(seconds, bow),
-        share,
-      );
-      out = Math.max(
-        out,
-        clearances[i]!(legOf(step.side, instant, reached)),
-      );
+  const along: IAutoMovieVector3 = { x: normal.z, y: 0, z: -normal.x };
+  const extent: (points: readonly IAutoMovieVector3[], axis: IAutoMovieVector3) => [number, number] = (
+    points: readonly IAutoMovieVector3[],
+    axis: IAutoMovieVector3,
+  ): [number, number] => {
+    let lo: number = Infinity;
+    let hi: number = -Infinity;
+    for (const p of points) {
+      const d: number = p.x * axis.x + p.z * axis.z;
+      lo = Math.min(lo, d);
+      hi = Math.max(hi, d);
     }
-    return out;
+    return [lo, hi];
   };
-  let bow: number = 0;
-  if (worst(0) > walkLegClearance.BOUND) {
-    const widest: number =
-      2 *
-      Vector3.distance(
-        HumanFoot.point(body, step.side, "toe", step.from),
-        HumanFoot.point(body, step.side, "heel", step.from),
-      );
-    /** One side's original feasible width or its maximum-width excess. */
-    type IBow = { way: number; bow: number; at: number };
-    const sides: IBow[] = [1, -1].map((way: number): IBow => {
-      if (worst(way * widest) > walkLegClearance.BOUND)
-        return { way, bow: Infinity, at: worst(way * widest) };
-      let lo: number = 0;
-      let hi: number = widest;
-      while (hi - lo > 0.001) {
-        const mid: number = (lo + hi) / 2;
-        if (worst(way * mid) > walkLegClearance.BOUND) lo = mid;
-        else hi = mid;
-      }
-      return { way, bow: hi, at: 0 };
-    });
-    const pick: IBow = sides.reduce((a: IBow, b: IBow): IBow =>
-      a.bow < b.bow || (a.bow === b.bow && a.at <= b.at) ? a : b,
-    );
-    bow = pick.way * (Number.isFinite(pick.bow) ? pick.bow : widest);
+  const fixed: readonly IAutoMovieVector3[] = HumanFoot.sole(body, stance, standing);
+  const [aLo, aHi]: [number, number] = extent(fixed, normal);
+  const [bLo, bHi]: [number, number] = extent(fixed, along);
+
+  // The least bow on each side over every sample alongside the standing
+  // sole: past it on the positive side, the swinging outline's lowest
+  // extent at the standing one's highest, and on the negative side the
+  // other way round.
+  const count: number = Math.ceil((step.land - step.start) * staggerBounds.KNOTS);
+  let plus: number = -Infinity;
+  let minus: number = -Infinity;
+  for (let i: number = 1; i < count; i++) {
+    const seconds: number = step.start + (i / count) * (step.land - step.start);
+    const foot: walkFoot.IScheduled = swing(seconds, 0);
+    const outline: IAutoMovieVector3[] = HumanFoot.sole(body, step.side, foot.placement);
+    const [qLo, qHi]: [number, number] = extent(outline, along);
+    if (!(qHi > bLo && qLo < bHi)) continue;
+    const u: number = foot.swing?.u ?? 0;
+    const bump: number = 16 * u * u * (1 - u) * (1 - u);
+    const [pLo, pHi]: [number, number] = extent(outline, normal);
+    plus = Math.max(plus, bump > 0 ? (aHi - pLo) / bump : aHi > pLo ? Infinity : 0);
+    minus = Math.max(minus, bump > 0 ? (pHi - aLo) / bump : pHi > aLo ? Infinity : 0);
   }
-  return bow;
+  if (plus <= 0 || minus <= 0) return 0;
+  const widest: number =
+    2 *
+    Vector3.distance(
+      HumanFoot.point(body, step.side, "toe", step.from),
+      HumanFoot.point(body, step.side, "heel", step.from),
+    );
+  return plus <= minus ? Math.min(plus, widest) : -Math.min(minus, widest);
 }

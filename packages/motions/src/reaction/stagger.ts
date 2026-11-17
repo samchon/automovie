@@ -9,7 +9,6 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -49,15 +48,17 @@ import { staggerRecover } from "./staggerRecover";
  * footstep region allows, and the body is caught once the extrapolated
  * centre of mass lies inside the base the two feet make. The region is the
  * stance foot's: within its direction's longest recovery step of where the
- * foot stood beside the stance foot, and inside the legs' own reachable set
- * from the pelvis the centre of mass carries at the landing, the trunk free
- * to tilt, the landing foot to turn out and the two legs clear of each other
- * as the tangle audit reads them (`walkStanceCourse`, `walkLegClearance`); a
- * step past it shortens toward the stance foot. The legs may cross: a
- * footstep planner's region on the stepping foot's own side of the stance
- * foot (Deits and Tedrake 2014) keeps a walking robot's legs apart, but it
- * forbids the crossover step people take in most lateral recoveries, so it
- * is not this region. Every order of the feet over up to four steps is tried,
+ * foot stood beside the stance foot; a step past it shortens toward the
+ * stance foot. The legs then admit each step at its mid-swing and its
+ * landing, under the pelvis the centre of mass carries there: each planted
+ * leg's reach, knee flexion and thigh extension as a two-bone chain, and
+ * crossed legs clear of each other as the tangle audit reads them
+ * (`staggerAdmission`, `walkLegClearance`); a step they do not hold refuses
+ * its order of the feet. The legs may cross, a sole's length in front of or
+ * behind the stance foot: a footstep planner's region on the stepping foot's
+ * own side of the stance foot (Deits and Tedrake 2014) keeps a walking
+ * robot's legs apart, but it forbids the crossover step people take in most
+ * lateral recoveries, so it is not this region. Every order of the feet over up to four steps is tried,
  * the fewest steps first, so capture is monotone in the push's speed; the
  * order preferred alternates its feet forward and backward (Maki and McIlroy
  * 1997), beginning with the foot further along the push, the rear foot for a
@@ -78,33 +79,32 @@ import { staggerRecover } from "./staggerRecover";
  * up to four recovery steps (Debelle, Maganaris and O'Brien 2021): it is
  * refused, naming the fastest push the body catches that way.
  *
- * Once caught, the other foot closes at the entry's stance width, as far
- * ahead or behind as stands the middle of the two ankles under the caught
- * point as the entry stood over its own. The extrapolated centre of mass
+ * Once caught, the other foot closes at least at the entry's stance width,
+ * as far ahead or behind as stands the middle of the two ankles, as the
+ * entry stood over its own, under where the extrapolated centre of mass will
+ * be when it lands, and the close holds only with the extrapolated centre of
+ * mass then inside the two feet's base (Hof 2008). The extrapolated centre of mass
  * then tracks a minimum-jerk course to where the body stood over its feet,
  * its centre of pressure placed by the divergent component's tracking law
  * inside the base (Englsberger, Ott and Albu-Schaffer 2015), and the centre
  * of mass follows it, `x' = omega0 (xi - x)`, until both rest within a
  * millimetre.
  *
- * The body over its feet is one stance course (`walkStanceCourse`): the
- * pelvis's drop, each planted foot's pitch about its ball and its turn on
- * the floor, and the trunk's tilt about the hips, as one trajectory
- * optimisation, the pelvis carrying the centre of mass on its course less
- * the shift the trunk's tilt makes of it. The legs' reach, the hip's
- * extension and rotation and the ankle's range are its constraints, with the
- * feet bearing the centre of pressure and the caught extrapolated centre of
- * mass, so a backward landing carries the pelvis back over the rear foot by
- * bending the trunk against the fall, the hip strategy (Horak and Nashner
- * 1986, J Neurophysiol 55:1369), because the ranges ask for it rather than
- * by a rule. A stance whose leg leans further to its side than the ankle's
- * 25 degrees rolls onto its edge; a stepping foot first rises clear of the
- * floor by the minimum toe clearance of walking (`walkFoot.CLEARANCE`,
- * Killeen et al. 2017), over the share of its swing a walking foot takes to set down
- * from that height, then swings as a walking foot swings (`walkFoot.swing`)
- * to the stance it lands in, held inside its leg's ranges and as high over
- * the floor as its swing carries it (`walkReach.swing`), so it leaves and
- * joins its stances where they stand.
+ * The body over its feet is read at each second from prepared courses
+ * (`StaggerFeet`): the pelvis carries the centre of mass's course with the
+ * trunk upright and is lowered to the height its planted legs allow, as the
+ * walk settles its pelvis (`walkReach.ground`), each heel rising about its
+ * ball where the ankle runs out of room. The trunk's hip strategy (Horak and
+ * Nashner 1986, J Neurophysiol 55:1369) is not modelled: a step the upright
+ * legs do not hold is refused by the admission instead. A stepping foot
+ * first rises clear of the floor by the minimum toe clearance of walking
+ * (`walkFoot.CLEARANCE`, Killeen et al. 2017), over the share of its swing a
+ * walking foot takes to set down from that height, then swings as a walking
+ * foot swings (`walkFoot.prepareSwing`) to the stance it lands in, bowed
+ * clear of the standing foot by the soles' own clearance in closed form
+ * (`staggerSwingBow`) and held inside its leg's ranges and as high over the
+ * floor as its swing carries it (`walkReach.swing`), so it leaves and joins
+ * its stances where they stand.
  *
  * Both
  * arms abduct as balance reactions, 9.4 degrees from 154 ms after the push
@@ -171,12 +171,12 @@ export namespace stagger {
    * @throws {HumanRefusal} `parameter` on `speed` when no `STEPS` recovery steps catch the push: a fall, with the fastest push the body catches that way.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The push read causally at the plan's start; the recovery's steps and the centre of mass's course on the pendulum (`staggerRecover`); the feet, the pelvis and the trunk on one stance course under the legs' ranges (`StaggerFeet`); the arms abducted from their measured onset.
+   * @evidence contracts/development/implementation.md#principled-implementation The push read causally at the plan's start; the recovery's steps and the centre of mass's course on the pendulum, admitted by the legs as two-bone chains (`staggerRecover`); the feet and the pelvis read from those courses with the walk's own pelvis settling (`StaggerFeet`); the arms abducted from their measured onset.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and two rows: the body over its feet, and the arms.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A push no `STEPS` steps catch is refused with the body's limit instead of shortening a step past the legs' reach; the righting is a named provisional constant.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps the original recovery and full refusal-speed searches, each probe's actual entry centre then eager three-centre bending, and the successful feet owner's separate bending observation. Declared stance endpoints and fixed body-only reach prerequisites remain shared; runtime improvement is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the recovery, feet, arm and causal-target owners without replaying completed entry observations or recovery verdicts. Each bending observation shares only its own exact FK/ROM prerequisites; current composition loans reach settled hips and actual arm-swing fitting/clearance within their synchronous call.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its actual recovery, feet and authored geometric data; refusal observations end on return or throw. Runtime loans last only through each writer call and never enter posture data, endpoint/bow caches or a solved-pose history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning steps at most 30 closed-form pendulum prefixes and admits only the prefixes of an order the pendulum catches; a refused push adds the limit's bisection of such recoveries over one prepared entry geometry. No stance course or quadratic program is solved; each pose query is one course read, one ground settling and at most two prepared swing holds.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the recovery, feet, arm and causal-target owners. Step endpoints, swing curves and bows are kept per declared step; composition loans reach settled hips and arm-swing fitting/clearance within their synchronous call.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its recovery, feet and authored geometric data; refusal observations end on return or throw. Runtime loans last only through each writer call and never enter posture data, endpoint/bow caches or a solved-pose history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -246,12 +246,7 @@ export namespace stagger {
     );
     const duration: number = clock.duration;
     const last: () => number = (): number => recovery.steps.at(-1)!.land;
-    const feet: StaggerFeet = new StaggerFeet(
-      body,
-      context.entry,
-      recovery,
-      staggerKnots.bending(body, context.entry),
-    );
+    const feet: StaggerFeet = new StaggerFeet(body, context.entry, recovery);
     const legs: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
@@ -262,7 +257,7 @@ export namespace stagger {
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
         resolution?: Parameters<IHumanActionPlan["posture"]>[2],
       ): IHumanPosture => {
-        const { feet: scheduled, settled, reached, reading }: ReturnType<StaggerFeet["solve"]> = feet.solve(seconds, resolution);
+        const { feet: scheduled, settled, reached }: ReturnType<StaggerFeet["solve"]> = feet.solve(seconds, resolution);
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
         for (const side of ["left", "right"] as const) {
           // The knee points over the foot's own heading.
@@ -282,23 +277,18 @@ export namespace stagger {
               : {}),
           };
         }
-        // The trunk tilts about the hips as the course bends it, so the legs
-        // stay on their feet.
-        return AutoMovieMotionHumanLean.pivot(
-          body,
-          {
-            ...posture,
-            root: settled.root,
-            yaw: settled.yaw,
-            joints: {
-              ...posture.joints,
-              leftToes: [reached.left.toes, 0, 0],
-              rightToes: [reached.right.toes, 0, 0],
-            },
-            limbs,
+        // The pelvis on the centre of mass's course, the trunk upright over it.
+        return {
+          ...posture,
+          root: settled.root,
+          yaw: settled.yaw,
+          joints: {
+            ...posture.joints,
+            leftToes: [reached.left.toes, 0, 0],
+            rightToes: [reached.right.toes, 0, 0],
           },
-          reading.trunk,
-        );
+          limbs,
+        };
       },
     };
     // Both arms abduct from the entry's angles as balance reactions and come
