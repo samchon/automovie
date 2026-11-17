@@ -23,7 +23,8 @@ import { motionHumanFrame } from "./motionHumanFrame";
 /**
  * Shared readers for action-law tests: build a trained performance, remember
  * its displayed frames, locate an event, measure adjacent-frame travel and
- * return complaints from a whole audit, one audit part or a stated condition.
+ * return complaints from a whole audit, one audit part, every audit part of
+ * one film or a stated condition, whose label may be built only on failure.
  * Callers gather these complaints into their own assertions.
  *
  * Measures of one film share its actual FK frames, checked on first read for
@@ -31,12 +32,12 @@ import { motionHumanFrame } from "./motionHumanFrame";
  * rotations. The film owns this memory; it does not replace the performance
  * or decide whether an action met its intent.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the seven helpers, the frame checks and the caller's ownership of assertions.
+ * @evidence contracts/development/common.md#meaningful-documentation States the eight helpers, the frame checks and the caller's ownership of assertions.
  * @evidence contracts/development/design.md#principled-representation Public performances and audit readers carry world metres and film seconds; frame admission checks finite coordinates and unit rotations before metrics read them.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Seven helpers shared by solo, touch and hand-to-face specifications; body, FK, performance and audit types remain their package owners'.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Eight helpers shared by solo, touch and hand-to-face specifications; body, FK, performance and audit types remain their package owners'.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No action, body or scene gets a replacement pose or limit; the audit part is a closed choice and the frame record is the public FK map.
  * Builds and reads the public performance, converts event shares to seconds, measures Euclidean travel and delegates generic checks to their audit owner.
- * Seven small helpers separate construction, frame admission, event lookup, travel, audit formatting, partitioning and complaint selection.
+ * Eight small helpers separate construction, frame admission, event lookup, travel, audit formatting, partitioning, the union of the parts and complaint selection.
  * Invalid displayed frames and missing events throw; caller limits and measured values are neither repaired nor relaxed.
  * Local work scales with performer records, event counts, grid intervals and findings; delegated audits also include collider-pair work and continuity refinement, not just a frame scan.
  * Each film shares a successfully validated subject/second frame across its measures; planning and audit computations remain with the public owners.
@@ -281,15 +282,13 @@ export namespace motionHumanLaw {
   }
 
   /**
-   * A part of the generic audit, so a law's audit can be read by several
-   * specs each within the time a test may take: `tangle` reads the tangle
-   * over the whole film, and `motion-1` to `motion-6` the audit's other
-   * checks (the ground, the continuity and the balance) over one sixth of
-   * the film each.
+   * A part of the generic audit: `tangle` reads the tangle over the whole
+   * film, and `motion-1` to `motion-6` the audit's other checks (the ground,
+   * the continuity and the balance) over one sixth of the film each.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines the full-film tangle part and the six motion parts.
    * @evidence contracts/development/design.md#principled-representation A closed string choice separates whole-film tangle from numbered motion windows; their seconds are derived from the film rather than stored in the type.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The part selector shared by the touch and hand-to-face split specifications and auditPart, without another audit configuration type.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The part selector of auditPart and auditParts, which the touch and hand-to-face readers use, without another audit configuration type.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Excludes unsupported part names and indices at compile time; no body, law or precomputed result is encoded.
    */
   export type AuditPart = "tangle" | `motion-${1 | 2 | 3 | 4 | 5 | 6}`;
@@ -382,21 +381,69 @@ export namespace motionHumanLaw {
   }
 
   /**
-   * A complaint when a condition does not hold.
+   * Every part of the generic audit of a subject, as complaints: the
+   * `tangle` part and `motion-1` to `motion-6`, each read by
+   * {@link auditPart} on the one film the caller holds, so a case that owes
+   * the whole audit performs its film once and every part shares its
+   * remembered frames.
    *
-   * @param label What is expected, with its measured numbers.
+   * @param film The film.
+   * @param label What the complaints are prefixed with; a sixth adds its start.
+   * @param subject The subject.
+   * @param body Their body.
+   * @returns Every part's complaints, in the order tangle, then the sixths.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the seven parts read, their order and that they share the caller's film.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads exactly the parts AuditPart names, each through auditPart with its unchanged limits, windows and overlaps.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One traversal of the closed part list delegating to auditPart.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every part is read and none stops the others; no limit, window or finding is changed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Seven audits over one film; frames read at the same subject and second by two parts are resolved once through the film's memory.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The parts share the caller's film and its validated frame memory instead of each performing the case again.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned complaint list survives; frame memory stays with the caller's film.
+   */
+  export function auditParts(
+    film: IAutoMovieMotionHumanAuditMotion,
+    label: string,
+    subject: string,
+    body: IHumanBody,
+  ): string[] {
+    return AUDIT_PARTS.flatMap((part: AuditPart): string[] =>
+      auditPart(film, label, subject, body, part),
+    );
+  }
+
+  /** Every audit part, the tangle first and then the sixths in film order. */
+  const AUDIT_PARTS: readonly AuditPart[] = [
+    "tangle",
+    "motion-1",
+    "motion-2",
+    "motion-3",
+    "motion-4",
+    "motion-5",
+    "motion-6",
+  ];
+
+  /**
+   * A complaint when a condition does not hold. The label may be given as a
+   * function, so a label that resolves poses or formats numbers only to
+   * describe a failure is built only when the condition fails.
+   *
+   * @param label What is expected, with its measured numbers, or what builds it.
    * @param holds Whether it holds.
    * @returns The label when it does not hold; empty when it does.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the condition and the complaint returned on each branch.
-   * @evidence contracts/development/implementation.md#principled-implementation Projects the caller's boolean into an empty complaint list or the supplied failure label; the caller owns the expectation and assertion.
+   * @evidence contracts/development/common.md#meaningful-documentation States the condition, the lazy label and the complaint returned on each branch.
+   * @evidence contracts/development/implementation.md#principled-implementation Projects the caller's boolean into an empty complaint list or the supplied failure label; a label function runs only on the failing branch, so it cannot change the condition the caller computed.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One conditional returning an array of zero or one label.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not recalculate the condition, change its threshold or assert success on the caller's behalf.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and an array holding at most one existing string reference.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work on success; a lazy label costs its own work only on failure.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A direct boolean projection has no repeated subcomputation to share.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the returned array is owned by the caller; the helper retains no label or resource.
    */
-  export function expect(label: string, holds: boolean): string[] {
-    return holds ? [] : [label];
+  export function expect(
+    label: string | (() => string),
+    holds: boolean,
+  ): string[] {
+    return holds ? [] : [typeof label === "string" ? label : label()];
   }
 }
