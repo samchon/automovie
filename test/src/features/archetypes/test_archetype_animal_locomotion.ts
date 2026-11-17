@@ -64,7 +64,17 @@ function carried<Id extends string, D extends string>(
     z: -rest.rotation.z,
     w: rest.rotation.w,
   });
-  if (Math.abs(change.w) >= 1 - 1e-8)
+  const headBefore: IAutoMovieTransform = animal.parts.find(
+    (part: IAutoMovieModelPart): boolean => part.id === "head",
+  )!.transform!;
+  const headAfter: IAutoMovieTransform = sample.archetype.parts.find(
+    (part: IAutoMovieModelPart): boolean => part.id === "head",
+  )!.transform!;
+  const nod: IAutoMovieQuaternion = Quaternion.multiply(
+    headAfter.rotation,
+    Quaternion.inverse(headBefore.rotation),
+  );
+  if (Math.abs(nod.w) >= 1 - 1e-8)
     findings.push(`${animal.archetype}: the authored nonzero nod was lost`);
   const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
     point: IAutoMovieVector3,
