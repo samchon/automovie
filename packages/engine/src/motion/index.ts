@@ -4,6 +4,7 @@ export * from "./AutoMoviePathGround";
 export * from "./AutoMovieRetargetContactPolicy";
 export * from "./AutoMovieRetargetFacing";
 export * from "./AutoMovieRetargetRomPolicy";
+export * from "./IMotionTrajectoryInterval";
 export * from "./IAutoMovieCrowdAgent";
 export * from "./IAutoMovieFootLeg";
 export * from "./IAutoMovieFootPlant";
