@@ -52,6 +52,70 @@ export function clampJointRomValues(
   constraint: IAutoMovieJointConstraint,
   rig?: IAutoMovieJointRotationFrame,
 ): IAutoMovieJointPose {
+  return clampJointRomValues.into(bone, flexion, abduction, twist, constraint, rig, undefined);
+}
+
+/**
+ * The record form's entry.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States when the input record is its own clamp.
+ * @evidence contracts/development/design.md#principled-representation A clamp output is a value, as an admitted record is: equal angles are the same value, so the input stands for it.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One entry, read by `clampJointRom`.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The input is returned only where every projected angle is its own by `Object.is`; it is never edited.
+ */
+export namespace clampJointRomValues {
+  /**
+   * The same projection, handing back `input`, the record the angles were
+   * read from, where the projected angles are its own (`Object.is` each):
+   * a clamp output is a value, as an admitted record is, so a record
+   * already in range is its own clamp. Absent, a fresh record is returned.
+   *
+   * @param bone The joint's bone.
+   * @param flexion Its flexion, degrees, or null at rest.
+   * @param abduction Its abduction, degrees, or null at rest.
+   * @param twist Its twist, degrees, or null at rest.
+   * @param constraint Its resolved range.
+   * @param rig The bone's frame as the caller's rig resolves it.
+   * @param input The record of these angles, when the caller has one.
+   * @returns The record in range: `input` itself when nothing moved.
+   */
+  export function into(
+    bone: AutoMovieHumanoidBone,
+    flexion: number | null,
+    abduction: number | null,
+    twist: number | null,
+    constraint: IAutoMovieJointConstraint,
+    rig: IAutoMovieJointRotationFrame | undefined,
+    input: IAutoMovieJointPose | undefined,
+  ): IAutoMovieJointPose {
+    return project(bone, flexion, abduction, twist, constraint, rig, input);
+  }
+}
+
+/** The input record where the projected angles are its own, else a fresh record of them. */
+function record(
+  bone: AutoMovieHumanoidBone,
+  flexion: number | null,
+  abduction: number | null,
+  twist: number | null,
+  input: IAutoMovieJointPose | undefined,
+): IAutoMovieJointPose {
+  return input !== undefined && Object.is(input.flexion, flexion) &&
+    Object.is(input.abduction, abduction) && Object.is(input.twist, twist)
+    ? input
+    : { bone, flexion, abduction, twist };
+}
+
+/** The projection of `clampJointRomValues`, with the record form's input. */
+function project(
+  bone: AutoMovieHumanoidBone,
+  flexion: number | null,
+  abduction: number | null,
+  twist: number | null,
+  constraint: IAutoMovieJointConstraint,
+  rig: IAutoMovieJointRotationFrame | undefined,
+  input: IAutoMovieJointPose | undefined,
+): IAutoMovieJointPose {
   // A ball joint gated by swing and twist is brought into its range as a
   // rotation (`swingTwistRange.project`) and read back in the reading the
   // three-angle box prefers.
@@ -61,12 +125,13 @@ export function clampJointRomValues(
       : (rig ?? swingTwistRange.of(bone));
   if (range !== undefined) {
     // A non-finite angle first becomes its rest, as on every other joint.
-    const sanitized: IAutoMovieJointPose = {
+    const sanitized: IAutoMovieJointPose = record(
       bone,
-      flexion: finiteOrRest(flexion),
-      abduction: finiteOrRest(abduction),
-      twist: finiteOrRest(twist),
-    };
+      finiteOrRest(flexion),
+      finiteOrRest(abduction),
+      finiteOrRest(twist),
+      input,
+    );
     const basis: IAutoMovieJointAxes | undefined =
       SwingTwistFramePreparation.normalized(range, "jointToQuaternion axes");
     // A prepared frame lends its composer, the same products with its
@@ -130,15 +195,16 @@ export function clampJointRomValues(
       anchorA,
       constraint.swingDeg,
     );
-    return {
+    return record(
       bone,
       // A resting axis stays resting: blending 0 toward its own 0 rest is 0.
-      flexion: f === null ? null : anchorF + (fv - anchorF) * blend,
-      abduction: a === null ? null : anchorA + (av - anchorA) * blend,
-      twist: t,
-    };
+      f === null ? null : anchorF + (fv - anchorF) * blend,
+      a === null ? null : anchorA + (av - anchorA) * blend,
+      t,
+      input,
+    );
   }
-  return { bone, flexion: f, abduction: a, twist: t };
+  return record(bone, f, a, t, input);
 }
 
 /** One axis into its interval: null rest stays null, an immobile axis (no interval) goes to neutral, a nonfinite angle first becomes neutral. */

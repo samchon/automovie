@@ -14,7 +14,7 @@ import { clampJointRomValues } from "./clampJointRomValues";
  * @param joint The joint's clinical angles.
  * @param constraint Its resolved range.
  * @param rig The bone's frame as the caller's rig resolves it; the humanoid tables' when absent.
- * @returns The joint in range.
+ * @returns The joint in range: a value, the input record itself where every projected angle is its own, else a fresh record; neither is to be edited.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Project finite-or-repaired axes into admitted intervals, force specified immobile axes to zero, preserve null rest and blend swing toward the box-nearest-neutral point.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Axis projection and combined swing are distinct constraints; swingConeBlend supplies fixed bisection and the result preserves bone identity.
@@ -22,7 +22,7 @@ import { clampJointRomValues } from "./clampJointRomValues";
  * @evidence contracts/development/common.md#meaningful-documentation Docs identify nonfinite repair, null/immobile distinction, degrees and finite ordered constraint premise with remaining cone limitation.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three clamps and at most forty fixed swing iterations cost constant work and one fixed-size result. A swing-twist joint costs one overshoot test and, only outside the range, one projection and one decomposition, reading the cached radius table. Explicit prepared frames share their one admitted basis instead of repeating raw-axis comparisons in composition and readback; ordinary frames retain both original admission calls. Runtime speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Targeted/full-pose clamps reuse the same joint owner and borrow constraints; changed angles need new projection. Explicit unchanged-operation frames lend their lazy admitted axes to the existing OnBasis composition/inverse, keeping every clinical angle/frame check and the first admission's jointToQuaternion diagnostic. Swing-twist readback lends that same constraint to the inverse's shared box-preparation owner instead of cloning another box here.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a fresh joint record. Existing swing-region and inverse box metadata remain weakly keyed by their owning constraint/basis records; no projected answer, pose population, native handle or task is retained.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller receives a value: the input record when already in range (no allocation), else one fresh record. Existing swing-region and inverse box metadata remain weakly keyed by their owning constraint/basis records; no projected answer, pose population, native handle or task is retained.
  */
 export const clampJointRom: (
   joint: IAutoMovieJointPose,
@@ -33,11 +33,12 @@ export const clampJointRom: (
   constraint: IAutoMovieJointConstraint,
   rig?: IAutoMovieJointRotationFrame,
 ): IAutoMovieJointPose =>
-  clampJointRomValues(
+  clampJointRomValues.into(
     joint.bone,
     joint.flexion,
     joint.abduction,
     joint.twist,
     constraint,
     rig,
+    joint,
   );
