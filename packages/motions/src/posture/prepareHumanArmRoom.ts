@@ -40,7 +40,7 @@ import { poseBones } from "./poseBones";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Preparation reads and places the body; the returned reader edits, replaces the subtree's bones and segments in their original places and takes the two readings in `room`'s order.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arm joint the pose does not carry is not written, as `HumanArmClearance.posed` leaves it; the placed segments keep the profile's order, and a subtree placement whose count differs from the body's own falls back to placing the whole body. No reading is kept between candidates.
  * @evidence contracts/development/implementation.md#efficient-algorithms Preparation costs one whole-pose read and placement, O(B+S) for B bones and S segments. A candidate costs three admitted edits, the subtree's bones (the arm and its hand), a B-entry map copy, the subtree's segments and an S-entry array copy, then the two readings' own queries.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The pose, body, side, external colliders and baseline are fixed for the reader's life; bones and segments outside the shoulder's subtree are shared across candidates because no candidate changes a joint above or beside them.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The pose, body, side, external colliders and baseline are fixed for the reader's life; bones and segments outside the shoulder's subtree are shared across candidates because no candidate changes a joint above or beside them; what the tangle reading prepares of a still placed segment is kept across candidates with that same placed record, and a moved segment's is cleared when it is replaced.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader owns one bone map, one placement, one fixed-source workspace and the subtree's names until its search releases it; it stores no candidate, reading or reader beyond that.
  */
 export function prepareHumanArmRoom(
@@ -82,6 +82,7 @@ export function prepareHumanArmRoom(
   const fixed: ReturnType<IHumanBody["poseResolution"]["preparePose"]> =
     body.poseResolution.preparePose(pose, moved, operation);
   const other: readonly ("left" | "right")[] = [side === "left" ? "right" : "left"];
+  const targets: NonNullable<Parameters<typeof AutoMovieMotionHumanAuditTangle.arm>[4]> = [];
 
   return (arm: HumanArmClearance.IArm): number => {
     const edits: IAutoMovieJointPose[] = [];
@@ -98,14 +99,23 @@ export function prepareHumanArmRoom(
     const again: HumanColliders.IPlaced[] = place(bones);
     const current: HumanColliders.IPlaced[] = again.length === slots.length
       ? placed.slice() : HumanColliders.placed(body, bones);
-    if (again.length === slots.length)
-      for (let index: number = 0; index < slots.length; ++index) current[slots[index]!] = again[index]!;
+    let prepared: Parameters<typeof AutoMovieMotionHumanAuditTangle.arm>[4];
+    if (again.length === slots.length) {
+      // The still segments are the very placed records of every candidate, so
+      // what the tangle reading prepares of them is kept for the search; a
+      // moved segment's entry is cleared with its replacement.
+      for (let index: number = 0; index < slots.length; ++index) {
+        current[slots[index]!] = again[index]!;
+        targets[slots[index]!] = undefined;
+      }
+      prepared = targets;
+    }
 
     const forearm: number = HumanArmClearance.overshoot(body,
       HumanArmClearance.obstacles(body, bones, other, current),
       bones.get(lower)!.worldPosition, bones.get(hand)!.worldPosition,
       side, others, false) - baseline.forearm;
-    const segments: number = AutoMovieMotionHumanAuditTangle.arm(body, bones, side, current) - baseline.segments;
+    const segments: number = AutoMovieMotionHumanAuditTangle.arm(body, bones, side, current, prepared) - baseline.segments;
     return Math.max(0, forearm, segments);
   };
 }

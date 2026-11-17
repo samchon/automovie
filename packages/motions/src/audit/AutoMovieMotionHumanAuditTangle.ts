@@ -305,6 +305,7 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * @param bones Its posed bones.
    * @param side The arm.
    * @param prepared Optional exact placement of this body and bone map in the same unchanged evaluation, in original profile order; computed here when absent.
+   * @param targets The caller's list of the segments already prepared as read-in targets (`prepareAutoMovieMotionHumanAuditDepths`), by index in `prepared`; an entry must belong to the very placed segment at its index, so a caller that replaces a placed segment between reads clears that entry. A list of this read's own when absent.
    * @returns Degrees; 0 when no probe of the arm lies deeper than at rest or in the quiet stance.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines actual posed bones, arm segments, degree-valued excess and an optional exact same-epoch collider placement.
@@ -320,6 +321,7 @@ export namespace AutoMovieMotionHumanAuditTangle {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: "left" | "right",
     prepared?: readonly HumanColliders.IPlaced[],
+    targets: NonNullable<Parameters<typeof M.beyond>[4]> = [],
   ): number {
     const m: M.IModel =
       M.model(body);
@@ -328,9 +330,6 @@ export namespace AutoMovieMotionHumanAuditTangle {
       `${side}UpperArm`,
     )!.worldPosition;
     const mine: readonly boolean[] = m.arms[side];
-
-    // Each segment read in is prepared once for this placement.
-    const targets: NonNullable<Parameters<typeof M.beyond>[4]> = [];
 
     // Geometry stays fixed for this arm read; share only completed first-use
     // world placements, never depth or score results.
