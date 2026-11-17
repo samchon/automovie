@@ -137,11 +137,18 @@ export namespace gestureHands {
       }
       const joints: IHumanPosture["joints"] = output ?? {};
       const askedCurl: number = emblem === undefined ? (goal.curl ?? 0) : 0;
+
+      // From the hand the posture before the gesture holds (the relaxed
+      // cascade where it holds no finger), so a hand an entry laid flat on
+      // a thigh leaves and comes back flat, not curled into the thigh.
       for (const entry of entries) {
         const curl: number = entry.curls ? askedCurl : 0;
+        const own: readonly [number, number, number] | undefined = joints[entry.bone];
+        const flexion: number = own?.[0] ?? entry.relaxed[0];
+        const spread: number = own?.[1] ?? 0;
         joints[entry.bone] = [
-          entry.relaxed[0] + (entry.at[0] + curl - entry.relaxed[0]) * envelope,
-          entry.at[1] * envelope,
+          flexion + (entry.at[0] + curl - flexion) * envelope,
+          spread + (entry.at[1] - spread) * envelope,
           0,
         ];
       }

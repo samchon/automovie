@@ -10,8 +10,10 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * on the hand's own channel, whatever its arm does (a fist clenched at the
  * side, a point held while the arm swings, fingers spread in surprise).
  *
- * A hand at weight 0 is the relaxed cascade and at weight 1 the asked shape;
- * between, every segment's flexion is the weighted mean of the two.
+ * A hand at weight 0 is the hand as the posture it is shaped over holds it
+ * (the relaxed cascade where that posture holds no finger), and at weight 1
+ * the asked shape; between, every segment's flexion is the weighted mean of
+ * the two.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the primitives write, on which channel, and what the weight's two ends and its middle are.
  * @evidence contracts/development/design.md#principled-representation A hand shape is a set of segment flexions, so a hand on its way to a shape is their weighted mean with the resting hand.
@@ -122,9 +124,9 @@ export namespace AutoMovieMotionHumanHand {
    * @returns A writer of fifteen fresh triples into its caller-owned joint record at the actual curl degrees and weight; unrelated keys remain untouched and weight admission stays with the caller.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States fixed named geometry, caller-owned mutable output, actual degree curl/share inputs, unchanged thumb policy and fresh output triple ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses prepareFingers' same named scalar entries and fingers' same relaxed-plus-weighted-difference interpolation, adding curl before subtraction and excluding thumbs.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses prepareFingers' same named scalar entries and the same weighted-difference interpolation, from the flexion the output record already holds for each segment (the relaxed cascade where it holds none), adding curl before subtraction and excluding thumbs.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bounded entry producer supplies the shared written owner; the fresh-map reader creates its own target while this explicit writer receives its caller's owned target.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes no bone/order, degree arithmetic, zero abduction/twist, thumb exclusion, callback or weight policy. It accepts an output record rather than caller-supplied derived finger values or a completed posture.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes no bone/order, degree arithmetic, zero abduction/twist, thumb exclusion, callback or weight policy. It reads the output record's own finger flexions as the weight's zero, never caller-supplied derived finger values or a completed posture.
    * @evidence contracts/development/implementation.md#efficient-algorithms Compiles fifteen scalar entries once and writes fifteen fresh triples per query, removing the intermediate joint-map allocation and second property-copy pass for actual hand/arm writers; speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The same fixed side/shape determines immutable asked/relaxed prerequisites. Curl, weight and the owned output target are current inputs; neither map nor completed triple is retained or reused.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning primitive retains one fifteen-entry array and writer until release. Every call retains no output map, posture, angle result, body, callback context or time history.
@@ -144,7 +146,7 @@ export namespace AutoMovieMotionHumanHand {
    * @returns The primitive, on the hand's channel.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is shaped, by what, and the channel claimed.
-   * @evidence contracts/development/implementation.md#principled-implementation The finger joints of the weighted shape replace the hand's own in the posture's joints.
+   * @evidence contracts/development/implementation.md#principled-implementation Each finger joint goes by the weight from the flexion the posture holds for it (the relaxed cascade where it holds none) to the shape's, so the hand leaves and returns to the hand it was given.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Copy the posture/joints, read this second's weight and configuration, then use one fixed-shape reader for the joint update.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weight is clamped to [0, 1], so an overshooting time course cannot bend a finger past its shape.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed shape scalars are compiled only on first use or changed side/shape; each written second reads the actual weight and writes fifteen fresh triples directly into its owned joint copy, without temporary named-shape or interpolated-joint maps.
@@ -238,10 +240,18 @@ function shaped(fixed: readonly IFinger[], curl: number, weight: number): IHuman
   return out;
 }
 
-/** Populate one owned output record with the same original ordered fresh triples. */
+/**
+ * Populate one owned output record with fresh triples: each segment from the
+ * flexion the record already holds for it, the posture the hand is shaped
+ * over (a palm the entry laid flat on a thigh, a grip an earlier action
+ * closed), to the asked shape; from the relaxed cascade where the record
+ * holds none. A hand shaped from a fixed cascade instead dropped the fingers
+ * a seated body had laid flat on its thigh into the thigh at the action's
+ * first and last instants.
+ */
 function written(fixed: readonly IFinger[], joints: IHumanPosture["joints"], curl: number, weight: number): void {
   for (const entry of fixed)
-    joints[entry.bone] = interpolated(entry.asked, entry.relaxed, entry.curls, curl, weight);
+    joints[entry.bone] = interpolated(entry.asked, joints[entry.bone]?.[0] ?? entry.relaxed, entry.curls, curl, weight);
 }
 
 /** Preserve the original curl addition, subtraction and multiplication grouping. */
