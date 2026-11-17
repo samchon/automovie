@@ -447,13 +447,10 @@ export namespace createCart {
   /**
    * Actual wheel/pivot support for generic towing; cartTowing owns admission.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names actual neutral axle/steering/pole geometry and the source reader's refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates actual producer role reads to cartTowing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared reader binding.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No model frame or height is reconstructed here.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Delegation owns its cost.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One producer-owned support reader serves every towing consumer.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The binding retains no produced model.
+   * @param cart Actual createCart output in its neutral steering/drawbar pose.
+   * @returns Independent model-space metre support: one freely pitching wheel axle, or grounded front/rear axles with the declared drawbar hinge.
+   * @throws {RangeError} For another producer, invalid actual wheel-axis geometry or a front steering pivot outside its axle.
+   * @throws {ArchetypeRefusal} If the selected variant lacks a required wheel/steering affordance, including a pushed carrier without towing roles.
    */
   export const towing: typeof cartTowing = cartTowing;
 

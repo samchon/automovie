@@ -192,7 +192,7 @@ export function createCohortQuadruped<Cohort extends string>(
         kind: "parameter",
         archetype: props.archetype,
         axis,
-        value: value ?? null,
+        value,
         feasible: { kind: "range", minimum: 0, maximum: null, unit },
         reason:
           "the selected reference dimension or complete model mass must be finite and positive",

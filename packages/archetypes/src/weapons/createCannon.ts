@@ -395,13 +395,10 @@ export namespace createCannon {
   /**
    * Actual field-gun axle support for generic towing; cannonTowing admits its kind.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names actual two-wheel support, reverse trail towing and the reader's unsupported-kind refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates source wheel-role reads to cannonTowing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared reader binding.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No guessed axle or pintle offset is added here.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Delegation owns its cost.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the producer reader with every limbered-gun consumer.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The binding retains no model instance.
+   * @param gun Actual neutral fieldGun output; its trail coupling lies behind its own +Z direction.
+   * @returns An independent model-space metre axle supporting rigid body pitch with both wheels grounded; generic towing derives the reverse trail-first orientation.
+   * @throws {RangeError} For another producer/kind or invalid actual wheel-axis geometry.
+   * @throws {ArchetypeRefusal} If an actual required wheel-spin affordance is absent.
    */
   export const towing: typeof cannonTowing = cannonTowing;
 }
