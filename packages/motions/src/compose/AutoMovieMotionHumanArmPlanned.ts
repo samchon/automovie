@@ -1,6 +1,7 @@
 import type { IAutoMoviePose } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
@@ -127,18 +128,25 @@ export namespace AutoMovieMotionHumanArmPlanned {
   /**
    * A group for arms moved together.
    *
+   * @param handover The action's handover between its plans (`IHumanActionContext.handover`): the group reads the last plan's solutions from it and writes its own into it. Absent, the group hands nothing on.
    * @returns The empty group.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A group starts empty; its carries join it as they are built.
+   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation A group starts empty; its carries join it as they are built. Its `warm` and `last` are the action's handover maps themselves, so every group of one plan writes where the next plan of the action reads.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One literal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: no member is assumed.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: no member is assumed, and a handed solution is only a start (`planned`).
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The group holds its carries and their solution, released with the primitives that close over it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The group holds its carries and their solution, released with the primitives that close over it; the handover maps are the performance's.
    */
-  export function together(): ITogether {
-    return { carries: [] };
+  export function together(handover?: IHumanActionContext.IHandover): ITogether {
+    return handover === undefined
+      ? { carries: [] }
+      : {
+          carries: [],
+          ...(handover.warm === undefined ? {} : { warm: handover.warm }),
+          last: handover.last,
+        };
   }
 
   /**

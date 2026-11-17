@@ -10,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionKey } from "../HumanActionKey";
+import type { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareJumpPosture } from "../actions/prepareJumpPosture";
@@ -195,9 +196,24 @@ export namespace HumanPerformancePlace {
       (requested?: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof poseBones> =>
         poseBones(body, entry.pose, undefined, requested);
     let performers: Map<string, IHumanActionContext.IPerformer> | undefined;
+    // The arm solutions this action's plans hand each other in this
+    // performance: an alignment trial's, its placement's and a tempo
+    // replan's read what the plan before them wrote, under one map.
+    let handed: Map<string, AutoMovieMotionHumanArmPlanned.IWarm> | undefined =
+      HANDOVERS.get(self)?.get(intent);
+    if (handed === undefined) {
+      handed = new Map();
+      let mine: WeakMap<IAutoMovieIntent, Map<string, AutoMovieMotionHumanArmPlanned.IWarm>> | undefined =
+        HANDOVERS.get(self);
+      if (mine === undefined) {
+        mine = new WeakMap();
+        HANDOVERS.set(self, mine);
+      }
+      mine.set(intent, handed);
+    }
     const drafted: IHumanActionContext<never> = {
       subject: intent.subject,
-      body,
+      handover: { warm: handed, last: handed },      body,
       params: params as never,
       skill: person.skill,
       ...(person.performer.attributes === undefined
@@ -495,3 +511,6 @@ export namespace HumanPerformancePlace {
     return timing;
   }
 }
+
+/** Each performance's per-action handover of arm solutions between the plans of one action (`IHumanActionContext.handover`), released with the performance and its intents. */
+const HANDOVERS: WeakMap<object, WeakMap<IAutoMovieIntent, Map<string, AutoMovieMotionHumanArmPlanned.IWarm>>> = new WeakMap();

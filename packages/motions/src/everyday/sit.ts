@@ -332,7 +332,7 @@ export namespace sit {
     // lowered shoulder is nearest it; a hand with none hangs while the thighs come up under it and
     // is laid on its thigh from contact to seated.
     const together: AutoMovieMotionHumanArmPlanned.ITogether =
-      AutoMovieMotionHumanArmPlanned.together();
+      AutoMovieMotionHumanArmPlanned.together(context.handover);
     const arm = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive => {
       const rest: IAutoMovieVector3 | undefined = seat.armrests?.[side];
       return AutoMovieMotionHumanArm.carried({

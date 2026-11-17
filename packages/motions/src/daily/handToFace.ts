@@ -392,9 +392,9 @@ export namespace handToFace {
       primitives.push(
         AutoMovieMotionHumanJoints.pulse(clock, rises, ["relax", "end"], turn),
       );
-    // Two hands are planned as one trajectory.
+    // Two hands are planned as one trajectory; one hand is a group of one,
     const together: AutoMovieMotionHumanArmPlanned.ITogether | undefined =
-      hands.length > 1 ? AutoMovieMotionHumanArmPlanned.together() : undefined;
+      AutoMovieMotionHumanArmPlanned.together(context.handover);
     for (const [index, [side, name]] of hands.entries()) {
       const own: HumanGrasp.IKey | null = side === first ? kept : null;
       const arm: handToFaceArm.IArm = arms[index]!;

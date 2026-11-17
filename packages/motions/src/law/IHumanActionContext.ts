@@ -11,6 +11,7 @@ import type {
 
 import type { HumanActionKey } from "../HumanActionKey";
 import type { IHumanBody } from "../body/IHumanBody";
+import type { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { HumanAttribute } from "../ensemble/HumanAttribute";
@@ -82,6 +83,17 @@ export interface IHumanActionContext<P = object> {
    */
   carrier?: IHumanActionContext.ICarrier;
 
+  /**
+   * The arm solutions handed between the plans of this one action: the
+   * solutions the last plan of the same action in the same performance
+   * reached (an alignment trial's, a replan's over another span), by the
+   * arms solved together, and the map this plan's solutions are written
+   * into for the next. A plan's arm groups read and write it
+   * (`AutoMovieMotionHumanArmPlanned.together`); a solution handed on is
+   * only the start of the next solve, which admits its own result. Absent,
+   * every solve starts from its course.
+   */
+  handover?: IHumanActionContext.IHandover;
   /**
    * A target's world point and outward unit normal at a film second.
    *
@@ -302,6 +314,23 @@ export namespace IHumanActionContext {
 
     /** The heading, degrees about +Y with 0 facing +Z. */
     yaw: number;
+  }
+
+  /**
+   * The arm solutions handed from one plan of an action to the next
+   * (`IHumanActionContext.handover`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what each member holds and who reads and writes it.
+   * @evidence contracts/development/design.md#principled-representation The solutions are the planner's own handover records (`AutoMovieMotionHumanArmPlanned.IWarm`), keyed as its groups key them.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What the last plan wrote, read; what this plan writes, filled. The performance owns both, per action.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No verdict, pose or trajectory is handed on: a solution starts a solve that admits its own result, so a stale one costs time, never a wrong plan.
+   */
+  export interface IHandover {
+    /** The solutions the last plan of this action reached; absent for its first plan. */
+    warm?: ReadonlyMap<string, AutoMovieMotionHumanArmPlanned.IWarm>;
+
+    /** Where this plan's solutions are written, for the next plan of this action. */
+    last: Map<string, AutoMovieMotionHumanArmPlanned.IWarm>;
   }
 
   /** The action an overlay is performed over. */

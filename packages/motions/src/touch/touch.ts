@@ -364,9 +364,9 @@ export namespace touch {
     primitives.push(...stance.primitives(clock));
     if (shown !== null)
       primitives.push(touchPresented.carry(body, context.entry.pose, shown, clock));
-    // Two hands are planned as one trajectory.
+    // Two hands are planned as one trajectory; one hand is a group of one,
     const together: AutoMovieMotionHumanArmPlanned.ITogether | undefined =
-      hands.length > 1 ? AutoMovieMotionHumanArmPlanned.together() : undefined;
+      AutoMovieMotionHumanArmPlanned.together(context.handover);
     for (const [side, target] of hands) {
       const disc: number | undefined = touchRegion.disc(
         context,
