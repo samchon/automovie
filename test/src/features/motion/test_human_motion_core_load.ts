@@ -21,9 +21,12 @@ import { TestValidator } from "@nestia/e2e";
  *    5, 10 and 20 kg at 0.3 and 0.5 m; doubling the load leans further
  *    (metamorphic); a load behind leans forward; a load whose moment
  *    exceeds the body's at a right angle is reported (null), never clamped.
- * 2. A carry's lean layer adds half the balanced lean to the spine and half
- *    to the chest when the load is known, and the table's provisional angle
- *    when it is not, unchanged from before #3431.
+ * 2. A carry's lean layer pitches the whole body by the balanced lean when
+ *    the load is known, and by the table's provisional angle when it is not,
+ *    keeping the joints the posture holds; the pitch is a rigid turn about
+ *    the planted feet's midpoint, which stays, so a root 0.87 m above it
+ *    travels `0.87 sin θ` forward: the inverted pendulum scenario 1 balances
+ *    (`HumanCarriedLean`, `HumanCarried`'s "tips about its feet").
  * 3. Moving support: the inertial force of a support accelerating at `a` is
  *    `-M a` on the rider, read at a second inside its span and zero outside;
  *    the static tipping bound flips exactly where `h a / g` passes the
@@ -122,11 +125,11 @@ export function test_human_motion_core_load(): void {
     ahead: 0.3,
   })!;
   if (
-    Math.abs(known.joints.spine![0] - balanced / 2) > 1e-12 ||
-    Math.abs(known.joints.chest![0] - balanced / 2) > 1e-12
+    Math.abs(known.pitch - balanced) > 1e-12 ||
+    Object.keys(known.joints).length !== 0
   )
     findings.push(
-      `a known load's layer adds ${known.joints.spine![0]} and ${known.joints.chest![0]}, not half of ${balanced}`,
+      `a known load's layer pitches the body ${known.pitch} with joints ${JSON.stringify(known.joints)}, not ${balanced} with the joints kept`,
     );
   for (const carry of ["piggyback", "cradle", "overShoulder"] as const) {
     const unknown: IHumanPosture = HumanCarriedLean.layer(carry).apply(
@@ -134,14 +137,41 @@ export function test_human_motion_core_load(): void {
       0,
       context,
     );
-    if (
-      Math.abs(unknown.joints.spine![0] - HumanCarriedLean.LEANS[carry] / 2) >
-      1e-12
-    )
+    if (Math.abs(unknown.pitch - HumanCarriedLean.LEANS[carry]) > 1e-12)
       findings.push(
-        `${carry} without a mass leans ${unknown.joints.spine![0]}, not the table's half`,
+        `${carry} without a mass pitches ${unknown.pitch}, not the table's ${HumanCarriedLean.LEANS[carry]}`,
       );
   }
+
+  // The tip is about the planted feet: their midpoint stays, and the root,
+  // a height `h` above it, travels `h sin θ` forward and stands `h cos θ`
+  // above it, as the pendulum of scenario 1 does.
+  const ankle: number = 0.08;
+  const standing: IHumanPosture = {
+    ...posture,
+    root: { x: 0, y: 0.95, z: 0 },
+    limbs: {
+      leftLeg: { point: { x: 0.1, y: ankle, z: 0 }, bend: { x: 0.1, y: 0.5, z: 0.3 } },
+      rightLeg: { point: { x: -0.1, y: ankle, z: 0 }, bend: { x: -0.1, y: 0.5, z: 0.3 } },
+    },
+  };
+  const tipped: IHumanPosture = HumanCarriedLean.layer("piggyback").apply(
+    standing,
+    0,
+    context,
+  );
+  const theta: number = (HumanCarriedLean.LEANS.piggyback * Math.PI) / 180;
+  const above: number = 0.95 - ankle;
+  if (
+    Math.abs(tipped.root.x) > 1e-9 ||
+    Math.abs(tipped.root.z - above * Math.sin(theta)) > 1e-9 ||
+    Math.abs(tipped.root.y - (ankle + above * Math.cos(theta))) > 1e-9 ||
+    tipped.limbs.leftLeg!.point.y !== ankle ||
+    tipped.limbs.rightLeg!.point.z !== 0
+  )
+    findings.push(
+      `a piggyback tips the root to ${JSON.stringify(tipped.root)}, not ${above} m about the feet's midpoint by ${HumanCarriedLean.LEANS.piggyback} degrees with the feet kept`,
+    );
 
   // 3. Moving support.
   const braking = (): IAutoMovieVector3 => ({ x: 0, y: 0, z: -3 });
