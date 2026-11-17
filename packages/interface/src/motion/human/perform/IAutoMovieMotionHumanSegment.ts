@@ -2,6 +2,7 @@ import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternio
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieJointPose } from "../../../pose/IAutoMovieJointPose";
 import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
+import type { IAutoMoviePoseJointCodec } from "../../../pose/IAutoMoviePoseJointCodec";
 import type { IAutoMovieSwivelSeed } from "../../../pose/IAutoMovieSwivelSeed";
 import type { IAutoMovieSkeletonPoseResolution } from "../../../pose/IAutoMovieSkeletonPoseResolution";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
@@ -100,6 +101,31 @@ export interface IAutoMovieMotionHumanSegment {
 
     /** The legs' seeds the fit chose. */
     seeds: Readonly<Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>>;
+  };
+
+  /**
+   * The action's displayed pose as a table of exact knots
+   * (`HumanSegmentTable`): the knot seconds ascending, each knot's exact pose
+   * and the seeds its fits chose, whether the interval from each knot to the
+   * next holds the table's bound, and the joint codec its reads slerp through;
+   * absent until a table read, and released when the person's memos are
+   * forgotten.
+   */
+  table?: {
+    /** The knot seconds, ascending. */
+    knots: number[];
+
+    /** Each knot's exact displayed pose. */
+    poses: IAutoMoviePose[];
+
+    /** Each knot's fit seeds. */
+    seeds: (Readonly<Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>> | undefined)[];
+
+    /** Whether the interval from each knot to the next holds the bound. */
+    held: boolean[];
+
+    /** The joint codec of the displayed rig, made at the first interpolation. */
+    codec?: IAutoMoviePoseJointCodec.ICodec;
   };
 }
 

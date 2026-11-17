@@ -12,6 +12,7 @@ import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 import { HumanSegmentStill } from "./HumanSegmentStill";
+import { HumanSegmentTable } from "./HumanSegmentTable";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
@@ -81,15 +82,31 @@ export namespace HumanSegmentShown {
     }
     const active: IAutoMovieMotionHumanSegment | undefined =
       HumanSegmentSelection.last(person.segments, seconds);
+
+    // The action's exact pose at a second. Its last leaf seeds start every
+    // swept fit of the evaluation (leaf, carry, stop and plant fits) from a
+    // held seed (`HumanLimbIncumbent`), which cannot change their answers.
+    const evaluate = (segment: IAutoMovieMotionHumanSegment, at: number): IAutoMoviePose =>
+      segment.incumbents === undefined
+        ? HumanSegmentPose.of(person, segment, at, prepared, demand)
+        : HumanLimbIncumbent.within({ body: person.performer.body, seeds: segment.incumbents },
+          (): IAutoMoviePose => HumanSegmentPose.of(person, segment, at, prepared, demand));
+
+    // A settled person's whole pose is read from the action's table of exact
+    // knots (`HumanSegmentTable`) wherever the table holds its bound.
+    if (active !== undefined && demand === undefined && !person.resolving && HumanSegmentTable.eligible(person)) {
+      const next: IAutoMovieMotionHumanSegment | undefined = person.segments[person.segments.indexOf(active) + 1];
+      const tabled: IAutoMoviePose | undefined = HumanSegmentTable.read(person, active, seconds, next?.entryTime ?? Infinity,
+        prepared ?? prepareHumanSegmentPose(person.performer.body),
+        (at: number) => ({ pose: evaluate(active, at), seeds: active.incumbents }));
+      if (tabled !== undefined) {
+        const shown: HumanSegment.IShown = { pose: tabled };
+        return keep(person, seconds, shown) ? { pose: tabled, kept: shown } : { pose: tabled };
+      }
+    }
     const pose: IAutoMoviePose = active === undefined
       ? HumanSegmentPose.initial(person, demand, prepared)
-      : active.incumbents === undefined
-        ? HumanSegmentPose.of(person, active, seconds, prepared, demand)
-        // The action's last leaf seeds start every swept fit of this
-        // evaluation (leaf, carry, stop and plant fits) from a held seed
-        // (`HumanLimbIncumbent`), which cannot change their answers.
-        : HumanLimbIncumbent.within({ body: person.performer.body, seeds: active.incumbents },
-          (): IAutoMoviePose => HumanSegmentPose.of(person, active, seconds, prepared, demand));
+      : evaluate(active, seconds);
     if (demand !== undefined) return { pose };
     const kept: HumanSegment.IShown = { pose };
     return keep(person, seconds, kept) ? { pose, kept } : { pose };
