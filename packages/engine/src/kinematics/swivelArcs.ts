@@ -149,6 +149,31 @@ export namespace swivelArcs {
   }
 
   /**
+   * The swivels where a sinusoid vanishes.
+   *
+   * @param f The sinusoid.
+   * @returns Its roots, degrees in [0, 360): two, one where they meet, or none when it keeps one sign or is constant.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result's unit, range and count.
+   * @evidence contracts/development/implementation.md#principled-implementation `a + R cos(ψ - φ)` vanishes at `φ ± acos(-a / R)` when `|a| <= R`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One amplitude, one phase and one arccos.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact roots; a constant returns none rather than every swivel.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its argument.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function roots(f: ISinusoid): number[] {
+    const radius: number = Math.hypot(f.b, f.c);
+    if (!(radius > 0) || Math.abs(f.a) > radius) return [];
+    const centre: number = Math.atan2(f.c, f.b) / Quaternion.DEG2RAD;
+    const half: number = Math.acos(-f.a / radius) / Quaternion.DEG2RAD;
+    const turn = (angle: number): number => angle - 360 * Math.floor(angle / 360);
+    return half === 0 || half === 180
+      ? [turn(centre + half)]
+      : [turn(centre - half), turn(centre + half)];
+  }
+
+  /**
    * Arcs merged into disjoint intervals covering one full turn from 0 and the
    * one after it, so an interval starting in [0, 360) lies in the union
    * exactly when one merged interval holds it.

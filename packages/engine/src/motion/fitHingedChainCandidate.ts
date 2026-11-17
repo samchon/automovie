@@ -1,5 +1,8 @@
 import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
   IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -9,13 +12,16 @@ import { boxExcludedSwivels } from "../kinematics/boxExcludedSwivels";
 import { clinicalDeviation } from "../kinematics/clinicalDeviation";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { hingedArmArticulation } from "../kinematics/hingedArmArticulation";
+import { immobileAxisSwivels } from "../kinematics/immobileAxisSwivels";
 import type { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
+import { getConstraint } from "../rom/getConstraint";
 import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { basisOf } from "./basisOf";
@@ -48,11 +54,16 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * fixes them. Under this continuous cost the cold fit starts in closed form:
  * without a requested rotation at the side term's peak, the pole of two-bone
  * IK (`hingedChainSide.peak`), which alone answers when no reference or
- * obstruction is asked; with one, on a limb whose mid joint takes no distal
- * twist, at the swivel needing the least end-joint articulation. It searches
- * locally and keeps a legal result whose rotation is met; the full sweep
- * runs otherwise, when the limb has no side, and for a distal-twist limb
- * with a rotation.
+ * obstruction is asked; with one, at the swivel needing the least end-joint
+ * articulation (`hingedRotationStart`, or `hingedTwistStart` on a limb whose
+ * mid segment twists distally). It searches locally and keeps a legal result
+ * whose rotation is met; the full sweep runs otherwise and when the limb has
+ * no side. Before either, a requested rotation on a limb without distal
+ * twist whose end joint has one immobile axis (an ankle) is answered with no
+ * search: such a joint takes the rotation only where the rotation demanded
+ * of it reads that axis neutral, at most two swivels a bend branch in closed
+ * form (`immobileAxisSwivels`), and the best of them under the same score
+ * is the fit when it is legal and the rotation is met.
  * One degree of joint turn from the reference counts as much as
  * one degree of effector error (times the request's `referenceWeight`, 1
  * when omitted), so the reference's side is kept unless a
@@ -79,10 +90,10 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @returns The candidate, or null for a degenerate chain.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the sweep, the overshoot-then-continuous-cost ranking with its terms and weights, the continuity premise and the frames of every input.
- * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through hingedArmArticulation, scored through actual clinical decomposition and ROM overshoot. The mid joint circles the root-to-target axis as the swivel turns, so the side term is a sinusoid whose peak is the pole direction in closed form; the local search then minimises the full score in that basin. Without strain, obstruction, reference or a hint side, every raw cost term is non-negative: ROM excess, quaternion angle and squared clinical effort. A zero global lower bound then certifies only an exact-zero original first candidate, retaining its original tie and seed.
+ * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through hingedArmArticulation, scored through actual clinical decomposition and ROM overshoot. The mid joint circles the root-to-target axis as the swivel turns, so the side term is a sinusoid whose peak is the pole direction in closed form; the local search then minimises the full score in that basin. An end joint with one immobile axis has two degrees of freedom, so the swivel supplies the third of a requested rotation and the admissible swivels are the roots of that axis's sinusoid, the analytic joint-limit swivels of the same paper. Without strain, obstruction, reference or a hint side, every raw cost term is non-negative: ROM excess, quaternion angle and squared clinical effort. A zero global lower bound then certifies only an exact-zero original first candidate, retaining its original tie and seed.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. Eligibility for a closed-form start is exactly no strain and no minimum certificate, with either no requested rotation and a hint side (the pole; one score per branch when neither reference nor obstruction is asked and the pole is unrefused), or a requested rotation on a mid joint without distal twist (the least-articulation swivel). The local search scores the start, its two neighbours, each further downhill step and one refinement per branch. The full sweep runs when the best branch result keeps an overshoot (range or obstruction), when a rotation start leaves the rotation error above ROM_TOLERANCE degrees, when the limb is straight to within rounding, and for every distal-twist limb with a rotation. An exact-zero first candidate can end cold search only under its certified nonnegative objective; other searches remain. An absent hint side and obstruction need no midpoint FK or cross-axis vectors. Task priority omits unused effort; a reference-only second key needs no unused world prefix. Reference geodesic/strain composition remain lazy. Rotation keeps its existing distal/fallback work. No speedup is measured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. A requested rotation on a limb without distal twist whose end joint has one immobile axis costs two scores a bend branch and no search when its best closed-form candidate is legal and met (measured: every one of 2,707 leg fits of test_human_motion_signature_run_m_average, 19.3 scores a fit before, 2 after). Eligibility for a closed-form start is exactly no strain and no minimum certificate, with either no requested rotation and a hint side (the pole; one score per branch when neither reference nor obstruction is asked and the pole is unrefused), or a requested rotation on a mid joint without distal twist (the least-articulation swivel). The local search scores the start, its two neighbours, each further downhill step and one refinement per branch. The full sweep runs when the best branch result keeps an overshoot (range or obstruction), when a rotation start leaves the rotation error above ROM_TOLERANCE degrees, and when the limb is straight to within rounding. An exact-zero first candidate can end cold search only under its certified nonnegative objective; other searches remain. An absent hint side and obstruction need no midpoint FK or cross-axis vectors. Task priority omits unused effort; a reference-only second key needs no unused world prefix. Reference geodesic/strain composition remain lazy. Rotation keeps its existing distal/fallback work. No speedup is measured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied lazy workspace shares admitted bases, fixed references/weight, hinge range and posed source swing at the same first-use sites. A candidate reads its upper joint and shared lower record once without a discarded joint-pair array; an absent reference needs no unused quaternion normalization. Its already computed lower-preceding world frame also serves its rotation scorer in the original grouping. Source dependencies stay unchanged; target readings, scores, seed selection and caller callbacks still run per target. Standalone callers retain original setup and recomputation fallback.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns any borrowed workspace rig; this target's scoring closures and bounded sweep data are released when the search returns. Only the selected candidate escapes, and no target history, handle or background task is retained.
  */
@@ -99,6 +110,22 @@ export function fitHingedChainCandidate(
     rotation === undefined
       ? null
       : fitHingedRotationError(props, prepared, axes, rotation, rig);
+  // One candidate's rotation error is read by its exact score and again by
+  // the acceptance of the chosen one: the same pure reading of the same
+  // candidate record, so it is measured once for this solve.
+  const errors: WeakMap<IAutoMovieQuaternion, number> = new WeakMap();
+  const measure = (
+    upper: IAutoMovieQuaternion,
+    lower: IAutoMovieQuaternion,
+    above?: IAutoMovieQuaternion,
+  ): number => {
+    let error: number | undefined = errors.get(upper);
+    if (error === undefined) {
+      error = turn!(upper, lower, above);
+      errors.set(upper, error);
+    }
+    return error;
+  };
   const root: IAutoMovieVector3 = prepared.upper.worldPosition;
   const reach: IAutoMovieVector3 = Vector3.subtract(props.target, root);
   if (Vector3.length(reach) < 1e-9) return null;
@@ -292,6 +319,7 @@ export function fitHingedChainCandidate(
         lowerWorld: IAutoMovieQuaternion,
       ) => number)
     | undefined = props.strain;
+  let ended: IEnd | undefined;
   const solved: ReturnType<typeof hingedArmArticulation> =
     hingedArmArticulation({
       upper: prepared.upper,
@@ -362,7 +390,41 @@ export function fitHingedChainCandidate(
                     ? hingedTwistStart(prepared, posed, rotation!)
                     : hingedRotationStart(prepared, posed, rotation!),
                 met: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion): boolean =>
-                  turn!(upper, lower) <= ROM_TOLERANCE,
+                  measure(upper, lower) <= ROM_TOLERANCE,
+                // An end joint with one immobile axis (an ankle) takes the
+                // rotation only where the rotation demanded of it reads that
+                // axis neutral: at most two swivels a branch, in closed form
+                // (`immobileAxisSwivels`). A distal twist carries part of
+                // the demand in the mid segment instead, so it keeps the
+                // search.
+                ...(lowerBasis.twistPlacement === "distal"
+                  ? {}
+                  : {
+                      closed: (posed: ReturnType<typeof hingedArmSwivel.pose>): number[] | null => {
+                        const end: IEnd = (ended ??= endOf(props, prepared, rig));
+                        return immobileAxisSwivels({
+                          basis: end.basis,
+                          frame: end.frame,
+                          constraint: end.constraint,
+                          rotation: (swivel: number): IAutoMovieQuaternion => {
+                            const at: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> = posed(swivel);
+                            return Quaternion.normalize(Quaternion.multiply(
+                              end.restInverse,
+                              Quaternion.multiply(
+                                Quaternion.inverse(Quaternion.multiply(
+                                  Quaternion.multiply(
+                                    Quaternion.multiply(prepared.upper.worldRotation, at.upper),
+                                    prepared.lowerRotation,
+                                  ),
+                                  at.lower,
+                                )),
+                                rotation!,
+                              ),
+                            ));
+                          },
+                        });
+                      },
+                    }),
               }),
       excluded: (
         upper: (swivel: number) => IAutoMovieQuaternion,
@@ -391,7 +453,7 @@ export function fitHingedChainCandidate(
             deviation: 0,
             ...(turn === null
               ? {}
-              : { exact: (): number => turn(upper, lower, above) }),
+              : { exact: (): number => measure(upper, lower, above) }),
             // A reference pose keeps its side through a stroke, so its turn
             // decides before the strain; without one the strain decides.
             tiebreak: (): number =>
@@ -423,7 +485,7 @@ export function fitHingedChainCandidate(
           overshoot,
           deviation: 0 + 2 * away + turned + 1e-9 * effort,
           exact: (): number =>
-            turn(upper, lower, above) + 2 * away + turned + 1e-9 * effort,
+            measure(upper, lower, above) + 2 * away + turned + 1e-9 * effort,
         };
       },
     });
@@ -445,6 +507,40 @@ export function fitHingedChainCandidate(
             strain: solved.second ?? 0,
           },
         }),
+  };
+}
+
+/** The end joint as its rotation error reads it (`fitHingedRotationError`): its clinical basis, rest frame, range and the inverse of its fixed rest rotation. */
+interface IEnd {
+  /** The end joint's clinical basis, admitted and normalized. */
+  basis: IAutoMovieJointAxes;
+
+  /** Its rest frame, when the rig gives one. */
+  frame: IAutoMovieRestFrame | undefined;
+
+  /** Its resolved range of motion. */
+  constraint: IAutoMovieJointConstraint | null;
+
+  /** The inverse of the fixed rotation from the mid bone to the end joint's rest. */
+  restInverse: IAutoMovieQuaternion;
+}
+
+/** Read the end joint as `fitHingedRotationError` reads it, from the rig when one is lent. */
+function endOf(
+  props: IFitChainToTargetProps,
+  prepared: NonNullable<ReturnType<typeof prepareChainPlant>>,
+  rig: prepareChainFit.IRig | undefined,
+): IEnd {
+  const effector: AutoMovieHumanoidBone = props.chain.effector;
+  const bone: IAutoMovieBone | undefined = rig === undefined
+    ? props.skeleton.bones.find((b: IAutoMovieBone): boolean => b.bone === effector)
+    : rig.bone(effector);
+  return {
+    basis: rig?.basis(effector, "decomposeJointRotation axes") ??
+      basisOf(bone?.axes ?? props.jointAxes?.[effector]),
+    frame: props.restFrames?.[effector],
+    constraint: getConstraint(effector, bone?.constraint ?? null),
+    restInverse: rig?.effectorRestInverse() ?? Quaternion.inverse(prepared.effectorBaseRotation),
   };
 }
 

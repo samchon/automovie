@@ -201,17 +201,7 @@ export function prepareJointRotationProjection(props: {
     let last: IComposed | undefined;
     let firstReading: IComposed | undefined;
     let secondReading: IComposed | undefined;
-    if (
-      !AXES.some(
-        (axis: ClinicalAxis): boolean => {
-          const shown: number | null = effector[axis];
-          const shownClinical: number = shown === null ? clinical(axis, 0) : shown;
-          const asked: number | null = raw[axis];
-          return Math.abs(shownClinical - (asked === null ? clinical(axis, 0) : asked)) > 1e-9;
-        },
-      )
-    )
-      return finish(effector, requested);
+    if (admitted(effector, raw)) return finish(effector, requested);
     const compose: ReturnType<typeof jointToQuaternionOnBasis.prepare> =
       prepareComposition();
     const normalizedError: (x: number, y: number, z: number, w: number) => number = (
@@ -300,6 +290,16 @@ export function prepareJointRotationProjection(props: {
     return finish(effector, requested, incumbent?.quaternion);
   };
 
+  /** Whether the clamp left the asked reading as it is on every axis, to the general search's own 1e-9 degrees. */
+  const admitted: (shown: IAutoMovieJointPose, raw: IAutoMovieJointPose) => boolean = (
+    shown: IAutoMovieJointPose, raw: IAutoMovieJointPose,
+  ): boolean => !AXES.some((axis: ClinicalAxis): boolean => {
+    const held: number | null = shown[axis];
+    const asked: number | null = raw[axis];
+    return Math.abs((held === null ? clinical(axis, 0) : held) -
+      (asked === null ? clinical(axis, 0) : asked)) > 1e-9;
+  });
+
   /** Analytic ranking owns its bounded scratch; generic queries never enter it. */
   const scoreBox: ReturnType<typeof prepareJointProjectionScores> | null =
     box && mobile.length > 0 ? prepareJointProjectionScores({
@@ -319,6 +319,11 @@ export function prepareJointRotationProjection(props: {
     const reference: IAutoMovieJointPose = clamp.reference;
     if (!box) return general(local, raw, reference, requested, clamp.project);
     if (mobile.length === 0) return finish(reference, requested);
+
+    // A reading its clamp leaves as it is lies inside the box already: it
+    // composes the asked rotation itself, no admitted articulation is
+    // nearer than none away, and it is the reference every tie keeps.
+    if (admitted(reference, raw)) return finish(reference, requested);
     const first: ClinicalAxis = mobile[0]!;
     const second: ClinicalAxis | undefined = mobile[1];
     const dots: ReturnType<NonNullable<typeof coefficientDots>> = coefficientDots!(reference);

@@ -75,6 +75,11 @@ const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
  * finds none, the full sweep decides, so a chain that cannot reach legally
  * still returns its least overshoot.
  *
+ * A cold fit with `closed` candidates and no `tie` or `minimum` scores them
+ * alone and returns the best when it is legal and `met` accepts it: where a
+ * requested term is met only at isolated swivels, those are the whole
+ * admissible set and no search can add to it.
+ *
  * A cold fit with a `pole` and no `tie` or `minimum` searches locally from
  * it (`hingedSwivelPole`) and returns a legal result without the sweep, so
  * it follows the bend hint rather than jumping to a far, marginally better swivel.
@@ -102,7 +107,7 @@ const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pure chain geometry with the ROM policy injected through `score`, so `reachPose` owns the clinical decomposition and constraints while this function owns the branches and the sweep; the shared `aimRotation` aims the root.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rig, side or target is special-cased; the degeneracy thresholds are the engine's shared length scale, and a chain that cannot reach legally returns its least overshoot instead of being clamped into range.
  * @evidence contracts/development/common.md#meaningful-documentation States the hinge-only elbow, the span formula and its branches, the out-of-span behavior, the swivel sweep and its ordering, who owns scoring, every `null` case with its threshold, and each input's frame.
- * @evidence contracts/development/implementation.md#efficient-algorithms Eligible cold fits (a `pole`, no `tie`, no `minimum`) first score per branch the pole start, each downhill step and one golden refinement, returning when legal; otherwise, at most two branches times 360 swivel steps plus bounded per-minimum golden refinement remain; with a certified `bound` under exact ties, branch and bound (`hingedSwivelBounded`) scores only the steps and refines only the minima the bound cannot place behind a legal candidate, with the full sweep's choice. Near mode retains its original tolerance-derived count. An exact first-candidate global-minimum certificate ends cold search after that one actual score. Failed pruned passes reuse identical completed steps/refinements. The shared comparator may read a required exact(a) before b and prove it ahead of b's lower bound without exact(b). Runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A cold fit with `closed` candidates scores those alone, at most two a branch, and returns a legal, met best with no search. Eligible cold fits (a `pole`, no `tie`, no `minimum`) first score per branch the pole start, each downhill step and one golden refinement, returning when legal; otherwise, at most two branches times 360 swivel steps plus bounded per-minimum golden refinement remain; with a certified `bound` under exact ties, branch and bound (`hingedSwivelBounded`) scores only the steps and refines only the minima the bound cannot place behind a legal candidate, with the full sweep's choice. Near mode retains its original tolerance-derived count. An exact first-candidate global-minimum certificate ends cold search after that one actual score. Failed pruned passes reuse identical completed steps/refinements. The shared comparator may read a required exact(a) before b and prove it ahead of b's lower bound without exact(b). Runtime speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each hinge branch computes its mid direction and aim once for the solve. Within that unchanged branch/target/score, a full fallback reuses each actual step and completed refinement of the same bracket; it still compares all original candidates in their original order. An optional matching prepared target also shares source span coefficients/inverse root and this point's lowered goal. No scored answer crosses targets or solves.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A solve retains at most two branches' 360 step candidates and one selected candidate per refined step, with their branch pose/probe closures. The bounded workspace releases at return or throw; only the selected rotations escape, with no history or external handle.
  */
@@ -119,6 +124,7 @@ export const hingedArmArticulation: (props: {
   excluded?: (upper: (swivel: number) => IAutoMovieQuaternion) => (low: number, high: number) => boolean;
   bound?: (upper: (swivel: number) => IAutoMovieQuaternion) => (low: number, high: number) => number;
   pole?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => number | null;
+  closed?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => readonly number[] | null;
   met?: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => boolean;
   direct?: boolean;
   near?: IAutoMovieSwivelNear;
@@ -206,6 +212,16 @@ export const hingedArmArticulation: (props: {
    * and returns a legal result that `met` accepts; otherwise the sweep decides.
    */
   pole?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => number | null;
+
+  /**
+   * Given a branch's poser, every swivel on it, degrees, at which a requested
+   * term that only isolated swivels can meet is met (`immobileAxisSwivels`),
+   * in closed form; null or none when the analysis does not apply. A cold fit
+   * with no `tie` or `minimum` scores those candidates alone and returns the
+   * best when it is legal and `met` accepts it; otherwise the pole start and
+   * the sweep decide as without it.
+   */
+  closed?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => readonly number[] | null;
 
   /** Whether a pole-started result meets every requested term; absent, legality alone decides. */
   met?: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => boolean;
@@ -447,6 +463,24 @@ export const hingedArmArticulation: (props: {
     const seeded: IScored = refineHingedSwivel(prober(stop, pose(stop.theta)), better, near.swivel,
       Math.max(0, Math.ceil(contraction / Math.log(GOLDEN))));
     return answer(seeded, seeded.shortfall);
+  }
+
+  // The closed-form candidates (`closed`): where a requested term is met only
+  // at isolated swivels, those swivels are the whole admissible set, so the
+  // best of them, legal and met, is the answer with no search (the analytic
+  // swivel of Tolani, Goswami and Badler 2000). Anything less falls through.
+  if (props.closed !== undefined && props.tie === undefined && props.minimum === undefined) {
+    let best: IScored | null = null;
+    for (const stop of stops) {
+      if (stop.shortfall !== shortfall) continue;
+      const branch: ISweep = record(stop);
+      for (const angle of props.closed(branch.posed) ?? []) {
+        const candidate: IScored = branch.probe(angle);
+        if (best === null || better(candidate, best)) best = candidate;
+      }
+    }
+    if (best !== null && best.overshoot === 0 &&
+      (props.met === undefined || props.met(best.upper, best.lower))) return answer(best);
   }
 
   // The pole start (`hingedSwivelPole`): a legal result is the answer; an

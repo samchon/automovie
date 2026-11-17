@@ -42,8 +42,13 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * 4. The left forearm set 30 mm inside at the mirrored ray reads the same
  *    depth within 1 mm: the body is symmetric.
  * 5. Over a film of 1 s in which the forearm goes from 30 mm outside to 30
- *    mm inside (`d = 0.06 t - 0.03`), the deepest pair is read at the last
- *    instant, 1 s, deeper than at 0.75 s, and the pairs come deepest first.
+ *    mm inside (`d = 0.06 t - 0.03`), the pair of the forearm and the bone it
+ *    is set into is read deepest at the last instant, 1 s, deeper than at
+ *    0.75 s; the worst reading is the first pair's and no shallower than
+ *    that pair's, and the pairs come deepest first. The hand and fingers
+ *    carried with the forearm may read a pair of their own on the way: a
+ *    point on a straight course through a convex part is not deepest at
+ *    the course's end, so nothing is claimed of when theirs is deepest.
  * 6. The right hand set 20 mm inside the chest is read. With a contact of
  *    the right hand on the person's own body at a region of that bone,
  *    declared over shares 0.25 to 0.75 of a 1 s action, the hand and its
@@ -211,11 +216,22 @@ export function test_human_motion_audit_tangle(): void {
     "rightLowerArm",
     right.bone,
   );
+  // The pair the ramp sets in: the hand and its fingers are carried with the
+  // forearm and may pass through another part of the trunk on the way, whose
+  // depth along a straight course is not monotone, so the claim is read on
+  // the forearm and the bone it is set into.
+  const entering: AutoMovieMotionHumanAuditTangle.IPair | undefined =
+    ramp.pairs.find(
+      (p: AutoMovieMotionHumanAuditTangle.IPair): boolean =>
+        key(p.a, p.b) === key("rightLowerArm", right.bone),
+    );
   TestValidator.predicate(
     "a limb going in is deepest at the end",
-    Math.abs(ramp.worst.seconds - 1) <= 1e-9 &&
+    entering !== undefined &&
+      Math.abs(entering.seconds - 1) <= 1e-9 &&
+      entering.depth >= set - 1e-9 &&
       ramp.worst.value === ramp.pairs[0]!.depth &&
-      ramp.worst.value >= set - 1e-9 &&
+      ramp.worst.value >= entering.depth &&
       set > late,
   );
   TestValidator.predicate(
