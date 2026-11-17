@@ -13,6 +13,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanHand,
   HumanPerformance,
   wallClimbSupport,
 } from "@automovie/motions";
@@ -30,16 +31,16 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  *
  * 1. The public support action opens two distinct right-foot windows at
  *    the old and new holds, with a gap between release and landing.
- * 2. Both hands grip and the opposite foot bears in the wall's frame
- *    throughout the change of right-foot hold.
+ * 2. Both hand grip points and the opposite foot have windows in the wall's
+ *    frame and reach the authored points at the lift and set-down keys.
  * 3. The displayed right toe joint arrives at the new foothold within the
  *    10 mm contact bound of the motion campaign.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the route, the measured support premise and three observable behaviors.
- * @evidence contracts/development/testing.md#behavioral-verification Builds one wall route through the public chain and reads the placed contact windows and terminal displayed toe joint.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds one wall route through the public chain and reads contact windows and displayed grip-socket and toe positions at the transfer keys.
  * @evidence contracts/development/testing.md#independent-expectations The three retained supports come from measured climbing, the gap follows the single-limb transfer contract, and the foothold is staged from body dimensions and compared at the campaign's 10 mm bound.
  * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes the released foot from the stationary one, and gripping hands from planted feet. The generic support-sequence spec covers unreachable targets.
- * @evidence contracts/development/testing.md#execution-ownership This named unit plans one motion on the shared polygon-man body fixture and reads one displayed pose in memory.
+ * @evidence contracts/development/testing.md#execution-ownership This named unit plans one motion on the shared polygon-man body fixture and reads three displayed poses in memory.
  */
 export function test_human_motion_wall_climb_support(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
@@ -159,6 +160,35 @@ export function test_human_motion_wall_climb_support(): void {
         contact.kind === (part === "leftFoot" ? "plant" : "grip") &&
         contact.support.kind === "prop" &&
         contact.support.subject === wall.subject,
+    );
+  }
+
+  for (const transfer of [lift, bear]) {
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      performance.bones("a", segment.start + transfer * segment.plan.duration);
+    for (const [side, point] of [
+      ["left", "leftGrip"],
+      ["right", "rightGrip"],
+    ] as const) {
+      const wrist: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+      const grip: IAutoMovieVector3 = Vector3.add(
+        wrist.worldPosition,
+        Quaternion.rotateVector(
+          wrist.worldRotation,
+          HumanHand.offset(body, side, "grip").point,
+        ),
+      );
+      TestValidator.predicate(
+        `${side} grip socket reaches its hold at share ${transfer}`,
+        Vector3.length(Vector3.subtract(grip, wall.points[point]!.point)) <= 0.01,
+      );
+    }
+    TestValidator.predicate(
+      `the left toe stays over its wall point at share ${transfer}`,
+      Math.hypot(
+        bones.get("leftToes")!.worldPosition.x - leftToe.x,
+        bones.get("leftToes")!.worldPosition.z - leftToe.z,
+      ) <= 0.01,
     );
   }
 

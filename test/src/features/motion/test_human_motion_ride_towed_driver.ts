@@ -15,6 +15,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanSeated,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
@@ -23,6 +24,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanFoot,
   HumanHand,
   HumanObject,
   HumanPerformance,
@@ -42,11 +44,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    leaves it, the seat socket lies within 10 mm of the seat rectangle.
  * 3. At those same instants each palm lies within 10 mm of the skin of the
  *    driving line's run between the terret and the point held by the driver.
+ * 4. Each foot bears within 10 mm of the cart's footboard at those instants.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the bodies, course and seat and palm observations in metres at four named course positions.
- * @evidence contracts/development/testing.md#behavioral-verification Composes a real horse and cart through the public towing and ride APIs and reads the displayed driver's seat and palm sockets against the actual posed cart and laid lines. A seat left behind or a hand following the wrong line fails.
- * @evidence contracts/development/testing.md#independent-expectations The 10 mm tolerance and quarter-turn radius are from #3473 and #3495. The seat rectangle is the cart's own affordance and the rein surface is the emitted line segment widened by its declared radius. Neither oracle reads the rider's targets or a previously displayed rider pose. Sampling four course positions does not establish all phases, feet or finger closure.
- * @evidence contracts/development/testing.md#distinguishing-cases Both body builds, both hands, and separate readings on the departure and before, during and after the steering change. Cart ground contact and each harness anchor have separate archetype specs.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the bodies, course and seat, palm and sole observations in metres at four named course positions.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes a real horse and cart through the public towing and ride APIs and reads the displayed driver's seat, palm and sole sockets against the actual posed cart and laid lines. A seat left behind or a hand following the wrong line fails.
+ * @evidence contracts/development/testing.md#independent-expectations The 10 mm tolerance and quarter-turn radius are from #3473 and #3495. The seat rectangle is the cart's own affordance and the rein surface is the emitted line segment widened by its declared radius. The footboard rectangle comes from the cart's posed surface affordance. These oracles use no rider targets or prior rider poses. Four samples leave intervening instants and finger closure unchecked.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both body builds, both hands, both feet, and separate readings on the departure and before, during and after the steering change. Cart ground contact and each harness anchor have separate archetype specs.
  * @evidence contracts/development/testing.md#execution-ownership The exported in-memory case shares one towing plan across the two drivers and reads their displayed bones once each at four instants.
  */
 export function test_human_motion_ride_towed_driver(): void {
@@ -180,7 +183,24 @@ export function test_human_motion_ride_towed_driver(): void {
         ),
       );
 
+      const board: IAutoMovieAffordance = sample.archetype.affordance("footboard");
+      const boardFrame: IAutoMovieTransform = ArchetypeFrame.compose(sample.placement, board.frame);
+      const boardInverse: ReturnType<typeof Quaternion.inverse> = Quaternion.inverse(boardFrame.rotation);
       for (const side of ["left", "right"] as const) {
+        const sole: IAutoMovieVector3[] = HumanFoot.sockets(body, bones, side).map(
+          ({ point }: IAutoMovieMotionHumanFoot.ISocket): IAutoMovieVector3 =>
+            Quaternion.rotateVector(boardInverse, Vector3.subtract(point, boardFrame.translation)),
+        );
+        check(
+          `${label}, ${side} sole`,
+          Math.min(...sole.map((p: IAutoMovieVector3): number => Math.hypot(
+            Math.max(0, Math.abs(p.x) - board.width! / 2),
+            p.y,
+            Math.max(0, Math.abs(p.z) - board.depth! / 2),
+          ))),
+        );
+        check(`${label}, ${side} sole penetration`, -Math.min(...sole.map((p: IAutoMovieVector3): number => p.y)));
+
         const line: ArchetypeRide.ILineState | undefined = sample.lines?.find(
           (entry: ArchetypeRide.ILineState): boolean =>
             entry.id === `line-${side}`,

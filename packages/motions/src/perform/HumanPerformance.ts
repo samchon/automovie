@@ -214,6 +214,7 @@ export class HumanPerformance {
     request: IAutoMovieMotionHumanPropFracture.IRequest<Piece>,
   ): IAutoMovieMotionHumanPropFracture.IPlan<Piece> | null {
     const subject: string = request.subject;
+    if (!this.resolved.props.has(subject)) return null;
     const hit: IAutoMovieInteractionEvent | undefined = this.hits(subject).find(
       (event: IAutoMovieInteractionEvent): boolean =>
         event.kind === "hit" && event.id === request.hit,

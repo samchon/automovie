@@ -44,10 +44,10 @@ const OBSERVATIONS: readonly (readonly Observation[])[] = [
  * between the two populations is an authored approximation. Densities
  * outside the observations use the nearer endpoint.
  *
- * A caller can use a group course from `HumanCrowd.steer` as the frame and
- * give each member's walking action its slot in the returned formation. The
- * result plans the relative shape once. Any obstacle clearance for that
- * shape is a separate property of the supplied course.
+ * Give each member's walking action its slot in the returned formation.
+ * Plan the supplied frame from the group's centroid and check that the
+ * group's full extent clears obstacles along the course, including while
+ * turning. The result describes relative slots only.
  *
  * @param frame The group centre and facing over film time.
  * @param halfBreadths Positive shoulder half breadths in metres, in left-to-right member order.

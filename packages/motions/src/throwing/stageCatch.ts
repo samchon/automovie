@@ -84,6 +84,15 @@ export const stageCatch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCat
           fix: "extend the anchored launch action through the proposed catch",
         });
 
+      if (reader.launchAt?.(context.start + contact) !== launch)
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "from",
+          value: from,
+          reason: "the anchored launch must own the prop at interception",
+          fix: "place the catch before another grip or launch takes the prop",
+        });
+
       // The placed flight and the arm plan must see the same ball at contact.
       // The projectile campaign's parity contract bounds this difference in metres.
       const flightParity: number = 1e-6;

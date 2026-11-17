@@ -1,6 +1,7 @@
 import { Vector3, resolveHydrodynamicForce } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieIntegrateMotionTrajectory,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -21,23 +22,24 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { SwimStroke } from "./SwimStroke";
 
 /**
- * Register a passive immersed action with `HumanChain.extend` and
- * `HumanPerformance`'s `laws`. The existing supine swim key supplies the
- * body shape. Archimedes' balance chooses its height and the existing
- * segment drag chooses its travel. The action starts already in the water
- * and holds its orientation. Strokes, water entry and free roll need other
- * plans.
+ * Register this immersed action with `HumanChain.extend` and
+ * `HumanPerformance`'s `laws`. The passive case holds the existing supine
+ * key. The opt-in breaststroke uses the existing prone keys and starts at
+ * rest. Both start in the water at their first shape's buoyant trim.
  *
  * Nakashima, Satou and Miura (2007), section 2, uses posed segments for
  * buoyancy and drag. Here the shape is held and the water is still, so the
  * engine's quasi-steady segment model reduces to a constant quadratic drag
  * coefficient over the span. Integrating `dv/dt = -k v²` gives
- * `distance = log(1 + k v0 t) / k`.
+ * `distance = log(1 + k v0 t) / k`. The breaststroke instead integrates
+ * the heading component of drag at every moving segment. Its trim and
+ * heading are prescribed. The sphere approximation gives quasi-steady
+ * isotropic drag and omits added mass, free heave, rotation and water entry.
  *
  * @see https://doi.org/10.1299/jfst.2.56
- * @evidence contracts/development/common.md#meaningful-documentation States the registration route, held posture, initial condition, force model, closed form and scope.
- * @evidence contracts/development/design.md#principled-representation Speed zero and positive speed describe the same immersed shape under Archimedes' balance and a signed drag opposite its travel.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this registered water action reads the new parameter contract. The staged stroke laws retain their own timing and joint motion.
+ * @evidence contracts/development/common.md#meaningful-documentation States the registration route, stroke choice, initial conditions, force models and scope.
+ * @evidence contracts/development/design.md#principled-representation Speed zero and positive speed describe the passive shape; the optional keyed stroke starts at rest and derives heading displacement from drag.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this registered action reads its water and stroke choices. It reuses the existing keys and the shared water-force owner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing stroke key, posture resolution and force owner. A body without enough displacement is refused.
  */
 export const swimImmersed: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSwimImmersed> =
@@ -77,16 +79,34 @@ export const swimImmersed: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanS
         "kg/m³",
       );
 
-      // Only the existing float key's shape is authored. Its later height
-      // is determined from the displacement of that shape.
-      const shape: IAutoMovieMotionHumanPosture = SwimStroke.plan({
+      const stroke: "breaststroke" | undefined = params.stroke;
+      if (stroke !== undefined && stroke !== "breaststroke")
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "stroke",
+          value: stroke,
+          reason: "the immersed stroke draft supplies one breaststroke",
+          fix: "use breaststroke or omit stroke for passive immersion",
+        });
+      if (stroke !== undefined && speed !== 0)
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "speed",
+          value: speed,
+          reason: "the immersed stroke starts from rest",
+          fix: "omit speed or set it to zero",
+        });
+
+      const keys: IAutoMovieMotionHumanActionPlan = SwimStroke.plan({
         body,
         entry: context.entry.posture,
-        stroke: "float",
+        stroke: stroke ?? "float",
         water: water.surface,
         cycles: 1,
+        stationary: true,
         tempo: 1,
-      }).posture(0);
+      });
+      const shape: IAutoMovieMotionHumanPosture = keys.posture(0);
       const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(body, resolveHumanPosture(body, shape));
       const lift: number | null = HumanWater.float(body, bones, water);
@@ -101,7 +121,7 @@ export const swimImmersed: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanS
 
       const direction: IAutoMovieVector3 = Vector3.scale(
         HumanFrame.forward(shape.yaw),
-        -1,
+        stroke === undefined ? -1 : 1,
       );
       // The same relative depths can be evaluated on the original bones by
       // shifting the plane down instead of moving every bone up.
@@ -109,6 +129,52 @@ export const swimImmersed: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanS
         surface: water.surface - lift,
         density,
       };
+      if (stroke !== undefined) {
+        const trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+          HumanWater.stroke(
+            body,
+            (
+              phase: number,
+            ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+              phase === 0
+                ? bones
+                : poseBones(
+                    body,
+                    resolveHumanPosture(
+                      body,
+                      keys.posture(phase * keys.duration),
+                    ),
+                  ),
+            direction,
+            waterAtShape,
+          );
+        if (!Number.isFinite(trajectory.at(1).x[0]!))
+          throw new HumanRefusal({
+            kind: "base",
+            axis: "water.density",
+            value: density,
+            reason: "the stroke has no finite path at this density",
+            fix: "use a medium with an admissible density for this body",
+          });
+        return {
+          duration,
+          events: keys.events,
+          contacts: keys.contacts,
+          posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+            const phase: number = Math.max(0, Math.min(1, seconds / duration));
+            const key: IAutoMovieMotionHumanPosture = keys.posture(
+              phase * keys.duration,
+            );
+            return {
+              ...key,
+              root: Vector3.add(
+                { ...key.root, y: key.root.y + lift },
+                Vector3.scale(direction, trajectory.at(phase).x[0]!),
+              ),
+            };
+          },
+        };
+      }
       const k: number =
         speed === 0
           ? 0

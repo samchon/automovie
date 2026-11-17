@@ -4,16 +4,23 @@ import {
   ArchetypeDrawSession,
   ArchetypeFrame,
 } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { Vector3, softBodySurfaceGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
+  IAutoMovieRigidTransform,
   IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodySurface,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanObject, HumanPerformance } from "@automovie/motions";
+import {
+  type IAutoMovieSceneSoftProps,
+  buildSceneSoftProps,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
+import * as THREE from "three";
 
 import { nclose, vclose } from "../internal/predicates";
 
@@ -22,6 +29,9 @@ const SPAN: number = 1;
 const LENGTH: number = 5 / 4;
 const RADIUS: number = 1 / 32;
 const END: number = 1 / 8;
+
+/** Native first travel is nonzero so the placed seed differs from the model rest. */
+const START_TRAVEL: number = 1 / 16;
 
 /**
  * A slack cord uses the radius, length and endpoints of a model's declared
@@ -32,15 +42,17 @@ const END: number = 1 / 8;
  * 1. Build three links from a span with a 1 m chord and a 1.25 m rest length.
  *    The three links sum to the authored length; the low point lies 3/8 m
  *    below the anchors; particle masses sum to the authored mass.
- * 2. At two native soft steps, both ends follow the moving owner's
- *    translation and quarter turn, and the second end follows its slider.
- * 3. A missing span or invalid link count is refused before any solve.
+ * 2. The native initial step rebuilds the rest legs for a nonzero slider
+ *    starting travel. Later samples follow that slider and the moving owner.
+ *    The CPU scene tube is updated from those same performance samples.
+ * 3. An overextended initial placement, missing span and invalid link count
+ *    refuse. A film beyond the authored step budget refuses at construction.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model geometry, moving endpoints, independent dimensions and refused inputs.
- * @evidence contracts/development/testing.md#behavioral-verification Uses real Archetype span authoring and reads the prepared rest cord and the public performance's fixed-step soft states.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses real Archetype span authoring, observes the public performance's native soft samples and uses the canonical surface projection to update one CPU scene tube.
  * @evidence contracts/development/testing.md#independent-expectations Pythagoras gives the 3/8 m altitude for half-chord 1/2 m and leg 5/8 m. A +90 degree Y rotation sends local +X to world -Z so the endpoints follow the owner's translation and slider displacement algebraically.
- * @evidence contracts/development/testing.md#distinguishing-cases An odd link count pins unequal subdivisions without changing overall dimensions. The first endpoint follows only the owner and the second follows the articulated carrier as well. Missing line and one link fail.
- * @evidence contracts/development/testing.md#execution-ownership test_human_motion_span_cord uses an in-memory model and four soft steps, without a performer pose, action plan or visual host.
+ * @evidence contracts/development/testing.md#distinguishing-cases An odd link count pins unequal subdivisions without changing overall dimensions. An owner subject with the grip prefix still supplies both anchors. Nonzero initial travel distinguishes declared geometry from the actual start placement. Initial overextension, missing span, one link and duration over budget all refuse.
+ * @evidence contracts/development/testing.md#execution-ownership test_human_motion_span_cord uses an in-memory model and four soft steps, without a performer pose, action plan or visual host, plus CPU-only geometry.
  */
 export function test_human_motion_span_cord(): void {
   const model: Archetype<"slide", never> = fixture();
@@ -49,7 +61,7 @@ export function test_human_motion_span_cord(): void {
     yaw: 90,
   });
   const owner: IAutoMovieMotionHumanProp = HumanObject.prop(
-    "carrier",
+    "grip:carrier",
     model,
     placement(0),
     placement,
@@ -59,7 +71,7 @@ export function test_human_motion_span_cord(): void {
         articulation: "slide",
         start: 0,
         duration: END,
-        travel: (seconds: number): number => seconds / 2,
+        travel: (seconds: number): number => START_TRAVEL + seconds / 2,
       },
     ],
   );
@@ -103,12 +115,131 @@ export function test_human_motion_span_cord(): void {
     ),
   );
 
-  // The rig's cue gives the performance a horizon without an unrelated actor.
-  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = place(owner, cord, END);
+  const first: number[] = performance.soft("cord", 0);
+  TestValidator.predicate("the initial seed uses the actual slider pose", () => {
+    const restLeg: number = LENGTH / 2;
+    const halfChord: number = (SPAN + START_TRAVEL) / 2;
+    return vclose(
+      point(first, 1),
+      {
+        x: 2,
+        y: 3 - Math.sqrt(restLeg * restLeg - halfChord * halfChord),
+        z: (1 - START_TRAVEL) / 2,
+      },
+      1e-9,
+    );
+  });
+
+  const scene: THREE.Scene = new THREE.Scene();
+  const layer: IAutoMovieSceneSoftProps = buildSceneSoftProps(scene);
+  try {
+    for (const seconds of [0, 1 / 16, 1 / 8, 0]) {
+      const positions: number[] = performance.soft("cord", seconds);
+      const from: IAutoMovieVector3 = { x: 2, y: 3, z: 1 + seconds };
+      const to: IAutoMovieVector3 = {
+        x: 2,
+        y: 3,
+        z: seconds / 2 - START_TRAVEL,
+      };
+      TestValidator.predicate("both hard anchors follow the placed model", () =>
+        vclose(point(positions, 0), from, 1e-9) &&
+        vclose(point(positions, 3), to, 1e-9),
+      );
+
+      // The film producer supplies the performance's particles at this native step.
+      const step: number = seconds / domain.solver.fixedStepSeconds;
+      const surface: IAutoMovieSoftBodySurface = softBodySurfaceGeometry({
+        domain,
+        state: {
+          domain: domain.id,
+          state: null,
+          step,
+          time: seconds,
+          positions,
+          velocities: [],
+          maxSpeed: 0,
+          maxStrain: 0,
+          contacts: 0,
+        },
+      });
+      layer.update([
+        {
+          subject: cord.subject,
+          status: "solved",
+          cordRadius: domain.contact!.thickness,
+          surface,
+        },
+      ]);
+      const mesh: THREE.Object3D | undefined = scene.getObjectByName("soft:cord");
+      TestValidator.predicate("the scene tube follows the sampled cord", () => {
+        if (!(mesh instanceof THREE.Mesh) || !mesh.visible) return false;
+        const vertices: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
+          mesh.geometry.getAttribute("position");
+        const ringSize: number = vertices.count / domain.lattice.rows;
+        const last: number = vertices.count - ringSize;
+        const opposite: number = (ringSize - 1) / 2;
+        return (
+          mesh.userData.step === step &&
+          Number.isInteger(opposite) &&
+          opposite > 0 &&
+          nclose((vertices.getZ(0) + vertices.getZ(opposite)) / 2, from.z, 1e-6) &&
+          nclose(
+            (vertices.getZ(last) + vertices.getZ(last + opposite)) / 2,
+            to.z,
+            1e-6,
+          )
+        );
+      });
+    }
+  } finally {
+    layer.dispose();
+  }
+  const extended: IAutoMovieMotionHumanProp = {
+    ...owner,
+    tracks: [{ articulation: "slide", start: 0, travel: (): number => 3 / 8 }],
+  };
+  const overextended: IAutoMovieMotionHumanPerformance = place(extended, cord, 0);
+  TestValidator.error(
+    "the placed start cannot be longer than its declared cord",
+    (): number[] => overextended.soft("cord", 0),
+  );
+  const unplaced: IAutoMovieMotionHumanPerformance = place(
+    {
+      ...owner,
+      motion: (): IAutoMovieRigidTransform => ({
+        ...owner.frame,
+        position: { ...owner.frame.position, y: Infinity },
+      }),
+    },
+    cord,
+    0,
+  );
+  TestValidator.error("a nonfinite initial position refuses before integration", () =>
+    unplaced.soft("cord", 0),
+  );
+  TestValidator.error("over-budget films refuse at construction", () =>
+    place(owner, cord, END + domain.solver.fixedStepSeconds),
+  );
+  TestValidator.error("span must be declared", (): IAutoMovieMotionHumanProp =>
+    HumanObject.cord(model, "missing", options),
+  );
+  TestValidator.error("slack cord needs two or more links", () =>
+    HumanObject.cord(model, "line", { ...options, links: 1 }),
+  );
+}
+
+/** The rig's cue gives the performance a horizon without an unrelated actor. */
+function place(
+  owner: IAutoMovieMotionHumanProp,
+  cord: IAutoMovieMotionHumanProp,
+  end: number,
+): IAutoMovieMotionHumanPerformance {
+  return new HumanPerformance({
     seed: "span",
     performers: [],
     props: [owner, cord],
-    cues: { rig: [{ name: "end", seconds: END }] },
+    cues: { rig: [{ name: "end", seconds: end }] },
     composition: {
       kind: "at",
       anchor: "rig",
@@ -117,25 +248,6 @@ export function test_human_motion_span_cord(): void {
       part: { kind: "sequence", parts: [] },
     },
   });
-  for (const seconds of [0, 1 / 16, 1 / 8]) {
-    const positions: number[] = performance.soft("cord", seconds);
-    TestValidator.predicate(
-      "both hard anchors follow their placed and articulated endpoints",
-      () =>
-        vclose(point(positions, 0), { x: 2, y: 3, z: 1 + seconds }, 1e-9) &&
-        vclose(
-          point(positions, 3),
-          { x: 2, y: 3, z: seconds / 2 },
-          1e-9,
-        ),
-    );
-  }
-  TestValidator.error("span must be declared", (): IAutoMovieMotionHumanProp =>
-    HumanObject.cord(model, "missing", options),
-  );
-  TestValidator.error("slack cord needs two or more links", () =>
-    HumanObject.cord(model, "line", { ...options, links: 1 }),
-  );
 }
 
 /** Two fixtures separated by the chord, with the second on a +X slider. */
@@ -153,7 +265,7 @@ function fixture(): Archetype<"slide", never> {
       kind: "slider",
       frame: ArchetypeFrame.facing(v(SPAN, 0, 0), v(0, 1, 0), v(1, 0, 0)),
       extent: null,
-      travel: 1 / 4,
+      travel: 1 / 2,
       parts: ["runner"],
     })
     .span(

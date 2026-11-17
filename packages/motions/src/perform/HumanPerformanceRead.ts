@@ -99,8 +99,8 @@ export namespace HumanPerformanceRead {
    * grip released it. A worn span is a grip by a bone: from the film's start
    * for a prop declared worn, from the instant an action puts it on
    * (`IHumanActionPlan.wears`), each to the next grip that takes it off; a
-   * prop set on another prop's socket (`IHumanActionPlan.mounts`) rides
-   * that socket the same way, posed as the other prop is.
+   * prop initially mounted or placed by an action (`IHumanActionPlan.mounts`)
+   * rides the other prop's posed socket in the same way.
    *
    * A grip is any action's contact window of kind `grip` on a hand whose
    * support is this prop. The hand's grip socket rides the hand bone, so the
@@ -174,7 +174,7 @@ export namespace HumanPerformanceRead {
     return HumanPerformanceRead.person(self, subject).overlays;
   }
 
-  /** Every grip window on a prop across every person, and every span it is worn on a bone, in film order, computed once after construction; none for a fixture, which no grip carries. */
+  /** Every grip, worn or mounted span on a prop in film order, cached after construction. Fixtures have no carrier spans. */
   export function grips(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
@@ -189,8 +189,10 @@ export namespace HumanPerformanceRead {
       if (!self.resolving) self.gripCache.set(subject, out);
       return out;
     }
+    const definition: IAutoMovieMotionHumanProp | undefined =
+      self.props.get(subject);
     const declared: IAutoMovieMotionHumanProp.IWorn | undefined =
-      self.props.get(subject)?.worn;
+      definition?.worn;
     if (declared !== undefined)
       worn.push({
         subject: declared.subject,
@@ -199,6 +201,17 @@ export namespace HumanPerformanceRead {
         from: -Infinity,
         to: Infinity,
         offset: declared.offset,
+      });
+    const mounted: IAutoMovieMotionHumanProp.IMounted | undefined =
+      definition?.mounted;
+    if (mounted !== undefined)
+      worn.push({
+        subject: mounted.prop,
+        side: "right",
+        mount: { prop: mounted.prop, point: mounted.point },
+        from: -Infinity,
+        to: Infinity,
+        offset: mounted.offset,
       });
     for (const person of self.people.values()) {
       for (const segment of [...person.segments, ...person.overlays])
@@ -263,7 +276,7 @@ export namespace HumanPerformanceRead {
               });
           }
     }
-    // A worn span lasts until the first grip that starts after it.
+    // A worn or mounted span lasts until the first later grip takes over.
     for (const w of worn) {
       for (const g of out)
         if (g.from > w.from + 1e-9 && g.from < w.to) w.to = g.from;

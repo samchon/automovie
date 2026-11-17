@@ -26,6 +26,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanResponse } from "../skill/HumanResponse";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanHitTrack } from "./HumanHitTrack";
+import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformancePlace } from "./HumanPerformancePlace";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanScheduleRefusal } from "./HumanScheduleRefusal";
@@ -76,6 +77,14 @@ export namespace HumanPerformanceSchedule {
           placed: { start: number; duration: number },
         ): number | undefined =>
           HumanPerformanceSchedule.proximity(self, intent, placed),
+        state: (entry: IAutoMovieScheduleEntry): void => {
+          if (entry.cut !== undefined)
+            HumanPerformanceContacts.cutCaptures(
+              HumanPerformanceRead.person(self, entry.subject),
+              entry.index,
+              entry.end,
+            );
+        },
         // A struck subject's hits are a track computed from what is placed.
         instants: (of: string): readonly IAutoMovieScheduleCue[] | undefined =>
           HumanHitTrack.instants(self, of),

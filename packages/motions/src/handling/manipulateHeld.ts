@@ -1,4 +1,5 @@
 import {
+  AffordanceArticulation,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   Transform,
@@ -206,6 +207,19 @@ export function manipulateHeld(
     const affordance: IAutoMovieAffordance = held.affordances.find(
       (candidate: IAutoMovieAffordance): boolean => candidate.id === contact.site,
     )!;
+    if (
+      prop.point !== undefined ||
+      (prop.articulate !== undefined &&
+        (affordance.rides !== undefined ||
+          AffordanceArticulation.KINDS.has(affordance.kind)))
+    )
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: "contacts.site",
+        value: contact.site,
+        reason: "the held thumb needs a site fixed to the prop frame",
+        fix: "target a rigid site or drive the articulation with an operation",
+      });
     const depth: number = contact.depth ?? affordance.travel ?? 0;
     if (!(Number.isFinite(depth) && depth >= 0))
       throw new HumanRefusal({

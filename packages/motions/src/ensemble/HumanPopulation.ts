@@ -231,7 +231,9 @@ export namespace HumanPopulation {
    * Hold the displayed pose at the chosen stand's `settled` event. Every
    * phase uses that pose with zero stride, expressed at the slot origin
    * facing +Z with the root height measured above the stand's floor. The
-   * segment's placed duration gives the period of the pose take.
+   * segment's placed duration gives the period of the pose take. The take
+   * may use a settled event at the end when the performance still displays
+   * that stand at the event.
    *
    * @param performance The performance containing the template stand.
    * @param template The template's subject id.
@@ -244,7 +246,7 @@ export namespace HumanPopulation {
    * @evidence contracts/development/implementation.md#principled-implementation Holds the one displayed sample at the law's settled event. Removing the root's heading and horizontal position relocates it to the slot frame without changing local articulation or height over the stand's bearing floor.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects one segment and settled marker, checks the bearing frame, then builds one pose take for the existing population consumer.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the stand's event, contact frames and displayed articulation. No separate standing law or tempo is supplied.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Scans the template's segments for one containing interval, reads one displayed pose and produces the requested phase references. The bearing-floor reader evaluates the entry sole sockets once.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Scans the template's segments for one containing interval, reads one displayed pose and produces the requested phase references. A second linear pass checks whether a successor owns the displayed sample. The bearing-floor reader evaluates the entry sole sockets once.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A held pose is identical at every phase by definition, so the pose take borrows the same pose at each phase.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns the pose take to the caller and retains no state.
    */
@@ -263,12 +265,12 @@ export namespace HumanPopulation {
         reason: "a standing take needs a positive whole phase count",
         fix: "give the same positive phase count as the other pose takes",
       });
-    const segment: IAutoMovieMotionHumanSegment | undefined = performance
-      .segments(template)
-      .find(
-        (s: IAutoMovieMotionHumanSegment): boolean =>
-          s.entryTime <= from && from < s.end,
-      );
+    const segments: readonly IAutoMovieMotionHumanSegment[] =
+      performance.segments(template);
+    const segment: IAutoMovieMotionHumanSegment | undefined = segments.find(
+      (s: IAutoMovieMotionHumanSegment): boolean =>
+        s.entryTime <= from && from < s.end,
+    );
     const settled: IAutoMovieMotionEvent | undefined = segment?.plan.events.find(
       (event: IAutoMovieMotionEvent): boolean => event.name === "settled",
     );
@@ -276,9 +278,15 @@ export namespace HumanPopulation {
       segment === undefined || settled === undefined
         ? Number.NaN
         : segment.start + settled.share * segment.plan.duration;
+    // Display treats a successor at the settled instant as the active action,
+    // within the same placement tolerance used by HumanSegmentPose.displayed.
     if (
       segment?.name !== "stand" ||
-      !(segment.entryTime <= at && at < segment.end) ||
+      !(segment.entryTime <= at && at <= segment.end) ||
+      segments.some(
+        (next: IAutoMovieMotionHumanSegment): boolean =>
+          next.index > segment.index && next.entryTime <= at + 1e-12,
+      ) ||
       segment.plan.contacts.some(
         (contact: IAutoMovieMotionHumanContactWindow): boolean =>
           contact.support.kind !== "ground",
@@ -290,7 +298,7 @@ export namespace HumanPopulation {
         axis: "standing",
         value: segment?.name ?? null,
         reason: `${template} has no settled stand on ground to hold at ${from.toFixed(3)} s`,
-        fix: "select a stand that settles on ground before its placed end",
+        fix: "select a stand whose settled pose is displayed on ground",
       });
 
     const pose: IAutoMoviePose = performance.pose(template, at);

@@ -1,5 +1,6 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -12,6 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { rise } from "../everyday/rise";
 import { seated } from "../everyday/seated";
@@ -50,10 +52,10 @@ export namespace HumanTravelCarExit {
    * @evidence contracts/development/design.md#principled-representation Stages authored foot trajectories outside the aperture before transferring support through rise.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Registers only getOut and retains the existing rise events with the added sill and landing markers.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the actual bench, placed opening and entered feet, with authored timing and flexion.
-   * @evidence contracts/development/implementation.md#principled-implementation Eased lift, passage and lowering use minimum jerk, and the transfer uses rise.
+   * @evidence contracts/development/implementation.md#principled-implementation Eased lift, passage, lowering and rotation use minimum jerk. Each foot lands in the stance rise reads at its start, while a delayed foot keeps the entered support until lift.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Checks the opening and entry, places a rise, builds the two foot paths and remaps the contacts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Geometry follows the supplied door; checking the crown at seat-off leaves continuous clearance to inspection.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One new entry fit and one crown query per plan outside of the existing rise; each posture evaluates two closed-form foot paths.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One new entry fit, one starting rise posture and one crown query per plan; each preparation posture evaluates at most two closed-form foot paths.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The start footholds, sill waypoints and exterior landing goals are computed once.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its phase controls and rise for the instance lifetime.
    */
@@ -111,8 +113,10 @@ export namespace HumanTravelCarExit {
           Vector3.dot(Vector3.subtract(point, through.at), out);
         const along = (point: IAutoMovieVector3): number =>
           Vector3.dot(Vector3.subtract(point, through.at), across);
-        const yaw: number = Math.atan2(out.x, out.z) * 180 / Math.PI;
-        const turn: number = yaw - entry.posture.yaw - 360 * Math.round((yaw - entry.posture.yaw) / 360);
+        const targetYaw: number = Math.atan2(out.x, out.z) * 180 / Math.PI;
+        const delta: number = targetYaw - entry.posture.yaw;
+        const turn: number = delta - 360 * Math.round(delta / 360);
+        const yaw: number = entry.posture.yaw + turn;
         const clearance: number = body.measure.chestBreadth + 2 * gap;
         if (through.width < clearance || width <= 2 * inset)
           throw new HumanRefusal({
@@ -187,6 +191,10 @@ export namespace HumanTravelCarExit {
           },
         });
 
+        // Rise can flatten a displayed foot around its sole contact. Land on
+        // its resulting stance so that transfer does not refit a planted foot.
+        const riseEntry: IAutoMovieMotionHumanPosture = up.posture(0);
+
         // The outward knee leads and the second foot lands just before the rise.
         const lead: "left" | "right" = turn > 0 ? "left" : "right";
         const timing: Record<"left" | "right", readonly [number, number]> = {
@@ -202,7 +210,8 @@ export namespace HumanTravelCarExit {
         const acrossSill = (side: "left" | "right"): IAutoMovieVector3 => {
           const ankle: IAutoMovieVector3 = starts[side].ankle;
           const inside: number = -outward(ankle);
-          return Vector3.lerp(ankle, ankles[side], inside / (inside + landingDistance));
+          const landing: IAutoMovieVector3 = riseEntry.limbs[`${side}Leg`]!.point;
+          return Vector3.lerp(ankle, landing, inside / (inside + outward(landing)));
         };
         if (outward(starts.left.ankle) >= 0 || outward(starts.right.ankle) >= 0)
           throw new HumanRefusal({
@@ -211,6 +220,17 @@ export namespace HumanTravelCarExit {
             value: through.id,
             reason: "the seated turn starts with both feet inside the doorway",
             fix: "enter from the seated posture before either foot has left",
+          });
+        if (
+          outward(riseEntry.limbs.leftLeg!.point) <= 0 ||
+          outward(riseEntry.limbs.rightLeg!.point) <= 0
+        )
+          throw new HumanRefusal({
+            kind: "base",
+            axis: "aperture",
+            value: through.id,
+            reason: "both landing feet must be outside before rising",
+            fix: "use a freer exterior stance",
           });
         const sill: Ankles = { left: acrossSill("left"), right: acrossSill("right") };
         const footRoom: number = 2 * (gap + Math.max(Math.abs(along(sill.left)), Math.abs(along(sill.right))));
@@ -249,24 +269,39 @@ export namespace HumanTravelCarExit {
             const [from, to]: readonly [number, number] = timing[side];
             const phase: number = Math.min(1, Math.max(0, (u - from) / (to - from)));
             const initial: HumanMount.IFoot = starts[side];
-            const goal: HumanMount.IFoot = {
-              ankle: ankles[side],
-              bend: poseAtEdge.limbs[`${side}Leg`]!.bend,
-              yaw: initial.yaw + turn,
-            };
+            const part: "leftLeg" | "rightLeg" = `${side}Leg`;
+            const landed: IAutoMovieHumanLimbGoal = riseEntry.limbs[part]!;
+            if (u >= to) {
+              limbs[part] = landed;
+              continue;
+            }
+            if (u <= from && entry.feet[side].planted) {
+              const contact: IAutoMovieVector3 | undefined = entry.posture.limbs[part]?.contact;
+              limbs[part] = {
+                point: initial.ankle,
+                bend: initial.bend,
+                rotation: entry.feet[side].rotation,
+                planted: true,
+                ...(contact === undefined ? {} : { contact }),
+              };
+              continue;
+            }
+
             // Lift inside, traverse above the sill, then lower on its exterior.
-            const foot: HumanMount.IFoot = HumanMount.between(initial, goal, minimumJerk(phase).s, 0);
             const at: IAutoMovieVector3 = phase <= 0.5
               ? Vector3.lerp(initial.ankle, sill[side], minimumJerk((phase - liftShare) / (0.5 - liftShare)).s)
-              : Vector3.lerp(sill[side], goal.ankle, minimumJerk((phase - 0.5) / (0.5 - liftShare)).s);
-            const high: number = Math.max(initial.ankle.y, goal.ankle.y, through.at.y + body.measure.ankleHeight + gap);
+              : Vector3.lerp(sill[side], landed.point, minimumJerk((phase - 0.5) / (0.5 - liftShare)).s);
+            const high: number = Math.max(initial.ankle.y, landed.point.y, through.at.y + body.measure.ankleHeight + gap);
             const height: number = phase < 0.5
               ? initial.ankle.y + (high - initial.ankle.y) * minimumJerk(phase / liftShare).s
-              : goal.ankle.y + (high - goal.ankle.y) * minimumJerk((1 - phase) / liftShare).s;
-            limbs[`${side}Leg`] = HumanMount.leg(
-              body, side, { ...foot, ankle: { ...at, y: height } },
-              u >= to || (u <= from && entry.feet[side].planted),
-            );
+              : landed.point.y + (high - landed.point.y) * minimumJerk((1 - phase) / liftShare).s;
+            const flight: number = minimumJerk(phase).s;
+            limbs[part] = {
+              point: { ...at, y: height },
+              bend: Vector3.lerp(initial.bend, landed.bend, flight),
+              rotation: Quaternion.slerp(entry.feet[side].rotation, landed.rotation!, flight),
+              planted: false,
+            };
           }
           return ducked({ ...entry.posture, root, yaw: heading, limbs }, duckDegrees * share);
         };
@@ -310,7 +345,13 @@ export namespace HumanTravelCarExit {
           const [from, to]: readonly [number, number] = timing[side];
           const part: "leftFoot" | "rightFoot" = `${side}Foot`;
           if (from > 0 && entry.feet[side].planted)
-            contacts.push({ part, kind: "plant", from: 0, to: from * prepare / duration, support: { kind: "ground" } });
+            contacts.push({
+              part,
+              kind: "plant",
+              from: 0,
+              to: from * prepare / duration,
+              support: HumanSupportFrame.contact(context, part),
+            });
           const landing: IAutoMovieMotionHumanContactWindow | undefined =
             contacts.find((c: IAutoMovieMotionHumanContactWindow): boolean => c.part === part && c.from === share(0));
           if (landing !== undefined) landing.from = to * prepare / duration;

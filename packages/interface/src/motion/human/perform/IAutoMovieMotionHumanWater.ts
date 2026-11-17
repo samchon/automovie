@@ -5,8 +5,8 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  *
  * @evidence contracts/development/common.md#meaningful-documentation A water environment for human buoyancy and drag queries: surface height in world metres and optional density in kilograms per cubic metre. HumanWater uses fresh-water density when omitted.
  * @evidence contracts/development/design.md#principled-representation surface: The surface's height, world metres. density: The density, kg/m³; fresh water when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface HumanWater.sum, float and glide consume the same environmental surface/density input; their force-sum output remains operation-specific.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Surface is a world height in metres and density is kg/m³ with the runtime freshwater default. HumanWater owns hydrodynamic evaluation; this declaration does not claim swim-law integration.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface HumanWater.sum, float, glide and stroke share this environmental surface and density input.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The environment supplies no force values or movement defaults. HumanWater evaluates forces using the world height and density.
  */
 export interface IAutoMovieMotionHumanWater {
   /** The surface's height, world metres. */

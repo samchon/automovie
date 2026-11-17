@@ -169,6 +169,7 @@ export namespace HumanPropDynamics {
     if (
       prop.motion !== undefined ||
       prop.worn !== undefined ||
+      prop.mounted !== undefined ||
       prop.point !== undefined ||
       prop.soft !== undefined
     )

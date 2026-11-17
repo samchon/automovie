@@ -11,8 +11,10 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropFlight,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanStand,
   IAutoMovieMotionHumanThrowObject,
   IAutoMovieMotionPropLaunch,
@@ -36,6 +38,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * then carried on the catcher's right hand without a position jump. The
  * catch owns only its tagged flight, so there is no later floor impact.
  *
+ * Scenarios:
+ * 1. The complete catch takes custody and carries the foam ball.
+ * 2. A catch cut at preparation stops before custody.
+ *
  * The catch plane is the catch contract's documented 0.6 arm lengths
  * ahead of the performer. The emitter sends the ball to that plane in
  * 0.6 s and authors vertical speed so it returns to its release height
@@ -47,7 +53,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Registers the staged catch and release through public performance inputs, then reads the flight, contacts, ball frames and palm. A floating grip, lost capture, position jump or subsequent ghost impact fails.
  * @evidence contracts/development/testing.md#independent-expectations Computes intercept time from release time and forward travel, and height from constant gravity. The palm's distance comes from the authored radius and the carry invariant comes from rigid hand motion.
  * @evidence contracts/development/testing.md#distinguishing-cases Samples the end of the ballistic path, the first held position and later carried position. A no-contact flight cut by a tagged grip is distinct from the unended flights in the separate horizon spec.
- * @evidence contracts/development/testing.md#execution-ownership Creates one in-memory performance with one prepared body, an authored release and one single-hand catch. Reads a fixed set of boundary and carrying samples with no host or external process.
+ * @evidence contracts/development/testing.md#execution-ownership Creates two in-memory performances with one prepared body, an authored release and a complete or cut single-hand catch. Reads a fixed set of boundary and carrying samples without a host.
  */
 export function test_human_motion_stage_catch(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
@@ -100,39 +106,44 @@ export function test_human_motion_stage_catch(): void {
         launches: [launch],
       }),
     };
-  const performance: HumanPerformance = new HumanPerformance({
-    seed: "staged-foam-catch",
-    laws: [release, stageCatch],
-    props: [ball],
-    performers: [
-      {
-        subject: "emitter",
-        body,
-        at: { x: 4, y: 0, z: 0 },
-        yaw: 0,
-        proficiency: { level: "trained" },
-      },
-      {
-        subject: "catcher",
-        body,
-        at: { x: 0, y: 0, z: expected.z + heldPoint },
-        yaw: 180,
-        proficiency: { level: "trained" },
-      },
-    ],
-    composition: AutoMovieComposition.parallel(
-      HumanChain.subject("emitter").registered(
-        "releaseFoamBall",
-        { seconds: 2 },
-        "foam-release",
-      ).node,
-      HumanChain.subject("catcher").registered("stageCatch", {
-        from: "foam-release",
-        ball: launch.prop,
-        hands: "one",
-      }).node,
-    ),
-  });
+  /** Compose the same release with the full or shortened catch. */
+  const take = (cut: boolean): HumanPerformance => {
+    const catcher: IAutoMovieMotionHumanChain = HumanChain.subject("catcher").registered(
+      "stageCatch",
+      { from: "foam-release", ball: launch.prop, hands: "one" },
+    );
+    if (cut) catcher.until({ event: "prepare" });
+    return new HumanPerformance({
+      seed: "staged-foam-catch",
+      laws: [release, stageCatch],
+      props: [ball],
+      performers: [
+        {
+          subject: "emitter",
+          body,
+          at: { x: 4, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+        {
+          subject: "catcher",
+          body,
+          at: { x: 0, y: 0, z: expected.z + heldPoint },
+          yaw: 180,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: AutoMovieComposition.parallel(
+        HumanChain.subject("emitter").registered(
+          "releaseFoamBall",
+          { seconds: 2 },
+          "foam-release",
+        ).node,
+        catcher.node,
+      ),
+    });
+  };
+  const performance: HumanPerformance = take(false);
   const tolerance: number = 1e-6;
   const flight: IAutoMovieMotionHumanPropFlight.IFlight =
     performance.flights(launch.prop)[0]!;
@@ -203,5 +214,22 @@ export function test_human_motion_stage_catch(): void {
       Vector3.length(
         Vector3.subtract(local(hand, received), local(carryingHand, carried)),
       ) <= tolerance,
+  );
+
+  const cut: HumanPerformance = take(true);
+  const cutCatch: IAutoMovieMotionHumanSegment | undefined =
+    cut.segments("catcher")[0];
+  const cutFlight: IAutoMovieMotionHumanPropFlight.IFlight | undefined =
+    cut.flights(launch.prop)[0];
+  TestValidator.predicate(
+    "a catch cut before interception leaves the foam ball in flight",
+    cutCatch !== undefined &&
+      cutCatch.end < intercept &&
+      cutFlight !== undefined &&
+      cutFlight.capturedAt === undefined &&
+      cutFlight.supersededAt === undefined &&
+      cut.hits().some(
+        (hit: IAutoMovieInteractionEvent): boolean => hit.object === launch.prop,
+      ),
   );
 }

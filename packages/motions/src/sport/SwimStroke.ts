@@ -185,7 +185,7 @@ export namespace SwimStroke {
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
    * @evidence contracts/development/implementation.md#principled-implementation The second gives the cycle and the place in it; the two keys around that place are blended in joint space on minimum-jerk progress and pinned by the hip joints on the point the plane carries along.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The cycle's times, the travelling point, the posture, the events.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The speed is constant, stated on the namespace; a stroke of one key is held.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The staged speed is constant; stationary input pins the hips for a caller that owns translation. A stroke of one key is held.
    * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per evaluated second.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exercise keys' blend and pin.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the stroke's table row.
@@ -211,6 +211,7 @@ export namespace SwimStroke {
       { origin: { x: 0, y: 0, z: 0 }, yaw: props.entry.yaw },
       { x: 0, y: 0, z: stroke.supine ? -1 : 1 },
     );
+    const speed: number = props.stationary === true ? 0 : stroke.speed;
     const depth: number = props.body.measure.chestDepth / 2;
     const events: IAutoMovieMotionEvent[] = [
       ...Array.from(
@@ -253,9 +254,9 @@ export namespace SwimStroke {
           props.entry.yaw,
           HIPS,
           {
-            x: props.entry.root.x + along.x * stroke.speed * t,
+            x: props.entry.root.x + along.x * speed * t,
             y: props.water - depth,
-            z: props.entry.root.z + along.z * stroke.speed * t,
+            z: props.entry.root.z + along.z * speed * t,
           },
         );
       },

@@ -78,6 +78,7 @@ export function test_human_motion_buttoning_contacts(): void {
   ];
   const garment: IAutoMovieMotionHumanProp = {
     subject: "garment",
+    fixed: true,
     frame: { position: at, rotation: Quaternion.identity() },
     points: {},
     affordances: sites.map(

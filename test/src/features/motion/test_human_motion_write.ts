@@ -19,6 +19,7 @@ import {
   HumanChain,
   HumanHand,
   HumanPerformance,
+  HumanRefusal,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -48,11 +49,12 @@ const BOUND: number = 0.001;
  * 1. The tip reaches both edge midpoints and the corner in four equal
  *    time intervals after contacting the surface.
  * 2. The tool still holds its rigid offset through the trace and return.
+ * 3. The same nib is refused when its frame rides a separate mechanism.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the writing scene, the two scenarios and the geometric oracle.
  * @evidence contracts/development/testing.md#behavioral-verification Registers and performs the write law, then observes the displayed tip and grip in the same performance.
  * @evidence contracts/development/testing.md#independent-expectations At the temporal midpoint of each equal edge, a symmetric progress profile has covered half the edge. The quarter-turn geometry gives each target independently of the writer. The two issue bounds constrain contact miss and grip slip.
- * @evidence contracts/development/testing.md#distinguishing-cases A translated, rotated writing affordance and an angled polyline distinguish the surface frame from world axes and a single straight reach.
+ * @evidence contracts/development/testing.md#distinguishing-cases A translated, rotated writing affordance and an angled polyline distinguish the surface frame from world axes and a single straight reach. A mechanically moving nib is refused.
  * @evidence contracts/development/testing.md#execution-ownership One in-memory performance and one planned arm trajectory on a polygon man. No host or capture.
  */
 export function test_human_motion_write(): void {
@@ -136,17 +138,18 @@ export function test_human_motion_write(): void {
     ],
     seconds: 0.6,
   };
-  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+  const run = (tool: IAutoMovieMotionHumanProp): IAutoMovieMotionHumanPerformance => new HumanPerformance({
     seed: "held-stroke",
     laws: [held, write],
     performers: [
       { subject: "scribe", body, at, yaw: 0, proficiency: { level: "trained" } },
     ],
-    props: [pen, paper],
+    props: [tool, paper],
     composition: HumanChain.subject("scribe")
       .registered("poisePen")
       .registered("write", params).node,
   });
+  const performance: IAutoMovieMotionHumanPerformance = run(pen);
   const scene: IAutoMovieMotionHumanSegment =
     performance.segments("scribe").at(-1)!;
   const strokeStart: number =
@@ -217,4 +220,31 @@ export function test_human_motion_write(): void {
         ),
     );
   }
+
+  const riding: NonNullable<IAutoMovieMotionHumanProp["affordances"]> = [
+    { ...pen.affordances![0]!, rides: "slide" },
+    {
+      id: "slide",
+      kind: "slider",
+      frame: Transform.identity(),
+      extent: null,
+      travel: EDGE,
+    },
+  ];
+  let refusal: unknown;
+  try {
+    run({
+      ...pen,
+      affordances: riding,
+      articulate: (): IAutoMovieMotionHumanProp.IPosed => ({ affordances: riding }),
+    }).segments("scribe");
+  } catch (error: unknown) {
+    refusal = error;
+  }
+  TestValidator.predicate(
+    "an articulated nib is refused",
+    refusal instanceof HumanRefusal &&
+      refusal.kind === "affordance" &&
+      refusal.axis === "tip",
+  );
 }

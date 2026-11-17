@@ -16,11 +16,10 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * (`HumanPerformance.IInput.laws`, `HumanChain.extend`); `manipulate` itself
  * is registered with them.
  *
- * Writing with a pen waits on its glyph strokes: no single-stroke font's
- * licence has been checked for shipping its data, so a production gives its
- * strokes as contacts until one is.
+ * Register the separate write law to trace an authored planar stroke with
+ * a held tool.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row fixes and what waits.
+ * @evidence contracts/development/common.md#meaningful-documentation States what each row fixes and where an authored stroke belongs.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of `manipulate` (`HumanActionRow`), data over a law that already places the hand, fits the digits and refuses.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The family's law and rows and nothing else.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own.

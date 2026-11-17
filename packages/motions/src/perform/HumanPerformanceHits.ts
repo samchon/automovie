@@ -187,12 +187,17 @@ export namespace HumanPerformanceHits {
     self: IAutoMovieMotionHumanPerformanceState,
   ): IAutoMovieInteractionEvent[] {
     const out: IAutoMovieInteractionEvent[] = [];
-    for (const prop of self.props.values())
+    for (const prop of self.props.values()) {
+      const launchIds: Map<string, number> = new Map();
       for (const f of HumanPropFlight.flights(self, prop.subject)) {
         let contact: IAutoMovieMotionHumanPropFlight.IContact | undefined =
           f.contact;
         let time: number = f.end;
-        const id: string = `flight:${f.prop}:${f.launch.toFixed(6)}`;
+        const base: string = `flight:${f.prop}:${f.launch.toFixed(6)}`;
+        const occurrence: number = launchIds.get(base) ?? 0;
+        launchIds.set(base, occurrence + 1);
+        const id: string =
+          occurrence === 0 ? base : `${base}:launch:${occurrence}`;
         for (let index: number = 0; contact !== undefined; ++index) {
           const next: IAutoMovieMotionHumanPropOutcome.ILeg | undefined =
             f.legs?.[index];
@@ -235,6 +240,7 @@ export namespace HumanPerformanceHits {
           time = f.launch + next.end;
         }
       }
+    }
     return out;
   }
 

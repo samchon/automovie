@@ -90,43 +90,19 @@ export function HumanObjectCord(
     Quaternion.rotateVector(frame.rotation, ends.to),
   );
   const length: number = declaration.length;
-  const chord: IAutoMovieVector3 = Vector3.subtract(ends.to, ends.from);
-  const distance: number = Vector3.length(chord);
-  if (!(distance > 0 && distance <= length))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "span",
-      value: id,
-      reason: `the starting endpoints must leave a positive span no longer than its ${length} m rest length`,
-      fix: "start with distinct endpoints within the declared cord length",
-    });
-
-  // The line's declared rest length is the sum of two equal sides. Use
-  // gravity projected into the chord's normal plane to lay the bend below it.
-  const half: number = length / 2;
-  const fraction: number = distance / length;
-  const sag: number = half * Math.sqrt((1 - fraction) * (1 + fraction));
-  const axis: IAutoMovieVector3 = Vector3.normalize(
-    Quaternion.rotateVector(frame.rotation, chord),
-  );
-  const middle: IAutoMovieVector3 = Vector3.add(
-    Vector3.lerp(from, to, 0.5),
-    Vector3.scale(sagDirection(axis, props.solver.gravity), sag),
-  );
   const leftLinks: number = Math.floor(props.links / 2);
   const rightLinks: number = props.links - leftLinks;
   const leftMass: number = props.mass / 2 / leftLinks;
   const rightMass: number = props.mass / 2 / rightLinks;
-  const rest: number[] = [];
+  const rest: number[] = HumanObjectCord.rest(
+    id,
+    { from, to },
+    length,
+    props.links,
+    props.solver.gravity,
+  );
   const mass: number[] = [];
   for (let particle: number = 0; particle <= props.links; ++particle) {
-    const point: IAutoMovieVector3 =
-      particle === props.links
-        ? to
-        : particle <= leftLinks
-          ? Vector3.lerp(from, middle, particle / leftLinks)
-          : Vector3.lerp(middle, to, (particle - leftLinks) / rightLinks);
-    rest.push(point.x, point.y, point.z);
     const preceding: number =
       particle === 0 ? 0 : particle <= leftLinks ? leftMass : rightMass;
     const following: number =
@@ -181,8 +157,97 @@ export function HumanObjectCord(
     frame,
     points: {},
     soft: domain,
-    softSpan: { owner: props.owner.subject, id },
+    softSpan: { owner: props.owner.subject, id, length },
   };
+}
+
+/**
+ * The span cord's seed construction, shared by authoring and placement.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The rest reader describes the geometry and its admission.
+ * @evidence contracts/development/design.md#principled-representation Both inputs are the same two endpoints expressed in world metres.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Shares one rest reader with the soft performance.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No solver or extra pose is used to seed the cord.
+ */
+export namespace HumanObjectCord {
+  /**
+   * Sample a two-leg rest polyline at the supplied world-space endpoints.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the world frame and its two equal rest legs.
+   * @evidence contracts/development/implementation.md#principled-implementation Pythagoras gives the height of two half-length legs over the endpoint chord. Projected gravity chooses the plane.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the chord, compute its midpoint and sag, then sample the two legs.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An invalid or overextended chord refuses except for rounding of the world-space transform.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in links, with one point per joint.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The result uses this placement's endpoints and has no cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns only its new flat coordinate buffer.
+   */
+  export function rest(
+    id: string,
+    { from, to }: IAutoMovieMotionHumanObject.ISpanEnds,
+    length: number,
+    links: number,
+    gravity: IAutoMovieVector3,
+  ): number[] {
+    const chord: IAutoMovieVector3 = Vector3.subtract(to, from);
+    const distance: number = Math.hypot(chord.x, chord.y, chord.z);
+    const precision: number =
+      Number.EPSILON *
+      Math.max(
+        Math.abs(from.x),
+        Math.abs(from.y),
+        Math.abs(from.z),
+        Math.abs(to.x),
+        Math.abs(to.y),
+        Math.abs(to.z),
+        length,
+      );
+    if (
+      !Number.isFinite(length) ||
+      length <= 0 ||
+      !Number.isFinite(distance) ||
+      distance <= 0 ||
+      distance - length > precision
+    )
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "span",
+        value: id,
+        reason: `the starting endpoints must leave a positive span no longer than its ${length} m rest length`,
+        fix: "start with distinct endpoints within the declared cord length",
+      });
+
+    const fraction: number = Math.min(1, distance / length);
+    const sag: number = (length / 2) * Math.sqrt((1 - fraction) * (1 + fraction));
+    const axis: IAutoMovieVector3 = {
+      x: chord.x / distance,
+      y: chord.y / distance,
+      z: chord.z / distance,
+    };
+    const middle: IAutoMovieVector3 = Vector3.add(
+      Vector3.lerp(from, to, 0.5),
+      Vector3.scale(sagDirection(axis, gravity), sag),
+    );
+    const leftLinks: number = Math.floor(links / 2);
+    const rightLinks: number = links - leftLinks;
+    const out: number[] = [from.x, from.y, from.z];
+    for (let particle: number = 1; particle < links; ++particle) {
+      const point: IAutoMovieVector3 =
+        particle <= leftLinks
+          ? Vector3.lerp(from, middle, particle / leftLinks)
+          : Vector3.lerp(middle, to, (particle - leftLinks) / rightLinks);
+      out.push(point.x, point.y, point.z);
+    }
+    out.push(to.x, to.y, to.z);
+    if (!out.every(Number.isFinite))
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "span",
+        value: id,
+        reason: "the starting endpoints did not produce finite rest positions",
+        fix: "use a representable span and world placement",
+      });
+    return out;
+  }
 }
 
 /** Use projected gravity, or the least parallel basis axis when it vanishes. */

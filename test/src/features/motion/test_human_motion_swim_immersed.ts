@@ -1,5 +1,6 @@
 import {
   Quaternion,
+  Vector3,
   resolveAutoMovieCenterOfMass,
   resolveHydrodynamicForce,
 } from "@automovie/engine";
@@ -25,7 +26,7 @@ import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
 
 /**
- * Passive immersion through the typed chain and displayed pose route.
+ * Passive immersion and one keyed stroke through the typed chain and displayed pose route.
  *
  * Scenarios:
  * 1. A medium whose half-volume weighs the performer carries the supine body
@@ -35,11 +36,14 @@ import { vclose } from "../internal/vclose";
  *    positions and there is no vertical or cross-track drift.
  * 3. A medium whose whole displacement weighs only half the performer refuses
  *    the immersed support, identifying the water density.
+ * 4. A single breaststroke drives its displayed hip target along its heading
+ *    from rest, with a nonlinear path that replays at the same stroke phase
+ *    under an authored duration change.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the public route, the fixture's two density relations, the travel frame and the read order.
  * @evidence contracts/development/testing.md#behavioral-verification Observes the displayed bones, pose root and located refusal through HumanPerformance, so a disconnected registered law or a staged constant-speed path fails.
- * @evidence contracts/development/testing.md#independent-expectations Archimedes' balance, the spherical-cap formula and the separation-of-variables solution for quadratic drag supply the expectations. The profile supplies the authored segment volumes and centres, and 2 percent is the issue's stated mechanics bound.
- * @evidence contracts/development/testing.md#distinguishing-cases Still and moving cases use the same supported medium, while the insufficient medium cannot satisfy force balance even at total immersion.
+ * @evidence contracts/development/testing.md#independent-expectations Archimedes' balance, the spherical-cap formula, the closed-form coast and the phase scaling of quadratic drag supply the expectations. The profile supplies the authored segment volumes and centres, and 2 percent is the issue's passive mechanics bound.
+ * @evidence contracts/development/testing.md#distinguishing-cases Still and moving cases use the same supported medium. The insufficient medium cannot satisfy force balance, and the stroke is compared at two authored durations.
  * @evidence contracts/development/testing.md#execution-ownership Uses one canonical body and a small fixed set of display reads, with no viewer or solver process.
  */
 export function test_human_motion_swim_immersed(): void {
@@ -154,6 +158,73 @@ export function test_human_motion_swim_immersed(): void {
       ),
     );
   });
+
+  const strokeSeconds: number = 1.35;
+  const stroke: HumanPerformance = stage({
+    water: { surface, density },
+    seconds: strokeSeconds,
+    stroke: "breaststroke",
+  });
+  const slower: HumanPerformance = stage(
+    {
+      water: { surface, density },
+      seconds: 2 * strokeSeconds,
+      stroke: "breaststroke",
+    },
+    "slower-stroke",
+  );
+  /** The midpoint of the two hips is the translating point pinned by the keys. */
+  const hips = (film: HumanPerformance, time: number): IAutoMovieVector3 => {
+    const frame: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      film.bones("swimmer", time);
+    return Vector3.scale(
+      Vector3.add(
+        frame.get("leftUpperLeg")!.worldPosition,
+        frame.get("rightUpperLeg")!.worldPosition,
+      ),
+      0.5,
+    );
+  };
+  const first: IAutoMovieVector3 = hips(stroke, 0);
+  const early: IAutoMovieVector3 = hips(stroke, strokeSeconds / 120);
+  const shares: readonly number[] = [0.75, 0.5, 0.25];
+  const displacements: number[] = shares.map((share: number): number => {
+    const moved: IAutoMovieVector3 = hips(stroke, share * strokeSeconds);
+    TestValidator.predicate(
+      `stroke phase ${share} keeps trim and heading when retimed`,
+      nclose(moved.y, first.y, 1e-5) &&
+        nclose(moved.z, first.z, 1e-5) &&
+        vclose(moved, hips(slower, share * 2 * strokeSeconds), 1e-5),
+    );
+    return moved.x - first.x;
+  });
+  TestValidator.predicate(
+    "the keyed stroke drives a nonzero displacement from rest",
+    Math.abs(early.x - first.x) <= 1e-5 &&
+      displacements.some(
+        (distance: number): boolean => Math.abs(distance) > 1e-3,
+      ),
+  );
+  TestValidator.predicate(
+    "the stroke preserves its authored duration and named cycle",
+    stroke.segments("swimmer")[0]!.plan.duration === strokeSeconds &&
+      stroke.segments("swimmer")[0]!.plan.events.some(
+        (event: { name: string }): boolean => event.name === "stroke1",
+      ),
+  );
+
+  let movingStroke: unknown;
+  try {
+    stage({ water: { surface, density }, seconds, speed, stroke: "breaststroke" });
+  } catch (error) {
+    movingStroke = error;
+  }
+  TestValidator.predicate(
+    "a stroke from rest refuses passive entry speed",
+    movingStroke instanceof HumanRefusal &&
+      movingStroke.kind === "parameter" &&
+      movingStroke.axis === "speed",
+  );
 
   let failure: unknown;
   try {

@@ -1,5 +1,6 @@
 import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieMotionHumanProp } from "../perform/IAutoMovieMotionHumanProp";
+import type { IAutoMovieMotionPropLaunch } from "./IAutoMovieMotionPropLaunch";
 
 /**
  * A capability for reading a performance prop and its world frame at film instants, with optional articulation state. Action planning reads this view instead of owning prop placement.
@@ -28,6 +29,19 @@ export interface IAutoMovieMotionHumanPropReader {
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPropReader.frame is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   frame(seconds: number): IAutoMovieRigidTransform;
+
+  /**
+   * The original launch publication displaying the prop at a film second, if the reader tracks flights and one still owns the prop.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Returns the borrowed publication identity for the prop's active flight on the film clock.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The performance reader owns flight selection.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The performance reader supplies the implementation.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature contains no computation.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The reader owns traversal and allocation costs.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The reader owns any cache and its equivalence rules.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration owns no retained state.
+   */
+  launchAt?(seconds: number): IAutoMovieMotionPropLaunch | undefined;
 
   /**
    * The travel of each of its articulations an act or its own track has moved by a film second (`HumanPerformance.state`); an articulation absent from the record is at rest. Read at plan time like `frame`, so an act that operates a part starts from where the part is. Absent from a context that tracks no state, where every articulation is at rest.

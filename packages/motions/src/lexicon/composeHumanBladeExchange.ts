@@ -12,7 +12,8 @@ import { HumanBlade } from "./HumanBlade";
  * Register the cut and parry rows of HumanBlade with HumanPerformance and
  * register riposte when the exchange has a reply. Each chain prepares its
  * performer and prop. The block starts at the authored lead before the
- * opening's decisive cue, and a reply starts when the block ends.
+ * opening's decisive cue, and a reply starts when the block ends. The block's
+ * stroke cue comes from the resolved action timing.
  *
  * @param opening Entry chain of the opening performer.
  * @param responding Entry chain of the responding performer.

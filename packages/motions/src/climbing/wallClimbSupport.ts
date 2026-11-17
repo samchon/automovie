@@ -14,12 +14,13 @@ const LIMBS: readonly IAutoMovieMotionHumanClimbLadder.Limb[] = [
 
 /**
  * Build the stances for `HumanChain.support` from a route on fixed wall holds.
- * Each move changes one contact, retaining the other three. Hands grip their
- * holds and feet bear on positive footholds. Quaine and Martin measured the
- * change from four contacts to three in *A biomechanical study of equilibrium
- * in sport rock climbing* (1999, DOI 10.1016/S0966-6362(99)00024-7).
+ * Each move changes one contact, retaining the other three. Hand targets
+ * locate the grip socket and foot targets locate the toes. Quaine and
+ * Martin measured the change from four contacts to three in *A biomechanical
+ * study of equilibrium in sport rock climbing* (1999, DOI
+ * 10.1016/S0966-6362(99)00024-7).
  * The support planner owns contact placement, timing and reach refusals.
- * Wall contact forces are outside the kinematic fit.
+ * Finger closure and wall contact forces are outside the point fit.
  *
  * @param route The starting holds and the ordered one-limb changes.
  * @returns The support parameters for the route.

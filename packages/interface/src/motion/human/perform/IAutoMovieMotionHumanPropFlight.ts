@@ -44,7 +44,7 @@ export namespace IAutoMovieMotionHumanPropFlight {
    * One flight of a prop.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States film-absolute launch/end times, launch-relative projectile/leg clocks, source action, optional collision and capture, and Infinity when there is no collision.
-   * @evidence contracts/development/design.md#principled-representation Reuses the engine projectile and continuation legs; optional contact records a collision, while capturedAt records custody independently. An infinite end without capture identifies an unended flight.
+   * @evidence contracts/development/design.md#principled-representation Reuses the engine projectile and continuation legs; optional contact records a collision, while capturedAt records custody independently. SupersededAt records when another grip or launch takes ownership. An open ballistic leg is unended only if it still owns the prop at film end.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Frame and hit readers consume the launch, source, projectile, end, contact, capture and continuation legs emitted by this owner.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Stores neither sampled frames nor a second ballistic law; source/published records are borrowed from the planned performance and returned flight records are not deeply frozen.
    */
@@ -72,6 +72,9 @@ export namespace IAutoMovieMotionHumanPropFlight {
 
     /** Its first collision, absent when none was resolved. */
     contact?: IAutoMovieMotionHumanPropFlight.IContact;
+
+    /** Film second a later grip or launch takes ownership, when it occurs within the film. */
+    supersededAt?: number;
 
     /** Film second a staged grip took this launch over. A capture is separate from a collision. */
     capturedAt?: number;

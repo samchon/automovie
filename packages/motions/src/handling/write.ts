@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { AffordanceArticulation, Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -213,6 +213,18 @@ function planWrite(
   const site: IAutoMovieAffordance = held.affordances.find(
     (affordance: IAutoMovieAffordance): boolean => affordance.id === p.tip,
   )!;
+  if (
+    tool.prop.point !== undefined ||
+    (tool.prop.articulate !== undefined &&
+      (site.rides !== undefined || AffordanceArticulation.KINDS.has(site.kind)))
+  )
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "tip",
+      value: p.tip,
+      reason: "writing needs a working point fixed to the held tool frame",
+      fix: "use a fixed working point on the tool",
+    });
   const entered: IAutoMovieVector3 = Vector3.add(
     toolFrame.position,
     Quaternion.rotateVector(toolFrame.rotation, site.frame.translation),

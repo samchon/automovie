@@ -80,16 +80,45 @@ export namespace HumanPerformanceContacts {
           fix: `put ${held.prop} down or hand it over first, or perform ${segment.name} with the free hand`,
         });
     }
-    for (const hold of plan.holds ?? [])
+    for (const hold of plan.holds ?? []) {
+      const from: number = segment.start + hold.from * plan.duration;
+      if (
+        hold.capture !== undefined &&
+        (from < segment.entryTime - 1e-9 || from > segment.end + 1e-9)
+      )
+        continue;
       person.holds.push({
         side: hold.side,
         prop: hold.prop,
         fingers: hold.fingers ?? {},
         source: segment,
-        from: segment.start + hold.from * plan.duration,
+        from,
         ...(hold.capture === undefined ? {} : { capture: hold.capture }),
         until: Infinity,
       });
+    }
+  }
+
+  /**
+   * Remove captures whose contact never occurs in a cut action.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Compares the captured grip second with the resolved action end in the film clock.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same holds later read for grip ownership and the scheduler's cut boundary.
+   */
+  export function cutCaptures(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    entry: number,
+    end: number,
+  ): void {
+    for (let index: number = person.holds.length - 1; index >= 0; --index) {
+      const held: IAutoMovieMotionHumanSegment.IHeld = person.holds[index]!;
+      if (
+        held.capture !== undefined &&
+        held.source.entry === entry &&
+        held.from > end + 1e-9
+      )
+        person.holds.splice(index, 1);
+    }
   }
 
   /**

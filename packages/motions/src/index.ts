@@ -394,6 +394,7 @@ export * from "./handling/manipulateFingering";
 export * from "./handling/manipulateReach";
 export * from "./handling/manipulateShape";
 export * from "./handling/regrasp";
+export * from "./handling/button";
 export * from "./handling/write";
 export * from "./lexicon/HumanManipulate";
 export * from "./lexicon/HumanRegrasp";

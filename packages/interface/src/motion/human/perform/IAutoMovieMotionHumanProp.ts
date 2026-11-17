@@ -13,7 +13,7 @@ import type { IAutoMovieMotionHumanObject } from "./IAutoMovieMotionHumanObject"
  * frame at rest, and its named points in that frame, such as a heavy bag's
  * striking surface, a pad's face or a cup's handle.
  *
- * The prop stays at its rest frame, or on the bone it is worn on, until a
+ * The prop stays at its rest frame, on the bone it is worn on, or at its initial mount until a
  * hand grips it; while gripped it rides the hand, unless it is a fixture, worn it rides its bone,
  * and it stays where the last grip released it, or flies from a launch and rests where it struck (see `HumanPerformance.prop`). A point's normal points out of the prop's
  * surface.
@@ -104,6 +104,16 @@ export interface IAutoMovieMotionHumanProp {
   worn?: IAutoMovieMotionHumanProp.IWorn;
 
   /**
+   * The socket another prop carries this rigid prop on from the film's start.
+   * The frame follows the posed socket through the first hand closure, which
+   * takes over placement. The target affordance must be declared on the other
+   * prop. Mount chains must end at a prop with no initial mount.
+   * `HumanPerformance` refuses a mounted prop that also declares `worn`,
+   * `motion`, `fixed: true`, or `soft`.
+   */
+  mounted?: IAutoMovieMotionHumanProp.IMounted;
+
+  /**
    * Whether the prop is a fixture: a thing set in the scene that bears on
    * the floor or a wall and is never lifted, such as a ladder, a rail or a
    * wall bar. A hand that grips a fixture bears on it, as a climber's hand
@@ -183,7 +193,7 @@ export namespace IAutoMovieMotionHumanProp {
   /**
    * Which already placed prop and model line own the endpoints of a soft cord.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two identities and the first/last particle meaning.
+   * @evidence contracts/development/common.md#meaningful-documentation States the two identities, the length in metres and the first/last particle meaning.
    * @evidence contracts/development/design.md#principled-representation This record selects one model span whose endpoints are resolved at the soft domain's fixed-step boundary.
    * @evidence contracts/development/design.md#minimal-and-owned-surface HumanObject.cord supplies the binding and the performance soft boundary reads it.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The cord does not redeclare any articulation, endpoint coordinates or frame callback.
@@ -194,6 +204,9 @@ export namespace IAutoMovieMotionHumanProp {
 
     /** Span id on the owner's model. */
     id: string;
+
+    /** The model span's declared rest length in metres. Absent keeps the domain's supplied rest shape. */
+    length?: number;
   }
 
   /**
@@ -212,6 +225,25 @@ export namespace IAutoMovieMotionHumanProp {
     bone: AutoMovieHumanoidBone;
 
     /** The prop's frame in the bone's posed frame, metres. */
+    offset: IAutoMovieRigidTransform;
+  }
+
+  /**
+   * A rigid prop's initial frame relative to a named socket on another prop.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the carrier's prop and socket and defines the child's offset from the posed socket in metres and a unit quaternion.
+   * @evidence contracts/development/design.md#principled-representation A prop id and its affordance id identify a rigid frame. The offset expresses the child frame in that socket, which can be posed by its own articulation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two references and a shared rigid transform let the existing mount reader serve initial and action-authored placement.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The authored relative frame is explicit. HumanPerformance checks references, authority and cycles before resolving the performance.
+   */
+  export interface IMounted {
+    /** Subject id of the prop carrying the socket. */
+    prop: string;
+
+    /** The carrying prop's affordance id. */
+    point: string;
+
+    /** The mounted prop's frame in that posed socket, with finite metre position and unit rotation. */
     offset: IAutoMovieRigidTransform;
   }
 

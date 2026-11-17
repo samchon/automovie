@@ -20,7 +20,7 @@ export interface IAutoMovieMotionHumanBladeExchange {
   /** Subject id of the distinct stage prop held by the responding performer after their entry chain. */
   readonly respondingProp: string;
 
-  /** Nonnegative film seconds between the block's start and the opening's decisive cue. */
+  /** Nonnegative film seconds between the block's start and the opening's decisive cue. The placed block supplies its own stroke cue. */
   readonly blockLeadSeconds: number;
 
   /** Set-prop marker or fixed point where the opening motion would finish without the staged block. */

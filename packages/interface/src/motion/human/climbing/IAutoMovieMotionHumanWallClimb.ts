@@ -4,7 +4,8 @@ import type { IAutoMovieMotionHumanClimbLadder } from "./IAutoMovieMotionHumanCl
 /**
  * An authored wall-climbing route on fixed holds. The climber starts with a
  * hold for each hand and foot, then moves one limb at a time to another hold.
- * The support planner fits the poses and admits the route against reach.
+ * The support planner fits grip-socket and toe positions and admits the route
+ * against reach. Finger closure and wall contact forces are outside this fit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the initial support, move order and owner of reach admission.
  * @evidence contracts/development/design.md#principled-representation A complete four-limb starting stance and an ordered list of single-limb changes model the route. The support action resolves the hold frames and checks reach.

@@ -69,12 +69,12 @@ const HOLDERS: readonly AutoMovieHumanoidBone[] = [
  *    displaced it. Four fingers retain their authored grip throughout.
  * 3. The prop's local translation and rotation in the hand stay constant
  *    through the approach, presses and release.
- * 4. The overlay refuses the same named pad if the hand has no hold.
+ * 4. The overlay refuses the same named pad without a hold, and refuses a key that has its own mechanical articulation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the held pad fixture, the forward-kinematics oracle and the four scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Performs the public thumbText row over a moving carrier and observes displayed joints, thumb tip and prop frame at planned times.
  * @evidence contracts/development/testing.md#independent-expectations Direct rig forward kinematics generates the fixed two-site fixture. Authored times, rigid transform composition, unchanged carrier joints, and the issue's contact and grip bounds provide the expected readings.
- * @evidence contracts/development/testing.md#distinguishing-cases Two distinct contacts after carrier displacement with intervening and releasing samples distinguish rigid following from a world-fixed finger target or a whole-hand motion. The same pad without its hold is refused.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two distinct contacts after carrier displacement with intervening and releasing samples distinguish rigid following from a world-fixed finger target or a whole-hand motion. The same pad without its hold, and a mechanically articulated site, are refused.
  * @evidence contracts/development/testing.md#execution-ownership One polygon man and one performance with no arm IK targets, viewers, clocks or host dependencies.
  */
 export function test_human_motion_manipulate_held(): void {
@@ -258,5 +258,30 @@ export function test_human_motion_manipulate_held(): void {
     refusal instanceof HumanRefusal &&
       refusal.kind === "affordance" &&
       refusal.axis === "prop",
+  );
+
+  const articulated: IAutoMovieMotionHumanProp = {
+    ...prop,
+    articulate: (): IAutoMovieMotionHumanProp.IPosed => ({
+      affordances: prop.affordances!,
+    }),
+  };
+  try {
+    HumanManipulate.thumbText.plan({
+      ...overlay.context,
+      params: { prop: "pad", contacts: [{ site: "key1", at: TIMES[0] }] },
+      prop: (): ReturnType<typeof overlay.context.prop> => ({
+        ...overlay.context.prop("pad"),
+        prop: articulated,
+      }),
+    });
+  } catch (error: unknown) {
+    refusal = error;
+  }
+  TestValidator.predicate(
+    "a key with its own articulation is refused",
+    refusal instanceof HumanRefusal &&
+      refusal.kind === "affordance" &&
+      refusal.axis === "contacts.site",
   );
 }

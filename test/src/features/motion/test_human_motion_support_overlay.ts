@@ -26,12 +26,14 @@ import { vclose } from "../internal/vclose";
  *    as in the support sequence alone.
  * 2. The same signal performed by the right hand at that event is refused
  *    on the overlay axis, naming the reserved arm and hand.
+ * 3. A signal started over a stand cannot keep the arm when a braced
+ *    support sequence takes over, at either a contiguous join or a cut.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes the free hand and the one reserved by a support window.
- * @evidence contracts/development/testing.md#behavioral-verification Schedules both hand choices through the public chain, reads the active support window and displayed wrist, and inspects the typed refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Schedules both hand choices through the public chain, reads the active support window and displayed wrist, and inspects typed refusals at entry and carrier changes.
  * @evidence contracts/development/testing.md#independent-expectations The contact owner keeps its hand in the same pose whether the other arm moves, so the unlayered sequence supplies the expected wrist transform.
- * @evidence contracts/development/testing.md#distinguishing-cases The two signals use opposite sides in the same support sequence and start at the same event.
- * @evidence contracts/development/testing.md#execution-ownership The motion runner discovers this CPU-only spec, which reads two displayed poses and requests two one-arm signal plans.
+ * @evidence contracts/development/testing.md#distinguishing-cases Signals use opposite sides in the same support sequence. The carrier-change cases cover a contiguous join and a cut while the prior carrier can still hold the signal.
+ * @evidence contracts/development/testing.md#execution-ownership The motion runner discovers this CPU-only spec, which reads two displayed poses and plans each signal through the public schedule.
  */
 export function test_human_motion_support_overlay(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
@@ -40,16 +42,17 @@ export function test_human_motion_support_overlay(): void {
     part: "leftFoot",
     kind: "bear",
   };
+  const bracedContacts: IAutoMovieMotionHumanSupport.IParams = {
+    stances: [
+      { contacts: [leftFoot, { part: "rightFoot", kind: "bear" }] },
+      {
+        contacts: [leftFoot, { part: "rightHand", kind: "bear" }],
+        seconds: 4,
+      },
+    ],
+  };
   const braced: IAutoMovieMotionHumanChain = HumanChain.subject("person").support(
-    {
-      stances: [
-        { contacts: [leftFoot, { part: "rightFoot", kind: "bear" }] },
-        {
-          contacts: [leftFoot, { part: "rightHand", kind: "bear" }],
-          seconds: 4,
-        },
-      ],
-    },
+    bracedContacts,
     "braced",
   );
   const onBrace = (side: "left" | "right"): IAutoMovieMotionHumanChain =>
@@ -122,6 +125,37 @@ export function test_human_motion_support_overlay(): void {
       caught.value.includes("rightArm") &&
       caught.value.includes("rightHand"),
   );
+
+  for (const [join, standSeconds] of [
+    ["contiguous join", 0.25],
+    ["cut", 2],
+  ] as const) {
+    let overlap: unknown;
+    try {
+      perform(
+        body,
+        HumanChain.subject("person")
+          .stand({ seconds: standSeconds }, "before")
+          .over((upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+            upper.gesture({ kind: "stopPalm", side: "right", hold: 1 }),
+          )
+          .support(bracedContacts, "after")
+          .sync({ of: "before", event: "start", offset: 0.25 }),
+      );
+    } catch (error) {
+      overlap = error;
+    }
+    all.check(
+      `the support reserves its palm after a ${join}, received ${String(overlap)}`,
+      overlap instanceof HumanRefusal &&
+        overlap.kind === "channel" &&
+        overlap.axis === "over" &&
+        Array.isArray(overlap.value) &&
+        overlap.value.includes("rightArm") &&
+        overlap.value.includes("rightHand") &&
+        overlap.message.includes("after"),
+    );
+  }
   all.assert("overlays respect the carrier's hand contacts");
 }
 

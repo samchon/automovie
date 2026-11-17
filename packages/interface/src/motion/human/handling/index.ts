@@ -1,3 +1,4 @@
+export type { IAutoMovieMotionHumanButton } from "./IAutoMovieMotionHumanButton";
 export type { IAutoMovieMotionHumanCarryHang } from "./IAutoMovieMotionHumanCarryHang";
 export type { IAutoMovieMotionHumanGrasp } from "./IAutoMovieMotionHumanGrasp";
 export type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGraspUse";

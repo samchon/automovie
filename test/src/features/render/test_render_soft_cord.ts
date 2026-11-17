@@ -16,12 +16,13 @@ import { nclose } from "../internal/predicates";
  *
  * 1. Three particles with unequal segment lengths through a right-angle
  *    corner each have a ring centred at the particle with the supplied radius.
- * 2. An absent cord leaves no mesh in the scene; a zero radius is refused.
+ * 2. A collapsed frame hides the same mesh; seeking back restores its tube.
+ * 3. An absent cord leaves no mesh. Invalid radius or particle buffers refuse.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the unequal lengths, ring-centre and radius checks, withdrawal and refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Projects actual Three.js geometry from an unindexed particle surface, observes visible indexed faces and measures the positions around each ring.
  * @evidence contracts/development/testing.md#independent-expectations Every ring's opposite radial points average to its supplied particle and all its vertices are one authored radius from it. Coordinates are exactly representable binary fractions with a 1e-9 m comparison allowance for Float32.
- * @evidence contracts/development/testing.md#distinguishing-cases Unequal lengths catch arc-length resampling that skips a particle, and the turned segment checks that a cord is not projected as a single straight cylinder. Empty and nonpositive-radius frames exercise withdrawal and refusal.
+ * @evidence contracts/development/testing.md#distinguishing-cases Unequal lengths catch arc-length resampling that skips a particle, and the turned segment checks that a cord is not projected as a single straight cylinder. A collapse and reverse seek preserve subject identity while visibility changes. Empty frames exercise withdrawal, and sparse or overflowing coordinates and zero radius exercise refusal.
  * @evidence contracts/development/testing.md#execution-ownership test_render_soft_cord exercises a CPU scene and geometry without a renderer or a host.
  */
 export function test_render_soft_cord(): void {
@@ -86,6 +87,52 @@ export function test_render_soft_cord(): void {
       }
       return true;
     });
+    layer.update([
+      {
+        ...frame,
+        surface: {
+          ...frame.surface,
+          step: 3,
+          mesh: {
+            ...frame.surface.mesh,
+            positions: frame.surface.mesh.positions.map((): number => 0),
+          },
+        },
+      },
+    ]);
+    TestValidator.predicate("collapse hides the mounted cord", () =>
+      mesh instanceof THREE.Mesh &&
+      !mesh.visible &&
+      mesh.userData.step === 3 &&
+      scene.getObjectByName("soft:cord") === mesh,
+    );
+    layer.update([frame]);
+    TestValidator.predicate("seeking back restores the original cord", () =>
+      mesh instanceof THREE.Mesh &&
+      mesh.visible &&
+      mesh.userData.step === 2 &&
+      (mesh.geometry.getIndex()?.count ?? 0) > 0 &&
+      scene.getObjectByName("soft:cord") === mesh,
+    );
+    const sparse: number[] = Array.from(
+      frame.surface.mesh.positions.slice(0, 4),
+    );
+    sparse.length = 5;
+    sparse.push(...frame.surface.mesh.positions.slice(5));
+    const overflow: number[] = [...frame.surface.mesh.positions];
+    overflow[4] = Number.MAX_VALUE;
+    for (const positions of [sparse, overflow])
+      TestValidator.error("invalid cord particles refuse before replacing the mesh", (): void =>
+        layer.update([
+          {
+            ...frame,
+            surface: {
+              ...frame.surface,
+              mesh: { ...frame.surface.mesh, positions },
+            },
+          },
+        ]),
+      );
     TestValidator.error("a cord radius must be positive", (): void =>
       layer.update([{ ...frame, cordRadius: 0 }]),
     );
