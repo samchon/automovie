@@ -41,16 +41,18 @@ export function physicalHullSegment(
 ): number {
   const hull: physicalHullFaces.IHull = physicalHullFaces(points);
   if (!hull.faces.length) throw new Error("A hull must span a volume");
+  const vertices: readonly IAutoMovieVector3[] = hull.vertices;
   const support = (d: IAutoMovieVector3): IVertex => {
     let vertex: number = 0;
     let most: number = -Infinity;
-    hull.vertices.forEach((p: IAutoMovieVector3, i: number): void => {
-      const along: number = dot(p, d);
+    for (let i: number = 0; i < vertices.length; ++i) {
+      const p: IAutoMovieVector3 = vertices[i]!;
+      const along: number = p.x * d.x + p.y * d.y + p.z * d.z;
       if (along > most) {
         most = along;
         vertex = i;
       }
-    });
+    }
     const end: number = dot(d, a) <= dot(d, b) ? 0 : 1;
     return { w: minus(hull.vertices[vertex]!, end === 0 ? a : b), vertex, end };
   };
