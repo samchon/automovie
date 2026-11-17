@@ -31,32 +31,33 @@ import { turnHumanPosture } from "./turnHumanPosture";
  */
 export namespace HumanPosturePreparation {
   /**
-   * One explicit preparation's independently owned public pose. The private
-   * source and solution never alias this mutable observation.
+   * One explicit preparation's public pose: a value, as the authoring it was
+   * solved from is. Neither is changed once issued.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines actual cold-solve provenance and independent public ownership.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines actual cold-solve provenance and the value contract of the public pose.
    * @evidence contracts/development/design.md#principled-representation Exposes only the canonical pose needed for COM while opaque private evidence retains raw demands and fit metadata.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Jump observes preparedBones without demanding pose copying; pose remains a public independent observation, and translated/rigid accept the actual issued source wrapper.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A structurally matching object cannot forge private weak-map membership, and mutating pose cannot alter the private source result.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Jump observes preparedBones without demanding pose copying; pose is the solve's own value, and translated/rigid accept the actual issued source wrapper.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A structurally matching object cannot forge private weak-map membership; the pose is a value no caller changes, so it is lent, not copied.
    */
   export interface IPrepared {
-    /** Fresh canonical output from the actual source resolution. */
+    /** The canonical output of the actual source resolution, a value the caller does not change. */
     pose: IAutoMoviePose;
   }
 
   /**
-   * Snapshot cloneable enumerable own-data authoring with structuredClone at
-   * this explicit preparation boundary, then solve that exact owned snapshot.
-   * Callable/noncloneable authoring fails at this boundary. Ordinary seeded
-   * resolution retains its existing live-input/getter admission behavior.
+   * Solve authoring at this explicit preparation boundary. The authoring is a
+   * value: the caller does not change it once it is prepared, so the
+   * preparation keeps it as given, and its public pose is the solve's own,
+   * equally a value. Ordinary seeded resolution retains its existing
+   * live-input/getter admission behavior.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the explicit snapshot-first own-data API, actual cold-solve provenance, public/private copies, genuine FK-source scope and ordinary live-input alternative.
-   * @evidence contracts/development/implementation.md#principled-implementation Solves exactly the preparation-owned snapshot, so later getter observations cannot pair different demands with an earlier solution. Finite free world-leg goals admit translation equivalence, including shared goals shifted once; joint-only projection is rigid-placement independent. Unknown FK suppliers retain actual solving but issue no reuse proof.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The resolver owns numerical admission/solving; this owner records raw/rig evidence and transfers fresh output observations.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the value contract of prepared authoring and its pose, actual cold-solve provenance, genuine FK-source scope and ordinary live-input alternative.
+   * @evidence contracts/development/implementation.md#principled-implementation Solves exactly the authoring given, which stays as it was solved under the value contract, so no later observation pairs different demands with this solution. Finite free world-leg goals admit translation equivalence, including shared goals shifted once; joint-only projection is rigid-placement independent. Unknown FK suppliers retain actual solving but issue no reuse proof.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The resolver owns numerical admission/solving; this owner records raw/rig evidence and lends its output.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No prior time, quantized key, fitted target or manually asserted resolved state supplies the solution; unsupported source contexts remain ineligible and resolve normally after translation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The cold result transfers into private ownership after its possibly borrowed root is detached; raw authoring is copied once and public pose copying occurs only on first access. Expected translation prepares lazily only on an actual carried read, adding no scan to public translated-only consumers. Current rig metadata still compares fully and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual private-reader assembly/native fitting or the incoming-reader independent route supplies the cold result; its private snapshot and detached root cannot alias caller data. Genuine source-chain checks run before/after solving without invoking suppliers. Public pose observation copies once; bones separately checks current rig/loan proof and copies before exposing a pose to any incoming reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each preparation owns raw data, one private seeded result, a rig checker and at most one lazily prepared expected-translation closure borrowing that raw snapshot. Public observations allocate only on demand and never touch private evidence; synchronous reader/projector loans are not retained. Weak source/candidate ownership adds no result history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms No copy of the authoring, the solved root or the public pose: values are kept and lent as they are. Expected translation prepares lazily only on an actual carried read, adding no scan to public translated-only consumers. Current rig metadata still compares fully and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual private-reader assembly/native fitting or the incoming-reader independent route supplies the cold result. Genuine source-chain checks run before/after solving without invoking suppliers. Bones separately checks current rig/loan proof and copies before exposing a pose to any incoming reader.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each preparation holds the given authoring, one private seeded result, a rig checker and at most one lazily prepared expected-translation closure borrowing that authoring; synchronous reader/projector loans are not retained. Weak source/candidate ownership adds no result history.
    */
   export function prepare(
     body: IHumanBody,
@@ -83,22 +84,20 @@ export namespace HumanPosturePreparation {
     return prepareCurrent(body, posture, near, resolution, projection, resolveHumanPostureSource.continued);
   }
 
-  /** Snapshot first, then use the one source solver under its actual ownership boundary. */
+  /** Solve the given authoring, a value, with the one source solver under its actual ownership boundary. */
   function prepareCurrent(body: IHumanBody, posture: IHumanPosture, near: resolveHumanPosture.INear,
     resolution: Parameters<typeof prepareHumanPoseResolution>[0], projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
     solve: typeof coldSource): IPrepared {
-    const raw: IHumanPosture = structuredClone(posture);
+    const raw: IHumanPosture = posture;
     const native: boolean = prepareHumanPoseResolution.isNativeSource(resolution);
     const rigUnchanged: (() => boolean) | undefined = native
       ? prepareHumanPostureRigCheck(body) : undefined;
     const solved: resolveHumanPosture.ISeeded = native
       ? solve(body, raw, near, resolution, projection)
       : resolveHumanPosture.seeded(body, { ...raw }, undefined, near, resolution, undefined, projection);
-    // The cold solve owns its joints; isolate only a possibly borrowed raw root.
-    solved.pose = { ...solved.pose, root: structuredClone(solved.pose.root) };
     let shown: IAutoMoviePose | undefined;
     const prepared: IPrepared = {
-      get pose(): IAutoMoviePose { return (shown ??= structuredClone(solved.pose)); },
+      get pose(): IAutoMoviePose { return shown ?? solved.pose; },
       set pose(value: IAutoMoviePose) { shown = value; },
     };
     SOURCES.set(prepared, {
@@ -188,7 +187,7 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/common.md#meaningful-documentation Defines issued-source membership, requested frames, current-rig fallback, fresh map ownership and synchronous FK lending.
    * @evidence contracts/development/implementation.md#principled-implementation A genuine cold source owns solved articulation; identical body/rig/topology and every live rig/table scalar permit its observation. An actual private reader may consume the private pose; a current native incoming reader receives an independent pose copy. Unknown incoming callbacks or changed context first resolve fresh query data. Incoming callback lookups remain live and never receive the retained canonical pose.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One private membership lookup and checked source selection feed the existing poseBones owner; no private pose or raw data is returned or passed to a caller callback.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unissued wrappers are refused, public pose edits cannot affect the private source, changed context retains native solving, and all actual ordered joint admission and requested-ancestor FK still execute with original raw goals and ranges.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unissued wrappers are refused, the public pose is a value no caller changes, changed context retains native solving, and all actual ordered joint admission and requested-ancestor FK still execute with original raw goals and ranges.
    * @evidence contracts/development/implementation.md#efficient-algorithms Current rig comparison and requested FK remain. A private-reader observation avoids a pose clone; a native incoming reader pays one O(B) pose copy while avoiding duplicate IK. Changed/unknown context retains full cold solving. No unused public pose observation is allocated and speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The issued source/body and freshly checked scalar prerequisites establish exact articulation reuse. The explicit FK reader is borrowed only by the current observation; it shares exact same-valued dependencies while poseBones produces fresh output records.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The method retains no reader, requested set or returned bones. Private source ownership remains with its weak preparation/candidates, and only fresh public FK output escapes; no borrowed cache pose or callback result can escape this seam.

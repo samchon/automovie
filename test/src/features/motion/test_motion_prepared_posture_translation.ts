@@ -27,8 +27,10 @@ import { vclose } from "../internal/vclose";
  *
  * Scenarios:
  * 1. A canonical Human's head flexion 10 degrees is translated to two roots.
- *    Source edits and mutation of the public prepared pose cannot alter the
- *    private original demand or any later resolved result.
+ *    Prepared authoring and its pose are values, never changed once issued;
+ *    a second preparation of head flexion 20 keeps its own demand, so each
+ *    translation carries its own source's demand, not a shared or later one.
+ *    Mutation of a resolved result cannot alter any later resolved result.
  * 2. Changing a transported head demand to 20 must produce 20. A body made
  *    from a copy of the rig whose head is constrained to a five-degree
  *    maximum must produce 5 for the transported demand of 10, and the
@@ -56,9 +58,9 @@ import { vclose } from "../internal/vclose";
  *    and retains ordinary complete-pose results under the same root change.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States original clinical/world demand ownership, live rig/raw invalidation, canonical Human provenance, fixed-base candidates, checked carried authoring, current JSON-hook fields, shared-goal translation and contact precision across eight scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Uses public prepare/translated/carried and fixed-base candidate workspaces beside ordinary seeded resolution. It changes sources/results/head constraints, leg ancestors and actual goals, then observes clinical angles, cold parity and canonical displayed foot contact. Own/inherited JSON concealment must not certify stale joints, and aliased leg goals retain a single displacement and independent graph ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses public prepare/translated/carried and fixed-base candidate workspaces beside ordinary seeded resolution. It prepares distinct sources and changes results/head constraints, leg ancestors and actual goals, then observes clinical angles, cold parity and canonical displayed foot contact. Own/inherited JSON concealment must not certify stale joints, and aliased leg goals retain a single displacement and independent graph ownership.
  * @evidence contracts/development/testing.md#independent-expectations Literal authored head angles and the later five-degree bound independently fix 10/20/5. World goals must retain their actual asked coordinates under source-plus-root displacement and the existing 0.001 metre contact limit. Own/inherited toJSON serializing20 as10 must not change those raw clinical values or their current ROM; one shared goal receives the root displacement once and remains shared. Cold parity supplements these assertions but cannot independently certify all inverse kinematics.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers translations, source/output edits, changed raw/rig, added goals, raw goal/bend transport, copied-wrapper refusal, copied raw, fresh outputs, A/B/A fixed-base fits and carried head/hip/goal changes, own versus inherited JSON hooks on issued/arbitrary carried inputs, current ROM and shared-goal graph preservation. No global table or shared fixture is mutated.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers translations, distinct sources, result edits, changed raw/rig, added goals, raw goal/bend transport, copied-wrapper refusal, copied raw, fresh outputs, A/B/A fixed-base fits and carried head/hip/goal changes, own versus inherited JSON hooks on issued/arbitrary carried inputs, current ROM and shared-goal graph preservation. No global table or shared fixture is mutated.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable numerical unit uses the repository's canonical Human fixture and independently cloned skeleton/profile through the actual body factory. All changed records belong to the test; no renderer, viewer, foreign method replacement, subprocess or compiler is started.
  */
 export function test_motion_prepared_posture_translation(): void {
@@ -70,18 +72,22 @@ export function test_motion_prepared_posture_translation(): void {
     joints: { head: [10, 0, 0] }, limbs: {},
   };
   const prepared: resolveHumanPosture.IPrepared = resolveHumanPosture.prepare(first, source);
-  const exposed: IAutoMovieJointPose = prepared.pose.joints.find(
-    (value: IAutoMovieJointPose): boolean => value.bone === "head",
-  )!;
-  exposed.flexion = 123;
-  prepared.pose.root!.translation.x = 456;
-  source.root.x = 789;
-  source.joints.head = [50, 0, 0];
+  TestValidator.predicate("the prepared pose is the solve of its authoring",
+    nclose(head(prepared.pose), 10, 1e-12) && vclose(prepared.pose.root!.translation, source.root, 0),
+  );
+  const other: resolveHumanPosture.IPrepared = resolveHumanPosture.prepare(first, {
+    ...source, root: { x: 7, y: 8, z: 9 }, joints: { head: [20, 0, 0] },
+  });
 
   for (const root of [{ x: 2, y: 3, z: 4 }, { x: -1, y: 0.5, z: 0.25 }]) {
     const raw: IHumanPosture = resolveHumanPosture.translated(prepared, root);
-    TestValidator.predicate("transport retains its independent original authoring demand",
+    TestValidator.predicate("transport retains its own original authoring demand",
       vclose(raw.root, root, 0) && nclose(raw.joints.head![0], 10, 0),
+    );
+    const moved: IHumanPosture = resolveHumanPosture.translated(other, root);
+    TestValidator.predicate("another preparation's transport carries its own demand",
+      vclose(moved.root, root, 0) && nclose(moved.joints.head![0], 20, 0) &&
+      nclose(head(resolveHumanPosture(first, moved)), 20, 1e-12),
     );
     const actual: IAutoMoviePose = resolveHumanPosture(first, raw);
     TestValidator.predicate("prepared result retains literal head and current root",
