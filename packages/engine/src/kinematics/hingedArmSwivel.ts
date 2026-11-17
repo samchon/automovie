@@ -110,13 +110,34 @@ export namespace hingedArmSwivel {
     return poseBranch(chain, theta);
   }
 
-  /** The interface contract (`IAutoMovieHingedArmSwivel.IPrepared`). */
+  /**
+   * The interface contract (`IAutoMovieHingedArmSwivel.IPrepared`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the interface record this owner's name stands for.
+   * @evidence contracts/development/design.md#principled-representation The record is the interface's; the alias adds nothing.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Kept so this owner's readers name the record by its owner, as master keeps such aliases.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No copy of the record: one declaration, in `@automovie/interface`.
+   */
   export type IPrepared = IAutoMovieHingedArmSwivel.IPrepared;
 
-  /** The interface contract (`IAutoMovieHingedArmSwivel.IPreparedTarget`). */
+  /**
+   * The interface contract (`IAutoMovieHingedArmSwivel.IPreparedTarget`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the interface record this owner's name stands for.
+   * @evidence contracts/development/design.md#principled-representation The record is the interface's; the alias adds nothing.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Kept so this owner's readers name the record by its owner, as master keeps such aliases.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No copy of the record: one declaration, in `@automovie/interface`.
+   */
   export type IPreparedTarget = IAutoMovieHingedArmSwivel.IPreparedTarget;
 
-  /** The interface contract (`IAutoMovieHingedArmSwivel.IHarmonic`). */
+  /**
+   * The interface contract (`IAutoMovieHingedArmSwivel.IHarmonic`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the interface record this owner's name stands for.
+   * @evidence contracts/development/design.md#principled-representation The record is the interface's; the alias adds nothing.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Kept so this owner's readers name the record by its owner, as master keeps such aliases.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No copy of the record: one declaration, in `@automovie/interface`.
+   */
   export type IHarmonic = IAutoMovieHingedArmSwivel.IHarmonic;
 
   /**

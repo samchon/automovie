@@ -27,12 +27,15 @@ const COSTAL_MARGIN: number = Math.max(1056.3 / 1628.5, 1120.7 / 1756.2);
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Keys are the interface's closed region union.
  */
 export namespace AutoMovieHumanoidSurfaceRegions {
-  
-
-  /** The interface contract (`IAutoMovieHumanoidSurfaceRegions.ILevel`). */
+  /**
+   * The interface contract (`IAutoMovieHumanoidSurfaceRegions.ILevel`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the interface record this owner's name stands for.
+   * @evidence contracts/development/design.md#principled-representation The record is the interface's; the alias adds nothing.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Kept so this owner's readers name the record by its owner, as master keeps such aliases.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No copy of the record: one declaration, in `@automovie/interface`.
+   */
   export type ILevel = IAutoMovieHumanoidSurfaceRegions.ILevel;
-
-  
 
   /** Every region's definition, both sides from one table: +X is the body's left. */
   export const TABLE: Readonly<
