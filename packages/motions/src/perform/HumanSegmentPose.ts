@@ -19,6 +19,7 @@ import { HumanSegmentLayer } from "./HumanSegmentLayer";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 import { HumanSegmentPlant } from "./HumanSegmentPlant";
 import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
+import { HumanPoseKnots } from "./HumanPoseKnots";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 import { HumanSegmentStop } from "./HumanSegmentStop";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
@@ -46,8 +47,8 @@ export namespace HumanSegmentPose {
    * @evidence contracts/development/common.md#meaningful-documentation States displayed pose, film seconds and the person's placement-dependent cache.
    * @evidence contracts/development/implementation.md#principled-implementation Selects the last placed segment whose entry is at or before the second with the existing 1e-12 allowance, then uses its displayed evaluator or the initial standing pose.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One cache lookup, one reverse last-match selection on a miss, one evaluation and bounded insertion.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Resolving persons bypass cache reads/writes. Observational requests may borrow an existing complete pose but never store partial results; public whole-pose queries remain complete at exact seconds.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Hits cost one map lookup; misses inspect R entries from the end, at most S segments, and pay the selected evaluator's fitting cost, retaining at most 4096 pose references per person.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Resolving persons bypass cache reads/writes and the track. Observational requests may borrow an existing complete pose but never store partial results; a second on a knot of the film's grid is evaluated at exactly that second, and a second between knots is the stated interpolant of its four knots, never a neighbouring knot's pose.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Hits cost one map lookup; a miss on a knot inspects R entries from the end, at most S segments, and pays the selected evaluator's fitting cost; a second between knots costs its four knots once for every reader of that interval plus a linear interpolation, so Q readers inside one second of film cost at most the grid's knots there, not Q evaluations. Retains at most 4096 pose references per person. Unmeasured as yet.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact film-second queries share completed poses only after placement is settled; HumanSegment.forget clears them when plans, stops or placement dependencies change.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The person owns the FIFO-bounded 4096-entry map and releases it on forget; returned cached pose references retain their existing borrowed ownership, with no copy or new process-wide cache.
    */
@@ -61,6 +62,26 @@ export namespace HumanSegmentPose {
       ? undefined
       : person.cache.get(seconds);
     if (cached !== undefined) return cached;
+
+    // Once the schedule is resolved a person's motion is a track on the
+    // film's fixed grid (`HumanPoseKnots`): a second on a knot is evaluated
+    // as before, and a second between knots is read off the four knots
+    // around it, each evaluated once and shared by every reader of its
+    // interval (an integrator's stages, a difference quotient, a contact
+    // instant's bisection).
+    if (!person.resolving) {
+      const place: ReturnType<typeof HumanPoseKnots.locate> = HumanPoseKnots.locate(seconds);
+      if (place !== null)
+        return HumanPoseKnots.between(
+          [
+            displayed(person, place.knots[0], undefined, prepared),
+            displayed(person, place.knots[1], undefined, prepared),
+            displayed(person, place.knots[2], undefined, prepared),
+            displayed(person, place.knots[3], undefined, prepared),
+          ],
+          place.share,
+        );
+    }
     const active: HumanSegment.ISegment | undefined =
       HumanSegmentSelection.last(person.segments, seconds);
     const pose: IAutoMoviePose =
