@@ -436,12 +436,45 @@ export namespace walkLeg {
     }
     let low: number = -STEEPEST;
     let high: number = folds ? (far + near) / 2 : pitch;
-    if (room(low) >= kept)
-      for (let k: number = 0; k < 30; k++) {
+    // The kept room's pitch, bracketed between a pitch that keeps it and one
+    // that does not, to `RESOLVED`: a false-position step where both ends'
+    // rooms are finite, the stale end's value halved when it is kept twice
+    // (the Illinois rule, Dowell and Jarratt 1971), and a bisection step
+    // where an end has no room to read (a rule that asks nothing, a leg that
+    // cannot stand), so the bracket closes superlinearly on a smooth room
+    // and never slower than by halves.
+    let above: number = room(low) - kept;
+    if (above >= 0) {
+      let below: number = -Infinity;
+      let stale: -1 | 0 | 1 = 0;
+      for (let k: number = 0; k < 60 && high - low > RESOLVED; k++) {
+        const secant: number =
+          Number.isFinite(above) && Number.isFinite(below)
+            ? low + ((high - low) * above) / (above - below)
+            : NaN;
+        const middle: number =
+          secant > low && secant < high ? secant : (low + high) / 2;
+        const value: number = room(middle) - kept;
+        if (value < 0) {
+          high = middle;
+          below = value;
+          if (stale === 1) above /= 2;
+          stale = 1;
+        } else {
+          low = middle;
+          above = value;
+          if (stale === -1) below /= 2;
+          stale = -1;
+        }
+      }
+
+      // A room with a kink can hold one end still; halves close what is left.
+      for (let k: number = 0; k < 30 && high - low > RESOLVED; k++) {
         const middle: number = (low + high) / 2;
         if (room(middle) < kept) high = middle;
         else low = middle;
       }
+    }
     if (!folds) return low;
     const share: number =
       width > 0 ? Math.min(1, Math.max(0, (width - asked) / width)) : 1;
@@ -450,6 +483,9 @@ export namespace walkLeg {
 
   /** The room left to a stance's ankle before its dorsal limit, degrees, under which a stepping foot's heel begins to rise (provisional): the heel is leaving the floor by 10° of dorsiflexion (Perry and Burnfield), a third of the way into this rounding under the 18° limit this body keeps, and the rounding is wide enough that the step past the fold is crossed in a stance's few hundredths of a second without a jolt at the knee. */
   export const ROCKER: number = 12;
+
+  /** The width, degrees, a kept room's pitch is bracketed to: under a hundred nanometres of any point of a foot, the resolution thirty halvings of the widest bracket gave. */
+  export const RESOLVED: number = 1e-7;
 
   /** The step, degrees, in which `rise` walks the room down from the asked pitch to find its first low: half a degree, under which the room of a leg near straight has no second low. */
   export const SCAN: number = 0.5;
