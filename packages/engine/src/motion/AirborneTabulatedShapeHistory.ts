@@ -143,7 +143,13 @@ export function AirborneTabulatedShapeHistory(
           largest = Math.max(largest, Vector3.length(samplePoseVelocity.rotationVector(
             Quaternion.multiply(b.parts[i]!.inertiaRotation, Quaternion.inverse(a.parts[i]!.inertiaRotation)),
           )));
-      const count: number = Math.max(1, Math.ceil(largest / turn));
+      // A shortest-arc turn is at most a half turn, so an interval is divided
+      // into at most ceil(pi / turn) parts; a turn that is not a number (a
+      // shape that is not finite, which the tensor's admission then refuses)
+      // divides nothing.
+      const count: number = Number.isFinite(largest)
+        ? Math.max(1, Math.ceil(Math.min(largest, Math.PI) / turn))
+        : 1;
       parts[k] = count;
       first[k] = knots.length;
       const start: number = from + k * spacing;
