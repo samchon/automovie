@@ -7,6 +7,7 @@ import type {
 
 import type { walkFoot } from "../actions/walkFoot";
 import { walkLeg } from "../actions/walkLeg";
+import { walkLegCapsules } from "../actions/walkLegCapsules";
 import { walkLegClearance } from "../actions/walkLegClearance";
 import { walkReach } from "../actions/walkReach";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -53,7 +54,7 @@ import type { staggerRecover } from "./staggerRecover";
  * @evidence contracts/development/implementation.md#principled-implementation Two-bone leg geometry: the cosine law on the measured thigh and shank gives the knee's flexion, and the hip-to-ankle line less the knee's angle the thigh's trail; the pelvis is the walk's own ground settling under the centre of mass's course; the crossed legs' clearance is the tangle audit's own reading.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One schedule and one pelvis per instant, then per planted leg the reach, the knee and the hip, then the crossed legs.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound is the rig's range, the walk's measured extension or the audit's give; nothing is tuned to a case, and a leg out of any of them refuses the instant.
- * @evidence contracts/development/implementation.md#efficient-algorithms Per instant one ground settling (a bracketed scalar root over at most two stance readers) and constant work per leg; two leg fits per instant only where the feet cross.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Per instant one ground settling (a bracketed scalar root over at most two stance readers) and constant work per leg; crossed legs first read in closed form (two cosine-law knees and four capsule segment distances), with two leg fits per instant only where their bounding capsules meet.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller admits each foot-order prefix once and shares the answer with every order that begins with it; the reading depends on the prefix's steps and course alone.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past its return.
  */
@@ -63,6 +64,7 @@ export function staggerAdmission(
   walk: {
     steps: readonly staggerRecover.IStep[];
     course: (seconds: number) => IAutoMovieVector3;
+    pressure: (seconds: number) => IAutoMovieVector3;
     extrapolated: (seconds: number) => IAutoMovieVector3;
     centre: IAutoMovieVector3;
   },
@@ -82,6 +84,80 @@ export function staggerAdmission(
         (b: IAutoMovieBone): boolean => b.bone === `${side}LowerLeg`,
       )?.constraint ?? null,
     )?.flexion?.max ?? 180;
+
+  // Crossed legs clear in closed form: each leg a two-bone chain whose knee
+  // lies on its circle about the hip-to-ankle axis toward its knee hint
+  // (`staggerKnots.kneePole`), and each thigh and shank the bounding capsule
+  // of every probe of its segment (`walkLegCapsules.capsules`). Capsules
+  // that keep apart hold every probe apart, so the legs clear; only legs
+  // whose capsules meet are posed by the posture's own fit and read as the
+  // tangle audit reads them. The premise is the fit's knee lying in the
+  // plane of its hint, which the fit's own hint asks of it.
+  const capsules: ReturnType<typeof walkLegCapsules.capsules> = walkLegCapsules.capsules(body);
+  const segment: (p: IAutoMovieVector3, q: IAutoMovieVector3, r: IAutoMovieVector3, s: IAutoMovieVector3) => number = (
+    p: IAutoMovieVector3,
+    q: IAutoMovieVector3,
+    r: IAutoMovieVector3,
+    s: IAutoMovieVector3,
+  ): number => {
+    // The closest points of two segments (Ericson 2005, section 5.1.9).
+    const d1: IAutoMovieVector3 = Vector3.subtract(q, p);
+    const d2: IAutoMovieVector3 = Vector3.subtract(s, r);
+    const w: IAutoMovieVector3 = Vector3.subtract(p, r);
+    const a: number = Vector3.dot(d1, d1);
+    const e: number = Vector3.dot(d2, d2);
+    const f: number = Vector3.dot(d2, w);
+    const c: number = Vector3.dot(d1, w);
+    const b: number = Vector3.dot(d1, d2);
+    const denom: number = a * e - b * b;
+    let u: number = a > 1e-12 && denom > 1e-12 ? Math.min(1, Math.max(0, (b * f - c * e) / denom)) : 0;
+    let v: number = e > 1e-12 ? (b * u + f) / e : 0;
+    if (v < 0) {
+      v = 0;
+      u = a > 1e-12 ? Math.min(1, Math.max(0, -c / a)) : 0;
+    } else if (v > 1) {
+      v = 1;
+      u = a > 1e-12 ? Math.min(1, Math.max(0, (b - c) / a)) : 0;
+    }
+    return Vector3.distance(Vector3.add(p, Vector3.scale(d1, u)), Vector3.add(r, Vector3.scale(d2, v)));
+  };
+  const apart: (ground: walkReach.IGround) => boolean = (ground: walkReach.IGround): boolean => {
+    const parts: Record<"left" | "right", { from: IAutoMovieVector3; to: IAutoMovieVector3; radius: number }[]> = { left: [], right: [] };
+    for (const side of ["left", "right"] as const) {
+      const hip: IAutoMovieVector3 = ground.hips[side];
+      const ankle: IAutoMovieVector3 = ground.feet[side].ankle;
+      const d: number = Math.max(1e-9, Vector3.distance(hip, ankle));
+      const n: IAutoMovieVector3 = Vector3.scale(Vector3.subtract(ankle, hip), 1 / d);
+      const x: number = Math.min(thigh, Math.max(-thigh, (thigh ** 2 - shank ** 2 + d ** 2) / (2 * d)));
+      const pole: IAutoMovieVector3 = Vector3.subtract(
+        staggerKnots.kneePole(body, ground.root, ground.yaw, side, HumanFoot.heading(ground.feet[side].rotation)),
+        hip,
+      );
+      const off: IAutoMovieVector3 = Vector3.subtract(pole, Vector3.scale(n, Vector3.dot(pole, n)));
+      const size: number = Vector3.length(off);
+      const knee: IAutoMovieVector3 = Vector3.add(
+        Vector3.add(hip, Vector3.scale(n, x)),
+        size > 1e-9 ? Vector3.scale(off, Math.sqrt(Math.max(0, thigh ** 2 - x ** 2)) / size) : { x: 0, y: 0, z: 0 },
+      );
+      for (const [bone, from, to] of [
+        [`${side}UpperLeg`, hip, knee],
+        [`${side}LowerLeg`, knee, ankle],
+      ] as const) {
+        const capsule: ReturnType<ReturnType<typeof walkLegCapsules.capsules>["get"]> = capsules.get(bone);
+        if (capsule === undefined) return false;
+        const dir: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(to, from));
+        parts[side].push({
+          from: Vector3.add(from, Vector3.scale(dir, capsule.lo)),
+          to: Vector3.add(from, Vector3.scale(dir, capsule.hi)),
+          radius: capsule.radius,
+        });
+      }
+    }
+    for (const one of parts.left)
+      for (const other of parts.right)
+        if (segment(one.from, one.to, other.from, other.to) < one.radius + other.radius) return false;
+    return true;
+  };
 
   for (const t of instants) {
     // The feet as the steps schedule them, a swinging foot read where it
@@ -146,7 +222,7 @@ export function staggerAdmission(
 
     // Crossed feet: the two planted legs as the posture's fit poses them,
     // their knees toward the hints the posture gives them.
-    if (crossing && planted.length === 2) {
+    if (crossing && planted.length === 2 && !apart(ground)) {
       const pelvis: IAutoMovieQuaternion =
         ground.pelvis ?? resolveHumanPosture.heading({ yaw: ground.yaw, pitch: 0, roll: 0 });
       const legs: walkLegClearance.ILeg[] = [];
