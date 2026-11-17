@@ -18,6 +18,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanHand } from "../posture/HumanHand";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -164,6 +165,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @param axis The vessel's axis in the hand's frame, whose reached direction the tilt measures against the asked one; without it the tilt is how far the reached hand carries the direction the goal stands on the world's up.
    * @param source Optional same-body FK metadata borrowed through both actual fits and final observation.
    * @param projection Optional genuine same-body ROM projector borrowed by both actual fits.
+   * @param base Optional pose of the posture with this arm's goal left out, lent by a search over one posture (`prepareRead`); read only when this arm is the last limb the posture's solve fits and fits alone, and then only the arm is fitted on it.
    * @returns The readings.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fit, both ways of solving it and the result.
@@ -183,31 +185,39 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     axis?: IAutoMovieVector3,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
+    base?: (posture: IHumanPosture) => IAutoMoviePose,
   ): IArm {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
       `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`, `${side}UpperLeg`,
     ]);
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-    const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, {
-      ...posture,
-      limbs: {
-        ...posture.limbs,
-        [limb]: referred
-          ? {
-              ...goal,
-              reference: AutoMovieMotionHumanTouchLaid.reference(
-                body,
-                posture,
-                side,
-                goal,
-                resolution,
-                projection,
-              ),
-            }
-          : goal,
-      },
-    }, undefined, undefined, resolution, requested, projection).pose;
+    const attached: IHumanPosture.IGoal = referred
+      ? {
+          ...goal,
+          reference: AutoMovieMotionHumanTouchLaid.reference(
+            body,
+            posture,
+            side,
+            goal,
+            resolution,
+            projection,
+          ),
+        }
+      : goal;
+
+    // The posture's limbs are fitted legs first and this arm last when the
+    // other arm has no goal and no other limb's goal rides this arm; the
+    // rest of the body is then the same for every goal tried on one
+    // posture, so a search lends it posed once (`base`) and only the arm is
+    // fitted on it, as the posture solve fits it.
+    const pose: IAutoMoviePose = base !== undefined && alone(posture.limbs, side)
+      ? HumanLimbFit.fit(body, base(posture), limb, attached, ["left", "right"],
+          undefined, undefined, resolution).pose
+      : resolveHumanPosture.seeded(body, {
+          ...posture,
+          limbs: { ...posture.limbs, [limb]: attached },
+        }, undefined, undefined, resolution, requested, projection).pose;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       pose,
@@ -272,8 +282,36 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     (posture: IHumanPosture, goal: IHumanPosture.IGoal, referred: boolean, axis?: IAutoMovieVector3) => IArm {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
+
+    // The body without this arm, posed once for the posture the search is
+    // on: the candidates of one search differ only in this arm's goal.
+    let based: { posture: IHumanPosture; pose: IAutoMoviePose } | undefined;
+    const base = (posture: IHumanPosture): IAutoMoviePose => {
+      if (based === undefined || based.posture !== posture) {
+        const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+        delete limbs[`${side}Arm`];
+        based = {
+          posture,
+          pose: resolveHumanPosture.seeded(body, { ...posture, limbs },
+            undefined, undefined, resolution, undefined, projection).pose,
+        };
+      }
+      return based.pose;
+    };
     return (posture: IHumanPosture, goal: IHumanPosture.IGoal, referred: boolean, axis?: IAutoMovieVector3): IArm =>
-      read(body, posture, side, goal, referred, axis, resolution, projection);
+      read(body, posture, side, goal, referred, axis, resolution, projection, base);
+  }
+
+  /** Whether an arm is the last limb a posture's solve fits and fits alone: the other arm has no goal and no other limb's goal rides a bone of this arm. */
+  function alone(limbs: IHumanPosture["limbs"], side: HumanHand.Side): boolean {
+    const other: "leftArm" | "rightArm" = side === "left" ? "rightArm" : "leftArm";
+    if (limbs[other] !== undefined) return false;
+    for (const name of ["leftLeg", "rightLeg"] as const) {
+      const on: AutoMovieHumanoidBone | undefined = limbs[name]?.on;
+      if (on !== undefined && on.startsWith(side) &&
+        /(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/.test(on)) return false;
+    }
+    return true;
   }
 
   /**
