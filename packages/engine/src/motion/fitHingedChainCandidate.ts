@@ -468,6 +468,23 @@ export function fitHingedChainCandidate(
     Math.abs(Vector3.dot(Vector3.normalize(lowerBasis.twist), along)) > 1 - 1e-9;
   let ended: IEnd | undefined;
 
+  // A branch's arcs of swivels the end joint's box refuses, kept `INSIDE`
+  // the box (`distalEndSwivelArcs`): read once a branch by the closed-form
+  // candidate, the continued fit's start and the shown test alike. Null
+  // where the mid segment has no direction.
+  const arced: WeakMap<object, { arcs: ReturnType<typeof distalEndSwivelArcs> }> = new WeakMap();
+  const arcsOf = (
+    posed: ReturnType<typeof hingedArmSwivel.pose>,
+  ): ReturnType<typeof distalEndSwivelArcs> => {
+    if (along === null) return null;
+    let known: { arcs: ReturnType<typeof distalEndSwivelArcs> } | undefined = arced.get(posed);
+    if (known === undefined) {
+      known = { arcs: distalEndSwivelArcs({ ...pointing(posed), margin: -INSIDE }) };
+      arced.set(posed, known);
+    }
+    return known.arcs;
+  };
+
   // A branch's twist-range reading (`distalTwistRange`), read once a branch
   // by the closed-form candidate and by the sweep's bound alike.
   const twists: WeakMap<object, { range: distalTwistSwivelRange.IRange | null }> = new WeakMap();
@@ -562,8 +579,7 @@ export function fitHingedChainCandidate(
   ): boolean => {
     let known: { test: ((swivel: number) => boolean) | null } | undefined = shows.get(posed);
     if (known === undefined) {
-      const arcs: ReturnType<typeof distalEndSwivelArcs> = along === null
-        ? null : distalEndSwivelArcs({ ...pointing(posed), margin: -INSIDE });
+      const arcs: ReturnType<typeof distalEndSwivelArcs> = arcsOf(posed);
       const twist: distalTwistSwivelRange.IRange | null =
         arcs === null || arcs === "all" ? null : twisting(posed);
       known = {
@@ -611,11 +627,7 @@ export function fitHingedChainCandidate(
         lowerBasis.twistPlacement === "distal"
         ? {
             nearest: (posed: ReturnType<typeof hingedArmSwivel.pose>, swivel: number): number | null => {
-              if (along === null) return null;
-              const arcs: ReturnType<typeof distalEndSwivelArcs> = distalEndSwivelArcs({
-                ...pointing(posed),
-                margin: -INSIDE,
-              });
+              const arcs: ReturnType<typeof distalEndSwivelArcs> = arcsOf(posed);
               return arcs === null ? null : distalEndSwivelNearest(arcs, twisting(posed), swivel);
             },
           }
@@ -726,11 +738,7 @@ export function fitHingedChainCandidate(
                       // candidate is the swivel inside the box nearest the
                       // hint's pole, or the least-swing start without a hint.
                       closed: (posed: ReturnType<typeof hingedArmSwivel.pose>): number[] | null => {
-                        if (along === null) return null;
-                        const arcs: ReturnType<typeof distalEndSwivelArcs> = distalEndSwivelArcs({
-                          ...pointing(posed),
-                          margin: -INSIDE,
-                        });
+                        const arcs: ReturnType<typeof distalEndSwivelArcs> = arcsOf(posed);
                         if (arcs === null) return null;
                         const desired: number | null =
                           (side === null ? null : hingedChainSide.peak(

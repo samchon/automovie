@@ -66,23 +66,37 @@ export function hingedSwivelNear<T extends { overshoot: number }>(props: {
   if (!(near.tolerance > 0) || !Number.isFinite(near.tolerance))
     throw new Error("A continued fit needs a positive finite tolerance");
 
-  // The closed-form candidates less than a step from the start, each in the
-  // seed's own turn; the best of them answers when legal and met.
-  const start: number = props.start ?? near.swivel;
-  let best: T | null = null;
-  for (const angle of props.closed ?? []) {
-    const turn: number = angle - start;
-    const delta: number = turn - 360 * Math.round(turn / 360);
-    if (!(Math.abs(delta) < STEP)) continue;
-    const candidate: T = props.probe(delta === 0 ? start : start + delta);
-    if (best === null || props.better(candidate, best)) best = candidate;
-  }
-  if (best !== null && best.overshoot === 0 &&
-    (props.met === undefined || props.met(best))) return best;
   const ratio: number = near.tolerance / (2 * STEP);
   const contraction: number = ratio === 0
     ? Math.log(near.tolerance) - Math.log(2 * STEP)
     : Math.log(ratio);
-  return refineHingedSwivel(props.probe, props.better, start,
-    Math.max(0, Math.ceil(contraction / Math.log(hingedArmSwivel.GOLDEN))));
+  const passes: number = Math.max(0, Math.ceil(contraction / Math.log(hingedArmSwivel.GOLDEN)));
+
+  // The closed-form candidates less than a step from a centre, each in the
+  // seed's own turn: the best of them answers when legal and met; otherwise
+  // the centre is refined.
+  const answered = (candidate: T): boolean =>
+    candidate.overshoot === 0 && (props.met === undefined || props.met(candidate));
+  const continueFrom = (centre: number): T => {
+    let best: T | null = null;
+    for (const angle of props.closed ?? []) {
+      const turn: number = angle - centre;
+      const delta: number = turn - 360 * Math.round(turn / 360);
+      if (!(Math.abs(delta) < STEP)) continue;
+      const candidate: T = props.probe(delta === 0 ? centre : centre + delta);
+      if (best === null || props.better(candidate, best)) best = candidate;
+    }
+    if (best !== null && answered(best)) return best;
+    return refineHingedSwivel(props.probe, props.better, centre, passes);
+  };
+  if (props.start === undefined || props.start === near.swivel) return continueFrom(near.swivel);
+
+  // The admissible start answers when its result is legal and met; else the
+  // seed's own continuation is the other local answer, and the start's is
+  // taken only when the score ranks it strictly ahead, so a start that does
+  // not help leaves the fit as continuing its seed would have.
+  const moved: T = continueFrom(props.start);
+  if (answered(moved)) return moved;
+  const stayed: T = continueFrom(near.swivel);
+  return props.better(moved, stayed) ? moved : stayed;
 }
