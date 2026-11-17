@@ -1,3 +1,5 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+
 /**
  * Props with mass and friction moved by the hands' force (#3433): a prop
  * on the floor slides under Newton's second law and Coulomb friction, a
@@ -32,6 +34,30 @@
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanPropDynamics.slide.
  */
 export namespace IAutoMovieMotionHumanPropDynamics {
+  /**
+   * A straight floor slide authored on the film clock. The prop starts at
+   * rest and supplies its own mass and measured or authored friction pair.
+   * The interval includes any coasting the author wants to show.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the world direction, film interval, newton input and who supplies the contact coefficients.
+   * @evidence contracts/development/design.md#principled-representation A ground direction and scalar force describe translation along a single axis, with independent film start and end times.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanPropDynamics.slideProp uses the same force profile as the numerical slide while reading mass and friction from the prop model.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts There are no defaults for contact coefficients, applied force or the slide interval.
+   */
+  export interface ISlideDrive {
+    /** Nonzero horizontal world direction, normalized by the planner. */
+    direction: IAutoMovieVector3;
+
+    /** Pure applied force along the direction at a film second, finite nonnegative newtons. */
+    force: ISlide["force"];
+
+    /** First film second of the slide, when the prop is at rest. */
+    from: number;
+
+    /** Last film second of the slide, after which its final placement holds. */
+    to: number;
+  }
+
   /**
    * A prop pushed or pulled across the floor.
    *

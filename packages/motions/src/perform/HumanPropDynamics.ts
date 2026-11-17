@@ -1,7 +1,18 @@
-import { AutoMovieGravity, integrateMotionTrajectory } from "@automovie/engine";
+import {
+  AutoMovieGravity,
+  Vector3,
+  ViolationCollector,
+  integrateMotionTrajectory,
+  validateBody,
+} from "@automovie/engine";
 import type {
+  IAutoMovieBody,
+  IAutoMovieConstraintViolation,
   IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropDynamics,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 /**
@@ -28,9 +39,9 @@ import type {
  * (`IAutoMovieBody`), read by the caller; this module reads coefficients
  * only. First pass: rolling resistance is the kinetic coefficient the
  * producer gives; the push's force profile comes from the caller, since no
- * pushing-strength study has been read for it. These calculations are
- * exported and unit-tested; no pushing, hauling or door law yet consumes
- * their trajectories.
+ * pushing-strength study has been read for it. `slideProp` offers the
+ * trajectory as the frame of a prop in a performance. A film supplies the
+ * driving force profile, independent of the poses that follow the prop.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three laws, their premises, where the coefficients come from and the first pass's limits.
  * @evidence contracts/development/implementation.md#principled-implementation Newton's second law under Coulomb friction with its static threshold and its stop located as the switching point of a discontinuous right-hand side, the hinge's rotational form of it, and static moment balance for the lean; the slide and the hinge are integrated by the engine's fixed-step integrator.
@@ -41,6 +52,111 @@ import type {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each returned trajectory holds its knots for as long as its caller keeps it.
  */
 export namespace HumanPropDynamics {
+  /**
+   * Give a rigid prop a straight ground slide in a performance (#3433).
+   * The supplied force is sampled at plan time. The prop starts at rest,
+   * keeps its orientation and holds each boundary placement outside the
+   * drive's film interval. Its local affordances travel with its frame.
+   *
+   * @param prop The rigid prop at its starting frame with body contact data.
+   * @param drive The horizontal direction, force in newtons and film interval.
+   * @returns A shallow copy of the prop with an authored `motion` reader.
+   * @throws {Error} When the prop already has an incompatible placement source or lacks admissible body contact data, or when the drive has an invalid direction, interval or sampled force.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the source of mass and contact coefficients, film-clock boundaries, preserved orientation and how the returned prop plugs into normal performance placement.
+   * @evidence contracts/development/implementation.md#principled-implementation The Coulomb trajectory gives displacement along a horizontal unit vector from the prop's original world translation. The engine's body admission validates the contact coefficients before planning.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the prop and direction, plan the slide once, and read its distance as a world offset.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown friction is refused. The supplied force is independent of the displayed performer, so reading the prop does not solve a pose or call its force provider.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning has the slide's integration cost. Each frame read selects one trajectory sample and translates three coordinates.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the numerical slide and the normal moving-prop placement path; all readers of the returned prop share the planned trajectory.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prop reader retains the trajectory, starting frame and direction for the prop's lifetime. It opens no handles or processes.
+   */
+  export function slideProp(
+    prop: IAutoMovieMotionHumanProp,
+    drive: IAutoMovieMotionHumanPropDynamics.ISlideDrive,
+  ): IAutoMovieMotionHumanProp {
+    if (
+      prop.motion !== undefined ||
+      prop.worn !== undefined ||
+      prop.point !== undefined ||
+      prop.soft !== undefined
+    )
+      throw new Error(
+        `${prop.subject}: a force-driven slide needs a rigid prop with a rest frame and local contacts`,
+      );
+    const body: IAutoMovieBody | undefined = prop.body;
+    if (body?.friction === undefined || body.kineticFriction === undefined)
+      throw new Error(
+        `${prop.subject}: a force-driven slide needs both static and kinetic friction`,
+      );
+    const violations: ViolationCollector = new ViolationCollector();
+    validateBody(body, `${prop.subject}.body`, violations);
+    violations.finiteVector(
+      `${prop.subject}.frame.position`,
+      prop.frame.position,
+      "slide start position",
+    );
+    violations.unitQuaternion(
+      `${prop.subject}.frame.rotation`,
+      prop.frame.rotation,
+      "slide start rotation",
+    );
+    if (violations.items.length > 0)
+      throw new Error(
+        violations.items
+          .map(
+            (item: IAutoMovieConstraintViolation): string =>
+              `${item.path}: ${item.expected}`,
+          )
+          .join(". "),
+      );
+
+    const length: number = Math.hypot(drive.direction.x, drive.direction.z);
+    if (drive.direction.y !== 0 || !(length > 0 && Number.isFinite(length)))
+      throw new Error(
+        `${prop.subject}: a force-driven slide needs a finite nonzero horizontal direction`,
+      );
+    const direction: IAutoMovieVector3 = {
+      x: drive.direction.x / length,
+      y: 0,
+      z: drive.direction.z / length,
+    };
+    const frame: IAutoMovieRigidTransform = {
+      position: { ...prop.frame.position },
+      rotation: { ...prop.frame.rotation },
+    };
+    const mass: number = body.mass;
+    const path: IAutoMovieIntegrateMotionTrajectory.ITrajectory = slide({
+      from: drive.from,
+      to: drive.to,
+      mass,
+      friction: body.friction,
+      kinetic: body.kineticFriction,
+      force: (seconds: number): number => {
+        const force: number = drive.force(seconds);
+        if (
+          !Number.isFinite(force) ||
+          force < 0 ||
+          !Number.isFinite(force / mass)
+        )
+          throw new Error(
+            `${prop.subject}: a force-driven slide needs a nonnegative force with finite force and acceleration at ${seconds}s`,
+          );
+        return force;
+      },
+    });
+    return {
+      ...prop,
+      motion: (seconds: number): IAutoMovieRigidTransform => ({
+        position: Vector3.add(
+          frame.position,
+          Vector3.scale(direction, path.at(seconds).x[0]!),
+        ),
+        rotation: { ...frame.rotation },
+      }),
+    };
+  }
+
   /**
    * A slide's distance and speed along the push.
    *
