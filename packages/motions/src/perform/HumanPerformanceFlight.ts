@@ -276,8 +276,18 @@ export namespace HumanPerformanceFlight {
     // asked for: on test_human_motion_core_flight_sample they were accepted
     // at 27 of 2,293 instants, and the other 2,266 fell back to the
     // millisecond stencil after 6,777 shape reads and as many rate attempts.
+    // Where a part turns fast (a tuck's thighs by 0.65 rad a knot as it is
+    // laid in), the table divides the knot's interval so no part turns more
+    // than the angle whose chord reads a part's orbital momentum short by
+    // the flight's own momentum budget (`a^2 / 6` of it, so `a = sqrt(6 d)`
+    // with `d` the budget `MOMENTUM_ACCURACY` states).
     const history: ReturnType<typeof integrateAirborneRotation.history> =
-      integrateAirborneRotation.tabulated(prepared, shape, { from: t0, to: t1, step }, observation);
+      integrateAirborneRotation.tabulated(prepared, shape, {
+        from: t0,
+        to: t1,
+        step,
+        turn: Math.sqrt(6 * MOMENTUM_ACCURACY.relative),
+      }, observation);
     const errorScope: symbol = Symbol("human flight");
     try {
       const q0: IAutoMovieQuaternion = root(at(t0));

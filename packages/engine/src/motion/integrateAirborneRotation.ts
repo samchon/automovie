@@ -430,12 +430,12 @@ export namespace integrateAirborneRotation {
   }
 
   /**
-   * Build a history tabulated once on uniform knots no farther apart than `span.step` seconds and interpolated between them (`AirborneTabulatedShapeHistory`): the shape is read at the knots only, inside the span, where `history` reads it up to three times for each new query second. The inertia and relative momentum are second order in the step for a smooth shape, so a shape that is itself a track on that grid loses nothing finer than its knots, while detail between knots is smoothed to them. The table is built at the first query; the observer's counters keep their meaning, `uniqueNumericNodes` counting the knots read.
+   * Build a history tabulated once on uniform knots no farther apart than `span.step` seconds and interpolated between them (`AirborneTabulatedShapeHistory`): the shape is read at the knots only, inside the span, where `history` reads it up to three times for each new query second. An interval across which some mass part turns more than `span.turn` radians is divided into equal parts that keep every part's turn within it; omitted, no interval is divided. The inertia and relative momentum are fourth order in the knot spacing for a smooth shape (second order under four intervals). The table is built at the first query; the observer's counters keep their meaning, `uniqueNumericNodes` counting the knots read.
    */
   export function tabulated(
     model: resolveAutoMovieCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
     shape: (seconds: number) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    span: { from: number; to: number; step: number },
+    span: { from: number; to: number; step: number; turn?: number },
     observer?: AirborneShapeStatistics.IObserver,
   ): ICachedHistory {
     return AirborneTabulatedShapeHistory(model, shape, span, observer);
