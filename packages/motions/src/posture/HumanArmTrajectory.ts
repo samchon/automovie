@@ -132,7 +132,14 @@ export namespace HumanArmTrajectory {
   export const admitted: typeof HumanArmTrajectoryLaid.admitted =
     HumanArmTrajectoryLaid.admitted;
 
-  /** The interface contract (`IAutoMovieMotionHumanArmTrajectory.IState`). */
+  /**
+   * The interface contract (`IAutoMovieMotionHumanArmTrajectory.IState`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents HumanArmTrajectory.IState: The interface contract (`IAutoMovieMotionHumanArmTrajectory.IState`).
+   * @evidence contracts/development/design.md#principled-representation The record is the interface's (`IAutoMovieMotionHumanArmTrajectory.IState`); the alias adds nothing.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Kept so this owner's readers name the record by its owner, as master keeps such aliases.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No copy of the record: one declaration, in `@automovie/interface`.
+   */
   export type IState = IAutoMovieMotionHumanArmTrajectory.IState;
 
   /**
@@ -192,7 +199,8 @@ export namespace HumanArmTrajectory {
     // instants of that grid, the nearest to the caller's, so a stretch
     // refined to the end is bounded at exactly the instants it is read at.
     const grid: readonly number[] =
-      course?.read.context.times ?? uniform(times[0]!, times[times.length - 1]!);
+      course?.read.context.times ??
+      uniform(times[0]!, times[times.length - 1]!);
     const snap = (of: readonly number[]): number[] => {
       const out: number[] = [0];
       let near: number = 0;
@@ -214,7 +222,9 @@ export namespace HumanArmTrajectory {
     const snapped: number[] = snap(
       course === undefined || course.ramps.length === 0
         ? times
-        : [...times, ...course.ramps].sort((p: number, q: number): number => p - q),
+        : [...times, ...course.ramps].sort(
+            (p: number, q: number): number => p - q,
+          ),
     );
     let knots: number[] = snapped;
     const seconds = (of: readonly number[]): number[] =>
@@ -243,7 +253,12 @@ export namespace HumanArmTrajectory {
     // span at once, as the optimiser's refusal hands it below. A span an end
     // of which a meeting fixes is not lengthened by the tempo, so its course
     // goes to the optimiser, which may find a shorter path within it.
-    if (stretches && course !== undefined && warm === undefined && course.refused === "speed") {
+    if (
+      stretches &&
+      course !== undefined &&
+      warm === undefined &&
+      course.refused === "speed"
+    ) {
       const span: number = fine.times[fine.n - 1]! - fine.times[0]!;
       const factor: number = slower(fine, coursed(fine, course.trajectories));
       if (factor > 1)
@@ -251,14 +266,22 @@ export namespace HumanArmTrajectory {
           kind: "reach",
           axis: "duration",
           value: span,
-          feasible: { kind: "range", minimum: span * factor, maximum: null, unit: "s" },
+          feasible: {
+            kind: "range",
+            minimum: span * factor,
+            maximum: null,
+            unit: "s",
+          },
           reason: `the laid course of the ${problem.arms.map((a: IArm): string => a.side).join(" and ")} arm over the action moves faster than the audit's ${M.SPEED_LIMIT} m/s`,
           fix: "give the action more time",
         });
     }
     // The arms carried by their own interpolant onto knots with the given
     // intervals split; the knots kept keep what the last context built.
-    const refine = (x: number[][][], split: readonly number[]): number[][][] => {
+    const refine = (
+      x: number[][][],
+      split: readonly number[],
+    ): number[][][] => {
       const next: number[] = HumanArmRefine.split(knots, split);
       const carried: number[][][] = x.map((arm: number[][]): number[][] =>
         next.map((g: number): number[] =>
@@ -313,7 +336,12 @@ export namespace HumanArmTrajectory {
           wide = intervals(knots)
         )
           carried = refine(carried, wide);
-        solved = HumanArmOptimiser.optimise(context, carried, solved.penalty, fine);
+        solved = HumanArmOptimiser.optimise(
+          context,
+          carried,
+          solved.penalty,
+          fine,
+        );
       }
       const played: Admission.IReading =
         !context.still && fine.n > context.n
@@ -349,7 +377,11 @@ export namespace HumanArmTrajectory {
               ? [...c.rest[a]!]
               : k === c.n - 1 && !c.open
                 ? [...c.back[a]!]
-                : M.ranged(c, a, HumanArmRefine.hermite(warm.times, arm, grid[g]!)),
+                : M.ranged(
+                    c,
+                    a,
+                    HumanArmRefine.hermite(warm.times, arm, grid[g]!),
+                  ),
           ),
       );
       const kept: Solved = {
@@ -368,14 +400,18 @@ export namespace HumanArmTrajectory {
     }
     if (solved === undefined) {
       const laid: number[][][] | undefined =
-        course === undefined ? undefined : coursed(context, course.trajectories);
+        course === undefined
+          ? undefined
+          : coursed(context, course.trajectories);
 
       // A hold no configuration meets has no trajectory: it is refused by
       // its own still problem before the whole trajectory's penalties are
       // spent on it (`HumanArmSeed.held`), and the configuration found is
       // the planner seed's hold where that seed follows.
       const hold: number[][] | undefined =
-        laid === undefined ? undefined : HumanArmSeed.held(problem, context, laid);
+        laid === undefined
+          ? undefined
+          : HumanArmSeed.held(problem, context, laid);
       solved = optimised(laid ?? HumanArmSeed.seed(problem, context));
       if (course !== undefined && !met(solved)) {
         knots = snapped;
@@ -475,14 +511,18 @@ function coursed(
   c: M.IContext,
   course: readonly IAutoMovieMotionHumanArmTrajectory.Trajectory[],
 ): number[][][] {
-  return course.map((reader: IAutoMovieMotionHumanArmTrajectory.Trajectory, a: number): number[][] =>
-    c.times.map((t: number, k: number): number[] =>
-      k === 0
-        ? [...c.rest[a]!]
-        : k === c.n - 1 && !c.open
-          ? [...c.back[a]!]
-          : M.ranged(c, a, G.encode(c.setups[a]!, reader(t))),
-    ),
+  return course.map(
+    (
+      reader: IAutoMovieMotionHumanArmTrajectory.Trajectory,
+      a: number,
+    ): number[][] =>
+      c.times.map((t: number, k: number): number[] =>
+        k === 0
+          ? [...c.rest[a]!]
+          : k === c.n - 1 && !c.open
+            ? [...c.back[a]!]
+            : M.ranged(c, a, G.encode(c.setups[a]!, reader(t))),
+      ),
   );
 }
 

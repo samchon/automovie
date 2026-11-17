@@ -58,6 +58,13 @@ export namespace HumanArmTrajectoryJacobians {
      *
      * @param probe The probe.
      * @returns Its columns.
+     * @evidence contracts/development/common.md#meaningful-documentation Documents HumanArmTrajectoryJacobians.IJacobian.probe: A probe's motion, millimetres per coordinate unit, a vector per free coordinate.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies probe and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
      */
     probe(probe: number): IAutoMovieVector3[];
 
@@ -98,7 +105,10 @@ export namespace HumanArmTrajectoryJacobians {
   ): IJacobian[][] {
     return x.map(
       (arm: readonly (readonly number[])[], a: number): IJacobian[] =>
-        arm.map((_: readonly number[], k: number): IJacobian => waypoint(c, x, at, a, k)),
+        arm.map(
+          (_: readonly number[], k: number): IJacobian =>
+            waypoint(c, x, at, a, k),
+        ),
     );
   }
 
@@ -144,7 +154,11 @@ export namespace HumanArmTrajectoryJacobians {
         const out: IAutoMovieVector3[] = [];
         if (row !== undefined)
           for (let f: number = 0; f < columns; ++f)
-            out.push({ x: row[3 * f]!, y: row[3 * f + 1]!, z: row[3 * f + 2]! });
+            out.push({
+              x: row[3 * f]!,
+              y: row[3 * f + 1]!,
+              z: row[3 * f + 2]!,
+            });
         made[probe] = out;
         return out;
       },
@@ -161,8 +175,11 @@ export namespace HumanArmTrajectoryJacobians {
     rows = here.probes.map((): Float64Array => new Float64Array(3 * free));
     const sums: Float64Array = new Float64Array(here.probes.length);
     const scratch: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const origins: Record<"upper" | "lower" | "hand", IAutoMovieVector3> =
-      { upper: here.shoulder, lower: here.elbow, hand: here.wrist };
+    const origins: Record<"upper" | "lower" | "hand", IAutoMovieVector3> = {
+      upper: here.shoulder,
+      lower: here.elbow,
+      hand: here.wrist,
+    };
     const owners: ("upper" | "lower" | "hand")[] = here.probes.map(
       (
         _probe: readonly [IAutoMovieVector3, number],
@@ -196,8 +213,7 @@ export namespace HumanArmTrajectoryJacobians {
         ([p]: readonly [IAutoMovieVector3, number], i: number): void => {
           const owner: "upper" | "lower" | "hand" = owners[i]!;
           const offset: IAutoMovieVector3 =
-            offsets[i] ??
-            (offsets[i] = Vector3.subtract(p, origins[owner]));
+            offsets[i] ?? (offsets[i] = Vector3.subtract(p, origins[owner]));
 
           // `pointMotion`'s expressions on numbers: the turn's cross
           // product with the offset, scaled and added to the origin's
@@ -205,9 +221,12 @@ export namespace HumanArmTrajectoryJacobians {
           // bound below reads it.
           const motion: IMotion = frames[owner];
           const o: IAutoMovieVector3 = motion.omega;
-          scratch.x = motion.origin.x + (o.y * offset.z - o.z * offset.y) * 1000;
-          scratch.y = motion.origin.y + (o.z * offset.x - o.x * offset.z) * 1000;
-          scratch.z = motion.origin.z + (o.x * offset.y - o.y * offset.x) * 1000;
+          scratch.x =
+            motion.origin.x + (o.y * offset.z - o.z * offset.y) * 1000;
+          scratch.y =
+            motion.origin.y + (o.z * offset.x - o.x * offset.z) * 1000;
+          scratch.z =
+            motion.origin.z + (o.x * offset.y - o.y * offset.x) * 1000;
           const row: Float64Array = rows[i]!;
           row[3 * f] = scratch.x;
           row[3 * f + 1] = scratch.y;
@@ -216,10 +235,7 @@ export namespace HumanArmTrajectoryJacobians {
         },
       );
       if (site !== undefined) {
-        contact ??= Vector3.subtract(
-          P.pad(here, site.contact),
-          here.wrist,
-        );
+        contact ??= Vector3.subtract(P.pad(here, site.contact), here.wrist);
         entry.pad.push(pointMotion(frames.hand, contact));
         if (site.rotation !== undefined)
           entry.hand.push(
@@ -323,7 +339,10 @@ export namespace HumanArmTrajectoryJacobians {
    * Each component keeps the original origin + cross-component * 1000
    * grouping; only this unobserved fresh vector is written before return.
    */
-  function pointMotion(motion: IMotion, offset: IAutoMovieVector3): IAutoMovieVector3 {
+  function pointMotion(
+    motion: IMotion,
+    offset: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
     const out: IAutoMovieVector3 = Vector3.cross(motion.omega, offset);
     out.x = motion.origin.x + out.x * 1000;
     out.y = motion.origin.y + out.y * 1000;
