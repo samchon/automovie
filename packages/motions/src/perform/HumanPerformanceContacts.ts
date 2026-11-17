@@ -96,6 +96,9 @@ export namespace HumanPerformanceContacts {
         from: segment.start + hold.from * plan.duration,
         until: Infinity,
       });
+
+      // A hold changes what the person shows from here on.
+      person.planning?.clear();
   }
 
   /**

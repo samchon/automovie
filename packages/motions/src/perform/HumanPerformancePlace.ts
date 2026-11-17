@@ -372,12 +372,12 @@ export namespace HumanPerformancePlace {
       );
     // A plan too fast for the speed bound is replanned slower by its own
     // refusal's factor (`HumanPerformanceTempo`).
-    let plan = HumanPerformanceTempo.plan(law, context);
+    let plan = HumanSegment.planning(self.people.values(), () => HumanPerformanceTempo.plan(law, context));
     const share: number =
       row === undefined ? 0 : HumanSegment.share(row.entry, plan);
     if (share > 0) {
       context.start = start - share * plan.duration;
-      plan = HumanPerformanceTempo.plan(law, context);
+      plan = HumanSegment.planning(self.people.values(), () => HumanPerformanceTempo.plan(law, context));
     }
 
     // The timing the schedule reads: the part of the plan left after the
@@ -452,6 +452,7 @@ export namespace HumanPerformancePlace {
     };
     HumanPerformanceContacts.hold(person, segment, false);
     person.segments.push(segment);
+    HumanSegment.placed(self.people.values());
     if (intent.anchor !== undefined)
       self.anchors.set(
         intent.anchor,

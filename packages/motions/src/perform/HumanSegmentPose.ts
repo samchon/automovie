@@ -47,7 +47,7 @@ export namespace HumanSegmentPose {
    * @evidence contracts/development/common.md#meaningful-documentation States displayed pose, film seconds and the person's placement-dependent cache.
    * @evidence contracts/development/implementation.md#principled-implementation Selects the last placed segment whose entry is at or before the second with the existing 1e-12 allowance, then uses its displayed evaluator or the initial standing pose.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One cache lookup, one reverse last-match selection on a miss, one evaluation and bounded insertion.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Resolving persons bypass cache reads/writes. Observational requests may borrow an existing complete pose but never store partial results; public whole-pose queries remain complete at exact seconds.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts While the schedule is being resolved a pose is shared only within one action's planning (`HumanSegment.planning`), never across a placement. Observational requests may borrow an existing complete pose but never store partial results; public whole-pose queries remain complete at exact seconds.
    * @evidence contracts/development/implementation.md#efficient-algorithms Hits cost one map lookup; misses inspect R entries from the end, at most S segments, and pay the selected evaluator's fitting cost, retaining at most 4096 pose references per person.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact film-second queries share completed poses only after placement is settled; HumanSegment.forget clears them when plans, stops or placement dependencies change.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The person owns the FIFO-bounded 4096-entry map and releases it on forget; returned cached pose references retain their existing borrowed ownership, with no copy or new process-wide cache.
@@ -59,14 +59,20 @@ export namespace HumanSegmentPose {
     prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMoviePose {
     const cached: IAutoMoviePose | undefined = person.resolving
-      ? undefined
+      ? person.planning?.get(seconds)
       : person.cache.get(seconds);
     if (cached !== undefined) return cached;
     const active: HumanSegment.ISegment | undefined =
       HumanSegmentSelection.last(person.segments, seconds);
     const pose: IAutoMoviePose =
       active === undefined ? initial(person, requested, prepared) : of(person, active, seconds, prepared, requested);
-    if (person.resolving || requested !== undefined) return pose;
+    if (requested !== undefined) return pose;
+    if (person.resolving) {
+      // Within one action's planning the placed state is fixed
+      // (`HumanSegment.planning`).
+      person.planning?.set(seconds, pose);
+      return pose;
+    }
     if (person.cache.size >= 4096)
       person.cache.delete(person.cache.keys().next().value!);
     person.cache.set(seconds, pose);

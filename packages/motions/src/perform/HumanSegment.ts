@@ -73,6 +73,13 @@ export namespace HumanSegment {
     /** Whether the schedule is still being resolved: nothing is cached meanwhile, because another person's actions may not be placed yet. */
     resolving: boolean;
 
+    /**
+     * Displayed poses read while one action is being planned, by film second
+     * (`planning`): what is placed does not change during one plan, so its
+     * readers share each pose; absent outside a plan.
+     */
+    planning?: Map<number, IAutoMoviePose>;
+
     /** Additive layers over the person's actions, in order, each inside its window. */
     layers: ILayered[];
 
@@ -352,6 +359,45 @@ export namespace HumanSegment {
     for (const overlay of person.overlays) overlay.plan.settle?.();
     for (const held of person.holds) delete held.carry;
     person.cache.clear();
+  }
+
+  /**
+   * Run one action's planning with the placed people's displayed poses
+   * shared between its readers. While the schedule is being resolved no pose
+   * is kept from one placement to the next, since each placement changes
+   * what later actions read; but within the planning of one action nothing
+   * is placed, and its planner reads the same people at the same seconds
+   * again and again (a partner's pose at every instant of an arm's course,
+   * for every candidate it lays). A nested planning runs with its own poses
+   * and leaves the outer one none, and a placement inside clears them
+   * (`placed`), so no pose outlives the placed state it was read in.
+   *
+   * @param people Every person of the performance.
+   * @param run The planning.
+   * @returns What the planning returns.
+   */
+  export function planning<T>(people: Iterable<IPerson>, run: () => T): T {
+    const all: IPerson[] = [...people];
+    const nested: boolean[] = all.map((person: IPerson): boolean => person.planning !== undefined);
+    for (const person of all) person.planning = new Map();
+    try {
+      return run();
+    } finally {
+      all.forEach((person: IPerson, i: number): void => {
+        if (nested[i]) person.planning = new Map();
+        else delete person.planning;
+      });
+    }
+  }
+
+  /**
+   * Drop the poses a planning shares, after anything is placed: an action,
+   * an overlay or a hold changes what every later read shows.
+   *
+   * @param people Every person of the performance.
+   */
+  export function placed(people: Iterable<IPerson>): void {
+    for (const person of people) person.planning?.clear();
   }
 
   /**
