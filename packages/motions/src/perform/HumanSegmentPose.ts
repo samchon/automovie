@@ -66,7 +66,15 @@ export namespace HumanSegmentPose {
       HumanSegmentSelection.last(person.segments, seconds);
     const pose: IAutoMoviePose =
       active === undefined ? initial(person, requested, prepared) : of(person, active, seconds, prepared, requested);
-    if (requested !== undefined) return pose;
+
+    // A bone demand the evaluator could not honour (a hold, a stop or a
+    // running transition keeps the whole evaluation) gave the complete pose,
+    // the same one a read with no demand gives, so it is kept as one.
+    if (
+      requested !== undefined &&
+      (active === undefined || demanded(person, active, seconds, requested, undefined) !== undefined)
+    )
+      return pose;
     if (person.resolving) {
       // Within one action's planning the placed state is fixed
       // (`HumanSegment.planning`).
@@ -188,11 +196,7 @@ export namespace HumanSegmentPose {
     const clamp: (pose: IAutoMoviePose) => IAutoMoviePose = prepared.clamp;
     const transition: HumanSegment.ISegment["transition"] = segment.transition;
     const observed: ReadonlySet<AutoMovieHumanoidBone> | undefined =
-      requested !== undefined && near === undefined && person.holds.length === 0 && person.stops.size === 0 &&
-      !(transition !== undefined && transition.kind !== "redirect" &&
-        seconds - transition.cut < transition.blend)
-        ? requested
-        : undefined;
+      demanded(person, segment, seconds, requested, near);
 
     // The action as it is shown at a second before any transition offset:
     // its posture under the layers, the holds it carries, and the pose with
@@ -531,4 +535,27 @@ export namespace HumanSegmentPose {
       undefined, undefined, prepared?.resolution, requested, prepared?.clamp).pose;
   }
 }
+
+/**
+ * The bone demand one action's evaluation at a second honours: the demand
+ * itself while nothing asks for the whole body, and none (the complete pose)
+ * when a nearby fit is continued, the person holds a prop or has a stopped
+ * weapon, or the action's entering transition is still decaying. `seeded`
+ * evaluates under it and `displayed` reads it to tell a complete pose from a
+ * partial one.
+ */
+const demanded = (
+  person: HumanSegment.IPerson,
+  segment: HumanSegment.ISegment,
+  seconds: number,
+  requested: ReadonlySet<AutoMovieHumanoidBone> | undefined,
+  near: HumanSegmentPose.INear | undefined,
+): ReadonlySet<AutoMovieHumanoidBone> | undefined => {
+  const transition: HumanSegment.ISegment["transition"] = segment.transition;
+  return requested !== undefined && near === undefined && person.holds.length === 0 && person.stops.size === 0 &&
+    !(transition !== undefined && transition.kind !== "redirect" &&
+      seconds - transition.cut < transition.blend)
+    ? requested
+    : undefined;
+};
 
