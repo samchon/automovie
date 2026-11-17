@@ -4,6 +4,7 @@ import { HumanFoot, type IHumanBody } from "@automovie/motions";
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanSignature as M } from "./motionHumanSignature";
+import { motionKickFlank } from "./motionKickFlank";
 
 /**
  * The reading of a kick's signature on one body, which the kick signature
@@ -68,11 +69,13 @@ export function motionKickSignature(
       `${cell}: launch to impact ${(impact - launch).toFixed(3)} s, [0.2, 1.0] expected (Kim et al. 2010; provisional)`,
       impact - launch >= 0.2 && impact - launch <= 1.0,
     );
+    const picked = (key: string): string | undefined =>
+      row.startsWith(`${key}=`) ? row.slice(key.length + 1) : undefined;
     const ribs: IAutoMovieVector3 = M.region(
       s,
       "b",
       partner,
-      "ribsLeft",
+      motionKickFlank(picked("technique"), picked("leg")),
       impact,
     );
     const ankle: IAutoMovieVector3 = M.joint(s, impact, `${side}Foot`);

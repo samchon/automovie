@@ -23,6 +23,7 @@ import { KickCarriage } from "./KickCarriage";
 import type { KickChain } from "./KickChain";
 import { KickChamber } from "./KickChamber";
 import { KickContact } from "./KickContact";
+import { KickFacing } from "./KickFacing";
 import { KickForm } from "./KickForm";
 import { KickPlans } from "./KickPlans";
 import { KickSwing } from "./KickSwing";
@@ -64,8 +65,9 @@ export namespace KickGeometry {
    * @param fixed The contact second the performance committed: null when the leg met nothing, undefined when the kick offers no weapon.
    * @param kept What a redirect keeps of its source; a fresh kick reads its own line and steps up when short.
    * @returns The geometry.
+   * @throws {HumanRefusal} When a round kick is aimed at a person's surface that faces away from the shin's travel (the flank opposite the kicking leg of a partner who faces the kicker), with the mirrored region as the feasible value.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States current actor entry, local/film timing, committed stop and exact redirect inputs.
+   * @evidence contracts/development/common.md#meaningful-documentation States current actor entry, local/film timing, committed stop, exact redirect inputs and the refusal of a surface that faces away from a round kick's travel.
    * @evidence contracts/development/implementation.md#principled-implementation The actual target/carriage planner fits the leg and support plant, then folds the same leg for its chamber and constructs the original causal correction plans.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Target/entry geometry, actual contact plan and correction owner feed one composed posture/record.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All original contact trials, technique bands, support contacts, correction units, feint rules and stop semantics remain.
@@ -156,6 +158,14 @@ export namespace KickGeometry {
           ),
         )
       : line;
+
+    if (round && !feint && p.at.kind === "person")
+      KickFacing.admit(
+        side,
+        p.at,
+        direction,
+        context.aim(p.at, t0 - StrikingTarget.LOOK).normal,
+      );
     const offset: IAutoMovieVector3 = StrikingQuality.offset({
       skill: context.skill,
       random: context.random("scatter"),
