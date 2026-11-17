@@ -1,4 +1,5 @@
 import type {
+  AutoMovieVector3Tuple,
   IAutoMovieHumanBodySources,
   IAutoMovieHumanCalibrationBone,
   IAutoMovieHumanEyeSeat,
@@ -19,7 +20,6 @@ import { AutoMovieHumanNeckSource } from "../generation/AutoMovieHumanNeckSource
 import { AutoMovieHumanShoulderDatum } from "../generation/AutoMovieHumanShoulderDatum";
 import { AutoMovieHumanSkeletonChain } from "../generation/AutoMovieHumanSkeletonChain";
 import { AutoMovieHumanSkeletonLaw } from "../generation/AutoMovieHumanSkeletonLaw";
-import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanHeadLayout } from "../generation/IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadNeckScalars } from "../generation/head/AutoMovieHumanHeadNeckScalars";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
@@ -120,8 +120,8 @@ export namespace AutoMovieHumanCanonicalBind {
         neckBase[1],
         neckRadius,
       ]);
-    const limbs: IAutoMovieHumanLimbRest.IOutput = AutoMovieHumanLimbRest.create(
-      {
+    const limbs: IAutoMovieHumanLimbRest.IOutput =
+      AutoMovieHumanLimbRest.create({
         stature,
         arms: original.limbs.arms,
         feet: original.limbs.feet,
@@ -130,8 +130,7 @@ export namespace AutoMovieHumanCanonicalBind {
         diagnostics: original.diagnostics,
         hipForward: original.frame.perineum,
         shoulder: (): IAutoMovieHumanLimbRest.IShoulder => shoulder,
-      },
-    );
+      });
 
     // The trunk joints' forward place: the line from the mid-hip to the neck
     // base, given as the two samples the skeleton law interpolates between.
@@ -170,9 +169,7 @@ export namespace AutoMovieHumanCanonicalBind {
     const seat: number =
       AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion) -
       face.eyeRecess * plan.scale;
-    const eyes: IAutoMovieHumanEyeSeat[] = (
-      ["left", "right"] as const
-    ).map(
+    const eyes: IAutoMovieHumanEyeSeat[] = (["left", "right"] as const).map(
       (side: "left" | "right"): IAutoMovieHumanEyeSeat => ({
         side,
         centre: [
@@ -203,4 +200,4 @@ export namespace AutoMovieHumanCanonicalBind {
 }
 
 /** A point in calibration mm. */
-type Vec3 = AutoMovieHumanSkeletonChain.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
