@@ -13,6 +13,7 @@ import {
 import { DogBody } from "./DogBody";
 import { QuadrupedAnimal } from "./QuadrupedAnimal";
 import { QuadrupedBody } from "./QuadrupedBody";
+import { QuadrupedHeadAttachment } from "./QuadrupedHeadAttachment";
 import { QuadrupedLead } from "./QuadrupedLead";
 
 /**
@@ -33,7 +34,7 @@ import { QuadrupedLead } from "./QuadrupedLead";
  * @throws {ArchetypeRefusal} For invalid mass, cohort, tempo or collar dimensions.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States source scope, authored mass, contact, units and remaining physical gaps.
- * @evidence contracts/development/implementation.md#principled-implementation One whole-cohort model draw feeds the shared quadruped builder; no equine weight law is used.
+ * @evidence contracts/development/implementation.md#principled-implementation One whole-cohort model draw feeds the shared quadruped builder. The actual head capsule contains each complete ear root disk through the shared radius-aware attachment owner, preserving measured ear length and its authored upright direction; no equine weight law or changed head size is used.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit mass and tack, select the cohort, record dimensions and build the body with ears and optional collar.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No independent trait bands, invented canine mass shares, paw friction or rider contacts.
  * @evidence contracts/development/implementation.md#efficient-algorithms A fixed-size coarse rig and at most five added parts.
@@ -82,13 +83,17 @@ export function createDog(
         (measures.foreCircumference / (2 * Math.PI)) *
         ArchetypeUnits.CENTIMETRE;
       for (const side of ["left", "right"] as const) {
-        const base: IAutoMovieVector3 = Vector3.create(
-          ((side === "left" ? 1 : -1) *
-            measures.eyes *
-            ArchetypeUnits.CENTIMETRE) /
-            2,
-          rig.poll.y + rig.headRadius,
-          rig.poll.z,
+        const base: IAutoMovieVector3 = QuadrupedHeadAttachment(
+          rig,
+          Vector3.create(
+            ((side === "left" ? 1 : -1) *
+              measures.eyes *
+              ArchetypeUnits.CENTIMETRE) /
+              2,
+            rig.poll.y + rig.headRadius,
+            rig.poll.z,
+          ),
+          radius,
         );
         builder.rod(
           `${side}Ear`,

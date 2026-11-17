@@ -1,8 +1,11 @@
 import {
+  HorseGait,
   type QuadrupedBody,
-  type QuadrupedGait,
+  QuadrupedChange,
+  QuadrupedGait,
   QuadrupedLocomotion,
   createCamel,
+  createQuadruped,
   rideQuadruped,
 } from "@automovie/archetypes";
 import type {
@@ -16,14 +19,68 @@ import { animalLocomotionFixture as fixture } from "../internal/animalLocomotion
 /**
  * Prepared rides isolate their authored input clocks, tables and returned poses.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes clock/table mutation after preparation, mutation of a returned foot/root pose, out-of-order replay and the unchanged measured default walking period.
- * @evidence contracts/development/testing.md#behavioral-verification Prepares an actual camel ride, mutates the original clock and builder-result table and an emitted posed endpoint, then repeats real sampling and footfall observations; no fake sampler or registry replacement is installed.
- * @evidence contracts/development/testing.md#independent-expectations Referential transparency requires identical geometry for identical prepared inputs regardless of later caller mutations or query order. The authored 1 s cycle and Catavitello 2018's independent 1.7333333333333336 s camel walk distinguish override isolation from registry leakage; before/after observations test invariance rather than serve as a physical-motion oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Separately mutates required input seconds, table rows/phases/pose/follow/reference/order and a returned moved-part/root transform, then samples earlier and later times and checks the default species still lacks pace.
+ * Scenarios:
+ * 1. Canonical horse canter [4, 8.5] and gallop [5, 8] m/s survive table
+ *    admission unchanged, including their 6.5 m/s overlap transition.
+ * 2. Prepared camel rides retain their clocks and poses after caller mutation
+ *    and reordered seeking, while the original measured walk remains unchanged.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes nested measured gait ranges, their preserved transition, clock/table mutation after preparation, mutation of a returned foot/root pose, out-of-order replay and the unchanged measured default walking period.
+ * @evidence contracts/development/testing.md#behavioral-verification Admits the complete measured horse table and reads its actual gait ranges and transition, then checks row ownership by mutation. Prepares an actual camel ride, mutates the original clock and builder-result table and an emitted posed endpoint, then repeats real sampling and footfall observations; no fake sampler or registry replacement is installed.
+ * @evidence contracts/development/testing.md#independent-expectations The horse's source-table canter [4,8.5] and gallop [5,8] m/s are restated literals; their intersection [5,8] has midpoint6.5. Referential transparency requires identical geometry for identical prepared inputs regardless of later caller mutations or query order. The authored 1 s cycle and Catavitello 2018's independent 1.7333333333333336 s camel walk distinguish override isolation from registry leakage; before/after observations test invariance rather than serve as a physical-motion oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Nested canter/gallop speed ranges remain distinct from ordered nonoverlapping authored clocks. Separately mutates required input seconds, table rows/phases/pose/follow/reference/order and a returned moved-part/root transform, then samples earlier and later times and checks the default species still lacks pace.
  * @evidence contracts/development/testing.md#execution-ownership One portable in-memory scenario owns every mutable record; mutation targets caller-owned inputs and returned sample records, with no method patch, global mutation, host or rendering.
  */
 export function test_archetype_animal_locomotion_snapshot(): void {
   const findings: string[] = [];
+  const originalHorse: string = JSON.stringify(HorseGait.TABLE);
+  const admittedHorse: QuadrupedGait.ITable = QuadrupedLocomotion.admit(
+    HorseGait.TABLE,
+  );
+  const horse: createQuadruped.ISpecies = {
+    ...createQuadruped.SPECIES.horse,
+    table: admittedHorse,
+  };
+  for (const [gait, minimum, maximum] of [
+    ["canter", 4, 8.5],
+    ["gallop", 5, 8],
+  ] as const) {
+    const range: { minimum: number; maximum: number } = QuadrupedGait.range(
+      horse,
+      gait,
+    );
+    fixture.near(
+      findings,
+      `${gait} retains its source minimum`,
+      range.minimum,
+      minimum,
+      0,
+    );
+    fixture.near(
+      findings,
+      `${gait} retains its source maximum`,
+      range.maximum,
+      maximum,
+      0,
+    );
+  }
+  fixture.near(
+    findings,
+    "nested measured gait ranges retain their actual overlap midpoint",
+    QuadrupedChange.point(
+      horse,
+      "canter",
+      "gallop",
+      { withersHeight: admittedHorse.reference },
+      0,
+    ),
+    6.5,
+    0,
+  );
+  admittedHorse.gaits.gallop!.rows[0]!.speed = 6;
+  if (JSON.stringify(HorseGait.TABLE) !== originalHorse)
+    findings.push("admitted horse rows share mutable measured source records");
+
   const animal: fixture.Animal = createCamel(
     {
       ...createCamel.REFERENCE,

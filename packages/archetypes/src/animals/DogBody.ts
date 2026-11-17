@@ -10,7 +10,11 @@ import type { QuadrupedBody } from "./QuadrupedBody";
  * equally into two control bars; their historical Cannon/Pastern names do not
  * turn that discretization into measured canine metapodial or digit lengths.
  * Hind angles are the two-link triangle reaching the measured tail-base height
- * with a vertical foot. The fore bars stand vertically. Circular cross sections,
+ * with a vertical foot. Initial fore controls are vertical; the shared
+ * QuadrupedBody parent-solid construction connects an outside-body root by
+ * articulating its two proximal controls with unchanged lengths and foot.
+ * That neutral construction is authored geometry, not measured canine pose.
+ * Circular cross sections,
  * straight neck/tail and the head's eye-width radius are construction proxies.
  * No canine segment masses or paw material are known here.
  *
@@ -18,7 +22,7 @@ import type { QuadrupedBody } from "./QuadrupedBody";
  * @returns Its coarse control proportions; no anatomical or visual validation is claimed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Separates measured landmarks from the explicitly constructed control rig.
- * @evidence contracts/development/implementation.md#principled-implementation Convert centimetres to height fractions; solve the standing hind triangle by the cosine rule.
+ * @evidence contracts/development/implementation.md#principled-implementation Convert centimetres to height fractions and solve the initial hind triangle by the cosine rule. The shared body owner then connects any detached provisional root to its unchanged actual torso solid, preserving all four lengths, terminal endpoint and distal carriage.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the cohort, form limb lengths and standing directions, then return one profile.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Surface measurements are not asserted to be true bone lengths; no horse segment mass or hoof material is copied.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant-size arithmetic.

@@ -142,21 +142,26 @@ export namespace createQuadruped {
     /** The producer's name, which the animal's `archetype` carries and refusals name. */
     archetype: string;
 
-    /** Each limb bone's standing direction, degrees, which shapes a limb's lower piece in the ride: `QuadrupedBody.IBody.stance`. */
+    /** Producer neutral standing directions, degrees: QuadrupedBody.IBody.stance builds the declared form, while pose solvers recover actual constructed control directions. */
     stance: QuadrupedBody.IBody["stance"];
 
     /** The gaits. */
     table: QuadrupedGait.ITable;
 
-    /** The parts that pitch with the head as it nods, the neck and the head with any tack they wear. */
+    /** Producer part-id vocabulary carried by the common neck nod, including neck/head themselves and optional tack that need not exist on every actual animal. QuadrupedCarriage binds existing accessories only. */
     nodding: readonly string[];
 
-    /** Explicit contact ids carried by the nodding head; absent preserves the legacy static-contact policy. */
+    /** Producer contact-id vocabulary carried by the common neck nod; optional contacts need not exist on every animal. Absent or unlisted contacts preserve trunk carriage, including the legacy equid held-rein policy. */
     noddingContacts?: readonly string[];
   }
 
-  /** The parts an equid nods with its head: the neck, the head and a harness's bridle. */
-  export const BRIDLED: readonly string[] = ["neck", ...HorseHarness.HEAD];
+  /** Equid head-carried vocabulary: neck, head, bridle and optional actual ear plates. */
+  export const BRIDLED: readonly string[] = [
+    "neck",
+    ...HorseHarness.HEAD,
+    "leftEar",
+    "rightEar",
+  ];
 
   /** Each kind's species. Every equid stands at the horse's angles (`createHorse.STANCE`; no pony's, donkey's or mule's were found) and rides the horse's measured gaits, `HorseGait.TABLE`, scaled to its height by dynamic similarity, which Bullimore and Burn 2006 (J Exp Biol 209:455, abstract) found to hold across trotting horses of 86 to 714 kg: relative stride length and duty factor at equal Froude number were not related to body mass. For the donkey and the mule the table is provisional: no study gives their duty factors, limb phases or transitions (the searches are in the sources record). */
   export const SPECIES: Readonly<Record<Kind, ISpecies>> = {
@@ -211,6 +216,8 @@ export namespace createQuadruped {
         "collar",
         "lead",
         "yoke-beam",
+        "yoke-bearing",
+        "yoke-bearing-link",
         "yoke-hitch-link",
         "yoke-hitch-base",
         "yoke-hitch-upright--1",

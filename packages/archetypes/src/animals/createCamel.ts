@@ -7,52 +7,69 @@ import { createCohortQuadruped } from "./createCohortQuadruped";
 /**
  * A coarse single-hump dromedary reference with an explicitly authored pack or lead.
  *
- * @param params Positive authored whole-model kilograms, timing coordinate and optional equipment.
- * @param seed Independent construction seed.
+ * @param params Positive authored whole-model kilograms, optional fixed reference, timing coordinate and equipment.
+ * @param seed Without a fixed cohort, selects one whole Maur1-Maur5 mean; seedless construction retains the pooled mean.
  * @returns The actual shared quadruped with one coarse identifying hump.
  * @throws {ArchetypeRefusal} For invalid mass, tempo or authored equipment.
- * @evidence contracts/development/common.md#meaningful-documentation Names the Mauritanian reference, separate provisional conformation cohort, authored mass and explicitly estimated single hump.
- * @evidence contracts/development/implementation.md#principled-implementation CamelBody preserves the cited height/chest/neck/head measurements and distinguishes separate Egyptian limb landmarks. The same body builder adds one named coarse hump and real pack/lead geometry with carried contacts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Supply the coherent reference/body, add one identifying sphere and delegate the optional actual equipment.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the pooled/five-group selection policy, unknown group frequencies, separate provisional conformation cohort, authored mass and estimated single hump.
+ * @evidence contracts/development/implementation.md#principled-implementation CamelBody preserves the cited height/chest/neck/head measurements and distinguishes separate Egyptian limb landmarks. The same sphere record supplies actual hump emission and shared equipment clearance. Connected pack bridges rise above actual body solids; their remaining rods/pads must retain authored separation before emission.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared factory draws one complete reference, constructs its body, adds its height-scaled identifying sphere and delegates actual equipment.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Chest girth excludes the hump as the primary source defines it. Hump size is declared construction, not a measured anatomical statistic; no equine weight law or unknown camel mass/foot coefficient is substituted.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-size body plus one sphere and the explicitly requested equipment; no diffusion asset, mesh search or iterative fitting.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared cohort/body/lead/equipment owners each retain their actual construction; species differences remain data and additions outside the ride.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most six fixed-size profile/rig/equipment plans establish seed-independent admission, then only the selected body geometry and hump are emitted. There is no unselected model construction, mesh search or iterative fitting.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared cohort/body/lead/equipment owners each retain their actual construction; the identifying hump's radius/centre are recorded once for actual collision admission and emission. Species differences remain data and additions outside the ride.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned model owns its records and no query, process, renderer or global cache is retained.
  */
 export function createCamel(
   params: createCamel.IParams,
   seed?: number | string,
 ): Archetype<createCohortQuadruped.Affordance, QuadrupedBody.Dimension> {
-  const m: typeof CamelBody.MEASURES = CamelBody.MEASURES;
-  return createCohortQuadruped({
+  return createCohortQuadruped<CamelBody.Cohort>({
     archetype: "camel",
-    name: "Mauritanian dromedary prototype",
-    cohort: "mauritanian-adult-female",
-    withers: m.withers,
-    girth: m.girth,
-    body: CamelBody(),
+    name: (): string => "Mauritanian dromedary prototype",
+    names: CamelBody.COHORTS,
+    choices: CamelBody.DRAW,
+    reference: "mauritanian-adult-female",
+    cohort: params.cohort,
+    references: CamelBody.REFERENCES,
+    body: (cohort: CamelBody.Cohort): QuadrupedBody.IBody =>
+      CamelBody(undefined, cohort),
     params,
     seed,
-    add: (
-      builder: ArchetypeBuilder<
-        createCohortQuadruped.Affordance,
-        QuadrupedBody.Dimension
-      >,
+    prepare: (
       rig: QuadrupedBody.IRig,
-    ): void => {
-      const radius: number = m.withers * createCamel.CONSTRUCTION.humpRadius;
-      builder.ball(
-        "hump",
-        radius,
-        {
+      cohort: CamelBody.Cohort,
+    ): createCohortQuadruped.Addition => {
+      const m: Readonly<(typeof CamelBody.REFERENCES)[CamelBody.Cohort]> =
+        CamelBody.REFERENCES[cohort];
+      const hump: QuadrupedEquipment.ISphere = {
+        id: "hump",
+        radius: m.withers * createCamel.CONSTRUCTION.humpRadius,
+        centre: {
           x: 0,
           y: rig.back,
           z: -rig.trunk * createCamel.CONSTRUCTION.humpBehind,
         },
-        { color: "#ae8b59" },
-      );
-      if (params.equipment !== undefined)
-        QuadrupedEquipment.lay(builder, rig, params.equipment, "camel");
+      };
+      const equipment:
+        | ReturnType<typeof QuadrupedEquipment.prepare>
+        | undefined =
+        params.equipment === undefined
+          ? undefined
+          : QuadrupedEquipment.prepare(rig, params.equipment, "camel", [hump]);
+      return (
+        builder: ArchetypeBuilder<
+          createCohortQuadruped.Affordance,
+          QuadrupedBody.Dimension
+        >,
+      ): void => {
+        builder.ball(
+          hump.id,
+          hump.radius,
+          hump.centre,
+          { color: "#ae8b59" },
+        );
+        equipment?.emit(builder);
+      };
     },
   });
 }
@@ -66,11 +83,21 @@ export function createCamel(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No measured hump dimensions, saddle fit, physiological mass estimate or dynamic load capacity is implied.
  */
 export namespace createCamel {
-  /** Authored gallery/test mass only; the reference cohort supplied no measured weight. */
-  export const REFERENCE: Readonly<Pick<IParams, "mass">> = { mass: 450 };
+  /** Explicit pooled gallery reference and authored complete mass; neither class nor overall source supplied weight. */
+  export const REFERENCE: Readonly<Required<Pick<IParams, "mass" | "cohort">>> =
+    {
+      mass: 450,
+      cohort: "mauritanian-adult-female",
+    };
 
   /** The source gives no body weight, so complete model kilograms remain required. */
   export interface IParams extends createCohortQuadruped.IParams {
+    /** Required authored complete kilograms; no reference row supplies mass. */
+    mass: number;
+
+    /** Fix one whole source vector; seeded omission draws five groups and equipment must fit the whole unfixed palette. */
+    cohort?: CamelBody.Cohort;
+
     /** Authored side pack; its fit is checked against the actual body. */
     equipment?: Pick<QuadrupedEquipment.IParams, "pack">;
   }

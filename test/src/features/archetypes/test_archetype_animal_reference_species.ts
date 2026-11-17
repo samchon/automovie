@@ -29,6 +29,8 @@ interface Reference {
   head: number;
   /** Complete authored kilograms, except the cited bare deer cohort mean. */
   mass: number;
+  /** Explicit fixed reference keeps this point-reference unit separate from catalogue variation. */
+  params: createQuadruped.IParams;
   /** The species' actual public producer with explicit mass ownership. */
   make: (seed: number | string) => Animal;
 }
@@ -41,7 +43,8 @@ interface Reference {
  *    200 seeded, admissible, deterministic models within a 60-second budget.
  * 2. The actual withers sphere apex, trunk circumference and complete head
  *    capsule agree with independent published metre values at every seed.
- *    Seeds do not invent unreported population bands around cohort means.
+ *    These inputs fix the reference key, so seeds do not choose another
+ *    measured group or invent unreported population bands around its mean.
  * 3. All 21 animal bones remain actual parts and a generic named skeleton;
  *    reads leave model bytes unchanged and separately built models do not alias.
  * 4. Missing required mass, invalid explicit mass and an unknown kind produce
@@ -74,6 +77,7 @@ export function test_archetype_animal_reference_species(): void {
       girth: 1.5061,
       head: 0.4292,
       mass: 300,
+      params: { kind: "ox", mass: 300 },
       make: (seed: number | string): Animal => createOx({ mass: 300 }, seed),
     },
     {
@@ -83,7 +87,9 @@ export function test_archetype_animal_reference_species(): void {
       girth: 1.978,
       head: 0.515,
       mass: 450,
-      make: (seed: number | string): Animal => createCamel({ mass: 450 }, seed),
+      params: { kind: "camel", mass: 450, cohort: "mauritanian-adult-female" },
+      make: (seed: number | string): Animal =>
+        createCamel({ mass: 450, cohort: "mauritanian-adult-female" }, seed),
     },
     {
       kind: "deer",
@@ -92,7 +98,9 @@ export function test_archetype_animal_reference_species(): void {
       girth: 0.92,
       head: 0.2669,
       mass: 60.4,
-      make: (seed: number | string): Animal => createDeer({}, seed),
+      params: { kind: "deer", mass: 60.4, cohort: "boso-adult-male" },
+      make: (seed: number | string): Animal =>
+        createDeer({ cohort: "boso-adult-male" }, seed),
     },
   ];
   const bones: readonly QuadrupedBody.Bone[] = [
@@ -133,7 +141,7 @@ export function test_archetype_animal_reference_species(): void {
       const dispatched: Archetype<
         createQuadruped.Affordance,
         createQuadruped.Dimension
-      > = createQuadruped({ kind: reference.kind, mass: reference.mass }, seed);
+      > = createQuadruped(reference.params, seed);
       if (!validateModel({ model: animal }).success)
         findings.push(`${label}: actual model admission failed`);
       if (
@@ -202,7 +210,9 @@ export function test_archetype_animal_reference_species(): void {
       if (
         rig.bones
           .map((bone: (typeof rig.bones)[number]): string => bone.bone)
-          .sort((left: string, right: string): number => left.localeCompare(right))
+          .sort((left: string, right: string): number =>
+            left.localeCompare(right),
+          )
           .join("|") !== expectedBones ||
         bones.some(
           (bone: QuadrupedBody.Bone): boolean =>

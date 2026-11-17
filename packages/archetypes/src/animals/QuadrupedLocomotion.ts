@@ -181,7 +181,7 @@ export namespace QuadrupedLocomotion {
    * @throws {ArchetypeRefusal} For malformed tables, unordered speeds, invalid contact/phase data or an absent transition rule.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the admitted numeric domains, complete-table requirement and snapshot ownership at the ride boundary.
-   * @evidence contracts/development/implementation.md#principled-implementation Validates finite positive clock values and representable reciprocal frequency, strictly increasing row and gait endpoint speeds, 0≤phase<1 with leftFore zero, positive stances below period and each transition's declared rule, then copies every consumed nested value.
+   * @evidence contracts/development/implementation.md#principled-implementation Validates finite positive clock values and representable reciprocal frequency, strictly increasing rows within each gait and minimum speeds between gaits, 0≤phase<1 with leftFore zero, positive stances below period and each transition's declared rule, then copies every consumed nested value. Gait maxima may overlap or nest, as the measured horse canter and gallop do.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Table header, closed gait order, per-gait pose/rows/phases and transition admission, then one result.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rejects invalid values rather than clamping, inventing periods or mutating the source species; snapshotting needs no registry or monkeypatch.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear time and retained space in row count plus gait count; four limb phases and bounded pose fields add constant work per gait.
@@ -388,15 +388,14 @@ export namespace QuadrupedLocomotion {
         );
       return undefined;
     }
-    if (
-      rows[0]!.speed <= previous.rows[0]!.speed ||
-      rows[rows.length - 1]!.speed <=
-        previous.rows[previous.rows.length - 1]!.speed
-    )
+
+    // Measured gait ranges may nest; order concerns their starting speeds,
+    // while the declared transition rule owns their common speed domain.
+    if (rows[0]!.speed <= previous.rows[0]!.speed)
       refuse(
         `${axis}.rows`,
         rows,
-        "increase both gait speed-range endpoints in gait order",
+        "increase the minimum gait speed in gait order",
       );
     if (rule === undefined)
       refuse(`${axis}.change`, rule, "declare the faster gait's change rule");

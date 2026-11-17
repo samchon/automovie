@@ -9,8 +9,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeArticulation } from "./ArchetypeArticulation";
+import type { ArchetypeArticulation } from "./ArchetypeArticulation";
 import { ArchetypeBody } from "./ArchetypeBody";
+import type { ArchetypeConvexCell } from "./ArchetypeConvexCell";
 import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
 import { ArchetypeFracture } from "./ArchetypeFracture";
 import { ArchetypeFrame } from "./ArchetypeFrame";
@@ -22,6 +23,7 @@ import { ArchetypeShapes } from "./ArchetypeShapes";
 import { ArchetypeSite } from "./ArchetypeSite";
 import { ArchetypeSpan } from "./ArchetypeSpan";
 import type { IArchetypeProps } from "./IArchetypeProps";
+import { poseArchetype } from "./poseArchetype";
 import { reposeArchetype } from "./reposeArchetype";
 
 /**
@@ -42,7 +44,7 @@ import { reposeArchetype } from "./reposeArchetype";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States that the instance is a model, which members serialise, each accessor's purpose, the units and the model's axes.
  * @evidence contracts/development/design.md#principled-representation A model plus read-only derived views of it; the state that distinguishes an articulated copy lives in private fields, so the serialised model stays the single truth of what is drawn and what is touched.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The accessors are those the motion grammar's prop axis reads (#3358): contacts, sites, articulation, mass properties and colliders. The type parameters carry each producer's closed ids, the agent surface #3368 asks for.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Contacts, sites, articulation, mass properties and colliders serve the prop axis (#3358); convexCells additionally preserves actual wall correspondence in placed assemblies. Type parameters carry the producer's closed contact ids.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No registry and no string-keyed parameter: an archetype is made only by its typed producer, and an unknown id is a refusal, never undefined.
  */
 export class Archetype<
@@ -58,7 +60,7 @@ export class Archetype<
   /** Always generated: the geometry is fully described by `parts`. */
   public readonly origin: "generated" = "generated" as const;
 
-  /** The primitive parts at the current articulation state. */
+  /** The actual primitive or convex-cell parts at the current articulation state. */
   public readonly parts: IAutoMovieModelPart[];
 
   /** Always null: an archetype is a rigid or articulated object, never a humanoid rig. */
@@ -90,32 +92,22 @@ export class Archetype<
    *
    * @param props The archetype at rest; the records are kept, not copied, so a producer hands over ownership.
    * @param state The travel of each articulation; at rest when absent.
-   * @throws {ArchetypeRefusal} As {@link ArchetypeArticulation.pose} does for a state the model does not admit, and as {@link ArchetypeSpan.lay} does for a span whose ends meet.
+   * @throws {ArchetypeRefusal} Through the articulation and {@link ArchetypeSpan.pose} owners for unsupported travels, invalid line geometry or incompatible held contacts.
    */
   public constructor(
     props: Archetype.IProps<Id, Dimension>,
     state: Partial<Record<Id, number>> = {},
   ) {
-    // The travels that were set, as the pose reads them.
     const travels: Map<string, number> = new Map();
     for (const id of Object.keys(state) as Id[]) {
       const travel: number | undefined = state[id];
       if (travel !== undefined) travels.set(id, travel);
     }
 
-    const posed: ArchetypeArticulation.IResult = ArchetypeArticulation.pose(
-      props.archetype,
-      { parts: props.parts, affordances: props.affordances },
-      travels,
-    );
+    const posed: ArchetypeArticulation.IResult = poseArchetype(props, travels);
     this.id = props.id;
     this.name = props.name;
-    this.parts = ArchetypeSpan.lay(
-      props.archetype,
-      props.spans,
-      posed.parts,
-      posed.affordances,
-    );
+    this.parts = posed.parts;
     this.#travels = posed.travels;
     this.body = ArchetypeBody(props);
     this.affordances = posed.affordances;
@@ -142,6 +134,11 @@ export class Archetype<
   /** Mass, centre of mass and inertia about it, at rest. */
   public get properties(): ArchetypeMass.IProperties {
     return this.#rest.properties;
+  }
+
+  /** Producer-owned actual convex wall cells, shared with placed assemblies. */
+  public get convexCells(): ArchetypeConvexCell.Table {
+    return this.#rest.cells ?? new Map();
   }
 
   /** The physical reference material declared by the producer; null for a mixed assembly, independently of optical colours or per-part friction surfaces. */
@@ -327,14 +324,14 @@ export class Archetype<
   }
 
   /**
-   * This archetype with its rest parts replaced, keeping its identity, materials, dimensions and mass properties: how an animal's skeleton poses it. A rig may also supply its explicitly moved contact frames; absent those, affordances retain their previous rest positions.
+   * This archetype with its rest parts replaced, keeping identity, materials, dimensions and rest mass properties. A rig may supply current contact frames; omitted frames retain rest contact origins. Declared spans are rebuilt and explicitly held line axes follow their current geometry.
    *
    * @param parts The parts in the new pose, in the model's space; the same ids as this archetype's.
-   * @param frames Complete posed contact frames, or omitted to retain rest contacts.
+   * @param frames Complete carrier contact frames, or omitted to retain rest origins; explicit held-span tangents are derived afterward.
    * @returns A new archetype at rest in that pose; this one is unchanged.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is kept, what is replaced and who calls it.
-   * @evidence contracts/development/implementation.md#principled-implementation The shared repose owner preserves each producer-declared contact identity and semantic record, changing only explicitly supplied frames. Omitted frames retain rest contacts and mass properties stay the rest pose's.
+   * @evidence contracts/development/implementation.md#principled-implementation The repose owner preserves each producer's contact identities and physical semantics, placing their carriers from supplied frames or rest. The constructor then resolves spans and their explicitly constrained held axes from that same pose; mass properties stay the rest pose's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One construction.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A supplied frame map must bind every original contact exactly once; arbitrary replacement contacts cannot erase or widen the producer's Id contract. The caller owns geometric correctness, which validateModel admits.
    * @evidence contracts/development/implementation.md#efficient-algorithms The shared repose owner performs O(A) lookups for A supplied contact frames, beyond the constructor's pass.
@@ -345,7 +342,9 @@ export class Archetype<
     parts: IAutoMovieModelPart[],
     frames?: ReadonlyMap<string, IAutoMovieTransform>,
   ): Archetype<Id, Dimension> {
-    return new Archetype<Id, Dimension>(reposeArchetype(this.#rest, parts, frames));
+    return new Archetype<Id, Dimension>(
+      reposeArchetype(this.#rest, parts, frames),
+    );
   }
 
   /**
@@ -409,15 +408,15 @@ export class Archetype<
    * @returns One solid per part, as {@link ArchetypeShapes} maps them.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the state and the space.
-   * @evidence contracts/development/implementation.md#principled-implementation The parts' own solids, so the contact matches the picture.
+   * @evidence contracts/development/implementation.md#principled-implementation The parts' own primitive or explicitly declared convex-cell solids, under current part transforms; the shared owner states primitive approximation bounds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the owner it calls.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in parts; computed on request because most archetypes are never grasped.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Not cached; a caller that needs them repeatedly keeps the result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in parts plus declared cell corners; computed on request because most archetypes are never grasped.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual cells reuse their generating boundary. Collider outputs are independent; callers needing repeated contact queries can retain that result.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   public shapes(): IAutoMoviePhysicalProfile.IShape[] {
-    return ArchetypeShapes.of(this.parts);
+    return ArchetypeShapes.of(this.parts, this.#rest.cells);
   }
 
   /**

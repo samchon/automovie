@@ -6,6 +6,7 @@ import type {
   IAutoMovieModelPart,
 } from "@automovie/interface";
 
+import type { ArchetypeConvexCell } from "./ArchetypeConvexCell";
 import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
 import type { ArchetypeFracture } from "./ArchetypeFracture";
 import type { ArchetypeFriction } from "./ArchetypeFriction";
@@ -22,7 +23,7 @@ import type { ArchetypeSpan } from "./ArchetypeSpan";
  * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
  * @evidence contracts/development/design.md#principled-representation The rest model with its derived facts as one record: parts and affordances in the model's space in metres, mass properties in kilograms and kg m squared, coefficients from 0 to 1. Ids are narrowed to the producer's union by the type; their uniqueness is left to `validateModel`.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `Archetype`; written by `ArchetypeBuilder.build` and read by the constructor, with no member either does not use.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The dimension record is keyed by the producer's closed union, not by free strings, and no member is optional.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The dimension record is keyed by the producer's closed union. Optional cells admit existing primitive-only records without a second geometry representation; each declared cell must identify its exact visible mesh.
  */
 export interface IArchetypeProps<Id extends string, Dimension extends string> {
   /** The producer's name, such as `chair`. */
@@ -36,6 +37,9 @@ export interface IArchetypeProps<Id extends string, Dimension extends string> {
 
   /** The parts at rest, with unit scale. */
   parts: IAutoMovieModelPart[];
+
+  /** Explicit actual convex wall cells by part id; absent for legacy primitive-only records. Cell points remain local and follow each part's current rigid transform. */
+  cells?: ArchetypeConvexCell.Table;
 
   /** The affordances at rest, each id one of `Id`. */
   affordances: (IAutoMovieAffordance & { id: Id })[];

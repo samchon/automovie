@@ -44,11 +44,11 @@ Each family is also a subpath, such as `@automovie/archetypes/furniture`.
 | `/architecture` | `createDoor`, `createWindow`, `createSwitch`, `createStairs`, `createRamp`, `createWall`, `createBar`, `createLadder`, `createKerb`, `createTap`, `createSanitary`, `createAppliance`, `createObstacle`, `createStreetFixture`, `createBin`, `createMachine`, `createGate`, `createElevator`, `createValve`, `createHandhold`, `createCellFront`, `createMirror`, `createBoard`, `createSaloonDoor`, `createControl`, `createHatch`, `createBeerTap` |
 | `/vehicles` | `createCar`, `createBicycle`, `createMotorcycle`, `createCart`, `createPram`, `createWheelchair`, `createBoat`, `createDeck`, and the rides `driveCar`, `rideBicycle`, `rideMotorcycle`, `rideWheelchair`, `rowBoat` |
 | `/animals` | Eight kinds through `createQuadruped`, shared body/rig `QuadrupedBody` and `QuadrupedSkeleton`, actual equipment, `rideQuadruped`/`rideHorse`, measured and authored gait tables, `QuadrupedRest`, and source-aware `EquineGoniometry` |
-| `/weapons` | `createHandgun`, `createHolster`, `createMagazine`, `createLongGun`, `createClub`, `createSword`, `createShield`, `createPolearm`, `createProjectile`, `createBow`, `createCannon`, `createPell`, `createWeaponLoop`, `createWeaponRack` |
+| `/weapons` | `createHandgun`, `createHolster`, `createMagazine`, `createLongGun`, `createClub`, `createSword`, `createShield`, `createArmour`, `createPolearm`, `createProjectile`, `createBow`, `createCannon`, `createSiegeEngine`, `createPell`, `createWeaponLoop`, `createWeaponRack` |
 | `/gym` | `createBarbell`, `createDumbbell`, `createKettlebell`, `createBench`, `createPullUpBar`, `createParallelBars`, `createPlyoBox`, `createRack`, `createSled`, `createRowingMachine`, `createExerciseBike`, `createExerciseMat`, `createJumpRope`, `createRing`, `createBoxingGlove`, `createHeavyBag` |
 | `/sport` | `createVaultingPole`, `createHighJump`, `createLandingMat`, `createVaultingTable`, `createBall`, `createRacket`, `createGolfClub`, `createGlove`, `createJavelin`, `createShot`, `createDiscus`, `createHammerThrow`, `createHurdle`, `createStartingBlock`, `createRelayBaton`, `createPoolEdge`, `createGoal`, `createStick`, `createCue`, `createCueTable`, `createSurfboard`, `createSki`, `createSkateboard` |
 | `/music` | `createInstrument`, `createMicrophone` |
-| `/nature` | `createRock` |
+| `/nature` | `createFireRing`, `createRock`, `createTent`, `createTree` |
 
 Each producer's JSDoc states how the thing stands in its own space, and its namespace lists its kinds, affordance ids, dimensions and bands (`createSeat.BANDS`).
 

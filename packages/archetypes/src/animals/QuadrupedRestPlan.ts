@@ -1,11 +1,11 @@
 import type {
-  IAutoMovieJointPose,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { Archetype } from "../core";
 import type { QuadrupedBody } from "./QuadrupedBody";
+import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
 
 /**
  * Authored inputs and independently evaluated results of a sternal rest cycle.
@@ -36,14 +36,11 @@ export namespace QuadrupedRestPlan {
    * Actual generic-rig degree rotations, with null meaning neutral.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States degrees, actual rig coordinates and null-neutral interpretation.
-   * @evidence contracts/development/design.md#principled-representation Picks the existing interface's three joint coordinates, retaining its nullable neutral convention rather than inventing another quaternion/angle format.
+   * @evidence contracts/development/design.md#principled-representation Aliases the shared actual-rig pose owner's coordinates, retaining the interface's nullable neutral convention without another joint format.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Only coordinates consumed by the generic rig are included; quadruped bone identities remain the map key's existing owner.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No humanoid bone slot, measured ROM claim, widened value type or parallel joint declaration is introduced.
    */
-  export type Rotation = Pick<
-    IAutoMovieJointPose,
-    "flexion" | "abduction" | "twist"
-  >;
+  export type Rotation = QuadrupedPosePlan.Rotation;
 
   /**
    * A complete symmetric fixed-footprint cycle from standing through rest and back.
