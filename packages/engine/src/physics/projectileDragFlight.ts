@@ -5,6 +5,7 @@ import { integrateMotionTrajectory } from "../motion/integrateMotionTrajectory";
 import { AutoMovieAir } from "./AutoMovieAir";
 import type { IAutoMovieProjectile } from "./IAutoMovieProjectile";
 import type { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
+import type { IProjectileDragInterval } from "./IProjectileDragInterval";
 
 /**
  * A projectile's flight under gravity and quadratic drag, read by time:
@@ -34,13 +35,13 @@ import type { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
  * @returns The flight's reader.
  * @throws {RangeError} When the drag's mass is not positive, or its coefficient, area or density is negative or not finite.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the equations, the step rule with its source, the speed bound, the chunks and the held start.
+ * @evidence contracts/development/common.md#meaningful-documentation States equations, sourced step rule, speed bound, chunks and held start; the returned interval reader documents launch-relative time and independent adjacent states.
  * @evidence contracts/development/implementation.md#principled-implementation The quadratic drag law integrated by classical RK4 at a step from step doubling's error estimate, at the state where the drag's acceleration is largest.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, choose the step, then integrate chunks lazily in order.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step comes from a stated tolerance, never from the frame grid; with zero drag the integrator reproduces the closed form, since RK4 and the cubic Hermite are exact for a quadratic path.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand-side evaluations per step, only up to the chunk read; a read is a chunk index and a Hermite evaluation.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The integrator is the engine's one; the flight is memoised per projectile record, so every read of one launch shares one integration.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo is a weak map keyed by the projectile record, so the knots go with the record.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, choose the step and integrate chunks lazily. The interval reader maps the selected chunk's actual stored positions and position derivatives to adjacent vector states.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step comes from a stated tolerance, not a frame grid. Actual interval endpoints are neither nominal-clock reconstructions nor independently interpolated velocity-channel values; zero drag retains the exact quadratic closed form.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand-side evaluations per integrated step. Ordinary reads evaluate one Hermite curve; interval reads make constant-size copies after existing lazy chunk integration with no extra f or interpolation evaluation.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The integrator is the engine's one; at, interval and projectileAt share one memoized launch trajectory and its actual stored knots.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo is weakly keyed by projectile, so knots go with it. Interval endpoint states own fresh vectors and retain no trajectory or knot-array references.
  */
 export function projectileDragFlight(
   projectile: IAutoMovieProjectile,
@@ -203,24 +204,8 @@ export namespace projectileDragFlight {
   /** Steps per chunk: a memory bound no flight reads, about a thousand knots of six numbers per chunk. */
   export const CHUNK: number = 1024;
 
-  /**
-   * The actual fixed Hermite interval containing a query.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its knot time or endpoint-state meaning.
-   * @evidence contracts/development/design.md#principled-representation Two actual integrator knot times and their position/velocity states define the position cubic, whose endpoint derivatives are those velocities.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The drag departure classifier needs the dense curve's endpoints, not a continuous-force assumption or a second integration.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No resampled trajectory or mutable knot storage escapes; state readers return fresh numeric records.
-   */
-  export interface IInterval {
-    /** First actual knot second. */
-    from: number;
-    /** Next actual knot second. */
-    to: number;
-    /** Position and velocity at the first knot. */
-    start: IAutoMovieProjectileState;
-    /** Position and velocity at the next knot. */
-    end: IAutoMovieProjectileState;
-  }
+  /** Existing namespace spelling of the shared actual dense projectile interval. */
+  export type IInterval = IProjectileDragInterval;
 
   /** A drag flight's reader. */
   export interface IFlight {
@@ -235,13 +220,6 @@ export namespace projectileDragFlight {
      *
      * @param seconds Seconds since launch; negative times select the first interval.
      * @returns Actual adjacent knot times with fresh endpoint states.
-     * @evidence contracts/development/common.md#meaningful-documentation States the time frame, held-start selection and ownership of returned knot states.
-     * @evidence contracts/development/implementation.md#principled-implementation Reads the fixed integrator's actual stored Hermite data; the cubic's position derivatives are its stored right-hand-side rates, not rounded interpolation results or the independently interpolated velocity channel.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the actual chunk and map its stored adjacent positions and derivatives to vectors.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Knots are selected from the integrator's own times rather than reconstructed from a nominal clock grid.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant-size copies after the existing lazy chunk integration; no additional right-hand-side or interpolation evaluations occur.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same memoized launch trajectory as at and projectileAt.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned states own fresh vectors and expose no knot arrays or retained trajectory reference.
      */
     interval(seconds: number): IInterval;
 
