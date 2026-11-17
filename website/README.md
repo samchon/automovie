@@ -40,6 +40,8 @@ The browser computes every take. A view asks `src/takes/TakeClient.ts` for its t
 
 A scene whose record sets `refusedUntil` to the issue that fixes it shows the packages' refusal in place of each refused take. A refusal of any other scene shows as an error in its view.
 
+Shared compositions preserve authored impulses as well as actions and objects, so opening a link applies the same force in the take worker and shows it in the scene's code. Links with impulses use format version 3; existing version 1 and 2 links remain readable. Only impulses are serializable here; sustained force callbacks stay in authored package code.
+
 Three scripts look at a build through a headless Chromium, which `pnpm --filter @automovie/website exec playwright-core install chromium-headless-shell` downloads once:
 
 ```bash
@@ -64,7 +66,7 @@ pnpm --filter @automovie/website run shots name=url ... # screenshots into the i
 | `test/features/` | The tests. |
 | `build/` | The checks, the bundle check, the smoke test, the screenshot tools and the manual deploy (`deploy.ts`). |
 
-Only the `package/` folders and the body parameters in `src/playground/data/` import the packages. The scene, object and landing pages run the motion code only in the take worker, never on their main thread.
+Only the `package/` folders and the body parameters in `src/playground/data/` load the packages at runtime; composition types may refer to their public types with erased imports. The scene, object and landing pages run the motion code only in the take worker, never on their main thread.
 
 [DESIGN.md](./DESIGN.md) states the layout, the visual system and the reasons for them.
 

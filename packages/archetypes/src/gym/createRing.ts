@@ -56,6 +56,7 @@ export function createRing(
   );
   const builder: ArchetypeBuilder<createRing.Affordance, createRing.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: "ring",
       draw,

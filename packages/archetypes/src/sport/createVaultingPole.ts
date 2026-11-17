@@ -61,6 +61,7 @@ export function createVaultingPole(
     createVaultingPole.Affordance,
     createVaultingPole.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `vaulting pole, ${series.name} series`,
     draw,

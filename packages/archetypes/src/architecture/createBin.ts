@@ -117,6 +117,7 @@ export function createBin(
     model.figures;
   const builder: ArchetypeBuilder<createBin.Affordance, createBin.Dimension> =
     new ArchetypeBuilder({
+      material: kind === "wheelieBin" ? "plastic" : "steel",
       id: params.id,
       name: `${kind === "wheelieBin" ? "wheelie bin" : "dumpster"} ${model.name}`,
       draw,

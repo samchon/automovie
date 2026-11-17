@@ -111,7 +111,7 @@ export function test_archetype_fracture_contact(): void {
           ]),
       ...broken.fragments.map(
         (
-          f: ArchetypeFracture.IPiece<D>,
+          f: ArchetypeFracture.IPiece<D, I>,
         ): { id: string; model: IAutoMovieModel; again: boolean } => ({
           id: f.id,
           model: f.archetype,

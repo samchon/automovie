@@ -56,7 +56,9 @@ export function test_archetype_fracture_sets(): void {
       );
       continue;
     }
-    const ids = (parts: readonly IAutoMovieModelPart[]): string[] =>
+    const ids: (parts: readonly IAutoMovieModelPart[]) => string[] = (
+      parts: readonly IAutoMovieModelPart[],
+    ): string[] =>
       parts
         .map((p: IAutoMovieModelPart): string => p.id)
         .sort((a: string, b: string): number => a.localeCompare(b));
@@ -77,7 +79,7 @@ export function test_archetype_fracture_sets(): void {
       );
     const mass: number =
       broken.remainder.body.mass + shards.archetype.body.mass;
-    if (Math.abs(mass - bottle.body.mass) > 1e-9)
+    if (!(Math.abs(mass - bottle.body.mass) <= 1e-9))
       findings.push(
         `${label}: the pieces weigh ${mass} kg, the bottle ${bottle.body.mass} kg`,
       );
@@ -91,9 +93,16 @@ export function test_archetype_fracture_sets(): void {
       kept.includes("body")
     )
       findings.push(`${label}: the neck keeps ${kept.join(", ")}`);
+    if (
+      shards.archetype.affordance("body").kind !== "handle" ||
+      JSON.stringify(
+        shards.archetype.affordances.map((a: { id: string }): string => a.id),
+      ) !== JSON.stringify(["body"])
+    )
+      findings.push(`${label}: the departing body lost its public grip`);
     const v: number = momentum.z / shards.archetype.body.mass;
     if (
-      Math.abs(shards.velocity.z - v) > 1e-9 ||
+      !(Math.abs(shards.velocity.z - v) <= 1e-9) ||
       shards.velocity.x !== 0 ||
       shards.velocity.y !== 0
     )
@@ -141,9 +150,13 @@ export function test_archetype_fracture_sets(): void {
     )
       findings.push("the door's fragment holds no leaf");
     if (
-      Math.abs(
-        kicked.remainder.body.mass + leaf.archetype.body.mass - door.body.mass,
-      ) > 1e-9
+      !(
+        Math.abs(
+          kicked.remainder.body.mass +
+            leaf.archetype.body.mass -
+            door.body.mass,
+        ) <= 1e-9
+      )
     )
       findings.push("the door's pieces do not weigh the door");
     // The frame keeps its opening; the hinge, the latch and the handles that ride them leave with the leaf.
@@ -155,8 +168,12 @@ export function test_archetype_fracture_sets(): void {
   }
 
   // The builder's refusals.
-  const builder = (): ArchetypeBuilder<"top", never> =>
+  const builder: () => ArchetypeBuilder<"top", never> = (): ArchetypeBuilder<
+    "top",
+    never
+  > =>
     new ArchetypeBuilder<"top", never>({
+      material: "steel",
       name: "fixture",
       draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
     })

@@ -71,6 +71,7 @@ export function createKeyboard(
     createKeyboard.Affordance,
     createKeyboard.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: kind,
     draw,

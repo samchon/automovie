@@ -71,6 +71,7 @@ export function createSword(
     createSword.Affordance,
     createSword.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: createSword.NAMES[kind],
     draw,

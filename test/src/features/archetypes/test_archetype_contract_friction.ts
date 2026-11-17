@@ -111,6 +111,7 @@ export function test_archetype_contract_friction(): void {
 
   // An unread rest.
   const plain: Archetype = new ArchetypeBuilder<never, never>({
+    material: "steel",
     name: "box",
     draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
   })

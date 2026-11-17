@@ -58,6 +58,7 @@ export function createRock(
   );
   const builder: ArchetypeBuilder<createRock.Affordance, createRock.Dimension> =
     new ArchetypeBuilder({
+      material: "stone",
       id: params.id,
       name: kind,
       draw,

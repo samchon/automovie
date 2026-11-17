@@ -45,7 +45,9 @@ Work by these rules:
 
 ## What you can observe
 
-You see still images and cannot hear. Judge motion through [dense sampling](.agents/skills/visual-debugging/capture.md#times), including consecutive frames at every contact and cut.
+You can inspect still images. Judge motion through [dense sampling](.agents/skills/visual-debugging/capture.md#times), including consecutive frames at every contact and cut.
+
+Check the current model and available tools before claiming auditory access: audio attachments and voice dictation alone do not establish it. Without an audio-understanding model or tool, use decoded measurements and report that you have not heard the file under [listening](.agents/skills/audio/acquisition.md#listening).
 
 Ask the user to watch playback for claims about continuous motion, and to listen to sound.
 

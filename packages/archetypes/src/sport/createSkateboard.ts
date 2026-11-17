@@ -79,6 +79,7 @@ export function createSkateboard(
     createSkateboard.Affordance,
     createSkateboard.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `skateboard ${model.name}`,
     draw,

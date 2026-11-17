@@ -49,7 +49,9 @@ export function test_physics_projectile_departure(): void {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const ground: projectileFirstContact.ICollider = projectileFirstContact.plane(
-    "ground", zero, up,
+    "ground",
+    zero,
+    up,
   );
   const outgoing: IAutoMovieProjectile = {
     origin: zero,
@@ -66,13 +68,15 @@ export function test_physics_projectile_departure(): void {
 
   /** Preserve all case findings for the same verification round. */
   const check: (label: string, predicate: boolean) => void = (
-    label: string, predicate: boolean,
+    label: string,
+    predicate: boolean,
   ): void => {
     if (!predicate) findings.push(label);
   };
   /** An unexpected exception is a failure, while independent cases continue. */
   const observe: (label: string, read: () => void) => void = (
-    label: string, read: () => void,
+    label: string,
+    read: () => void,
   ): void => {
     try {
       read();
@@ -83,89 +87,148 @@ export function test_physics_projectile_departure(): void {
 
   observe("initial policy", (): void => {
     const raw: IAutoMovieHit | null = projectileFirstContact(
-      outgoing, [ground], span, { radius: 0, thickness: options.thickness },
+      outgoing,
+      [ground],
+      span,
+      { radius: 0, thickness: options.thickness },
     );
     check("raw touch remains at zero", raw?.time === 0);
-    check("resolved outward flight leaves the floor", projectileFirstContact(
-      outgoing, [ground], span, options,
-    ) === null);
-    check("accelerating away leaves the floor", projectileFirstContact(
-      { ...outgoing, velocity: zero, gravity: up }, [ground], span, options,
-    ) === null);
+    check(
+      "resolved outward flight leaves the floor",
+      projectileFirstContact(outgoing, [ground], span, options) === null,
+    );
+    check(
+      "accelerating away leaves the floor",
+      projectileFirstContact(
+        { ...outgoing, velocity: zero, gravity: up },
+        [ground],
+        span,
+        options,
+      ) === null,
+    );
     for (const speed of [0, -1]) {
       const hit: IAutoMovieHit | null = projectileFirstContact(
         { ...outgoing, velocity: { x: 0, y: speed, z: 0 } },
-        [ground], span, options,
+        [ground],
+        span,
+        options,
       );
       check(`normal speed ${speed} keeps its contact`, hit?.time === 0);
     }
     const penetrating: IAutoMovieProjectile = {
-      ...outgoing, origin: { x: 0, y: -0.1, z: 0 },
+      ...outgoing,
+      origin: { x: 0, y: -0.1, z: 0 },
     };
-    check("unresolved penetration remains at zero", projectileFirstContact(
-      penetrating, [ground], span,
-      { radius: 0, thickness: options.thickness },
-    )?.time === 0);
-    check("unrelated id does not suppress penetration", projectileFirstContact(
-      penetrating, [ground], span, { ...options, departing: "other" },
-    )?.time === 0);
+    check(
+      "unresolved penetration remains at zero",
+      projectileFirstContact(penetrating, [ground], span, {
+        radius: 0,
+        thickness: options.thickness,
+      })?.time === 0,
+    );
+    check(
+      "unrelated id does not suppress penetration",
+      projectileFirstContact(penetrating, [ground], span, {
+        ...options,
+        departing: "other",
+      })?.time === 0,
+    );
   });
 
   observe("tail extent", (): void => {
     const fixed: IAutoMovieProjectile = {
-      ...outgoing, attitude: { kind: "fixed" },
+      ...outgoing,
+      attitude: { kind: "fixed" },
     };
     const tail: IAutoMovieVector3 = { x: 0, y: 0, z: -0.5 };
-    check("fixed tail departs", projectileFirstContact(
-      fixed, [ground], span, { ...options, tail },
-    ) === null);
-    check("unclassified rotating tail keeps its touch", projectileFirstContact(
-      { ...outgoing, attitude: { kind: "spin", axis: up, rate: 30 } },
-      [ground], span, { ...options, tail },
-    )?.time === 0);
+    check(
+      "fixed tail departs",
+      projectileFirstContact(fixed, [ground], span, { ...options, tail }) ===
+        null,
+    );
+    check(
+      "unclassified rotating tail keeps its touch",
+      projectileFirstContact(
+        { ...outgoing, attitude: { kind: "spin", axis: up, rate: 30 } },
+        [ground],
+        span,
+        { ...options, tail },
+      )?.time === 0,
+    );
   });
 
   const returning: IAutoMovieProjectile = {
-    ...outgoing, gravity: { x: 0, y: -2, z: 0 },
+    ...outgoing,
+    gravity: { x: 0, y: -2, z: 0 },
   };
   observe("full-span reentry", (): void => {
     const hit: IAutoMovieHit | null = projectileFirstContact(
-      returning, [ground], span, options,
+      returning,
+      [ground],
+      span,
+      options,
     );
-    check("the same floor is met again at 2v/g", hit !== null &&
-      hit.collider === ground.id && nclose(hit.time, 1, 1e-5));
+    check(
+      "the same floor is met again at 2v/g",
+      hit !== null && hit.collider === ground.id && nclose(hit.time, 1, 1e-5),
+    );
     const sphere: IAutoMovieHit | null = projectileFirstContact(
       { ...returning, origin: { x: 0, y: 0.1, z: 0 } },
-      [ground], span, { ...options, radius: 0.1 },
+      [ground],
+      span,
+      { ...options, radius: 0.1 },
     );
-    check("sphere clearance retains its radius on reentry", sphere !== null &&
-      nclose(sphere.time, 1, 1e-5));
+    check(
+      "sphere clearance retains its radius on reentry",
+      sphere !== null && nclose(sphere.time, 1, 1e-5),
+    );
   });
 
   observe("other initial collider", (): void => {
     const wall: projectileFirstContact.ICollider = projectileFirstContact.plane(
-      "wall", zero, { x: 1, y: 0, z: 0 },
+      "wall",
+      zero,
+      { x: 1, y: 0, z: 0 },
     );
-    for (const colliders of [[ground, wall], [wall, ground]]) {
+    for (const colliders of [
+      [ground, wall],
+      [wall, ground],
+    ]) {
       const hit: IAutoMovieHit | null = projectileFirstContact(
-        returning, colliders, span, options,
+        returning,
+        colliders,
+        span,
+        options,
       );
-      check("stationary wall contact is not deferred", hit?.time === 0 &&
-        hit.collider === wall.id);
+      check(
+        "stationary wall contact is not deferred",
+        hit?.time === 0 && hit.collider === wall.id,
+      );
     }
   });
 
   observe("other earlier collider", (): void => {
     const wall: projectileFirstContact.ICollider = projectileFirstContact.plane(
-      "wall", { x: 0.25, y: 0, z: 0 }, { x: -1, y: 0, z: 0 },
+      "wall",
+      { x: 0.25, y: 0, z: 0 },
+      { x: -1, y: 0, z: 0 },
     );
-    for (const colliders of [[ground, wall], [wall, ground]]) {
+    for (const colliders of [
+      [ground, wall],
+      [wall, ground],
+    ]) {
       const hit: IAutoMovieHit | null = projectileFirstContact(
         { ...returning, velocity: { x: 1, y: 1, z: 0 } },
-        colliders, span, options,
+        colliders,
+        span,
+        options,
       );
-      check("wall at distance/speed precedes the floor witness", hit !== null &&
-        hit.collider === wall.id && nclose(hit.time, 0.25, 1e-5));
+      check(
+        "wall at distance/speed precedes the floor witness",
+        hit !== null &&
+          hit.collider === wall.id &&
+          nclose(hit.time, 0.25, 1e-5),
+      );
     }
   });
 
@@ -176,25 +239,40 @@ export function test_physics_projectile_departure(): void {
       gravity: { x: 0, y: -1, z: 0 },
     };
     const first: IAutoMovieHit | null = projectileFirstContact(
-      drop, [ground], { from: 0, to: 3 }, options,
+      drop,
+      [ground],
+      { from: 0, to: 3 },
+      options,
     );
-    check("free fall starts with its analytic impact", first !== null &&
-      nclose(first.time, Math.sqrt(2), 1e-5));
+    check(
+      "free fall starts with its analytic impact",
+      first !== null && nclose(first.time, Math.sqrt(2), 1e-5),
+    );
     if (first === null) return;
     const next: projectileContinue.Segment = projectileContinue(drop, first, {
-      kind: "bounce", restitution: 0.5, friction: 0,
+      kind: "bounce",
+      restitution: 0.5,
+      friction: 0,
     });
     check("the resolved impact produces flight", next.kind === "flight");
     if (next.kind !== "flight") return;
     const state: IAutoMovieVector3 = projectileAt(drop, first.time).position;
-    check("continuation preserves the actual penetrating impact origin",
-      state.y < 0 && Object.is(next.projectile.origin.y, state.y));
-    const again: IAutoMovieHit | null = projectileFirstContact(
-      next.projectile, [ground], { from: 0, to: 3 }, options,
+    check(
+      "continuation preserves the actual penetrating impact origin",
+      state.y < 0 && Object.is(next.projectile.origin.y, state.y),
     );
-    check("carried contact departs and reenters at 2e sqrt(2gh)/g",
-      again !== null && again.time > 0 &&
-      nclose(again.time, Math.sqrt(2), 1e-5));
+    const again: IAutoMovieHit | null = projectileFirstContact(
+      next.projectile,
+      [ground],
+      { from: 0, to: 3 },
+      options,
+    );
+    check(
+      "carried contact departs and reenters at 2e sqrt(2gh)/g",
+      again !== null &&
+        again.time > 0 &&
+        nclose(again.time, Math.sqrt(2), 1e-5),
+    );
   });
 
   observe("quadratic drag", (): void => {
@@ -205,10 +283,15 @@ export function test_physics_projectile_departure(): void {
     const expected: number =
       (Math.atan(1 / Math.sqrt(2)) + Math.acosh(Math.sqrt(1.5))) / Math.sqrt(2);
     const hit: IAutoMovieHit | null = projectileFirstContact(
-      drag, [ground], span, options,
+      drag,
+      [ground],
+      span,
+      options,
     );
-    check("vertical quadratic drag meets the closed-form return",
-      hit !== null && hit.time > 0 && nclose(hit.time, expected, 1e-3));
+    check(
+      "vertical quadratic drag meets the closed-form return",
+      hit !== null && hit.time > 0 && nclose(hit.time, expected, 1e-3),
+    );
   });
 
   observe("opaque collider", (): void => {
@@ -224,9 +307,13 @@ export function test_physics_projectile_departure(): void {
         normal: up,
       }),
     };
-    check("an id alone cannot classify an opaque moving collider",
-      projectileFirstContact(outgoing, [moving], span,
-        { ...options, departing: moving.id })?.time === 0);
+    check(
+      "an id alone cannot classify an opaque moving collider",
+      projectileFirstContact(outgoing, [moving], span, {
+        ...options,
+        departing: moving.id,
+      })?.time === 0,
+    );
   });
 
   observe("certificate admission", (): void => {
@@ -234,15 +321,31 @@ export function test_physics_projectile_departure(): void {
       let refused: boolean = false;
       try {
         resolveAutoMovieContactEvents({
-          from: 0, to: 1, step: 1,
-          weapons: [{ id: "point", owner: "point", radius: 0,
-            position: (time: number): IAutoMovieVector3 => ({ x: 0, y: time, z: 0 }) }],
-          bodies: [{ id: "surface",
-            distance: (): number => 0,
-            departure: (): resolveAutoMovieContactEvents.Departure => ({
-              kind: "clearance", seconds,
-            }),
-          }],
+          from: 0,
+          to: 1,
+          step: 1,
+          weapons: [
+            {
+              id: "point",
+              owner: "point",
+              radius: 0,
+              position: (time: number): IAutoMovieVector3 => ({
+                x: 0,
+                y: time,
+                z: 0,
+              }),
+            },
+          ],
+          bodies: [
+            {
+              id: "surface",
+              distance: (): number => 0,
+              departure: (): resolveAutoMovieContactEvents.Departure => ({
+                kind: "clearance",
+                seconds,
+              }),
+            },
+          ],
         });
       } catch (error) {
         refused = error instanceof RangeError;
@@ -252,16 +355,28 @@ export function test_physics_projectile_departure(): void {
     let infinite: boolean = false;
     try {
       resolveAutoMovieContactEvents({
-        from: 0, to: 1, step: 1,
-        weapons: [{ id: "point", owner: "point", radius: 0,
-          position: (): IAutoMovieVector3 => zero }],
-        bodies: [{ id: "surface",
-          distance: (_point: IAutoMovieVector3, seconds: number): number =>
-            seconds === 0 ? 0 : Infinity,
-          departure: (): resolveAutoMovieContactEvents.Departure => ({
-            kind: "clearance", seconds: 0.5,
-          }),
-        }],
+        from: 0,
+        to: 1,
+        step: 1,
+        weapons: [
+          {
+            id: "point",
+            owner: "point",
+            radius: 0,
+            position: (): IAutoMovieVector3 => zero,
+          },
+        ],
+        bodies: [
+          {
+            id: "surface",
+            distance: (_point: IAutoMovieVector3, seconds: number): number =>
+              seconds === 0 ? 0 : Infinity,
+            departure: (): resolveAutoMovieContactEvents.Departure => ({
+              kind: "clearance",
+              seconds: 0.5,
+            }),
+          },
+        ],
       });
     } catch (error) {
       infinite = error instanceof RangeError;

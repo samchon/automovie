@@ -85,6 +85,12 @@ export function createVessel(
     createVessel.Affordance,
     createVessel.Dimension
   > = new ArchetypeBuilder({
+    material:
+      kind === "bowl"
+        ? "ceramic"
+        : kind === "ashtray" || kind === "vase"
+          ? "glass"
+          : "steel",
     id: params.id,
     name: kind,
     draw,

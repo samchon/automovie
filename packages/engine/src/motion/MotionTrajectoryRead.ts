@@ -82,13 +82,13 @@ export namespace MotionTrajectoryRead {
   /**
    * Read a completed fixed grid by its original cubic Hermite extension.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Reads between numeric knots in seconds, holds the interval's ends and returns caller-owned vector and orientation records.
+   * @evidence contracts/development/common.md#meaningful-documentation Reads numeric knots in seconds, holds ends and returns independent states/orientations; interval copies adjacent fixed states and rates for finite query seconds, selecting end intervals outside the span.
    * @evidence contracts/development/implementation.md#principled-implementation Cubic Hermite of states and of the endpoint rotation vector; exact Jr^-1 maps the endpoint body rate to its coordinate derivative, so both knot body rates match without the construction stepper's truncated-differential error.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the interval by division, form the four Hermite weights, then read vector and orientation blocks. The last queried interval owns its time-independent rotation-vector endpoint and endpoint differential.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps fixed knots, vector arithmetic and Hermite weights, and never reads the right-hand side; the exact orientation endpoint slope is the stated C1 correction.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant-time interval lookup and O(n+1) interpolation for n vector components. An immediately repeated exact requested time skips interpolation; every read still copies O(n+1) output components, and a different time constructs and copies its interpolated vector.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant-time interval lookup and O(n+1) interpolation/output for n components; interval snapshots copy four O(n) arrays without interpolation or RHS work. An immediately repeated full-state time skips interpolation while still issuing independent output.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares completed knot arrays, one previous full state and one common quaternion projection only when Object.is matches each reader's raw requested time. Vector components share each Hermite slope weight times the interval span with its original association. One previous oriented interval shares its relative rotation vector and exact endpoint differential. Full and projected reads use the same quaternion curve.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains numeric knots, one previous full state, one previous projected quaternion and one interval's two three-component vectors and index; no solver callback or history enters this factory. Every public output vector and quaternion is fresh. Quaternion-only playback skips vector work but still retains the numeric knot records.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains numeric knots and bounded last-state/quaternion/interval metadata, without a model callback or history. State outputs and all four interval arrays are fresh. Quaternion-only playback skips vector work but retains numeric knot records.
    */
   export function fixed(props: IFixed): integrateMotionTrajectory.ITrajectory {
     const { t0, t1, h, times, xs, ks }: IFixed = props;
@@ -101,6 +101,18 @@ export namespace MotionTrajectoryRead {
       times,
       knots: times.length,
       orientation: copied(quaternion),
+      interval: (time: number): integrateMotionTrajectory.IInterval => {
+        const t: number = Math.max(t0, Math.min(t1, time));
+        const i: number = Math.min(steps - 1, Math.floor((t - t0) / h));
+        return {
+          from: times[i]!,
+          to: times[i + 1]!,
+          start: xs[i]!.slice(),
+          end: xs[i + 1]!.slice(),
+          first: ks[i]!.dx.slice(),
+          last: ks[i + 1]!.dx.slice(),
+        };
+      },
       at: owned((time: number): integrateMotionTrajectory.IState => {
         const t: number = Math.max(t0, Math.min(t1, time));
         const i: number = Math.min(steps - 1, Math.floor((t - t0) / h));

@@ -86,6 +86,7 @@ export function createBarrel(
     createBarrel.Affordance,
     createBarrel.Dimension
   > = new ArchetypeBuilder({
+    material: "steel",
     id: params.id,
     name: NAMES[kind],
     draw,

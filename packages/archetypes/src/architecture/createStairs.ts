@@ -89,6 +89,7 @@ export function createStairs(
     createStairs.Affordance,
     createStairs.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: "stairs",
     draw,

@@ -26,6 +26,8 @@ import type { IHumanProp } from "./IHumanProp";
  * (`projectileFirstContact`). The step keeps the prop from crossing the
  * thinnest collider it may meet in one step, finger bones aside: a finger is
  * the stated blind spot. A pass leaves the body it passes through behind.
+ * A bounce separately names its resolved collider for the engine's physical
+ * departure certificate; that collider stays eligible for later entry.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a flight meets, the reject, the step and its blind spot, and what a pass leaves out.
  * @evidence contracts/development/design.md#principled-representation A meeting is the engine's hit with what it struck.
@@ -44,15 +46,16 @@ export namespace HumanPropSweep {
    * @param projectile The flight.
    * @param horizon Seconds after its zero the film still runs.
    * @param leave A collider's id to leave out: the body a pass goes through.
+   * @param departing A separately resolved bounce collider; only the engine's supported physical departure certificate can defer its initial contact, never its later entry.
    * @returns The first meeting, or null when it meets nothing before the horizon.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines film versus projectile clocks, launcher/pass exclusions, actual person/prop/floor colliders, optional tip capsule and first-meeting/null output.
-   * @evidence contracts/development/implementation.md#principled-implementation Supplies current displayed collider frames and the original least-thickness step to the engine first-contact resolver, then maps its actual hit to a ground, prop or nearest canonical person bone.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds person and non-flying-prop colliders after the floor, runs one engine sweep, then resolves the hit's performance identity.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the launcher, flying-prop and pass exclusions, bounding-sphere reject and finger-thickness blind spot. It neither chooses a different scene nor relaxes contact or replaces capsule geometry with endpoints.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Collider construction scans actors, prop shapes and launch declarations; prop filtering may rescan launches for each prop. The engine's scan and refinement cost scales with its actual step count, collider count and live geometry callbacks; the final person hit adds one nearest query.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses displayed performance readers, shared HumanColliders geometry and the single engine sweep; least thickness is derived from the actual participating body and prop shapes in this call, without a separate collision or time-result cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Collider callbacks and shape arrays live only for this synchronous sweep; the returned meeting retains hit data and ids rather than source callbacks, bodies or numerical query history.
+   * @evidence contracts/development/common.md#meaningful-documentation States film/flight clocks, the launcher and pass exclusions, separate resolved-bounce opt-in, physical certificate scope, first meeting and finite-horizon sweep.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds the ground plane, displayed person/prop nearest-point queries and the existing stature rejection, then delegates point-or-tip-capsule contact timing to the engine. Only its supported fixed-plane/constant-tail departure proof defers a resolved bounce pair; other colliders and later entries remain eligible.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This bridge owns performance-to-collider projection and target identity; closest geometry, departure proof, scan and TOI bisections remain with their owning engine modules.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no bounce blacklist, time epsilon or fabricated gap. The existing policy omits every prop with any published launch and ignores finger thickness; the stature rejection assumes the body fits that bound, and the scan's stated thin-contact blind spot remains.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparing P props repeats their action-segment/launch scans and scans profile shapes; C collider closures feed the engine's contact queries, whose cost also includes dynamic FK/nearest-body reads. The engine owns step/bisection cost; this method claims no measured speedup.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses shared performance posture/bone readers, physicalShapeNearest and the engine flight/contact owners, while rebuilding local collider closures for the current sweep instead of caching mutable poses.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Collider/shape arrays and their performance-capturing callbacks are call-local and released after the sweep or refusal; only the small meeting escapes, with no retained frame history, host or new cache.
    */
   export function sweep(
     self: HumanPerformanceState,
@@ -62,6 +65,7 @@ export namespace HumanPropSweep {
     projectile: IAutoMovieProjectile,
     horizon: number,
     leave: string | undefined,
+    departing?: string,
   ): HumanPropOutcome.IMeeting | null {
     const colliders: projectileFirstContact.ICollider[] = [
       projectileFirstContact.plane(
@@ -139,6 +143,7 @@ export namespace HumanPropSweep {
       {
         radius: 0,
         ...(tip === undefined ? {} : { tail: tip }),
+        ...(departing === undefined ? {} : { departing }),
         thickness: thinnest(self, launcher, solid),
       },
     );
@@ -201,8 +206,8 @@ export namespace HumanPropSweep {
       }
     }
 
-    // With nothing thin to meet, the floor alone: a falling flight crosses a
-    // plane once, so one step may span the whole flight.
+    // With no thin collider, the floor permits a whole-span scan. A resolved
+    // departure's engine certificate still exposes its later plane entry.
     return Number.isFinite(least) ? least : Number.MAX_VALUE;
   }
 

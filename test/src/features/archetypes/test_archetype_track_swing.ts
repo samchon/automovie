@@ -22,7 +22,7 @@ import { TestValidator } from "@nestia/e2e";
  * 4b. Released at the closed form's reach with a launch at rest, the launch comes exactly a quarter of the small-angle period after the release, the closed form's first crossing.
  * 5. A door's upright hinge, which gravity cannot turn, a release the hinge's range cannot hold, and a launch the swing never passes are refused at their fields.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds a hinged body and swings it, reading the travel through seconds; a wrong frequency, a closed form used past its reach, a swing that gains or loses energy, a launch at the wrong instant or rate, or a body gravity cannot turn given a period is caught.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a hinged body and swings it, reading travel through seconds with finite-safe bounded checks; a wrong frequency, a closed form used past its reach, a swing that gains or loses energy, a launch at the wrong instant or rate, or a body gravity cannot turn given a period is caught.
  * @evidence contracts/development/testing.md#independent-expectations The small-angle period is the textbook physical pendulum's from the body's own moment and centre of mass, computed here; the large-angle period is Gauss's arithmetic-geometric mean, iterated here; the launch's rate is energy conservation.
  * @evidence contracts/development/testing.md#distinguishing-cases A small and a large release, a launch, a repeat, and three refusals.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
@@ -33,6 +33,7 @@ export function test_archetype_track_swing(): void {
   const v: typeof Vector3.create = Vector3.create;
   const pivot: IAutoMovieVector3 = v(0, 1, 0);
   const body: Archetype<"hinge", never> = new ArchetypeBuilder<"hinge", never>({
+    material: "steel",
     name: "pendulum",
     draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
   })
@@ -55,16 +56,21 @@ export function test_archetype_track_swing(): void {
     (body.properties.mass * g * d) / body.moment(pivot, v(1, 0, 0)),
   );
   const small: number = (2 * Math.PI) / omega;
-  const mean = (a: number, b: number): number => {
+  const mean: (a: number, b: number) => number = (
+    a: number,
+    b: number,
+  ): number => {
     for (let k: number = 0; k < 64 && a !== b; k++)
       [a, b] = [(a + b) / 2, Math.sqrt(a * b)];
     return a;
   };
-  const exact = (release: number): number =>
+  const exact: (release: number) => number = (release: number): number =>
     small / mean(1, Math.cos((release * Math.PI) / 180 / 2));
 
   // The period: twice the mean time between successive crossings of rest.
-  const period = (track: ArchetypeTrack.ITrack<"hinge">): number => {
+  const period: (track: ArchetypeTrack.ITrack<"hinge">) => number = (
+    track: ArchetypeTrack.ITrack<"hinge">,
+  ): number => {
     const crossings: number[] = [];
     const step: number = 1e-3;
     for (let t: number = track.start; t + step <= track.end; t += step) {
@@ -89,7 +95,7 @@ export function test_archetype_track_swing(): void {
       seconds: 4 * small,
     },
   );
-  if (Math.abs(period(gentle) / small - 1) > 0.005)
+  if (!(Math.abs(period(gentle) / small - 1) <= 0.005))
     findings.push(
       `released at the closed form's reach it swings at ${period(gentle)} s, ${small} s expected`,
     );
@@ -100,14 +106,14 @@ export function test_archetype_track_swing(): void {
     "hinge",
     { start: START, release: 90, seconds: 3 * exact(90) },
   );
-  if (Math.abs(period(wide) / exact(90) - 1) > 0.005)
+  if (!(Math.abs(period(wide) / exact(90) - 1) <= 0.005))
     findings.push(
       `released 90 degrees it swings at ${period(wide)} s, ${exact(90)} s expected`,
     );
   let reach: number = 0;
   for (let t: number = wide.start; t <= wide.end; t += 1e-3)
     reach = Math.max(reach, Math.abs(wide.travel(t)));
-  if (reach > 90 + 1e-6)
+  if (!(reach <= 90 + 1e-6))
     findings.push(`released 90 degrees it reaches ${reach} degrees`);
 
   // 3. The same release swings the same, and holds before it.
@@ -135,8 +141,10 @@ export function test_archetype_track_swing(): void {
     Math.PI;
   if (
     thrown.launch === null ||
-    Math.abs((thrown.launch.seconds - START) / (exact(90) / 4) - 1) > 0.005 ||
-    Math.abs(Math.abs(thrown.launch.rate) / bottom - 1) > 1e-6
+    !(
+      Math.abs((thrown.launch.seconds - START) / (exact(90) / 4) - 1) <= 0.005
+    ) ||
+    !(Math.abs(Math.abs(thrown.launch.rate) / bottom - 1) <= 1e-6)
   )
     findings.push(
       `the launch is ${JSON.stringify(thrown.launch)}, a quarter period ${exact(90) / 4} s after the release at ${bottom} degrees a second expected`,
@@ -155,7 +163,7 @@ export function test_archetype_track_swing(): void {
   );
   if (
     tossed.launch === null ||
-    Math.abs(tossed.launch.seconds - START - small / 4) > 1e-9
+    !(Math.abs(tossed.launch.seconds - START - small / 4) <= 1e-9)
   )
     findings.push(
       `the closed form's launch is ${JSON.stringify(tossed.launch)}, ${small / 4} s after the release expected`,

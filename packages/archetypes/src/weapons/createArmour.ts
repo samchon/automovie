@@ -8,6 +8,7 @@ import {
   ArchetypeDraw,
   ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeRefusal,
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
@@ -29,10 +30,10 @@ const PAD: string =
  * @param params The kind, the read piece, the body's measure, and any dimension the author fixes.
  * @param seed The seed that picks the read piece left free and draws every dimension left free inside its band; absent, the first piece and the middle of each band.
  * @returns The piece.
- * @throws {ArchetypeRefusal} For a piece not of the kind, or a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For an unsupported piece or dimension, a missing or invalid body measure used by this kind, or a cuirass whose shoulders are not above its waist.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each kind covers, how it is fitted or left as read, where it is centred and how it rides its bone.
- * @evidence contracts/development/implementation.md#principled-implementation Fitted, each piece's inside is its body part's measure (the head's radius, the chest's breadth and depth between the waist and the shoulders, a limb's radius over its length) and its plate the read thickness beyond it, a helmet's read padding inside it; unfitted, the read piece's own box; the mass is the read piece's whole.
+ * @evidence contracts/development/implementation.md#principled-implementation Fitted, each piece's inside is its body part's measure (the head's radius, the chest's breadth and depth between waist and shoulders, a limb's radius over its length) with plate and helmet padding outside it; unfitted, the museum box. Only measures that kind actually uses must be finite and positive, and a cuirass's shoulders must stand above its waist. The mass is the read piece's whole.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the piece, draw the thickness and padding, then one branch per kind's shape, and the `wear` contact.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each piece is one rigid solid on one bone: lames, a mail shirt's drape and a closed helmet's visor are not drawn, so an open and a closed helmet differ only in their records; a mail shirt is drawn on the body's surface, its rings' thickness unread. A plate piece's body carries the provisional glance angle `GLANCE`; the share of a hit passed to the body is no figure here, since a projectile that stops in the plate hands the wearer its whole momentum, which the hit's outcome computes (#3479), as Krenn, Kalaus and Hall's breastplate stopped a 907 J ball with only a bruise behind it.
  * @evidence contracts/development/implementation.md#efficient-algorithms One or two parts.
@@ -70,13 +71,19 @@ export function createArmour(
   const builder: ArchetypeBuilder<
     createArmour.Affordance,
     createArmour.Dimension
-  > = new ArchetypeBuilder({ id: params.id, name: kind, draw });
+  > = new ArchetypeBuilder({
+    id: params.id,
+    name: kind,
+    material: "steel",
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const steel: { color: string; surface: "steel" } = {
     color: "#8f979e",
     surface: "steel",
   };
   const m: Partial<IAutoMovieBodyMeasure> | undefined = params.measure;
+  if (m !== undefined) admitMeasure(kind, m);
   const t: number = d.thickness ?? 0;
 
   if (m === undefined)
@@ -119,7 +126,7 @@ export function createArmour(
     frame: ArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
   });
-  // A plate piece glances a projectile struck beyond its glance angle; mail, rings rather than a plate, declares none.
+  // Plate publishes provisional glance metadata; current flight/melee outcomes do not consume it. Mail declares none.
   return builder.build(d.mass!, {
     rests: "steel",
     ...(kind === "mail" ? {} : { outcome: { glance: createArmour.GLANCE } }),
@@ -279,7 +286,7 @@ export namespace createArmour {
     },
   };
 
-  /** A plate piece's glance angle, degrees from the plate's normal, a provisional value: Peter Jones's long bodkin against 1.5 mm mild steel "penetrated perhaps 2 mm beyond the inner surface of the plate and then broke while the rest of the arrow ricocheted" at 60 degrees and ricocheted at 70 (Hardy, Longbow, as quoted at https://willscommonplacebook.blogspot.com/2007/02/glancing-blows-and-armor-penetration.html, not read at the book), so the plate glances from 60 degrees. Williams's table of the energy to defeat mild steel at an angle (The Knight and the Blast Furnace, 2003, quoted there), rising to twice the square-on energy at 60 degrees, and Hinsley's 30-degree strikes (The Historian, 2015, pp. 31-32) give no glance angle. Searched for #3500 without a primary figure: Jones 1992 (Materials Characterization 29) and Magier et al. 2017 (unreadable), and the DTIC report ADA030268 on spheres ricocheting from thin plates (unreadable). */
+  /** A plate piece's glance angle, degrees from the plate's normal, a provisional value: Peter Jones's long bodkin against 1.5 mm mild steel "penetrated perhaps 2 mm beyond the inner surface of the plate and then broke while the rest of the arrow ricocheted" at 60 degrees and ricocheted at 70 (Hardy, Longbow, as quoted at https://willscommonplacebook.blogspot.com/2007/02/glancing-blows-and-armor-penetration.html, not read at the book), the prototype publishes 60 degrees from this quoted trial, not a universal critical angle. Williams's table of the energy to defeat mild steel at an angle (The Knight and the Blast Furnace, 2003, quoted there), rising to twice the square-on energy at 60 degrees, and Hinsley's 30-degree strikes (The Historian, 2015, pp. 31-32) give no glance angle. Searched for #3500 without a primary figure: Jones 1992 (Materials Characterization 29) and the DTIC report ADA030268 on spheres ricocheting from thin plates (unreadable). Magier et al. 2017, DOI 10.5604/01.3001.0010.5152, uses two specific 96 g arrow types against 2 mm steel in finite-element simulations and reports ricochet near 52 degrees; those specimen-specific outcomes do not establish a universal cutoff (author-hosted primary PDF, https://www.researchgate.net/profile/Pawel-Zochowski/publication/320288999_NUMERICAL_ANALYSIS_OF_ENGLISH_BOWS_USED_IN_BATTLE_OF_CRECY/links/59ef29ae458515ec0c7a1284/NUMERICAL-ANALYSIS-OF-ENGLISH-BOWS-USED-IN-BATTLE-OF-CRECY.pdf). */
   export const GLANCE: number = 60;
 
   /** The plate's thickness band. */
@@ -315,7 +322,7 @@ export namespace createArmour {
     /** Which read piece; picked from the seed when absent. */
     model?: Model;
 
-    /** The body the piece is fitted to, as the motion laws read it; absent, the piece is its record's box. */
+    /** The body to fit, metres: each field this kind uses must be present, finite and positive, with shoulders above waist for a cuirass. Unused fields may be omitted; absent measure leaves the piece as its museum-record box. */
     measure?: Partial<IAutoMovieBodyMeasure>;
 
     /** The model's id, unique in a scene; `armour` when absent. */
@@ -324,4 +331,47 @@ export namespace createArmour {
 
   /** The bone a piece rides, by its kind and a limb piece's side: `armourBone`. */
   export const bone: typeof armourBone = armourBone;
+}
+
+/** Admit only the body's dimensions this kind actually uses, without inventing anthropometric bands. */
+function admitMeasure(
+  kind: createArmour.Kind,
+  measure: Partial<IAutoMovieBodyMeasure>,
+): void {
+  const required: Readonly<
+    Record<createArmour.Kind, readonly (keyof IAutoMovieBodyMeasure)[]>
+  > = {
+    openHelmet: ["headRadius"],
+    closedHelmet: ["headRadius"],
+    brimmedHelmet: ["headRadius"],
+    cuirass: ["chestBreadth", "chestDepth", "shoulderHeight", "waistHeight"],
+    mail: ["chestBreadth", "chestDepth"],
+    gauntlet: ["forearmRadius", "hand"],
+    vambrace: ["forearmRadius", "forearm"],
+    greave: ["shankRadius", "shank"],
+  };
+  for (const field of required[kind]) {
+    const value: number | undefined = measure[field];
+    if (!(value !== undefined && Number.isFinite(value) && value > 0))
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: "armour",
+        axis: `measure.${field}`,
+        value,
+        feasible: null,
+        reason: `${kind} needs a finite positive ${field} in metres`,
+        fix: `supply the body's measured ${field} above zero`,
+      });
+  }
+  if (kind === "cuirass" && !(measure.shoulderHeight! > measure.waistHeight!))
+    throw new ArchetypeRefusal({
+      kind: "parameter",
+      archetype: "armour",
+      axis: "measure.shoulderHeight",
+      value: measure.shoulderHeight,
+      feasible: null,
+      reason:
+        "a cuirass needs the shoulders above the waist to have a positive height",
+      fix: "supply canonical body heights with shoulderHeight above waistHeight",
+    });
 }

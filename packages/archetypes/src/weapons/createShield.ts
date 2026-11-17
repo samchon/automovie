@@ -68,6 +68,7 @@ export function createShield(
   > = new ArchetypeBuilder({
     id: params.id,
     name: kind === "buckler" ? "buckler" : "round shield",
+    material: "composite",
     draw,
   });
   const v: typeof Vector3.create = Vector3.create;

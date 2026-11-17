@@ -68,6 +68,7 @@ export function createSmoking(
     createSmoking.Affordance,
     createSmoking.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: model.name === undefined ? kind : ` ${model.name}`,
     draw,

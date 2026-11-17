@@ -111,6 +111,7 @@ export function createMachine(
     createMachine.Affordance,
     createMachine.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name:
       kind === "payStation"

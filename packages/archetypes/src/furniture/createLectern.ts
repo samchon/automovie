@@ -53,6 +53,7 @@ export function createLectern(
     createLectern.Affordance,
     createLectern.Dimension
   > = new ArchetypeBuilder({
+    material: "wood",
     id: params.id,
     name: "lectern",
     draw,

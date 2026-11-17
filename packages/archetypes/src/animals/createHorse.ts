@@ -322,6 +322,7 @@ export namespace createHorse {
       id: params.id,
       name: profile.names[tack],
       draw,
+      material: "skin",
     });
     const h: number = d.withersHeight;
     const rig: createHorse.IRig = createHorse.rig(d, profile.body);

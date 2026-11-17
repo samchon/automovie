@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import type { IMotionTrajectoryInterval } from "./IMotionTrajectoryInterval";
 import { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import type { MotionTrajectoryPartition } from "./MotionTrajectoryPartition";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
@@ -26,10 +27,10 @@ const { turn, scaled, dexpinv }: typeof MotionTrajectoryRotation =
  * @returns The trajectory.
  * @throws {Error} When interval, step, tolerance, partition, failure scope or defect-mode combination is invalid, the state is empty, required rate shape is missing, a defect is negative/NaN, or adaptive refinement reaches time resolution. Errors from the pure physical model propagate unchanged.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the method, the step count, the orientation block, the read between knots, the held ends, the determinism contract, the default step and the stiff-case caveat.
+ * @evidence contracts/development/common.md#meaningful-documentation States method, knot count, orientation, held ends, determinism and stiffness; optional interval reads copy actual adjacent fixed states/rates with their knot seconds and remain absent for adaptive curves.
  * @evidence contracts/development/implementation.md#principled-implementation Classical RK4 or adaptive DP5(4) advances orientation by RKMK's truncated algebra differential (Munthe-Kaas 1999). Playback uses exact Jr^-1 endpoint slopes, fixing finite-step C1 matching. Optional paired continuous control measures actual Jr(r)r' through a caller-owned normalized physical defect without reinterpreting generic RMS units. Smoothness is an estimator premise, not an arbitrary-history guarantee.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, hand an error-controlled request to the stepper, else step to `t1` keeping knots, then a reader that finds the knot interval by index.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The frame grid never enters the integration; reads are pure functions of the knots.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, hand adaptive requests to the stepper, else retain fixed knots. MotionTrajectoryRead owns both interpolation and fresh actual-interval snapshots selected by the same adjacent index.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The frame grid never enters integration; reads use actual retained knots. Fixed interval snapshots neither resample the model nor classify adaptive extensions as cubic Hermite data.
  * @evidence contracts/development/implementation.md#efficient-algorithms Fixed integration uses four new f calls per step after the initial call; adaptive trials use six, with four additional paired-extension calls when a physical defect is requested and the RMS admits. Physical callback probes additionally depend on the paired polynomials' extrema. Full reads cost O(n+1) plus interval lookup and copy output; quaternion projection skips the vector block and costs O(1) fixed or O(log A) adaptive.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot's derivative is the next step's first stage, evaluated once. Fixed retained rates are numeric snapshots; intermediate stages borrow the pure callback's results without modifying them. The zero-dimensional vector has no components to advance and shares its private empty record across stages and knots; nonempty states remain separate. Readers reuse only their immediately preceding Object.is-equal requested time and always copy public output.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed output holds ceil((t1-t0)/h)+1 owned numeric states and rate snapshots; adaptive output holds accepted numeric steps with no fixed count bound. MotionTrajectoryRead constructs both readers outside the callback's scope, retaining at most one previous read and returning fresh vector and orientation records, so only completed numeric data escapes.
@@ -221,6 +222,9 @@ export function integrateMotionTrajectory(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The orientation is a separate block, so a quaternion is never integrated as four free numbers.
  */
 export namespace integrateMotionTrajectory {
+  /** Actual fixed Hermite knot data; the top-level owner documents its units and independent arrays. */
+  export type IInterval = IMotionTrajectoryInterval;
+
   /** The default step, seconds: a sixtieth of a second, under which the classical method's error stays far below a millimetre for the motions planned (#3424). */
   export const STEP: number = 1 / 60;
 
@@ -353,6 +357,9 @@ export namespace integrateMotionTrajectory {
 
     /** The knots' times, seconds, from `t0` to `t1`: a fixed grid, or the accepted steps' ends under a tolerance. */
     times: readonly number[];
+
+    /** Read fresh copies of adjacent actual fixed Hermite states and rates; absent for adaptive continuous extensions. Query seconds are finite and outside times select the nearest end interval. */
+    interval?: (time: number) => IInterval;
 
     /**
      * The state at a time, held at the ends outside `[t0, t1]`. Each call

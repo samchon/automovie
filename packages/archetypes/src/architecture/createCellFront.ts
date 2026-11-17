@@ -75,6 +75,7 @@ export function createCellFront(
     createCellFront.Affordance,
     createCellFront.Dimension
   > = new ArchetypeBuilder({
+    material: "steel",
     id: params.id,
     name: "cell front",
     draw,

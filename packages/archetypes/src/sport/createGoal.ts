@@ -91,6 +91,7 @@ export function createGoal(
     ...net.figures,
   };
   const builder: Builder = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name:
       net.name === undefined

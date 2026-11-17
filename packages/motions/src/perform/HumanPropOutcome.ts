@@ -12,6 +12,7 @@ import type {
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanPropFlight } from "./HumanPropFlight";
 import type { IHumanProp } from "./IHumanProp";
 
@@ -36,6 +37,9 @@ import type { IHumanProp } from "./IHumanProp";
  *   rolling resistance;
  * - `roll` along the ground where it declares a rolling resistance and no
  *   restitution to bounce with;
+ * - a contact with a friction pair and a measurable radius, but no rebound
+ *   coefficient or explicit ground roll, refuses the physical continuation
+ *   instead of turning unknown restitution into zero;
  * - otherwise it stays where it struck, riding it: an outcome the body's data
  *   do not give is never invented.
  *
@@ -51,13 +55,12 @@ import type { IHumanProp } from "./IHumanProp";
  */
 export namespace HumanPropOutcome {
   /**
-   * One engine continuation and its optional terminating contact, with
-   * every time measured in seconds from the original launch.
+   * A leg of a flight after its first contact.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines launch-relative from/end, the engine segment and the absent-contact/infinite-end case.
-   * @evidence contracts/development/design.md#principled-representation Couples the original typed engine segment with its real contact boundary so playback and hit reporting share one physical trajectory.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Flight construction, frame playback and hit reporting consume these four fields without a second sampled trajectory representation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts An absent contact remains unended rather than a fabricated rest or a separate resolved flag; segment kind retains the engine's motion law.
+   * @evidence contracts/development/common.md#meaningful-documentation Documents launch-relative seconds, the engine segment, an infinite unended leg and its optional ending contact.
+   * @evidence contracts/development/design.md#principled-representation One engine continuation segment retains its timing and observed contact without a parallel trajectory representation; sorted/progressing times remain the producer's obligation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanPropFlight reads segment frames and recorded contacts; legs constructs every field.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing contact is explicit and no predicted impact is substituted for an observed one.
    */
   export interface ILeg {
     /** Seconds since the launch it begins. */
@@ -74,13 +77,12 @@ export namespace HumanPropOutcome {
   }
 
   /**
-   * The first engine hit of one swept flight, its actual struck carrier,
-   * and the collider identity needed for a later pass-through query.
+   * A meeting of a flight with what it strikes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the hit's swept-flight-relative clock, struck carrier and collider identity used to leave a passed body.
-   * @evidence contracts/development/design.md#principled-representation Preserves the engine hit together with the performance carrier and exact collider id rather than conflating contact geometry with a subject name.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Continuation construction needs the hit, outcome selection needs the carrier and pass exclusion needs the collider; no parallel collision result is introduced.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains actual sweep results and identities without manufacturing an outcome, contact time or target frame.
+   * @evidence contracts/development/common.md#meaningful-documentation States the sweep-relative hit, target kind and collider identity used for pass exclusion or a resolved bounce's physical departure query.
+   * @evidence contracts/development/design.md#principled-representation Reuses the engine hit and the flight's target union; their correspondence is supplied by the sweep rather than encoded twice.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The continuation loop reads the hit, target and collider for outcome, settlement and the next sweep.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains no inferred material coefficient or alternative collision solver.
    */
   export interface IMeeting {
     /** The engine's hit, its time since the swept flight's own zero. */
@@ -89,7 +91,7 @@ export namespace HumanPropOutcome {
     /** What it struck. */
     struck: HumanPropFlight.Struck;
 
-    /** The struck collider's id, for a pass that must leave it behind. */
+    /** The struck collider's id, for pass exclusion or a resolved bounce's departure query. */
     collider: string;
   }
 
@@ -100,13 +102,13 @@ export namespace HumanPropOutcome {
    * @param prop The prop.
    * @returns The drag.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines optional declared quadratic drag and its coefficient, square-metre area and kilogram mass; absence returns undefined.
-   * @evidence contracts/development/implementation.md#principled-implementation Copies the body's authored drag coefficient/area with its own mass into the engine projectile contract.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional-body/drag branch precedes one numeric record construction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Supplies no default coefficient, area or mass and leaves numerical drag admission and integration to the engine.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Performs constant field reads and allocates one fixed-size record only when drag is declared.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the existing body declaration directly without a second aerodynamic model or a retained prop-identity result.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns copied numeric data and retains no source body, prop, reader, handle or query history.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the body's quadratic coefficient, cross-sectional area and mass and distinguishes absent drag from a zero coefficient.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the admitted body's coefficient, SI area and mass directly into the engine drag record, leaving model-range admission to its existing owner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional-body gate and one three-field projection own the conversion.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not guess drag from visual geometry or invent a coefficient when the body declares none.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant reads and at most one small record allocation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the existing body declaration without re-estimating area, mass or aerodynamic behaviour.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh scalar record and retains no prop, callback or host resource.
    */
   export function drag(
     prop: IHumanProp,
@@ -127,14 +129,15 @@ export namespace HumanPropOutcome {
    * @param prop The flying prop.
    * @param struck What it struck.
    * @returns The engine's outcome, or undefined to stay.
+   * @throws {HumanRefusal} When a potential rebound has no declared normal restitution or an invalid ratio.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines prop/carrier inputs, closed engine outcome records and undefined for the existing stay policy.
-   * @evidence contracts/development/implementation.md#principled-implementation Applies authored embedding first, passage through a person next, positive restitution with declared friction and measurable radius next, then ground rolling; the engine owns the selected physical law.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered policy branch list delegates supported-shape radius reduction to its private owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves kinetic-then-static friction precedence and supported sphere/capsule/box radii. This policy does not add coefficient admission or infer missing rebound data; selected parameters are admitted by the engine continuation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Uses fixed policy work plus O(S) shape scanning for a rebound radius when earlier embedding/passage branches do not return.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the body's existing declarations and the shared radius owner; every call reads current inputs without a policy-result cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns only a fresh fixed-size numeric outcome or undefined and retains no body, geometry, target history or resource.
+   * @evidence contracts/development/common.md#meaningful-documentation States ordered embed, person-pass, rebound, ground-roll and rest decisions; unknown restitution refuses a potential rebound while explicit zero, embed, pass and ground roll remain distinct.
+   * @evidence contracts/development/implementation.md#principled-implementation Prioritizes explicit embedding and person passage, then uses the body's normal restitution and kinetic-or-static friction with the smallest supported collider radius; no measured specimen is flattened into a live coefficient.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Outcome selection stays in one ordered decision tree and delegates collider-size projection to radius; the physics equations remain in projectileContinue.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing rebound coefficients and invalid ratios produce a prop-specific refusal; an absent friction or supported radius still withholds bouncing, and an explicit ground-roll declaration needs no inferred rebound.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A scan of S prop colliders costs O(S) time and constant auxiliary storage, followed by at most one outcome allocation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads current body data and shared collider definitions without retaining mutable outcome caches; bounce and roll use the engine's existing continuation representation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns an owned small outcome or refusal and retains no prop, collider or external resource.
    */
   export function decide(
     prop: IHumanProp,
@@ -151,20 +154,39 @@ export namespace HumanPropOutcome {
     const friction: number | null | undefined =
       body.kineticFriction ?? body.friction;
     const size: number | undefined = radius(prop);
-    if (
-      body.restitution > 0 &&
-      friction !== null &&
-      friction !== undefined &&
-      size !== undefined
-    )
-      return {
-        kind: "bounce",
-        restitution: body.restitution,
-        friction,
-        ...(contact?.rolling === undefined
-          ? {}
-          : { roll: { radius: size, resistance: contact.rolling } }),
-      };
+    const restitution: number | undefined = body.restitution;
+    if (friction !== null && friction !== undefined && size !== undefined) {
+      if (restitution === undefined) {
+        if (struck.kind === "ground" && contact?.rolling !== undefined)
+          return { kind: "roll", resistance: contact.rolling };
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "restitution",
+          value: restitution,
+          feasible: null,
+          reason: `prop ${prop.subject} needs a measured or explicitly authored restitution for the contacting materials before a physical rebound`,
+          fix: "declare the prop body's normal restitution before asking it to rebound",
+        });
+      }
+      if (!Number.isFinite(restitution) || restitution < 0 || restitution > 1)
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "restitution",
+          value: restitution,
+          feasible: { kind: "range", minimum: 0, maximum: 1, unit: "" },
+          reason: `prop ${prop.subject} needs a finite normal speed ratio from zero through one`,
+          fix: "declare a finite restitution in that interval",
+        });
+      if (restitution > 0)
+        return {
+          kind: "bounce",
+          restitution,
+          friction,
+          ...(contact?.rolling === undefined
+            ? {}
+            : { roll: { radius: size, resistance: contact.rolling } }),
+        };
+    }
     if (struck.kind === "ground" && contact?.rolling !== undefined)
       return { kind: "roll", resistance: contact.rolling };
     return undefined;
@@ -174,16 +196,17 @@ export namespace HumanPropOutcome {
    * The legs after a first contact, each swept again until the prop sticks,
    * rests, rolls or the film ends.
    *
-   * @param props The prop, the flight that struck, its meeting, the film's seconds left after the launch, the sweep (a flight from a second since the launch, leaving a collider behind) and the contact record of a meeting.
+   * @param props The prop, the flight that struck, its meeting, the film's seconds left after the launch, the sweep (flight, absolute base, optional passed collider and separately the resolved bounce collider) and the contact record of a meeting. A passed collider is left behind; a bounced collider remains eligible for later entry after certified departure.
    * @returns The legs, none when the first contact ends the flight.
+   * @throws {HumanRefusal} For a nonfinite or negative horizon/first contact, or a later contact whose finite absolute second does not advance.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines launch-relative segments, the supplied physical sweep/settlement callbacks, film horizon and empty/still-moving termination cases.
-   * @evidence contracts/development/implementation.md#principled-implementation Applies the engine impact continuation at each real meeting, shifts its clock to the original launch, and sweeps rebound/pass flights again; rolling retains the engine segment and performs no further collision sweep.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One contact loop selects an outcome, builds the engine continuation, handles rest/roll/settling/horizon, and appends the next actual meeting.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the existing rebound-height settling test and pass-only collider exclusion. This version adds no bounce cap or clock nudge and relies on supplied meetings to progress; it does not certify progress for an arbitrary callback.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For C progressing contacts, performs C outcome/continuation steps and at most C actual sweeps, plus O(C*S) supported-radius scans. The callback determines sweep cost; this owner imposes no independent contact-count bound.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses decide, the engine continuation and the supplied single sweep/contact owners; subsequent projectiles preserve their actual computed velocity and attitude rather than rebuilding a second law.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns the returned O(C) segment/contact list and fixed loop state. Callbacks and original arguments are borrowed only during construction; no global history or handle is retained.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the finite nonnegative launch-relative horizon/first contact, strictly advancing later contacts, empty continuation at the horizon, callbacks, settlement and structured time/coefficient refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation Admits the initial clock and each later finite absolute contact time before settlement, without changing time by an epsilon. Each engine continuation reads the declared outcome, shifts its clock once and sweeps again. Under the existing fixed-surface response approximation, only inward gravity supports a returning normal arc; v_n squared over twice that acceleration is its drag-free height and a conservative upper bound with dissipative drag. Outward or tangent gravity cannot trigger radius-based settlement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop owns contact continuation while engine integration, sweeping and settlement remain separate owners supplied through typed inputs.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not duplicate projectile equations, clamp callback times, advance by a guessed epsilon or impose an arbitrary bounce count. Nonprogressing, negative, overflowing and nonfinite contact clocks refuse explicitly instead of looping or fabricating a continuation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For K admitted contacts, S colliders, engine continuation costs P_i and sweep costs C_i, work is O(K*S + sum(P_i + C_i)) and returned storage O(K), plus engine-owned drag-flight storage. Strictly increasing representable finite contact times prevent a repeated-clock loop; there is no small uniform contact-count bound or callback execution-time guarantee.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each continuation segment is constructed once and retained for later sampling; the engine owns optional drag-flight integration reuse, and this loop installs no callback or cross-flight cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned legs retain only their segments and contacts; local projectile and meeting references are released on return or refusal, and no host task is started.
    */
   export function legs(props: {
     prop: IHumanProp;
@@ -194,6 +217,7 @@ export namespace HumanPropOutcome {
       projectile: IAutoMovieProjectile,
       base: number,
       leave?: string,
+      departing?: string,
     ) => IMeeting | null;
     settle: (
       meeting: IMeeting,
@@ -201,6 +225,25 @@ export namespace HumanPropOutcome {
       base: number,
     ) => HumanPropFlight.IContact;
   }): ILeg[] {
+    if (!Number.isFinite(props.horizon) || props.horizon < 0)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "horizon",
+        value: props.horizon,
+        feasible: { kind: "range", minimum: 0, maximum: null, unit: "s" },
+        reason: `prop ${props.prop.subject} needs a finite nonnegative continuation horizon`,
+        fix: "give the finite seconds remaining after the launch",
+      });
+    if (!Number.isFinite(props.meeting.hit.time) || props.meeting.hit.time < 0)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "contact.time",
+        value: props.meeting.hit.time,
+        feasible: { kind: "range", minimum: 0, maximum: null, unit: "s" },
+        reason: `prop ${props.prop.subject} needs a finite nonnegative first contact time`,
+        fix: "supply the contact's seconds after this flight's launch",
+      });
+    if (props.meeting.hit.time >= props.horizon) return [];
     const out: ILeg[] = [];
     let projectile: IAutoMovieProjectile = props.projectile;
     let meeting: IMeeting = props.meeting;
@@ -221,9 +264,10 @@ export namespace HumanPropOutcome {
         return out;
       }
 
-      // A rebound that cannot rise the body's radius settles where it struck.
+      // A gravity-return height applies only when acceleration presses inward.
+      // Outward or tangent gravity must not attach a departing prop to it.
       const n: IAutoMovieVector3 = Vector3.normalize(meeting.hit.normal!);
-      const pull: number = Math.abs(Vector3.dot(projectile.gravity, n));
+      const pull: number = Math.max(0, -Vector3.dot(projectile.gravity, n));
       const rise: number =
         pull > 0
           ? Vector3.dot(next.projectile.velocity, n) ** 2 / (2 * pull)
@@ -234,11 +278,34 @@ export namespace HumanPropOutcome {
         next.projectile,
         next.from,
         outcome.kind === "pass" ? meeting.collider : undefined,
+        outcome.kind === "bounce" ? meeting.collider : undefined,
       );
+      const end: number = met === null ? Infinity : next.from + met.hit.time;
+      if (
+        met !== null &&
+        (!Number.isFinite(met.hit.time) ||
+          met.hit.time < 0 ||
+          !Number.isFinite(end) ||
+          !(end > next.from))
+      )
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "contact.time",
+          value: end,
+          feasible: {
+            kind: "range",
+            minimum: next.from,
+            maximum: null,
+            unit: "s",
+            open: "minimum",
+          },
+          reason: `prop ${props.prop.subject} contact with ${met.collider} after relative ${met.hit.time} s reaches absolute ${end} s, which does not advance finitely beyond ${next.from} s`,
+          fix: "supply the next strictly later contact; resolve departing or simultaneous contacts before continuing the flight",
+        });
       out.push({
         from: next.from,
         segment: next,
-        end: met === null ? Infinity : next.from + met.hit.time,
+        end,
         ...(met === null
           ? {}
           : { contact: props.settle(met, next.projectile, next.from) }),
@@ -257,13 +324,13 @@ export namespace HumanPropOutcome {
    * @param seconds Seconds since the launch, at or after the leg's start and before its end.
    * @returns The centre's state.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the existing launch-relative time premise and the engine centre-state result.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates the original segment and exact requested time to projectileContinue.at for its flight, roll or rest law.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One engine delegation owns the numerical state calculation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not shift the clock, clamp the request or replace the original segment with a sampled surrogate.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Adds constant delegation overhead to the actual engine state sampler, whose flight/drag or roll cost remains unchanged.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the existing continuation representation and numerical owner; no second trajectory formula or timestamp cache is introduced.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains neither the leg nor the returned state after this synchronous call and acquires no resource handle.
+   * @evidence contracts/development/common.md#meaningful-documentation States launch-relative seconds, the caller's segment-window precondition and the centre-state result.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates directly to the engine continuation sampler, preserving its segment-specific equations and admission semantics.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation keeps frame reading with the engine owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not interpolate stored screenshots, clamp time or invent an alternate trajectory.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Adds constant call overhead to the engine segment sampler.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Samples the retained segment without rebuilding contact sweeps or its outcome.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Acquires no task or resource and retains neither leg nor returned state.
    */
   export function at(leg: ILeg, seconds: number): IAutoMovieProjectileState {
     return projectileContinue.at(leg.segment, seconds);
@@ -278,13 +345,13 @@ export namespace HumanPropOutcome {
    * @param state Its state at the contact.
    * @returns World metres.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines prop/carrier policy inputs, contact state and the world-metre embedded or unchanged contact point.
-   * @evidence contracts/development/implementation.md#principled-implementation For a declared sticking depth and positive speed, advances along the velocity by that depth; every other case retains the original contact position.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the shared outcome and speed, then selects one directed offset or the supplied point.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps declared depth and original positive-speed guard without inventing a direction at rest or adding an offset for a non-sticking outcome.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Adds constant vector work to decide's existing supported-radius scan when its policy reaches that branch.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares outcome selection with continuation construction and uses the actual contact state rather than reevaluating a projectile.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new offset point or the borrowed supplied position and retains no state, source prop or query history.
+   * @evidence contracts/development/common.md#meaningful-documentation States velocity-aligned embedding depth in metres, zero-speed handling and that an unshifted result borrows the input state's position.
+   * @evidence contracts/development/implementation.md#principled-implementation Moves a sticking point along the normalized nonzero velocity by the declared depth; all other admitted outcomes use the actual contact position.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reuses decide for the body's contact policy and shared vector arithmetic for the one embedding offset.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not invent penetration depth or direction for zero speed; missing physical rebound data keeps decide's refusal rather than becoming an artificial rest.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(S) collider inspection through decide and constant vector work, with at most two small vectors allocated by the embedding branch.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares outcome policy with continuation planning instead of independently reinterpreting body coefficients.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no prop or state and returns either a fresh embedded point or the borrowed contact position.
    */
   export function rest(
     prop: IHumanProp,

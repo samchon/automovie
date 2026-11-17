@@ -52,11 +52,14 @@ export function test_physics_projectile_normal_gravity(): void {
     roll: { radius: 0.1, resistance: 0.1 },
   };
   const departed: projectileContinue.Segment = projectileContinue(
-    ceiling, hit, bounce,
+    ceiling,
+    hit,
+    bounce,
   );
   TestValidator.predicate(
     "a ceiling rebound flies away instead of binding to the ceiling",
-    departed.kind === "flight" && nclose(departed.projectile.velocity.y, -0.1, 0) &&
+    departed.kind === "flight" &&
+      nclose(departed.projectile.velocity.y, -0.1, 0) &&
       projectileContinue.at(departed, 1).position.y < 10,
   );
 
@@ -71,7 +74,9 @@ export function test_physics_projectile_normal_gravity(): void {
   );
 
   const neutral: projectileContinue.Segment = projectileContinue(
-    { ...ceiling, gravity: zero }, hit, bounce,
+    { ...ceiling, gravity: zero },
+    hit,
+    bounce,
   );
   TestValidator.predicate(
     "zero gravity cannot return an outward bounce to its surface",
@@ -84,17 +89,26 @@ export function test_physics_projectile_normal_gravity(): void {
   } catch (error) {
     refused = error instanceof RangeError;
   }
-  TestValidator.predicate("an explicit tensile ceiling roll is refused", refused);
+  TestValidator.predicate(
+    "an explicit tensile ceiling roll is refused",
+    refused,
+  );
 
   const rolling: projectileContinue.Segment = projectileContinue(
     { ...ceiling, gravity: zero, velocity: { x: 2, y: 0, z: 0 } },
     hit,
     { kind: "roll", resistance: 0.1 },
   );
-  const at: ReturnType<typeof projectileContinue.at> = projectileContinue.at(rolling, 1);
+  const at: ReturnType<typeof projectileContinue.at> = projectileContinue.at(
+    rolling,
+    1,
+  );
   TestValidator.predicate(
     "neutral normal gravity leaves a tangential roll at constant speed",
-    rolling.kind === "roll" && nclose(rolling.deceleration, 0, 0) &&
-      nclose(at.position.x, 2, 0) && nclose(at.position.y, 10, 0) && nclose(at.velocity.x, 2, 0),
+    rolling.kind === "roll" &&
+      nclose(rolling.deceleration, 0, 0) &&
+      nclose(at.position.x, 2, 0) &&
+      nclose(at.position.y, 10, 0) &&
+      nclose(at.velocity.x, 2, 0),
   );
 }

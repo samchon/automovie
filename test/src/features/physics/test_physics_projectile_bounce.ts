@@ -146,12 +146,23 @@ export function test_physics_projectile_bounce(): void {
     gravity: { x: 0, y: 0, z: 0 },
   };
   const contact: IAutoMovieHit = {
-    time: 0, point: flight.origin, normal: { x: 0, y: 1, z: 0 },
+    time: 0,
+    point: flight.origin,
+    normal: { x: 0, y: 1, z: 0 },
   };
   for (const kind of ["bounce", "pass"] as const)
-    for (const value of [-Number.MIN_VALUE, 1 + Number.EPSILON, 2, NaN, Infinity, -Infinity]) {
-      const outcome: projectileContinue.Outcome = kind === "bounce"
-        ? { kind, restitution: value, friction: 0 } : { kind, loss: value };
+    for (const value of [
+      -Number.MIN_VALUE,
+      1 + Number.EPSILON,
+      2,
+      NaN,
+      Infinity,
+      -Infinity,
+    ]) {
+      const outcome: projectileContinue.Outcome =
+        kind === "bounce"
+          ? { kind, restitution: value, friction: 0 }
+          : { kind, loss: value };
       let refused: boolean = false;
       try {
         projectileContinue(flight, contact, outcome);
@@ -163,7 +174,8 @@ export function test_physics_projectile_bounce(): void {
 
   /** Preserve all independent admissible-control findings in this round. */
   const accepts: (label: string, read: () => boolean) => void = (
-    label: string, read: () => boolean,
+    label: string,
+    read: () => boolean,
   ): void => {
     try {
       if (!read()) failures.push(label);
@@ -174,31 +186,78 @@ export function test_physics_projectile_bounce(): void {
   for (const kind of ["bounce", "pass"] as const)
     for (const value of [0, 0.5, 1])
       accepts(`${kind} admitted share ${value}`, (): boolean => {
-        const outcome: projectileContinue.Outcome = kind === "bounce"
-          ? { kind, restitution: value, friction: 0 } : { kind, loss: value };
-        const continued: projectileContinue.Segment = projectileContinue(flight, contact, outcome);
-        return continued.kind === "flight" &&
-          nclose(continued.projectile.velocity.x, kind === "bounce" ? 2 : 2 * (1 - value), 0) &&
-          nclose(continued.projectile.velocity.y, kind === "bounce" ? value : -(1 - value), 0);
+        const outcome: projectileContinue.Outcome =
+          kind === "bounce"
+            ? { kind, restitution: value, friction: 0 }
+            : { kind, loss: value };
+        const continued: projectileContinue.Segment = projectileContinue(
+          flight,
+          contact,
+          outcome,
+        );
+        return (
+          continued.kind === "flight" &&
+          nclose(
+            continued.projectile.velocity.x,
+            kind === "bounce" ? 2 : 2 * (1 - value),
+            0,
+          ) &&
+          nclose(
+            continued.projectile.velocity.y,
+            kind === "bounce" ? value : -(1 - value),
+            0,
+          )
+        );
       });
   accepts("friction above one keeps its nonnegative domain", (): boolean => {
-    const continued: projectileContinue.Segment = projectileContinue(flight, contact, {
-      kind: "bounce", restitution: 0.5, friction: 2,
-    });
-    return continued.kind === "flight" && nclose(continued.projectile.velocity.x, 0, 0) &&
-      nclose(continued.projectile.velocity.y, 0.5, 0);
-  });
-  accepts("rolling resistance above one keeps its nonnegative domain", (): boolean => {
     const continued: projectileContinue.Segment = projectileContinue(
-      { ...flight, gravity: AutoMovieGravity.DOWN }, contact, { kind: "roll", resistance: 2 },
+      flight,
+      contact,
+      {
+        kind: "bounce",
+        restitution: 0.5,
+        friction: 2,
+      },
     );
-    return continued.kind === "roll" && nclose(continued.deceleration, 2 * AutoMovieGravity.STANDARD, 0);
+    return (
+      continued.kind === "flight" &&
+      nclose(continued.projectile.velocity.x, 0, 0) &&
+      nclose(continued.projectile.velocity.y, 0.5, 0)
+    );
   });
-  accepts("embedding depth above one keeps its nonnegative domain", (): boolean => {
-    const continued: projectileContinue.Segment = projectileContinue(flight, contact, {
-      kind: "stick", depth: 2,
-    });
-    return continued.kind === "rest" && nclose(Vector3.length(continued.position), 2, 1e-12);
-  });
-  TestValidator.predicate(`continuation coefficient findings: ${failures.join("; ")}`, failures.length === 0);
+  accepts(
+    "rolling resistance above one keeps its nonnegative domain",
+    (): boolean => {
+      const continued: projectileContinue.Segment = projectileContinue(
+        { ...flight, gravity: AutoMovieGravity.DOWN },
+        contact,
+        { kind: "roll", resistance: 2 },
+      );
+      return (
+        continued.kind === "roll" &&
+        nclose(continued.deceleration, 2 * AutoMovieGravity.STANDARD, 0)
+      );
+    },
+  );
+  accepts(
+    "embedding depth above one keeps its nonnegative domain",
+    (): boolean => {
+      const continued: projectileContinue.Segment = projectileContinue(
+        flight,
+        contact,
+        {
+          kind: "stick",
+          depth: 2,
+        },
+      );
+      return (
+        continued.kind === "rest" &&
+        nclose(Vector3.length(continued.position), 2, 1e-12)
+      );
+    },
+  );
+  TestValidator.predicate(
+    `continuation coefficient findings: ${failures.join("; ")}`,
+    failures.length === 0,
+  );
 }

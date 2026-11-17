@@ -54,6 +54,7 @@ export function createShowcase(
     createShowcase.Affordance,
     createShowcase.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `glass showcase ${model.name}`,
     draw,

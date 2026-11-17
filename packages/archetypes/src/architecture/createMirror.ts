@@ -80,6 +80,7 @@ export function createMirror(
     createMirror.Affordance,
     createMirror.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name:
       size.name === undefined ? "standing mirror" : `wall mirror ${size.name}`,

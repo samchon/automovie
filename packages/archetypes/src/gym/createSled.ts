@@ -56,6 +56,7 @@ export function createSled(
   const height: number = d.height!;
   const builder: ArchetypeBuilder<createSled.Affordance, createSled.Dimension> =
     new ArchetypeBuilder({
+      material: "steel",
       id: params.id,
       name: `push sled ${model.name}`,
       draw,

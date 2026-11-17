@@ -65,6 +65,7 @@ export function createExerciseMat(
     createExerciseMat.Affordance,
     createExerciseMat.Dimension
   > = new ArchetypeBuilder({
+    material: "foam",
     id: params.id,
     name: size.name === undefined ? `${kind} mat` : `${kind} mat ${size.name}`,
     draw,

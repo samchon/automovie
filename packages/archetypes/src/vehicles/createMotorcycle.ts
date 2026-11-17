@@ -69,6 +69,7 @@ export function createMotorcycle(
     createMotorcycle.Affordance,
     createMotorcycle.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: kind,
     draw,

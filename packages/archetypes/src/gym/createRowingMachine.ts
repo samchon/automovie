@@ -61,6 +61,7 @@ export function createRowingMachine(
     createRowingMachine.Affordance,
     createRowingMachine.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `rowing machine on ${legs.name} legs`,
     draw,

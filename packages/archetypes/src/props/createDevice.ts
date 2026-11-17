@@ -93,6 +93,7 @@ export function createDevice(
     createDevice.Affordance,
     createDevice.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: NAMES[kind],
     draw,

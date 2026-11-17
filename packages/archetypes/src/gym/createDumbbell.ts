@@ -74,6 +74,7 @@ export function createDumbbell(
     createDumbbell.Affordance,
     createDumbbell.Dimension
   > = new ArchetypeBuilder({
+    material: "steel",
     id: params.id,
     name: "dumbbell",
     draw,

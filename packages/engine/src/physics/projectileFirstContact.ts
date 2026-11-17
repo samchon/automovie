@@ -64,7 +64,13 @@ export function projectileFirstContact(
   span: { from: number; to: number },
   options: projectileFirstContact.IOptions,
 ): IAutoMovieHit | null {
-  if (!(Number.isFinite(span.from) && Number.isFinite(span.to) && span.to > span.from))
+  if (
+    !(
+      Number.isFinite(span.from) &&
+      Number.isFinite(span.to) &&
+      span.to > span.from
+    )
+  )
     throw new RangeError(
       `projectile contact span ${span.from} to ${span.to} is not finite and forward`,
     );
@@ -138,8 +144,11 @@ export function projectileFirstContact(
         },
       ],
       bodies: colliders.map(
-        (c: projectileFirstContact.ICollider): resolveAutoMovieContactEvents.IBody => {
-          const departure: projectileFirstContact.ICollider["departure"] = c.departure;
+        (
+          c: projectileFirstContact.ICollider,
+        ): resolveAutoMovieContactEvents.IBody => {
+          const departure: projectileFirstContact.ICollider["departure"] =
+            c.departure;
           return {
             id: c.id,
             distance: (point: IAutoMovieVector3, seconds: number): number =>
@@ -149,12 +158,14 @@ export function projectileFirstContact(
               b: IAutoMovieVector3,
               seconds: number,
             ): number => c.nearest(a, b, seconds).distance,
-            ...(departure === undefined ? {} : {
-              departure: (
-                contact: resolveAutoMovieContactEvents.IInitialContact,
-              ): resolveAutoMovieContactEvents.Departure | undefined =>
-                departure.call(c, projectile, options, contact),
-            }),
+            ...(departure === undefined
+              ? {}
+              : {
+                  departure: (
+                    contact: resolveAutoMovieContactEvents.IInitialContact,
+                  ): resolveAutoMovieContactEvents.Departure | undefined =>
+                    departure.call(c, projectile, options, contact),
+                }),
           };
         },
       ),
@@ -325,4 +336,3 @@ export namespace projectileFirstContact {
     };
   }
 }
-

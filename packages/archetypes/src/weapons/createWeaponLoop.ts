@@ -65,6 +65,7 @@ export function createWeaponLoop(
     createWeaponLoop.Affordance,
     createWeaponLoop.Dimension
   > = new ArchetypeBuilder({
+    material: "leather",
     id: params.id,
     name: kind === "belt" ? "belt loop" : "back sleeve",
     draw,

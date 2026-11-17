@@ -58,6 +58,7 @@ export function createSafe(
   );
   const builder: ArchetypeBuilder<createSafe.Affordance, createSafe.Dimension> =
     new ArchetypeBuilder({
+      material: "steel",
       id: params.id,
       name: "gun safe",
       draw,

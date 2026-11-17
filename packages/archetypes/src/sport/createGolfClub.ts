@@ -53,6 +53,7 @@ export function createGolfClub(
     createGolfClub.Affordance,
     createGolfClub.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: kind,
     draw,

@@ -106,6 +106,7 @@ export function createMobilityAid(
     createMobilityAid.Affordance,
     createMobilityAid.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: NAMES[kind],
     draw,

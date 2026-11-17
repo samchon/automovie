@@ -57,6 +57,7 @@ export function createFireRing(
     createFireRing.Affordance,
     createFireRing.Dimension
   > = new ArchetypeBuilder({
+    material: "steel",
     id: params.id,
     name: "fire ring",
     draw,

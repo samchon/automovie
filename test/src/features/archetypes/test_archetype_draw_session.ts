@@ -112,7 +112,11 @@ export function test_archetype_draw_session(): void {
 
   // 3. The archetype carries the record, posed or not.
   const built: ReturnType<ArchetypeBuilder<"top", Dimension>["build"]> =
-    new ArchetypeBuilder<"top", Dimension>({ name: "thing", draw })
+    new ArchetypeBuilder<"top", Dimension>({
+      material: "steel",
+      name: "thing",
+      draw,
+    })
       .box("block", Vector3.create(0.1, 0.1, 0.1), Vector3.create(0, 0.05, 0))
       .build(1);
   if (

@@ -61,6 +61,7 @@ export function createPlyoBox(
     createPlyoBox.Affordance,
     createPlyoBox.Dimension
   > = new ArchetypeBuilder({
+    material: "wood",
     id: params.id,
     name: "plyometric box",
     draw,

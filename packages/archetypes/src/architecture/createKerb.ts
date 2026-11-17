@@ -50,6 +50,7 @@ export function createKerb(
   );
   const builder: ArchetypeBuilder<createKerb.Affordance, createKerb.Dimension> =
     new ArchetypeBuilder({
+      material: "concrete",
       id: params.id,
       name: kind,
       draw,

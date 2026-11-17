@@ -111,6 +111,7 @@ export function createDoor(
   const thick: number = d.thickness!;
   const builder: ArchetypeBuilder<createDoor.Affordance, createDoor.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: kind === "sliding" ? "sliding door" : "hinged door",
       draw,

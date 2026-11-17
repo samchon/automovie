@@ -1,17 +1,17 @@
-import {
-  AutoMovieGravity,
-  Vector3,
-  integrateMotionTrajectory,
-} from "@automovie/engine";
+import { Vector3, integrateMotionTrajectory } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { Archetype } from "./Archetype";
-import { ArchetypeArticulation } from "./ArchetypeArticulation";
 import { ArchetypeFrame } from "./ArchetypeFrame";
+import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
+import { ArchetypePendulumFrequency } from "./ArchetypePendulumFrequency";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import { ArchetypeTrackEase } from "./ArchetypeTrackEase";
+import { ArchetypeTrackRange } from "./ArchetypeTrackRange";
+import { ArchetypeTrackTime } from "./ArchetypeTrackTime";
 import { ArchetypeUnits } from "./ArchetypeUnits";
 
 /**
@@ -37,19 +37,20 @@ export namespace ArchetypeTrack {
     /** The articulation moved. */
     articulation: Id;
 
-    /** The film second the movement begins. */
+    /** The finite film second the movement begins. */
     start: number;
 
-    /** The film second it ends, after which the travel holds. */
+    /** The finite film second it ends, strictly later than start, after which travel holds. */
     end: number;
 
     /**
      * The travel at a film second, in the articulation's unit: degrees for a hinge, metres for a slider; the first travel before `start`, the last after `end`.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States the unit and the held ends.
-     * @evidence contracts/development/implementation.md#principled-implementation The track's own solution read at the second's offset from its start, clamped to its span.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Clamp, then read.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
+     * @throws {ArchetypeRefusal} When the sample second is non-finite.
+     * @evidence contracts/development/common.md#meaningful-documentation States the unit, held ends and finite-clock refusal.
+     * @evidence contracts/development/implementation.md#principled-implementation ArchetypeTrackTime admits the finite sample and selects exact held offsets before subtraction; the track reads its prepared solution only inside that span.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit finite sample, select held endpoints, then read.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Non-finite sample times are refused rather than clamped into an endpoint.
      * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: a closed form, or one trajectory read.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work An integrated track reads the trajectory integrated once when it was made.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing per call.
@@ -105,27 +106,54 @@ export namespace ArchetypeTrack {
   export const PERIOD: number = 0.005;
 
   /**
-   * The arithmetic-geometric mean of two positive numbers.
+   * The arithmetic-geometric mean of two finite positive numbers.
    *
    * @param a One number.
    * @param b The other.
    * @returns Their mean, the common limit of the arithmetic and geometric means iterated.
+   * @throws {ArchetypeRefusal} For non-finite or nonpositive inputs.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Gauss's iteration, quadratically convergent, stopped when the two means agree to the last bit or after 64 rounds.
+   * @evidence contracts/development/implementation.md#principled-implementation Gauss's iteration, quadratically convergent, stopped at agreement or the existing 64-round bound. Ordinary normal inputs retain their order. A subnormal input pair is lifted by the common exact power2^52 when that cannot overflow, so every mean remains normal before final rescaling; a mixed pair too large for that lift already reaches two normal values after its first iteration. Overflowing means or subnormal/overflowing products use equivalent bounded mean and square-root factorizations.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A handful of rounds for any amplitude a swing takes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid inputs refuse without a clamp or guessed mean; exact homogeneous scaling prevents a subnormal quantization cycle and factorization changes only exceptional numeric evaluation, not the iteration.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most the existing 64 constant-work rounds; actual swing amplitudes converge within a handful.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function agm(a: number, b: number): number {
+    if (!(Number.isFinite(a) && a > 0 && Number.isFinite(b) && b > 0))
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: "track",
+        axis: "agm",
+        value: { a, b },
+        feasible: null,
+        reason: "the arithmetic-geometric mean needs finite positive inputs",
+        fix: "give two finite values above zero",
+      });
+
+    // Homogeneity lifts MIN_VALUE to least-normal before means can quantize a cycle.
+    const scale: number =
+      Math.min(a, b) < 2 ** -1022 &&
+      Math.max(a, b) <= Number.MAX_VALUE / 2 ** 52
+        ? 2 ** 52
+        : 1;
+    a *= scale;
+    b *= scale;
     for (let k: number = 0; k < 64 && a !== b; k++) {
       const next: number = (a + b) / 2;
-      b = Math.sqrt(a * b);
-      a = next;
+      const product: number = a * b;
+      const geometric: number =
+        Number.isFinite(product) && product >= 2 ** -1022
+          ? Math.sqrt(product)
+          : Math.sqrt(a) * Math.sqrt(b);
+      a = Number.isFinite(next)
+        ? next
+        : Math.min(a, b) + (Math.max(a, b) - Math.min(a, b)) / 2;
+      b = geometric;
     }
-    return a;
+    return a / scale;
   }
 
   /** The release amplitude, radians, up to which the closed form's period, `2 pi / ω`, is within `PERIOD` of the exact one, `2 pi / (ω agm(1, cos(θ0 / 2)))` (Carvalhaes and Suppes, Approximations for the period of the simple pendulum based on the arithmetic-geometric mean, Am. J. Phys. 76(12):1150-1154, 2008, https://suppescorpus.stanford.edu/sites/g/files/sbiybj32751/files/media/file/approximations_for_the_period_of_the_simple_pendulum_based_on_the_arithmetic-geometric_mean_431.pdf): about 0.28 rad, found once by bisection. */
@@ -210,15 +238,15 @@ export namespace ArchetypeTrack {
    * @param hinge The hinge.
    * @param props `start`, the film second it is released; `release`, the travel it is released at, at rest, degrees; `seconds`, how long it swings, after which it holds; `pendulum`, the swinging body's figures, `pendulum(archetype, hinge)` when absent; `launch`, a travel whose first passing is the launch.
    * @returns The track.
-   * @throws {ArchetypeRefusal} As `pendulum` does; when `seconds` is not positive; when the swing, which reaches as far past rest as it was released from it, leaves the hinge's range; or when the launch travel is not passed while it swings.
+   * @throws {ArchetypeRefusal} As `pendulum` does; when the interval or custom pendulum figures are invalid or unrepresentable; when the release is outside the single rest-centred oscillatory well (strictly less than 180 degrees from rest); when that oscillation leaves the hinge's range; or when the launch travel is not passed while it swings.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input, the default body, the held end and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation `I θ'' = -m g A sin θ` from rest: below `SMALL` the closed form `θ0 cos(ω t)`, whose period is within `PERIOD` of the exact one; above it RK4 on `(θ, θ')` by `integrateMotionTrajectory` over the swing. Energy is conserved, so the swing's reach is the release's distance past rest, checked against the range once. The launch is the closed form's first crossing `acos(θL / θ0) / ω`, or the integrated trajectory's first sign change found by bisection.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The body, the admission, the solution, the launch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No friction or air drag damps the swing: none was read; a stop that would end it is the producer's range, refused, not hit.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The closed form is constant work; the integration is one pass at the engine's step, read in constant time.
+   * @evidence contracts/development/common.md#meaningful-documentation States each input, the default body, the held end and the refusals; start and samples are finite, duration is positive and end must remain representably later.
+   * @evidence contracts/development/implementation.md#principled-implementation `I θ'' = -m g A sin θ` from rest: below `SMALL` the closed form `θ0 cos(ω t)`, whose period is within `PERIOD` of the exact one; above it the same RK4 owner solves d²θ/dτ²=-sinθ with τ=ωt and converts rate by ω. The fixed STEP value remains unchanged in this dimensionless phase coordinate, avoiding stiffness and tying preparation cost to physical oscillation rather than arbitrary time units. The single-well solution requires abs(release-rest)<180 degrees: the inverted equilibrium separates adjacent potential wells (NIST DLMF22.19(i), https://dlmf.nist.gov/22.19). Within that well energy is conserved, so the swing's reach is the release's distance past rest, checked against the range once. The launch is the closed form's first crossing `acos(θL / θ0) / ω`, or the integrated trajectory's first sign change bisected in phase with a difference-form midpoint; only an interior final phase converts to seconds, while phase endpoints map directly to clock endpoints. A strict interior event must retain an interior clock offset, so scaling cannot promote it to a held endpoint or overflow a physical-time bracket.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Snapshot input scalars and admit the interval and physical figures, then prepare the solution and launch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts ArchetypePendulumFrequency admits custom finite positive figures and classifies every intermediate for frequency arithmetic; small-angle travel stays in degrees; release must stay within the declared rest well without wrapping its authored travel, and nonlinear phase step count and final launch rate must be representable; ArchetypeTrackTime owns interval/sample admission. No friction or air drag damps the swing: none was read; a stop that would end it is the producer's range, refused, not hit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The closed form is constant work; separate scalar angle/rate closures avoid an unused derivative and paired-record allocation per read. Integration retains the engine step value on normalized phase with a finite safe discrete count, then reads in constant time; no global small resource bound is claimed for arbitrary long intervals.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's one integrator; the trajectory is integrated once per track.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources An integrated track holds its trajectory for as long as its caller keeps it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The track retains prepared scalar values and, when integrated, its trajectory for as long as its caller keeps it; later mutation of the input record does not rewrite the plan.
    */
   export function swing<Id extends string>(
     archetype: Archetype<Id, string>,
@@ -231,103 +259,214 @@ export namespace ArchetypeTrack {
       launch?: number;
     },
   ): ITrack<Id> {
-    const body: IPendulum = props.pendulum ?? pendulum(archetype, hinge);
-    positive(archetype, "seconds", props.seconds);
-    const reach: number = Math.abs(props.release - body.rest);
-    within(archetype, hinge, "release", props.release, [
-      body.rest - reach,
-      body.rest + reach,
-    ]);
-    const omega: number = Math.sqrt(
-      (body.mass * AutoMovieGravity.STANDARD * body.arm) / body.moment,
-    );
-    const theta0: number = (props.release - body.rest) * ArchetypeUnits.DEGREE;
-
-    // The turn from rest and its rate, radians and radians per second, at a second since the release.
-    let state: (since: number) => { angle: number; rate: number };
-    if (Math.abs(theta0) <= SMALL)
-      state = (since: number): { angle: number; rate: number } => ({
-        angle: theta0 * Math.cos(omega * since),
-        rate: -theta0 * omega * Math.sin(omega * since),
+    const name: string = archetype.archetype;
+    const start: number = props.start;
+    const seconds: number = props.seconds;
+    const release: number = props.release;
+    const requested: number | undefined = props.launch;
+    if (requested !== undefined && !Number.isFinite(requested))
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: name,
+        axis: "launch",
+        value: requested,
+        feasible: null,
+        reason: "a launch needs a finite requested travel",
+        fix: "give a finite travel the swing actually crosses",
       });
-    else {
+    const end: number = ArchetypeTrackTime.end(name, start, seconds);
+    const body: IPendulum = props.pendulum ?? pendulum(archetype, hinge);
+    const omega: number = ArchetypePendulumFrequency(name, body);
+    const rest: number = body.rest;
+    const reach: number = Math.abs(release - rest);
+    const checked: IAutoMovieAffordance = ArchetypeTrackRange(
+      archetype,
+      hinge,
+      "release",
+      release,
+      [rest - reach, rest + reach],
+    );
+    if (checked.kind !== "hinge")
+      throw new ArchetypeRefusal({
+        kind: "articulation",
+        archetype: name,
+        axis: "hinge",
+        value: hinge,
+        reason: `${hinge} is a ${checked.kind}, not a hinge a body swings on`,
+        fix: "name a hinge",
+      });
+
+    // A single rest-centred libration cannot cross the inverted equilibrium.
+    if (!(reach < 180))
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: name,
+        axis: "release",
+        value: release,
+        feasible: null,
+        reason:
+          "this rest-centred pendulum requires a release strictly within 180 degrees of rest",
+        fix: "declare the appropriate stable rest travel and keep the release inside its oscillatory well",
+      });
+    const phaseEnd: number = omega * seconds;
+    if (!Number.isFinite(phaseEnd))
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: name,
+        axis: "seconds",
+        value: seconds,
+        feasible: null,
+        reason:
+          "the swing's angular phase is not representable over this interval",
+        fix: "use a representable swing interval and frequency",
+      });
+    const amplitude: number = release - rest;
+    const theta0: number = amplitude * ArchetypeUnits.DEGREE;
+
+    // Scalar consumers need either angle or rate, never a newly allocated pair.
+    let angle: (phase: number) => number;
+    let rate: (phase: number) => number;
+    if (Math.abs(theta0) <= SMALL) {
+      // Degree amplitude avoids losing a representable travel to radian conversion.
+      angle = (phase: number): number => amplitude * Math.cos(phase);
+      rate = (phase: number): number =>
+        ArchetypeMassArithmetic.product(-amplitude, omega, Math.sin(phase));
+    } else {
+      const steps: number = Math.ceil(
+        phaseEnd / integrateMotionTrajectory.STEP,
+      );
+      if (!(Number.isSafeInteger(steps) && steps > 0))
+        throw new ArchetypeRefusal({
+          kind: "parameter",
+          archetype: name,
+          axis: "seconds",
+          value: seconds,
+          feasible: null,
+          reason:
+            "the nonlinear solver's phase step count is not representable",
+          fix: "use a representable finite phase interval",
+        });
       const trajectory: integrateMotionTrajectory.ITrajectory =
         integrateMotionTrajectory({
           f: (
             _t: number,
             x: readonly number[],
           ): integrateMotionTrajectory.IRate => ({
-            dx: [x[1]!, -omega * omega * Math.sin(x[0]!)],
+            dx: [x[1]!, -Math.sin(x[0]!)],
           }),
           x0: [theta0, 0],
           t0: 0,
-          t1: props.seconds,
+          t1: phaseEnd,
         });
-      state = (since: number): { angle: number; rate: number } => {
-        const x: number[] = trajectory.at(since).x;
-        return { angle: x[0]!, rate: x[1]! };
-      };
+      angle = (phase: number): number =>
+        trajectory.at(phase).x[0]! / ArchetypeUnits.DEGREE;
+      rate = (phase: number): number =>
+        ArchetypeMassArithmetic.product(
+          omega,
+          trajectory.at(phase).x[1]!,
+          1 / ArchetypeUnits.DEGREE,
+        );
     }
-    const travel = (since: number): number =>
-      body.rest +
-      state(Math.max(0, Math.min(props.seconds, since))).angle /
-        ArchetypeUnits.DEGREE;
+    const travel: (since: number) => number = (since: number): number =>
+      rest + angle(omega * since);
 
     // The launch: the first time the turn reaches the launch's.
     let launch: ILaunch | null = null;
-    if (props.launch !== undefined) {
-      const target: number = (props.launch - body.rest) * ArchetypeUnits.DEGREE;
-      let at: number | null = null;
-      if (Math.abs(theta0) <= SMALL && Math.abs(target) <= Math.abs(theta0))
-        at = Math.acos(theta0 === 0 ? 1 : target / theta0) / omega;
+    if (requested !== undefined) {
+      const target: number = requested - rest;
+      let atPhase: number | null = null;
+      if (Math.abs(theta0) <= SMALL && Math.abs(target) <= Math.abs(amplitude))
+        atPhase = Math.acos(amplitude === 0 ? 1 : target / amplitude);
       else if (Math.abs(theta0) > SMALL) {
         const step: number = integrateMotionTrajectory.STEP;
-        const gap = (since: number): number => state(since).angle - target;
-        for (let low: number = 0; low < props.seconds; low += step) {
-          const high: number = Math.min(props.seconds, low + step);
+        const gap: (phase: number) => number = (phase: number): number =>
+          angle(phase) - target;
+        for (let phase: number = 0; phase < phaseEnd; phase += step) {
+          const low: number = phase;
+          const high: number = Math.min(phaseEnd, phase + step);
           if (gap(low) === 0) {
-            at = low;
+            atPhase = low;
             break;
           }
           if (Math.sign(gap(low)) !== Math.sign(gap(high))) {
             let a: number = low;
             let b: number = high;
             for (let k: number = 0; k < 60; k++) {
-              const middle: number = (a + b) / 2;
+              const middle: number = a + (b - a) / 2;
               if (Math.sign(gap(middle)) === Math.sign(gap(a))) a = middle;
               else b = middle;
             }
-            at = b;
+            atPhase = b;
             break;
           }
         }
       }
-      if (at === null || at > props.seconds)
+
+      // Phase endpoints own exact clock endpoints; an interior phase must stay interior.
+      const at: number | null =
+        atPhase === null
+          ? null
+          : atPhase === 0
+            ? 0
+            : atPhase === phaseEnd
+              ? seconds
+              : atPhase / omega;
+      if (
+        atPhase === null ||
+        at === null ||
+        !Number.isFinite(at) ||
+        atPhase < 0 ||
+        atPhase > phaseEnd ||
+        (atPhase > 0 && atPhase < phaseEnd && !(at > 0 && at < seconds))
+      )
         throw new ArchetypeRefusal({
           kind: "parameter",
           archetype: archetype.archetype,
           axis: "launch",
-          value: props.launch,
+          value: requested,
           feasible: {
             kind: "range",
-            minimum: body.rest - reach,
-            maximum: body.rest + reach,
+            minimum: rest - reach,
+            maximum: rest + reach,
             unit: "degrees",
           },
-          reason: `${hinge} released at ${props.release} degrees does not pass ${props.launch} degrees in ${props.seconds} s`,
-          fix: "give a launch travel the swing passes, or swing it longer",
+          reason:
+            atPhase !== null && atPhase >= 0 && atPhase <= phaseEnd
+              ? "the first crossing has no representable clock offset inside this interval"
+              : `${hinge} released at ${release} degrees does not pass ${requested} degrees in ${seconds} s`,
+          fix: "choose a passed travel and a clock that represents its crossing instant",
+        });
+      const launchRate: number = rate(atPhase);
+      if (!Number.isFinite(launchRate))
+        throw new ArchetypeRefusal({
+          kind: "parameter",
+          archetype: name,
+          axis: "launch",
+          value: requested,
+          feasible: null,
+          reason: "the swing's launch rate is not representable",
+          fix: "use physical figures with a representable release rate",
         });
       launch = {
-        seconds: props.start + at,
-        travel: props.launch,
-        rate: state(at).rate / ArchetypeUnits.DEGREE,
+        seconds: ArchetypeTrackTime.instant(name, start, end, seconds, at),
+        travel: requested,
+        rate: launchRate,
       };
     }
     return {
       articulation: hinge,
-      start: props.start,
-      end: props.start + props.seconds,
-      travel: (seconds: number): number => travel(seconds - props.start),
+      start: start,
+      end,
+      travel: (sample: number): number => {
+        const elapsed: number = ArchetypeTrackTime.elapsed(
+          name,
+          sample,
+          start,
+          end,
+          seconds,
+        );
+        return elapsed === 0 ? release : travel(elapsed);
+      },
       launch,
     };
   }
@@ -339,146 +478,21 @@ export namespace ArchetypeTrack {
    * @param articulation The articulation.
    * @param props `start`, the film second it begins; `from` and `to`, the travels, in the articulation's unit; `seconds`, the duration; `launch`, a travel between them whose passing is the launch.
    * @returns The track.
-   * @throws {ArchetypeRefusal} When the id is no articulation, `seconds` is not positive, a travel lies outside the articulation's range, or the launch travel does not lie between `from` and `to`.
+   * @throws {ArchetypeRefusal} When the id is no articulation, interval/sample time is unsupported, a travel is out of range, the endpoint difference or launch rate is unrepresentable, or the launch is outside a moving track.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the profile, its source, its provisional use for a mechanism, each input and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Flash and Hogan's quintic, which starts and ends at rest with zero acceleration; the launch is its monotone crossing, found by bisection on the share, with the rate `(x1 - x0)(30 s^2 - 60 s^3 + 30 s^4) / T`.
+   * @evidence contracts/development/implementation.md#principled-implementation Flash and Hogan's quintic starts and ends at rest with zero acceleration. The launch is its monotone crossing, found by bisection on the share with exact endpoint crossings; the rate `(x1-x0) 30 s^2 (1-s)^2 / T` uses the shared exceptional scalar quotient. The clock owner selects held endpoints before subtraction; a non-finite endpoint difference or final rate is explicitly outside this API's numeric domain.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, then the closed form and the launch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A travel outside the range is refused, never clamped.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A travel outside the range, non-finite clock or unrepresentable span/rate is refused, never capped or clamped; no physical limit or old range margin changes.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per read; the launch's bisection runs once.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call makes one independent track.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only prepared scalar snapshots and pure profile/clock closures, without the mutable input record or model.
    */
   export function ease<Id extends string>(
     archetype: Archetype<Id, string>,
     articulation: Id,
-    props: {
-      start: number;
-      from: number;
-      to: number;
-      seconds: number;
-      launch?: number;
-    },
+    props: Parameters<typeof ArchetypeTrackEase<Id>>[2],
   ): ITrack<Id> {
-    positive(archetype, "seconds", props.seconds);
-    within(archetype, articulation, "from", props.from, [props.from]);
-    within(archetype, articulation, "to", props.to, [props.to]);
-    const profile = (s: number): number =>
-      s * s * s * (10 - 15 * s + 6 * s * s);
-    const share = (seconds: number): number =>
-      Math.max(0, Math.min(1, (seconds - props.start) / props.seconds));
-    const span: number = props.to - props.from;
-    let launch: ILaunch | null = null;
-    if (props.launch !== undefined) {
-      const part: number =
-        span === 0 ? Number.NaN : (props.launch - props.from) / span;
-      if (!(part >= 0 && part <= 1))
-        throw new ArchetypeRefusal({
-          kind: "parameter",
-          archetype: archetype.archetype,
-          axis: "launch",
-          value: props.launch,
-          feasible: {
-            kind: "range",
-            minimum: Math.min(props.from, props.to),
-            maximum: Math.max(props.from, props.to),
-            unit: "",
-          },
-          reason: `${articulation} eased from ${props.from} to ${props.to} does not pass ${props.launch}`,
-          fix: "give a launch travel between the two travels",
-        });
-      let low: number = 0;
-      let high: number = 1;
-      for (let k: number = 0; k < 60; k++) {
-        const middle: number = (low + high) / 2;
-        if (profile(middle) < part) low = middle;
-        else high = middle;
-      }
-      launch = {
-        seconds: props.start + high * props.seconds,
-        travel: props.launch,
-        rate:
-          (span * 30 * high * high * (1 - high) * (1 - high)) / props.seconds,
-      };
-    }
-    return {
-      articulation,
-      start: props.start,
-      end: props.start + props.seconds,
-      travel: (seconds: number): number =>
-        props.from + span * profile(share(seconds)),
-      launch,
-    };
-  }
-
-  /**
-   * Refuse a duration that is not positive.
-   *
-   * @param archetype The archetype, for the refusal's name.
-   * @param axis The field.
-   * @param seconds The duration.
-   */
-  function positive(
-    archetype: Archetype<string, string>,
-    axis: string,
-    seconds: number,
-  ): void {
-    if (!(Number.isFinite(seconds) && seconds > 0))
-      throw new ArchetypeRefusal({
-        kind: "parameter",
-        archetype: archetype.archetype,
-        axis,
-        value: seconds,
-        feasible: { kind: "range", minimum: 0, maximum: null, unit: "s" },
-        reason: `a track lasts a positive time, not ${seconds} s`,
-        fix: "give the seconds it moves",
-      });
-  }
-
-  /**
-   * Refuse travels outside an articulation's range.
-   *
-   * @param archetype The archetype.
-   * @param articulation The articulation.
-   * @param axis The field the travels came from.
-   * @param value The value given.
-   * @param travels The travels the track reaches.
-   */
-  function within<Id extends string>(
-    archetype: Archetype<Id, string>,
-    articulation: Id,
-    axis: string,
-    value: number,
-    travels: readonly number[],
-  ): void {
-    const affordance: IAutoMovieAffordance = archetype
-      .articulate({})
-      .affordance(articulation);
-    if (!ArchetypeArticulation.KINDS.has(affordance.kind))
-      throw new ArchetypeRefusal({
-        kind: "articulation",
-        archetype: archetype.archetype,
-        axis: "articulation",
-        value: articulation,
-        reason: `${articulation} is a ${affordance.kind}, which does not travel`,
-        fix: "name an articulation",
-      });
-    const range: { minimum: number | null; maximum: number | null } =
-      ArchetypeArticulation.range(affordance);
-    for (const travel of travels)
-      if (
-        !Number.isFinite(travel) ||
-        (range.minimum !== null && travel < range.minimum - 1e-9) ||
-        (range.maximum !== null && travel > range.maximum + 1e-9)
-      )
-        throw new ArchetypeRefusal({
-          kind: "articulation",
-          archetype: archetype.archetype,
-          axis,
-          value,
-          feasible: { kind: "range", ...range, unit: "" },
-          reason: `${articulation}'s track reaches ${travel}, outside its range`,
-          fix: "keep the track inside the articulation's range",
-        });
+    return ArchetypeTrackEase(archetype, articulation, props);
   }
 }

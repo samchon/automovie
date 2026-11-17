@@ -90,7 +90,12 @@ export function createDeck(
   const pitch: number = rise / rails;
 
   const builder: ArchetypeBuilder<createDeck.Affordance, createDeck.Dimension> =
-    new ArchetypeBuilder({ id: params.id, name: "deck", draw });
+    new ArchetypeBuilder({
+      material: "steel",
+      id: params.id,
+      name: "deck",
+      draw,
+    });
   const v: typeof Vector3.create = Vector3.create;
   builder.box(
     "plate",

@@ -56,19 +56,30 @@ export function projectileContinue(
   outcome: projectileContinue.Outcome,
 ): projectileContinue.Segment {
   if (hit.normal === undefined)
-    throw new RangeError("a projectile continues only from a contact with a normal");
+    throw new RangeError(
+      "a projectile continues only from a contact with a normal",
+    );
   const state: IAutoMovieProjectileState = projectileAt(projectile, hit.time);
   const n: IAutoMovieVector3 = Vector3.normalize(hit.normal);
   const vn: number = Vector3.dot(state.velocity, n);
   const normal: IAutoMovieVector3 = Vector3.scale(n, vn);
   const tangent: IAutoMovieVector3 = Vector3.subtract(state.velocity, normal);
   const admit: (name: string, value: number, maximum?: number) => void = (
-    name: string, value: number, maximum?: number,
+    name: string,
+    value: number,
+    maximum?: number,
   ): void => {
-    if (!(Number.isFinite(value) && value >= 0 &&
-      (maximum === undefined || value <= maximum))) {
-      const range: string = maximum === undefined
-        ? "finite and non-negative" : `finite and between 0 and ${maximum}`;
+    if (
+      !(
+        Number.isFinite(value) &&
+        value >= 0 &&
+        (maximum === undefined || value <= maximum)
+      )
+    ) {
+      const range: string =
+        maximum === undefined
+          ? "finite and non-negative"
+          : `finite and between 0 and ${maximum}`;
       throw new RangeError(
         `projectile ${name} must be ${range}, but was ${value}`,
       );
@@ -83,9 +94,10 @@ export function projectileContinue(
   ): projectileContinue.Segment => {
     admit("rolling resistance", resistance);
     if (normalGravity > 0)
-      throw new RangeError("a projectile cannot roll against outward normal gravity");
-    const deceleration: number =
-      resistance * Math.max(0, -normalGravity);
+      throw new RangeError(
+        "a projectile cannot roll against outward normal gravity",
+      );
+    const deceleration: number = resistance * Math.max(0, -normalGravity);
     const speed: number = Vector3.length(velocity);
     const lasting: number =
       deceleration > 0 ? speed / deceleration : speed > 0 ? Infinity : 0;
@@ -142,7 +154,11 @@ export function projectileContinue(
         (pull > 0 ? (rebound * rebound) / (2 * pull) : Infinity) <
           outcome.roll.radius
       )
-        return roll(Vector3.scale(tangent, kept), outcome.roll.resistance, normalGravity);
+        return roll(
+          Vector3.scale(tangent, kept),
+          outcome.roll.resistance,
+          normalGravity,
+        );
       return {
         kind: "flight",
         from: hit.time,
@@ -165,7 +181,11 @@ export function projectileContinue(
       };
     }
     case "roll":
-      return roll(tangent, outcome.resistance, Vector3.dot(projectile.gravity, n));
+      return roll(
+        tangent,
+        outcome.resistance,
+        Vector3.dot(projectile.gravity, n),
+      );
     case "pass": {
       admit("speed loss", outcome.loss, 1);
       return {
@@ -281,22 +301,31 @@ export namespace projectileContinue {
         const t: number = Math.min(seconds, segment.until) - segment.from;
         const speed: number = Vector3.length(segment.velocity);
         const along: IAutoMovieVector3 =
-          speed > 0 ? Vector3.scale(segment.velocity, 1 / speed) : segment.velocity;
+          speed > 0
+            ? Vector3.scale(segment.velocity, 1 / speed)
+            : segment.velocity;
         const moving: number = Math.max(0, speed - segment.deceleration * t);
         return {
           position: Vector3.add(
             segment.origin,
-            Vector3.scale(along, speed * t - 0.5 * segment.deceleration * t * t),
+            Vector3.scale(
+              along,
+              speed * t - 0.5 * segment.deceleration * t * t,
+            ),
           ),
           velocity: Vector3.scale(along, moving),
-          ...(segment.rotation === undefined ? {} : { rotation: segment.rotation }),
+          ...(segment.rotation === undefined
+            ? {}
+            : { rotation: segment.rotation }),
         };
       }
       case "rest":
         return {
           position: segment.position,
           velocity: { x: 0, y: 0, z: 0 },
-          ...(segment.rotation === undefined ? {} : { rotation: segment.rotation }),
+          ...(segment.rotation === undefined
+            ? {}
+            : { rotation: segment.rotation }),
         };
     }
   }

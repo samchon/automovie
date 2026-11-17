@@ -62,6 +62,7 @@ export function createCue(
   };
   const builder: ArchetypeBuilder<createCue.Affordance, createCue.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: `pool cue, ${buttModel.name} butt, ${shaft.name} shaft`,
       draw,
