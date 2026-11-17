@@ -17,6 +17,7 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
+import { AutoMovieMotionHumanArmChain } from "./AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionHumanArmFollow } from "./AutoMovieMotionHumanArmFollow";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
@@ -91,18 +92,35 @@ export namespace AutoMovieMotionHumanArmCarry {
       (side: HumanHand.Side): boolean => from[side] !== undefined,
     );
     if (s >= 1 || sides.length === 0) return posture;
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution(source);
     const solved: IAutoMoviePose | null =
-      s <= 0 ? null : resolveHumanPosture.seeded(body, posture,
-        undefined, undefined, resolution, undefined, projection).pose;
+      s <= 0
+        ? null
+        : resolveHumanPosture.seeded(
+            body,
+            posture,
+            undefined,
+            undefined,
+            resolution,
+            undefined,
+            projection,
+          ).pose;
     // The pose the clearing course is planned in: the arrival's, when the
     // caller names it, so the course is a plan constant and not re-solved
     // against the goal of each second.
     const planning: IAutoMoviePose | null =
       solved === null || planned === undefined
         ? solved
-        : resolveHumanPosture.seeded(body, planned,
-          undefined, undefined, resolution, undefined, projection).pose;
+        : resolveHumanPosture.seeded(
+            body,
+            planned,
+            undefined,
+            undefined,
+            resolution,
+            undefined,
+            projection,
+          ).pose;
     const joints: IHumanPosture["joints"] = { ...posture.joints };
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     // Each carried arm at a share of the carry: the plain blend of its two
@@ -120,24 +138,39 @@ export namespace AutoMovieMotionHumanArmCarry {
         solved === null
           ? held
           : AutoMovieMotionHumanArmAngles.angles(solved, side);
-      const blended: (to: AutoMovieMotionHumanArmAngles.IAngles) => Arm =
-        (to: AutoMovieMotionHumanArmAngles.IAngles): Arm => {
-          const upper: ReturnType<typeof blendHumanJoint.between> =
-            blendHumanJoint.between(body, `${side}UpperArm`, held.upper, to.upper);
-          const lower: ReturnType<typeof blendHumanJoint.between> =
-            blendHumanJoint.between(body, `${side}LowerArm`, held.lower, to.lower);
-          const hand: ReturnType<typeof blendHumanJoint.between> =
-            blendHumanJoint.between(body, `${side}Hand`, held.hand, to.hand);
-          return (share: number): HumanArmClearance.IArm => ({
-            upper: upper(share), lower: lower(share), hand: hand(share),
-          });
-        };
+      const blended: (to: AutoMovieMotionHumanArmAngles.IAngles) => Arm = (
+        to: AutoMovieMotionHumanArmAngles.IAngles,
+      ): Arm => {
+        const upper: ReturnType<typeof blendHumanJoint.between> =
+          blendHumanJoint.between(
+            body,
+            `${side}UpperArm`,
+            held.upper,
+            to.upper,
+          );
+        const lower: ReturnType<typeof blendHumanJoint.between> =
+          blendHumanJoint.between(
+            body,
+            `${side}LowerArm`,
+            held.lower,
+            to.lower,
+          );
+        const hand: ReturnType<typeof blendHumanJoint.between> =
+          blendHumanJoint.between(body, `${side}Hand`, held.hand, to.hand);
+        return (share: number): HumanArmClearance.IArm => ({
+          upper: upper(share),
+          lower: lower(share),
+          hand: hand(share),
+        });
+      };
       const plain: Arm = blended(goal);
       plains[side] = plain;
       const aimed: AutoMovieMotionHumanArmAngles.IAngles =
-        planning === solved ? goal : planning === null
-          ? held
-          : AutoMovieMotionHumanArmAngles.angles(planning, side);
+        planning === solved
+          ? goal
+          : planning === null
+            ? held
+            : AutoMovieMotionHumanArmAngles.angles(planning, side);
       const plan: Arm = planning === solved ? plain : blended(aimed);
       if (solved === null || planning === null) {
         courses[side] = plain;
@@ -264,7 +297,7 @@ export namespace AutoMovieMotionHumanArmCarry {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two ways an arm is carried, what each reads, the channel claimed and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation A reach that lays a hand on a site is a motion-planning problem, solved as one trajectory over the action against the very postures it is written on (TrajOpt), so the plan is a constant of the action; a transport with no site keeps the joint-space carry (Soechting and Lacquaniti 1981). With an attitude, the hand between the ends is solved to it on the carried arm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The group joined once; per second the planned arm or one `carry`, then one hand solve with an attitude.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The group joined once; per second the planned arm or one `carry`, whose goal an arm without a span solves continued along the action's course (`AutoMovieMotionHumanArmChain`), then one hand solve with an attitude.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The group is solved once, when its first member is prepared on the posture before it, and a member asked while it is being solved throws instead of solving twice; the hand's fingers are not claimed, so a row that shapes them composes with this one.
    * @evidence contracts/development/implementation.md#efficient-algorithms One trajectory solve per group/action; each write reads its cubic or carry, with no carry solve at weights 0/1. An interior attitude still evaluates all three actual hand-end postures, but canonical observations can omit only proven independent goals/digits and FK outputs only the hand; the final held solve retains its physical work.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates planning/carry/attitude to their owners. A synchronous write borrows its host FK/ROM loans for actual fallback carry and hand observations/held solve; standalone writes own lazy metadata. Only exact prerequisites share, while distinct posture/goal requests remain actual solves.
@@ -277,7 +310,9 @@ export namespace AutoMovieMotionHumanArmCarry {
     // The arm's whole action, solved once over its span, with the other
     // arms of its group.
     const group: AutoMovieMotionHumanArmPlanned.ITogether =
-      props.beside ?? props.together ?? AutoMovieMotionHumanArmPlanned.together();
+      props.beside ??
+      props.together ??
+      AutoMovieMotionHumanArmPlanned.together();
     group.carries.push(props);
 
     // A group planned beside solves each member alone on the shared base
@@ -328,7 +363,15 @@ export namespace AutoMovieMotionHumanArmCarry {
       }
       return group.solved.get(props.side)!;
     };
-    let follow: ReturnType<typeof AutoMovieMotionHumanArmFollow.follower> | undefined;
+    let follow:
+      | ReturnType<typeof AutoMovieMotionHumanArmFollow.follower>
+      | undefined;
+    // An arm with no span solves its goal at each second along the action's
+    // course (`AutoMovieMotionHumanArmChain`), each second continuing the
+    // swivel the course chose before it, on the posture so far.
+    let chain:
+      | ReturnType<typeof AutoMovieMotionHumanArmChain.continued>
+      | undefined;
     return {
       channels: [limb],
       reads: (seconds: number): readonly AutoMovieMotionHumanChannel[] =>
@@ -387,14 +430,30 @@ export namespace AutoMovieMotionHumanArmCarry {
           span !== undefined &&
           seconds > span.start &&
           (seconds < span.end || span.relax >= span.end);
+        const goaled = (
+          at: IHumanPosture,
+          t: number,
+          resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+          projector?: Parameters<typeof resolveHumanPosture.seeded>[6],
+        ): IHumanPosture => ({
+          ...at,
+          limbs: {
+            ...at.limbs,
+            [limb]: props.goal(at, t, resolution, projector),
+          },
+        });
         if (onPlan) out = placed(arm(seconds));
         else
           out = carry(
             props.body,
-            {
-              ...posture,
-              limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds, source, projection) },
-            },
+            span === undefined && before !== undefined && weight > 0
+              ? (chain ??= AutoMovieMotionHumanArmChain.continued(
+                  props.body,
+                  props.to,
+                  (t: number): IHumanPosture => goaled(before(t), t),
+                  [props.side],
+                ))(seconds, goaled(posture, seconds, source, projection))
+              : goaled(posture, seconds, source, projection),
             { [props.side]: props.rest },
             weight,
             undefined,
@@ -412,22 +471,31 @@ export namespace AutoMovieMotionHumanArmCarry {
           new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]);
         const resolution: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(source);
-        const hand: (at: IHumanPosture) => IAutoMovieQuaternion =
-          (at: IHumanPosture): IAutoMovieQuaternion =>
+        const hand: (at: IHumanPosture) => IAutoMovieQuaternion = (
+          at: IHumanPosture,
+        ): IAutoMovieQuaternion =>
           poseBones(
             props.body,
-            resolveHumanPosture.seeded(props.body, at, undefined, undefined,
-              resolution, requested, projection).pose,
+            resolveHumanPosture.seeded(
+              props.body,
+              at,
+              undefined,
+              undefined,
+              resolution,
+              requested,
+              projection,
+            ).pose,
             resolution(),
             requested,
-          ).get(
-            `${props.side}Hand`,
-          )!.worldRotation;
+          ).get(`${props.side}Hand`)!.worldRotation;
         const ended: IHumanPosture = onPlan
           ? placed(arm(seconds <= span!.ready ? span!.ready : span!.relax))
           : {
               ...posture,
-              limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds, resolution, projection) },
+              limbs: {
+                ...posture.limbs,
+                [limb]: props.goal(posture, seconds, resolution, projection),
+              },
             };
         return HumanHandAttitude.held(
           props.body,
@@ -437,8 +505,17 @@ export namespace AutoMovieMotionHumanArmCarry {
             posture,
             seconds,
             hand(out),
-            hand(carry(props.body, posture, { [props.side]: props.rest }, 0,
-              undefined, resolution, projection)),
+            hand(
+              carry(
+                props.body,
+                posture,
+                { [props.side]: props.rest },
+                0,
+                undefined,
+                resolution,
+                projection,
+              ),
+            ),
             hand(ended),
             weight,
           ),
@@ -451,7 +528,8 @@ export namespace AutoMovieMotionHumanArmCarry {
 }
 
 /** A retained standalone follower needs only the original fixed posture. */
-function fixedPosture(posture: IHumanPosture): (seconds: number) => IHumanPosture {
+function fixedPosture(
+  posture: IHumanPosture,
+): (seconds: number) => IHumanPosture {
   return (): IHumanPosture => posture;
 }
-

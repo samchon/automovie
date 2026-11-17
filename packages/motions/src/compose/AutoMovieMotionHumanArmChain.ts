@@ -40,7 +40,7 @@ export namespace AutoMovieMotionHumanArmChain {
    * @param duration The action's duration, seconds.
    * @param posture The law's posture at a second, its arms as goals.
    * @param sides The arms to fit along the course.
-   * @returns The posture at a second, those arms written as joints with their goals removed.
+   * @returns The posture at a second, those arms written as joints with their goals removed; given the law's posture at that second already read, it is fitted instead of reading it again.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the defect, the grid, the continuation and what is returned.
    * @evidence contracts/development/implementation.md#principled-implementation Continuation along a path, the per-frame seeding of an analytic IK by the frame before, as `AutoMovieMotionHumanArmCourse` fits a hold; the grid is the planner's.
@@ -55,7 +55,7 @@ export namespace AutoMovieMotionHumanArmChain {
     duration: number,
     posture: (seconds: number) => IHumanPosture,
     sides: readonly HumanHand.Side[] = ["left", "right"],
-  ): (seconds: number) => IHumanPosture {
+  ): (seconds: number, now?: IHumanPosture) => IHumanPosture {
     const step: number = AutoMovieMotionHumanArmCourse.STEP;
     const last: number = Math.floor(duration / step + 1e-9);
     const course: resolveHumanPosture.INear[] = [];
@@ -103,10 +103,10 @@ export namespace AutoMovieMotionHumanArmChain {
       }
       return course[k]!;
     };
-    return (seconds: number): IHumanPosture => {
+    return (seconds: number, now?: IHumanPosture): IHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, seconds));
       const k: number = Math.min(last, Math.floor(t / step + 1e-9));
-      return fit(posture(t), seeds(k)).posture;
+      return fit(now ?? posture(t), seeds(k)).posture;
     };
   }
 }
