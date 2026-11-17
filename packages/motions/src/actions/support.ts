@@ -2,11 +2,13 @@ import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
+  AutoMovieMotionHumanChannelClaim,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanBodyFitTypes,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupport,
   IAutoMovieMotionTarget,
@@ -59,7 +61,8 @@ import { supportWindows } from "./supportWindows";
  * lift, to set down and to settle. Events: `lift<i>` when the move into
  * stance `i` has its stepping parts at the top of their swing, `bear<i>`
  * when it has placed its new contacts, `stance<i>` (or the stance's own
- * event) when stance `i` is held alone.
+ * event) when stance `i` is held alone. The plan lets overlays move the
+ * head and any arm and hand that have no contact window in the sequence.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the key postures with their sources, the transition keys, the course between keys, the refusal, the contacts' forms, the timing and the events.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of key postures solved once.
@@ -91,7 +94,7 @@ export namespace support {
    * @evidence contracts/development/common.md#meaningful-documentation States the result and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation Each key is the whole-body fit on its contacts, seeded from the key before; a transition key holds both stances' contacts at once; the course between keys is a minimum-jerk blend of each joint on its range.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Keys solved once, then a posture read from the two keys around a second.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the fit misses is refused, never left where the fit stopped.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the fit misses is refused, never left where the fit stopped. Every hand contact window keeps its arm and hand, regardless of kind.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two fits per stance after the first, three for a step, solved once at plan time; each posture blends one pair of keys.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The keys are solved once and every posture reads them.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its keys only.
@@ -354,6 +357,24 @@ export namespace support {
       },
     );
     const duration: number = seconds;
+    const contacts: IAutoMovieMotionHumanContactWindow[] = supportWindows.of(
+      context,
+      stances,
+      keys,
+      duration,
+    );
+
+    // Keep the arm that reaches and places each contact as well as the
+    // hand that maintains it. Both remain owned for the sequence.
+    const yields: AutoMovieMotionHumanChannelClaim[] = ["head"];
+    for (const side of ["left", "right"] as const)
+      if (
+        !contacts.some(
+          (c: IAutoMovieMotionHumanContactWindow): boolean =>
+            c.part === `${side}Hand`,
+        )
+      )
+        yields.push(`${side}Arm`, `${side}Hand`);
 
     return {
       duration,
@@ -361,7 +382,8 @@ export namespace support {
         name: k.name,
         share: k.seconds / duration,
       })),
-      contacts: supportWindows.of(context, stances, keys, duration),
+      contacts,
+      yields,
       posture: (t: number): IAutoMovieMotionHumanPosture => {
         const s: number = Math.min(duration, Math.max(0, t));
         let k: number = 0;
