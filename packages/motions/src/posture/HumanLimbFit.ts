@@ -342,7 +342,10 @@ export namespace HumanLimbFit {
         : (): ReturnType<typeof placeChainPlant> | null => {
             const parent: Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation"> | undefined =
               constants.parent === null
-                ? { worldPosition: pose.root.translation, worldRotation: pose.root.rotation }
+                ? {
+                    worldPosition: pose.root?.translation ?? { x: 0, y: 0, z: 0 },
+                    worldRotation: pose.root?.rotation ?? Quaternion.identity(),
+                  }
                 : readAuthored().get(constants.parent);
             return parent === undefined ? null : placeChainPlant(constants, parent);
           },
