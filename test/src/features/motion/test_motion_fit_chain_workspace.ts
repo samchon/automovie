@@ -2,10 +2,6 @@ import {
   DEFAULT_JOINT_AXES,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSeededChainFit,
-  type IAutoMovieSkeletonTopology,
-  type IFitChainToTargetProps,
   Quaternion,
   ROM_TOLERANCE,
   Vector3,
@@ -17,10 +13,14 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSeededChainFit,
   IAutoMovieSkeleton,
+  IAutoMovieSkeletonTopology,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -86,7 +86,7 @@ export function test_motion_fit_chain_workspace(): void {
   };
   const first: IAutoMovieVector3 = { x: 0.18, y: 1.2, z: 0.45 };
   const second: IAutoMovieVector3 = { x: 0.181, y: 1.2005, z: 0.449 };
-  const base: Omit<IFitChainToTargetProps, "target"> = {
+  const base: Omit<IAutoMovieFitChainToTargetProps, "target"> = {
     skeleton,
     topology,
     pose,
@@ -109,7 +109,7 @@ export function test_motion_fit_chain_workspace(): void {
   });
   const modes: {
     name: string;
-    source: Omit<IFitChainToTargetProps, "target">;
+    source: Omit<IAutoMovieFitChainToTargetProps, "target">;
   }[] = [
     { name: "cold", source: base },
     {
@@ -404,7 +404,7 @@ export function test_motion_fit_chain_workspace(): void {
           : []),
       ],
     };
-    const source: Omit<IFitChainToTargetProps, "target"> = {
+    const source: Omit<IAutoMovieFitChainToTargetProps, "target"> = {
       skeleton: descendant,
       topology: indexSkeletonTopology(descendant),
       pose: authored,

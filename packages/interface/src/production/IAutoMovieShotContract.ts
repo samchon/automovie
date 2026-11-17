@@ -1,10 +1,10 @@
-import { AutoMovieGrammarStyleIntent } from "./AutoMovieGrammarStyleIntent";
-import { IAutoMovieNamedState } from "./IAutoMovieNamedState";
-import { IAutoMovieSceneEvidence } from "./IAutoMovieSceneEvidence";
-import { IAutoMovieShotEventContract } from "./IAutoMovieShotEventContract";
-import { IAutoMovieShotParticipant } from "./IAutoMovieShotParticipant";
-import { IAutoMovieShotReviewFrame } from "./IAutoMovieShotReviewFrame";
-import { IAutoMovieShotStoryTime } from "./IAutoMovieShotStoryTime";
+import type { AutoMovieGrammarStyleIntent } from "./AutoMovieGrammarStyleIntent";
+import type { IAutoMovieNamedState } from "./IAutoMovieNamedState";
+import type { IAutoMovieSceneEvidence } from "./IAutoMovieSceneEvidence";
+import type { IAutoMovieShotEventContract } from "./IAutoMovieShotEventContract";
+import type { IAutoMovieShotParticipant } from "./IAutoMovieShotParticipant";
+import type { IAutoMovieShotReviewFrame } from "./IAutoMovieShotReviewFrame";
+import type { IAutoMovieShotStoryTime } from "./IAutoMovieShotStoryTime";
 
 /**
  * Source-bound shot obligations measured against compiled performance, camera and event output.

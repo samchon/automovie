@@ -1,12 +1,16 @@
-import type { prepareChainConstants, prepareSkeletonPoseResolution } from "@automovie/engine";
 import type {
+  prepareChainConstants,
+  prepareSkeletonPoseResolution,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieMotionHumanLimbReads,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
-import type { IHumanPosture } from "./IHumanPosture";
 
 /**
  * What each limb's fit reads of a pose, read once off the rig: per limb and
@@ -35,12 +39,12 @@ import type { IHumanPosture } from "./IHumanPosture";
 export function humanLimbReads(
   skeleton: IAutoMovieSkeleton,
   resolution: prepareSkeletonPoseResolution.IRig,
-  chains: Readonly<Partial<Record<IHumanPosture.Limb, prepareChainConstants.IConstants>>>,
+  chains: Readonly<Partial<Record<AutoMovieHumanLimb, prepareChainConstants.IConstants>>>,
 ): humanLimbReads.IReads {
   const parents: Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null> = new Map();
   for (const bone of skeleton.bones as readonly IAutoMovieBone[])
     if (!parents.has(bone.bone)) parents.set(bone.bone, bone.parent);
-  const read = (limb: IHumanPosture.Limb, placed: boolean): humanLimbReads.IRead => {
+  const read = (limb: AutoMovieHumanLimb, placed: boolean): humanLimbReads.IRead => {
     const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
     const arm: boolean = limb.endsWith("Arm");
     const others: ("left" | "right")[] = placed ? [side === "left" ? "right" : "left"] : [];
@@ -70,8 +74,8 @@ export function humanLimbReads(
     if (constants !== undefined && constants.parent !== null) requested.add(constants.parent);
     return { bones, requested, demand: resolution.prepareBones(requested) };
   };
-  const limbs: readonly IHumanPosture.Limb[] = ["leftArm", "rightArm", "leftLeg", "rightLeg"];
-  const out: Partial<Record<IHumanPosture.Limb, readonly [humanLimbReads.IRead, humanLimbReads.IRead]>> = {};
+  const limbs: readonly AutoMovieHumanLimb[] = ["leftArm", "rightArm", "leftLeg", "rightLeg"];
+  const out: Partial<Record<AutoMovieHumanLimb, readonly [humanLimbReads.IRead, humanLimbReads.IRead]>> = {};
   for (const limb of limbs) out[limb] = [read(limb, false), read(limb, true)];
   return out as humanLimbReads.IReads;
 }
@@ -85,32 +89,9 @@ export function humanLimbReads(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No pose or answer is held; an attached goal's bone is the consumer's to add.
  */
 export namespace humanLimbReads {
-  /**
-   * One limb's reads under one placement.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the three members.
-   * @evidence contracts/development/design.md#principled-representation Bone names and the rig's own bound demand of the same names.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Each member has one reader.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Read-only sets.
-   */
-  export interface IRead {
-    /** The bones whose records the limb's reduced pose keeps, closed under parents. */
-    bones: ReadonlySet<AutoMovieHumanoidBone>;
+  /** The interface contract (`IAutoMovieMotionHumanLimbReads.IRead`). */
+  export type IRead = IAutoMovieMotionHumanLimbReads.IRead;
 
-    /** The bones the limb's source read demands. */
-    requested: ReadonlySet<AutoMovieHumanoidBone>;
-
-    /** The rig's bound demand of `requested`. */
-    demand: prepareSkeletonPoseResolution.IBoneDemand;
-  }
-
-  /**
-   * Every limb's reads: `[limb][0]` with the other arm not placed, `[limb][1]` with it placed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the indexing.
-   * @evidence contracts/development/design.md#principled-representation A pair per limb, the placement being the one thing the sets vary by.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Made by `humanLimbReads` alone.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every limb present.
-   */
-  export type IReads = Readonly<Record<IHumanPosture.Limb, readonly [IRead, IRead]>>;
+  /** The interface contract (`IAutoMovieMotionHumanLimbReads.IReads`). */
+  export type IReads = IAutoMovieMotionHumanLimbReads.IReads;
 }

@@ -1,12 +1,14 @@
 import {
-  IAutoMovieResolvedCamera,
   intersectsPerspectiveFrustumBox,
   intersectsPerspectiveFrustumSegment,
   intersectsPerspectiveFrustumSphere,
   projectToNdc,
   resolveAutoMovieDeliveryCrop,
 } from "@automovie/engine";
-import { IAutoMovieDeliveryCrop } from "@automovie/interface";
+import {
+  IAutoMovieDeliveryCrop,
+  type IAutoMovieResolvedCamera,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "../internal/predicates";

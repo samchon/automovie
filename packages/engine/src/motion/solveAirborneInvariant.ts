@@ -1,4 +1,8 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
@@ -34,20 +38,20 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Playback owns a fixed numeric interval, quaternion and nominal rate plus k requested tangent-rate records, and returns fresh quaternions, tangent arrays and tangent vectors. It retains no history, model, factor, callback or query population.
  */
 export function solveAirborneInvariant(
-  props: integrateAirborneRotation.IProps,
-): integrateAirborneRotation.IFlight | undefined {
+  props: IAutoMovieIntegrateAirborneRotation.IProps,
+): IAutoMovieIntegrateAirborneRotation.IFlight | undefined {
   const stationary: boolean = props.momentum.x === 0 && props.momentum.y === 0
     && props.momentum.z === 0;
   if (props.momentumTolerance !== undefined && (!stationary || props.tolerance === undefined))
     return undefined;
 
-  const { t0, t1 }: integrateAirborneRotation.IProps = props;
+  const { t0, t1 }: IAutoMovieIntegrateAirborneRotation.IProps = props;
   const h: number = props.h ?? integrateMotionTrajectory.STEP;
   if (!Number.isFinite(t0) || !Number.isFinite(t1) || !(t1 > t0)
       || !Number.isFinite(h) || !(h > 0)
       || (props.errorScope !== undefined && typeof props.errorScope !== "symbol"))
     return undefined;
-  const tolerance: integrateAirborneRotation.IProps["tolerance"] = props.tolerance;
+  const tolerance: IAutoMovieIntegrateAirborneRotation.IProps["tolerance"] = props.tolerance;
   if (tolerance !== undefined && (!(tolerance.relative >= 0 && tolerance.absolute >= 0)
       || !(tolerance.relative + tolerance.absolute > 0)
       || !Number.isFinite(tolerance.relative + tolerance.absolute)))
@@ -109,7 +113,7 @@ function flight(
   t0: number, t1: number, h: number,
   initial: IAutoMovieQuaternion, rate: IAutoMovieVector3,
   directions: readonly IAutoMovieVector3[],
-): integrateAirborneRotation.IFlight {
+): IAutoMovieIntegrateAirborneRotation.IFlight {
   const q0: IAutoMovieQuaternion = { x: initial.x, y: initial.y, z: initial.z, w: initial.w };
   const w: IAutoMovieVector3 = { x: rate.x, y: rate.y, z: rate.z };
   const tangents: IAutoMovieVector3[] = directions.map(

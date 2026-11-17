@@ -1,4 +1,8 @@
-import { IAutoMovieSweep } from "./IAutoMovieSweep";
+import type {
+  IAutoMovieCompileSweepGuideOutput,
+  IAutoMovieSweep,
+} from "@automovie/interface";
+
 import { compileAutoMovieSweepProfile } from "./compileAutoMovieSweepProfile";
 
 /**
@@ -20,22 +24,11 @@ import { compileAutoMovieSweepProfile } from "./compileAutoMovieSweepProfile";
 export function compileAutoMovieSweepGuide(
   guide: IAutoMovieSweep.IGuide,
   index: number,
-): IOutput {
+): IAutoMovieCompileSweepGuideOutput {
   if (!Number.isFinite(guide.angle))
     throw new Error(`sweep guide ${index} angle is not finite`);
   return {
     angle: ((guide.angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI),
     radius: compileAutoMovieSweepProfile(guide.radii, `sweep guide ${index}`),
   };
-}
-
-/**
- * Wrapped direction and its independently compiled radius profile.
- */
-interface IOutput {
-  /** Radians in one turn. */
-  angle: number;
-
-  /** Radius in metres, positive and finite at a successful query. */
-  radius: (u: number) => number;
 }

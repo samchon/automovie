@@ -5,11 +5,11 @@ import {
   smoothMinimum,
 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { prepareWalkLegLean } from "./prepareWalkLegLean";
@@ -41,7 +41,7 @@ export namespace walkLeg {
    * @returns Degrees, positive leaning forward.
    */
   export function lean(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
     heading: number,
@@ -59,7 +59,7 @@ export namespace walkLeg {
    * @param reach The hip-to-ankle distance, metres.
    * @returns Radians.
    */
-  export function behind(body: IHumanBody, reach: number): number {
+  export function behind(body: IAutoMovieMotionHumanBody, reach: number): number {
     return prepareBehind(body)(reach);
   }
 
@@ -77,7 +77,7 @@ export namespace walkLeg {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged measured body fixes those scalar prerequisites for the stance/swing reader; geometry edits require new preparation and every changing reach is evaluated.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a closure over four scalar terms until its stance/swing releases it, without a body pose, distance, angle, time history or handle.
    */
-  export function prepareBehind(body: IHumanBody): (reach: number) => number {
+  export function prepareBehind(body: IAutoMovieMotionHumanBody): (reach: number) => number {
     const a: number = body.measure.thigh;
     const b: number = body.measure.shank;
     const aa: number = a ** 2;
@@ -106,7 +106,7 @@ export namespace walkLeg {
    * @returns Degrees, positive trailing.
    */
   export function trailing(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
     yaw: number,
@@ -130,7 +130,7 @@ export namespace walkLeg {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One stance-owned closure holds its body and private forward axis until released, without joint, angle or query history.
    */
   export function prepareTrailing(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     yaw: number,
   ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3) => number {
     const forward: IAutoMovieVector3 = HumanFrame.point(
@@ -157,7 +157,7 @@ export namespace walkLeg {
    * @returns The rotation, its pitch clamped.
    */
   export function ankleRange(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
@@ -182,7 +182,7 @@ export namespace walkLeg {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One correction-owned reader retains fixed scalar/axis geometry only until that synchronous foot correction returns or throws; it stores no rotation, limb result, queried angle history or external resource.
    */
   export function prepareAnkleRange(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     heading: number,
   ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3, rotation: IAutoMovieQuaternion) => IAutoMovieQuaternion {
     const prepared: ReturnType<typeof prepareWalkLegLean> = prepareWalkLegLean(body, heading);
@@ -238,7 +238,7 @@ export namespace walkLeg {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Owns no state beyond the synchronous search.
    */
   export function heelRise(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     hip: IAutoMovieVector3,
     pivot: IAutoMovieVector3,
@@ -268,7 +268,7 @@ export namespace walkLeg {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A reader retains its fixed pivot transform and axis until its owning stance solve releases it, with no query history.
    */
   export function prepareHeelRise(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     pivot: IAutoMovieVector3,
     heading: number,
@@ -301,7 +301,7 @@ export namespace walkLeg {
    * @returns Degrees; `-Infinity` where the ankle lies beyond the leg's reach from the hip, a pitch the leg cannot stand on at all, whose lean would be read off a leg stretched past its length.
    */
   export function room(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     hip: IAutoMovieVector3,
     pivot: IAutoMovieVector3,
@@ -321,7 +321,7 @@ export namespace walkLeg {
 
   /** The common dorsal-room rule, after fixed-heading and sole-pivot preparation. */
   function roomAt(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
     lean: ReturnType<typeof prepareWalkLegLean>,

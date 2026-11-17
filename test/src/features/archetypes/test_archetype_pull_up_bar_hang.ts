@@ -1,15 +1,18 @@
 import { createPullUpBar } from "@automovie/archetypes";
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSportWorkout,
-  type IHumanActionLaw,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -39,7 +42,7 @@ export function test_archetype_pull_up_bar_hang(): void {
     placed,
     bar.affordance("bar").frame.translation,
   );
-  const rows: readonly IHumanActionLaw<never>[] = [
+  const rows: readonly IAutoMovieMotionHumanActionLaw<never>[] = [
     HumanSportWorkout.deadHang,
     HumanSportWorkout.pullUp,
     HumanSportWorkout.chinUp,
@@ -49,10 +52,10 @@ export function test_archetype_pull_up_bar_hang(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const row of rows) {
       const label: string = `${name} ${row.name}`;
-      const perform = (hung: boolean): HumanPerformance =>
+      const perform = (hung: boolean): IAutoMovieMotionHumanPerformance =>
         new HumanPerformance({
           seed: "hang",
           laws: [...rows],
@@ -76,7 +79,7 @@ export function test_archetype_pull_up_bar_hang(): void {
         });
 
       // 1. It hangs from the bar.
-      let film: HumanPerformance;
+      let film: IAutoMovieMotionHumanPerformance;
       try {
         film = perform(true);
       } catch (error) {
@@ -85,14 +88,14 @@ export function test_archetype_pull_up_bar_hang(): void {
         );
         continue;
       }
-      const act: HumanSegment.ISegment = film
+      const act: IAutoMovieMotionHumanSegment = film
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === row.name)!;
+        .find(
+          (s: IAutoMovieMotionHumanSegment): boolean => s.name === row.name,
+        )!;
       const middle: number = (act.start + act.end) / 2;
-      const bones: ReturnType<HumanPerformance["bones"]> = film.bones(
-        "a",
-        middle,
-      );
+      const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+        film.bones("a", middle);
       for (const socket of [
         body.surfaces.sockets.gripLeft,
         body.surfaces.sockets.gripRight,

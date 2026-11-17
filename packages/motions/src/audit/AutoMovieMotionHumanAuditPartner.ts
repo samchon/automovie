@@ -1,9 +1,11 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditPartner,
+  IAutoMovieMotionHumanAuditTangle,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 import { AutoMovieMotionHumanAuditTangle } from "./AutoMovieMotionHumanAuditTangle";
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
-import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 
 /**
  * How deep two people's bodies pass into one another: the hand that sinks
@@ -28,66 +30,6 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  */
 export namespace AutoMovieMotionHumanAuditPartner {
   /**
-   * One of the two people.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it names.
-   * @evidence contracts/development/design.md#principled-representation A subject of the motion with the body its bones belong to.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both needed to place the person's colliders.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member.
-   */
-  export interface IPerson {
-    /** The person's subject in the motion. */
-    subject: string;
-
-    /** Their body. */
-    body: IHumanBody;
-  }
-
-  /**
-   * One segment of one person inside one segment of the other.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit or whose it is.
-   * @evidence contracts/development/design.md#principled-representation The entering part, the entered part, the depth and its instant.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, each needed to find the defect in a film.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Bones keep their rig type; no optional member.
-   */
-  export interface IPair {
-    /** The person whose segment lies inside. */
-    subject: string;
-
-    /** That segment. */
-    part: AutoMovieHumanoidBone;
-
-    /** The person it lies in. */
-    other: string;
-
-    /** The segment it lies in. */
-    into: AutoMovieHumanoidBone;
-
-    /** How deep, metres, positive. */
-    depth: number;
-
-    /** The film second of that depth. */
-    seconds: number;
-  }
-
-  /**
-   * The reading of {@link measure}.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its order or its empty value.
-   * @evidence contracts/development/design.md#principled-representation The deepest pair as a measure, and every pair for diagnosis.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, as the self-penetration reading has.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member; no pair reads as a zero measure named `none`.
-   */
-  export interface IResult {
-    /** The deepest pair, named `<subject> <part> in <other> <into>`; zero and `none` when the bodies never pass into each other. */
-    worst: IAutoMovieMotionHumanAuditMeasure;
-
-    /** Every directed pair that passed into each other at some instant, at its deepest instant, deepest first. */
-    pairs: IPair[];
-  }
-
-  /**
    * Read how deep two people pass into each other over the whole motion.
    *
    * @param motion The motion.
@@ -102,33 +44,31 @@ export namespace AutoMovieMotionHumanAuditPartner {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A grid loop over two directed readings and one sort.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads both ends of the film and exempts nothing.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each person's bones are posed once per instant and shared by both directions.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `IAutoMovieMotionHumanAuditMotion.grid`, the pose reading `AutoMovieMotionHumanAuditTangle.across`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `AutoMovieMotionHumanAuditMotion.grid`, the pose reading `AutoMovieMotionHumanAuditTangle.across`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
-    one: IPerson,
-    other: IPerson,
+    one: IAutoMovieMotionHumanAuditPartner.IPerson,
+    other: IAutoMovieMotionHumanAuditPartner.IPerson,
     rate: number = 24,
-  ): IResult {
-    const deepest: Map<string, IPair> = new Map();
-    for (const t of IAutoMovieMotionHumanAuditMotion.grid(
-      0,
-      motion.duration,
-      rate,
-    )) {
+  ): IAutoMovieMotionHumanAuditPartner.IResult {
+    const deepest: Map<string, IAutoMovieMotionHumanAuditPartner.IPair> =
+      new Map();
+    for (const t of HumanAuditMotion.grid(0, motion.duration, rate)) {
       const mine: ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> =
         motion.bones(one.subject, t);
       const theirs: ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> =
         motion.bones(other.subject, t);
       const read = (
-        from: IPerson,
-        to: IPerson,
-        pairs: AutoMovieMotionHumanAuditTangle.IPair[],
+        from: IAutoMovieMotionHumanAuditPartner.IPerson,
+        to: IAutoMovieMotionHumanAuditPartner.IPerson,
+        pairs: IAutoMovieMotionHumanAuditTangle.IPair[],
       ): void => {
         for (const pair of pairs) {
           const key: string = `${from.subject}|${pair.a}|${pair.b}`;
-          const known: IPair | undefined = deepest.get(key);
+          const known: IAutoMovieMotionHumanAuditPartner.IPair | undefined =
+            deepest.get(key);
           if (known === undefined || pair.depth > known.depth)
             deepest.set(key, {
               subject: from.subject,
@@ -161,10 +101,15 @@ export namespace AutoMovieMotionHumanAuditPartner {
         ),
       );
     }
-    const pairs: IPair[] = [...deepest.values()].sort(
-      (x: IPair, y: IPair): number => y.depth - x.depth,
+    const pairs: IAutoMovieMotionHumanAuditPartner.IPair[] = [
+      ...deepest.values(),
+    ].sort(
+      (
+        x: IAutoMovieMotionHumanAuditPartner.IPair,
+        y: IAutoMovieMotionHumanAuditPartner.IPair,
+      ): number => y.depth - x.depth,
     );
-    const top: IPair | undefined = pairs[0];
+    const top: IAutoMovieMotionHumanAuditPartner.IPair | undefined = pairs[0];
     return {
       worst:
         top === undefined

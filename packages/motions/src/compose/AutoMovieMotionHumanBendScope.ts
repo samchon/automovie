@@ -1,6 +1,9 @@
-import type { IAutoMovieSwivelSeed } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieSwivelSeed,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 
 /**
@@ -33,10 +36,10 @@ export namespace AutoMovieMotionHumanBendScope {
    */
   export interface IScope {
     /** The body whose arm the scope continues. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The arm. */
-    side: AutoMovieMotionHumanBend.Side;
+    side: AutoMovieHumanSide;
 
     /** The seed of the last request solved inside the scope. */
     seed?: IAutoMovieSwivelSeed;
@@ -83,7 +86,7 @@ export namespace AutoMovieMotionHumanBendScope {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A reading.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function of(body: IHumanBody, side: AutoMovieMotionHumanBend.Side): IScope | undefined {
+  export function of(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): IScope | undefined {
     return current !== undefined && current.body === body && current.side === side ? current : undefined;
   }
 }

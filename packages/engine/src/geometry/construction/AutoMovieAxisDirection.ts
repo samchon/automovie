@@ -1,3 +1,8 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieAxisDirection,
+} from "@automovie/interface";
+
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
 /**
@@ -12,23 +17,6 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
  */
 export namespace AutoMovieAxisDirection {
   /**
-   * A projected direction and its same-scale norms for unitization and relative conditioning.
-   *
-   * @evidence contracts/development/design.md#principled-representation Projection and target norms share whichever positive homogeneous scale was used, so their ratio is the relative normal projection.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One vector and two scalars carry all projection ownership.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No acceptance or geometric replacement is encoded in this numeric record.
-   * @evidence contracts/development/common.md#meaningful-documentation Members state the adjusted direction scale and its norm interpretation.
-   */
-  export interface IProjection {
-    /** Direction in the original or positively scaled input's normal plane. */
-    vector: AutoMovieSolidVector.Vec3;
-    /** Norm of vector in that same scale. */
-    normalNorm: number;
-    /** Full target norm in the same scale; ratio normalNorm/targetNorm drives admission. */
-    targetNorm: number;
-  }
-
-  /**
    * Project a direction off an admitted unit tangent, preserving ordinary arithmetic.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Orthogonal subtraction is recomputed from max-scaled input when its raw norm is subnormal or nonfinite; the same positive scale changes neither direction nor relative projection. If whole-input scaling erases a finite nonzero raw normal component, that original projection/norm scale is retained for safe unitization.
@@ -40,11 +28,11 @@ export namespace AutoMovieAxisDirection {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only one returned fixed-size record survives; all input data remains caller-owned and unmodified.
    */
   export function project(
-    up: AutoMovieSolidVector.Vec3,
-    tangent: AutoMovieSolidVector.Vec3,
+    up: AutoMovieVector3Tuple,
+    tangent: AutoMovieVector3Tuple,
     targetNorm: number = Math.hypot(...up),
-  ): IProjection {
-    let vector: AutoMovieSolidVector.Vec3 = AutoMovieSolidVector.sub(
+  ): IAutoMovieAxisDirection.IProjection {
+    let vector: AutoMovieVector3Tuple = AutoMovieSolidVector.sub(
       up,
       AutoMovieSolidVector.scale(
         tangent,
@@ -55,17 +43,16 @@ export namespace AutoMovieAxisDirection {
     if (!Number.isFinite(normalNorm) || normalNorm < MINIMUM_NORMAL) {
       const magnitude: number = Math.max(...up.map(Math.abs));
       if (Number.isFinite(magnitude) && magnitude > 0) {
-        const scaled: AutoMovieSolidVector.Vec3 = up.map(
+        const scaled: AutoMovieVector3Tuple = up.map(
           (value: number): number => value / magnitude,
-        ) as AutoMovieSolidVector.Vec3;
-        const scaledVector: AutoMovieSolidVector.Vec3 =
-          AutoMovieSolidVector.sub(
-            scaled,
-            AutoMovieSolidVector.scale(
-              tangent,
-              AutoMovieSolidVector.dot(scaled, tangent),
-            ),
-          );
+        ) as AutoMovieVector3Tuple;
+        const scaledVector: AutoMovieVector3Tuple = AutoMovieSolidVector.sub(
+          scaled,
+          AutoMovieSolidVector.scale(
+            tangent,
+            AutoMovieSolidVector.dot(scaled, tangent),
+          ),
+        );
         const scaledNorm: number = Math.hypot(...scaledVector);
 
         // Scaling an enormous tangent component must not erase a representable raw normal.
@@ -94,17 +81,17 @@ export namespace AutoMovieAxisDirection {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one local vector and retains no state.
    */
   export function unit(
-    vector: AutoMovieSolidVector.Vec3,
+    vector: AutoMovieVector3Tuple,
     norm: number = Math.hypot(...vector),
-  ): AutoMovieSolidVector.Vec3 {
+  ): AutoMovieVector3Tuple {
     if (!(norm > 0)) return vector;
     if (Number.isFinite(norm) && norm >= MINIMUM_NORMAL)
       return AutoMovieSolidVector.scale(vector, 1 / norm);
     const magnitude: number = Math.max(...vector.map(Math.abs));
     if (!(Number.isFinite(magnitude) && magnitude > 0)) return vector;
-    const scaled: AutoMovieSolidVector.Vec3 = vector.map(
+    const scaled: AutoMovieVector3Tuple = vector.map(
       (value: number): number => value / magnitude,
-    ) as AutoMovieSolidVector.Vec3;
+    ) as AutoMovieVector3Tuple;
     return AutoMovieSolidVector.scale(scaled, 1 / Math.hypot(...scaled));
   }
 
@@ -120,10 +107,10 @@ export namespace AutoMovieAxisDirection {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one local vector; zero-normal identity returns the supplied vector and retains no new state.
    */
   export function reflect(
-    vector: AutoMovieSolidVector.Vec3,
-    direction: AutoMovieSolidVector.Vec3,
+    vector: AutoMovieVector3Tuple,
+    direction: AutoMovieVector3Tuple,
     squaredNorm: number = AutoMovieSolidVector.dot(direction, direction),
-  ): AutoMovieSolidVector.Vec3 {
+  ): AutoMovieVector3Tuple {
     if (Number.isFinite(squaredNorm) && squaredNorm >= MINIMUM_NORMAL)
       return AutoMovieSolidVector.sub(
         vector,
@@ -133,7 +120,7 @@ export namespace AutoMovieAxisDirection {
         ),
       );
     if (direction.every((value: number): boolean => value === 0)) return vector;
-    const normal: AutoMovieSolidVector.Vec3 = unit(direction);
+    const normal: AutoMovieVector3Tuple = unit(direction);
     return AutoMovieSolidVector.sub(
       vector,
       AutoMovieSolidVector.scale(

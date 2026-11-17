@@ -1,11 +1,14 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { StrikingBody } from "../striking/StrikingBody";
@@ -33,7 +36,7 @@ export namespace KnockdownFloor {
     /** Trunk pitch, degrees. */
     pitch: number;
     /** Clinical angle triples, degrees by bone. */
-    joints: AutoMovieMotionHumanJoints.Angles;
+    joints: IAutoMovieMotionHumanJoints.Angles;
   }
 
   /**
@@ -125,7 +128,7 @@ export namespace KnockdownFloor {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Consumes the same fold the law writes. The body owns only static collider/hip/foot demand membership, while every current fold projects normally. Optional synchronous FK/projector sources share only equal FK prerequisites and static ROM metadata; no posed measure is retained.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One bounded static demand is weakly owned per body and releases with it, retaining no pose or workspace. Query fold/maps/scalar staging end on return/throw, optional FK/projector loans stay with their synchronous caller, and only three numeric measures escape.
    */
-  export function measure(body: IHumanBody, folded: IFold, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IMeasure {
+  export function measure(body: IAutoMovieMotionHumanBody, folded: IFold, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IMeasure {
     const bones: ReturnType<typeof StrikingBody.trunk> = measureReader(body)(foldPosture(folded), resolution, projection);
     return {
       floor: -lowest(body, bones),
@@ -152,7 +155,7 @@ export namespace KnockdownFloor {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous exact FK reader/projector reaches every actual trunk trial. Each name union binds its genuine trunk reader; prepareMinima copies part/support memberships and selects their neutral union. Actual posed bone names determine the original group updates after all placement inputs stage. No floor verdict, trial, bound or changed dependency is reused.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local reader/projector, three bounded FK/group-minimum producers, current bone maps and four-array scalar staging release on synchronous return/throw. Each temporary two-number minimum ends with its gap reading; only three fitted angles escape without a workspace, callback or history.
    */
-  export function fit(body: IHumanBody, landed: number): IFit {
+  export function fit(body: IAutoMovieMotionHumanBody, landed: number): IFit {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
@@ -229,7 +232,7 @@ export namespace KnockdownFloor {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual canonical collider demand and lowest's exact reduction retain geometry policy. Weak body ownership shares only fixed name membership, while optional parent FK/projector sources share equal prerequisites/static ROM metadata and every current joint is projected without a retained floor verdict.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One bounded genuine demand is weakly owned per body and releases with it; it retains neither raw pose nor FK/projector workspace. Optional loans, actual maps/placements and numeric floor readings end with the synchronous query and never enter history here.
    */
-  export function rest(body: IHumanBody, posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): number {
+  export function rest(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): number {
     const bones: ReturnType<typeof StrikingBody.trunk> = restReader(body)({
       ...posture,
       root: { ...posture.root, y: 0 },
@@ -251,15 +254,15 @@ export namespace KnockdownFloor {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanColliders.bones supplies exactly the canonical frames rest requests; the genuine minimum producer retains unchanged neutral entries/order and still skips every absent current frame. All current posture/FK/ROM inputs and actual bounds remain evaluated; no cached floor or pose supplies the result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan/interval owns one fixed trunk reader and O(S) neutral minimum binding until release. Query posture, borrowed FK/ROM, bone map, four staging arrays and one-number minimum end on return/throw; no dynamic workspace, result or time history enters the retained closure.
    */
-  export function prepareRest(body: IHumanBody): (
-    posture: IHumanPosture,
+  export function prepareRest(body: IAutoMovieMotionHumanBody): (
+    posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ) => number {
     const read: ReturnType<typeof StrikingBody.prepareTrunk> = restReader(body);
     const minimum: ReturnType<typeof HumanColliders.prepareMinima> = HumanColliders.prepareMinima(body);
     return (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
     ): number => {
@@ -287,20 +290,20 @@ export namespace KnockdownFloor {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary default binding, four staging arrays and one-number output end on return/throw; this entry retains no body, map, posed frame, bound or history.
    */
   export function lowest(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number {
     return HumanColliders.prepareMinima(body)(bones)[0]!;
   }
 
   /** Genuine collider-only name demands, weakly bound to unchanged bodies without any posed state. */
-  const REST_READERS: WeakMap<IHumanBody, ReturnType<typeof StrikingBody.prepareTrunk>> = new WeakMap();
+  const REST_READERS: WeakMap<IAutoMovieMotionHumanBody, ReturnType<typeof StrikingBody.prepareTrunk>> = new WeakMap();
 
   /** Genuine collider/hip/foot name demands, independent of all fold values and operation workspaces. */
-  const MEASURE_READERS: WeakMap<IHumanBody, ReturnType<typeof StrikingBody.prepareTrunk>> = new WeakMap();
+  const MEASURE_READERS: WeakMap<IAutoMovieMotionHumanBody, ReturnType<typeof StrikingBody.prepareTrunk>> = new WeakMap();
 
   /** Bind floor rest's fixed names once; current raw admission and optional operation loans stay with each call. */
-  function restReader(body: IHumanBody): ReturnType<typeof StrikingBody.prepareTrunk> {
+  function restReader(body: IAutoMovieMotionHumanBody): ReturnType<typeof StrikingBody.prepareTrunk> {
     let read: ReturnType<typeof StrikingBody.prepareTrunk> | undefined = REST_READERS.get(body);
     if (read === undefined) {
       read = StrikingBody.prepareTrunk(body, HumanColliders.bones(body));
@@ -310,7 +313,7 @@ export namespace KnockdownFloor {
   }
 
   /** Bind the fold's fixed observation union once; neither a sampled fold nor its measured answer is retained. */
-  function measureReader(body: IHumanBody): ReturnType<typeof StrikingBody.prepareTrunk> {
+  function measureReader(body: IAutoMovieMotionHumanBody): ReturnType<typeof StrikingBody.prepareTrunk> {
     let read: ReturnType<typeof StrikingBody.prepareTrunk> | undefined = MEASURE_READERS.get(body);
     if (read === undefined) {
       const requested: Set<AutoMovieHumanoidBone> = new Set(HumanColliders.bones(body));
@@ -322,7 +325,7 @@ export namespace KnockdownFloor {
   }
 
   /** The original folded clinical request, with its root at zero facing +Z. */
-  function foldPosture(folded: IFold): IHumanPosture {
+  function foldPosture(folded: IFold): IAutoMovieMotionHumanPosture {
     return {
       root: { x: 0, y: 0, z: 0 },
       yaw: 0,

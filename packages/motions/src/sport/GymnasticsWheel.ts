@@ -1,13 +1,15 @@
-import { type IAutoMovieResolvedBone, minimumJerk } from "@automovie/engine";
+import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanGymnasticsWheel,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -37,73 +39,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres: every place follows from the spokes.
  */
 export namespace GymnasticsWheel {
-  /**
-   * One actual joint group that may bear during rolling.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Bones identify one bearing joint or a pair whose mean is read; height is world metres and support is the original declared floor/prop contact.
-   * @evidence contracts/development/design.md#principled-representation The same physical joint group supplies the rolling mean and emitted per-joint support windows.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The rolling law needs only these ordered joint names, bearing height and declared support.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No alternative root, precomputed winning-spoke verdict, tolerance or manual body dimension is stored.
-   */
-  export interface ISpoke {
-    /** Its joints: one, or two that bear together at their middle. */
-    bones: readonly (AutoMovieHumanoidBone & IHumanContactWindow["part"])[];
-
-    /** The height of its joints' middle when it bears, world metres. */
-    height: number;
-
-    /** What it bears on. */
-    support: IHumanContactWindow.Support;
-  }
-
-  /**
-   * One original sampled angle's root and selected bearing group.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Angle is degrees, root is world metres, and bears indexes the original ordered spoke list.
-   * @evidence contracts/development/design.md#principled-representation One actual geometric station couples its root placement to the support selected by the unchanged LEVEL comparison.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Interpolation and contact extraction consume exactly these three values.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains no fitted flag, replacement collider or skipped-station marker.
-   */
-  export interface IRow {
-    /** The turn's angle, degrees. */
-    angle: number;
-
-    /** The root, world metres. */
-    root: IAutoMovieVector3;
-
-    /** The bearing spoke's index in the spokes. */
-    bears: number;
-  }
-
-  /**
-   * Every original rolling station and its piecewise-linear root reader.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Rows run from zero to the full turn in degrees; the reader clamps angles to that span and returns world metres.
-   * @evidence contracts/development/design.md#principled-representation The existing station table supplies both continuous root interpolation and exact ordered bearing runs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The laws inspect rows for support and call root for the same table's placement; no second sampled trajectory is represented.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains every authored station and original interpolation rather than a coarser table, predicted support or alternate clock.
-   */
-  export interface IWheel {
-    /** The rows, by growing angle, the first at 0 and the last at the turn's end. */
-    rows: readonly IRow[];
-
-    /**
-     * The root at an angle, between the rows.
-     *
-     * @param angle Degrees, clamped into the table.
-     * @returns World metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the degree input, endpoint clipping and world-metre output from this wheel's original ordered stations.
-     * @evidence contracts/development/implementation.md#principled-implementation roll's actual reader converts the clipped angle to the original station index/share and interpolates the two adjacent root vectors componentwise.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One clipped coordinate, index and linear vector expression reuse the station producer's span/count.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No station, bearing transition, interpolation order or endpoint convention is changed by prepared FK during construction.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Each actual read takes constant arithmetic and two indexed row reads without solving or traversing the body; all construction stations remain.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The reader and contacts consume the same actual wheel rows; changing angles are evaluated directly without a time/result memo.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The wheel retains its original rows/span/count until released; each query returns a fresh vector and retains neither an input angle, previous result nor construction FK reader.
-     */
-    root(angle: number): IAutoMovieVector3;
-  }
-
   /** How much lower a later spoke must reach to take the weight from an earlier one, metres: two spokes level within it keep the earlier. */
   const LEVEL: number = 1e-3;
 
@@ -121,16 +56,9 @@ export namespace GymnasticsWheel {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each row's spoke means supply every comparison/support handover. One scoped exact FK reader and genuine same-body projector share equal FK prerequisites/static ROM metadata across real stations; every current joint is projected and changed shape/root dependencies compute normally, without a rounded time/shape key.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The table retains one record per original row. Fixed demand, scoped FK getter/projector and temporary row maps/means release at construction return/throw; neither workspace nor a temporal cache enters the root reader or rows.
    */
-  export function roll(props: {
-    body: IHumanBody;
-    shaped: (angle: number) => IHumanPosture;
-    spokes: readonly ISpoke[];
-    start: IAutoMovieVector3;
-    until: number;
-    step: number;
-  }): IWheel {
+  export function roll(props: IAutoMovieMotionHumanGymnasticsWheel.IRollProps ): IAutoMovieMotionHumanGymnasticsWheel.IWheel {
     const count: number = Math.max(1, Math.ceil(props.until / props.step));
-    const rows: IRow[] = [];
+    const rows: IAutoMovieMotionHumanGymnasticsWheel.IRow[] = [];
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(props.body);
     const requested: Set<AutoMovieHumanoidBone> = new Set();
@@ -140,10 +68,10 @@ export namespace GymnasticsWheel {
     let place: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (let i: number = 0; i <= count; i++) {
       const angle: number = (props.until * i) / count;
-      const shaped: IHumanPosture = props.shaped(angle);
+      const shaped: IAutoMovieMotionHumanPosture = props.shaped(angle);
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         readBones(resolveHumanPosture.seeded(props.body, { ...shaped, limbs: {} }, undefined, undefined, resolution, undefined, projection).pose, resolution());
-      const middles: IAutoMovieVector3[] = props.spokes.map((spoke: ISpoke): IAutoMovieVector3 => {
+      const middles: IAutoMovieVector3[] = props.spokes.map((spoke: IAutoMovieMotionHumanGymnasticsWheel.ISpoke): IAutoMovieVector3 => {
         let x: number = 0;
         let y: number = 0;
         let z: number = 0;
@@ -162,7 +90,7 @@ export namespace GymnasticsWheel {
       for (let s: number = 1; s < props.spokes.length; s++)
         if (reach(s) < reach(bears) - LEVEL) bears = s;
       const at: IAutoMovieVector3 = middles[bears]!;
-      const before: IRow | undefined = rows.at(-1);
+      const before: IAutoMovieMotionHumanGymnasticsWheel.IRow | undefined = rows.at(-1);
       if (before === undefined)
         place = { x: props.start.x + at.x, y: 0, z: props.start.z + at.z };
       else if (before.bears !== bears) {
@@ -222,16 +150,16 @@ export namespace GymnasticsWheel {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources O(W) run records, O(P) running-bone entries and O(K) converted angles release at return or throw; only fresh final windows escape, with their existing borrowed support records.
    */
   export function contacts(
-    wheel: IWheel,
-    spokes: readonly ISpoke[],
+    wheel: IAutoMovieMotionHumanGymnasticsWheel.IWheel,
+    spokes: readonly IAutoMovieMotionHumanGymnasticsWheel.ISpoke[],
     share: (angle: number) => number,
-  ): IHumanContactWindow[] {
+  ): IAutoMovieMotionHumanContactWindow[] {
     const runs: IContactRun[] = [];
 
     // Each joint's running window and the last row it bore at.
     const open: Map<string, IContactRun> = new Map();
-    wheel.rows.forEach((row: IRow, index: number): void => {
-      const spoke: ISpoke = spokes[row.bears]!;
+    wheel.rows.forEach((row: IAutoMovieMotionHumanGymnasticsWheel.IRow, index: number): void => {
+      const spoke: IAutoMovieMotionHumanGymnasticsWheel.ISpoke = spokes[row.bears]!;
       for (const bone of spoke.bones) {
         const running: IContactRun | undefined = open.get(bone);
         if (running !== undefined && running.row === index - 1) {
@@ -259,7 +187,7 @@ export namespace GymnasticsWheel {
       times.set(key, value);
       return value;
     };
-    return runs.map((run: IContactRun): IHumanContactWindow => ({
+    return runs.map((run: IContactRun): IAutoMovieMotionHumanContactWindow => ({
       part: run.part, kind: "plant", from: at(run.from), to: at(run.to), support: run.support,
     }));
   }
@@ -308,7 +236,7 @@ export namespace GymnasticsWheel {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function laid(body: IHumanBody): number {
+  export function laid(body: IAutoMovieMotionHumanBody): number {
     return AutoMovieMotionHumanPlaced.wrist(body, "left", {
       point: { x: 0, y: 0, z: 0 },
       facing: { x: 0, y: -1, z: 0 },
@@ -320,7 +248,7 @@ export namespace GymnasticsWheel {
 /** One ordered contact run before its fixed geometric endpoint angles become times. */
 interface IContactRun {
   /** The bone that bears throughout this contiguous run. */
-  part: IHumanContactWindow["part"];
+  part: IAutoMovieMotionHumanContactWindow["part"];
 
   /** The first bearing row's angle, degrees. */
   from: number;
@@ -332,5 +260,5 @@ interface IContactRun {
   row: number;
 
   /** The support retained from the run's first row, as in the original contact rule. */
-  support: IHumanContactWindow.Support;
+  support: IAutoMovieMotionHumanContactWindow.Support;
 }

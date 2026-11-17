@@ -1,26 +1,12 @@
-import { IAutoMovieJointPose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieChainBone,
+  IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorProps,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IAutoMovieChainBone } from "../kinematics/IAutoMovieChainBone";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
-import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
-
-/** Selected clinical joints read through the same prepared chain and frames. */
-interface IResolvedPreparedEffectorProps extends Pick<
-  ISolvePreparedChainPlantProps,
-  "prepared" | "jointAxes" | "restFrames"
-> {
-  /** Candidate root clinical articulation after rig-ROM clamping. */
-  upper: IAutoMovieJointPose;
-
-  /** Candidate mid clinical articulation after the same clamping. */
-  lower: IAutoMovieJointPose;
-
-  /** Optional matching call-local basis preparation, shared with the inverse solve. */
-  rig?: prepareChainFit.IRig;
-}
 
 /**
  * Resolve the effector produced by two candidate clinical joints through a prepared chain, in the same model-metre frame as its target. Clinical axes/rest frames must match preparation and candidate inversion. A supplied lower frame must be the completed prefix for these exact same inputs.
@@ -34,10 +20,10 @@ interface IResolvedPreparedEffectorProps extends Pick<
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one newly composed vector and retains no candidate joints, prepared record, handle or search history.
  */
 export const resolvePreparedChainEffector: (
-  props: IResolvedPreparedEffectorProps,
+  props: IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorProps,
   lower?: IAutoMovieChainBone,
 ) => IAutoMovieVector3 = (
-  props: IResolvedPreparedEffectorProps,
+  props: IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorProps,
   lower?: IAutoMovieChainBone,
 ): IAutoMovieVector3 => {
   const frame: IAutoMovieChainBone = lower ?? resolvePreparedChainLower(props);

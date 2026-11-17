@@ -1,13 +1,15 @@
 import {
-  type IAutoMovieResolvedBone,
-  physicalInertiaTensor,
   prepareAutoMovieMassModel as M,
+  physicalInertiaTensor,
   type resolveAutoMovieCenterOfMass,
   resolveAutoMovieMomentum,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieBodyMomentum,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -45,7 +47,7 @@ import { vclose } from "../internal/vclose";
  */
 export function test_motion_prepared_model_contracts(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-  const source: resolveAutoMovieCenterOfMass.IModel = {
+  const source: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 3,
     segments: [
       { bone: "hips", mass: 2, point: { x: 1, y: 0, z: 0 },
@@ -133,7 +135,7 @@ export function test_motion_prepared_model_contracts(): void {
       value.worldPosition.z += 0.5;
     }
     const after: resolveAutoMovieMomentum.IPosed = M.pose(prepared, bones);
-    const momentum: resolveAutoMovieMomentum.IMomentum = M.between(prepared, before, after, 0.5);
+    const momentum: IAutoMovieBodyMomentum = M.between(prepared, before, after, 0.5);
     TestValidator.predicate("uniform translation retains physical momentum",
       vclose(momentum.velocity, { x: 2, y: -4, z: 1 }, 1e-12) &&
       vclose(momentum.linear, { x: 6, y: -12, z: 3 }, 1e-12) &&
@@ -186,7 +188,7 @@ function capturedAccessor(): void {
     get x(): number { const captured: number = current; current = NaN; return captured; }, y: 2, z: 3,
   };
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-  const model: resolveAutoMovieCenterOfMass.IModel = { mass: 1, segments: [
+  const model: IAutoMovieResolveCenterOfMass.IModel = { mass: 1, segments: [
     { bone: "hips", mass: 1, point, inertia: { x: 2, y: 3, z: 4 }, axes: identity },
   ] };
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map([

@@ -1,9 +1,11 @@
+import type {
+  IAutoMovieRecoverySavedSection,
+  IAutoMovieRecoverySectionsInput,
+  IAutoMovieRecoverySlabObservation,
+  IAutoMovieRecoverySlabsInput,
+  IAutoMovieRecoverySourceLineage,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoverySavedSection,
-  type IAutoMovieRecoverySectionsInput,
-  type IAutoMovieRecoverySlabObservation,
-  type IAutoMovieRecoverySlabsInput,
-  type IAutoMovieRecoverySourceLineage,
   observeAutoMovieRecoverySections,
   observeAutoMovieRecoverySlabs,
 } from "@automovie/recovery";
@@ -432,7 +434,7 @@ export function test_recovery_slab_observation_resume(): void {
     observeAutoMovieRecoverySlabs(
       { ...input, slabPairs: [...input.slabPairs, ...input.slabPairs] },
       {
-        signal: controller.signal,
+        cancelled: (): boolean => controller.signal.aborted,
         onSourceSlab: (): void => {
           delivered++;
           controller.abort();
@@ -450,7 +452,7 @@ export function test_recovery_slab_observation_resume(): void {
   let progress: number = 0;
   const beforeWork: ReturnType<typeof observeAutoMovieRecoverySlabs> =
     observeAutoMovieRecoverySlabs(input, {
-      signal: preaborted.signal,
+      cancelled: (): boolean => preaborted.signal.aborted,
       onProgress: (): void => {
         progress++;
       },

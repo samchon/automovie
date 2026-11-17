@@ -1,8 +1,9 @@
-import {
-  type IAutoMovieSwivelNear,
-  type IAutoMovieSwivelSeed,
-  hingedArmSwivel,
-} from "@automovie/engine";
+import { hingedArmSwivel } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBend,
+  IAutoMovieSwivelNear,
+  IAutoMovieSwivelSeed,
+} from "@automovie/interface";
 
 import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
@@ -49,7 +50,7 @@ export namespace AutoMovieMotionHumanBendWalk {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function walk(
-    solve: AutoMovieMotionHumanBend.ISolve,
+    solve: IAutoMovieMotionHumanBend.ISolve,
     hang: Parameters<typeof AutoMovieMotionHumanBendSearch.continued>[1],
     seed: IAutoMovieSwivelSeed,
   ): ISolved | null {
@@ -86,7 +87,7 @@ export namespace AutoMovieMotionHumanBendWalk {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function next(
-    solve: AutoMovieMotionHumanBend.ISolve,
+    solve: IAutoMovieMotionHumanBend.ISolve,
     hang: Parameters<typeof AutoMovieMotionHumanBendSearch.continued>[1],
     last: IAutoMovieSwivelSeed | null,
   ): ISolved | null {

@@ -1,6 +1,7 @@
-import {
+import type {
   IAutoMovieCompiledShotSource,
   IAutoMovieRenderTargetSettings,
+  IAutoMovieRenderTargetSettingsOfShotProps,
 } from "@automovie/interface";
 
 /**
@@ -18,24 +19,11 @@ import {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Compiled environment policy is read directly without rebuilding scene state or resealing assets; each invocation reflects its supplied dimensions and pixel ratio.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The settings record contains only scalar values, so no compiled geometry, GPU allocation or host session is retained.
  */
-export const autoMovieRenderTargetSettingsOfShot: (props: {
-  compiled: IAutoMovieCompiledShotSource;
-  width: number;
-  height: number;
-  pixelRatio: number;
-  delivery: IAutoMovieRenderTargetSettings["toneMapping"];
-}) => IAutoMovieRenderTargetSettings = (props: {
-  /** Fully builder-owned shot artifact. */
-  compiled: IAutoMovieCompiledShotSource;
-  /** Drawing-buffer width in pixels. */
-  width: number;
-  /** Drawing-buffer height in pixels. */
-  height: number;
-  /** Device pixel ratio the capture host pins. */
-  pixelRatio: number;
-  /** The delivery's own tone mapping, for a scene that declares none. */
-  delivery: IAutoMovieRenderTargetSettings["toneMapping"];
-}): IAutoMovieRenderTargetSettings => {
+export const autoMovieRenderTargetSettingsOfShot: (
+  props: IAutoMovieRenderTargetSettingsOfShotProps,
+) => IAutoMovieRenderTargetSettings = (
+  props: IAutoMovieRenderTargetSettingsOfShotProps,
+): IAutoMovieRenderTargetSettings => {
   const environment:
     | IAutoMovieCompiledShotSource["scene"]["environment"]
     | null = props.compiled.scene.environment ?? null;

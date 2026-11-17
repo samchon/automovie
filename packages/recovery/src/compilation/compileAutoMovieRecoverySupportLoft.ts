@@ -1,12 +1,11 @@
 import { realizeAutoMovieConvexSupportLoft } from "@automovie/engine";
 import type {
   IAutoMovieConvexSupportLoft,
+  IAutoMovieRecoveryResult,
   IAutoMovieRecoverySupportLoft,
+  IAutoMovieRecoverySupportLoftBudget,
+  IAutoMovieRecoverySupportRealization,
 } from "@automovie/interface";
-
-import type { IAutoMovieRecoverySupportLoftBudget } from "../structures/image/IAutoMovieRecoverySupportLoftBudget";
-import type { IAutoMovieRecoverySupportRealization } from "../structures/image/IAutoMovieRecoverySupportRealization";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
 
 /**
  * Generate new geometry, normal fans and construction from saved support curves.

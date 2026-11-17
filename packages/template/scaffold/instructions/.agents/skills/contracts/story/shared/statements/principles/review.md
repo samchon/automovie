@@ -1,7 +1,5 @@
 # Review unit statements
 
-Contract: [principles/review.md](../../principles/review.md).
-
 ## Independent reading
 
 1. The locked observation has at least one exact body quotation and locator, and it is kept for units with no finding too.
@@ -17,9 +15,9 @@ Contract: [principles/review.md](../../principles/review.md).
 
 ## Literal and class audit
 
-1. Each finding class records its inspected scope, a reproducible search or comparison, every discovered member and affected relation, and the earliest owner.
+1. Each finding class records its inspected scope, a reproducible search or comparison, all discovered members, the affected relations and the earliest owner.
 2. It references other review units where they inspected a member, and a genuinely isolated finding states its reason.
 3. Quotations and locators match the inspected revision.
-4. Where the pass ran independent classification, its [inspection record](../../../../../story/correction/inspection.md) covered every required sentence and parent comparison at the actual snapshot before author evidence, and handled revised passages and changed dependencies under [changed work](../../../../../story/correction/inspection.md#changed-work) without silently reversing unchanged classifications.
-5. The body was compared with its parents and requirements, following [independent reading](../../../../../review/independent-reading.md), every decision against its inherited parent.
+4. Where the pass ran independent classification, its inspection record covered every required sentence and parent comparison at the inspected snapshot before author evidence, and handled revised passages and changed dependencies under [changed work](../../../../../story/correction/inspection.md#changed-work) without silently reversing unchanged classifications.
+5. Following [independent reading](../../../../../review/independent-reading.md), the body was compared with its requirements, and every decision with its inherited parent.
 6. Similar wording prompts inspection, not automatic failure.

@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanFootPlaces } from "@automovie/interface";
+
 /**
  * The standing foot's observed yaw, ankle skin-loop place, dorsum heights
  * and toe skin reaches ({@link TOES}, from `test_human_estimate_sites`).
@@ -45,7 +47,7 @@ export namespace AutoMovieHumanFootPlaces {
   /**
    * Dorsum height per body-X span, at projected shares from heel X.
    */
-  export const FOREFOOT: readonly { readonly share: number; readonly height: number }[] = [
+  export const FOREFOOT: IAutoMovieHumanFootPlaces.Forefoot = [
     { share: 0.6, height: 0.1704 },
     { share: 0.7, height: 0.1002 },
     { share: 0.8, height: 0.0827 },
@@ -90,12 +92,19 @@ export namespace AutoMovieHumanFootPlaces {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Locals retain only the module table during the call; the returned scalar owns no resource.
    */
   export function dorsum(footLength: number, share: number): number {
-    const rows: readonly { readonly share: number; readonly height: number }[] = FOREFOOT;
+    const rows: readonly { readonly share: number; readonly height: number }[] =
+      FOREFOOT;
     if (share <= rows[0]!.share) return rows[0]!.height * footLength;
     for (let i: number = 0; i + 1 < rows.length; i++) {
       const a: { readonly share: number; readonly height: number } = rows[i]!;
-      const b: { readonly share: number; readonly height: number } = rows[i + 1]!;
-      if (share <= b.share) return (a.height + ((share - a.share) / (b.share - a.share)) * (b.height - a.height)) * footLength;
+      const b: { readonly share: number; readonly height: number } =
+        rows[i + 1]!;
+      if (share <= b.share)
+        return (
+          (a.height +
+            ((share - a.share) / (b.share - a.share)) * (b.height - a.height)) *
+          footLength
+        );
     }
     return rows[rows.length - 1]!.height * footLength;
   }
@@ -122,7 +131,7 @@ export namespace AutoMovieHumanFootPlaces {
    * construction proxy. Combining the along maximum and first-loop across
    * mean gives a generated apex proxy, not an observed three-dimensional tip.
    */
-  export const TOES: readonly { readonly tip: number; readonly across: number }[] = [
+  export const TOES: IAutoMovieHumanFootPlaces.Toes = [
     { tip: 0.9681, across: 0.0072 },
     { tip: 0.9782, across: 0.1119 },
     { tip: 0.9354, across: 0.1639 },

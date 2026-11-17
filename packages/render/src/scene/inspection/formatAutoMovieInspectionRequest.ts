@@ -1,6 +1,9 @@
-import type { IAutoMovieSectionPlane } from "@automovie/engine";
+import type {
+  IAutoMovieInspectionColorAssignment,
+  IAutoMovieInspectionRequest,
+  IAutoMovieSectionPlane,
+} from "@automovie/interface";
 
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
 import { parseAutoMovieInspectionRequest } from "./parseAutoMovieInspectionRequest.js";
 
 /**
@@ -54,7 +57,7 @@ export function formatAutoMovieInspectionRequest(
       "color",
       request.color
         .map(
-          (entry: IAutoMovieInspectionRequest.IColor): string =>
+          (entry: IAutoMovieInspectionColorAssignment): string =>
             `${entry.pattern}=${entry.color.toString(16).padStart(6, "0")}`,
         )
         .join(","),

@@ -1,18 +1,18 @@
 import { Quaternion, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarriedLift,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTurnHumanPosture,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
-import type { tags } from "typia";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
@@ -48,22 +48,6 @@ import { GymnasticsFlight } from "../sport/GymnasticsFlight";
  */
 export namespace HumanCarriedLift {
   /**
-   * The two carried-body phase lengths.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Both optional fields define action-relative seconds, zero defaults and nonnegative authored phase lengths.
-   * @evidence contracts/development/design.md#principled-representation Existing plain seconds and specification minimum/unit tags describe lift and set-down; proportional fitting to the action duration remains the wrapper's rule.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the two phase lengths are authored; the carried plan continues to own its posture, contacts and timing.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Adds no target, carry kind, fit answer or acceptance flag; zero phases preserve the original plan identity.
-   */
-  export interface IParams {
-    /** Seconds the lift into the carry takes, at the start; none when absent. */
-    lift?: number & tags.Minimum<0> & HumanUnit<"s">;
-
-    /** Seconds the set-down takes, at the end; none when absent. */
-    setDown?: number & tags.Minimum<0> & HumanUnit<"s">;
-  }
-
-  /**
    * A carried plan with its lift and its set-down.
    *
    * @param context The carried person's context.
@@ -80,9 +64,9 @@ export namespace HumanCarriedLift {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its original carried plan, fixed phase scalars and entry/frozen-entry posture. Each invocation owns one lazy exact getter and borrows its optional parent/projector only through synchronous return or failure; no query reader, mapper, current frozen pose or map enters retained output history.
    */
   export function over(
-    context: IHumanActionContext<IParams>,
-    plan: IHumanActionPlan,
-  ): IHumanActionPlan {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarriedLift.IParams>,
+    plan: IAutoMovieMotionHumanActionPlan,
+  ): IAutoMovieMotionHumanActionPlan {
     const asked: readonly [number, number] = [
       HumanBound.least("lift", context.params.lift ?? 0, 0, "s"),
       HumanBound.least("setDown", context.params.setDown ?? 0, 0, "s"),
@@ -91,21 +75,21 @@ export namespace HumanCarriedLift {
     const fit: number = Math.min(1, plan.duration / (asked[0] + asked[1]));
     const lift: number = asked[0] * fit;
     const setDown: number = asked[1] * fit;
-    const entry: IHumanPosture = context.entry.posture;
-    const body: IHumanBody = context.body;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const body: IAutoMovieMotionHumanBody = context.body;
 
     // Each end of a blend is written by its solved joint angles alone
     // (`GymnasticsFlight.frozen`), so a limb a goal places at one end is
     // blended from where that goal put it, never dropped at the start or
     // taken whole half way, and the blend meets each end's displayed pose.
-    const stood: IHumanPosture = GymnasticsFlight.frozen(body, entry);
+    const stood: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(body, entry);
     const ease: (x: number) => number = (x: number): number => minimumJerk.share(x);
     const mix = (
-      from: IHumanPosture,
-      to: IHumanPosture,
+      from: IAutoMovieMotionHumanPosture,
+      to: IAutoMovieMotionHumanPosture,
       w: number,
-    ): IHumanPosture => {
-      const joints: IHumanPosture["joints"] = {};
+    ): IAutoMovieMotionHumanPosture => {
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {};
       for (const bone of new Set([
         ...Object.keys(from.joints),
         ...Object.keys(to.joints),
@@ -123,14 +107,14 @@ export namespace HumanCarriedLift {
         ];
       }
       const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
-      const a: turnHumanPosture.ITurned = turnHumanPosture(from);
-      const b: turnHumanPosture.ITurned = turnHumanPosture(to);
+      const a: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(from);
+      const b: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(to);
       const rotation: IAutoMovieQuaternion = Quaternion.slerp(
         a.rotation,
         b.rotation,
         w,
       );
-      const blended: IHumanPosture = {
+      const blended: IAutoMovieMotionHumanPosture = {
         root: {
           x: a.position.x + (b.position.x - a.position.x) * w,
           y: a.position.y + (b.position.y - a.position.y) * w,
@@ -162,7 +146,7 @@ export namespace HumanCarriedLift {
       ],
       contacts: [
         ...plan.contacts.map(
-          (window: IHumanContactWindow): IHumanContactWindow => ({
+          (window: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
             ...window,
             from: Math.max(window.from, lift / plan.duration),
             to: Math.min(window.to, 1 - setDown / plan.duration),
@@ -173,7 +157,7 @@ export namespace HumanCarriedLift {
         // again from the set-down's start: each support is released only as
         // the next one takes the weight (#3437, a support sequence of #3435).
         ...(["leftFoot", "rightFoot"] as const).flatMap(
-          (part: "leftFoot" | "rightFoot"): IHumanContactWindow[] => [
+          (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow[] => [
             ...(lift > 0
               ? [
                   {
@@ -201,12 +185,12 @@ export namespace HumanCarriedLift {
       ],
       posture: (
         at: number,
-        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
-        source?: Parameters<IHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IHumanActionPlan["posture"]>[3],
-      ): IHumanPosture => {
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-        const held: IHumanPosture = plan.posture(at, undefined, resolution, projection);
+        const held: IAutoMovieMotionHumanPosture = plan.posture(at, undefined, resolution, projection);
         if (lift > 0 && at < lift) {
           const w: number = ease(at / lift);
           return w <= 0

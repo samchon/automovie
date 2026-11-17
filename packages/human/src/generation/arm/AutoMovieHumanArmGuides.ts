@@ -1,6 +1,11 @@
-import { AutoMovieNaturalSpline, type AutoMoviePolarSector } from "@automovie/engine";
-import type { IAutoMovieHumanArmPiece } from "./IAutoMovieHumanArmPiece";
-import type { AutoMovieHumanArmTube } from "./AutoMovieHumanArmTube";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
+import type {
+  IAutoMovieHumanArmGuides,
+  IAutoMovieHumanArmPiece,
+  IAutoMovieHumanArmTube,
+  IAutoMovieNaturalCubicSpline,
+  IAutoMoviePolarSector,
+} from "@automovie/interface";
 
 /**
  * The arm's four guides and four sectors as functions of the walk: the spans'
@@ -15,28 +20,38 @@ import type { AutoMovieHumanArmTube } from "./AutoMovieHumanArmTube";
  */
 export namespace AutoMovieHumanArmGuides {
   /** Section angles of the guides, radians: forward, lateral, back, medial. */
-  export const ANGLES: readonly number[] = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+  export const ANGLES: readonly number[] = [
+    0,
+    Math.PI / 2,
+    Math.PI,
+    (3 * Math.PI) / 2,
+  ];
 
   /**
    * The normalised section at any walk length.
    *
    * @param pieces The spans, proximal to distal.
    */
-  export function shape(pieces: readonly IAutoMovieHumanArmPiece[]): (s: number) => AutoMovieHumanArmTube.IShape {
+  export function shape(
+    pieces: readonly IAutoMovieHumanArmPiece[],
+  ): IAutoMovieHumanArmGuides.ShapeResult {
     const rows: IAutoMovieHumanArmPiece.IRow[] = [];
 
     for (const piece of pieces)
       for (const row of piece.rows) {
-        const last: IAutoMovieHumanArmPiece.IRow | undefined = rows[rows.length - 1];
+        const last: IAutoMovieHumanArmPiece.IRow | undefined =
+          rows[rows.length - 1];
 
         // The distal span's first row is the proximal span's last.
         if (last === undefined || row.s - last.s > MERGE) rows.push(row);
       }
 
-    const xs: number[] = rows.map((r: IAutoMovieHumanArmPiece.IRow): number => r.s);
-    const splines: AutoMovieNaturalSpline.ISpline[] = Array.from(
+    const xs: number[] = rows.map(
+      (r: IAutoMovieHumanArmPiece.IRow): number => r.s,
+    );
+    const splines: IAutoMovieNaturalCubicSpline[] = Array.from(
       { length: CHANNELS },
-      (_: unknown, k: number): AutoMovieNaturalSpline.ISpline =>
+      (_: unknown, k: number): IAutoMovieNaturalCubicSpline =>
         AutoMovieNaturalSpline.create(
           xs,
           rows.map((r: IAutoMovieHumanArmPiece.IRow): number => r.channels[k]!),
@@ -45,13 +60,16 @@ export namespace AutoMovieHumanArmGuides {
     const lo: number = xs[0]!;
     const hi: number = xs[xs.length - 1]!;
 
-    return (s: number): AutoMovieHumanArmTube.IShape => {
+    return (s: number): IAutoMovieHumanArmTube.IShape => {
       const at: number = Math.min(hi, Math.max(lo, s));
-      const v: number[] = splines.map((sp: AutoMovieNaturalSpline.ISpline): number => AutoMovieNaturalSpline.evaluate(sp, at));
+      const v: number[] = splines.map(
+        (sp: IAutoMovieNaturalCubicSpline): number =>
+          AutoMovieNaturalSpline.evaluate(sp, at),
+      );
 
       return {
         guides: ANGLES.map(
-          (angle: number, j: number): AutoMoviePolarSector.IGuide => ({
+          (angle: number, j: number): IAutoMoviePolarSector.IGuide => ({
             angle,
             value: v[3 * j]!,
             slope: v[3 * j + 1]!,

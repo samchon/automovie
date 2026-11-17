@@ -1,9 +1,20 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbReference,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -26,9 +37,9 @@ import { HumanGrasp } from "./HumanGrasp";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The genuine canonical body rig and exact current FK reader share only dependency metadata. Each fit still admits current source values after arbitrary callbacks; no fixed direct base, posture identity, private-callback purity inference or fitted-answer cache establishes equivalence.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous owner releases body/posture/hint references and its exact FK reader after all queries. Candidate arrays/fits are query-local; only chosen pose/wrist/reference and scalar reports escape, without a producer, callback map, fit/time history or handle.
  */
-export function HumanGraspSearch(body: IHumanBody, posture: IHumanPosture,
-  side: HumanHand.Side, bend: IAutoMovieVector3): IQuery {
-  const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
+export function HumanGraspSearch(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture,
+  side: AutoMovieHumanSide, bend: IAutoMovieVector3): IQuery {
+  const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
 
@@ -40,15 +51,15 @@ export function HumanGraspSearch(body: IHumanBody, posture: IHumanPosture,
   // quantity read at the chosen swivel jumps wherever two swivels trade
   // places. The elbow's departure from `bend` is measured for the report and
   // costs nothing.
-  const fit: (key: HumanGrasp.IKey, reference: IHumanPosture.IReference | undefined) => IFitted = (
-    key: HumanGrasp.IKey,
-    reference: IHumanPosture.IReference | undefined,
+  const fit: (key: IAutoMovieMotionHumanGrasp.IKey, reference: IAutoMovieHumanLimbReference | undefined) => IFitted = (
+    key: IAutoMovieMotionHumanGrasp.IKey,
+    reference: IAutoMovieHumanLimbReference | undefined,
   ): IFitted => {
     // A key another action asks is fitted as that action fits its pose:
     // its own goal, on its own arm solution, not the grasp's.
-    const anchored: IHumanPosture.IReference | undefined =
+    const anchored: IAutoMovieHumanLimbReference | undefined =
       key.reference === false ? undefined : reference;
-    const resolved: resolveHumanPosture.ISeeded =
+    const resolved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
       resolveHumanPosture.seeded(body, {
         ...key.posture,
         limbs: {
@@ -93,11 +104,11 @@ export function HumanGraspSearch(body: IHumanBody, posture: IHumanPosture,
     };
   };
 
-  return (goal: (turn: number, tilt: number) => HumanHand.IWrist,
+  return (goal: (turn: number, tilt: number) => IAutoMovieMotionHumanHand.IWrist,
     tilts: readonly number[] = [0], stroke?: IStroke,
     turns: readonly number[] = HumanGrasp.TURNS,
-    required?: IRequired, admits?: (wrist: HumanHand.IWrist) => boolean): HumanGrasp.IReach => {
-    let best: HumanGrasp.IReach | undefined;
+    required?: IRequired, admits?: (wrist: IAutoMovieMotionHumanHand.IWrist) => boolean): IAutoMovieMotionHumanGrasp.IReach => {
+    let best: IAutoMovieMotionHumanGrasp.IReach | undefined;
     let least: number = Infinity;
 
     // With a required measure, a candidate that holds it comes before any
@@ -115,7 +126,7 @@ export function HumanGraspSearch(body: IHumanBody, posture: IHumanPosture,
     const candidates: {
       turn: number;
       tilt: number;
-      wrist: HumanHand.IWrist;
+      wrist: IAutoMovieMotionHumanHand.IWrist;
       grasp: ReturnType<typeof fit>;
       preference: number;
       floor: number;
@@ -133,7 +144,7 @@ export function HumanGraspSearch(body: IHumanBody, posture: IHumanPosture,
             admits(goal(turn, tilt)),
           );
     for (const [turn, tilt] of taken.length === 0 ? pairs : taken) {
-      const wrist: HumanHand.IWrist = goal(turn, tilt);
+      const wrist: IAutoMovieMotionHumanHand.IWrist = goal(turn, tilt);
       const grasp: IFitted = fit({ posture, wrist, bend }, undefined);
       const preference: number = 0.01 * (Math.abs(turn) + Math.abs(tilt));
       candidates.push({
@@ -150,7 +161,7 @@ export function HumanGraspSearch(body: IHumanBody, posture: IHumanPosture,
     );
     for (const { turn, tilt, wrist, grasp, preference, floor } of candidates) {
       if (held && floor >= least) break;
-      const reference: IHumanPosture.IReference = resolveHumanPosture.reference(
+      const reference: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
         grasp.pose,
         limb,
       );
@@ -209,7 +220,7 @@ export function HumanGraspSearch(body: IHumanBody, posture: IHumanPosture,
 }
 
 /** One query's lazy complete stroke keys, built from asked and actually displayed grasp wrists. */
-type IStroke = (wrist: HumanHand.IWrist, shown: HumanHand.IWrist) => Iterable<HumanGrasp.IKey>;
+type IStroke = (wrist: IAutoMovieMotionHumanHand.IWrist, shown: IAutoMovieMotionHumanHand.IWrist) => Iterable<IAutoMovieMotionHumanGrasp.IKey>;
 
 /** Original caller-defined required metric and upper acceptance bound. */
 interface IRequired {
@@ -220,16 +231,16 @@ interface IRequired {
 }
 
 /** Independent original search arguments; every call admits current source values. */
-type IQuery = (goal: (turn: number, tilt: number) => HumanHand.IWrist,
+type IQuery = (goal: (turn: number, tilt: number) => IAutoMovieMotionHumanHand.IWrist,
   tilts?: readonly number[], stroke?: IStroke, turns?: readonly number[],
-  required?: IRequired, admits?: (wrist: HumanHand.IWrist) => boolean) => HumanGrasp.IReach;
+  required?: IRequired, admits?: (wrist: IAutoMovieMotionHumanHand.IWrist) => boolean) => IAutoMovieMotionHumanGrasp.IReach;
 /** The original displayed result and scalar reports of one actual key fit. */
 interface IFitted {
   /** The fresh canonical pose after all coupled limb and digit fits. */
   pose: IAutoMoviePose;
 
   /** The displayed wrist frame, world metres and rest-relative rotation. */
-  shown: HumanHand.IWrist;
+  shown: IAutoMovieMotionHumanHand.IWrist;
 
   /** The original hand-degree plus wrist-millimetre error cost. */
   miss: number;
@@ -243,7 +254,7 @@ interface IFitted {
 
 /** Original elbow-side report, independent of every selection cost and bound. */
 function departureOf(bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  side: HumanHand.Side, key: Pick<HumanGrasp.IKey, "bend">): number {
+  side: AutoMovieHumanSide, key: Pick<IAutoMovieMotionHumanGrasp.IKey, "bend">): number {
   const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
   const shoulder: IAutoMovieVector3 = bones.get(`${side}UpperArm`)!.worldPosition;
   const line: IAutoMovieVector3 = Vector3.subtract(hand.worldPosition, shoulder);

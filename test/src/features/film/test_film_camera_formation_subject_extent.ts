@@ -1,6 +1,5 @@
 import {
   DEFAULT_SUBJECT_HEIGHT,
-  IAutoMovieResolvedCamera,
   formationMemberExtent,
   formationSubjectBox,
   framedBoxOf,
@@ -12,6 +11,7 @@ import {
 import {
   IAutoMovieCompiledFormation,
   IAutoMovieFormationMotion,
+  type IAutoMovieResolvedCamera,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

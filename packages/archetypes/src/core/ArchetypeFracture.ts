@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import type { Archetype } from "./Archetype";
+import type { ArchetypeConvexCell } from "./ArchetypeConvexCell";
 import { ArchetypeFractureEnergy } from "./ArchetypeFractureEnergy";
 import type { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
@@ -221,7 +222,13 @@ export namespace ArchetypeFracture {
         id,
         parts,
         affordances,
-        properties: ArchetypeMass.of(parts, mass, {}, rest.masses),
+        properties: ArchetypeMass.of(parts, mass, {}, rest.masses, rest.cells),
+        cells: new Map(
+          [...(rest.cells ?? [])].filter(
+            ([part]: [string, ArchetypeConvexCell.ICell]): boolean =>
+              keep.has(part),
+          ),
+        ),
         surfaces: Object.fromEntries(
           parts
             .filter(

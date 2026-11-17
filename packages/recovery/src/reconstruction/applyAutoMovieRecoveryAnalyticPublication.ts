@@ -1,8 +1,11 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
-
-import type { IAutoMovieRecoveryTensorFamiliesInput } from "../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
-import type { IAutoMovieRecoveryAnalyticPublication } from "../structures/operation/IAutoMovieRecoveryAnalyticPublication";
-import type { IAutoMovieRecoveryInputHashes } from "../structures/operation/IAutoMovieRecoveryInputHashes";
+import type {
+  AutoMovieCubicBezierControls3,
+  AutoMovieVector3Tuple,
+  IAutoMovieCubicBezierCurve64,
+  IAutoMovieRecoveryAnalyticPublication,
+  IAutoMovieRecoveryInputHashes,
+  IAutoMovieRecoveryTensorFamiliesInput,
+} from "@automovie/interface";
 
 /**
  * Bind a source-free coefficient extension to its exact original curve and graph bytes.
@@ -36,7 +39,7 @@ export function applyAutoMovieRecoveryAnalyticPublication(
     throw new Error(
       "An unused analytic publication must bind both exact original inputs",
     );
-  const originals: Map<string, C.Cubic> = new Map(),
+  const originals: Map<string, IAutoMovieCubicBezierCurve64> = new Map(),
     ambiguous: Set<string> = new Set();
   for (const section of bundle.loft.sections)
     for (const loop of section.loops) {
@@ -48,9 +51,9 @@ export function applyAutoMovieRecoveryAnalyticPublication(
       if (originals.has(arc.curve.name)) ambiguous.add(arc.curve.name);
       originals.set(arc.curve.name, arc.curve);
     }
-  const curves: Map<string, C.Cubic> = new Map();
+  const curves: Map<string, IAutoMovieCubicBezierCurve64> = new Map();
   for (const row of publication.curveOverrides) {
-    const curve: C.Cubic = row.curve;
+    const curve: IAutoMovieCubicBezierCurve64 = row.curve;
     if (
       !originals.has(curve.name) ||
       ambiguous.has(curve.name) ||
@@ -69,10 +72,10 @@ export function applyAutoMovieRecoveryAnalyticPublication(
       !Number.isFinite(row.dataUpperEstimateMm) ||
       row.dataUpperEstimateMm < 0 ||
       curve.spans.some(
-        (net: C.Span): boolean =>
+        (net: AutoMovieCubicBezierControls3): boolean =>
           net.length !== 4 ||
           net.some(
-            (point: C.Vector): boolean =>
+            (point: Readonly<AutoMovieVector3Tuple>): boolean =>
               point.length !== 3 || !point.every(Number.isFinite),
           ),
       )
@@ -82,9 +85,9 @@ export function applyAutoMovieRecoveryAnalyticPublication(
       );
     for (let i: number = 0; i < curve.spans.length; i++)
       if (i > 0 || curve.closed) {
-        const a: C.Vector =
+        const a: Readonly<AutoMovieVector3Tuple> =
             curve.spans[(i + curve.spans.length - 1) % curve.spans.length]![3],
-          b: C.Vector = curve.spans[i]![0];
+          b: Readonly<AutoMovieVector3Tuple> = curve.spans[i]![0];
         if (a.some((x: number, axis: number): boolean => x !== b[axis]))
           throw new Error(
             "A named override must retain exact C0 endpoint authority",

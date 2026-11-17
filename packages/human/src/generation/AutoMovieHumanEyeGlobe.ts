@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanEyeGlobe } from "@automovie/interface";
+
 /**
  * Biometric eye globe shape: the dimensions every eye shares and the
  * anterior surface the lids rest on.
@@ -39,15 +41,7 @@ export namespace AutoMovieHumanEyeGlobe {
    *   pupillary margin (the iris is a shallow cone over the lens);
    *   conventional.
    */
-  export const dimensions: {
-    radial: number;
-    axialLength: number;
-    cornealRadius: number;
-    limbusRadius: number;
-    anteriorChamberDepth: number;
-    pupilRadius: number;
-    irisRecession: number;
-  } = {
+  export const dimensions: IAutoMovieHumanEyeGlobe.IDimensions = {
     radial: 12.0,
     axialLength: 23.48,
     cornealRadius: 7.64,
@@ -58,40 +52,11 @@ export namespace AutoMovieHumanEyeGlobe {
   };
 
   /**
-   * Quantities derived from {@link dimensions}, millimetres along the gaze
-   * axis from the globe centre.
-   *
-   * The scleral ellipsoid has radial semi-axis `a_r` and axial semi-axis
-   * `a_x`; the limbus circle of radius `rho_L` lies on it at
-   * `x_L = a_x k`, `k = sqrt(1 - rho_L^2 / a_r^2)`. The corneal sphere of
-   * radius `r_c` passes through that circle, so its sagittal height above
-   * the limbus plane is `s = r_c - sqrt(r_c^2 - rho_L^2)` and the apex is at
-   * `x_A = x_L + s`. With the posterior pole at `-a_x`, the axial length is
-   * `L = x_A + a_x`, hence `a_x = (L - s) / (1 + k)`.
-   */
-  export interface IDerived {
-    /** Axial semi-axis of the scleral ellipsoid. */
-    axial: number;
-
-    /** Limbus plane position. */
-    limbus: number;
-
-    /** Corneal sphere centre position. */
-    cornealCentre: number;
-
-    /** Corneal apex position. */
-    apex: number;
-
-    /** Pupillary iris margin position, on the lens face. */
-    pupil: number;
-  }
-
-  /**
    * Evaluate {@link IDerived} from {@link dimensions}.
    *
    * @returns Derived axial positions in millimetres
    */
-  export function derive(): IDerived {
+  export function derive(): IAutoMovieHumanEyeGlobe.IDerived {
     const d: typeof dimensions = dimensions;
     const k: number = Math.sqrt(1 - (d.limbusRadius / d.radial) ** 2);
     const capOffset: number = Math.sqrt(
@@ -120,7 +85,7 @@ export namespace AutoMovieHumanEyeGlobe {
    */
   export function anterior(rho: number): number {
     const d: typeof dimensions = dimensions;
-    const g: IDerived = derive();
+    const g: IAutoMovieHumanEyeGlobe.IDerived = derive();
     if (rho <= d.limbusRadius)
       return g.cornealCentre + Math.sqrt(d.cornealRadius ** 2 - rho ** 2);
     if (rho >= d.radial) return NaN;

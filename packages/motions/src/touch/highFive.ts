@@ -1,16 +1,37 @@
 import { Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanHighFive,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSeatedReach,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTargetGrid,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionMeeting,
+  IAutoMovieMotionMeetingKind,
+  IAutoMovieMotionMeetingRole,
+  IAutoMovieMotionMeetingTiming,
+  IAutoMovieResolveMutualGoal,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
-import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
@@ -18,13 +39,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanHeld } from "../handling/HumanHeld";
 import { handshake } from "../handling/handshake";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanSeatedReach } from "./HumanSeatedReach";
 import { touchReach } from "./touchReach";
@@ -70,60 +85,26 @@ import { touchReach } from "./touchReach";
  */
 export namespace highFive {
   /** The action's name. */
-  export const name: HumanActionName = "highFive";
+  export const name: AutoMovieMotionHumanActionName = "highFive";
 
   /** Cancel table. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       touch: ["fromRelax", "smooth"],
       walk: ["fromRelax", "smooth"],
     });
 
-  /** The variants. */
-  export type Kind = "high" | "low" | "fist";
-
   /** Each variant's meeting height. */
   export const HEIGHTS: Readonly<
-    Record<Kind, AutoMovieMotionHumanTargetGrid.Height>
+    Record<IAutoMovieMotionHumanHighFive.Kind, IAutoMovieMotionHumanTargetGrid.Height>
   > = { high: "crown", low: "waist", fist: "chest" };
 
   /** How long the hands stay together, seconds (provisional). */
   export const REBOUND: number = 0.1;
 
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The partner, the variant and the hand.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The variant is a closed union.
-   */
-  export interface IParams {
-    /** The partner. */
-    partner: string;
-
-    /** The variant; `high` when absent. */
-    kind?: Kind;
-
-    /** The hand; `right` when absent. */
-    side?: HumanHand.Side;
-
-    /** The subject id of the prop the hand holds, whose point meets the partner's in place of the hand: two glasses clinked in a toast. No prop when absent. */
-    prop?: string;
-
-    /** The prop's point that meets, one of its affordance ids; `lip` when absent. */
-    point?: string;
-
-    /** The film seconds the hands meet over (`AutoMovieMotionMeeting.IWindow`), which both roles give alike: they meet no earlier than `from`, each hand leaving its rest only its own reach's time before, and part at `to`; the natural meeting when absent. */
-    window?: AutoMovieMotionMeeting.IWindow;
-
-    /** A world point the hand is brought to in place of the pair's own meeting point, metres: the one point several pairs meet at, as glasses in a toast of four. The pair's shared instants are kept. The pair's own point when absent. */
-    at?: IAutoMovieVector3;
-  }
-
   /** How a held prop is brought to the meeting: stood upright in the closed hand, the side of its rim the palm faces toward the partner. */
-  export const HELD: HumanHeld.IUse = {
+  export const HELD: IAutoMovieMotionHumanHeld.IUse = {
     effector: {
       surface: "grip",
       shape: "fist",
@@ -150,18 +131,18 @@ export namespace highFive {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function meeting(
-    kind: Kind,
-    side: HumanHand.Side,
-  ): AutoMovieMotionMeeting.IKind {
-    const height: AutoMovieMotionHumanTargetGrid.Height = HEIGHTS[kind];
-    const surface: HumanHand.Surface = kind === "fist" ? "fist" : "palm";
+    kind: IAutoMovieMotionHumanHighFive.Kind,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionMeetingKind {
+    const height: IAutoMovieMotionHumanTargetGrid.Height = HEIGHTS[kind];
+    const surface: IAutoMovieMotionHumanHand.Surface = kind === "fist" ? "fist" : "palm";
     return {
       name: `highFive-${kind}`,
       roles: ["slapper", "slapper"],
       contacts: { meet: { height: 0.9, range: 0.8, facing: "performer" } },
       place: (roles) => {
-        const arms: resolveAutoMovieMutualGoal.ISide[] = roles.map(
-          (r: AutoMovieMotionMeeting.IRole): resolveAutoMovieMutualGoal.ISide =>
+        const arms: IAutoMovieResolveMutualGoal.ISide[] = roles.map(
+          (r: IAutoMovieMotionMeetingRole): IAutoMovieResolveMutualGoal.ISide =>
             handshake.arm(
               r.body,
               side,
@@ -172,10 +153,10 @@ export namespace highFive {
         // height lowered by as much as its acting shoulder, leaned as the
         // reach leans it, sits below the standing body's.
         const preferred = (
-          leaned: readonly resolveAutoMovieMutualGoal.ISide[],
+          leaned: readonly IAutoMovieResolveMutualGoal.ISide[],
         ): number =>
           roles.reduce(
-            (sum: number, r: AutoMovieMotionMeeting.IRole, k: number): number =>
+            (sum: number, r: IAutoMovieMotionMeetingRole, k: number): number =>
               sum +
               AutoMovieMotionHumanTargetGrid.height(r.body, height) *
                 r.body.measure.stature -
@@ -194,8 +175,8 @@ export namespace highFive {
               [roles[0]!, roles[1]!],
               [arms[0]!, arms[1]!],
               (
-                a: resolveAutoMovieMutualGoal.ISide,
-                b: resolveAutoMovieMutualGoal.ISide,
+                a: IAutoMovieResolveMutualGoal.ISide,
+                b: IAutoMovieResolveMutualGoal.ISide,
               ): IAutoMovieVector3 =>
                 resolveAutoMovieMutualGoal({
                   a,
@@ -249,24 +230,24 @@ export namespace highFive {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the meeting's place and the clock.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHighFive.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanHighFive.IParams = context.params;
     const body = context.body;
-    const kind: Kind = p.kind ?? "high";
-    const side: HumanHand.Side = p.side ?? "right";
-    const entry: IHumanPosture = context.entry.posture;
-    const met: AutoMovieMotionMeeting.IMeeting = context.meeting(
+    const kind: IAutoMovieMotionHumanHighFive.Kind = p.kind ?? "high";
+    const side: AutoMovieHumanSide = p.side ?? "right";
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const met: IAutoMovieMotionMeeting = context.meeting(
       meeting(kind, side),
       "slapper",
       { role: "slapper", subject: p.partner },
       p.window,
     );
-    const local: AutoMovieMotionMeeting.ITiming = AutoMovieMotionMeeting.local(
+    const local: IAutoMovieMotionMeetingTiming = AutoMovieMotionMeeting.local(
       met,
       context.start,
     );
-    const paired: AutoMovieMotionHumanTarget.IPlace =
+    const paired: IAutoMovieMotionHumanTarget.IPlace =
       AutoMovieMotionMeeting.place(met, "meet", entry);
 
     // A stated point is faced as the pair's own is: its normal looks back at
@@ -275,7 +256,7 @@ export namespace highFive {
       p.at === undefined
         ? undefined
         : { x: entry.root.x - p.at.x, y: 0, z: entry.root.z - p.at.z };
-    const place: AutoMovieMotionHumanTarget.IPlace =
+    const place: IAutoMovieMotionHumanTarget.IPlace =
       p.at === undefined || back === undefined
         ? paired
         : {
@@ -302,13 +283,13 @@ export namespace highFive {
         ? 0
         : Math.max(0, local.ready - Math.max(0.05, own));
     const reach: number = Math.max(0.05, local.ready - lead);
-    const timed: AutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+    const timed: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
       prepare: reach,
       attack: 0,
       hold: Math.max(0, local.relax - local.ready),
       retract: p.window === undefined ? reach : Math.max(0.05, own),
     });
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       timed.duration,
       [
         ...timed.instants,
@@ -316,7 +297,7 @@ export namespace highFive {
         { name: "rebound", seconds: timed.at("relax") },
       ],
     );
-    const effector: AutoMovieMotionHumanTouchEffector.IEffector =
+    const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
       p.prop !== undefined
         ? HumanHeld.steadiest(
             context,
@@ -352,7 +333,7 @@ export namespace highFive {
     // faces back at this performer, so laying the palm against it turns it
     // toward the partner.
     const region = (): Pick<
-      AutoMovieMotionHumanTarget.IPlace,
+      IAutoMovieMotionHumanTarget.IPlace,
       "point" | "normal"
     > => place;
     const bend: IAutoMovieVector3 = AutoMovieMotionHumanTouchLaid.bend(
@@ -368,7 +349,7 @@ export namespace highFive {
     // Seated, the trunk leans forward over the seat as far as this arm
     // needs to reach the meeting, the arm's target first
     // (`HumanSeatedReach.need`); standing, it leans none.
-    const lean: { share: number; joints: HumanSeatedReach.IJoint[] } =
+    const lean: { share: number; joints: IAutoMovieMotionHumanSeatedReach.IJoint[]; } =
       HumanSeatedReach.need(
       {
         name: "slapper",
@@ -377,7 +358,7 @@ export namespace highFive {
         posture: entry,
         bones,
         seated: context.entry.supports.some(
-          (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
+          (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
         ),
       },
       bones.get(`${side}UpperArm`)!.worldPosition,
@@ -385,21 +366,21 @@ export namespace highFive {
       handshake.arm(body, side, bones.get(`${side}UpperArm`)!.worldPosition)
         .limit,
     );
-    const under: IHumanActionPlan = AutoMovieMotionHumanBase.under(
+    const under: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
       context,
       clock.duration,
     );
-    const plan: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+    const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base:
         lean.share === 0
           ? under
           : {
               ...under,
               posture: (
-                seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
-                source?: Parameters<IHumanActionPlan["posture"]>[2],
-                projection?: Parameters<IHumanActionPlan["posture"]>[3],
-              ): IHumanPosture =>
+                seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+                source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+                projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+              ): IAutoMovieMotionHumanPosture =>
                 HumanSeatedReach.posed(
                   body,
                   under.posture(seconds, undefined, source, projection),
@@ -438,7 +419,7 @@ export namespace highFive {
       }),
       contact: "meet",
     });
-    const waited: IHumanActionPlan = lead > 0 ? delayed(plan, lead) : plan;
+    const waited: IAutoMovieMotionHumanActionPlan = lead > 0 ? delayed(plan, lead) : plan;
     return p.prop === undefined
       ? waited
       : HumanHeld.kept(context, waited, side, p.prop);
@@ -461,26 +442,26 @@ export namespace highFive {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the original plan, lead and rescaled event/contact metadata. Borrowed query FK/ROM sources end on synchronous return or throw and enter no output, reader history or retained pose.
    */
   export function delayed(
-    plan: IHumanActionPlan,
+    plan: IAutoMovieMotionHumanActionPlan,
     lead: number,
-  ): IHumanActionPlan {
+  ): IAutoMovieMotionHumanActionPlan {
     const duration: number = plan.duration + lead;
     const share = (s: number): number => (lead + s * plan.duration) / duration;
     return {
       ...plan,
       duration,
       events: plan.events.map((e) => ({ ...e, share: share(e.share) })),
-      contacts: plan.contacts.map((c: IHumanContactWindow) =>
+      contacts: plan.contacts.map((c: IAutoMovieMotionHumanContactWindow) =>
         c.from <= 0 && c.to >= 1
           ? c
           : { ...c, from: c.from <= 0 ? 0 : share(c.from), to: share(c.to) },
       ),
       ...(plan.contact === undefined ? {} : { contact: plan.contact + lead }),
       posture: (
-        seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
-        source?: Parameters<IHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IHumanActionPlan["posture"]>[3],
-      ): IHumanPosture => plan.posture(Math.max(0, seconds - lead), undefined, source, projection),
+        seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => plan.posture(Math.max(0, seconds - lead), undefined, source, projection),
     };
   }
 }

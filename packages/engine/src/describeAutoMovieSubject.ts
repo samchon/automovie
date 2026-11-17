@@ -1,4 +1,5 @@
 import {
+  type IAutoMovieDescribeSubject,
   IAutoMovieSubjectArtifact,
   IAutoMovieSubjectDescription,
 } from "@automovie/interface";
@@ -40,22 +41,11 @@ import { AutoMovieSubjectDescriber } from "./AutoMovieSubjectDescriber";
 export const describeAutoMovieSubject: (
   artifact: IAutoMovieSubjectArtifact,
   subjectId: string,
-  props?: {
-    /** Rank of the first member to name, defaulting to the first. A whole number; a fractional or negative rank names no page that exists and is refused rather than rounded, because a caller paging by a value it computed would otherwise be told it had read everything. */ memberOffset?: number;
-  },
+  props?: IAutoMovieDescribeSubject.IProps,
 ) => IAutoMovieSubjectDescription = (
   artifact: IAutoMovieSubjectArtifact,
   subjectId: string,
-  props?: {
-    /**
-     * Rank of the first member to name, defaulting to the first.
-     *
-     * A whole number; a fractional or negative rank names no page that exists
-     * and is refused rather than rounded, because a caller paging by a value it
-     * computed would otherwise be told it had read everything.
-     */
-    memberOffset?: number;
-  },
+  props?: IAutoMovieDescribeSubject.IProps,
 ): IAutoMovieSubjectDescription => {
   const memberOffset: number = props?.memberOffset ?? 0;
   if (Number.isSafeInteger(memberOffset) === false || memberOffset < 0)

@@ -1,19 +1,20 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRoll,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -50,10 +51,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  */
 export namespace roll {
   /** The action's name. */
-  export const name: HumanActionKey = "roll";
+  export const name: AutoMovieMotionHumanActionKey = "roll";
 
   /** Cancel table: a roll is left once it stands. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["risen", 1], kind: "inertialize", entry: 0 }],
   };
 
@@ -85,19 +86,6 @@ export namespace roll {
   export const SAMPLES: number = 72;
 
   /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The way the body turns.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The value the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union.
-   */
-  export interface IParams {
-    /** Which way the body turns; `forward` when absent. */
-    direction?: "forward" | "backward";
-  }
-
-  /**
    * Plan a roll.
    *
    * @param context The action's context.
@@ -113,8 +101,8 @@ export namespace roll {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Construction releases its source/FK/ROM readers before return; the plan retains original numeric height/travel tables and fixed entry geometry, without a sampled pose, source loan or query history. Companion heightsOf: One synchronous construction owns bounded FK/ROM metadata until return or throw. Only the original numeric height table returns; no raw/solved pose, current map, getter or history of queried poses enters the roll plan.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRoll.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
     const body = context.body;
     const sign: number = context.params.direction === "backward" ? -1 : 1;
     const feet = context.entry.feet;
@@ -127,7 +115,7 @@ export namespace roll {
         reason: "a roll crouches from both feet on the floor",
         fix: "stand before the roll",
       });
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const ankles: IAutoMovieVector3 = {
       x: (feet.left.ankle.x + feet.right.ankle.x) / 2,
       y: (feet.left.ankle.y + feet.right.ankle.y) / 2,
@@ -145,8 +133,8 @@ export namespace roll {
         AutoMovieHumanoidBone,
         readonly [number, number, number],
       ][];
-    const joints = (share: number): IHumanPosture["joints"] => {
-      const out: IHumanPosture["joints"] = { ...entry.joints };
+    const joints = (share: number): IAutoMovieMotionHumanPosture["joints"] => {
+      const out: IAutoMovieMotionHumanPosture["joints"] = { ...entry.joints };
       for (const [bone, angles] of tuck) {
         const was: readonly [number, number, number] = entry.joints[bone] ?? [
           0, 0, 0,
@@ -159,14 +147,14 @@ export namespace roll {
       }
       return out;
     };
-    const posed = (share: number, turn: number): IHumanPosture => ({
+    const posed = (share: number, turn: number): IAutoMovieMotionHumanPosture => ({
       ...entry,
       root: { x: 0, y: 0, z: 0 },
       pitch: entry.pitch + sign * turn,
       joints: joints(share),
       limbs: {},
     });
-    const ankleMid = (posture: IHumanPosture): IAutoMovieVector3 => {
+    const ankleMid = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => {
       const bones: ReturnType<typeof poseBones> = poseBones(
         body,
         resolveHumanPosture(body, posture),
@@ -179,8 +167,8 @@ export namespace roll {
     };
 
     // The crouch: the ankles kept where they stood.
-    const crouched = (share: number, at: IAutoMovieVector3): IHumanPosture => {
-      const posture: IHumanPosture = posed(share, 0);
+    const crouched = (share: number, at: IAutoMovieVector3): IAutoMovieMotionHumanPosture => {
+      const posture: IAutoMovieMotionHumanPosture = posed(share, 0);
       const local: IAutoMovieVector3 = ankleMid(posture);
       return {
         ...posture,
@@ -192,7 +180,7 @@ export namespace roll {
     // travel along the floor, both by the turn.
     const heights: number[] = heightsOf(
       body,
-      (turn: number): IHumanPosture => posed(1, turn),
+      (turn: number): IAutoMovieMotionHumanPosture => posed(1, turn),
       SAMPLES,
     );
     const travels: number[] = [0];
@@ -207,8 +195,8 @@ export namespace roll {
       return values[k]! + (values[k + 1]! - values[k]!) * (at - k);
     };
     const start: IAutoMovieVector3 = crouched(1, ankles).root;
-    const rolled = (turn: number): IHumanPosture => {
-      const posture: IHumanPosture = posed(1, turn);
+    const rolled = (turn: number): IAutoMovieMotionHumanPosture => {
+      const posture: IAutoMovieMotionHumanPosture = posed(1, turn);
       const along: number = table(travels, turn);
       return {
         ...posture,
@@ -227,9 +215,9 @@ export namespace roll {
 
     const duration: number = 2 * CROUCH + TURN;
     const share = (seconds: number): number => seconds / duration;
-    const contacts: IHumanContactWindow[] = [
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [
       ...(["leftFoot", "rightFoot"] as const).flatMap(
-        (part: "leftFoot" | "rightFoot"): IHumanContactWindow[] => [
+        (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow[] => [
           {
             part,
             kind: "plant",
@@ -270,7 +258,7 @@ export namespace roll {
         { name: "risen", share: 1 },
       ],
       contacts,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         if (t <= CROUCH) return crouched(minimumJerk.share(t / CROUCH), ankles);
         if (t <= CROUCH + TURN)
@@ -309,8 +297,8 @@ export namespace roll {
  * One synchronous construction owns bounded FK/ROM metadata until return or throw. Only the original numeric height table returns; no raw/solved pose, current map, getter or history of queried poses enters the roll plan.
  */
 function heightsOf(
-  body: IHumanBody,
-  posed: (turn: number) => IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  posed: (turn: number) => IAutoMovieMotionHumanPosture,
   samples: number,
 ): number[] {
   const prepared: ReturnType<typeof prepareHumanPoseResolution> =
@@ -319,7 +307,7 @@ function heightsOf(
     prepareHumanPostureProjection(body);
   const heights: number[] = [];
   for (let k: number = 0; k <= samples; k++) {
-    const posture: IHumanPosture = posed((360 * k) / samples);
+    const posture: IAutoMovieMotionHumanPosture = posed((360 * k) / samples);
     const pose: IAutoMoviePose = resolveHumanPosture.seeded(
       body,
       posture,

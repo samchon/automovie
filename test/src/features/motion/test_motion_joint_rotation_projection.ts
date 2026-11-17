@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieRestFrame,
   Quaternion,
   clampJointRom,
   jointToQuaternion,
@@ -11,6 +10,7 @@ import type {
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
 } from "@automovie/interface";
 
 import { jointRotationOracle as O } from "../internal/jointRotationOracle";

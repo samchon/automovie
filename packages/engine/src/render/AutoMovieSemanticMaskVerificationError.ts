@@ -1,3 +1,5 @@
+import type { AutoMovieSemanticMaskVerificationErrorReason } from "@automovie/interface";
+
 /**
  * A typed refusal carried from the semantic-mask verifier to its callers.
  *
@@ -17,7 +19,7 @@
 export class AutoMovieSemanticMaskVerificationError extends Error {
   public constructor(
     /** Why the payload was refused, as receipts classify it. */
-    public readonly reason: "unsupported" | "invalid" | "digest-mismatch",
+    public readonly reason: AutoMovieSemanticMaskVerificationErrorReason,
     message: string,
   ) {
     super(message);

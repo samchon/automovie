@@ -1,7 +1,7 @@
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
-import type { prepareJointRotationProjection } from "./prepareJointRotationProjection";
+import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 
 /** Original F/A/T coordinate names, with no alternate angular convention. */
 type Axis = "flexion" | "abduction" | "twist";

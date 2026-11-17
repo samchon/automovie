@@ -1,7 +1,6 @@
 import {
   IAutoMoviePlantingBudget,
-  IAutoMoviePlantingCluster,
-  IAutoMoviePlantingDomain,
+  type IAutoMoviePlantingBudgetInput,
   IAutoMoviePlantingFoliage,
   IAutoMoviePlantingStructure,
 } from "@automovie/interface";
@@ -16,13 +15,11 @@ import {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One level/maximum-reach recurrence supplies both branch and leaf bounds; cheap scalar reports are recomputed for changed recipe/cluster values rather than cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A fixed fresh scalar report transfers to the caller; no tree, placement array or recipe handle is retained.
  */
-export const plantingBudget: (props: {
-  domain: IAutoMoviePlantingDomain;
-  cluster?: IAutoMoviePlantingCluster | undefined;
-}) => IAutoMoviePlantingBudget = (props: {
-  domain: IAutoMoviePlantingDomain;
-  cluster?: IAutoMoviePlantingCluster;
-}): IAutoMoviePlantingBudget => {
+export const plantingBudget: (
+  props: IAutoMoviePlantingBudgetInput,
+) => IAutoMoviePlantingBudget = (
+  props: IAutoMoviePlantingBudgetInput,
+): IAutoMoviePlantingBudget => {
   const { domain }: typeof props = props;
   const structure: IAutoMoviePlantingStructure = domain.structure;
   const foliage: IAutoMoviePlantingFoliage | null = domain.foliage;

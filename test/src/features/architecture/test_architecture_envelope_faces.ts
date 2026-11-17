@@ -1,9 +1,11 @@
 import {
-  type IAutoMovieBuiltEnvelopeFace,
   builtEnvironmentEnvelopeFaces,
   validateBuiltEnvironment,
 } from "@automovie/engine";
-import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvelopeFace,
+  IAutoMovieBuiltEnvironment,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {

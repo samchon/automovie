@@ -1,15 +1,18 @@
 import { Vector3, wrapDegrees } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanKick,
+  IAutoMovieMotionHumanKickGeometry,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import type { IKickGeometry } from "./IKickGeometry";
 import { KickCarriage } from "./KickCarriage";
 import type { KickChain } from "./KickChain";
 import { KickChamber } from "./KickChamber";
@@ -82,7 +85,7 @@ export namespace KickLaunch {
     line: IAutoMovieVector3;
 
     /** What a redirect kept of its source when the launch was made; absent for a fresh kick. */
-    kept: IKickGeometry.IKept | undefined;
+    kept: IAutoMovieMotionHumanKickGeometry.IKept | undefined;
 
     /** The seeded miss added to the aim, world metres. */
     offset: IAutoMovieVector3;
@@ -131,22 +134,22 @@ export namespace KickLaunch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds one launch, with its contact's fitted pose and path, until it is released or the launch reads differently.
    */
   export function of(
-    context: IHumanActionContext<kick.IParams>,
-    timing: IKickGeometry.ITiming,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
+    timing: IAutoMovieMotionHumanKickGeometry.ITiming,
     t0: number,
-    kept: IKickGeometry.IKept | undefined,
+    kept: IAutoMovieMotionHumanKickGeometry.IKept | undefined,
     before: ILaunch | undefined,
   ): ILaunch {
-    const p: kick.IParams = context.params;
-    const body: IHumanBody = context.body;
-    const m: IHumanBody["measure"] = body.measure;
+    const p: IAutoMovieMotionHumanKick.IParams = context.params;
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const { side, prep, impact } = timing;
     const support: "left" | "right" = side === "left" ? "right" : "left";
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const round: boolean = p.technique === "round";
     const feint: boolean = p.feint === true;
-    const feet: Record<"left" | "right", HumanFoot.IPlacement> =
+    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
 
     // Where the target is, and the range a standing target is read at, from
@@ -154,7 +157,7 @@ export namespace KickLaunch {
     // foot at contact, plus the leg's comfortable length for the push kick,
     // or for the round kick the comfortable share of the lower shin's
     // horizontal reach at the target's height from the hip's standing height.
-    const stance: StrikingTarget.IStance = StrikingTarget.stance(context.entry);
+    const stance: IAutoMovieMotionHumanStrikingTarget.IStance = StrikingTarget.stance(context.entry);
     const ahead: number = Vector3.dot(
       Vector3.subtract(
         Vector3.lerp(
@@ -354,7 +357,7 @@ export namespace KickLaunch {
 
   /** The height band of a target point against a body's own heights, the floor at zero. */
   function band(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     point: IAutoMovieVector3,
   ): "low" | "middle" | "high" {
     if (point.y < body.measure.waistHeight * KickForm.BAND.low) return "low";

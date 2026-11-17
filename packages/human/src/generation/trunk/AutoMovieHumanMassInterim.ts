@@ -1,10 +1,14 @@
+import type {
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanReferenceOutlineTypes,
+  IAutoMovieHumanTrunkBuild,
+  IAutoMovieHumanTrunkSolution,
+  IAutoMovieHumanTrunkViewLaws,
+} from "@automovie/interface";
+
 import { AutoMovieHumanSex } from "../../typings/AutoMovieHumanSex";
 import { AutoMovieHumanGlutealDome } from "../AutoMovieHumanGlutealDome";
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
-import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
-import type { IAutoMovieHumanTrunkSolution } from "../IAutoMovieHumanTrunkSolution";
-import type { AutoMovieHumanTrunkBuild } from "./AutoMovieHumanTrunkBuild";
-import type { AutoMovieHumanTrunkViews } from "./AutoMovieHumanTrunkViews";
 
 /**
  * The trunk masses' laws: the left breast and gluteal mass, their footprints
@@ -28,9 +32,9 @@ export namespace AutoMovieHumanMassInterim {
    * bump replay: the inverse radius has an infinite AP derivative at a=0,
    * whereas this finite regular-wall construction holds its internal section.
    */
-  const DOME: AutoMovieHumanTrunkBuild.IMassLaw["profile"] = [
+  const DOME: IAutoMovieHumanTrunkBuild.IMassLaw["profile"] = [
     0.25, 0.5, 0.75, 0.95,
-  ].map((a: number): AutoMovieHumanTrunkBuild.IMassLaw["profile"][number] => {
+  ].map((a: number): IAutoMovieHumanTrunkBuild.IMassLaw["profile"][number] => {
     const rho: number = Math.sqrt(1 - a ** (1 / 3));
     return { at: a, shares: [rho, rho, rho, rho] };
   });
@@ -93,11 +97,11 @@ export namespace AutoMovieHumanMassInterim {
   export function breast(
     measures: IAutoMovieHumanBodyMeasures,
     scale: number,
-    laws: AutoMovieHumanTrunkViews.ILaws,
+    laws: IAutoMovieHumanTrunkViewLaws.ILaws,
     fold: number,
-  ): AutoMovieHumanTrunkBuild.IMassLaw | null {
+  ): IAutoMovieHumanTrunkBuild.IMassLaw | null {
     if (measures.sex !== AutoMovieHumanSex.Female) return null;
-    const v: AutoMovieHumanReferenceOutlines.IFootprint["values"] =
+    const v: IAutoMovieHumanReferenceOutlineTypes.IFootprint["values"] =
       AutoMovieHumanReferenceOutlines.BREAST_FOOTPRINT.values;
     const s: number = measures.stature * scale;
     const y: number = laws.chest;
@@ -136,12 +140,12 @@ export namespace AutoMovieHumanMassInterim {
     solution: IAutoMovieHumanTrunkSolution,
     measures: IAutoMovieHumanBodyMeasures,
     scale: number,
-    laws: AutoMovieHumanTrunkViews.ILaws,
+    laws: IAutoMovieHumanTrunkViewLaws.ILaws,
     fold: number,
-  ): AutoMovieHumanTrunkBuild.IMassLaw | null {
+  ): IAutoMovieHumanTrunkBuild.IMassLaw | null {
     if (!(glutealAmplitude(measures, scale) > 0)) return null;
     const l: IAutoMovieHumanTrunkSolution["landmarks"] = solution.landmarks;
-    const v: AutoMovieHumanReferenceOutlines.IFootprint["values"] =
+    const v: IAutoMovieHumanReferenceOutlineTypes.IFootprint["values"] =
       glutealTable(measures).values;
     const s: number = measures.stature * scale;
     const width: number = (measures.hipBreadth * scale) / 2;
@@ -167,7 +171,7 @@ export namespace AutoMovieHumanMassInterim {
   /** The gluteal footprint for the person's sex. */
   function glutealTable(
     measures: IAutoMovieHumanBodyMeasures,
-  ): AutoMovieHumanReferenceOutlines.IFootprint {
+  ): IAutoMovieHumanReferenceOutlineTypes.IFootprint {
     return measures.sex === AutoMovieHumanSex.Female
       ? AutoMovieHumanReferenceOutlines.GLUTEAL_FOOTPRINT.female
       : AutoMovieHumanReferenceOutlines.GLUTEAL_FOOTPRINT.male;

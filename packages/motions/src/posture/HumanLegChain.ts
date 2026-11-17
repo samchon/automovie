@@ -1,10 +1,6 @@
 import {
   DEFAULT_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSwivelNear,
-  type IAutoMovieSwivelSeed,
-  type IPreparedChainPlant,
   Quaternion,
   Vector3,
   hingedArmSwivel,
@@ -13,12 +9,18 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHingedArmSwivel,
+  IAutoMovieHingedChainGeometry,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLegChain,
   IAutoMoviePose,
+  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSwivelNear,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { poseBones } from "./poseBones";
 import { prepareHumanLegSeededFit } from "./prepareHumanLegSeededFit";
@@ -41,47 +43,6 @@ import { prepareHumanLegSeededFit } from "./prepareHumanLegSeededFit";
  */
 export namespace HumanLegChain {
   /**
-   * A leg's bend branch and swivel.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation The engine's branch order and swivel.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface ISwivel {
-    /** The bend branch, its index in `hingedArmSwivel.branches`. */
-    branch: number;
-
-    /** The swivel about the hip-to-ankle line, degrees. */
-    swivel: number;
-  }
-
-  /**
-   * A leg as posed, world frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame.
-   * @evidence contracts/development/design.md#principled-representation The joints and the two bones' world rotations.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IPosed {
-    /** The hip joint, world metres. */
-    hip: IAutoMovieVector3;
-
-    /** The knee, world metres. */
-    knee: IAutoMovieVector3;
-
-    /** The ankle, world metres. */
-    ankle: IAutoMovieVector3;
-
-    /** The thigh's world rotation. */
-    thigh: IAutoMovieQuaternion;
-
-    /** The shank's world rotation. */
-    shank: IAutoMovieQuaternion;
-  }
-
-  /**
    * The leg posed from a held branch and swivel, its ankle at a target.
    *
    * @param body The body.
@@ -101,21 +62,21 @@ export namespace HumanLegChain {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh leg.
    */
   export function pose(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
     target: IAutoMovieVector3,
-    held: ISwivel,
-  ): IPosed | null {
-    const chain: hingedArmSwivel.IChain = chainOf(
+    held: IAutoMovieMotionHumanLegChain.ISwivel,
+  ): IAutoMovieMotionHumanLegChain.IPosed | null {
+    const chain: IAutoMovieHingedChainGeometry = chainOf(
       body,
       side,
       pelvis,
       hip,
       target,
     );
-    const stops: hingedArmSwivel.IStop[] | null =
+    const stops: IAutoMovieHingedArmSwivel.IStop[] | null =
       hingedArmSwivel.branches(chain);
     if (stops === null) return null;
     const theta: number = stops[Math.min(held.branch, stops.length - 1)]!.theta;
@@ -146,17 +107,17 @@ export namespace HumanLegChain {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One returned closure borrows body-derived source and hip plus one bounded engine preparation until caller release; target readers and generated frames end with each query and no target history or handles are retained.
    */
   export function prepare(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
-  ): (target: IAutoMovieVector3, held: ISwivel) => IPosed | null {
-    const source: Omit<hingedArmSwivel.IChain, "target" | "range"> =
+  ): (target: IAutoMovieVector3, held: IAutoMovieMotionHumanLegChain.ISwivel) => IAutoMovieMotionHumanLegChain.IPosed | null {
+    const source: Omit<IAutoMovieHingedChainGeometry, "target" | "range"> =
       sourceOf(body, side, pelvis, hip);
     const geometry: hingedArmSwivel.IPrepared = hingedArmSwivel.prepare(source);
-    return (point: IAutoMovieVector3, held: ISwivel): IPosed | null => {
+    return (point: IAutoMovieVector3, held: IAutoMovieMotionHumanLegChain.ISwivel): IAutoMovieMotionHumanLegChain.IPosed | null => {
       const target: hingedArmSwivel.IPreparedTarget = geometry.target(point);
-      const stops: hingedArmSwivel.IStop[] | null = target.branches();
+      const stops: IAutoMovieHingedArmSwivel.IStop[] | null = target.branches();
       if (stops === null) return null;
       const theta: number = stops[Math.min(held.branch, stops.length - 1)]!.theta;
       const rotations: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
@@ -182,13 +143,13 @@ export namespace HumanLegChain {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function read(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): ISwivel {
+  ): IAutoMovieMotionHumanLegChain.ISwivel {
     const thigh: IAutoMovieResolvedBone = bones.get(`${side}UpperLeg`)!;
     const shank: IAutoMovieResolvedBone = bones.get(`${side}LowerLeg`)!;
-    const chain: hingedArmSwivel.IChain = chainOf(
+    const chain: IAutoMovieHingedChainGeometry = chainOf(
       body,
       side,
       bones.get("hips")!.worldRotation,
@@ -212,13 +173,13 @@ export namespace HumanLegChain {
         lower.x * hinge.x + lower.y * hinge.y + lower.z * hinge.z,
         lower.w,
       );
-    const stops: hingedArmSwivel.IStop[] = hingedArmSwivel.branches(chain) ?? [
+    const stops: IAutoMovieHingedArmSwivel.IStop[] = hingedArmSwivel.branches(chain) ?? [
       { theta, shortfall: 0 },
     ];
     const apart = (a: number): number =>
       Math.abs(Math.atan2(Math.sin(a - theta), Math.cos(a - theta)));
     let branch: number = 0;
-    stops.forEach((stop: hingedArmSwivel.IStop, i: number): void => {
+    stops.forEach((stop: IAutoMovieHingedArmSwivel.IStop, i: number): void => {
       if (apart(stop.theta) < apart(stops[branch]!.theta)) branch = i;
     });
     return { branch, swivel: hingedArmSwivel.read(chain, upper, theta) };
@@ -246,14 +207,14 @@ export namespace HumanLegChain {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns its reader only through synchronous return or throw; requested maps and snapshots do not enter the returned swivel/seed.
    */
   export function fit(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
     target: IAutoMovieVector3,
     bend: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
-  ): ISwivel {
+  ): IAutoMovieMotionHumanLegChain.ISwivel {
     return seeded(body, side, pelvis, hip, target, bend, rotation).swivel;
   }
 
@@ -283,7 +244,7 @@ export namespace HumanLegChain {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The invocation releases its FK getter/snapshots and temporary subset map on return or throw; only the actual swivel and seed escape.
    */
   export function seeded(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
@@ -291,7 +252,7 @@ export namespace HumanLegChain {
     bend: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
     near?: IAutoMovieSwivelNear,
-  ): { swivel: ISwivel; seed: IAutoMovieSwivelSeed | null } {
+  ): IAutoMovieMotionHumanLegChain.ISeededResult {
     return prepareSeeded(body, side, pelvis, hip)(target, bend, rotation, near);
   }
 
@@ -308,33 +269,33 @@ export namespace HumanLegChain {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One piece owns fixed source/root and bounded reader state until release; temporary fitted maps end per query and no fitted answer, target history or handle is retained here.
    */
   export function prepareSeeded(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
   ): ReturnType<typeof prepareHumanLegSeededFit> {
     return prepareHumanLegSeededFit(body, side, pelvis, hip,
-      (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): ISwivel =>
+      (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): IAutoMovieMotionHumanLegChain.ISwivel =>
         read(body, side, bones));
   }
   /** The leg's hinged chain at a pelvis toward a target. */
   function chainOf(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
     target: IAutoMovieVector3,
-  ): hingedArmSwivel.IChain {
+  ): IAutoMovieHingedChainGeometry {
     return { ...sourceOf(body, side, pelvis, hip), target };
   }
 
   /** Fixed source fields, independent of ankle targets and held bend choices. */
   function sourceOf(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
-  ): Omit<hingedArmSwivel.IChain, "target" | "range"> {
+  ): Omit<IAutoMovieHingedChainGeometry, "target" | "range"> {
     const rest: IRest = restOf(body, side);
     return {
       upper: {
@@ -350,10 +311,10 @@ export namespace HumanLegChain {
 
   /** Actual leg FK shared by ordinary and fixed-source posing. */
   function placed(
-    chain: Omit<hingedArmSwivel.IChain, "target" | "range">,
+    chain: Omit<IAutoMovieHingedChainGeometry, "target" | "range">,
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
-  ): IPosed {
+  ): IAutoMovieMotionHumanLegChain.IPosed {
     const thigh: IAutoMovieQuaternion = Quaternion.multiply(chain.upper.worldRotation, upper);
     const hip: IAutoMovieVector3 = chain.upper.worldPosition;
     const knee: IAutoMovieVector3 = Vector3.add(hip,
@@ -366,7 +327,7 @@ export namespace HumanLegChain {
 
   /** A leg's chain at rest: its preparation, the hip bone's frame under the hips and the knee's hinge in its own frame. */
   interface IRest {
-    prepared: IPreparedChainPlant;
+    prepared: IAutoMoviePreparedChainPlant;
     upper: IAutoMovieQuaternion;
     hinge: IAutoMovieVector3;
   }
@@ -376,7 +337,7 @@ export namespace HumanLegChain {
    * axes/neutral FK serve chain and hips under one local operation key; that
    * reader ends here and only the original geometric record enters RESTS.
    */
-  function restOf(body: IHumanBody, side: "left" | "right"): IRest {
+  function restOf(body: IAutoMovieMotionHumanBody, side: "left" | "right"): IRest {
     let sides: Map<string, IRest> | undefined = RESTS.get(body);
     if (sides === undefined) {
       sides = new Map();
@@ -384,14 +345,14 @@ export namespace HumanLegChain {
     }
     const known: IRest | undefined = sides.get(side);
     if (known !== undefined) return known;
-    const axes: IHumanBody["poseResolution"]["jointAxes"] = body.poseResolution.jointAxes;
+    const axes: IAutoMovieMotionHumanBody["poseResolution"]["jointAxes"] = body.poseResolution.jointAxes;
     const resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
     const pose: IAutoMoviePose = {
       skeleton: body.skeleton.id,
       root: null,
       joints: [],
     };
-    const prepared: IPreparedChainPlant = prepareChainPlant(
+    const prepared: IAutoMoviePreparedChainPlant = prepareChainPlant(
       {
         skeleton: body.skeleton,
         pose,
@@ -422,7 +383,7 @@ export namespace HumanLegChain {
   }
 
   /** Each body's legs at rest (`restOf`). */
-  const RESTS: WeakMap<IHumanBody, Map<string, IRest>> = new WeakMap();
+  const RESTS: WeakMap<IAutoMovieMotionHumanBody, Map<string, IRest>> = new WeakMap();
 
   /** The single neutral parent frame required while preparing a leg. */
   const HIPS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["hips"]);

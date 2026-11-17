@@ -1,12 +1,14 @@
 import {
-  type IAutoMovieSimplexAtom,
-  type IAutoMovieSimplexBudget,
   adjacentAutoMovieFloat64,
   minimizeAutoMovieSimplexQuadratic,
 } from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryFeasibleArithmetic,
+  IAutoMovieRecoveryFeasibleDirection,
+  IAutoMovieSimplexAtom,
+  IAutoMovieSimplexBudget,
+} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryFeasibleArithmetic } from "../structures/internal/IAutoMovieRecoveryFeasibleArithmetic";
-import type { IAutoMovieRecoveryFeasibleDirection } from "../structures/internal/IAutoMovieRecoveryFeasibleDirection";
 import { measureRecoveryFeasibleArithmetic } from "./measureRecoveryFeasibleArithmetic";
 
 /**

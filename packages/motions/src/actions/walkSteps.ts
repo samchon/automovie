@@ -1,16 +1,19 @@
-import {
-  type IAutoMovieRandom,
-  wrapDegrees,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { wrapDegrees } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanWalkFacing,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieMotionHumanWalkSteps,
+  IAutoMovieRandom,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanSkill } from "../skill/HumanSkill";
-import type { IWalkGait } from "./IWalkGait";
 import { WalkPace } from "./WalkPace";
 import { WalkPath } from "./WalkPath";
 import { WalkTurn } from "./WalkTurn";
@@ -62,68 +65,6 @@ import { walkStepFoot } from "./walkStepFoot";
  * every foot goal reachable on the actual pelvis.
  */
 export namespace walkSteps {
-  /** Planner input; a way set from outside (`travel`) is handed to the timing as it is. */
-  export interface IInput extends Pick<WalkPace.IProps, "travel"> {
-    /** The body. */
-    body: IHumanBody;
-
-    /** The state the walk starts from. */
-    entry: IHumanEntryState;
-
-    /** The destination floor point, world metres. */
-    to: IAutoMovieVector3;
-
-    /** Floor points passed in order before the destination, world metres. */
-    via?: readonly IAutoMovieVector3[];
-
-    /** The heading at arrival, degrees; the last leg's direction when absent. */
-    face?: number;
-
-    /** Which way the body faces while it walks; along the path when absent. */
-    facing?: walkFacing.IFacing;
-
-    /** Walking speed, m/s. */
-    speed: number;
-
-    /** The longest step, metres. */
-    longest: number;
-
-    /** The realised step period for a planned one, seconds (timing variability). */
-    period(seconds: number): number;
-
-    /** Swing duration in step periods; 0.8 (a walk's 40 % of the stride) when absent, above 1 for a run's flight. */
-    swing?: number;
-
-    /** What the plan reads of the gait beyond its timing: its vertical oscillation in hip heights (the mean drop and the amplitude, lowest at mid-stance; a walk's when absent) and how far it holds the heels off the floor, degrees (flat when absent). */
-    gait?: Pick<IWalkGait, "bob" | "heels" | "stiff">;
-  }
-
-  /** The plan. */
-  export interface IPlan {
-    /** Seconds. */
-    duration: number;
-
-    /** Named instants in seconds. */
-    events: { name: string; seconds: number }[];
-
-    /** Stance spans per foot, seconds. */
-    stances: { side: "left" | "right"; from: number; to: number }[];
-
-    /** The rig origin before `reach`, world metres. */
-    root(seconds: number): IAutoMovieVector3;
-
-    /** The heading, degrees. */
-    yaw(seconds: number): number;
-
-    /** Stride phase: 0.25 at a left heel strike, one per stride. */
-    phase(seconds: number): number;
-
-    /** How much the body is walking, 0 standing to 1 in full stride. */
-    amount(seconds: number): number;
-
-    /** A foot's scheduled stance at an instant. */
-    foot(side: "left" | "right", seconds: number): walkFoot.IScheduled;
-  }
 
   /** One footfall (walkStepFoot.IStep). */
   type IStep = walkStepFoot.IStep;
@@ -147,7 +88,7 @@ export namespace walkSteps {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function tempo(
-    context: Pick<IHumanActionContext, "skill" | "subject" | "series">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "skill" | "subject" | "series">,
   ): IAutoMovieRandom {
     return HumanSkill.stream(
       context.skill,
@@ -172,19 +113,19 @@ export namespace walkSteps {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One take fixes its measured rest body, private floor path and final step timing; fixed scalar geometry is shared without sharing a later queried posture or resampling a numerical result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Constructor-local width/heading work releases on return or throw; the resulting plan owns only its original step/path/schedule/root geometry, linear in footfalls and corners, without an arbitrary-time pose history or external handle.
    */
-  export function plan(input: IInput): IPlan {
-    const body: IHumanBody = input.body;
-    const m: IHumanBody["measure"] = body.measure;
+  export function plan(input: IAutoMovieMotionHumanWalkSteps.IInput): IAutoMovieMotionHumanWalkSteps.IPlan {
+    const body: IAutoMovieMotionHumanBody = input.body;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const l: number = m.hipHeight;
     const yaw0: number = input.entry.posture.yaw;
-    const flatten: (side: "left" | "right") => HumanFoot.IPlacement = (side: "left" | "right"): HumanFoot.IPlacement => ({
+    const flatten: (side: "left" | "right") => IAutoMovieMotionHumanFoot.IPlacement = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle: { ...input.entry.feet[side].ankle, y: m.ankleHeight },
       rotation: HumanFoot.rotation(
         HumanFoot.heading(input.entry.feet[side].rotation),
         0,
       ),
     });
-    const start: Record<"left" | "right", HumanFoot.IPlacement> = {
+    const start: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
       left: flatten("left"),
       right: flatten("right"),
     };
@@ -229,7 +170,7 @@ export namespace walkSteps {
     const along$: (s: number) => number = (s: number): number =>
       D < 1e-6 ? heading : unwrap(path.heading(s, delta / 2), heading);
     // The heading faced at a floor point, nearest the starting heading.
-    const facing: walkFacing.IFacing | undefined = input.facing;
+    const facing: IAutoMovieMotionHumanWalkFacing.IFacing | undefined = input.facing;
     const faced$: (at: IAutoMovieVector3) => number = (at: IAutoMovieVector3): number =>
       facing === undefined
         ? NaN
@@ -249,7 +190,7 @@ export namespace walkSteps {
             along$(D),
           )
         : unwrap(input.face ?? faced$(path.at(D)), yaw0);
-    const frame: HumanFrame.IFrame = { origin: S, yaw: heading };
+    const frame: IAutoMovieMotionHumanFrame = { origin: S, yaw: heading };
     const along: (side: "left" | "right") => number = (side: "left" | "right"): number =>
       HumanFrame.local(frame, start[side].ankle).z;
     const lead: "left" | "right" =
@@ -422,7 +363,7 @@ export namespace walkSteps {
     };
     const schedules: Record<
       "left" | "right",
-      (t: number) => walkFoot.IScheduled
+      (t: number) => IAutoMovieMotionHumanWalkFoot.IScheduled
     > = {
       left: walkStepFoot.schedule(body, "left", start.left, own.left, raised),
       right: walkStepFoot.schedule(
@@ -433,9 +374,9 @@ export namespace walkSteps {
         raised,
       ),
     };
-    const foot: (side: "left" | "right", t: number) => walkFoot.IScheduled = (side: "left" | "right", t: number): walkFoot.IScheduled =>
+    const foot: (side: "left" | "right", t: number) => IAutoMovieMotionHumanWalkFoot.IScheduled = (side: "left" | "right", t: number): IAutoMovieMotionHumanWalkFoot.IScheduled =>
       schedules[side](t);
-    const { root, amount }: Pick<IPlan, "root" | "amount"> = walkRoot({
+    const { root, amount }: Pick<IAutoMovieMotionHumanWalkSteps.IPlan, "root" | "amount"> = walkRoot({
       body, start: input.entry.posture.root, period: T, lag, first, last,
       front, swing, stop: steps.at(-2)!.heelStrike, firstLeft, bob: gaitBob,
       progress, yaw: yawAt, at: (s: number): IAutoMovieVector3 => path.at(s),

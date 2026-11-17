@@ -2,14 +2,16 @@ import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSwimStroke,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { ExerciseKey } from "../exercise/ExerciseKey";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * The swimming strokes written as keyed postures on the water plane
@@ -49,20 +51,6 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The plane is the author's and the depth the body's; speeds are named provisional.
  */
 export namespace SwimStroke {
-  /** A keyed stroke's name. */
-  export type Name = "breaststroke" | "backstroke" | "float";
-
-  /** One stroke: its keys with the seconds taken to reach each from the one before, the first reached from the last, and its speed. */
-  export interface IStroke {
-    /** The keys of one cycle and the seconds to reach each. */
-    keys: readonly (readonly [ExerciseKey.IKey, number])[];
-
-    /** The hips' speed, metres a second, along the way the stroke travels (provisional). */
-    speed: number;
-
-    /** Whether the swimmer lies on the back and so travels head first, the way the back faced. */
-    supine: boolean;
-  }
 
   /** The hip joints, which the plane carries. */
   const HIPS: readonly AutoMovieHumanoidBone[] = [
@@ -74,11 +62,11 @@ export namespace SwimStroke {
 
   /** A backstroke key: one arm's shoulder flexion and abduction, the other's, and which leg is up. */
   function back(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     right: readonly [number, number],
     left: readonly [number, number],
     kick: number,
-  ): ExerciseKey.IKey {
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
     return ExerciseKey.from(
       body,
       { pitch: -90, neck: 10 },
@@ -102,7 +90,7 @@ export namespace SwimStroke {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function strokes(body: IHumanBody): Readonly<Record<Name, IStroke>> {
+  export function strokes(body: IAutoMovieMotionHumanBody): Readonly<Record<IAutoMovieMotionHumanSwimStroke.Name, IAutoMovieMotionHumanSwimStroke.IStroke>> {
     return {
       breaststroke: keyed(body, "breaststroke"),
       backstroke: keyed(body, "backstroke"),
@@ -111,7 +99,7 @@ export namespace SwimStroke {
   }
 
   /** Build only the selected stroke's keys; the public table requests each row explicitly. */
-  function keyed(body: IHumanBody, name: Name): IStroke {
+  function keyed(body: IAutoMovieMotionHumanBody, name: IAutoMovieMotionHumanSwimStroke.Name): IAutoMovieMotionHumanSwimStroke.IStroke {
     if (name === "breaststroke") return {
         supine: false,
         speed: 0.9,
@@ -206,21 +194,14 @@ export namespace SwimStroke {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed key pairs and ordered joint unions are shared; every actual query constructs and pins its current key instead of replaying a completed posture.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its selected stroke row and fixed key-pair readers until released, without storing a completed pinned posture or queried-time cache.
    */
-  export function plan(props: {
-    body: IHumanBody;
-    entry: IHumanPosture;
-    stroke: Name;
-    water: number;
-    cycles: number;
-    tempo: number;
-  }): IHumanActionPlan {
-    const stroke: IStroke = keyed(props.body, props.stroke);
+  export function plan(props: IAutoMovieMotionHumanSwimStroke.IPlanProps ): IAutoMovieMotionHumanActionPlan {
+    const stroke: IAutoMovieMotionHumanSwimStroke.IStroke = keyed(props.body, props.stroke);
     const spans: readonly number[] = stroke.keys.map(
-      ([, seconds]: readonly [ExerciseKey.IKey, number]): number =>
+      ([, seconds]: readonly [IAutoMovieMotionHumanExerciseKey.IKey, number]): number =>
         seconds * props.tempo,
     );
-    const blends: ((share: number) => ExerciseKey.IKey)[] = stroke.keys.map(
-      ([to]: readonly [ExerciseKey.IKey, number], i: number): (share: number) => ExerciseKey.IKey =>
+    const blends: ((share: number) => IAutoMovieMotionHumanExerciseKey.IKey)[] = stroke.keys.map(
+      ([to]: readonly [IAutoMovieMotionHumanExerciseKey.IKey, number], i: number): (share: number) => IAutoMovieMotionHumanExerciseKey.IKey =>
         ExerciseKey.prepareBlend(stroke.keys[(i + stroke.keys.length - 1) % stroke.keys.length]![0], to),
     );
     const period: number = spans.reduce(
@@ -247,7 +228,7 @@ export namespace SwimStroke {
       duration,
       events,
       contacts: [],
-      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         let within: number = t - Math.floor(t / period) * period;
         if (t >= duration) within = 0;

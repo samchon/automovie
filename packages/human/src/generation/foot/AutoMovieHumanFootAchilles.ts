@@ -1,11 +1,12 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootColumnLaw,
+  IAutoMovieHumanFootFrame,
+} from "@automovie/interface";
 import { Singleton } from "tstl";
 
 import { AutoMovieHumanFootColumnLaw } from "./AutoMovieHumanFootColumnLaw";
-import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
-import type { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootHeelCorner } from "./AutoMovieHumanFootHeelCorner";
-
-type Vec3 = G.Vec3;
 
 /**
  * The Achilles: the back of the heel above its posterior corner and the tendon
@@ -22,12 +23,19 @@ export namespace AutoMovieHumanFootAchilles {
    * @param frame The foot's frame.
    * @param side -1 for the medial edge, 1 for the lateral.
    */
-  export function knots(frame: AutoMovieHumanFootFrame.IFrame, side: -1 | 1): Vec3[] {
-    const law: AutoMovieHumanFootColumnLaw.IPlan = LAW.get();
+  export function knots(
+    frame: IAutoMovieHumanFootFrame.IFrame,
+    side: -1 | 1,
+  ): AutoMovieVector3Tuple[] {
+    const law: IAutoMovieHumanFootColumnLaw.IPlan = LAW.get();
 
     return KNOTS.map(
-      (q: readonly [number, number, number]): Vec3 =>
-        frame.at(law.along(q[2]), law.across(q[2]) + side * AutoMovieHumanFootHeelCorner.HALF, q[2] * frame.H),
+      (q: readonly [number, number, number]): AutoMovieVector3Tuple =>
+        frame.at(
+          law.along(q[2]),
+          law.across(q[2]) + side * AutoMovieHumanFootHeelCorner.HALF,
+          q[2] * frame.H,
+        ),
     );
   }
 }
@@ -36,8 +44,8 @@ export namespace AutoMovieHumanFootAchilles {
  * The tendon's plan law over its knots' heights (`AutoMovieHumanFootColumnLaw`):
  * the guide reads each knot at its own height on it.
  */
-const LAW: Singleton<AutoMovieHumanFootColumnLaw.IPlan> = new Singleton(
-  (): AutoMovieHumanFootColumnLaw.IPlan =>
+const LAW: Singleton<IAutoMovieHumanFootColumnLaw.IPlan> = new Singleton(
+  (): IAutoMovieHumanFootColumnLaw.IPlan =>
     AutoMovieHumanFootColumnLaw.plan(
       KNOTS.map((q: readonly [number, number, number]): number => q[2]),
       KNOTS.map((q: readonly [number, number, number]): number => q[0]),

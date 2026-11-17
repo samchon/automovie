@@ -1,17 +1,18 @@
 import type {
+  AutoMovieVector3Tuple,
   IAutoMovieQuaternion,
+  IAutoMovieSolveAirborneTakeoff,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVector";
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { Quaternion } from "../math/Quaternion";
-import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
+import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneTakeoffQuadrature } from "./AirborneTakeoffQuadrature";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
-import type { solveAirborneTakeoff } from "./solveAirborneTakeoff";
 
 /**
  * The linearized shooting relation `angle = turning L - lagging` in the
@@ -44,7 +45,7 @@ import type { solveAirborneTakeoff } from "./solveAirborneTakeoff";
  */
 export function AirborneTakeoffLinear(
   props: Pick<
-    solveAirborneTakeoff.IProps,
+    IAutoMovieSolveAirborneTakeoff.IProps,
     | "history"
     | "t0"
     | "t1"
@@ -224,9 +225,9 @@ export namespace AirborneTakeoffLinear {
   ): number[] | null {
     if (!a.flat().every(Number.isFinite) || !b.every(Number.isFinite))
       return null;
-    const column: (c: number) => AutoMovieSolidVector.Vec3 = (
+    const column: (c: number) => AutoMovieVector3Tuple = (
       c: number,
-    ): AutoMovieSolidVector.Vec3 => [a[0]![c]!, a[1]![c]!, a[2]![c]!];
+    ): AutoMovieVector3Tuple => [a[0]![c]!, a[1]![c]!, a[2]![c]!];
     return AutoMovieSolidVector.solve3(column(0), column(1), column(2), [
       b[0]!,
       b[1]!,

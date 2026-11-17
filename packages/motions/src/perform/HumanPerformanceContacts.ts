@@ -4,11 +4,16 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionWeaponContact,
+  IAutoMovieMotionWeaponPath,
+  IAutoMovieResolveContactEvents,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanColliders } from "../posture/HumanColliders";
 import { StrikingWeapon } from "../striking/StrikingWeapon";
 import { HumanPerformanceContactSpeed } from "./HumanPerformanceContactSpeed";
@@ -49,21 +54,22 @@ export namespace HumanPerformanceContacts {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mutates only the placed person's existing hold records; their windows bound activity and their lifetime remains the person's performance lifetime.
    */
   export function hold(
-    person: HumanSegment.IPerson,
-    segment: HumanSegment.ISegment,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment,
     riding: boolean,
   ): void {
-    const plan: IHumanActionPlan = segment.plan;
+    const plan: IAutoMovieMotionHumanActionPlan = segment.plan;
     for (const held of person.holds) {
       if (held.until !== Infinity) continue;
-      const take: IHumanActionPlan["contacts"][number] | undefined =
-        plan.contacts.find(
-          (c: IHumanActionPlan["contacts"][number]): boolean =>
-            c.part === `${held.side}Hand` &&
-            c.kind === "grip" &&
-            c.support.kind === "prop" &&
-            c.support.subject === held.prop,
-        );
+      const take:
+        | IAutoMovieMotionHumanActionPlan["contacts"][number]
+        | undefined = plan.contacts.find(
+        (c: IAutoMovieMotionHumanActionPlan["contacts"][number]): boolean =>
+          c.part === `${held.side}Hand` &&
+          c.kind === "grip" &&
+          c.support.kind === "prop" &&
+          c.support.subject === held.prop,
+      );
       if (take !== undefined) {
         held.until = Math.max(
           held.from,
@@ -78,7 +84,7 @@ export namespace HumanPerformanceContacts {
           feasible: {
             kind: "alternatives",
             values: person.holds.some(
-              (h: HumanSegment.IHeld): boolean =>
+              (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
                 h.until === Infinity && h.side !== held.side,
             )
               ? []
@@ -98,8 +104,8 @@ export namespace HumanPerformanceContacts {
         until: Infinity,
       });
 
-      // A hold changes what the person shows from here on.
-      person.planning?.clear();
+    // A hold changes what the person shows from here on.
+    person.planning?.clear();
   }
 
   /**
@@ -129,18 +135,18 @@ export namespace HumanPerformanceContacts {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The sole live stops source is the event resolver's private native Map: both writes add an id only after absence checks, so identical Map identity and size prove no entry changed during this call. A new Map or increased size still takes the original full content comparison and every changed stop forgets person memos. Chain endpoints share only one explicit query. The constructor-fixed actor/body and copied canonical profile names justify a bound query producer. Bones are shared by exact second only while one stop set is installed: the memo is cleared when the stops change, before the nearest-person reads, and again after the plans settle and every person is forgotten, so each read observes the state it was read in; weapon axes are shared the same way, and a limb's capsules share their chain's evaluation at a second.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ordered cast references, at most one fixed-name query producer per actually queried actor, adapter/owner/event maps, installed-stop Map/size reference and signature last only this synchronous resolution; their stop population is bounded by input weapons. The bones memo holds one collider-bone map per actor and distinct second read under the current stop set, released at each stop change and on return, as is the axes memo of one axis per live weapon and distinct second read. Each grouped axis map ends before its callback returns. Only existing person stops, plan stops and hit records persist, without any new pose/time history.
    */
-  export function contacts(self: HumanPerformanceState): void {
-    const weapons: resolveAutoMovieContactEvents.IWeapon[] = [];
+  export function contacts(self: IAutoMovieMotionHumanPerformanceState): void {
+    const weapons: IAutoMovieResolveContactEvents.IWeapon[] = [];
     const owners: Map<
       string,
       {
-        person: HumanSegment.IPerson;
-        segment: HumanSegment.ISegment;
+        person: IAutoMovieMotionHumanSegment.IPerson;
+        segment: IAutoMovieMotionHumanSegment;
         id: string;
-        limb: IHumanActionPlan.IWeapon["limb"];
+        limb: IAutoMovieMotionWeaponPath["limb"];
         from: number;
         to: number;
-        weapon: IHumanActionPlan.IWeapon;
+        weapon: IAutoMovieMotionWeaponPath;
       }
     > = new Map();
     const far: IAutoMovieVector3 = { x: 1e6, y: 1e6, z: 1e6 };
@@ -151,10 +157,22 @@ export namespace HumanPerformanceContacts {
     // the second, as a person's bones are: the grid bound's reads and the
     // scan's share each, and the capsules of one limb of one action share
     // their chain's evaluation. `apply` clears this with the bones.
-    const limbs: Map<string, { weapon: IHumanActionPlan.IWeapon; from: number; to: number }[]> = new Map();
-    const axes: Map<number, Map<IHumanActionPlan.IWeapon, StrikingWeapon.IAxis>> = new Map();
-    const axis = (weapon: IHumanActionPlan.IWeapon, limb: string, t: number): StrikingWeapon.IAxis => {
-      let known: Map<IHumanActionPlan.IWeapon, StrikingWeapon.IAxis> | undefined = axes.get(t);
+    const limbs: Map<
+      string,
+      { weapon: IHumanActionPlan.IWeapon; from: number; to: number }[]
+    > = new Map();
+    const axes: Map<
+      number,
+      Map<IHumanActionPlan.IWeapon, StrikingWeapon.IAxis>
+    > = new Map();
+    const axis = (
+      weapon: IHumanActionPlan.IWeapon,
+      limb: string,
+      t: number,
+    ): StrikingWeapon.IAxis => {
+      let known:
+        | Map<IHumanActionPlan.IWeapon, StrikingWeapon.IAxis>
+        | undefined = axes.get(t);
       if (known === undefined) {
         known = new Map();
         axes.set(t, known);
@@ -163,8 +181,20 @@ export namespace HumanPerformanceContacts {
       if (found !== undefined) return found;
       const live: IHumanActionPlan.IWeapon[] = limbs
         .get(limb)!
-        .filter((w: { weapon: IHumanActionPlan.IWeapon; from: number; to: number }): boolean => !(t < w.from || t > w.to))
-        .map((w: { weapon: IHumanActionPlan.IWeapon; from: number; to: number }): IHumanActionPlan.IWeapon => w.weapon);
+        .filter(
+          (w: {
+            weapon: IHumanActionPlan.IWeapon;
+            from: number;
+            to: number;
+          }): boolean => !(t < w.from || t > w.to),
+        )
+        .map(
+          (w: {
+            weapon: IHumanActionPlan.IWeapon;
+            from: number;
+            to: number;
+          }): IHumanActionPlan.IWeapon => w.weapon,
+        );
       for (const [w, a] of StrikingWeapon.sample(live, t)) known.set(w, a);
       return known.get(weapon)!;
     };
@@ -186,7 +216,11 @@ export namespace HumanPerformanceContacts {
           });
           const tail = w.tail;
           const group: string = `${person.performer.subject}|${segment.index}:${w.limb}`;
-          const siblings: { weapon: IHumanActionPlan.IWeapon; from: number; to: number }[] = limbs.get(group) ?? [];
+          const siblings: {
+            weapon: IHumanActionPlan.IWeapon;
+            from: number;
+            to: number;
+          }[] = limbs.get(group) ?? [];
           siblings.push({ weapon: w, from: a, to: b });
           limbs.set(group, siblings);
           weapons.push({
@@ -201,20 +235,30 @@ export namespace HumanPerformanceContacts {
             from: a,
             to: b,
             position: (t: number) => (t < a || t > b ? far : w.path(t)),
-            sample: (t: number): resolveAutoMovieContactEvents.IWeaponFrame => {
+            sample: (
+              t: number,
+            ): IAutoMovieResolveContactEvents.IWeaponFrame => {
               if (t < a || t > b)
-                return { position: far, ...(tail === undefined ? {} : { tail: far }) };
+                return {
+                  position: far,
+                  ...(tail === undefined ? {} : { tail: far }),
+                };
               const [position, end]: StrikingWeapon.IAxis = axis(w, group, t);
               return { position, ...(end === undefined ? {} : { tail: end }) };
             },
 
             // Its own path on the search's grid, read under the search's stops.
             speed: (
-              grid: resolveAutoMovieContactEvents.IGrid,
-              stops: resolveAutoMovieContactEvents.IStops,
-            ): resolveAutoMovieContactEvents.Speed => {
+              grid: IAutoMovieResolveContactEvents.IGrid,
+              stops: IAutoMovieResolveContactEvents.IStops,
+            ): IAutoMovieResolveContactEvents.Speed => {
               apply(stops);
-              return HumanPerformanceContactSpeed.weapon((t: number): StrikingWeapon.IAxis => axis(w, group, t), a, b, grid);
+              return HumanPerformanceContactSpeed.weapon(
+                (t: number): StrikingWeapon.IAxis => axis(w, group, t),
+                a,
+                b,
+                grid,
+              );
             },
             ...(tail === undefined
               ? {}
@@ -231,24 +275,44 @@ export namespace HumanPerformanceContacts {
     if (weapons.length === 0) return;
     // HumanPerformanceState fixes this ordered cast in its constructor; mutable
     // person records remain live and every current pose is still queried.
-    const people: readonly HumanSegment.IPerson[] = [...self.people.values()];
-    const readers: Map<HumanSegment.IPerson, ReturnType<typeof HumanPerformanceRead.prepareBones>> = new Map();
+    const people: readonly IAutoMovieMotionHumanSegment.IPerson[] = [
+      ...self.people.values(),
+    ];
+    const readers: Map<
+      IAutoMovieMotionHumanSegment.IPerson,
+      ReturnType<typeof HumanPerformanceRead.prepareBones>
+    > = new Map();
 
     // Under one installed set of stops a person's pose is a pure function of
     // the second, and every weapon's scan reads the same seconds: each is read
     // once. `apply` clears this whenever what a person shows may change.
-    const shown: Map<HumanSegment.IPerson, Map<number, ReturnType<typeof HumanPerformanceRead.bones>>> = new Map();
-    const readBones = (person: HumanSegment.IPerson, seconds: number): ReturnType<typeof HumanPerformanceRead.bones> => {
-      let known: Map<number, ReturnType<typeof HumanPerformanceRead.bones>> | undefined = shown.get(person);
+    const shown: Map<
+      IAutoMovieMotionHumanSegment.IPerson,
+      Map<number, ReturnType<typeof HumanPerformanceRead.bones>>
+    > = new Map();
+    const readBones = (
+      person: IAutoMovieMotionHumanSegment.IPerson,
+      seconds: number,
+    ): ReturnType<typeof HumanPerformanceRead.bones> => {
+      let known:
+        | Map<number, ReturnType<typeof HumanPerformanceRead.bones>>
+        | undefined = shown.get(person);
       if (known === undefined) {
         known = new Map();
         shown.set(person, known);
       }
-      let bones: ReturnType<typeof HumanPerformanceRead.bones> | undefined = known.get(seconds);
+      let bones: ReturnType<typeof HumanPerformanceRead.bones> | undefined =
+        known.get(seconds);
       if (bones !== undefined) return bones;
-      let read: ReturnType<typeof HumanPerformanceRead.prepareBones> | undefined = readers.get(person);
+      let read:
+        | ReturnType<typeof HumanPerformanceRead.prepareBones>
+        | undefined = readers.get(person);
       if (read === undefined) {
-        read = HumanPerformanceRead.prepareBones(self, person.performer.subject, HumanColliders.bones(person.performer.body));
+        read = HumanPerformanceRead.prepareBones(
+          self,
+          person.performer.subject,
+          HumanColliders.bones(person.performer.body),
+        );
         readers.set(person, read);
       }
       bones = read(seconds);
@@ -262,17 +326,21 @@ export namespace HumanPerformanceContacts {
       weapons.map((w) => [
         w.id,
         (t: number): [IAutoMovieVector3, IAutoMovieVector3] => {
-          const frame: resolveAutoMovieContactEvents.IWeaponFrame =
-            w.sample!(t, new Map());
+          const frame: IAutoMovieResolveContactEvents.IWeaponFrame = w.sample!(
+            t,
+            new Map(),
+          );
           return [frame.position, frame.tail ?? frame.position];
         },
       ]),
     );
-    const met: Map<string, IHumanActionPlan.IContactEvent & { key: string }> =
+    const met: Map<string, IAutoMovieMotionWeaponContact & { key: string }> =
       new Map();
     let applied: string = "";
-    let installed: { stops: resolveAutoMovieContactEvents.IStops; size: number } | undefined;
-    const apply = (stops: resolveAutoMovieContactEvents.IStops): void => {
+    let installed:
+      | { stops: IAutoMovieResolveContactEvents.IStops; size: number }
+      | undefined;
+    const apply = (stops: IAutoMovieResolveContactEvents.IStops): void => {
       // The sole live producer below owns a native Map and only adds fresh
       // weapon ids; neither existing times nor keys change or disappear.
       // The explicit final Map has another identity and still gets the full
@@ -288,7 +356,7 @@ export namespace HumanPerformanceContacts {
       shown.clear();
       axes.clear();
       for (const person of people) person.stops.clear();
-      const changed: Set<HumanSegment.ISegment> = new Set();
+      const changed: Set<IAutoMovieMotionHumanSegment> = new Set();
       for (const [key, seconds] of stops) {
         const owner = owners.get(key)!;
         owner.person.stops.set(
@@ -331,7 +399,7 @@ export namespace HumanPerformanceContacts {
       axes.clear();
     };
     const nearest = (
-      owner: HumanSegment.IPerson,
+      owner: IAutoMovieMotionHumanSegment.IPerson,
       [point, end]: [IAutoMovieVector3, IAutoMovieVector3],
       seconds: number,
     ): string => {
@@ -352,109 +420,112 @@ export namespace HumanPerformanceContacts {
       }
       return best.subject;
     };
-    const events: resolveAutoMovieContactEvents.IEvent[] =
+    const events: IAutoMovieResolveContactEvents.IEvent[] =
       resolveAutoMovieContactEvents({
         weapons,
-        bodies: people.map(
-          (person: HumanSegment.IPerson) => ({
-            id: person.performer.subject,
+        bodies: people.map((person: IAutoMovieMotionHumanSegment.IPerson) => ({
+          id: person.performer.subject,
 
-            // 0 where the shown pose provably holds still, none elsewhere.
-            speed: (
-              _grid: resolveAutoMovieContactEvents.IGrid,
-              stops: resolveAutoMovieContactEvents.IStops,
-            ): resolveAutoMovieContactEvents.Speed => {
-              apply(stops);
-              return (a: number, b: number): number | undefined =>
-                HumanPerformanceContactSpeed.still(person, a, b) ? 0 : undefined;
-            },
-            distance: (
-              point: IAutoMovieVector3,
-              seconds: number,
-              stops: resolveAutoMovieContactEvents.IStops,
-            ): number => {
-              apply(stops);
-              return HumanColliders.distance(
-                person.performer.body,
-                readBones(person, seconds),
-                point,
-              ).distance;
-            },
-            axis: (
-              a: IAutoMovieVector3,
-              b: IAutoMovieVector3,
-              seconds: number,
-              stops: resolveAutoMovieContactEvents.IStops,
-              taper?: readonly [number, number],
-            ): number => {
-              apply(stops);
-              return HumanColliders.distanceToSegment(
+          // 0 where the shown pose provably holds still, none elsewhere.
+          speed: (
+            _grid: IAutoMovieResolveContactEvents.IGrid,
+            stops: IAutoMovieResolveContactEvents.IStops,
+          ): IAutoMovieResolveContactEvents.Speed => {
+            apply(stops);
+            return (a: number, b: number): number | undefined =>
+              HumanPerformanceContactSpeed.still(person, a, b) ? 0 : undefined;
+          },
+          distance: (
+            point: IAutoMovieVector3,
+            seconds: number,
+            stops: IAutoMovieResolveContactEvents.IStops,
+          ): number => {
+            apply(stops);
+            return HumanColliders.distance(
+              person.performer.body,
+              readBones(person, seconds),
+              point,
+            ).distance;
+          },
+          axis: (
+            a: IAutoMovieVector3,
+            b: IAutoMovieVector3,
+            seconds: number,
+            stops: IAutoMovieResolveContactEvents.IStops,
+            taper?: readonly [number, number],
+          ): number => {
+            apply(stops);
+            return HumanColliders.distanceToSegment(
+              person.performer.body,
+              readBones(person, seconds),
+              a,
+              b,
+              taper,
+            ).distance;
+          },
+
+          // The limb a weapon met may be striking too. Its capsule and the
+          // collider the striker measured are two measures of that one
+          // limb, so the capsule nearest the striker's axis stops with it.
+          carried: (
+            a: IAutoMovieVector3,
+            b: IAutoMovieVector3,
+            seconds: number,
+            stops: IAutoMovieResolveContactEvents.IStops,
+          ): string | undefined => {
+            apply(stops);
+            const bone: AutoMovieHumanoidBone =
+              HumanColliders.distanceToSegment(
                 person.performer.body,
                 readBones(person, seconds),
                 a,
                 b,
-                taper,
-              ).distance;
-            },
-
-            // The limb a weapon met may be striking too. Its capsule and the
-            // collider the striker measured are two measures of that one
-            // limb, so the capsule nearest the striker's axis stops with it.
-            carried: (
-              a: IAutoMovieVector3,
-              b: IAutoMovieVector3,
-              seconds: number,
-              stops: resolveAutoMovieContactEvents.IStops,
-            ): string | undefined => {
-              apply(stops);
-              const bone: AutoMovieHumanoidBone =
-                HumanColliders.distanceToSegment(
-                  person.performer.body,
-                  readBones(person, seconds),
-                  a,
-                  b,
-                ).bone;
-              const part: RegExpExecArray | null =
-                /^(left|right)(?:(UpperLeg|LowerLeg|Foot|Toes)|(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little))/.exec(
-                  bone,
-                );
-              if (part === null) return undefined;
-              const limb: string = `${part[1]}${part[2] === undefined ? "Arm" : "Leg"}`;
-              let best: { key: string; distance: number } | undefined;
-              const eligible: (readonly [string, IHumanActionPlan.IWeapon])[] = [];
-              for (const [key, owner] of owners) {
-                if (
-                  owner.person !== person ||
-                  owner.limb !== limb ||
-                  stops.has(key) ||
-                  seconds < owner.from ||
-                  seconds > owner.to
-                )
-                  continue;
-                eligible.push([key, owner.weapon]);
-              }
-              const sampled: ReadonlyMap<IHumanActionPlan.IWeapon, StrikingWeapon.IAxis> =
-                StrikingWeapon.sample(
-                  eligible.map(([, weapon]): IHumanActionPlan.IWeapon => weapon),
-                  seconds,
-                );
-              for (const [key, weapon] of eligible) {
-                const [p, q]: StrikingWeapon.IAxis = sampled.get(weapon)!;
-                const distance: number = segmentSegmentDistance(a, b, p, q ?? p);
-                if (best === undefined || distance < best.distance)
-                  best = { key, distance };
-              }
-              return best?.key;
-            },
-          }),
-        ),
+              ).bone;
+            const part: RegExpExecArray | null =
+              /^(left|right)(?:(UpperLeg|LowerLeg|Foot|Toes)|(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little))/.exec(
+                bone,
+              );
+            if (part === null) return undefined;
+            const limb: string = `${part[1]}${part[2] === undefined ? "Arm" : "Leg"}`;
+            let best: { key: string; distance: number } | undefined;
+            const eligible: (readonly [string, IAutoMovieMotionWeaponPath])[] =
+              [];
+            for (const [key, owner] of owners) {
+              if (
+                owner.person !== person ||
+                owner.limb !== limb ||
+                stops.has(key) ||
+                seconds < owner.from ||
+                seconds > owner.to
+              )
+                continue;
+              eligible.push([key, owner.weapon]);
+            }
+            const sampled: ReadonlyMap<
+              IAutoMovieMotionWeaponPath,
+              StrikingWeapon.IAxis
+            > = StrikingWeapon.sample(
+              eligible.map(([, weapon]): IAutoMovieMotionWeaponPath => weapon),
+              seconds,
+            );
+            for (const [key, weapon] of eligible) {
+              const [p, q]: StrikingWeapon.IAxis = sampled.get(weapon)!;
+              const distance: number = segmentSegmentDistance(a, b, p, q ?? p);
+              if (best === undefined || distance < best.distance)
+                best = { key, distance };
+            }
+            return best?.key;
+          },
+        })),
         from,
         to,
         step: HumanPerformanceContacts.STEP,
       });
     apply(new Map(events.map((e): [string, number] => [e.weapon, e.seconds])));
-    const plans: Map<HumanSegment.ISegment, IHumanActionPlan.IContactEvent[]> =
-      new Map();
+    const plans: Map<
+      IAutoMovieMotionHumanSegment,
+      IAutoMovieMotionWeaponContact[]
+    > = new Map();
     for (const owner of owners.values()) plans.set(owner.segment, []);
     for (const e of events) {
       const owner = owners.get(e.weapon)!;

@@ -1,9 +1,12 @@
-import type { IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieFitChainToTargetProps,
+  IAutoMovieHingedArmSwivel,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 
 import { boxExcludedSwivels } from "../kinematics/boxExcludedSwivels";
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { prepareHingedChainAt } from "./prepareHingedChainAt";
 
 /**
@@ -26,12 +29,12 @@ import { prepareHingedChainAt } from "./prepareHingedChainAt";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned test keeps the branch's poser and the root's clinical domain until the caller drops it.
  */
 export function refusedHingedChainSwivels(
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   branch: number,
 ): ((low: number, high: number) => boolean) | null {
   const at: prepareHingedChainAt.IPrepared | null = prepareHingedChainAt(props);
   if (at === null) return null;
-  const stop: hingedArmSwivel.IStop = at.branches[Math.min(Math.max(0, Math.round(branch)), at.branches.length - 1)]!;
+  const stop: IAutoMovieHingedArmSwivel.IStop = at.branches[Math.min(Math.max(0, Math.round(branch)), at.branches.length - 1)]!;
   const posed: ReturnType<typeof hingedArmSwivel.pose> = hingedArmSwivel.pose(at.chain, stop.theta);
   return boxExcludedSwivels({
     basis: at.upperBasis,

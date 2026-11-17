@@ -1,14 +1,22 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieQuaternion,
-  IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -30,10 +38,10 @@ import { HumanWorn } from "./HumanWorn";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The chooser releases its original turn-score map, exact FK reader and hand metadata on return/throw. Only a scalar turn escapes; no borrowed-entry snapshot, fixed base, worn-frame result, arm context or query history is retained.
  */
 export function dressTurn(props: {
-  body: IHumanBody;
-  posture: IHumanPosture;
-  side: HumanHand.Side;
-  wearable: IHumanProp;
+  body: IAutoMovieMotionHumanBody;
+  posture: IAutoMovieMotionHumanPosture;
+  side: AutoMovieHumanSide;
+  wearable: IAutoMovieMotionHumanProp;
   region: AutoMovieHumanoidRegion;
   inverse: IAutoMovieQuaternion;
   offset: IAutoMovieVector3;
@@ -52,14 +60,14 @@ export function dressTurn(props: {
     const at: ReturnType<typeof dressTurn.carried> = dressTurn.carried(
       HumanWorn.frame(props.body, props.posture, props.wearable, props.region, degrees), props.inverse, props.offset,
     );
-    const wrist: HumanHand.IWrist = placeHumanHandSurface(props.socket, at.grip, at.rotation);
-    const limbs: IHumanPosture["limbs"] = { ...props.posture.limbs };
+    const wrist: IAutoMovieMotionHumanHand.IWrist = placeHumanHandSurface(props.socket, at.grip, at.rotation);
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...props.posture.limbs };
     limbs[`${props.side}Arm`] = {
       point: wrist.point, rotation: wrist.rotation, contact: props.socket,
       bend: AutoMovieMotionHumanBend.solve({ body: props.body, posture: props.posture, side: props.side,
         point: wrist.point, rotation: wrist.rotation, fallback: "hang" }),
     };
-    const resolved: resolveHumanPosture.ISeeded = resolveHumanPosture.seeded(props.body,
+    const resolved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.seeded(props.body,
       { ...props.posture, limbs }, undefined, undefined, resolution);
     readHand ??= poseBones.prepare(props.body, new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]));
     const bones: ReturnType<typeof poseBones> = readHand(resolved.pose, resolution());
@@ -102,7 +110,7 @@ export namespace dressTurn {
    * same constant-work rigid arithmetic serves search and runtime, returning
    * fresh grip/rotation records and retaining none of its numerical inputs.
    */
-  export function carried(worn: IHumanProp.IFrame, inverse: IAutoMovieQuaternion,
+  export function carried(worn: IAutoMovieRigidTransform, inverse: IAutoMovieQuaternion,
     offset: IAutoMovieVector3): { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion } {
     const rotation: IAutoMovieQuaternion = Quaternion.normalize(Quaternion.multiply(worn.rotation, inverse));
     return { grip: Vector3.subtract(worn.position, Quaternion.rotateVector(rotation, offset)), rotation };

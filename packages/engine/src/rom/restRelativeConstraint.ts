@@ -1,10 +1,9 @@
 import {
   IAutoMovieAngleRange,
+  type IAutoMovieAxisFrame,
   IAutoMovieJointConstraint,
+  type IAutoMovieRestFrame,
 } from "@automovie/interface";
-
-import { IAutoMovieAxisFrame } from "./IAutoMovieAxisFrame";
-import { IAutoMovieRestFrame } from "./IAutoMovieRestFrame";
 
 const assertAxisFrame: (
   label: string,

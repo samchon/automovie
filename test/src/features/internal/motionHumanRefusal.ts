@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
 import { HumanRefusal } from "@automovie/motions";
 
 /**
@@ -18,7 +19,7 @@ import { HumanRefusal } from "@automovie/motions";
  */
 export function motionHumanRefusal(
   task: () => unknown,
-  expected: { kind: HumanRefusal.Kind; axis: string; act: string },
+  expected: { kind: IAutoMovieMotionHumanRefusal.Kind; axis: string; act: string },
 ): boolean {
   try {
     task();

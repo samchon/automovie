@@ -1,5 +1,10 @@
-import { IAutoMovieSubdivisionCage } from "./IAutoMovieSubdivisionCage";
-import { ISubdivisionLevel } from "./ISubdivisionLevel";
+import type {
+  IAutoMovieFitSubdivisionDomain,
+  IAutoMovieFitSubdivisionRegions,
+  IAutoMovieSubdivisionCage,
+  IAutoMovieSubdivisionLevel,
+} from "@automovie/interface";
+
 import { admitSubdivisionCage } from "./admitSubdivisionCage";
 import { fitAutoMovieSubdivisionDomain } from "./fitAutoMovieSubdivisionDomain";
 import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
@@ -30,33 +35,17 @@ import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Global topology, UV refinement and face adjacency are computed once and shared by all regions. Local solves share three coordinate systems internally and no completed model is cached against mutable caller input.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Processes one crop at a time; temporary crop and solve arrays are released after their deltas are composed. The returned level owns one globally refined cage and result residuals, with no module retention.
  */
-export function fitAutoMovieSubdivisionRegions(props: {
-  /** Joined original controls and indexed face-varying UV topology, metres. */
-  cage: IAutoMovieSubdivisionCage;
-
-  /** Render refinements relative to the source cage, integer 2–6; omitted, 2. */
-  levels?: number;
-
-  /** Disjoint source-face regions with their authored source constraints. */
-  regions: ReadonlyArray<{
-    /** Source face identities permitted to change; regions may share only boundaries. */
-    faces: ReadonlySet<number>;
-    /** Initial generating samples, metres, keyed by source vertex identity. */
-    samples: ReadonlyMap<number, readonly [number, number, number]>;
-    /** Independent hard limit equalities, metres, keyed by source vertex identity. */
-    limitTargets: ReadonlyMap<number, readonly [number, number, number]>;
-    /** Source control vertices held at their original cage positions. */
-    anchors: ReadonlySet<number>;
-  }>;
-}): { level: ISubdivisionLevel; maximumEqualityError: number } {
+export function fitAutoMovieSubdivisionRegions(
+  props: IAutoMovieFitSubdivisionRegions.IProps,
+): IAutoMovieFitSubdivisionRegions.IResult {
   const requested: number = props.levels ?? 2;
   if (!Number.isSafeInteger(requested) || requested < 2 || requested > 6)
     throw new Error("fitted subdivision levels must be an integer from 2 to 6");
-  const source: ISubdivisionLevel = admitSubdivisionCage(props.cage);
-  const levels: ISubdivisionLevel[] = [source];
+  const source: IAutoMovieSubdivisionLevel = admitSubdivisionCage(props.cage);
+  const levels: IAutoMovieSubdivisionLevel[] = [source];
   for (let step: number = 0; step < 2; step++)
     levels.push(refineSubdivisionLevel(levels[step]!));
-  let output: ISubdivisionLevel = {
+  let output: IAutoMovieSubdivisionLevel = {
     ...levels[2]!,
     positions: [...levels[2]!.positions],
   };
@@ -163,7 +152,7 @@ export function fitAutoMovieSubdivisionRegions(props: {
         region.faces.has(f) ? [i] : [],
       ),
     );
-    const fitted: ReturnType<typeof fitAutoMovieSubdivisionDomain> =
+    const fitted: IAutoMovieFitSubdivisionDomain.IResult =
       fitAutoMovieSubdivisionDomain({
         cage: { positions: samples, faces, creases },
         controlPositions: controls,
@@ -178,7 +167,7 @@ export function fitAutoMovieSubdivisionRegions(props: {
       maximumEqualityError,
       fitted.maximumEqualityError,
     );
-    let crop: ISubdivisionLevel = admitSubdivisionCage({
+    let crop: IAutoMovieSubdivisionLevel = admitSubdivisionCage({
       positions: controls,
       faces,
       creases,
@@ -186,7 +175,7 @@ export function fitAutoMovieSubdivisionRegions(props: {
     let vertexMap: number[] = globalVertices;
     let faceMap: number[] = globalFaces;
     for (let step: number = 0; step < 2; step++) {
-      const whole: ISubdivisionLevel = levels[step]!;
+      const whole: IAutoMovieSubdivisionLevel = levels[step]!;
       const nextVertices: number[] = [...vertexMap];
       const nextFaces: number[] = [];
       faceMap.forEach((f: number, local: number): void => {

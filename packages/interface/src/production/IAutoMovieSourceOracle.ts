@@ -1,5 +1,6 @@
-import { IAutoMovieFormationSlot } from "./IAutoMovieFormationSlot";
-import { IAutoMovieInstanceSlot } from "./IAutoMovieInstanceSlot";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieFormationSlot } from "./IAutoMovieFormationSlot";
+import type { IAutoMovieInstanceSlot } from "./IAutoMovieInstanceSlot";
 
 /**
  * Deterministic geometry and compact-member helpers exposed to a shot source builder over borrowed current records.
@@ -21,10 +22,7 @@ export interface IAutoMovieSourceOracle {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
    */
-  distance(
-    left: { x: number; y: number; z: number },
-    right: { x: number; y: number; z: number },
-  ): number;
+  distance(left: IAutoMovieVector3, right: IAutoMovieVector3): number;
 
   /**
    * World-meter height of the first containing world surface at the supplied XZ point, or zero when none contains it.
@@ -37,7 +35,13 @@ export interface IAutoMovieSourceOracle {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
    */
-  groundHeight(point: { x: number; z: number }): number;
+  groundHeight(point: {
+    /** World X position in metres. */
+    x: number;
+
+    /** World Z position in metres. */
+    z: number;
+  }): number;
 
   /**
    * Regenerate one compiled formation slot without expanding its population; missing ids or out-of-range indices throw RangeError.

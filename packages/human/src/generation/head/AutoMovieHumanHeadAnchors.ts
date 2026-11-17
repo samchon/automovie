@@ -1,10 +1,14 @@
-import type { IAutoMovieHumanLoftAperture } from "../../lofting/IAutoMovieHumanLoftAperture";
+import type {
+  IAutoMovieHumanEyeSeat,
+  IAutoMovieHumanHeadAttachmentLandmarks,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanLoftAperture,
+} from "@automovie/interface";
+
 import { AutoMovieHumanLoftAperture } from "../../lofting/AutoMovieHumanLoftAperture";
 import { AutoMovieHumanHeadEyeMargin } from "../AutoMovieHumanHeadEyeMargin";
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
-import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 
 /**
  * Attachment sites from the head lane's own profile and planned eye margins.
@@ -43,12 +47,24 @@ export namespace AutoMovieHumanHeadAnchors {
    * @evidence contracts/performance.md#reuse-equivalent-work Consumes the lane's single layout and already placed globe records.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Profile and margin samples are call-owned; the returned record contains five attachment sites.
    */
-  export function of(plan: IAutoMovieHumanHeadLayout, eyes: readonly IAutoMovieHumanBodyCalibration.IEye[]): IAutoMovieHumanBodyCalibration.IHeadLandmarks {
-    if (!(plan.scale > 0) || !Number.isFinite(plan.scale) || !Number.isFinite(plan.eye))
-      throw new Error("Head attachment observation needs a finite positive scale and finite eye height");
+  export function of(
+    plan: IAutoMovieHumanHeadLayout,
+    eyes: readonly IAutoMovieHumanEyeSeat[],
+  ): IAutoMovieHumanHeadAttachmentLandmarks {
+    if (
+      !(plan.scale > 0) ||
+      !Number.isFinite(plan.scale) ||
+      !Number.isFinite(plan.eye)
+    )
+      throw new Error(
+        "Head attachment observation needs a finite positive scale and finite eye height",
+      );
     if (!(plan.eye + PITCH * plan.scale > plan.eye))
-      throw new Error("Head attachment profile has no representable sampling height above the eye");
-    if (!plan.landmarks.nasion.every(Number.isFinite)) throw new Error("Head attachment nasion is not finite");
+      throw new Error(
+        "Head attachment profile has no representable sampling height above the eye",
+      );
+    if (!plan.landmarks.nasion.every(Number.isFinite))
+      throw new Error("Head attachment nasion is not finite");
     const points: [number, number, number][] = [];
     // Iterate in world offsets: an extreme scale cannot make the loop's
     // increment disappear through floating-point rounding at a tall eye.
@@ -56,23 +72,57 @@ export namespace AutoMovieHumanHeadAnchors {
       const y: number = plan.eye + offset * plan.scale;
       const x: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, y);
       if (!Number.isFinite(x) || !Number.isFinite(y))
-        throw new Error(`Head attachment profile is not finite at eye offset ${offset} mm`);
+        throw new Error(
+          `Head attachment profile is not finite at eye offset ${offset} mm`,
+        );
       points.push([x, y, 0]);
     }
     // The fixed offset window includes the eye line, so the forehead
     // search is nonempty. Its sampling limitation is independent of n.
-    const forehead: [number, number, number][] = points.filter((p: [number, number, number]): boolean => p[1] >= plan.eye);
-    const glabella: [number, number, number] = forehead.reduce((a: [number, number, number], b: [number, number, number]): [number, number, number] => b[0] > a[0] ? b : a);
-    const nasion: [number, number, number] = [plan.landmarks.nasion[0], plan.landmarks.nasion[1], 0];
+    const forehead: [number, number, number][] = points.filter(
+      (p: [number, number, number]): boolean => p[1] >= plan.eye,
+    );
+    const glabella: [number, number, number] = forehead.reduce(
+      (
+        a: [number, number, number],
+        b: [number, number, number],
+      ): [number, number, number] => (b[0] > a[0] ? b : a),
+    );
+    const nasion: [number, number, number] = [
+      plan.landmarks.nasion[0],
+      plan.landmarks.nasion[1],
+      0,
+    ];
 
     /** The lateral extreme of one side's planned margin, not an emitted lid vertex. */
-    const exocanthion: (side: "left" | "right", sign: 1 | -1) => [number, number, number] = (side: "left" | "right", sign: 1 | -1): [number, number, number] => {
-      const eye: IAutoMovieHumanBodyCalibration.IEye | undefined = eyes.find((item: IAutoMovieHumanBodyCalibration.IEye): boolean => item.side === side);
-      if (eye === undefined) throw new Error(`Head attachment observation has no ${side} globe frame`);
-      const margin: IAutoMovieHumanLoftAperture = AutoMovieHumanHeadEyeMargin.margin(plan, AutoMovieHumanHeadPrior.PRIOR.face, eye, plan[side], sign);
+    const exocanthion: (
+      side: "left" | "right",
+      sign: 1 | -1,
+    ) => [number, number, number] = (
+      side: "left" | "right",
+      sign: 1 | -1,
+    ): [number, number, number] => {
+      const eye: IAutoMovieHumanEyeSeat | undefined = eyes.find(
+        (item: IAutoMovieHumanEyeSeat): boolean => item.side === side,
+      );
+      if (eye === undefined)
+        throw new Error(
+          `Head attachment observation has no ${side} globe frame`,
+        );
+      const margin: IAutoMovieHumanLoftAperture =
+        AutoMovieHumanHeadEyeMargin.margin(
+          plan,
+          AutoMovieHumanHeadPrior.PRIOR.face,
+          eye,
+          plan[side],
+          sign,
+        );
       let best: [number, number, number] = [0, 0, 0];
       for (let i: number = 0; i < PHASES; i++) {
-        const p: number[] = AutoMovieHumanLoftAperture.evaluate(margin, (2 * Math.PI * i) / PHASES);
+        const p: number[] = AutoMovieHumanLoftAperture.evaluate(
+          margin,
+          (2 * Math.PI * i) / PHASES,
+        );
         if (Math.abs(p[2]!) > Math.abs(best[2])) best = [p[0]!, p[1]!, p[2]!];
       }
       return best;
@@ -81,7 +131,10 @@ export namespace AutoMovieHumanHeadAnchors {
       vertex: [plan.centre, plan.vertex, 0],
       glabella,
       nasion,
-      exocanthion: { left: exocanthion("left", 1), right: exocanthion("right", -1) },
+      exocanthion: {
+        left: exocanthion("left", 1),
+        right: exocanthion("right", -1),
+      },
     };
   }
 }

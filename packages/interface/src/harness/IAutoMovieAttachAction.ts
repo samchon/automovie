@@ -1,5 +1,5 @@
-import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
-import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieActionBase } from "./IAutoMovieActionBase";
 
 /**
  * Rigidly couple this actor to another node's bone for the action's span: a

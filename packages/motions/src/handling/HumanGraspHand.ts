@@ -1,7 +1,12 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanHand } from "../posture/HumanHand";
 import type { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspReach } from "./HumanGraspReach";
@@ -26,9 +31,9 @@ export namespace HumanGraspHand {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only unchanged body/side geometry is shared; every distinct target and tilt computes its actual wrist independently through the same assembler.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owner retains constant-size private grip/palm/alignment data until release; every output point/quaternion is fresh and no target, pose, time history or handle is retained.
    */
-  export function prepare(body: IHumanBody, side: HumanHand.Side): (target: HumanGrasp.IFrame, tilt?: number) => HumanHand.IWrist {
+  export function prepare(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): (target: HumanGrasp.IFrame, tilt?: number) => IAutoMovieMotionHumanHand.IWrist {
     const fixed: IHand = geometry(body, side);
-    return (target: HumanGrasp.IFrame, tilt: number = 0): HumanHand.IWrist => {
+    return (target: HumanGrasp.IFrame, tilt: number = 0): IAutoMovieMotionHumanHand.IWrist => {
       const turn: IAutoMovieQuaternion = fixed.align({ normal: target.approach, forward: target.axis });
       const rotation: IAutoMovieQuaternion = tilted(Quaternion.fromAxisAngle(target.approach, tilt), turn);
       return placed(fixed.palm, near(target), rotation);
@@ -46,10 +51,10 @@ export namespace HumanGraspHand {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanHandover constructs the private offered target and its pure candidate callbacks preserve body/hand/point/approach/axis/width throughout the synchronous grid. Exact consecutive turn equality therefore shares only this rigid preparation; mutable-callback paths use the ordinary hand facade and changed fixed geometry requires another producer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search retains one hand geometry and one last-turn alignment/near point/fixed-axis reader, replaced on a turn change and released with the builder. The axis reader owns only its original direction/length prerequisites; no wrist answer, candidate fit, query history or external handle is retained.
    */
-  export function turns(body: IHumanBody, side: HumanHand.Side, authored: HumanGrasp.IFrame): (turn: number, tilt: number) => HumanHand.IWrist {
+  export function turns(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide, authored: HumanGrasp.IFrame): (turn: number, tilt: number) => IAutoMovieMotionHumanHand.IWrist {
     const fixed: IHand = geometry(body, side);
     let previous: { turn: number; alignment: IAutoMovieQuaternion; tilt: ReturnType<typeof Quaternion.prepareAxisAngle>; point: IAutoMovieVector3 } | undefined;
-    return (turn: number, tilt: number): HumanHand.IWrist => {
+    return (turn: number, tilt: number): IAutoMovieMotionHumanHand.IWrist => {
       if (previous === undefined || !Object.is(previous.turn, turn)) {
         const target: HumanGrasp.IFrame = HumanGraspReach.around(authored, turn);
         const alignment: IAutoMovieQuaternion = fixed.align({ normal: target.approach, forward: target.axis });
@@ -69,8 +74,8 @@ interface IHand {
 }
 
 /** Read the same fixed grip/palm geometry once, with no wrist-placement work. */
-function geometry(body: IHumanBody, side: HumanHand.Side): IHand {
-  const grip: HumanHand.IFrame = HumanHand.offset(body, side, "grip", "flat");
+function geometry(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): IHand {
+  const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, side, "grip", "flat");
   const palm: IAutoMovieVector3 = HumanHand.offset(body, side, "palm", "flat").point;
   return { palm, align: HumanHand.prepareAlignment(grip) };
 }
@@ -86,6 +91,6 @@ function tilted(around: IAutoMovieQuaternion, turn: IAutoMovieQuaternion): IAuto
 }
 
 /** Fresh original wrist/palm-offset assembly for either preparation scope. */
-function placed(palm: IAutoMovieVector3, point: IAutoMovieVector3, rotation: IAutoMovieQuaternion): HumanHand.IWrist {
+function placed(palm: IAutoMovieVector3, point: IAutoMovieVector3, rotation: IAutoMovieQuaternion): IAutoMovieMotionHumanHand.IWrist {
   return { point: Vector3.subtract(point, Quaternion.rotateVector(rotation, palm)), rotation };
 }

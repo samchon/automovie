@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieRenderedProductionSound,
   deriveProductionSoundPlan,
   productionPhonemesToVisemes,
   renderProductionSound,
@@ -8,6 +7,7 @@ import type {
   IAutoMovieCompiledShotSource,
   IAutoMovieProductionSoundPlan,
   IAutoMovieProductionViseme,
+  IAutoMovieRenderedProductionSound,
   IAutoMovieShotEventContract,
   IAutoMovieShotPredicate,
 } from "@automovie/interface";

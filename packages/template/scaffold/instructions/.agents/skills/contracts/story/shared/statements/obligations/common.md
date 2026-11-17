@@ -1,7 +1,5 @@
 # Common population statements
 
-Contract: [obligations/common.md](../../obligations/common.md).
-
 ## Scope and ownership
 
 Ownership:

@@ -1,16 +1,16 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieRestFrame,
   preparePoseResolution,
   resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieRestFrame,
 } from "@automovie/interface";
-import { type IHumanBody } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -49,7 +49,7 @@ import { qunit } from "../internal/qunit";
  */
 export function test_human_motion_core_pose_resolution_admission(): void {
   const findings: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> =
     structuredClone(HUMANOID_REST_FRAME);
   const frame: IAutoMovieRestFrame | undefined = frames.leftHand;

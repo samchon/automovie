@@ -1,12 +1,16 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanFloorFall,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
-  type IHumanContactWindow,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -42,14 +46,14 @@ export function test_human_motion_floor_fall(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
   for (const name of ["f-small", "m-average"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const [row, toward] of [
       ["goalkeeperDiveLeft", 1],
       ["goalkeeperDiveRight", -1],
       ["slidingTackle", 0],
     ] as const) {
       const label: string = `${name} ${row}`;
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "fall",
@@ -77,13 +81,14 @@ export function test_human_motion_floor_fall(): void {
         );
         continue;
       }
-      const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
+      const placed: IAutoMovieMotionHumanSegment =
+        performance.segments("a")[1]!;
       const at = (event: string): number =>
         placed.start +
         (placed.plan.events.find((e): boolean => e.name === event)?.share ??
           NaN) *
           placed.plan.duration;
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
         body,
@@ -181,7 +186,7 @@ export function test_human_motion_floor_fall(): void {
         );
       if (
         !placed.plan.contacts.some(
-          (c: IHumanContactWindow): boolean =>
+          (c: IAutoMovieMotionHumanContactWindow): boolean =>
             c.part === "seat" && c.support.kind === "ground" && c.to >= 1,
         )
       )

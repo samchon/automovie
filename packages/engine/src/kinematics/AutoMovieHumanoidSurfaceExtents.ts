@@ -1,13 +1,14 @@
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaceExtents,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
-import type { resolveAutoMovieHumanoidSurfaces } from "./resolveAutoMovieHumanoidSurfaces";
 
 /**
  * The extent of every region of a body: the radius of the disc about the
@@ -32,16 +33,13 @@ import type { resolveAutoMovieHumanoidSurfaces } from "./resolveAutoMovieHumanoi
  */
 export function AutoMovieHumanoidSurfaceExtents(
   regions: Readonly<
-    Record<AutoMovieHumanoidRegion, resolveAutoMovieHumanoidSurfaces.IFrame>
+    Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces.IFrame>
   >,
   at: (bone: AutoMovieHumanoidBone) => IAutoMovieResolvedBone,
-  bounds: (bone: AutoMovieHumanoidBone) => {
-    min: IAutoMovieVector3;
-    max: IAutoMovieVector3;
-  },
+  bounds: IAutoMovieHumanoidSurfaceExtents.ReadBounds,
 ): Record<AutoMovieHumanoidRegion, number> {
   const placed: IPlaced[] = Object.entries(regions).map(
-    ([name, frame]: [string, resolveAutoMovieHumanoidSurfaces.IFrame]): IPlaced => {
+    ([name, frame]: [string, IAutoMovieHumanoidSurfaces.IFrame]): IPlaced => {
       const bone: IAutoMovieResolvedBone = at(frame.bone);
       const frameBone: AutoMovieHumanoidBone = frame.bone;
       const origin: IAutoMovieVector3 = bone.worldPosition;

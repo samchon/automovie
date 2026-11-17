@@ -1,6 +1,4 @@
 import {
-  type IAutoMovieConnectorCarriagePlacement,
-  type IAutoMovieConnectorGeometry,
   builtConnectorCarriagePlacements,
   builtConnectorGeometry,
   builtEnvironmentAdjacentSpaces,
@@ -12,6 +10,8 @@ import type {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
+  IAutoMovieConnectorCarriagePlacement,
+  IAutoMovieConnectorGeometry,
   IAutoMovieStageSetPiece,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

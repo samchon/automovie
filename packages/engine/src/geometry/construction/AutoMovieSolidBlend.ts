@@ -1,8 +1,10 @@
-import type { AutoMovieSolidRibbon } from "./AutoMovieSolidRibbon";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieBlendCrossJet,
+} from "@automovie/interface";
+
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
-type IRibbon = AutoMovieSolidRibbon.IRibbon;
 const { combine } = AutoMovieSolidVector;
 
 /**
@@ -31,25 +33,6 @@ const { combine } = AutoMovieSolidVector;
  */
 export namespace AutoMovieSolidBlend {
   /**
-   * A column's point and its first and second derivatives in dimensionless `w`.
-   *
-   * @evidence contracts/development/design.md#principled-representation Three world vectors carry a Hermite column's value and parameter derivatives, independently of its rail's own parameter speed.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One named field per derivative order exposes the same column to direct blend readers and Join's fold checks.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts This record does not certify regularity, G2 contact or the absence of self-intersection.
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies world millimetres and derivatives per unit w, with no physical-span rescaling.
-   */
-  export interface IJet {
-    /** Point, mm. */
-    point: Vec3;
-
-    /** First derivative, mm per unit `w`. */
-    first: Vec3;
-
-    /** Second derivative, mm per unit `w` squared. */
-    second: Vec3;
-  }
-
-  /**
    * The column at a share of the cross parameter.
    *
    * @param start The start rail's ribbon, `first` into the blend.
@@ -66,9 +49,13 @@ export namespace AutoMovieSolidBlend {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads one basis for the same w across all coordinate sums; independent calls, including Join's separate fold reads, repeat this work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates call-local weights and sums, returning three fresh vectors without retaining either input ribbon.
    */
-  export function jet(start: IRibbon, end: IRibbon, w: number): IJet {
+  export function jet(
+    start: IAutoMovieBlendCrossJet,
+    end: IAutoMovieBlendCrossJet,
+    w: number,
+  ): IAutoMovieBlendCrossJet {
     const h: number[][] = basis(w);
-    const at = (k: number): Vec3 =>
+    const at = (k: number): AutoMovieVector3Tuple =>
       combine([
         [h[k]![0]!, start.point],
         [h[k]![1]!, start.first],

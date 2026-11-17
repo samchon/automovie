@@ -1,21 +1,17 @@
-import {
-  IAutoMovieActionSynthesizer,
-  IAutoMoviePerformedShot,
-  IAutoMovieStagedSet,
-  compareCodeUnits,
-  performShot,
-  stageScene,
-} from "@automovie/engine";
+import { compareCodeUnits, performShot, stageScene } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
   IAutoMovieCameraAction,
   IAutoMovieConstraintViolation,
   IAutoMovieExpression,
   IAutoMovieJointPose,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
+  type IAutoMoviePerformedShot,
   IAutoMoviePose,
+  type IAutoMovieStagedSet,
   IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

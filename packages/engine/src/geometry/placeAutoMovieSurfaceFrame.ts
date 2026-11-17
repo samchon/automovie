@@ -1,9 +1,11 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMoviePreparedSurfaceFrame,
+  IAutoMovieSurfaceFrame,
+  IAutoMovieSweepFrame,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IAutoMoviePreparedSurfaceFrame } from "./IAutoMoviePreparedSurfaceFrame";
-import type { IAutoMovieSurfaceFrame } from "./IAutoMovieSurfaceFrame";
 import { normalizeAutoMovieSurfaceFrame } from "./normalizeAutoMovieSurfaceFrame";
-import type { IAutoMovieSweepFrame } from "./sweep/IAutoMovieSweepFrame";
 
 /**
  * Place a prepared rigid triangle at a requested centroid, heading and normal.

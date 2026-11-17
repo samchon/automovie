@@ -1,6 +1,10 @@
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieViewAxisJet,
+} from "@automovie/interface";
 
-import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 
 /**
@@ -13,25 +17,6 @@ import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
  */
 export namespace AutoMovieViewAxisJet {
   /**
-   * One origin/u/v value and its first two derivatives in the query's selected coordinate, millimetre station by default.
-   *
-   * @evidence contracts/development/design.md#principled-representation Three frame-shaped records distinguish the source value from first and second derivatives in the query coordinate.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The frame component layout is shared with existing loft endpoint jets.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Derivative vectors are not normalized and this record certifies no numerical accuracy by itself.
-   * @evidence contracts/development/common.md#meaningful-documentation Origin has mm units and axes are dimensionless; derivatives divide by the selected coordinate's units (mm of station by default).
-   */
-  export interface IJet {
-    /** Actual source frame, with origin in world mm and dimensionless axes. */
-    value: AutoMovieLoftFrame.IFrame;
-
-    /** First derivative of each component in the selected coordinate, per mm by default. */
-    first: AutoMovieLoftFrame.IFrame;
-
-    /** Second derivative of each component in the selected coordinate, per squared mm by default. */
-    second: AutoMovieLoftFrame.IFrame;
-  }
-
-  /**
    * Jet of fixed chart directions and an analytically differentiated moving origin.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Fixed directions have zero derivatives; the supplied origin derivatives belong to the same source value.
@@ -43,10 +28,10 @@ export namespace AutoMovieViewAxisJet {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The result borrows the supplied value frame and owns all derivative triples; it retains no other source data.
    */
   export function fixed(
-    value: AutoMovieLoftFrame.IFrame,
-    first: Vec3,
-    second: Vec3,
-  ): IJet {
+    value: IAutoMovieLoftSectionFrame,
+    first: AutoMovieVector3Tuple,
+    second: AutoMovieVector3Tuple,
+  ): IAutoMovieViewAxisJet.IJet {
     return {
       value,
       first: { origin: [...first], u: [0, 0, 0], v: [0, 0, 0] },
@@ -66,22 +51,22 @@ export namespace AutoMovieViewAxisJet {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the input for identity or new derivative vectors for a selected map; no global state retains either.
    */
   export function parameter(
-    jet: IJet,
-    coordinate: AutoMovieConstructionOutlineParameter | undefined,
+    jet: IAutoMovieViewAxisJet.IJet,
+    coordinate: IAutoMovieConstructionOutlineParameter | undefined,
     station: number,
-  ): IJet | null {
+  ): IAutoMovieViewAxisJet.IJet | null {
     if (coordinate === undefined) return jet;
     const inverse: [number, number] | null = AutoMovieViewParameter.inverseJet(
       coordinate,
       station,
     );
     if (inverse === null) return null;
-    const first: AutoMovieLoftFrame.IFrame = {
+    const first: IAutoMovieLoftSectionFrame = {
       origin: [0, 0, 0],
       u: [0, 0, 0],
       v: [0, 0, 0],
     };
-    const second: AutoMovieLoftFrame.IFrame = {
+    const second: IAutoMovieLoftSectionFrame = {
       origin: [0, 0, 0],
       u: [0, 0, 0],
       v: [0, 0, 0],
@@ -107,6 +92,3 @@ export namespace AutoMovieViewAxisJet {
     return { value: jet.value, first, second };
   }
 }
-
-/** A source component triple; derivative units belong to its containing jet. */
-type Vec3 = [number, number, number];

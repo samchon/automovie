@@ -1,15 +1,20 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSupportAim,
+  IAutoMovieMotionHumanSupportCarry,
+  IAutoMovieMotionHumanSupportFrame,
+  IAutoMovieMotionPropLaunch,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanProp } from "../perform/IHumanProp";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanSupportAim } from "./HumanSupportAim";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 
@@ -25,7 +30,7 @@ import { HumanSupportFrame } from "./HumanSupportFrame";
  * The carry is the rigid transform `D(t) = F(t) F(start)^-1` of the
  * support's frame `F`: a point `p` goes to `F(t) F(start)^-1 p`, a rotation
  * is turned by the support's turn, and the heading by that turn's yaw about
- * the vertical. A goal attached to a bone (`IHumanPosture.IGoal.on`) rides
+ * the vertical. A goal attached to a bone (`HumanPosture.IGoal.on`) rides
  * its bone already and is left alone. On the ground the carry is the
  * identity, so nothing changes there.
  *
@@ -35,17 +40,6 @@ import { HumanSupportFrame } from "./HumanSupportFrame";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The support's frame is read through its one reader (`HumanSupportFrame`) or the prop's own frame; nothing is extrapolated.
  */
 export namespace HumanSupportCarry {
-  /** A support's rigid motion since a start. */
-  export interface ICarry {
-    /** A world point at the start, where the support has carried it. */
-    point(p: IAutoMovieVector3): IAutoMovieVector3;
-
-    /** The support's turn since the start. */
-    turn: IAutoMovieQuaternion;
-
-    /** That turn's yaw about the vertical, degrees. */
-    yaw: number;
-  }
 
   /**
    * The carry from a start to a second of a support whose frame a function
@@ -57,12 +51,12 @@ export namespace HumanSupportCarry {
    * @returns The carry.
    */
   export function of(
-    frame: (seconds: number) => IHumanProp.IFrame,
+    frame: (seconds: number) => IAutoMovieRigidTransform,
     start: number,
     seconds: number,
-  ): ICarry {
-    const first: IHumanProp.IFrame = frame(start);
-    const now: IHumanProp.IFrame = frame(seconds);
+  ): IAutoMovieMotionHumanSupportCarry.ICarry {
+    const first: IAutoMovieRigidTransform = frame(start);
+    const now: IAutoMovieRigidTransform = frame(seconds);
     const turn: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(now.rotation, Quaternion.inverse(first.rotation)),
     );
@@ -93,13 +87,13 @@ export namespace HumanSupportCarry {
    * @returns The carried posture.
    */
   export function posture(
-    carry: ICarry,
-    posture: IHumanPosture,
-  ): IHumanPosture {
-    const limbs: IHumanPosture["limbs"] = {};
+    carry: IAutoMovieMotionHumanSupportCarry.ICarry,
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture {
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const [limb, goal] of Object.entries(posture.limbs) as [
-      keyof IHumanPosture["limbs"],
-      IHumanPosture.IGoal,
+      keyof IAutoMovieMotionHumanPosture["limbs"],
+      IAutoMovieHumanLimbGoal,
     ][])
       limbs[limb] =
         goal.on !== undefined
@@ -135,11 +129,11 @@ export namespace HumanSupportCarry {
    * @returns The carried plan, its plants on the prop.
    */
   export function on(
-    context: Pick<IHumanActionContext, "prop" | "start">,
-    plan: IHumanActionPlan,
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    plan: IAutoMovieMotionHumanActionPlan,
     prop: string,
-  ): IHumanActionPlan {
-    const frame = (seconds: number): IHumanProp.IFrame =>
+  ): IAutoMovieMotionHumanActionPlan {
+    const frame = (seconds: number): IAutoMovieRigidTransform =>
       context.prop(prop).frame(seconds);
     return {
       ...plan,
@@ -152,8 +146,8 @@ export namespace HumanSupportCarry {
         seconds: number,
         channels?: readonly AutoMovieMotionHumanChannel[],
         resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-        projection?: Parameters<IHumanActionPlan["posture"]>[3],
-      ): IHumanPosture =>
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture =>
         posture(
           of(frame, context.start, context.start + seconds),
           plan.posture(seconds, channels, resolution, projection),
@@ -181,18 +175,18 @@ export namespace HumanSupportCarry {
    */
   export function plan(
     context: Pick<
-      IHumanActionContext,
+      IAutoMovieMotionHumanActionContext,
       "entry" | "prop" | "performer" | "start"
     >,
-    plan: IHumanActionPlan,
-    channels: NonNullable<IHumanActionPlan["channels"]>,
-    aim?: HumanSupportAim.IAim,
-  ): IHumanActionPlan {
+    plan: IAutoMovieMotionHumanActionPlan,
+    channels: NonNullable<IAutoMovieMotionHumanActionPlan["channels"]>,
+    aim?: IAutoMovieMotionHumanSupportAim.IAim,
+  ): IAutoMovieMotionHumanActionPlan {
     // On the ground there is nothing to carry: the plan is kept as made.
     if (HumanSupportFrame.of(context).kind === "ground")
       return { ...plan, channels };
-    const frame = (seconds: number): IHumanProp.IFrame => {
-      const at: HumanSupportFrame.IFrame = HumanSupportFrame.at(
+    const frame = (seconds: number): IAutoMovieRigidTransform => {
+      const at: IAutoMovieMotionHumanSupportFrame.IFrame = HumanSupportFrame.at(
         context,
         seconds,
       );
@@ -202,13 +196,13 @@ export namespace HumanSupportCarry {
       seconds: number,
       requested?: readonly AutoMovieMotionHumanChannel[],
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: Parameters<IHumanActionPlan["posture"]>[3],
-    ): IHumanPosture => {
-      const carry: ICarry = of(frame, context.start, context.start + seconds);
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture => {
+      const carry: IAutoMovieMotionHumanSupportCarry.ICarry = of(frame, context.start, context.start + seconds);
       // The root and the heading are the carrier's, which its own plan has
       // already carried; only the goals this plan made at its start ride on.
-      const own: IHumanPosture = plan.posture(seconds, aim === undefined ? requested : undefined, resolution, projection);
-      const made: IHumanPosture = {
+      const own: IAutoMovieMotionHumanPosture = plan.posture(seconds, aim === undefined ? requested : undefined, resolution, projection);
+      const made: IAutoMovieMotionHumanPosture = {
         ...posture(carry, own),
         root: own.root,
         yaw: own.yaw,
@@ -226,7 +220,7 @@ export namespace HumanSupportCarry {
         ? {}
         : {
             launches: plan.launches.map(
-              (l: IHumanActionPlan.ILaunch): IHumanActionPlan.ILaunch =>
+              (l: IAutoMovieMotionPropLaunch): IAutoMovieMotionPropLaunch =>
                 launch(context, frame, l),
             ),
           }),
@@ -241,13 +235,13 @@ export namespace HumanSupportCarry {
    */
   function launch(
     context: Pick<
-      IHumanActionContext,
+      IAutoMovieMotionHumanActionContext,
       "entry" | "prop" | "performer" | "start"
     >,
-    frame: (seconds: number) => IHumanProp.IFrame,
-    l: IHumanActionPlan.ILaunch,
-  ): IHumanActionPlan.ILaunch {
-    const carry: ICarry = of(frame, context.start, context.start + l.seconds);
+    frame: (seconds: number) => IAutoMovieRigidTransform,
+    l: IAutoMovieMotionPropLaunch,
+  ): IAutoMovieMotionPropLaunch {
+    const carry: IAutoMovieMotionHumanSupportCarry.ICarry = of(frame, context.start, context.start + l.seconds);
     const support: IAutoMovieVector3 = HumanSupportFrame.at(
       context,
       context.start + l.seconds,

@@ -1,14 +1,19 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type { IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanDigitFit,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions";
@@ -43,11 +48,11 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable numerical unit borrows an unchanged canonical Human fixture and owns all source/goal records. It invokes only public fitting, canonical FK and surface APIs, starts no viewer/compiler/host and introduces no internal export or foreign replacement.
  */
 export function test_motion_selected_digit_goals(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const raw: IHumanPosture = { root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0, joints: {}, limbs: {} };
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const raw: IAutoMovieMotionHumanPosture = { root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0, joints: {}, limbs: {} };
   const source: IAutoMoviePose = resolveHumanPosture(body, raw);
   const original: IAutoMoviePose = structuredClone(source);
-  const region: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions.indexTipRight;
+  const region: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions.indexTipRight;
   const hand: IAutoMovieResolvedBone = poseBones(body, source).get("rightHand")!;
   const first: IAutoMovieVector3 = at(resolveHumanPosture(body, { ...raw, joints: {
     rightIndexProximal: [30, 0, 0], rightIndexIntermediate: [30, 0, 0], rightIndexDistal: [20, 0, 0],
@@ -56,7 +61,7 @@ export function test_motion_selected_digit_goals(): void {
     rightIndexProximal: [35, 0, 0], rightIndexIntermediate: [36, 0, 0], rightIndexDistal: [24, 0, 0],
   } }));
   for (const point of [first, second, first]) {
-    const digits: NonNullable<IHumanPosture["digits"]> = { rightIndex: { point: { ...point }, surface: "tip" } };
+    const digits: NonNullable<IAutoMovieMotionHumanPosture["digits"]> = { rightIndex: { point: { ...point }, surface: "tip" } };
     const full: IAutoMoviePose = HumanDigitFit.fitted(body, source, digits);
     const distal: IAutoMoviePose = HumanDigitFit.fitted(body, source, digits, undefined, new Set(["rightIndexDistal"]));
     contact(at(full), point);

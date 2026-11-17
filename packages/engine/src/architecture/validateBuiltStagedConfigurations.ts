@@ -5,13 +5,14 @@ import {
   IAutoMovieBuiltOpening,
   IAutoMovieConnectorCarriage,
   IAutoMovieConnectorState,
+  type IAutoMovieMatrix4,
   IAutoMovieMovablePanel,
   IAutoMovieOperationState,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { builtElementSubtree } from "./builtElementSubtree";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 
@@ -60,11 +61,11 @@ const SHEAR_ADVICE: string =
 export const validateBuiltStagedConfigurations: (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const base: Map<string, number[]> =
     builtEnvironmentWorldMatrices(environment);
@@ -154,11 +155,11 @@ export const validateBuiltStagedConfigurations: (
 const appendCombinedStateDefects: (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const operations: {
     member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector;
@@ -271,7 +272,7 @@ const cannotRepresentWorldTrs: (world: number[]) => boolean = (
 ): boolean => {
   if (world.some((entry: number): boolean => !Number.isFinite(entry)))
     return true;
-  const decomposed: ReturnType<typeof Matrix4.decompose> =
+  const decomposed: IAutoMovieMatrix4.IDecomposeResult =
     Matrix4.decompose(world);
   const recomposed: number[] = Matrix4.compose(
     decomposed.position,

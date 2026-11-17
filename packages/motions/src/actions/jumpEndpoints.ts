@@ -1,7 +1,10 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -54,7 +57,7 @@ export namespace jumpEndpoints {
     props: Parameters<typeof jumpPushEnd>[0],
     rootT: IAutoMovieVector3,
     rootL: IAutoMovieVector3,
-    landing: Record<"left" | "right", HumanFoot.IPlacement>,
+    landing: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
   ): IEnds {
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(props.body);
@@ -65,7 +68,7 @@ export namespace jumpEndpoints {
       joints: { ...jumpJoints(props.body, props.upright.joints, 60, 60), ...terminal.joints },
       limbs: terminal.limbs,
     }, read), read, projection);
-    const limbs: IHumanPosture["limbs"] = {};
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const side of ["left", "right"] as const)
       limbs[`${side}Leg`] = {
         point: landing[side].ankle,

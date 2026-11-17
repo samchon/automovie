@@ -1,6 +1,11 @@
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -9,9 +14,6 @@ import {
   HumanChain,
   HumanPerformance,
   HumanRegrasp,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -55,7 +57,7 @@ const KEY: IAutoMovieAffordance[] = [
 ];
 
 /** A key at a world point, its shank (its +X) pointing ahead of the performer (+Z), as a key in a lock before him: its bow a handle at its origin, a second grip 30 mm along the shank. */
-const key = (at: IAutoMovieVector3): IHumanProp => ({
+const key = (at: IAutoMovieVector3): IAutoMovieMotionHumanProp => ({
   subject: "key",
   frame: {
     position: at,
@@ -68,11 +70,11 @@ const key = (at: IAutoMovieVector3): IHumanProp => ({
 
 /** The world point of a key-frame point at a second. */
 const point = (
-  p: HumanPerformance,
+  p: IAutoMovieMotionHumanPerformance,
   local: IAutoMovieVector3,
   seconds: number,
 ): IAutoMovieVector3 => {
-  const f: IHumanProp.IFrame = p.prop("key", seconds);
+  const f: IAutoMovieRigidTransform = p.prop("key", seconds);
   return Vector3.add(f.position, Quaternion.rotateVector(f.rotation, local));
 };
 
@@ -105,16 +107,16 @@ const point = (
  */
 export function test_human_motion_regrasp(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
-  const m: IHumanBody["measure"] = body.measure;
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
   const at: IAutoMovieVector3 = {
     x: -m.shoulderHalfWidth,
     y: m.waistHeight,
     z: 0.6 * (m.upperArm + m.forearm),
   };
   const perform = (
-    composition: HumanPerformance.IInput["composition"],
-  ): HumanPerformance =>
+    composition: IAutoMovieMotionHumanPerformance.IInput["composition"],
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "regrasp",
       laws: [HumanRegrasp.twist, HumanRegrasp.regrip, HumanRegrasp.roll],
@@ -130,15 +132,15 @@ export function test_human_motion_regrasp(): void {
       ],
       composition,
     });
-  const span = (p: HumanPerformance): [number, number] => {
-    const s: HumanSegment.ISegment = p.segments("a").at(-1)!;
+  const span = (p: IAutoMovieMotionHumanPerformance): [number, number] => {
+    const s: IAutoMovieMotionHumanSegment = p.segments("a").at(-1)!;
     return [s.start, s.start + s.plan.duration];
   };
 
   // 1-3. Twists both ways.
   for (const angle of [90, -90])
     try {
-      const turned: HumanPerformance = perform(
+      const turned: IAutoMovieMotionHumanPerformance = perform(
         HumanChain.subject("a")
           .pickUp({ prop: "key", handle: "bow" })
           .registered("twist", {
@@ -227,7 +229,7 @@ export function test_human_motion_regrasp(): void {
 
   // 4. A regrip to the tip moves continuously.
   try {
-    const shifted: HumanPerformance = perform(
+    const shifted: IAutoMovieMotionHumanPerformance = perform(
       HumanChain.subject("a")
         .pickUp({ prop: "key", handle: "bow" })
         .registered("regrip", { prop: "key", side: "right", to: "tip" }).node,

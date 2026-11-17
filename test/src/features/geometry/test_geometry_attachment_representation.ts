@@ -1,14 +1,14 @@
 import {
-  type IAutoMovieMeshSeparationQuery,
-  type IAutoMovieMeshSeparationResult,
-  type IAutoMovieTriangleAttachmentContactBound,
   boundAutoMovieTriangleAttachmentContact,
   createAutoMovieMeshSeparationQuery,
   interpolateAutoMovieTrianglePoint,
 } from "@automovie/engine";
-import {
-  type IAutoMovieMesh,
-  type IAutoMovieVector3,
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshSeparationQuery,
+  IAutoMovieMeshSeparationResult,
+  IAutoMovieTriangleAttachmentContactBound,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

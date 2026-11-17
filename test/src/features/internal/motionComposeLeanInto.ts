@@ -1,6 +1,12 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLeanInto,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -10,9 +16,6 @@ import {
   AutoMovieMotionHumanReach,
   HumanBalance,
   HumanRefusal,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -74,7 +77,7 @@ import { motionHumanBody } from "./motionHumanBody";
 export function motionComposeLeanInto(name: motionHumanBody.Name): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const all: motionComplaints.IGatherer = motionComplaints();
-  const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: 0.25,
     wait: 0.125,
     attack: 0.25,
@@ -92,10 +95,10 @@ export function motionComposeLeanInto(name: motionHumanBody.Name): void {
   });
 
   {
-    const body: IHumanBody = motionHumanBody(name);
-    const bones = (posture: IHumanPosture): Bones =>
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const bones = (posture: IAutoMovieMotionHumanPosture): Bones =>
       poseBones(body, resolveHumanPosture(body, posture));
-    const standing: IHumanPosture = stand.posture(
+    const standing: IAutoMovieMotionHumanPosture = stand.posture(
       body,
       { x: 0, y: 0, z: 0 },
       0,
@@ -115,7 +118,7 @@ export function motionComposeLeanInto(name: motionHumanBody.Name): void {
           );
         let goal: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
         const refusals: [number, number][] = [];
-        const lean: AutoMovieMotionHumanLeanInto.ILean =
+        const lean: IAutoMovieMotionHumanLeanInto.ILean =
           AutoMovieMotionHumanLeanInto.solve({
             body,
             standing,
@@ -133,7 +136,10 @@ export function motionComposeLeanInto(name: motionHumanBody.Name): void {
 
         // 1. The tipped posture.
         for (const pitch of [10, 25, 40, 45] as const) {
-          const tipped: IHumanPosture = lean.tip(standing, pitch);
+          const tipped: IAutoMovieMotionHumanPosture = lean.tip(
+            standing,
+            pitch,
+          );
           const hips: IAutoMovieVector3 =
             bones(tipped).get("hips")!.worldPosition;
           const was: IAutoMovieVector3 = upright.get("hips")!.worldPosition;
@@ -202,14 +208,14 @@ export function motionComposeLeanInto(name: motionHumanBody.Name): void {
           0.5 * share * length,
         );
         const far: IAutoMovieVector3 = ahead(shoulder(25), share * length);
-        const stroke: AutoMovieMotionHumanLeanInto.ILean =
+        const stroke: IAutoMovieMotionHumanLeanInto.ILean =
           AutoMovieMotionHumanLeanInto.solve({
             body,
             standing,
             side,
             share,
             wrist: (
-              _posture: IHumanPosture,
+              _posture: IAutoMovieMotionHumanPosture,
               progress: number,
             ): IAutoMovieVector3 => ({
               x: near.x + (far.x - near.x) * progress,
@@ -227,7 +233,10 @@ export function motionComposeLeanInto(name: motionHumanBody.Name): void {
         let before: number = 0;
         for (let k: number = 0; k <= 10; k++) {
           const seconds: number = k * 0.125;
-          const written: IHumanPosture = phrase.write(standing, seconds);
+          const written: IAutoMovieMotionHumanPosture = phrase.write(
+            standing,
+            seconds,
+          );
           const pose: Bones = bones(written);
           const at: string = `${cell}: the lean at ${seconds} s`;
           const slip: number = Math.max(
@@ -269,11 +278,13 @@ export function motionComposeLeanInto(name: motionHumanBody.Name): void {
         }
 
         // 5. The arm held on its goal through the lean and the return.
-        const reaching = (posture: IHumanPosture): IHumanPosture.IGoal => ({
+        const reaching = (
+          posture: IAutoMovieMotionHumanPosture,
+        ): IAutoMovieHumanLimbGoal => ({
           point: far,
           bend: AutoMovieMotionHumanBend.hang(body, posture, side),
         });
-        const weighed: AutoMovieMotionHumanLeanInto.ILean =
+        const weighed: IAutoMovieMotionHumanLeanInto.ILean =
           AutoMovieMotionHumanLeanInto.solve({
             body,
             standing,
@@ -284,8 +295,11 @@ export function motionComposeLeanInto(name: motionHumanBody.Name): void {
             refuse: (): string => "the work is out of reach",
           });
         const into: IAutoMovieMotionHumanPrimitive = weighed.primitive(clock);
-        const armed = (seconds: number): IHumanPosture => {
-          const written: IHumanPosture = into.write(standing, seconds);
+        const armed = (seconds: number): IAutoMovieMotionHumanPosture => {
+          const written: IAutoMovieMotionHumanPosture = into.write(
+            standing,
+            seconds,
+          );
           return {
             ...written,
             limbs: { ...written.limbs, [`${side}Arm`]: reaching(written) },

@@ -2,10 +2,12 @@ import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanSupport,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanSupport } from "../law/HumanSupport";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
@@ -32,10 +34,10 @@ import { supportContactOnFloor } from "./supportContactOnFloor";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One caller owns a body reference and at most two fixed local vectors until release; the quiet pose and FK map end with their synchronous measurement, and no time query, fitted support pose or workspace is retained.
  */
 export function prepareSupportContactForm(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   normals: boolean = true,
 ): (
-  contact: HumanSupport.IContact,
+  contact: IAutoMovieMotionHumanSupport.IContact,
   aimed: IAutoMovieVector3 | null,
 ) => supportContact.IForm {
   let feet: Partial<Record<"left" | "right", IAutoMovieVector3>> | undefined;
@@ -72,7 +74,7 @@ export function prepareSupportContactForm(
     return { ...observed };
   };
   return (
-    c: HumanSupport.IContact,
+    c: IAutoMovieMotionHumanSupport.IContact,
     aimed: IAutoMovieVector3 | null,
   ): supportContact.IForm => {
     const side: "left" | "right" = c.part.startsWith("left") ? "left" : "right";
@@ -110,7 +112,7 @@ export function prepareSupportContactForm(
               : /^(hips|spine|chest)$/
             : new RegExp(`^${side}LowerLeg$`),
         };
-      const region: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+      const region: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
         body.surfaces.regions[
           c.part === "seat"
             ? "seat"
@@ -132,7 +134,7 @@ export function prepareSupportContactForm(
         },
       };
     }
-    const surface: HumanHand.IFrame | undefined =
+    const surface: IAutoMovieMotionHumanHand.IFrame | undefined =
       !floor || (normals && c.kind === "bear")
         ? HumanHand.offset(body, side, c.kind === "grip" ? "grip" : "palm")
         : undefined;

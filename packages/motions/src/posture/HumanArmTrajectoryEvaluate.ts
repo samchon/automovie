@@ -1,5 +1,8 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
@@ -35,10 +38,10 @@ export function HumanArmTrajectoryEvaluate(
 ): M.IEvaluation {
   // Whether a waypoint's reading is the earlier one's.
   const same = (k: number): boolean => kept !== undefined && kept.laid[k] !== true;
-  const placed: G.IPlaced[][] = x.map(
-    (arm: readonly (readonly number[])[], a: number): G.IPlaced[] =>
+  const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[][] = x.map(
+    (arm: readonly (readonly number[])[], a: number): IAutoMovieMotionHumanArmGeometry.IPlaced[] =>
       arm.map(
-        (v: readonly number[], k: number): G.IPlaced =>
+        (v: readonly number[], k: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
           same(k)
             ? kept!.reading.placed[a]![k]!
             : G.placed(c.setups[a]!, c.frames[a]![k]!, v),

@@ -1,8 +1,14 @@
 import { Quaternion, solveAirborneTakeoff } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanAirborneShape,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieSolveAirborneTakeoff,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -10,9 +16,6 @@ import {
   HumanChain,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanLayer,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -66,18 +69,18 @@ export function test_human_motion_airborne_signature(): void {
   if (rows.length === 0) findings.push("the covering design produced no physical cases");
   for (const row of rows) {
     const name: motionHumanBody.Name = row.body as motionHumanBody.Name;
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const somersault: number = Number(row.somersault);
-    const shape: HumanAirborneShape.Shape = row.shape as HumanAirborneShape.Shape;
+    const shape: IAutoMovieMotionHumanAirborneShape.Shape = row.shape as IAutoMovieMotionHumanAirborneShape.Shape;
     const way: "forward" | "backward" | "left" = row.way as "forward" | "backward" | "left";
     const label: string = `${name} ${somersault} ${shape} ${way}`;
-    const layer: IHumanLayer.IScheduled = {
+    const layer: IAutoMovieMotionHumanLayer.IScheduled = {
       layer: HumanAirborneShape.layer(shape),
       from: { of: "leap", event: "takeoff" },
       to: { of: "leap", event: "touchdown" },
       fade: 0.05,
     };
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "airborne",
@@ -95,7 +98,7 @@ export function test_human_motion_airborne_signature(): void {
         findings.push(`${label}: failed outside the allowed turns refusal: ${String(error)}`);
       continue;
     }
-    const segment: HumanSegment.ISegment = performance.segments("a")[1]!;
+    const segment: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
     const at: (event: string) => number = (event: string): number => segment.start +
       segment.plan.events.find((value: IAutoMovieMotionEvent): boolean => value.name === event)!.share * segment.plan.duration;
     const takeoff: number = at("takeoff");
@@ -111,7 +114,7 @@ export function test_human_motion_airborne_signature(): void {
       findings.push(`${label}: flight endpoints lack finite unit root rotations`);
       continue;
     }
-    const off: solveAirborneTakeoff.IAngles = solveAirborneTakeoff.angles(first.root.rotation, last.root.rotation);
+    const off: IAutoMovieSolveAirborneTakeoff.IAngles = solveAirborneTakeoff.angles(first.root.rotation, last.root.rotation);
     const error: number = Math.max(Math.abs(off.somersault), Math.abs(off.tilt), Math.abs(off.twist)) / (2 * Math.PI);
     if (!(Number.isFinite(error) && error <= 0.02))
       findings.push(`${label}: lands ${error} revolution off upright`);

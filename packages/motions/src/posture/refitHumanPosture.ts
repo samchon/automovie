@@ -1,16 +1,19 @@
-import { type IAutoMovieSeededChainFit } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMoviePose,
+  IAutoMovieSeededChainFit,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbPair } from "./HumanLimbPair";
 import type { HumanLimbView } from "./HumanLimbView";
 import { applyHumanLimbFit } from "./applyHumanLimbFit";
-import type { IHumanPosture } from "./IHumanPosture";
 import { orderHumanLimbs } from "./orderHumanLimbs";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
@@ -34,12 +37,12 @@ import type { resolveHumanPosture } from "./resolveHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Results are the solved records, sharing untouched records with the input pose; no-goal input keeps its borrowing contract. Readers end with the operation and never enter output. Member facts: continued: Source, readers and policy remain synchronous. constructed: Current source/output and FK loan remain within the caller's synchronous operation.
  */
 export function refitHumanPosture(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
-  limbs: IHumanPosture["limbs"],
-  near: resolveHumanPosture.INear,
+  limbs: IAutoMovieMotionHumanPosture["limbs"],
+  near: IAutoMovieMotionHumanResolveHumanPosture.INear,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-): resolveHumanPosture.ISeeded {
+): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
   return fitted(body, pose, limbs, near, resolution, applyHumanLimbFit, HumanLimbPair.owned);
 }
 
@@ -64,8 +67,8 @@ export namespace refitHumanPosture {
    * Shares the original goal ordering, arm pairing and direct solve.
    * Current source/output and FK loan remain within the caller's synchronous operation; no input, reader, result history or new handle is retained here.
    */
-  export function constructed(body: IHumanBody, pose: IAutoMoviePose, limbs: IHumanPosture["limbs"],
-    near: resolveHumanPosture.INear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): resolveHumanPosture.ISeeded {
+  export function constructed(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limbs: IAutoMovieMotionHumanPosture["limbs"],
+    near: IAutoMovieMotionHumanResolveHumanPosture.INear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
     return fitted(body, pose, limbs, near, resolution, applyHumanLimbFit.constructed, HumanLimbPair.constructed, true);
   }
 
@@ -80,14 +83,14 @@ export namespace refitHumanPosture {
    * Uses the same actual source reader, solving every request afresh with no prior pose replay.
    * Source, readers and policy remain synchronous and no output or query history is retained here.
    */
-  export function continued(body: IHumanBody, pose: IAutoMoviePose, limbs: IHumanPosture["limbs"],
-    near: resolveHumanPosture.INear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): resolveHumanPosture.ISeeded {
+  export function continued(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limbs: IAutoMovieMotionHumanPosture["limbs"],
+    near: IAutoMovieMotionHumanResolveHumanPosture.INear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
     return fitted(body, pose, limbs, near, resolution, applyHumanLimbFit.continued, HumanLimbPair.constructed, true);
   }
 
   /** Same physical loop for public explicit-pose refits, with the public pair entry and no-goal borrowing. */
-  export function independent(body: IHumanBody, pose: IAutoMoviePose, limbs: IHumanPosture["limbs"],
-    near: resolveHumanPosture.INear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): resolveHumanPosture.ISeeded {
+  export function independent(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limbs: IAutoMovieMotionHumanPosture["limbs"],
+    near: IAutoMovieMotionHumanResolveHumanPosture.INear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
     return fitted(body, pose, limbs, near, resolution, HumanLimbFit.remembered, HumanLimbPair.fitted);
   }
 }
@@ -102,9 +105,9 @@ function wellFormed(joint: IAutoMovieJointPose): boolean {
 }
 
 /** Keep the original limb-order loop once; only the entry's limb fit and pair owner differ. An `assembled` pose is the base-free assembly's own, one clamped record a rig bone. */
-function fitted(body: IHumanBody, pose: IAutoMoviePose, limbs: IHumanPosture["limbs"], near: resolveHumanPosture.INear,
+function fitted(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limbs: IAutoMovieMotionHumanPosture["limbs"], near: IAutoMovieMotionHumanResolveHumanPosture.INear,
   resolution: Parameters<typeof prepareHumanPoseResolution>[0], fit: (...args: Parameters<typeof applyHumanLimbFit>) => ReturnType<typeof applyHumanLimbFit>,
-  pairFit: typeof HumanLimbPair.fitted, assembled: boolean = false): resolveHumanPosture.ISeeded {
+  pairFit: typeof HumanLimbPair.fitted, assembled: boolean = false): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
   if (limbs.leftLeg === undefined && limbs.rightLeg === undefined &&
     limbs.leftArm === undefined && limbs.rightArm === undefined) return { pose, seeds: {}, values: {} };
   let readResolution: ReturnType<typeof prepareHumanPoseResolution> | undefined;
@@ -122,20 +125,20 @@ function fitted(body: IHumanBody, pose: IAutoMoviePose, limbs: IHumanPosture["li
   const admission: HumanLimbView.IAdmission = {
     admitted: assembled && pose.joints.every(wellFormed),
   };
-  const seeds: resolveHumanPosture.ISeeded["seeds"] = {};
-  const values: resolveHumanPosture.ISeeded["values"] = {};
+  const seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] = {};
+  const values: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"] = {};
   const placed: ("left" | "right")[] = (["left", "right"] as const).filter(
     (side: "left" | "right"): boolean => limbs[`${side}Arm`] === undefined,
   );
-  const arms: Record<"left" | "right", IHumanPosture.IGoal | undefined> = {
+  const arms: Record<"left" | "right", IAutoMovieHumanLimbGoal | undefined> = {
     left: limbs.leftArm,
     right: limbs.rightArm,
   };
   const riding: (
-    goal: IHumanPosture.IGoal | undefined,
+    goal: IAutoMovieHumanLimbGoal | undefined,
     other: "left" | "right",
   ) => boolean = (
-    goal: IHumanPosture.IGoal | undefined,
+    goal: IAutoMovieHumanLimbGoal | undefined,
     other: "left" | "right",
   ): boolean => goal?.on !== undefined && goal.on.startsWith(other);
   const paired: boolean =
@@ -144,7 +147,7 @@ function fitted(body: IHumanBody, pose: IAutoMoviePose, limbs: IHumanPosture["li
     !riding(arms.left, "right") &&
     !riding(arms.right, "left");
   for (const limb of orderHumanLimbs(limbs)) {
-    const goal: IHumanPosture.IGoal | undefined = limbs[limb];
+    const goal: IAutoMovieHumanLimbGoal | undefined = limbs[limb];
     if (goal === undefined) continue;
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       (readResolution ??= prepareHumanPoseResolution(resolution));
@@ -169,13 +172,13 @@ function fitted(body: IHumanBody, pose: IAutoMoviePose, limbs: IHumanPosture["li
       placed.push(limb === "leftArm" ? "left" : "right");
       continue;
     }
-    const other: IHumanPosture.Limb | undefined =
+    const other: AutoMovieHumanLimb | undefined =
       limb === "leftArm"
         ? "rightArm"
         : limb === "rightArm"
           ? "leftArm"
           : undefined;
-    const coming: IHumanPosture.IGoal | undefined =
+    const coming: IAutoMovieHumanLimbGoal | undefined =
       other === undefined ||
       placed.includes(other === "leftArm" ? "left" : "right")
         ? undefined

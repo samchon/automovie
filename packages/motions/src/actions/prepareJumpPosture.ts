@@ -1,11 +1,18 @@
-import { AutoMovieGravity, type resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieGravity,
+  type resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { jumpAirborne } from "./jumpAirborne";
 import { prepareJumpFlight } from "./prepareJumpFlight";
 
@@ -33,13 +40,13 @@ import { prepareJumpFlight } from "./prepareJumpFlight";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its existing flight/turning and before/after writers plus fixed clock/COM data. located retains its original source/location, and no query history, raw result, FK loan or handle is kept. Member facts: IPhase states local normalized-clock conversion; IConstruction retains only the original plan surface.
  */
 export function prepareJumpPosture(
-  body: IHumanBody,
-  model: resolveAutoMovieCenterOfMass.IModel,
+  body: IAutoMovieMotionHumanBody,
+  model: IAutoMovieResolveCenterOfMass.IModel,
   shape: jumpAirborne.IShape,
   phase: prepareJumpPosture.IPhase & { centre: IAutoMovieVector3; launch: IAutoMovieVector3 },
   rotation: jumpAirborne.IRotation | undefined,
-  before: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IHumanPosture,
-  after: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IHumanPosture,
+  before: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture,
+  after: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture,
 ): prepareJumpPosture.IConstruction {
   const flight: ReturnType<typeof prepareJumpFlight> = prepareJumpFlight(body, model, shape, phase.flightSeconds);
   const turning: jumpAirborne.ITurning = jumpAirborne.turning(rotation, phase.from, phase.to, phase.duration);
@@ -47,11 +54,11 @@ export function prepareJumpPosture(
     duration: phase.duration, flightSeconds: phase.flightSeconds };
   const centre: IAutoMovieVector3 = { ...phase.centre };
   const launch: IAutoMovieVector3 = { ...phase.launch };
-  const posture: IHumanActionPlan["posture"] = (
-    seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+  const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
+    seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection?: Parameters<IHumanActionPlan["posture"]>[3],
-  ): IHumanPosture => {
+    projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+  ): IAutoMovieMotionHumanPosture => {
     const t: number = Math.min(fixed.duration, Math.max(0, seconds));
     if (t <= fixed.from) return before(t, resolution);
     if (t <= fixed.to) {
@@ -92,18 +99,18 @@ export namespace prepareJumpPosture {
   /** Existing plan members produced by the actual dispatcher constructor. */
   export interface IConstruction {
     /** Actual full-phase posture callback, before error location. */
-    posture: IHumanActionPlan["posture"];
+    posture: IAutoMovieMotionHumanActionPlan["posture"];
     /** Original requested flight and handed-back airborne callback. */
-    declared: Pick<IHumanActionPlan, "flight" | "airborne">;
+    declared: Pick<IAutoMovieMotionHumanActionPlan, "flight" | "airborne">;
   }
 
   /** Own placement's original exact refusal-location wrapper, without sampling. */
-  export function located(source: IHumanActionPlan["posture"], where: HumanRefusal.IWhere): IHumanActionPlan["posture"] {
+  export function located(source: IAutoMovieMotionHumanActionPlan["posture"], where: IAutoMovieMotionHumanRefusal.IWhere): IAutoMovieMotionHumanActionPlan["posture"] {
     return (
-      seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1],
+      seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: Parameters<IHumanActionPlan["posture"]>[3],
-    ): IHumanPosture => {
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture => {
       try {
         return source(seconds, channels, resolution, projection);
       } catch (error) {

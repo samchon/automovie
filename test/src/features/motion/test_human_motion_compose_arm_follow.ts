@@ -1,5 +1,9 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -7,8 +11,6 @@ import {
   AutoMovieMotionHumanArm,
   AutoMovieMotionHumanArmFollow,
   AutoMovieMotionHumanBend,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -51,9 +53,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_compose_arm_follow(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const side = "right" as const;
-  const base: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const base: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const stance: IAutoMoviePose = resolveHumanPosture(body, base);
   const bones = poseBones(body, stance);
   const shoulder: IAutoMovieVector3 = bones.get(
@@ -72,7 +78,7 @@ export function test_human_motion_compose_arm_follow(): void {
     side,
     0,
   );
-  const planned: AutoMovieMotionHumanArm.IAngles =
+  const planned: IAutoMovieMotionHumanArmAngles.IAngles =
     AutoMovieMotionHumanArm.angles(
       resolveHumanPosture(body, {
         ...base,
@@ -87,9 +93,9 @@ export function test_human_motion_compose_arm_follow(): void {
     end: 2.5,
   };
   const written = (
-    arm: AutoMovieMotionHumanArm.IAngles,
+    arm: IAutoMovieMotionHumanArmAngles.IAngles,
   ): Map<AutoMovieHumanoidBone, { worldPosition: IAutoMovieVector3 }> => {
-    const limbs: IHumanPosture["limbs"] = { ...base.limbs };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...base.limbs };
     delete limbs[`${side}Arm`];
     return poseBones(
       body,
@@ -107,29 +113,35 @@ export function test_human_motion_compose_arm_follow(): void {
   };
   const follow = (
     goal: (seconds: number) => IAutoMovieVector3,
-  ): ((seconds: number) => AutoMovieMotionHumanArm.IAngles) =>
+  ): ((seconds: number) => IAutoMovieMotionHumanArmAngles.IAngles) =>
     AutoMovieMotionHumanArmFollow.follower(
       body,
       {
         side,
         rest: AutoMovieMotionHumanArm.angles(stance, side),
-        goal: (_: IHumanPosture, seconds: number): IHumanPosture.IGoal => ({
+        goal: (
+          _: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieHumanLimbGoal => ({
           point: goal(seconds),
           bend,
         }),
-        perceived: (): IHumanPosture.IGoal => ({ point: still, bend }),
+        perceived: (): IAutoMovieHumanLimbGoal => ({
+          point: still,
+          bend,
+        }),
         weight: (): number => 1,
       },
       span,
-      (): AutoMovieMotionHumanArm.IAngles => planned,
-      (): IHumanPosture => base,
+      (): IAutoMovieMotionHumanArmAngles.IAngles => planned,
+      (): IAutoMovieMotionHumanPosture => base,
     );
   const step: number = 1 / 240;
 
   // 1. A still goal leaves the plan exactly.
   const resting = follow((): IAutoMovieVector3 => still);
   for (let t: number = 0; t <= span.end + 1e-9; t += step) {
-    const arm: AutoMovieMotionHumanArm.IAngles = resting(t);
+    const arm: IAutoMovieMotionHumanArmAngles.IAngles = resting(t);
     complaints.equals(
       `still, at ${t.toFixed(4)} s: the written arm is the plan`,
       [arm.upper, arm.lower, arm.hand],
@@ -186,7 +198,7 @@ export function test_human_motion_compose_arm_follow(): void {
     }
     previous = shown;
   }
-  const after: AutoMovieMotionHumanArm.IAngles = swaying(span.end);
+  const after: IAutoMovieMotionHumanArmAngles.IAngles = swaying(span.end);
   complaints.equals(
     "swaying, at the span's end: the arm is the plan again",
     [after.upper, after.lower, after.hand],

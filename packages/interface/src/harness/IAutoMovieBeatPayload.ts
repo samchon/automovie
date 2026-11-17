@@ -1,4 +1,4 @@
-import { IAutoMovieDialogueLine } from "./IAutoMovieDialogueLine";
+import type { IAutoMovieDialogueLine } from "./IAutoMovieDialogueLine";
 
 /**
  * The script tree's authored beat leaf holds direction, dialogue and caption and joins the flat beat list one to one by beat id. performShot defaults compiled identity to shot: plus that beat, while an explicit caller shotId may differ.

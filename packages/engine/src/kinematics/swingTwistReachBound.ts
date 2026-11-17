@@ -1,12 +1,13 @@
 import type {
   IAutoMovieAngleRange,
+  IAutoMovieAxisFrame,
   IAutoMovieJointConstraint,
+  IAutoMovieRestFrame,
+  IAutoMovieSwingTwistBasis,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import type { swingTwistBasis } from "./swingTwistBasis";
 
 /**
@@ -79,7 +80,7 @@ export namespace swingTwistReachBound {
   export function prepare(
     constraint: IAutoMovieJointConstraint,
     frame: IAutoMovieRestFrame | undefined,
-    basis: swingTwistBasis.IBasis,
+    basis: IAutoMovieSwingTwistBasis.IBasis,
     across: number,
   ): ((cosine: number, sine: number, span?: swingTwistReachBound.ISpan) => number) | null {
     const flexion: IAutoMovieAngleRange | null = constraint.flexion;

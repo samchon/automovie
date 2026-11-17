@@ -1,19 +1,19 @@
 import type {
+  IAutoMovieChainBone,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
+  IAutoMovieSolvePreparedChainPlantProps,
 } from "@automovie/interface";
 
-import type { IAutoMovieChainBone } from "../kinematics/IAutoMovieChainBone";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { Quaternion } from "../math/Quaternion";
-import type { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
 import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
 import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
 
 /** Articulations to read under the exact same prepared parent/intermediate pose. */
 interface IProps extends Pick<
-  ISolvePreparedChainPlantProps,
+  IAutoMovieSolvePreparedChainPlantProps,
   "prepared" | "jointAxes" | "restFrames"
 > {
   /** Authored order is significant: the last record of each bone wins as in resolvePose. */

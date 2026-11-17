@@ -3,7 +3,7 @@ import type {
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
-  IAutoMovieSkeleton,
+  IAutoMovieSolveDistalTwist,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -12,7 +12,6 @@ import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { swingTwist } from "../math/swingTwist";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
@@ -83,33 +82,9 @@ import { prepareJointRotationProjection } from "./prepareJointRotationProjection
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Matching source bases/clamps/inverses/projector and fixed effector readings share unchanged dependencies. Raw/untwisted/held readers keep first-use order; component-identical rotations share needed as K after both reads. Only clampJointToSkeleton's genuine nonretaining factory callables may memoize Object.is-identical twists, preserving signed zero. Unknown/wrapped lower callbacks retain a fresh input and actual callback on every original at invocation, so a reused mutable callback output cannot stand for an older reading. Paired projection preserves actual demand/raw articulation and angleAfterNormalize keeps both normalization/Hamilton/atan2 boundaries. No answer crosses solves.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources With a genuine lower factory, one solve retains at most eight requested-twist/clamped-joint rows; foreign callbacks allocate no memo rows. Five candidate twists, harmonic data and current/selected paired readings remain bounded. Everything releases on return/throw except the selected caller-owned result; source preparation remains its caller's, without growing history or handles.
  */
-export function solveDistalTwist(props: {
-  joint: IAutoMovieJointPose;
-  effector: IAutoMovieJointPose;
-  above: IAutoMovieQuaternion;
-  lowerBasis: IAutoMovieJointAxes;
-  lowerFrame: IAutoMovieRestFrame | undefined;
-  effectorRest: IAutoMovieQuaternion;
-  effectorRestInverse?: IAutoMovieQuaternion;
-  effectorBasis: IAutoMovieJointAxes;
-  effectorFrame: IAutoMovieRestFrame | undefined;
-  rotation: IAutoMovieQuaternion;
-  skeleton: IAutoMovieSkeleton;
-  clamps?: {
-    lower: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
-    effector: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
-  };
-  projectEffector?: (rotation: IAutoMovieQuaternion) => IAutoMovieJointPose;
-  projectEffectorWithQuaternion?: (
-    rotation: IAutoMovieQuaternion,
-  ) => prepareJointRotationProjection.IProjection;
-  readArticulated?: () => IAutoMovieQuaternion;
-  readUntwisted?: () => IAutoMovieQuaternion;
-  readHeldRotation?: () => IAutoMovieQuaternion;
-  readHeldInverse?: (heldRaw: IAutoMovieQuaternion) => IAutoMovieQuaternion;
-  composeLower?: ReturnType<typeof jointToQuaternionOnBasis.prepare>;
-  preparedEffector?: solveDistalTwist.IPrepared;
-}): IAutoMovieJointPose {
+export function solveDistalTwist(
+  props: solveDistalTwist.IProps,
+): IAutoMovieJointPose {
   return solve(props, false).joint;
 }
 
@@ -377,7 +352,7 @@ interface ISolution {
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines unchanged lower-to-effector rest/basis/clinical-frame readers and paired results: normalized local demand, copied effector clinical joint, actual raw quaternion and selected clamped lower joint. Child/member prose gives frames, ownership, first-use admission and operation lifetimes.
  * @evidence contracts/development/design.md#principled-representation Fixed rotated axes/clinical-zero sine-cosine are source-only, while each paired projection belongs to one actually scored target candidate. IResult pairs its actual lower winner with that candidate's required projection; final consumers still recompute their actual demand before reuse.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IPrepared supplies two axis readers and one zero reader. IProjection/IResult serve actual hinged error and immediate orientation consumers that need the completed effector joint/raw composition plus exact local-equivalence proof; no target-history controls are exposed.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface IPrepared supplies two axis readers and one zero reader. IProjection/IResult serve actual hinged error and immediate orientation consumers that need the completed effector joint/raw composition plus exact local-equivalence proof; no target-history controls are exposed. IProps extends the interface demand with the operation's optional prepared readers and projectors, whose engine types keep that extension out of the dependency-free interface.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Fixed preparation admits nothing eagerly and stores no target. Paired fields are mandatory because every paired solve scores its start; no optional invalid winner, approximate match, achieved-point substitution or alternate ROM representation is encoded.
  */
 export namespace solveDistalTwist {
@@ -445,26 +420,11 @@ export namespace solveDistalTwist {
     return { joint: result.joint, projection: result.projection! };
   }
 
-  /** Fixed clinical-zero twist coefficients, borrowed unchanged by a solve. */
-  export interface IZero {
-    /** Cosine of the handed rest-relative clinical-zero twist, radians. */
-    cosine: number;
+  /** The interface contract (`IAutoMovieSolveDistalTwist.IZero`). */
+  export type IZero = IAutoMovieSolveDistalTwist.IZero;
 
-    /** Sine of that same angle, evaluated after its cosine. */
-    sine: number;
-  }
-
-  /** Lazy fixed-frame data; these readers never retain a target or lower joint. */
-  export interface IPrepared {
-    /** Effector abduction axis rotated by the actual fixed frame. */
-    abduction(): IAutoMovieVector3;
-
-    /** Effector flexion axis, needed only for the proximal Euler convention. */
-    flexion(): IAutoMovieVector3;
-
-    /** Handed clinical-zero twist, admitting that frame only when first read. */
-    zero(): IZero;
-  }
+  /** The interface contract (`IAutoMovieSolveDistalTwist.IPrepared`). */
+  export type IPrepared = IAutoMovieSolveDistalTwist.IPrepared;
 
   /**
    * Borrow one operation's unchanged effector rest, admitted basis and clinical
@@ -477,5 +437,37 @@ export namespace solveDistalTwist {
     props: Pick<Parameters<typeof solveDistalTwist>[0], "effectorRest" | "effectorBasis" | "effectorFrame">,
   ): IPrepared {
     return prepareDistalTwistEffector(props);
+  }
+
+  /** The solve's props: the interface demand with optional readers and projectors an operation prepared once for this same chain. */
+  export interface IProps extends IAutoMovieSolveDistalTwist.IProps {
+    /** The inverse of `effectorRest`, already computed; absent, the solve inverts it. */
+    effectorRestInverse?: IAutoMovieQuaternion;
+
+    /** The effector's clinical projection of a raw rotation; absent, the solve prepares it from the effector's basis and frame. */
+    projectEffector?: (rotation: IAutoMovieQuaternion) => IAutoMovieJointPose;
+
+    /** The same projection paired with its raw quaternion; absent, the prepared projector's own paired reader is used. */
+    projectEffectorWithQuaternion?: (
+      rotation: IAutoMovieQuaternion,
+    ) => prepareJointRotationProjection.IProjection;
+
+    /** The mid bone's articulated rotation at `joint`; absent, it is composed from the joint. */
+    readArticulated?: () => IAutoMovieQuaternion;
+
+    /** The mid bone's rotation with its twist removed; absent, it is composed from the joint. */
+    readUntwisted?: () => IAutoMovieQuaternion;
+
+    /** The effector's held world rotation; absent, it is composed from `above` and the mid bone. */
+    readHeldRotation?: () => IAutoMovieQuaternion;
+
+    /** The inverse of a held rotation; absent, the solve inverts it. */
+    readHeldInverse?: (heldRaw: IAutoMovieQuaternion) => IAutoMovieQuaternion;
+
+    /** The mid bone's prepared clinical composition on its basis; absent, the solve composes it directly. */
+    composeLower?: ReturnType<typeof jointToQuaternionOnBasis.prepare>;
+
+    /** The effector's fixed-source readers (`prepare`); absent, the solve prepares them. */
+    preparedEffector?: IPrepared;
   }
 }

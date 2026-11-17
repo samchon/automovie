@@ -2,6 +2,10 @@ import {
   AutoMoviePhysicalPlayback,
   AutoMoviePhysicalSimulation,
 } from "@automovie/engine";
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -15,14 +19,14 @@ async function main(): Promise<void> {
     );
   const producer: {
     createPhysicalInput?: () =>
-      | AutoMoviePhysicalSimulation.IInput
-      | Promise<AutoMoviePhysicalSimulation.IInput>;
+      | IAutoMoviePhysicalSimulationInput.IInput
+      | Promise<IAutoMoviePhysicalSimulationInput.IInput>;
   } = await import(pathToFileURL(path.resolve(file)).href);
   if (typeof producer.createPhysicalInput !== "function")
     throw new Error("Input module must export createPhysicalInput()");
-  const input: AutoMoviePhysicalSimulation.IInput =
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
     await producer.createPhysicalInput();
-  const run: AutoMoviePhysicalSimulation =
+  const run: IAutoMoviePhysicalSimulation =
     await AutoMoviePhysicalSimulation.compute(input);
   const bytes: Uint8Array = await AutoMoviePhysicalPlayback.encode(
     run.cache,

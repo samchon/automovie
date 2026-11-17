@@ -1,6 +1,9 @@
+import type {
+  IAutoMovieHumanBindBone,
+  IAutoMovieHumanBonePlacement,
+} from "@automovie/interface";
 import * as THREE from "three";
 
-import type { AutoMovieHumanPolygon as Skeleton } from "./AutoMovieHumanPolygon.js";
 import { humanPolygonTopology as LoftMesh } from "./humanPolygonTopology.js";
 
 /**
@@ -23,9 +26,9 @@ import { humanPolygonTopology as LoftMesh } from "./humanPolygonTopology.js";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Every created buffer is registered with the caller's geometry inventory; this assembler creates no cache, material or independent resource lifetime.
  */
 export function buildHumanPolygonModule(
-  bone: Skeleton.IBone,
+  bone: IAutoMovieHumanBindBone,
   rings: buildHumanPolygonModule.ISection[],
-  placement: Skeleton.IPlacement,
+  placement: IAutoMovieHumanBonePlacement,
   material: THREE.MeshStandardMaterial,
   lineMaterial: THREE.LineBasicMaterial,
   geometries: THREE.BufferGeometry[],

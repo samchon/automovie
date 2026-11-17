@@ -5,8 +5,10 @@ import {
   Quaternion,
   ROM_TOLERANCE,
   clampJointToSkeleton,
+  decomposeJointRotation,
   decomposeJointRotationOnBasis,
   getConstraint,
+  jointToQuaternion,
   jointToQuaternionOnBasis,
   normalizeJointAxes,
   skeletonJointAxes,
@@ -18,16 +20,17 @@ import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanArmClearance } from "./HumanArmClearance";
+import { readHumanBone } from "../body/readHumanBone";
 import type { HumanArmGeometryTypes as T } from "./HumanArmGeometryTypes";
 import { placeHumanArmGeometry } from "./placeHumanArmGeometry";
 import { prepareHumanArmChain } from "./prepareHumanArmChain";
 import { resolveHumanArmChain } from "./resolveHumanArmChain";
-import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * An arm's joint-space coordinates and what they place: the shoulder's
@@ -62,46 +65,6 @@ export namespace HumanArmGeometry {
   export const SURFACE: number = 8;
 
   /**
-   * The shared placed obstruction and bounding sphere record.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Delegates world units, collider ownership and audit ordering to the shared IShape declaration.
-   * @evidence contracts/development/design.md#principled-representation This interface retains the existing public shape name with the same shared world-geometry representation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanArmGeometryTypes owns the fields; shape and trajectory consumers keep their established imports through this inherited interface.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No parallel fields, widened types or fixture-dependent shape are introduced.
-   */
-  export interface IShape extends T.IShape {}
-
-  /**
-   * Fixed rig metadata and lazy actual clamp/basis readers for one arm operation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Delegates members, units and unchanged-operation ownership to the shared ISetup declaration.
-   * @evidence contracts/development/design.md#principled-representation This interface preserves the existing setup name while its shared owner defines the one-operation rig metadata and readers.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface prepare and existing frame, FK, Jacobian and trajectory callers use the same shared setup shape through their current imports.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Adds no alternate representation; required readers are produced by the same prepare entry that all current setup producers call.
-   */
-  export interface ISetup extends T.ISetup {}
-
-  /**
-   * The shared frame of one instant's parent, probes and surrounding geometry.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Delegates local/world frames, probe ordering and units to the shared IFrame declaration.
-   * @evidence contracts/development/design.md#principled-representation The interface retains the existing per-instant frame identity and all parallel-array invariants of its shared owner.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanArmFrame, FK and collision consumers keep the current name while the fields have one owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No duplicate geometry, additional optional state or widened collider type is created.
-   */
-  export interface IFrame extends T.IFrame {}
-
-  /**
-   * The shared FK/probe result of one arm candidate.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Delegates world positions, rotations and fixed probe-prefix meaning to the shared IPlaced declaration.
-   * @evidence contracts/development/design.md#principled-representation The interface preserves the same placed world geometry and ordered point/radius observations.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Placement, differentiation and trajectory costs retain the established name and share one field owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No new approximation, alternate collider or fixture-dependent output is introduced by this interface.
-   */
-  export interface IPlaced extends T.IPlaced {}
-
-  /**
    * The shared source pose and external colliders from which an arm frame is built.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Delegates ignored moving-arm joints and borrowed external world placements to the shared IBase declaration.
@@ -126,8 +89,11 @@ export namespace HumanArmGeometry {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One resolved axes table serves the shoulder frame and every FK/chart reading, and lazy per-name clamps/bases are shared only within this unchanged setup; a later preparation reads current skeleton contents instead of using a skeleton-identity snapshot.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the setup, its optional B-bone clamp index, at most D clamp/basis entries, one lazy shoulder-frame basis and one derived axes table, borrowing body/rest/constraint/axis records; all setup state is released with the operation without a global skeleton map.
    */
-  export function prepare(body: IHumanBody, side: "left" | "right"): ISetup {
-    const bones: ISetup["bones"] = {
+  export function prepare(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+  ): IAutoMovieMotionHumanArmGeometry.ISetup {
+    const bones: IAutoMovieMotionHumanArmGeometry.ISetup["bones"] = {
       upper: `${side}UpperArm`,
       lower: `${side}LowerArm`,
       hand: `${side}Hand`,
@@ -216,7 +182,7 @@ export namespace HumanArmGeometry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state and returns one borrowed semantic bone name.
    */
   export function parent(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bone: AutoMovieHumanoidBone,
   ): AutoMovieHumanoidBone {
     return find(body, bone).parent as AutoMovieHumanoidBone;
@@ -241,7 +207,7 @@ export namespace HumanArmGeometry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned quaternion; preparation belongs to the supplied setup, and this call retains no angle or rotation result.
    */
   export function rotation(
-    setup: ISetup,
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
     bone: AutoMovieHumanoidBone,
     of: readonly [number, number, number],
   ): IAutoMovieQuaternion {
@@ -277,7 +243,7 @@ export namespace HumanArmGeometry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only temporary input/result records and one caller-owned triple are allocated; metadata lifetime belongs to the supplied setup and no projected answer is retained.
    */
   export function clamped(
-    setup: ISetup,
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
     bone: AutoMovieHumanoidBone,
     of: readonly [number, number, number],
   ): [number, number, number] {
@@ -305,7 +271,10 @@ export namespace HumanArmGeometry {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the setup's fixed chart frame, operation-scoped clamps/basis and existing region table; each supplied arm is encoded anew.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one caller-owned nine-entry array and retains no source arm or coordinate result; shared rig metadata remains setup-owned.
    */
-  export function encode(setup: ISetup, arm: HumanArmClearance.IArm): number[] {
+  export function encode(
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+    arm: IAutoMovieMotionHumanArmClearance.IArm,
+  ): number[] {
     const place: { x: number; y: number; twist: number } =
       swingTwistRange.chart(
         rotation(setup, setup.bones.upper, arm.upper),
@@ -343,7 +312,7 @@ export namespace HumanArmGeometry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no coordinates or result; the caller owns the returned quaternion and the region cache remains with its existing owner.
    */
   export function shoulder(
-    setup: ISetup,
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
     c: readonly number[],
   ): IAutoMovieQuaternion {
     const k: number = Math.hypot(c[0]!, c[1]!) / SCALE;
@@ -379,10 +348,10 @@ export namespace HumanArmGeometry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns caller-owned triples and a wrapper, retaining no coordinate population. The inverse's existing weak per-constraint cache owns a swing-twist domain's box copy; other domains retain the former temporary copy, with no new persistent owner here.
    */
   export function arm(
-    setup: ISetup,
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
     c: readonly number[],
     turned: IAutoMovieQuaternion = shoulder(setup, c),
-  ): HumanArmClearance.IArm {
+  ): IAutoMovieMotionHumanArmClearance.IArm {
     const read: { flexion: number; abduction: number; twist: number } =
       decomposeJointRotationOnBasis(
         turned,
@@ -421,10 +390,10 @@ export namespace HumanArmGeometry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one fresh chain record and its six world vectors/quaternions; no input frame, candidate or computed chain is retained after return.
    */
   export function chain(
-    setup: ISetup,
-    at: IFrame,
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
     c: readonly number[],
-  ): Omit<IPlaced, "probes"> {
+  ): Omit<IAutoMovieMotionHumanArmGeometry.IPlaced, "probes"> {
     return resolveHumanArmChain(setup, at, c, shoulder, rotation);
   }
 
@@ -445,9 +414,11 @@ export namespace HumanArmGeometry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One derivative invocation owns the reader, three latest local entries and borrowed setup/frame until completion or failure; no global collection or cross-fit, seed, instant or trajectory memo is introduced.
    */
   export function prepareChain(
-    setup: ISetup,
-    at: IFrame,
-  ): (c: readonly number[]) => Omit<IPlaced, "probes"> {
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
+  ): (
+    c: readonly number[],
+  ) => Omit<IAutoMovieMotionHumanArmGeometry.IPlaced, "probes"> {
     return prepareHumanArmChain(setup, at, shoulder, rotation);
   }
 
@@ -469,16 +440,19 @@ export namespace HumanArmGeometry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the fresh placed record and eight-plus-P probe array; the temporary chain wrapper is released after attachment and its world vectors stay shared with the output, with no retained candidate or frame.
    */
   export function placed(
-    setup: ISetup,
-    at: IFrame,
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
     c: readonly number[],
     surface: boolean = true,
-  ): IPlaced {
+  ): IAutoMovieMotionHumanArmGeometry.IPlaced {
     return placeHumanArmGeometry(setup, at, chain(setup, at, c), surface);
   }
 }
 
 /** A bone of the body's skeleton. */
-function find(body: IHumanBody, bone: AutoMovieHumanoidBone): IAutoMovieBone {
+function find(
+  body: IAutoMovieMotionHumanBody,
+  bone: AutoMovieHumanoidBone,
+): IAutoMovieBone {
   return readHumanBone(body, bone)!;
 }

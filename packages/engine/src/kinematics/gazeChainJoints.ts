@@ -1,7 +1,8 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieBone,
+  IAutoMovieGazeChainJoints,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMovieSkeleton,
@@ -77,7 +78,9 @@ const shareOf: (need: number, range: IAutoMovieAngleRange | null) => number = (
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw calls observe current rig/constraint/bound fields in their original order; prepare shares only explicitly unchanged rig/ROM prerequisites and both paths use this same greedy split owner. Companion prepare: This explicit API requires the rig/default cervical metadata to stay unchanged. Only topology and first-observed range prerequisites are shared; each flexion/twist request is evaluated afresh and no joint, pose, direction, target or time answer is reused.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Raw calls retain no input or result. An explicit prepared reader owns bounded fixed cervical metadata until its caller releases it; each actual output array and joint record remains fresh with no aim/time history. Companion prepare: The caller owns one reader, its fixed rig and at most two constraints/four range snapshots/eight bound scalars until release. Queries add no retained aim, output, dynamic workspace or growing history.
  */
-export function gazeChainJoints(props: IProps): IAutoMovieJointPose[] {
+export function gazeChainJoints(
+  props: IAutoMovieGazeChainJoints.IProps,
+): IAutoMovieJointPose[] {
   const headBone: IAutoMovieBone | null = props.rig?.bones.find(isHead) ?? null;
   const neckBone: IAutoMovieBone | null = props.rig?.bones.find(isNeck) ?? null;
   if (headBone === null || neckBone === null || headBone.parent !== NECK)
@@ -111,20 +114,26 @@ export namespace gazeChainJoints {
    * This explicit API requires the rig/default cervical metadata to stay unchanged. Only topology and first-observed range prerequisites are shared; each flexion/twist request is evaluated afresh and no joint, pose, direction, target or time answer is reused.
    * The caller owns one reader, its fixed rig and at most two constraints/four range snapshots/eight bound scalars until release. Queries add no retained aim, output, dynamic workspace or growing history.
    */
-  export function prepare(rig: IAutoMovieSkeleton | null):
-    (flexionDeg: number, twistDeg: number) => IAutoMovieJointPose[] {
+  export function prepare(
+    rig: IAutoMovieSkeleton | null,
+  ): (flexionDeg: number, twistDeg: number) => IAutoMovieJointPose[] {
     let known: { head: Constraint; neck: Constraint } | null | undefined;
     return (flexionDeg: number, twistDeg: number): IAutoMovieJointPose[] => {
       if (known === undefined) {
         const head: IAutoMovieBone | null = rig?.bones.find(isHead) ?? null;
         const neck: IAutoMovieBone | null = rig?.bones.find(isNeck) ?? null;
-        known = head === null || neck === null || head.parent !== NECK ? null : {
-          head: fixedConstraint(getConstraint(HEAD, head.constraint)!),
-          neck: fixedConstraint(getConstraint(NECK, neck.constraint)!),
-        };
+        known =
+          head === null || neck === null || head.parent !== NECK
+            ? null
+            : {
+                head: fixedConstraint(getConstraint(HEAD, head.constraint)!),
+                neck: fixedConstraint(getConstraint(NECK, neck.constraint)!),
+              };
       }
       const current: IAngles = { flexionDeg, twistDeg };
-      return known === null ? single(current) : resolved(current, known.head, known.neck);
+      return known === null
+        ? single(current)
+        : resolved(current, known.head, known.neck);
     };
   }
 }
@@ -133,11 +142,6 @@ export namespace gazeChainJoints {
 interface IAngles {
   flexionDeg: number;
   twistDeg: number;
-}
-
-/** The ordinary caller keeps a live rig read for each original bone lookup. */
-interface IProps extends IAngles {
-  rig: IAutoMovieSkeleton | null;
 }
 
 /** Only these two axes participate in the existing gaze-chain law. */
@@ -155,11 +159,22 @@ function isNeck(entry: IAutoMovieBone): boolean {
 
 /** Preserve the original missing/disconnected-chain head-only field read order. */
 function single(props: IAngles): IAutoMovieJointPose[] {
-  return [{ bone: HEAD, flexion: props.flexionDeg, abduction: null, twist: props.twistDeg }];
+  return [
+    {
+      bone: HEAD,
+      flexion: props.flexionDeg,
+      abduction: null,
+      twist: props.twistDeg,
+    },
+  ];
 }
 
 /** Each actual flexion finishes its residual before the twist getter is read. */
-function resolved(props: IAngles, headRom: Constraint, neckRom: Constraint): IAutoMovieJointPose[] {
+function resolved(
+  props: IAngles,
+  headRom: Constraint,
+  neckRom: Constraint,
+): IAutoMovieJointPose[] {
   const flexion: number = props.flexionDeg;
   const headFlexion: number = shareOf(flexion, headRom.flexion);
   const neckFlexion: number = shareOf(flexion - headFlexion, neckRom.flexion);
@@ -169,12 +184,22 @@ function resolved(props: IAngles, headRom: Constraint, neckRom: Constraint): IAu
   const neckTwist: number = shareOf(twist - headTwist, neckRom.twist);
   const twistResidual: number = twist - neckTwist;
   const head: IAutoMovieJointPose = {
-    bone: HEAD, flexion: flexionResidual, abduction: null, twist: twistResidual,
+    bone: HEAD,
+    flexion: flexionResidual,
+    abduction: null,
+    twist: twistResidual,
   };
-  return neckFlexion !== 0 || neckTwist !== 0 ? [{
-    bone: NECK, flexion: neckFlexion === 0 ? null : neckFlexion,
-    abduction: null, twist: neckTwist === 0 ? null : neckTwist,
-  }, head] : [head];
+  return neckFlexion !== 0 || neckTwist !== 0
+    ? [
+        {
+          bone: NECK,
+          flexion: neckFlexion === 0 ? null : neckFlexion,
+          abduction: null,
+          twist: neckTwist === 0 ? null : neckTwist,
+        },
+        head,
+      ]
+    : [head];
 }
 
 /** Capture only the actual axis reference first requested by the shared split. */
@@ -202,7 +227,9 @@ function fixedConstraint(source: Constraint): Constraint {
 }
 
 /** A positive/negative request admits only the original max/min field it uses. */
-function fixedRange(source: IAutoMovieAngleRange | null): IAutoMovieAngleRange | null {
+function fixedRange(
+  source: IAutoMovieAngleRange | null,
+): IAutoMovieAngleRange | null {
   if (source === null) return null;
   let minimum: number = 0;
   let maximum: number = 0;

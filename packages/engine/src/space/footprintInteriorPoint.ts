@@ -1,6 +1,9 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieFootprint,
+  type IAutoMovieFootprintInteriorPoint,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { IAutoMovieFootprint } from "./IAutoMovieFootprint";
 import { footprintConvexPieces } from "./footprintConvexPieces";
 import { footprintRing } from "./footprintRing";
 
@@ -17,9 +20,9 @@ import { footprintRing } from "./footprintRing";
  */
 export const footprintInteriorPoint: (
   footprint: IAutoMovieFootprint,
-) => { x: number; z: number } | null = (
+) => IAutoMovieFootprintInteriorPoint.IResult = (
   footprint: IAutoMovieFootprint,
-): { x: number; z: number } | null => {
+): IAutoMovieFootprintInteriorPoint.IResult => {
   let best: IAutoMovieVector3[] | null = null;
   let bestArea: number = 0;
   for (const piece of footprintConvexPieces(footprint)) {

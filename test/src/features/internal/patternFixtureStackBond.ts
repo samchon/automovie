@@ -1,7 +1,7 @@
 import type {
   AutoMovieSurfacePatternGenerator,
   IAutoMoviePatternCandidate,
-} from "@automovie/engine";
+} from "@automovie/interface";
 
 /**
  * Author one unturned square at each lattice origin plus half its side length.

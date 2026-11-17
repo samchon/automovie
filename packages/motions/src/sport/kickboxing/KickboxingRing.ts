@@ -1,11 +1,13 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanKickboxingRing,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanRefusal,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import type { IHumanProp } from "../../perform/IHumanProp";
 
 /**
  * A bounded fighting area: a square ring on the floor, centred on a point
@@ -27,37 +29,10 @@ import type { IHumanProp } from "../../perform/IHumanProp";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector; the size is the production's, not fixed here.
  */
 export namespace KickboxingRing {
-  /**
-   * A ring.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation A centre in world metres, a side in metres (positive) and a heading in degrees about +Y; positivity is left to the queries.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values every query reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector.
-   */
-  export interface IRing {
-    /** The centre on the floor, world metres. */
-    centre: IAutoMovieVector3;
-
-    /** The side between the ropes, metres; positive. */
-    size: number;
-
-    /** The heading of the ring's +Z side, degrees about +Y. */
-    yaw: number;
-  }
-
-  /**
-   * A corner's name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the four corners; the namespace places them on the diagonals.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the four corners a ring has.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The corners the corner query and the knockdown count name.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export type Corner = "red" | "blue" | "neutralA" | "neutralB";
-
   /** The posts' tops by corner (`createRing`'s `corner1` to `corner4`, counted round from `+X +Z`). */
-  export const POSTS: Readonly<Record<Corner, string>> = {
+  export const POSTS: Readonly<
+    Record<IAutoMovieMotionHumanKickboxingRing.Corner, string>
+  > = {
     blue: "corner1",
     neutralB: "corner2",
     red: "corner3",
@@ -80,10 +55,10 @@ export namespace KickboxingRing {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
-    prop: Pick<IHumanProp, "subject" | "frame" | "affordances">,
-  ): IRing {
+    prop: Pick<IAutoMovieMotionHumanProp, "subject" | "frame" | "affordances">,
+  ): IAutoMovieMotionHumanKickboxingRing.IRing {
     const affordances: readonly IAutoMovieAffordance[] = prop.affordances ?? [];
-    const refuse = (reason: string): HumanRefusal =>
+    const refuse = (reason: string): IAutoMovieMotionHumanRefusal =>
       new HumanRefusal({
         kind: "affordance",
         axis: "ring",
@@ -120,12 +95,14 @@ export namespace KickboxingRing {
       prop.frame.rotation,
       { x: 0, y: 0, z: 1 },
     );
-    const ring: IRing = {
+    const ring: IAutoMovieMotionHumanKickboxingRing.IRing = {
       centre: canvas,
       size,
       yaw: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
     };
-    for (const name of Object.keys(POSTS) as Corner[]) {
+    for (const name of Object.keys(
+      POSTS,
+    ) as IAutoMovieMotionHumanKickboxingRing.Corner[]) {
       const post: IAutoMovieVector3 = at(POSTS[name]);
       const foot: IAutoMovieVector3 = corner(ring, name);
       if (!(Math.hypot(post.x - foot.x, post.z - foot.z) <= 1e-3))
@@ -153,12 +130,15 @@ export namespace KickboxingRing {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function corner(
-    ring: IRing,
-    corner: Corner,
+    ring: IAutoMovieMotionHumanKickboxingRing.IRing,
+    corner: IAutoMovieMotionHumanKickboxingRing.Corner,
     margin: number = 0,
   ): IAutoMovieVector3 {
     const h: number = ring.size / 2 - margin;
-    const local: Record<Corner, [number, number]> = {
+    const local: Record<
+      IAutoMovieMotionHumanKickboxingRing.Corner,
+      [number, number]
+    > = {
       red: [-h, -h],
       blue: [h, h],
       neutralA: [h, -h],
@@ -185,7 +165,7 @@ export namespace KickboxingRing {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function inside(
-    ring: IRing,
+    ring: IAutoMovieMotionHumanKickboxingRing.IRing,
     point: IAutoMovieVector3,
     margin: number = 0,
   ): boolean {
@@ -212,7 +192,7 @@ export namespace KickboxingRing {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function clamp(
-    ring: IRing,
+    ring: IAutoMovieMotionHumanKickboxingRing.IRing,
     point: IAutoMovieVector3,
     margin: number = 0,
   ): IAutoMovieVector3 {
@@ -227,7 +207,11 @@ export namespace KickboxingRing {
   }
 
   /** A ring-local point in world metres. */
-  function world(ring: IRing, x: number, z: number): IAutoMovieVector3 {
+  function world(
+    ring: IAutoMovieMotionHumanKickboxingRing.IRing,
+    x: number,
+    z: number,
+  ): IAutoMovieVector3 {
     const r: number = (ring.yaw * Math.PI) / 180;
     const c: number = Math.cos(r);
     const s: number = Math.sin(r);
@@ -239,7 +223,10 @@ export namespace KickboxingRing {
   }
 
   /** A world point in ring-local coordinates. */
-  function local(ring: IRing, p: IAutoMovieVector3): [number, number] {
+  function local(
+    ring: IAutoMovieMotionHumanKickboxingRing.IRing,
+    p: IAutoMovieVector3,
+  ): [number, number] {
     const r: number = (ring.yaw * Math.PI) / 180;
     const c: number = Math.cos(r);
     const s: number = Math.sin(r);

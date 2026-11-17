@@ -1,4 +1,8 @@
-import { AutoMovieSolidRailSolve, type IAutoMovieSolidAtlas, type IAutoMovieSolidSurface } from "@automovie/engine";
+import { AutoMovieSolidRailSolve } from "@automovie/engine";
+import type {
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 type Vec3 = [number, number, number];
 
@@ -21,40 +25,106 @@ export function test_construction_operator_rail_seam(): void {
     domain: [-1.5, 0],
     jet: (u: number, v: number) => {
       const t: number = u / R;
-      return { p: [R * Math.sin(t), v, R * Math.cos(t) - R], u: [Math.cos(t), 0, -Math.sin(t)], v: [0, 1, 0], uu: [-Math.sin(t) / R, 0, -Math.cos(t) / R], uv: [0, 0, 0], vv: [0, 0, 0] };
+      return {
+        p: [R * Math.sin(t), v, R * Math.cos(t) - R],
+        u: [Math.cos(t), 0, -Math.sin(t)],
+        v: [0, 1, 0],
+        uu: [-Math.sin(t) / R, 0, -Math.cos(t) / R],
+        uv: [0, 0, 0],
+        vv: [0, 0, 0],
+      };
     },
   };
   const flat: IAutoMovieSolidSurface = {
     name: "flat",
     orientation: 1,
     domain: [-20, 20],
-    jet: (u: number, v: number) => ({ p: [u, v, 0], u: [1, 0, 0], v: [0, 1, 0], uu: [0, 0, 0], uv: [0, 0, 0], vv: [0, 0, 0] }),
+    jet: (u: number, v: number) => ({
+      p: [u, v, 0],
+      u: [1, 0, 0],
+      v: [0, 1, 0],
+      uu: [0, 0, 0],
+      uv: [0, 0, 0],
+      vv: [0, 0, 0],
+    }),
   };
   const host: IAutoMovieSolidAtlas = {
     name: "seam",
     faces: [arc, flat],
     kept: (face: number, u: number): boolean => (face === 0 ? u <= 0 : u >= 0),
-    across: (face: number, u: number, v: number) => (face === 0 && u > 0 ? { face: 1, u: 0, v } : face === 1 && u < 0 ? { face: 0, u: 0, v } : null),
+    across: (face: number, u: number, v: number) =>
+      face === 0 && u > 0
+        ? { face: 1, u: 0, v }
+        : face === 1 && u < 0
+          ? { face: 0, u: 0, v }
+          : null,
   };
   const width: number = 0.25;
   for (const layout of ["under", "along"] as const)
     for (const a of [0.002, 0.01, 0.05]) {
       const target: Vec3 = arc.jet(-a, 0).p as Vec3;
       // The rail circle's centre: under the arc's point, or a chord back along its tangent (cos a, 0, sin a) there.
-      const from: Vec3 = layout === "under" ? [target[0], 0, target[2] - width] : [target[0] - width * Math.cos(a), 0, target[2] - width * Math.sin(a)];
+      const from: Vec3 =
+        layout === "under"
+          ? [target[0], 0, target[2] - width]
+          : [
+              target[0] - width * Math.cos(a),
+              0,
+              target[2] - width * Math.sin(a),
+            ];
       const roots: number[] = [-a, 2 * Math.atan2(from[0], from[2] + R) + a];
       // The plane's own crossings must all lie behind the seam (or not exist): no kept root on face 1.
       const reach: number = width * width - from[2] * from[2];
-      const plane: number[] = reach >= 0 ? [from[0] - Math.sqrt(reach), from[0] + Math.sqrt(reach)] : [];
-      if (plane.some((u: number): boolean => u >= 0)) failures.push(`${layout} a ${a}: the plane has a kept root at u ${plane.join(", ")}`);
-      for (const [face, u] of [[0, -1], [0, -0.3], [0, -0.1], [1, 1], [1, 0.3]] as const) {
-        const report: { reason: string; numbers: Record<string, number> } = { reason: "", numbers: {} };
-        const out = AutoMovieSolidRailSolve.atlas(host, face, [u, 0], from, [0, 1, 0], [1, 0, 0], width, 40, 1e-12, 4, report);
-        const visits: string = Object.entries(report.numbers).filter(([key]) => key.startsWith("visit")).map(([, f]) => f).join(", ");
+      const plane: number[] =
+        reach >= 0
+          ? [from[0] - Math.sqrt(reach), from[0] + Math.sqrt(reach)]
+          : [];
+      if (plane.some((u: number): boolean => u >= 0))
+        failures.push(
+          `${layout} a ${a}: the plane has a kept root at u ${plane.join(", ")}`,
+        );
+      for (const [face, u] of [
+        [0, -1],
+        [0, -0.3],
+        [0, -0.1],
+        [1, 1],
+        [1, 0.3],
+      ] as const) {
+        const report: { reason: string; numbers: Record<string, number> } = {
+          reason: "",
+          numbers: {},
+        };
+        const out = AutoMovieSolidRailSolve.atlas(
+          host,
+          face,
+          [u, 0],
+          from,
+          [0, 1, 0],
+          [1, 0, 0],
+          width,
+          40,
+          1e-12,
+          4,
+          report,
+        );
+        const visits: string = Object.entries(report.numbers)
+          .filter(([key]) => key.startsWith("visit"))
+          .map(([, f]) => f)
+          .join(", ");
         const label: string = `${layout} a ${a} (roots ${roots.join(", ")}; plane crossings ${plane.length ? plane.join(", ") : "none"}), from face ${face} at u ${u}`;
-        if (out === null) failures.push(`${label}: refused (${report.reason}; at face ${report.numbers.face} u ${report.numbers.u}, switches left ${report.numbers.switchesLeft}; faces visited ${visits})`);
-        else if (out.face !== 0 || !roots.some((root: number): boolean => Math.abs(out.chart[0] - root) <= 1e-9))
-          failures.push(`${label}: settled on face ${out.face} at u ${out.chart[0]} (faces visited ${visits}), expected face 0 at one of the roots`);
+        if (out === null)
+          failures.push(
+            `${label}: refused (${report.reason}; at face ${report.numbers.face} u ${report.numbers.u}, switches left ${report.numbers.switchesLeft}; faces visited ${visits})`,
+          );
+        else if (
+          out.face !== 0 ||
+          !roots.some(
+            (root: number): boolean => Math.abs(out.chart[0] - root) <= 1e-9,
+          )
+        )
+          failures.push(
+            `${label}: settled on face ${out.face} at u ${out.chart[0]} (faces visited ${visits}), expected face 0 at one of the roots`,
+          );
       }
     }
 
@@ -82,7 +152,12 @@ export function test_construction_operator_rail_seam(): void {
     name: "overstep",
     faces: [band, sheet],
     kept: (face: number, u: number): boolean => face === 0 || u >= 0,
-    across: (face: number, u: number, v: number) => (face === 0 && u > 0 ? { face: 1, u: 0, v } : face === 1 && u < 0 ? { face: 0, u: 0, v } : null),
+    across: (face: number, u: number, v: number) =>
+      face === 0 && u > 0
+        ? { face: 1, u: 0, v }
+        : face === 1 && u < 0
+          ? { face: 0, u: 0, v }
+          : null,
   };
   for (const epsilon of [1e-4, 3e-4]) {
     // The section plane y = phi(1/4); the circle's centre a chord and epsilon behind the band's end, so its roots on the band are
@@ -91,13 +166,42 @@ export function test_construction_operator_rail_seam(): void {
     const from: Vec3 = [-width - epsilon, y, 0];
     const roots: number[] = [-epsilon, -2 * width - epsilon];
     for (const u of [-0.05, -0.1, -0.2]) {
-      const report: { reason: string; numbers: Record<string, number> } = { reason: "", numbers: {} };
-      const out = AutoMovieSolidRailSolve.atlas(overlap, 0, [u, 0.25], from, [0, 1, 0], [1, 0, 0], width, 40, 1e-12, 4, report);
-      const visits: string = Object.entries(report.numbers).filter(([key]) => key.startsWith("visit")).map(([, f]) => f).join(", ");
+      const report: { reason: string; numbers: Record<string, number> } = {
+        reason: "",
+        numbers: {},
+      };
+      const out = AutoMovieSolidRailSolve.atlas(
+        overlap,
+        0,
+        [u, 0.25],
+        from,
+        [0, 1, 0],
+        [1, 0, 0],
+        width,
+        40,
+        1e-12,
+        4,
+        report,
+      );
+      const visits: string = Object.entries(report.numbers)
+        .filter(([key]) => key.startsWith("visit"))
+        .map(([, f]) => f)
+        .join(", ");
       const label: string = `overstep epsilon ${epsilon} (roots ${roots.join(", ")} at v 0.25), from face 0 at u ${u}`;
-      if (out === null) failures.push(`${label}: refused (${report.reason}; at face ${report.numbers.face} u ${report.numbers.u} v ${report.numbers.v}, switches left ${report.numbers.switchesLeft}; faces visited ${visits})`);
-      else if (out.face !== 0 || !roots.some((root: number): boolean => Math.abs(out.chart[0] - root) <= 1e-9) || !(Math.abs(out.chart[1] - 0.25) <= 1e-9))
-        failures.push(`${label}: settled on face ${out.face} at (${out.chart[0]}, ${out.chart[1]}) (faces visited ${visits}), expected face 0 at one of the roots, v 0.25`);
+      if (out === null)
+        failures.push(
+          `${label}: refused (${report.reason}; at face ${report.numbers.face} u ${report.numbers.u} v ${report.numbers.v}, switches left ${report.numbers.switchesLeft}; faces visited ${visits})`,
+        );
+      else if (
+        out.face !== 0 ||
+        !roots.some(
+          (root: number): boolean => Math.abs(out.chart[0] - root) <= 1e-9,
+        ) ||
+        !(Math.abs(out.chart[1] - 0.25) <= 1e-9)
+      )
+        failures.push(
+          `${label}: settled on face ${out.face} at (${out.chart[0]}, ${out.chart[1]}) (faces visited ${visits}), expected face 0 at one of the roots, v 0.25`,
+        );
     }
   }
 
@@ -112,14 +216,47 @@ export function test_construction_operator_rail_seam(): void {
       { face: 0, u: delta - 2 * width, v: 0.25 },
     ];
     for (const u of [-0.05, -0.1]) {
-      const report: { reason: string; numbers: Record<string, number> } = { reason: "", numbers: {} };
-      const out = AutoMovieSolidRailSolve.atlas(overlap, 0, [u, 0.25], from, [0, 1, 0], [1, 0, 0], width, 40, 1e-12, 4, report);
-      const visits: string = Object.entries(report.numbers).filter(([key]) => key.startsWith("visit")).map(([, f]) => f).join(", ");
+      const report: { reason: string; numbers: Record<string, number> } = {
+        reason: "",
+        numbers: {},
+      };
+      const out = AutoMovieSolidRailSolve.atlas(
+        overlap,
+        0,
+        [u, 0.25],
+        from,
+        [0, 1, 0],
+        [1, 0, 0],
+        width,
+        40,
+        1e-12,
+        4,
+        report,
+      );
+      const visits: string = Object.entries(report.numbers)
+        .filter(([key]) => key.startsWith("visit"))
+        .map(([, f]) => f)
+        .join(", ");
       const label: string = `foot delta ${delta} (roots: sheet (${delta}, ${y}), band (${delta - 2 * width}, 0.25)), from face 0 at u ${u}`;
-      if (out === null) failures.push(`${label}: refused (${report.reason}; at face ${report.numbers.face} u ${report.numbers.u} v ${report.numbers.v}, switches left ${report.numbers.switchesLeft}; faces visited ${visits})`);
-      else if (!roots.some((r): boolean => r.face === out.face && Math.abs(out.chart[0] - r.u) <= 1e-9 && Math.abs(out.chart[1] - r.v) <= 1e-9))
-        failures.push(`${label}: settled on face ${out.face} at (${out.chart[0]}, ${out.chart[1]}) (faces visited ${visits}), expected a root`);
+      if (out === null)
+        failures.push(
+          `${label}: refused (${report.reason}; at face ${report.numbers.face} u ${report.numbers.u} v ${report.numbers.v}, switches left ${report.numbers.switchesLeft}; faces visited ${visits})`,
+        );
+      else if (
+        !roots.some(
+          (r): boolean =>
+            r.face === out.face &&
+            Math.abs(out.chart[0] - r.u) <= 1e-9 &&
+            Math.abs(out.chart[1] - r.v) <= 1e-9,
+        )
+      )
+        failures.push(
+          `${label}: settled on face ${out.face} at (${out.chart[0]}, ${out.chart[1]}) (faces visited ${visits}), expected a root`,
+        );
     }
   }
-  if (failures.length) throw new Error(`${failures.length} rail seam failures:\n${failures.join("\n")}`);
+  if (failures.length)
+    throw new Error(
+      `${failures.length} rail seam failures:\n${failures.join("\n")}`,
+    );
 }

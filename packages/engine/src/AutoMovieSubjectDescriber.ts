@@ -5,6 +5,7 @@ import {
   IAutoMovieCompiledInstanceSet,
   IAutoMovieModel,
   IAutoMovieModelPart,
+  type IAutoMovieModelPartPoints,
   IAutoMovieSubjectArtifact,
   IAutoMovieSubjectBox,
   IAutoMovieSubjectDescription,
@@ -60,10 +61,8 @@ export class AutoMovieSubjectDescriber {
   private readonly builtElements: Map<string, IBuiltElementEntry> = new Map();
   private readonly populationSpaces: Map<string, string> = new Map();
   private readonly elementChildren: Map<string, string[]> = new Map();
-  private readonly geometry: Map<
-    string,
-    ReturnType<typeof autoMovieModelPartPoints>
-  > = new Map();
+  private readonly geometry: Map<string, IAutoMovieModelPartPoints.IResult> =
+    new Map();
   private readonly partBoxes: Map<string, Map<string, IAutoMovieSubjectBox[]>> =
     new Map();
 
@@ -479,8 +478,8 @@ export class AutoMovieSubjectDescriber {
 
   private geometryOf(
     model: IAutoMovieModel,
-  ): ReturnType<typeof autoMovieModelPartPoints> {
-    let geometry: ReturnType<typeof autoMovieModelPartPoints> | undefined =
+  ): IAutoMovieModelPartPoints.IResult {
+    let geometry: IAutoMovieModelPartPoints.IResult | undefined =
       this.geometry.get(model.id);
     if (geometry === undefined) {
       geometry = autoMovieModelPartPoints(model);

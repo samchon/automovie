@@ -1,4 +1,4 @@
-import { IAutoMovieWorldBounds } from "./IAutoMovieWorldBounds";
+import type { IAutoMovieWorldBounds } from "./IAutoMovieWorldBounds";
 
 /**
  * Named deterministic effect region binding a world-meter volume to a declared recipe and seed.

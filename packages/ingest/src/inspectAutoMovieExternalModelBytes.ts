@@ -1,7 +1,10 @@
-import type { AutoMovieExternalModelIngestProfile } from "./AutoMovieExternalModelIngestProfile";
-import type { IAutoMovieExternalModelInspection } from "./IAutoMovieExternalModelInspection";
-import type { IAutoMovieExternalModelResource } from "./IAutoMovieExternalModelResource";
-import type { IAutoMovieExternalMotionInspection } from "./IAutoMovieExternalMotionInspection";
+import type {
+  AutoMovieExternalModelIngestProfile,
+  IAutoMovieExternalModelInspection,
+  IAutoMovieExternalModelResource,
+  IAutoMovieExternalMotionInspection,
+} from "@automovie/interface";
+
 import { COMPONENT_BYTES } from "./internal/COMPONENT_BYTES";
 import type { IAccessorSource } from "./internal/IAccessorSource";
 import type { IHumanoidSlot } from "./internal/IHumanoidSlot";
@@ -52,31 +55,11 @@ import { isAutoMovieExternalModelIngestProfile } from "./isAutoMovieExternalMode
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Within one inspection, a motion accessor is decoded once per accessor and type and shared by every channel that cites it, each track receiving its own copy, and a mesh and skin pair bound on several nodes is weight-checked once; the key is the accessor index or pair, which is valid because the document is immutable during the synchronous call.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The decoded JSON, payload list, readers and caches live only for the call and are released on return or throw; the result retains copies proportional to resources, slots and motion data, and keeps neither the container nor sidecar bytes.
  */
-export const inspectAutoMovieExternalModelBytes: (props: {
-  /** Exact project-relative source path. */
-  path: string;
-
-  /** Exact resident container bytes. */
-  bytes: Uint8Array;
-
-  /** Caller-selected fixed interpretation profile. */
-  profile: string;
-
-  /** Exact sidecar bytes, resolved inside the builder-owned asset namespace. */
-  resolveResource?: (uri: string) => Uint8Array | null;
-}) => IAutoMovieExternalModelInspection = (props: {
-  /** Exact project-relative source path. */
-  path: string;
-
-  /** Exact resident container bytes. */
-  bytes: Uint8Array;
-
-  /** Caller-selected fixed interpretation profile. */
-  profile: string;
-
-  /** Exact sidecar bytes, resolved inside the builder-owned asset namespace. */
-  resolveResource?: (uri: string) => Uint8Array | null;
-}): IAutoMovieExternalModelInspection => {
+export const inspectAutoMovieExternalModelBytes: (
+  props: IAutoMovieExternalModelInspection.IProps,
+) => IAutoMovieExternalModelInspection = (
+  props: IAutoMovieExternalModelInspection.IProps,
+): IAutoMovieExternalModelInspection => {
   if (isAutoMovieExternalModelIngestProfile(props.profile) === false)
     throw new Error(
       `Unsupported external-model ingest profile "${props.profile}".`,

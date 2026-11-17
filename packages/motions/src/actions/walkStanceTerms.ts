@@ -1,10 +1,11 @@
 
 
-import type { IHumanBody } from "../body/IHumanBody";
-import { HumanQuadraticProgram as Q } from "../posture/HumanQuadraticProgram";
 import type {
-  HumanSequentialConvex as SCO,
-} from "../posture/HumanSequentialConvex";
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanSequentialConvex,
+} from "@automovie/interface";
+
+import { HumanQuadraticProgram as Q } from "../posture/HumanQuadraticProgram";
 import { walkStanceCourse } from "./walkStanceCourse";
 
 /**
@@ -139,7 +140,7 @@ export namespace walkStanceTerms {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the shared stance constants and reach formula; the returned schedule owns no computed pose or solver state.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fixed-size record and retains no body or handle.
    */
-  export function schedule(body: IHumanBody): SCO.ISchedule {
+  export function schedule(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanSequentialConvex.ISchedule {
     const length: number = (walkStanceCourse.MET * Math.PI * reachOf(body)) / 180;
     const least: number = Math.min(
       length / TRUST.drop,
@@ -173,7 +174,7 @@ export namespace walkStanceTerms {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Geometry and trust scheduling call this same physical formula; no mutable body result is cached here.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no inputs.
    */
-  export function reachOf(body: IHumanBody): number {
+  export function reachOf(body: IAutoMovieMotionHumanBody): number {
     return Math.sqrt(
       body.measure.thigh ** 2 +
         body.measure.shank ** 2 +

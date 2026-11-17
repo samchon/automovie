@@ -1,5 +1,8 @@
 import type {
+  IAutoMoviePhysicalShape,
+  IAutoMoviePhysicalShapeNearest,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
@@ -60,13 +63,13 @@ interface IPrepared {
  * queries. The implementation's contract below covers both overloads.
  */
 export function physicalShapeQuery(
-  pose: P.ITransform,
-  shape: P.IShape,
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   taper: readonly [number, number] | undefined,
   details: true,
-): physicalShapeNearest.IResult;
+): IAutoMoviePhysicalShapeNearest.IResult;
 
 /**
  * Signed distance alone from that same query, with false detail mode.
@@ -79,8 +82,8 @@ export function physicalShapeQuery(
  * synchronous pure-DTO query, and only the number escapes it.
  */
 export function physicalShapeQuery(
-  pose: P.ITransform,
-  shape: P.IShape,
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   taper: readonly [number, number] | undefined,
@@ -99,13 +102,13 @@ export function physicalShapeQuery(
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps call-local frame/interpolation scalars, at most two taper scalars and the lazy round-axis scratch. Scratch points are consumed synchronously and never returned; full final fields are independent. No pose, shape, callback, handle or result history survives return.
  */
 export function physicalShapeQuery(
-  pose: P.ITransform,
-  shape: P.IShape,
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   taper: readonly [number, number] | undefined,
   details: boolean,
-): physicalShapeNearest.IResult | number {
+): IAutoMoviePhysicalShapeNearest.IResult | number {
   return query(pose, shape, a, b, taper, details);
 }
 
@@ -136,8 +139,8 @@ export namespace physicalShapeQuery {
    * @returns A distance reader of changing world segments and optional endpoint radii. Release its closure/state and borrowed geometry with this synchronous operation; no global cache or handle is acquired.
    */
   export function prepare(
-    pose: P.ITransform,
-    shape: P.IShape,
+    pose: IAutoMovieRigidTransform,
+    shape: IAutoMoviePhysicalShape,
   ): (a: IAutoMovieVector3, b: IAutoMovieVector3, taper?: readonly [number, number]) => number {
     const prepared: IPrepared = {};
     return (a: IAutoMovieVector3, b: IAutoMovieVector3, taper?: readonly [number, number]): number =>
@@ -146,16 +149,16 @@ export namespace physicalShapeQuery {
 }
 
 /** Scalar reads share this one mathematical body with the cold full-contact entry. */
-function query(pose: P.ITransform, shape: P.IShape, a: IAutoMovieVector3, b: IAutoMovieVector3,
+function query(pose: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape, a: IAutoMovieVector3, b: IAutoMovieVector3,
   taper: readonly [number, number] | undefined, details: false, prepared?: IPrepared): number;
 
 /** The cold full/scalar facade retains its original union result. */
-function query(pose: P.ITransform, shape: P.IShape, a: IAutoMovieVector3, b: IAutoMovieVector3,
-  taper: readonly [number, number] | undefined, details: boolean, prepared?: IPrepared): physicalShapeNearest.IResult | number;
+function query(pose: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape, a: IAutoMovieVector3, b: IAutoMovieVector3,
+  taper: readonly [number, number] | undefined, details: boolean, prepared?: IPrepared): IAutoMoviePhysicalShapeNearest.IResult | number;
 
 /** One fixed-frame acquisition and the unchanged ordered proximity calculation. */
-function query(pose: P.ITransform, shape: P.IShape, a: IAutoMovieVector3, b: IAutoMovieVector3,
-  taper: readonly [number, number] | undefined, details: boolean, prepared?: IPrepared): physicalShapeNearest.IResult | number {
+function query(pose: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape, a: IAutoMovieVector3, b: IAutoMovieVector3,
+  taper: readonly [number, number] | undefined, details: boolean, prepared?: IPrepared): IAutoMoviePhysicalShapeNearest.IResult | number {
   let frame: IFrame | undefined = prepared?.frame;
   const centre: IAutoMovieVector3 = frame?.centre ?? Vector3.add(
     pose.position,

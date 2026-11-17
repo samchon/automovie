@@ -1,12 +1,16 @@
-import type { IAutoMovieRecoveryCameraMapInput } from "@automovie/interface";
+import type {
+  AutoMovieRecoveryOperator,
+  IAutoMovieRecoveryCameraMapAdmissionOperation,
+  IAutoMovieRecoveryCameraMapEstimate,
+  IAutoMovieRecoveryCameraMapInput,
+  IAutoMovieRecoveryCameraSetObservationOperation,
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryResult,
+} from "@automovie/interface";
 
 import { admitRecoveryCameraMap } from "../internal/admitRecoveryCameraMap";
 import { createRecoveryCameraMap } from "../internal/createRecoveryCameraMap";
 import { observeRecoveryCameraSet } from "../internal/observeRecoveryCameraSet";
-import type { IAutoMovieRecoveryCameraMapEstimate } from "../structures/image/IAutoMovieRecoveryCameraMapEstimate";
-import type { IAutoMovieRecoveryOptions } from "../structures/operation/IAutoMovieRecoveryOptions";
-import type { AutoMovieRecoveryOperator } from "../typings/AutoMovieRecoveryOperator";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
 
 /**
  * Observe three fixed calibrated RGB images and register a sparse camera triad.
@@ -19,7 +23,7 @@ import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResu
  * surface, physical scale, covariance or proof of material correspondence.
  * Cancellation is synchronous and cooperative between bounded observation,
  * matching, proposal and complete local-fit phases. A blocked event loop cannot
- * deliver a later abort. Keep borrowed RGB bytes stable until return.
+ * deliver a later event-loop cancellation. Keep borrowed RGB bytes stable until return.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Closed preallocation admission, once-per-image Harris observation and bidirectional ratio-qualified index tracks establish tentative appearance evidence. Existing complete pair qualification, pointwise triangulation, distinct existing-map resection and gauge-correct same-population joint refinement independently qualify only conditional sparse geometry.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The acquisition-free resident owner sequences observation and delegates map geometry; interface owns inputs, recovery owns domain algorithms and Node owns filesystem publication.
@@ -31,7 +35,7 @@ import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResu
  */
 export function estimateAutoMovieRecoveryCameraMap(
   input: IAutoMovieRecoveryCameraMapInput,
-  options: Pick<IAutoMovieRecoveryOptions, "signal" | "onProgress"> = {},
+  options: Pick<IAutoMovieRecoveryOptions, "cancelled" | "onProgress"> = {},
 ): IAutoMovieRecoveryResult<IAutoMovieRecoveryCameraMapEstimate> {
   const operator: AutoMovieRecoveryOperator = "calibrated-three-camera-map-v1";
   const cancellation: Error = new Error(
@@ -46,23 +50,30 @@ export function estimateAutoMovieRecoveryCameraMap(
       Array.isArray(options) ||
       Reflect.ownKeys(options).some(
         (key: string | symbol): boolean =>
-          key !== "signal" && key !== "onProgress",
+          key !== "cancelled" && key !== "onProgress",
       ) ||
       (options.onProgress !== undefined &&
         typeof options.onProgress !== "function") ||
-      (options.signal !== undefined &&
-        (options.signal === null ||
-          typeof options.signal !== "object" ||
-          Array.isArray(options.signal) ||
-          typeof options.signal.aborted !== "boolean"))
+      (options.cancelled !== undefined &&
+        typeof options.cancelled !== "function")
     )
       throw new Error(
-        "invalid-camera-map-options: only signal and synchronous progress observer supported",
+        "invalid-camera-map-options: only cancellation callback and synchronous progress observer supported",
       );
-    const signal: AbortSignal | undefined = options.signal,
+    const probe: typeof options.cancelled = options.cancelled,
       observer: typeof options.onProgress = options.onProgress;
-    if (signal?.aborted) throw cancellation;
-    const charts: ReturnType<typeof admitRecoveryCameraMap> =
+    const cancelled: () => boolean = (): boolean => {
+      callback = true;
+      const requested: boolean | undefined = probe?.();
+      if (probe !== undefined && typeof requested !== "boolean")
+        throw new Error(
+          "Cancellation callback must return a boolean synchronously",
+        );
+      callback = false;
+      return requested === true;
+    };
+    if (cancelled()) throw cancellation;
+    const charts: ReturnType<IAutoMovieRecoveryCameraMapAdmissionOperation.Operation> =
       admitRecoveryCameraMap(input);
     const stable: IAutoMovieRecoveryCameraMapInput = {
       ...input,
@@ -87,13 +98,13 @@ export function estimateAutoMovieRecoveryCameraMap(
       completed: number,
       total: number,
     ) => void = (phase: string, completed: number, total: number): void => {
-      if (signal?.aborted) throw cancellation;
+      if (cancelled()) throw cancellation;
       callback = true;
       observer?.(phase, completed, total);
       callback = false;
-      if (signal?.aborted) throw cancellation;
+      if (cancelled()) throw cancellation;
     };
-    const observed: ReturnType<typeof observeRecoveryCameraSet> =
+    const observed: ReturnType<IAutoMovieRecoveryCameraSetObservationOperation.Operation> =
       observeRecoveryCameraSet(
         stable.views,
         stable.seedPolicy,

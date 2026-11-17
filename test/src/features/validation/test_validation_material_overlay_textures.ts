@@ -1,5 +1,4 @@
 import {
-  IAutoMovieTextureImageFacts,
   validateModel,
   validateTextureAssets,
   validateTextureScale,
@@ -9,6 +8,7 @@ import {
   IAutoMovieMaterial,
   IAutoMovieModel,
   IAutoMovieModelPart,
+  type IAutoMovieTextureImageFacts,
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

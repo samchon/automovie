@@ -1,4 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieInspectionCamera,
+  IAutoMovieInspectionView,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
@@ -6,8 +10,6 @@ import type { IAutoMovieViewerSubjectPose } from "../subjectViewpoint/IAutoMovie
 import type { IAutoMovieViewerViewpoint } from "../subjectViewpoint/IAutoMovieViewerViewpoint.js";
 import { autoMovieViewerNamedViewpoints } from "../subjectViewpoint/autoMovieViewerNamedViewpoints.js";
 import { frameAutoMovieViewerSubject } from "../subjectViewpoint/frameAutoMovieViewerSubject.js";
-import type { IAutoMovieInspectionCamera } from "./IAutoMovieInspectionCamera.js";
-import type { IAutoMovieInspectionView } from "./IAutoMovieInspectionView.js";
 
 /** Smallest half extent a fitted view frames, metres, the framing owner's floor for a box without size. */
 const FLOOR: number = 0.5;

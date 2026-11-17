@@ -1,3 +1,5 @@
+import type { IAutoMovieCreateSupportSectionQuery } from "@automovie/interface";
+
 import { determinantAutoMovieMatrix3 } from "../math/determinantAutoMovieMatrix3";
 
 /**
@@ -21,14 +23,9 @@ import { determinantAutoMovieMatrix3 } from "../math/determinantAutoMovieMatrix3
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One caller-owned query reuses copied normals, exact nonparallel determinants, their conservative range bound, a numeric plane-pair index matrix and only the previous successful polygon's cyclic edge-pair indices. Current offsets must satisfy the range bound or receive full coordinate preflight, and every reused corner must prove current all-plane feasibility. The bound changes scheduling, not admission or arithmetic. Failure replaces the seed only after a successful full result; returned coordinates/incidence are fresh.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned CPU closure retains O(P squared) fixed direction records and at most P active-edge pair indices until released. Each query discards its coordinates/maps and transfers fresh vertices; no offsets, image, file, worker or global input-dependent cache is retained.
  */
-export function createAutoMovieSupportSectionQuery(input: {
-  normals: readonly (readonly [number, number])[];
-  minimumDirectionSine: number;
-}): (offsets: readonly number[]) => {
-  pair: [number, number];
-  tight: number[];
-  point: [number, number];
-}[] {
+export function createAutoMovieSupportSectionQuery(
+  input: IAutoMovieCreateSupportSectionQuery.IInput,
+): IAutoMovieCreateSupportSectionQuery.IResult {
   const normals: [number, number][] = input.normals.map(
     (normal: readonly [number, number]): [number, number] => [
       normal[0],
@@ -206,9 +203,9 @@ export function createAutoMovieSupportSectionQuery(input: {
         if (vertex !== undefined) vertices.set(vertex.tight.join(":"), vertex);
       }
     }
-    const result: ReturnType<
-      ReturnType<typeof createAutoMovieSupportSectionQuery>
-    > = [...vertices.values()].sort(
+    const result: ReturnType<IAutoMovieCreateSupportSectionQuery.IResult> = [
+      ...vertices.values(),
+    ].sort(
       (a: (typeof result)[number], b: (typeof result)[number]): number =>
         pairIndices[a.pair[0]][a.pair[1]]! - pairIndices[b.pair[0]][b.pair[1]]!,
     );

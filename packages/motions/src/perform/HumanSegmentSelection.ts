@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
+
 import type { HumanSegment } from "./HumanSegment";
 
 /**
@@ -26,13 +28,13 @@ export namespace HumanSegmentSelection {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state and returns the existing borrowed segment reference.
    */
   export function last(
-    segments: readonly HumanSegment.ISegment[],
+    segments: readonly IAutoMovieMotionHumanSegment[],
     seconds: number,
-  ): HumanSegment.ISegment | undefined {
+  ): IAutoMovieMotionHumanSegment | undefined {
     if (segments.length === 0) return undefined;
     const limit: number = seconds + 1e-12;
     for (let index: number = segments.length - 1; index >= 0; --index) {
-      const segment: HumanSegment.ISegment = segments[index];
+      const segment: IAutoMovieMotionHumanSegment = segments[index];
       if (segment.entryTime <= limit) return segment;
     }
     return undefined;

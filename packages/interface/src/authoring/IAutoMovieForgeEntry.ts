@@ -1,4 +1,4 @@
-import { IAutoMovieModel } from "../model/IAutoMovieModel";
+import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 
 /**
  * One cast node and the generated rig that embodies it.

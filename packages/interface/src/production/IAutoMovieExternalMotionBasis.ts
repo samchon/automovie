@@ -1,4 +1,4 @@
-import { IAutoMovieExternalMotionBasisNode } from "./IAutoMovieExternalMotionBasisNode";
+import type { IAutoMovieExternalMotionBasisNode } from "./IAutoMovieExternalMotionBasisNode";
 
 /**
  * Canonical byte-grounded coordinate and hierarchy basis for external motion.

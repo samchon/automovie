@@ -1,3 +1,5 @@
+import type { IAutoMoviePhysicalReleasedQuality } from "@automovie/interface";
+
 /**
  * Additional native solver budget of one body for its released quality.
  *
@@ -14,18 +16,9 @@
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function physicalReleasedQuality(input: {
-  /** Declared released totals, when the body has a released quality policy. */ quality?: {
-    /** Total articulation solver iterations while released. */ iterations: number;
-    /** Total internal PGS iterations while released. */ internalIterations: number;
-  };
-  /** Whether the body's default tracking is currently withdrawn. */ released: boolean;
-  /** World solver iterations per step. */ iterations: number;
-  /** World internal PGS iterations per step. */ internalIterations: number;
-}): {
-  /** Additional solver iterations to set on every rigid body of the body. */ solver: number;
-  /** Additional internal PGS iterations to set on every rigid body of the body. */ pgs: number;
-} {
+export function physicalReleasedQuality(
+  input: IAutoMoviePhysicalReleasedQuality.IInput,
+): IAutoMoviePhysicalReleasedQuality.IResult {
   if (!input.released || !input.quality) return { solver: 0, pgs: 0 };
   return {
     solver: Math.max(0, input.quality.iterations - input.iterations),

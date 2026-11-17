@@ -1,10 +1,12 @@
 import {
-  type AutoMovieSurfaceTier,
-  type IAutoMovieSubdivisionSurface,
-  type IAutoMovieSurfaceCage,
   sampleAutoMovieSurfaceNetwork,
   subdivideAutoMovieSurface,
 } from "@automovie/engine";
+import type {
+  AutoMovieSurfaceTier,
+  IAutoMovieSubdivisionSurface,
+  IAutoMovieSurfaceCage,
+} from "@automovie/interface";
 
 import { sweepTransitionTube } from "./sweepTransitionTube";
 

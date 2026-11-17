@@ -1,22 +1,27 @@
-import { type IAutoMovieResolvedBone, resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanPostureRotation,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMovieMotionHumanTurnHumanPosture,
   IAutoMoviePose,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanPostureRaw as Raw } from "./HumanPostureRaw";
+import { createHumanPostureRotation } from "./createHumanPostureRotation";
+import { poseBones } from "./poseBones";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { prepareHumanPostureRigCheck } from "./prepareHumanPostureRigCheck";
 import { prepareHumanPostureTranslation } from "./prepareHumanPostureTranslation";
 import { prepareIssuedHumanPosture } from "./prepareIssuedHumanPosture";
-import type { IHumanPosture } from "./IHumanPosture";
-import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import { poseBones } from "./poseBones";
-import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 import { resolveHumanPostureSource } from "./resolveHumanPostureSource";
-import { createHumanPostureRotation } from "./createHumanPostureRotation";
 import { turnHumanPosture } from "./turnHumanPosture";
 
 /**
@@ -60,8 +65,8 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each preparation holds the given authoring, one private seeded result, a rig checker and at most one lazily prepared expected-translation closure borrowing that authoring; synchronous reader/projector loans are not retained. Weak source/candidate ownership adds no result history.
    */
   export function prepare(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IPrepared {
@@ -79,20 +84,20 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only actual phase seed scalars propose a basin. Each current pose is solved, and private raw/rig proof still governs later exact translated reuse.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One preparation owns its snapshot/result and weak evidence; neither the seed input nor a reader is retained by its result.
    */
-  export function continued(body: IHumanBody, posture: IHumanPosture, near: resolveHumanPosture.INear,
+  export function continued(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture, near: IAutoMovieMotionHumanResolveHumanPosture.INear,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IPrepared {
     return prepareCurrent(body, posture, near, resolution, projection, resolveHumanPostureSource.continued);
   }
 
   /** Solve the given authoring, a value, with the one source solver under its actual ownership boundary. */
-  function prepareCurrent(body: IHumanBody, posture: IHumanPosture, near: resolveHumanPosture.INear,
+  function prepareCurrent(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture, near: IAutoMovieMotionHumanResolveHumanPosture.INear,
     resolution: Parameters<typeof prepareHumanPoseResolution>[0], projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
     solve: typeof coldSource): IPrepared {
-    const raw: IHumanPosture = posture;
+    const raw: IAutoMovieMotionHumanPosture = posture;
     const native: boolean = prepareHumanPoseResolution.isNativeSource(resolution);
     const rigUnchanged: (() => boolean) | undefined = native
       ? prepareHumanPostureRigCheck(body) : undefined;
-    const solved: resolveHumanPosture.ISeeded = native
+    const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = native
       ? solve(body, raw, near, resolution, projection)
       : resolveHumanPosture.seeded(body, { ...raw }, undefined, near, resolution, undefined, projection);
     let shown: IAutoMoviePose | undefined;
@@ -113,8 +118,8 @@ export namespace HumanPosturePreparation {
   }
 
   /** Public cold preparation retains the original ordinary source/memory policy. */
-  function coldSource(body: IHumanBody, posture: IHumanPosture, near: resolveHumanPosture.INear,
-    resolution: Parameters<typeof prepareHumanPoseResolution>[0], projection: ReturnType<typeof prepareHumanPostureProjection> | undefined): resolveHumanPosture.ISeeded {
+  function coldSource(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture, near: IAutoMovieMotionHumanResolveHumanPosture.INear,
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0], projection: ReturnType<typeof prepareHumanPostureProjection> | undefined): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
     return resolveHumanPostureSource.owned(body, posture, near, resolution, undefined, projection);
   }
 
@@ -129,7 +134,7 @@ export namespace HumanPosturePreparation {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads this issued source's actual completed result independently.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns caller-owned primitive records and retains no output, pose, callback or reader.
    */
-  export function seeds(prepared: IPrepared): resolveHumanPosture.ISeeded["seeds"] {
+  export function seeds(prepared: IPrepared): IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] {
     const source: ISource | undefined = SOURCES.get(prepared);
     if (source === undefined) throw new Error("Unissued canonical posture preparation");
     return structuredClone(source.solved.seeds);
@@ -216,14 +221,14 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses only the issued source's current actual canonical solve under bones' complete source/native proof; changed prerequisites receive ordinary current solving.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary bone map and COM end on return; the output owns its translated raw graph and bounded weak source evidence without any reader loan or new history.
    */
-  export function placed(prepared: IPrepared, model: resolveAutoMovieCenterOfMass.IModel,
-    requested: ReadonlySet<AutoMovieHumanoidBone>, centre: IAutoMovieVector3): IHumanPosture {
+  export function placed(prepared: IPrepared, model: IAutoMovieResolveCenterOfMass.IModel,
+    requested: ReadonlySet<AutoMovieHumanoidBone>, centre: IAutoMovieVector3): IAutoMovieMotionHumanPosture {
     return placeCurrent(prepared, model, bones(prepared, requested), centre);
   }
 
   /** Apply exactly the original COM subtract/add grouping to actual source geometry. */
-  function placeCurrent(prepared: IPrepared, model: resolveAutoMovieCenterOfMass.IModel,
-    placed: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, centre: IAutoMovieVector3): IHumanPosture {
+  function placeCurrent(prepared: IPrepared, model: IAutoMovieResolveCenterOfMass.IModel,
+    placed: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, centre: IAutoMovieVector3): IAutoMovieMotionHumanPosture {
     const source: ISource = SOURCES.get(prepared)!;
     const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(model, placed);
     return translated(prepared, {
@@ -246,7 +251,7 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual preparation supplies only its owned raw demands. A graph captured before serialization proves those emitted objects and all scalars remain unchanged; the consumer separately rechecks current rig/native-loan/cold context. A matching JSON string alone supplies no authority.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns an independently owned raw posture whose weak private evidence borrows its preparation data; no input vector, callback, reader or prior-query history is retained.
    */
-  export function translated(prepared: IPrepared, root: IAutoMovieVector3): IHumanPosture {
+  export function translated(prepared: IPrepared, root: IAutoMovieVector3): IAutoMovieMotionHumanPosture {
     const source: ISource | undefined = SOURCES.get(prepared);
     if (source === undefined) throw new Error("Unissued canonical posture preparation");
     return issued(source, Raw.translated(source.raw, root));
@@ -265,15 +270,15 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The current constructor-owned full raw graph, current complete rig and native rotation graph prove rigid covariance; copied wrappers, callbacks, contacts and altered context grant no authority. Public cold solver policy itself is unchanged.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The independently constructed raw output weakly owns one private actual solution and bounded original-node evidence. No trajectory, body evaluator, history, FK reader or returned pose is captured by the numeric rotation.
    */
-  export function turned(posture: IHumanPosture, rotation: IHumanPosture.IRotation): IHumanPosture {
-    const attached: IHumanPosture = { ...posture, rotation };
+  export function turned(posture: IAutoMovieMotionHumanPosture, rotation: IAutoMovieHumanPostureRotation): IAutoMovieMotionHumanPosture {
+    const attached: IAutoMovieMotionHumanPosture = { ...posture, rotation };
     const evidence: IEvidence | undefined = CARRIED.get(posture);
     if (evidence === undefined || !createHumanPostureRotation.unchanged(rotation)) return attached;
     const previous: ISource = evidence.source;
-    const solved: resolveHumanPosture.ISeeded | undefined = read(previous.body, posture);
+    const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded | undefined = read(previous.body, posture);
     if (solved === undefined || solved.pose.root === null || !createHumanPostureRotation.unchanged(rotation)) return attached;
-    const raw: IHumanPosture = structuredClone(attached);
-    const turn: turnHumanPosture.ITurned = turnHumanPosture(raw);
+    const raw: IAutoMovieMotionHumanPosture = structuredClone(attached);
+    const turn: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(raw);
     solved.pose.root.translation = turn.position;
     solved.pose.root.rotation = turn.rotation;
     const source: ISource = { ...previous, raw: structuredClone(raw), solved, expected: undefined };
@@ -291,8 +296,8 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit constructor takes only placement scalars and the actual private preparation, so unchanged clinical source is authoritative rather than inferred from an arbitrary caller's JSON. The source solve, owned graph and live rig checker establish the consumer proof.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh raw output and one weakly owned graph/source capability; no current root, reader/projector loan, previous output or sample history is retained by the preparation.
    */
-  export function rigid(prepared: IPrepared, root: IAutoMovieVector3, yaw: number, pitch: number, roll: number): IHumanPosture {
-    const raw: IHumanPosture | undefined = tryRigid(prepared, root, yaw, pitch, roll);
+  export function rigid(prepared: IPrepared, root: IAutoMovieVector3, yaw: number, pitch: number, roll: number): IAutoMovieMotionHumanPosture {
+    const raw: IAutoMovieMotionHumanPosture | undefined = tryRigid(prepared, root, yaw, pitch, roll);
     if (raw === undefined) throw new Error("Rigid posture placement requires an issued joint-only source");
     return raw;
   }
@@ -308,11 +313,11 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the actual private preparation supplies the fixed clinical shape; immutable source ownership and joint-only domain, not caller identity or a flag, authorize construction.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh raw candidate and its weak evidence or undefined, retaining no root, caller fallback, reader, sample or history.
    */
-  export function tryRigid(prepared: IPrepared, root: IAutoMovieVector3, yaw: number, pitch: number, roll: number): IHumanPosture | undefined {
+  export function tryRigid(prepared: IPrepared, root: IAutoMovieVector3, yaw: number, pitch: number, roll: number): IAutoMovieMotionHumanPosture | undefined {
     const source: ISource | undefined = SOURCES.get(prepared);
     if (source === undefined || !Raw.eligible(source.raw) || Object.keys(source.raw.limbs).length !== 0)
       return undefined;
-    const raw: IHumanPosture = Raw.translated(source.raw, root);
+    const raw: IAutoMovieMotionHumanPosture = Raw.translated(source.raw, root);
     raw.yaw = yaw; raw.pitch = pitch; raw.roll = roll;
     return issued(source, raw);
   }
@@ -330,13 +335,13 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Expected construction borrows only the immutable private raw prefix. Actual candidate serialization still precedes expected serialization; potential callbacks receive a detached prefix. Numerical reuse additionally requires preexisting same-source constructor graph and live rig/native-loan proof, with no mutable-input verdict cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak candidate entry keeps source/signature only while that candidate lives. The temporary expected record never enters output or evidence maps; inherited JSON hooks or nonnumeric replaced Euler fields trigger prefix detachment before serialization. One source owns one builder or unsupported marker, with no timestamp history.
    */
-  export function carried(prepared: IPrepared, posture: IHumanPosture): IHumanPosture {
+  export function carried(prepared: IPrepared, posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture {
     const source: ISource | undefined = SOURCES.get(prepared);
     if (source === undefined || source.rigUnchanged === undefined || !Raw.eligible(posture)) return posture;
     if (source.expected === undefined) source.expected = prepareHumanPostureTranslation(source.raw) ?? null;
     const root: IAutoMovieVector3 = posture.root;
-    const borrowed: IHumanPosture | undefined = source.expected?.(root);
-    const expected: IHumanPosture = borrowed ?? Raw.translated(source.raw, root);
+    const borrowed: IAutoMovieMotionHumanPosture | undefined = source.expected?.(root);
+    const expected: IAutoMovieMotionHumanPosture = borrowed ?? Raw.translated(source.raw, root);
     if (Object.keys(source.raw.limbs).length === 0 && Object.keys(posture.limbs).length === 0) {
       expected.yaw = posture.yaw;
       expected.pitch = posture.pitch;
@@ -348,7 +353,7 @@ export namespace HumanPosturePreparation {
       Object.getOwnPropertyDescriptor(Array.prototype, "toJSON") !== undefined || Object.getPrototypeOf(Array.prototype) !== Object.prototype ||
       Reflect.ownKeys(expected.root).length !== 3 || ![expected.root.x, expected.root.y, expected.root.z].every(Number.isFinite) ||
       ![expected.yaw, expected.pitch, expected.roll].every(Number.isFinite));
-    const compared: IHumanPosture = jsonCallbacks ? { ...expected,
+    const compared: IAutoMovieMotionHumanPosture = jsonCallbacks ? { ...expected,
       ...structuredClone({ joints: expected.joints, limbs: expected.limbs }) } : expected;
     if (signature !== undefined && signature === Raw.signature(compared)) {
       const previous: IEvidence | undefined = CARRIED.get(posture);
@@ -369,7 +374,7 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact candidate identity links an actual typed raw constructor to the source's actual owned cold solve. Its complete original-node scalar/shape snapshot and current rig/native-loan proof establish equivalence independently of JSON transformation, while every returned nested record is fresh.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Clones result records for the current caller and retains no returned output; source evidence weakly owns bounded original-node checker data and the issued preparation's source. It contains no FK loan, foreign callback or external handle.
    */
-  export function read(body: IHumanBody, posture: IHumanPosture): resolveHumanPosture.ISeeded | undefined {
+  export function read(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanResolveHumanPosture.ISeeded | undefined {
     const evidence: IEvidence | undefined = CARRIED.get(posture);
     if (evidence === undefined || evidence.signature === undefined) return undefined;
     const source: ISource = evidence.source;
@@ -383,14 +388,14 @@ export namespace HumanPosturePreparation {
     ) return undefined;
     if (evidence.unchanged === undefined) return undefined;
     if (!evidence.unchanged()) { CARRIED.delete(posture); return undefined; }
-    const out: resolveHumanPosture.ISeeded = structuredClone(source.solved);
+    const out: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = structuredClone(source.solved);
     if (out.pose.root === null) return undefined;
     if (posture.rotation === undefined) {
       out.pose.root.translation = { ...posture.root };
       if (Object.keys(source.raw.limbs).length === 0)
         out.pose.root.rotation = resolveHumanPosture.heading(posture);
     } else {
-      const turn: turnHumanPosture.ITurned = turnHumanPosture(posture);
+      const turn: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(posture);
       out.pose.root.translation = turn.position;
       if (Object.keys(source.raw.limbs).length === 0) out.pose.root.rotation = turn.rotation;
     }
@@ -400,14 +405,14 @@ export namespace HumanPosturePreparation {
 
 /** One producer's private unchanged raw context and actual numerical result. */
 interface ISource {
-  body: IHumanBody;
-  rig: IHumanBody["poseResolution"];
-  topology: IHumanBody["topology"];
+  body: IAutoMovieMotionHumanBody;
+  rig: IAutoMovieMotionHumanBody["poseResolution"];
+  topology: IAutoMovieMotionHumanBody["topology"];
   rigUnchanged: (() => boolean) | undefined;
-  raw: IHumanPosture;
+  raw: IAutoMovieMotionHumanPosture;
   /** Optional nonescaping expected-only builder over the same immutable private raw clone. */
   expected: ReturnType<typeof prepareHumanPostureTranslation> | null;
-  solved: resolveHumanPosture.ISeeded;
+  solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded;
 }
 
 /** Observed JSON and actual constructor authority are distinct, explicitly owned fields. */
@@ -424,10 +429,10 @@ interface IEvidence {
 const SOURCES: WeakMap<HumanPosturePreparation.IPrepared, ISource> = new WeakMap();
 
 /** A candidate's evidence disappears when that exact raw object is released. */
-const CARRIED: WeakMap<IHumanPosture, IEvidence> = new WeakMap();
+const CARRIED: WeakMap<IAutoMovieMotionHumanPosture, IEvidence> = new WeakMap();
 
 /** Only actual owned constructors can mint complete graph provenance; JSON stays an observed prefilter. */
-function issued(source: ISource, raw: IHumanPosture): IHumanPosture {
+function issued(source: ISource, raw: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture {
   if (source.rigUnchanged !== undefined && Raw.eligible(raw)) {
     const unchanged: (() => boolean) | undefined = prepareIssuedHumanPosture(raw);
     const signature: string | undefined = Raw.signature(raw);

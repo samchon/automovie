@@ -1,10 +1,14 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
   IAutoMovieSkeleton,
+  IAutoMovieSwingTwistBasis,
+  IAutoMovieSwingTwistChartPosition,
+  IAutoMovieSwingTwistRange,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -15,16 +19,15 @@ import { positiveModulo } from "../math/positiveModulo";
 import { rotationBetween } from "../math/rotationBetween";
 import { swingTwist } from "../math/swingTwist";
 import { wrapDegrees } from "../math/wrapDegrees";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
+import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
 import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
-import { skeletonJointAxes } from "./skeletonJointAxes";
 import { placeSwingTwistChart } from "./placeSwingTwistChart";
+import { skeletonJointAxes } from "./skeletonJointAxes";
 import { swingTwistBasis } from "./swingTwistBasis";
 import { swingTwistRegion } from "./swingTwistRegion";
-import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
 
 const DEG: number = swingTwistBasis.DEG;
 
@@ -50,44 +53,6 @@ type IChart = ReturnType<typeof swingTwistRange.chart>;
  */
 export namespace swingTwistRange {
   /**
-   * A rotation read by swing and twist.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's frame and unit: the limb's unit direction in the rest frame, the swing in degrees, the azimuth in degrees about the rest direction from the flexion axis and the clinical twist in [-180, 180).
-   * @evidence contracts/development/design.md#principled-representation The two quantities a ball joint's range limits independently, where the limb points (the direction with its swing and azimuth) and how it is turned about itself (the twist), in degrees and the bone's rest frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by `overshoot` and `project`; the direction is kept so `project` need not recompute it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither the swing nor the twist is read through a three-angle chart; the record names no joint and no bone.
-   */
-  export interface IReading {
-    /** The limb's direction, unit, in the bone's rest frame. */
-    direction: IAutoMovieVector3;
-
-    /** The angle from the rest direction to the limb's direction, degrees. */
-    swing: number;
-
-    /** The great circle the direction lies on, degrees about the rest direction from the flexion axis. */
-    azimuth: number;
-
-    /** The twist about the rest direction, clinical degrees in [-180, 180). */
-    twist: number;
-  }
-
-  /**
-   * The joint's frame: its axes and its rest frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that the axes are the joint's clinical basis and that the rest frame lifts its angles, and that an absent frame leaves angles rest-relative.
-   * @evidence contracts/development/design.md#principled-representation The caller's clinical axis basis and rest frame, the two things that turn a rotation's angles into the joint's clinical ones; both come from `@automovie/interface` and the engine's rest frame type.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by every function here; the radius table is cached on them; `of` gives them for a rig's bone.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No joint or bone is named, and no type is duplicated.
-   */
-  export interface IJoint {
-    /** The joint's clinical axes. */
-    axes: IAutoMovieJointAxes;
-
-    /** The rest frame its clinical angles are lifted by. */
-    frame?: IAutoMovieRestFrame | undefined;
-  }
-
-  /**
    * The frame a rig's bone is read in: its clinical axes as the skeleton
    * resolves them (`skeletonJointAxes`, the bone's own declaration over the
    * humanoid table) and the humanoid rest frame; the humanoid table's axes
@@ -108,7 +73,7 @@ export namespace swingTwistRange {
   export function of(
     bone: AutoMovieHumanoidBone,
     skeleton?: IAutoMovieSkeleton,
-  ): IJoint | undefined {
+  ): IAutoMovieJointRotationFrame | undefined {
     const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
       skeleton === undefined
         ? HUMANOID_JOINT_AXES
@@ -135,7 +100,7 @@ export namespace swingTwistRange {
   export function fromAxes(
     bone: AutoMovieHumanoidBone,
     axes: IAutoMovieJointAxes | undefined,
-  ): IJoint | undefined {
+  ): IAutoMovieJointRotationFrame | undefined {
     return axes === undefined
       ? undefined
       : { axes, frame: HUMANOID_REST_FRAME[bone] };
@@ -156,7 +121,7 @@ export namespace swingTwistRange {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller's unchanged axes/frame scope proves basis equivalence; every incoming quaternion or chart coordinate still receives the original numerical computation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One wrapper owns three lazy reader closures, at most one admitted-axis reference and one swing basis plus borrowed frame records, released with the operation; no global registry, skeleton identity cache, resource handle or task is introduced.
    */
-  export function prepare(joint: IJoint): IJoint {
+  export function prepare(joint: IAutoMovieJointRotationFrame): IAutoMovieJointRotationFrame {
     return SwingTwistFramePreparation.of(joint);
   }
 
@@ -175,8 +140,8 @@ export namespace swingTwistRange {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses swingTwist and wrapDegrees, plus only an explicit prepared wrapper's unchanged basis; ordinary joint frames retain live admission.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function read(q: IAutoMovieQuaternion, joint: IJoint): IReading {
-    const basis: swingTwistBasis.IBasis = SwingTwistFramePreparation.basis(joint);
+  export function read(q: IAutoMovieQuaternion, joint: IAutoMovieJointRotationFrame): IAutoMovieSwingTwistRange.IReading {
+    const basis: IAutoMovieSwingTwistBasis.IBasis = SwingTwistFramePreparation.basis(joint);
     const unit: IAutoMovieQuaternion = Quaternion.normalize(q);
     const direction: IAutoMovieVector3 = Vector3.normalize(
       Quaternion.rotateVector(unit, basis.u),
@@ -223,9 +188,9 @@ export namespace swingTwistRange {
   export function overshoot(
     q: IAutoMovieQuaternion,
     constraint: IAutoMovieJointConstraint,
-    joint: IJoint,
+    joint: IAutoMovieJointRotationFrame,
   ): number {
-    const reading: IReading = read(q, joint);
+    const reading: IAutoMovieSwingTwistRange.IReading = read(q, joint);
     const twist: IAutoMovieAngleRange = constraint.swingTwist!.twist;
     const turned: number = nearestAngleAlias(reading.twist, twist);
     return (
@@ -256,10 +221,10 @@ export namespace swingTwistRange {
   export function project(
     q: IAutoMovieQuaternion,
     constraint: IAutoMovieJointConstraint,
-    joint: IJoint,
+    joint: IAutoMovieJointRotationFrame,
   ): IAutoMovieQuaternion {
-    const basis: swingTwistBasis.IBasis = SwingTwistFramePreparation.basis(joint);
-    const reading: IReading = read(q, joint);
+    const basis: IAutoMovieSwingTwistBasis.IBasis = SwingTwistFramePreparation.basis(joint);
+    const reading: IAutoMovieSwingTwistRange.IReading = read(q, joint);
     const interval: IAutoMovieAngleRange = constraint.swingTwist!.twist;
     const turned: number = nearestAngleAlias(reading.twist, interval);
     const twist: number = swingTwistBasis.clamp(
@@ -311,9 +276,9 @@ export namespace swingTwistRange {
   export function chart(
     q: IAutoMovieQuaternion,
     constraint: IAutoMovieJointConstraint,
-    joint: IJoint,
-  ): { x: number; y: number; twist: number } {
-    const reading: IReading = read(q, joint);
+    joint: IAutoMovieJointRotationFrame,
+  ): IAutoMovieSwingTwistChartPosition {
+    const reading: IAutoMovieSwingTwistRange.IReading = read(q, joint);
     const k: number =
       reading.swing / radius(constraint, joint, reading.azimuth);
     const turn: number = reading.azimuth / DEG;
@@ -341,9 +306,9 @@ export namespace swingTwistRange {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function placed(
-    place: { x: number; y: number; twist: number },
+    place: IAutoMovieSwingTwistChartPosition,
     constraint: IAutoMovieJointConstraint,
-    joint: IJoint,
+    joint: IAutoMovieJointRotationFrame,
   ): IAutoMovieQuaternion {
     return placeSwingTwistChart(place, constraint, joint, radius);
   }
@@ -382,7 +347,7 @@ export namespace swingTwistRange {
     b: IAutoMovieQuaternion,
     share: number,
     constraint: IAutoMovieJointConstraint,
-    joint: IJoint,
+    joint: IAutoMovieJointRotationFrame,
   ): IAutoMovieQuaternion {
     const from: { x: number; y: number; twist: number } = chart(
       a,
@@ -412,7 +377,7 @@ export namespace swingTwistRange {
    */
   export function prepareBlend(
     a: IAutoMovieQuaternion, b: IAutoMovieQuaternion,
-    constraint: IAutoMovieJointConstraint, joint: IJoint,
+    constraint: IAutoMovieJointConstraint, joint: IAutoMovieJointRotationFrame,
   ): (share: number) => IAutoMovieQuaternion {
     const from: IChart = chart(a, constraint, joint);
     const to: IChart = chart(b, constraint, joint);
@@ -425,7 +390,7 @@ export namespace swingTwistRange {
   /** Original chart expressions, shared without a second interpolation algorithm. */
   function blendCharts(
     from: IChart, to: IChart, share: number,
-    constraint: IAutoMovieJointConstraint, joint: IJoint,
+    constraint: IAutoMovieJointConstraint, joint: IAutoMovieJointRotationFrame,
     read?: (coordinate: IChart) => IAutoMovieQuaternion,
   ): IAutoMovieQuaternion {
     const coordinate: IChart = {
@@ -454,7 +419,7 @@ export namespace swingTwistRange {
    */
   export function radius(
     constraint: IAutoMovieJointConstraint,
-    joint: IJoint,
+    joint: IAutoMovieJointRotationFrame,
     azimuth: number,
   ): number {
     const table: Float64Array = swingTwistRegion.table(constraint, joint);

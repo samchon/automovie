@@ -5,16 +5,19 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanHitTrack,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionWeaponPath,
+  IAutoMovieResolveContactEvents,
+  IAutoMovieScheduleCue,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanColliders } from "../posture/HumanColliders";
 import { StrikingWeapon } from "../striking/StrikingWeapon";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 
 /**
  * A struck subject's hits as a track of named instants, so an action is
@@ -37,29 +40,7 @@ import type { HumanPerformanceState } from "./HumanPerformanceState";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The hits are the record's; the provisional sweep uses the one contact resolver.
  */
 export namespace HumanHitTrack {
-  /**
-   * A hit to sync to.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines struck subject, optional producer filter and zero-based hit selection.
-   * @evidence contracts/development/design.md#principled-representation Addresses the existing interaction track by plain subject strings and an optional numeric event index.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only target, optional striker/prop and occurrence are authored.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the shared track rather than introducing another physical hit model.
-   */
-  export interface IHit {
-    /** The struck subject, a performer or a prop. */
-    on: string;
-
-    /** The striking prop, or the striker's subject; any striker when absent. */
-    by?: string;
-
-    /** Which of the matching hits, from 0; the first when absent. */
-    index?: number;
-  }
-
-  /**
-   * The instant name of every hit on a track.
-
-   */
+  /** The instant name of every hit on a track. */
   export const EVENT: string = "hit";
 
   /**
@@ -82,7 +63,7 @@ export namespace HumanHitTrack {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure address formatting.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function name(hit: IHit): string {
+  export function name(hit: IAutoMovieMotionHumanHitTrack.IHit): string {
     return hit.by === undefined
       ? `${PREFIX}${hit.on}`
       : `${PREFIX}${hit.on}:${hit.by}`;
@@ -104,9 +85,9 @@ export namespace HumanHitTrack {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-call sweep inputs/events, cue arrays, at most one fixed-name struck-actor query producer and one bones map per exact second read end on return or throw. Each actual query owns its own FK/projector/pose scope; returned cues keep only names/seconds and retain no callbacks, bodies, readers or sampled poses.
    */
   export function instants(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     of: string,
-  ): readonly resolveAutoMovieSchedule.ICue[] | undefined {
+  ): readonly IAutoMovieScheduleCue[] | undefined {
     if (!of.startsWith(PREFIX)) return undefined;
     const [on, by] = of.slice(PREFIX.length).split(":") as [
       string,
@@ -122,34 +103,44 @@ export namespace HumanHitTrack {
           (by === undefined || h.actor === by || h.object === by),
       )
       .map(
-        (h: IAutoMovieInteractionEvent): resolveAutoMovieSchedule.ICue => ({
+        (h: IAutoMovieInteractionEvent): IAutoMovieScheduleCue => ({
           name: EVENT,
           seconds: h.time,
         }),
       )
       .sort(
-        (a: resolveAutoMovieSchedule.ICue, b: resolveAutoMovieSchedule.ICue) =>
+        (a: IAutoMovieScheduleCue, b: IAutoMovieScheduleCue) =>
           a.seconds - b.seconds,
       );
   }
 
   /** The melee hits on a person while placing: each placed weapon of another person swept against them alone. */
   function provisional(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     on: string,
   ): IAutoMovieInteractionEvent[] {
     const struck = self.people.get(on);
     if (struck === undefined) return [];
-    const requested: ReadonlySet<AutoMovieHumanoidBone> =
-      HumanColliders.bones(struck.performer.body);
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = HumanColliders.bones(
+      struck.performer.body,
+    );
     // Nothing is placed during this call, so the struck body's pose at a
     // second is the same for every weapon swept: read once per exact second.
-    let frames: ReturnType<typeof HumanPerformanceRead.prepareBones> | undefined;
-    const read: Map<number, ReturnType<typeof HumanPerformanceRead.bones>> = new Map();
-    const readBones = (seconds: number): ReturnType<typeof HumanPerformanceRead.bones> => {
-      let bones: ReturnType<typeof HumanPerformanceRead.bones> | undefined = read.get(seconds);
+    let frames:
+      | ReturnType<typeof HumanPerformanceRead.prepareBones>
+      | undefined;
+    const read: Map<
+      number,
+      ReturnType<typeof HumanPerformanceRead.bones>
+    > = new Map();
+    const readBones = (
+      seconds: number,
+    ): ReturnType<typeof HumanPerformanceRead.bones> => {
+      let bones: ReturnType<typeof HumanPerformanceRead.bones> | undefined =
+        read.get(seconds);
       if (bones === undefined) {
-        if (frames === undefined) frames = HumanPerformanceRead.prepareBones(self, on, requested);
+        if (frames === undefined)
+          frames = HumanPerformanceRead.prepareBones(self, on, requested);
         bones = frames(seconds);
         read.set(seconds, bones);
       }
@@ -161,42 +152,65 @@ export namespace HumanHitTrack {
       for (const segment of person.segments) {
         // The weapons on one limb are the capsules of one striking part,
         // which stops as a whole at its first contact: one sweep, one hit.
-        const limbs: Map<string, IHumanActionPlan.IWeapon[]> = new Map();
+        const limbs: Map<string, IAutoMovieMotionWeaponPath[]> = new Map();
         for (const w of segment.plan.weapons ?? []) {
-          if (!(Math.min(w.to, segment.end) > Math.max(w.from, segment.entryTime))) continue;
-          const group: IHumanActionPlan.IWeapon[] | undefined = limbs.get(w.limb);
+          if (
+            !(Math.min(w.to, segment.end) > Math.max(w.from, segment.entryTime))
+          )
+            continue;
+          const group: IAutoMovieMotionWeaponPath[] | undefined = limbs.get(
+            w.limb,
+          );
           if (group === undefined) limbs.set(w.limb, [w]);
           else group.push(w);
         }
         for (const [limb, group] of limbs) {
-          const from: number = Math.min(...group.map((w: IHumanActionPlan.IWeapon): number => Math.max(w.from, segment.entryTime)));
-          const to: number = Math.max(...group.map((w: IHumanActionPlan.IWeapon): number => Math.min(w.to, segment.end)));
-          const events: resolveAutoMovieContactEvents.IEvent[] =
+          const from: number = Math.min(
+            ...group.map((w: IAutoMovieMotionWeaponPath): number =>
+              Math.max(w.from, segment.entryTime),
+            ),
+          );
+          const to: number = Math.max(
+            ...group.map((w: IAutoMovieMotionWeaponPath): number =>
+              Math.min(w.to, segment.end),
+            ),
+          );
+          const events: IAutoMovieResolveContactEvents.IEvent[] =
             resolveAutoMovieContactEvents({
-              weapons: group.map((w: IHumanActionPlan.IWeapon): resolveAutoMovieContactEvents.IWeapon => {
-                const tail = w.tail;
-                return {
-                  id: w.id,
-                  owner: person.performer.subject,
-                  group: limb,
-                  radius: w.radius,
-                  from: Math.max(w.from, segment.entryTime),
-                  to: Math.min(w.to, segment.end),
-                  position: (t: number): IAutoMovieVector3 => w.path(t),
-                  sample: (t: number): resolveAutoMovieContactEvents.IWeaponFrame => {
-                    const [position, end]: StrikingWeapon.IAxis = StrikingWeapon.read(w, t);
-                    return { position, ...(end === undefined ? {} : { tail: end }) };
-                  },
-                  ...(tail === undefined
-                    ? {}
-                    : {
-                        tail: (t: number): IAutoMovieVector3 => tail(t),
-                        ...(w.tailRadius === undefined
-                          ? {}
-                          : { tailRadius: w.tailRadius }),
-                      }),
-                };
-              }),
+              weapons: group.map(
+                (
+                  w: IAutoMovieMotionWeaponPath,
+                ): IAutoMovieResolveContactEvents.IWeapon => {
+                  const tail = w.tail;
+                  return {
+                    id: w.id,
+                    owner: person.performer.subject,
+                    group: limb,
+                    radius: w.radius,
+                    from: Math.max(w.from, segment.entryTime),
+                    to: Math.min(w.to, segment.end),
+                    position: (t: number): IAutoMovieVector3 => w.path(t),
+                    sample: (
+                      t: number,
+                    ): IAutoMovieResolveContactEvents.IWeaponFrame => {
+                      const [position, end]: StrikingWeapon.IAxis =
+                        StrikingWeapon.read(w, t);
+                      return {
+                        position,
+                        ...(end === undefined ? {} : { tail: end }),
+                      };
+                    },
+                    ...(tail === undefined
+                      ? {}
+                      : {
+                          tail: (t: number): IAutoMovieVector3 => tail(t),
+                          ...(w.tailRadius === undefined
+                            ? {}
+                            : { tailRadius: w.tailRadius }),
+                        }),
+                  };
+                },
+              ),
               bodies: [
                 {
                   id: on,
@@ -210,7 +224,7 @@ export namespace HumanHitTrack {
                     a: IAutoMovieVector3,
                     b: IAutoMovieVector3,
                     t: number,
-                    _: resolveAutoMovieContactEvents.IStops,
+                    _: IAutoMovieResolveContactEvents.IStops,
                     taper?: readonly [number, number],
                   ): number =>
                     HumanColliders.distanceToSegment(
@@ -227,8 +241,9 @@ export namespace HumanHitTrack {
               step: HumanPerformanceContacts.STEP,
             });
           for (const e of events) {
-            const w: IHumanActionPlan.IWeapon = group.find(
-              (weapon: IHumanActionPlan.IWeapon): boolean => weapon.id === e.weapon,
+            const w: IAutoMovieMotionWeaponPath = group.find(
+              (weapon: IAutoMovieMotionWeaponPath): boolean =>
+                weapon.id === e.weapon,
             )!;
             out.push({
               id: `hit:${person.performer.subject}:${w.id}:${on}:${e.seconds.toFixed(6)}`,

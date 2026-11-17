@@ -1,3 +1,5 @@
+import type { IAutoMovieGatherSoftBodyCorrections } from "@automovie/interface";
+
 import { SOFT_BODY_NEIGHBOURS } from "./SOFT_BODY_NEIGHBOURS";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
 
@@ -11,25 +13,9 @@ import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The eighteen-slot fold buffer is reused for every particle, while prepared topology/rest lengths are supplied once by the solve; no prior sweep's corrections are reused after positions change.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Predicted and preparation arrays are read only, correction is overwritten, and the fold buffer is released when the sweep returns.
  */
-export const gatherSoftBodyCorrections: (props: {
-  columns: number;
-  rows: number;
-  predicted: Float64Array<ArrayBufferLike>;
-  correction: Float64Array<ArrayBufferLike>;
-  inverseMass: Float64Array<ArrayBufferLike>;
-  valence: Int32Array<ArrayBufferLike>;
-  restLength: Float64Array<ArrayBufferLike>;
-  stiffness: number[];
-}) => void = (props: {
-  columns: number;
-  rows: number;
-  predicted: Float64Array;
-  correction: Float64Array;
-  inverseMass: Float64Array;
-  valence: Int32Array;
-  restLength: Float64Array;
-  stiffness: number[];
-}): void => {
+export const gatherSoftBodyCorrections: (
+  props: IAutoMovieGatherSoftBodyCorrections.IProps,
+) => void = (props: IAutoMovieGatherSoftBodyCorrections.IProps): void => {
   const { columns, rows, predicted, correction, inverseMass }: typeof props =
     props;
   // Six mirror-partner slots of three components each, in the order the family

@@ -8,18 +8,22 @@ import {
   prepareAutoMovieMassModel,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBalance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
 import { HumanBalanceExtrapolated } from "./HumanBalanceExtrapolated";
+import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
 
 /**
  * How far the hips move back so the whole-body centre of mass stands over
@@ -100,8 +104,8 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The trial map, fixed-name FK demand, genuine ROM projector and exact FK workspace end with this solve; each foot reader ends with its synchronous trial, the classic model is borrowed lazily from the body and its operation token is released in finally on every success/failure; no dynamic context or model/result cache survives the search.
    */
   export function shift(
-    body: IHumanBody,
-    build: (back: number) => IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    build: (back: number) => IAutoMovieMotionHumanPosture,
     range: number = RANGE,
     target: number = 0,
   ): number {
@@ -209,7 +213,7 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure query; nothing to reuse across calls.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body's prepared mass model during this synchronous query and retains no model or result.
    */
-  export function margin(body: IHumanBody, posture: IHumanPosture): number {
+  export function margin(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): number {
     const placed: IPlaced = placement(body, posture);
     return resolveAutoMovieCenterOfMass.margin(placed.centre, placed.base);
   }
@@ -234,8 +238,8 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local getter ends with the synchronous query, while an optional parent retains only its own operation workspace. The returned fresh vector retains no body, pose, model, reader or support data.
    */
   export function centre(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
     resolved?: ReturnType<typeof resolveHumanPosture>,
@@ -278,8 +282,8 @@ export namespace HumanBalance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body's prepared mass model for these actual three solves, retaining no model, sampled frame or result after return.
    */
   export function extrapolated(
-    body: IHumanBody,
-    at: (seconds: number) => IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    at: (seconds: number) => IAutoMovieMotionHumanPosture,
     seconds: number,
   ): number {
     return HumanBalanceExtrapolated.of(body, at, seconds);
@@ -313,11 +317,11 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body's prepared mass model and optional synchronous exact FK/genuine ROM metadata, returning fresh support data without retaining a reader, projector, result, model or sampled history.
    */
   export function support(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): { centre: IAutoMovieVector3; points: IAutoMovieVector3[] } {
+  ): IAutoMovieMotionHumanBalance.ISupportResult {
     const placed: IPlaced = placement(body, posture, resolution, projection);
     return {
       centre: placed.centre,
@@ -392,7 +396,7 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure query; nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body's prepared mass model during one synchronous solve and retains no duplicate model or output.
    */
-  export function offset(body: IHumanBody, posture: IHumanPosture): number {
+  export function offset(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): number {
     return projected(placement(body, posture), posture.yaw);
   }
 }
@@ -406,8 +410,8 @@ interface IReading {
 
 /** A posture's balance, read on one solve of it. */
 function read(
-  body: IHumanBody,
-  posture: IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
   resolution: ReturnType<typeof prepareHumanPoseResolution>,
   projection: ReturnType<typeof prepareHumanPostureProjection>,
   frames?: ReturnType<typeof poseBones.prepare>,
@@ -421,7 +425,7 @@ function read(
     // A heel bears within the bearing height of the lowest sole socket.
     flat: (["left", "right"] as const).every(
       (side: "left" | "right"): boolean => {
-        const sockets: readonly HumanFoot.ISocket[] = placed.feet.sockets(side);
+        const sockets: readonly IAutoMovieMotionHumanFoot.ISocket[] = placed.feet.sockets(side);
         return sockets[0]!.point.y <=
           Math.min(sockets[1]!.point.y, sockets[2]!.point.y) + HumanFoot.BEARING;
       },
@@ -443,8 +447,8 @@ interface IPlaced {
 
 /** Solve once and prepare only the common mass-centre and support geometry. */
 function placement(
-  body: IHumanBody,
-  posture: IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   projection?: ReturnType<typeof prepareHumanPostureProjection>,
   frames?: ReturnType<typeof poseBones.prepare>,

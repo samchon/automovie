@@ -1,11 +1,9 @@
-import {
-  type AutoMovieConstructionRealization,
-  type IAutoMovieLoftChain,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
 import type {
-  AutoMovieConstructionNode,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
+  IAutoMovieLoftChain,
+  IAutoMovieSolidSurface,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -13,8 +11,8 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
 
 /** Either explicitly requested realization result; the default type still requires its mesh. */
 type Result =
-  | AutoMovieConstructionRealization.IRealization
-  | AutoMovieConstructionRealization.IWithoutSkin;
+  | IAutoMovieConstructionRealization.IRealization
+  | IAutoMovieConstructionRealization.IWithoutSkin;
 
 /**
  * Final skin omission preserves the construction's operators, boundary publication and failures.
@@ -33,7 +31,7 @@ export function test_construction_without_skin(): void {
   const failures: string[] = [];
 
   /** Each supported node kind and the failed attaching node's rollback. */
-  const cases: [string, AutoMovieConstructionNode][] = [
+  const cases: [string, IAutoMovieConstructionNode][] = [
     [
       "open",
       ConstructionShapes.cylinder("tube", ConstructionShapes.DOWN, 0.02, 0.1),
@@ -59,18 +57,18 @@ export function test_construction_without_skin(): void {
       const before: string = JSON.stringify(root);
 
       /** Omitted and true flags retain the required full-mesh return type. */
-      const normal: AutoMovieConstructionRealization.IRealization =
+      const normal: IAutoMovieConstructionRealization.IRealization =
         realizeAutoMovieConstruction({ name, root }, { chord: 1e-4 });
 
       /** Explicit true retains that same required-mesh contract. */
-      const enabled: AutoMovieConstructionRealization.IRealization =
+      const enabled: IAutoMovieConstructionRealization.IRealization =
         realizeAutoMovieConstruction(
           { name, root },
           { chord: 1e-4, skin: true },
         );
 
       /** A literal false call has a statically null mesh. */
-      const without: AutoMovieConstructionRealization.IWithoutSkin =
+      const without: IAutoMovieConstructionRealization.IWithoutSkin =
         realizeAutoMovieConstruction(
           { name, root },
           { chord: 1e-4, skin: false },
@@ -160,7 +158,7 @@ function compare(
         (surface: IAutoMovieSolidSurface): string => surface.name,
       ),
       joins: result.joins.map(
-        (join: AutoMovieConstructionRealization.IJoin): unknown[] => [
+        (join: IAutoMovieConstructionRealization.IJoin): unknown[] => [
           join.name,
           join.hostFace,
           join.partFace,
@@ -184,7 +182,7 @@ function compare(
   const chains: IAutoMovieLoftChain[] = [
     ...full.chains,
     ...full.joins.map(
-      (join: AutoMovieConstructionRealization.IJoin): IAutoMovieLoftChain =>
+      (join: IAutoMovieConstructionRealization.IJoin): IAutoMovieLoftChain =>
         join.blend.chain,
     ),
   ];
@@ -371,7 +369,7 @@ function feet(result: Result, failures: string[]): void {
 }
 
 /** The ordinary top-to-bottom continuation, with different interior radii. */
-function continuation(): AutoMovieConstructionNode {
+function continuation(): IAutoMovieConstructionNode {
   return {
     type: "continue",
     name: "join.neck",
@@ -395,7 +393,7 @@ function continuation(): AutoMovieConstructionNode {
 }
 
 /** The existing trim specification's radial, exact-knot landmarks on a 20 mm cylinder. */
-function trimmed(): AutoMovieConstructionNode {
+function trimmed(): IAutoMovieConstructionNode {
   /** Eight authored landmarks, lifted 0.5 mm radially from their exact knot phases. */
   const phases: number[] = [1, 1, 0, -1, -1, -1, 0, 1].map(
     (k: number): number => (k * 2 * Math.PI) / 16,
@@ -425,7 +423,7 @@ function trimmed(): AutoMovieConstructionNode {
 }
 
 /** A post that misses its beam, retaining the beam alone after rollback. */
-function apart(): AutoMovieConstructionNode {
+function apart(): IAutoMovieConstructionNode {
   return ConstructionShapes.join(
     "merge",
     "blend.post",
@@ -465,19 +463,19 @@ function apart(): AutoMovieConstructionNode {
 /** Chord and tree admission remain the same before either mode can do operator work. */
 function refusals(failures: string[]): void {
   /** Structural negative cases are isolated from geometric diagnostics. */
-  const duplicate: AutoMovieConstructionNode = continuation();
+  const duplicate: IAutoMovieConstructionNode = continuation();
   if (duplicate.type !== "continue" || duplicate.part.type !== "view")
     throw new Error("authored continuation fixture changed");
   duplicate.part.name = "trunk";
 
   /** A valid continuation shape whose named host face is structurally absent. */
-  const missing: AutoMovieConstructionNode = continuation();
+  const missing: IAutoMovieConstructionNode = continuation();
   if (missing.type !== "continue")
     throw new Error("authored continuation fixture changed");
   missing.hostFace = "absent";
 
   /** One authored input per unchanged structural or chord-admission rule. */
-  const cases: [string, AutoMovieConstructionNode, number][] = [
+  const cases: [string, IAutoMovieConstructionNode, number][] = [
     ["used twice", duplicate, 1e-4],
     ["not a face", missing, 1e-4],
     [

@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanPerformance } from "@automovie/interface";
 import { HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,7 +27,9 @@ import type { IScene } from "../../src/scenes/structures/IScene";
  * 6. Browser history and adapter failures return their original messages through the same result path, so the page can leave its building state without weakening address admission.
  */
 export async function test_website_playground_perform(): Promise<void> {
-  const perform = (composition: IPlaygroundComposition): HumanPerformance => {
+  const perform = (
+    composition: IPlaygroundComposition,
+  ): IAutoMovieMotionHumanPerformance => {
     const built: PlaygroundChain.IBuilt = PlaygroundChain.build(composition);
     return new HumanPerformance({
       seed: composition.seed,
@@ -48,7 +51,7 @@ export async function test_website_playground_perform(): Promise<void> {
     (scene: IScene): boolean => scene.id === "dance-circle",
   )!.composition!;
   {
-    const performance: HumanPerformance = perform(base);
+    const performance: IAutoMovieMotionHumanPerformance = perform(base);
     TestValidator.predicate(
       "the dance circle has a duration",
       performance.duration > 0,

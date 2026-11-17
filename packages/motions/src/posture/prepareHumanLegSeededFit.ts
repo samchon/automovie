@@ -1,19 +1,17 @@
-import {
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSeededChainFit,
-  type IAutoMovieSwivelNear,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLegChain,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelNear,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanLegChain } from "./HumanLegChain";
+import { HumanLegChain } from "./HumanLegChain";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { poseBones } from "./poseBones";
 import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
@@ -41,11 +39,11 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One piece owns a hips-only pose, four-name demand and lazy FK reader plus its weakly owned bounded source-snapshot/factory pool until release. Goal workspaces and temporary maps end per query; only swivel/seed data escape, with no reader in a plan result, target history or handle.
  */
 export function prepareHumanLegSeededFit(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   side: "left" | "right",
   pelvis: IAutoMovieQuaternion,
   hip: IAutoMovieVector3,
-  readSwivel: (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => HumanLegChain.ISwivel,
+  readSwivel: (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => IAutoMovieMotionHumanLegChain.ISwivel,
 ): (
   target: IAutoMovieVector3,
   bend: IAutoMovieVector3,

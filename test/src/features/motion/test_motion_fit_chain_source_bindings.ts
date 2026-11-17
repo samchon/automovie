@@ -1,14 +1,21 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSeededChainFit,
-  type IFitChainToTargetProps,
   ROM_TOLERANCE,
   fitSeededChainToTarget as fit,
   indexSkeletonTopology,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieFitChainToTargetProps,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionFitArms } from "../internal/motionFitArms";
@@ -77,7 +84,7 @@ export function test_motion_fit_chain_source_bindings(): void {
     for (const target of [targets[0]!, targets[1]!, targets[0]!]) {
       const before: number[] = counts.map((count: { shared: number; fresh: number }): number => count.shared);
       const actual: IAutoMovieSeededChainFit = workspaces[index]!.fit(target);
-      const props: IFitChainToTargetProps = { ...source, ...options[index]!, target,
+      const props: IAutoMovieFitChainToTargetProps = { ...source, ...options[index]!, target,
         ...(index === 5 ? {} : { obstruction: (): number => { counts[index]!.fresh++; return 0; } }) };
       const fresh: IAutoMovieSeededChainFit = fit(props);
       TestValidator.predicate("only the current binding performs its required callback work",

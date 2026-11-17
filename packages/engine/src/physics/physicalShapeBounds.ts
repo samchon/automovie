@@ -1,6 +1,8 @@
 import type {
+  IAutoMoviePhysicalShape,
+  IAutoMoviePhysicalShapeBounds,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -24,16 +26,16 @@ import { Vector3 } from "../math/Vector3";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps no pose, shape, frame or result globally; min/max are fresh and independent of adopted hull points, whose ownership transfers only after every bounds component has consumed them.
  */
 export function physicalShapeBounds(
-  pose: P.ITransform,
-  shape: P.IShape,
-): { min: IAutoMovieVector3; max: IAutoMovieVector3 } {
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
+): IAutoMoviePhysicalShapeBounds.IResult {
   // Read the parent position before rotation, as the original add operands do.
   const origin: IAutoMovieVector3 = pose.position;
   const center: IAutoMovieVector3 = Quaternion.rotateVector(pose.rotation, shape.transform.position);
   center.x = origin.x + center.x;
   center.y = origin.y + center.y;
   center.z = origin.z + center.z;
-  const rotation: P.ITransform["rotation"] = Quaternion.multiply(
+  const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
     pose.rotation,
     shape.transform.rotation,
   );
@@ -59,14 +61,14 @@ export namespace physicalShapeBounds {
    * KnockdownFloor consumes this scalar in both floor reductions. Each call
    * reads current geometry and releases its frame/vertex temporaries on return.
    */
-  export function lowest(pose: P.ITransform, shape: P.IShape): number {
+  export function lowest(pose: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape): number {
     const origin: IAutoMovieVector3 = pose.position;
     const offsetY: number = Quaternion.rotateVectorY(
       pose.rotation, shape.transform.position,
     );
     const centerY: number = origin.y + offsetY;
     if (shape.kind === "sphere") return centerY - shape.radius;
-    const rotation: P.ITransform["rotation"] = Quaternion.multiply(pose.rotation, shape.transform.rotation);
+    const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(pose.rotation, shape.transform.rotation);
     return lowestFromShapeFrame(centerY, rotation, shape);
   }
 
@@ -79,8 +81,8 @@ export namespace physicalShapeBounds {
    */
   export function lowestFromParent(
     parentY: number,
-    parentRotation: P.ITransform["rotation"],
-    shape: P.IShape,
+    parentRotation: IAutoMovieRigidTransform["rotation"],
+    shape: IAutoMoviePhysicalShape,
   ): number {
     const centerY: number = parentY + Quaternion.rotateVectorY(parentRotation, shape.transform.position);
     if (shape.kind === "sphere") return centerY - shape.radius;
@@ -101,8 +103,8 @@ export namespace physicalShapeBounds {
    */
   export function fromFrame(
     center: IAutoMovieVector3,
-    rotation: P.ITransform["rotation"],
-    shape: P.IShape,
+    rotation: IAutoMovieRigidTransform["rotation"],
+    shape: IAutoMoviePhysicalShape,
     takeHullPoint?: (point: IAutoMovieVector3) => void,
   ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } {
     if (shape.kind === "sphere")
@@ -189,8 +191,8 @@ const AXIS_Z: Readonly<IAutoMovieVector3> = { x: 0, y: 0, z: 1 };
 /** One original minimum-Y kernel consumes already composed non-spherical shape frames. */
 function lowestFromShapeFrame(
   centerY: number,
-  rotation: P.ITransform["rotation"],
-  shape: Exclude<P.IShape, { kind: "sphere" }>,
+  rotation: IAutoMovieRigidTransform["rotation"],
+  shape: Exclude<IAutoMoviePhysicalShape, { kind: "sphere" }>,
 ): number {
   if (shape.kind === "capsule") {
     const axis: number = Quaternion.rotateVectorY(rotation, AXIS_Y);

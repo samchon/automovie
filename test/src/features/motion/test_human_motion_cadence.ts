@@ -1,17 +1,18 @@
 import type {
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HUMAN_DRILL_CADENCES,
   HUMAN_LEXICON,
-  HumanChain,
   HumanCue,
   HumanEnsemble,
   HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanEnsemble,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -46,7 +47,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_cadence(): void {
   const findings: string[] = [];
-  const pool: IHumanBody[] = [
+  const pool: IAutoMovieMotionHumanBody[] = [
     motionHumanBody("m-average"),
     motionHumanBody("f-small"),
     motionHumanBody("m-tall"),
@@ -55,13 +56,13 @@ export function test_human_motion_cadence(): void {
     .filter((c: { name: string }): boolean => c.name === "beat")
     .map((c: { seconds: number }): number => c.seconds);
   const march = (
-    preset: IHumanEnsemble["preset"],
+    preset: IAutoMovieMotionHumanEnsemble["preset"],
     count: number,
     drummed: boolean,
     regulation: "french1791" | "british1792" = "french1791",
     time: string = "ordinary",
   ): IMarched => {
-    const ensemble: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+    const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
       id: preset ?? "x",
       seed: "drum",
       count,
@@ -72,14 +73,17 @@ export function test_human_motion_cadence(): void {
         yaw: 0,
       }),
     });
-    const performance: HumanPerformance = new HumanPerformance({
+    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "drum",
       laws: [...HUMAN_LEXICON.gait!],
       performers: HumanEnsemble.performers(ensemble),
       cues: { drum: HumanCue.beats({ bpm: 76, count: 40, from: 1 }) },
       composition: HumanEnsemble.chains(
         ensemble,
-        (m: HumanEnsemble.IMember, chain: HumanChain) =>
+        (
+          m: IAutoMovieMotionHumanEnsemble.IMember,
+          chain: IAutoMovieMotionHumanChain,
+        ) =>
           chain.registered("march", {
             to: { x: m.place.at.x, y: 0, z: 12 },
             regulation,
@@ -90,7 +94,9 @@ export function test_human_motion_cadence(): void {
     });
     const strikes: Map<string, number[]> = new Map();
     for (const m of ensemble.members) {
-      const s: HumanSegment.ISegment = performance.segments(m.subject)[0]!;
+      const s: IAutoMovieMotionHumanSegment = performance.segments(
+        m.subject,
+      )[0]!;
       strikes.set(
         m.subject,
         s.plan.events
@@ -194,7 +200,7 @@ export function test_human_motion_cadence(): void {
         findings.push(
           `${regulation} ${time}: ${subject} marches ${c.toFixed(1)} steps a minute, ${expected} within 2 % expected`,
         );
-      const body: IHumanBody = run.ensemble.members[index]!.body;
+      const body: IAutoMovieMotionHumanBody = run.ensemble.members[index]!.body;
       const pace: number =
         (HUMAN_DRILL_CADENCES[regulation].pace / 0.93) * body.measure.hipHeight;
       const mid: number[] = middle(s);
@@ -214,11 +220,11 @@ export function test_human_motion_cadence(): void {
 /** A march performed: its ensemble, each member's heel-strike seconds and the performance. */
 interface IMarched {
   /** The ensemble. */
-  ensemble: HumanEnsemble.IEnsemble;
+  ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble;
 
   /** Each member's heel strikes, film seconds in order. */
   strikes: Map<string, number[]>;
 
   /** The performance. */
-  performance: HumanPerformance;
+  performance: IAutoMovieMotionHumanPerformance;
 }

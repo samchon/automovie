@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMovieMotionHumanSequentialConvex,
+} from "@automovie/interface";
+
 import { HumanArmTrajectoryConvex } from "./HumanArmTrajectoryConvex";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -76,7 +81,7 @@ export namespace HumanArmOptimiser {
     // one linearisation (a smaller region, a reprice, the violation alone),
     // which share its rows, each start from the one solved before.
     const session: HumanQuadraticInteriorSession.ISession = {};
-    const problem: SCO.IProblem<number[][][], M.IEvaluation> = {
+    const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<number[][][], M.IEvaluation> = {
       evaluate: (x: number[][][]): M.IEvaluation => M.evaluate(read, spread(x)),
       feasible: (evaluation: M.IEvaluation): boolean =>
         evaluation.worst.value <= M.TOLERANCE,
@@ -86,13 +91,13 @@ export namespace HumanArmOptimiser {
         mu: number,
         radius: number,
         objective: boolean,
-      ): SCO.IModel<number[][][]> => {
+      ): IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> => {
         // A new linearisation has other rows: no earlier point starts it.
         session.point = undefined;
 
         // The pairs that can enter the subproblem are read one growth of the
         // region beyond it.
-        const built: QP.IProblem = HumanArmTrajectoryConvex.convexify(
+        const built: IAutoMovieMotionHumanQuadraticProgram.IProblem = HumanArmTrajectoryConvex.convexify(
           read,
           spread(x),
           evaluation,
@@ -100,7 +105,7 @@ export namespace HumanArmOptimiser {
           SCHEDULE.expand * radius,
           smooth,
         );
-        const model: SCO.IModel<number[][][]> = shell(
+        const model: IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> = shell(
           grid === undefined ? built : Knots.reduce(context, weights!, built),
           x,
         );
@@ -114,14 +119,14 @@ export namespace HumanArmOptimiser {
     // step of the violation alone the same rows with no objective (Byrd,
     // Nocedal and Waltz's (5.10), `feasibility`), with no geometry read
     // again.
-    const shell = (model: QP.IProblem, x: number[][][]): SCO.IModel<number[][][]> => {
+    const shell = (model: IAutoMovieMotionHumanQuadraticProgram.IProblem, x: number[][][]): IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> => {
       let zero: number | undefined;
 
       // The region's rows, one per variable, built once for the model: a
       // retry in a smaller region changes only their two ends.
-      const trust: QP.IRow[] = Array.from(
+      const trust: IAutoMovieMotionHumanQuadraticProgram.IRow[] = Array.from(
         { length: model.n },
-        (_: unknown, i: number): QP.IRow => ({
+        (_: unknown, i: number): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
           index: [i],
           coef: [1],
           l: 0,
@@ -129,12 +134,12 @@ export namespace HumanArmOptimiser {
           key: `t|${i}`,
         }),
       );
-      const trusted: QP.IProblem = {
+      const trusted: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
         ...model,
         rows: [...model.rows, ...trust],
       };
       return {
-        solve: (r: number): SCO.IStep<number[][][]> => {
+        solve: (r: number): IAutoMovieMotionHumanSequentialConvex.IStep<number[][][]> => {
           for (const row of trust) {
             row.l = -r;
             row.u = r;
@@ -179,16 +184,16 @@ export namespace HumanArmOptimiser {
             met: most <= M.TOLERANCE,
           };
         },
-        reprice: (penalty: number): SCO.IModel<number[][][]> =>
+        reprice: (penalty: number): IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> =>
           shell(
             {
               ...model,
-              rows: model.rows.map((row: QP.IRow): QP.IRow =>
+              rows: model.rows.map((row: IAutoMovieMotionHumanQuadraticProgram.IRow): IAutoMovieMotionHumanQuadraticProgram.IRow =>
                 row.weight === undefined ? row : { ...row, weight: penalty }),
             },
             x,
           ),
-        feasibility: (): SCO.IModel<number[][][]> =>
+        feasibility: (): IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> =>
           shell(
             {
               ...model,
@@ -202,7 +207,7 @@ export namespace HumanArmOptimiser {
           ),
       };
     };
-    const solved: SCO.IResult<number[][][], M.IEvaluation> = SCO.minimise(
+    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<number[][][], M.IEvaluation> = SCO.minimise(
       problem,
       start.map((arm: readonly (readonly number[])[]): number[][] =>
         arm.map((v: readonly number[]): number[] => [...v]),
@@ -243,7 +248,7 @@ const ROUNDS: number = 40;
  * (four times it), six tries a convexification, and the least step or
  * region, a thousandth of a unit.
  */
-const SCHEDULE: SCO.ISchedule = {
+const SCHEDULE: IAutoMovieMotionHumanSequentialConvex.ISchedule = {
   eta: 0.1,
   low: 0.1,
   high: 0.1,

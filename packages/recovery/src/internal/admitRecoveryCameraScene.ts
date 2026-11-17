@@ -1,12 +1,12 @@
 import type {
+  IAutoMovieRecoveryCameraChartCreationOperation,
   IAutoMovieRecoveryCameraMapBudget,
   IAutoMovieRecoveryCameraMapInput,
-  IAutoMovieRecoveryCameraSceneInput,
+  IAutoMovieRecoveryCameraSceneAdmissionOperation,
 } from "@automovie/interface";
 
 import { admitRecoveryCameraMap } from "./admitRecoveryCameraMap";
 import { admitRecoveryCameraPair } from "./admitRecoveryCameraPair";
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 
 /**
  * Admit a closed bounded calibrated image set before observing any raster.
@@ -20,8 +20,8 @@ import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only owned fixed-size charts escape. Borrowed RGB arrays are not copied, and no global cache or external resource is acquired.
  */
 export function admitRecoveryCameraScene(
-  input: IAutoMovieRecoveryCameraSceneInput,
-): ReturnType<typeof createRecoveryCameraChart>[] {
+  input: Parameters<IAutoMovieRecoveryCameraSceneAdmissionOperation.Operation>[0],
+): ReturnType<IAutoMovieRecoveryCameraSceneAdmissionOperation.Operation> {
   const closed: (value: object, keys: readonly string[]) => void = (
     value: object,
     keys: readonly string[],
@@ -100,7 +100,7 @@ export function admitRecoveryCameraScene(
     views: input.views.slice(0, 3),
     budget: mapBudget,
   };
-  const charts: ReturnType<typeof createRecoveryCameraChart>[] =
+  const charts: ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>[] =
     admitRecoveryCameraMap(triad);
   const ids: Set<string> = new Set(
     input.views.map((view: (typeof input.views)[number]): string => view.id),

@@ -1,4 +1,7 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieOpeningFillExtent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
@@ -29,7 +32,7 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  */
 export const autoMovieOpeningFillExtent = (
   corners: readonly IAutoMovieVector3[],
-): { width: number; height: number } => {
+): IAutoMovieOpeningFillExtent.IResult => {
   const spanX: number = span(corners, "x");
   const spanY: number = span(corners, "y");
   const spanZ: number = span(corners, "z");

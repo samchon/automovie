@@ -3,7 +3,10 @@ import {
   getConstraint,
   validateJointRom,
 } from "@automovie/engine";
-import { IAutoMovieConstraintViolation } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint } from "../internal/fixtures";
@@ -22,7 +25,7 @@ import { joint } from "../internal/fixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each naming the input and the behavior it pins: the three-angle shoulder's flexion, swing and twist paths, and the gated shoulder's twist path alone.
  */
 export function test_rom_validate_multiple_axes(): void {
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: IAutoMovieViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: joint("leftUpperArm", { flexion: 999, twist: 999 }),
     // The shoulder's three-angle gate, without the swing-twist one the table
@@ -43,7 +46,7 @@ export function test_rom_validate_multiple_axes(): void {
   );
 
   // 2. The default table's swing-twist gate.
-  const gated: ViolationCollector = new ViolationCollector();
+  const gated: IAutoMovieViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: joint("leftUpperArm", { flexion: 0, abduction: 0, twist: 170 }),
     constraint: getConstraint("leftUpperArm", null)!,

@@ -1,6 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSkeletonTopology,
   indexSkeletonTopology,
   resolveAutoMovieBoneRates,
   resolvePose,
@@ -10,7 +8,9 @@ import type {
   IAutoMovieBone,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
+  IAutoMovieSkeletonTopology,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

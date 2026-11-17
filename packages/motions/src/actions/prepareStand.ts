@@ -1,20 +1,23 @@
-import {
-  type IAutoMovieRandom,
-  minimumJerk,
-  seededSmoothNoise,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { minimumJerk, seededSmoothNoise } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStand,
+  IAutoMovieMotionHumanStandUpright,
+  IAutoMovieMotionHumanSupportCarry,
+  IAutoMovieRandom,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanBound } from "../law/HumanBound";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { stand } from "./stand";
 import { standFeet } from "./standFeet";
@@ -38,9 +41,9 @@ import { standUpright } from "./standUpright";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning action retains one finite two-foot preparation until release; each child plan owns two lazy four-term noise readers and its joint map. No FK reader, evaluated pose or query history is retained.
  */
 export function prepareStand(
-  context: IHumanActionContext<stand.IParams>,
-  side: HumanHand.Side,
-): (duration: number) => IHumanActionPlan {
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
+  side: AutoMovieHumanSide,
+): (duration: number) => IAutoMovieMotionHumanActionPlan {
   const yaw: number = context.entry.posture.yaw;
   const course: standFeet.ICourse = standFeet.of(
     context.body,
@@ -48,9 +51,9 @@ export function prepareStand(
     yaw,
   );
   const initial: IAutoMovieVector3 = course.offset(0);
-  const upright: standUpright.IAlignment = standUpright.of(context.body);
+  const upright: IAutoMovieMotionHumanStandUpright.IAlignment = standUpright.of(context.body);
   const middle: IAutoMovieVector3 = stand.root(context.body, course.flat, yaw);
-  const aligned: IHumanPosture["joints"] = {
+  const aligned: IAutoMovieMotionHumanPosture["joints"] = {
     ...stand.relaxed(context.body),
     ...upright.joints,
   };
@@ -59,11 +62,11 @@ export function prepareStand(
     context.params.sway ?? 0.003 * HumanSkill.sway(context.skill);
   HumanBound.least("sway", sway, 0, "m");
 
-  const left: IHumanContactWindow.Support = HumanSupportFrame.contact(
+  const left: IAutoMovieMotionHumanContactWindow.Support = HumanSupportFrame.contact(
     context,
     "leftFoot",
   );
-  const right: IHumanContactWindow.Support = HumanSupportFrame.contact(
+  const right: IAutoMovieMotionHumanContactWindow.Support = HumanSupportFrame.contact(
     context,
     "rightFoot",
   );
@@ -75,21 +78,21 @@ export function prepareStand(
     left.subject === right.subject
       ? left.subject
       : undefined;
-  const on: stand.IParams["on"] =
+  const on: IAutoMovieMotionHumanStand.IParams["on"] =
     context.params.on ??
     (inherited === undefined ? undefined : { prop: inherited });
-  const carried: (seconds: number) => HumanSupportCarry.ICarry | undefined = (
+  const carried: (seconds: number) => IAutoMovieMotionHumanSupportCarry.ICarry | undefined = (
     seconds: number,
-  ): HumanSupportCarry.ICarry | undefined =>
+  ): IAutoMovieMotionHumanSupportCarry.ICarry | undefined =>
     on === undefined
       ? undefined
       : HumanSupportCarry.of(
-          (t: number): IHumanProp.IFrame => context.prop(on.prop).frame(t),
+          (t: number): IAutoMovieRigidTransform => context.prop(on.prop).frame(t),
           context.start,
           context.start + seconds,
         );
 
-  return (duration: number): IHumanActionPlan => {
+  return (duration: number): IAutoMovieMotionHumanActionPlan => {
     HumanBound.above("seconds", duration, 0, "s");
     const settle: number = Math.min(0.5, duration);
     const sx: IAutoMovieRandom = context.random("swayX");
@@ -98,7 +101,7 @@ export function prepareStand(
       seededSmoothNoise.prepare(sx, duration, 0.8);
     const noiseZ: ReturnType<typeof seededSmoothNoise.prepare> =
       seededSmoothNoise.prepare(sz, duration, 0.8);
-    const joints: IHumanPosture["joints"] = { ...aligned };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...aligned };
     return {
       duration,
       events: [{ name: "settled", share: settle / duration }],
@@ -109,7 +112,7 @@ export function prepareStand(
         ? { still: [settle, duration] as const }
         : {}),
       contacts: (["leftFoot", "rightFoot"] as const).map(
-        (part: "leftFoot" | "rightFoot"): IHumanContactWindow => ({
+        (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
           part,
           kind: "plant",
           from: 0,
@@ -120,7 +123,7 @@ export function prepareStand(
               : { kind: "prop", subject: on.prop },
         }),
       ),
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number = minimumJerk.share(t / settle);
         const u: number = t / duration;
@@ -151,7 +154,7 @@ export function prepareStand(
             initial.z * (1 - s) +
             swayed.z,
         };
-        const carry: HumanSupportCarry.ICarry | undefined = carried(t);
+        const carry: IAutoMovieMotionHumanSupportCarry.ICarry | undefined = carried(t);
         return feet.write(
           {
             root: carry?.point(root) ?? root,

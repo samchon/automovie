@@ -1,19 +1,25 @@
 import { AutoMovieGravity } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanDrillRegulation,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanGait,
+  IAutoMovieMotionHumanLexiconParams,
+  IAutoMovieMotionHumanWalkGait,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { run } from "../actions/run";
 import { walk } from "../actions/walk";
 import { walkCadence } from "../actions/walkCadence";
 import { walkStation } from "../actions/walkStation";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IHumanFormation } from "../ensemble/IHumanFormation";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HUMAN_DRILL_CADENCES } from "./HUMAN_DRILL_CADENCES";
-import type { IHumanDrillRegulation } from "./IHumanDrillRegulation";
 
 /**
  * Named ways of going somewhere on foot; the composition gives the
@@ -53,41 +59,50 @@ import type { IHumanDrillRegulation } from "./IHumanDrillRegulation";
  */
 export namespace HumanGait {
   /** A stroll: slow, the stride a little short, the arms easy. */
-  export const stroll = HumanActionRow.of("stroll", walk, {
+  export const stroll: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gait"]["stroll"]
+  > = HumanActionRow.of("stroll", walk, {
     pace: "slow",
     stride: 0.9,
     armSwing: 0.8,
   });
 
   /** A hurry: fast, the stride long, the arms driving. */
-  export const hurry = HumanActionRow.of("hurry", walk, {
+  export const hurry: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gait"]["hurry"]
+  > = HumanActionRow.of("hurry", walk, {
     pace: "fast",
     stride: 1.1,
     armSwing: 1.3,
   });
 
   /** A weary trudge: slow, short, the arms barely swinging. */
-  export const trudge = HumanActionRow.of("trudge", walk, {
+  export const trudge: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gait"]["trudge"]
+  > = HumanActionRow.of("trudge", walk, {
     pace: "slow",
     stride: 0.8,
     armSwing: 0.4,
   });
 
   /** A swagger: the elbows out and the arms swung wide. */
-  export const swagger = HumanActionRow.of("swagger", walk, {
+  export const swagger: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gait"]["swagger"]
+  > = HumanActionRow.of("swagger", walk, {
     pace: "normal",
     armSwing: 1.5,
     elbows: 20,
   });
 
   /** A jog. */
-  export const jog = HumanActionRow.of("jog", run, { pace: "jog" });
+  export const jog: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gait"]["jog"]
+  > = HumanActionRow.of("jog", run, { pace: "jog" });
 
   /** A sprint. */
-  export const sprint = HumanActionRow.of("sprint", run, { pace: "sprint" });
-
-  /** What a styled gait leaves to the composition: the walk's destination, waypoints, arrival heading and elbows. */
-  export type IParams = Omit<walk.IParams, "pace" | "stride" | "armSwing">;
+  export const sprint: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gait"]["sprint"]
+  > = HumanActionRow.of("sprint", run, { pace: "sprint" });
 
   /**
    * The march: steps a minute, the step in hip heights (0.76 m at a 0.93 m
@@ -101,7 +116,7 @@ export namespace HumanGait {
   export const MARCH: Readonly<{
     cadence: number;
     step: number;
-    arms: walk.IGait["arms"];
+    arms: IAutoMovieMotionHumanWalkGait["arms"];
     unevenness: number;
   }> = {
     cadence: 120,
@@ -120,7 +135,7 @@ export namespace HumanGait {
     froude: number;
     step: number;
     drop: number;
-    arms: walk.IGait["arms"];
+    arms: IAutoMovieMotionHumanWalkGait["arms"];
   }> = {
     froude: 0.04,
     step: 0.8,
@@ -128,64 +143,58 @@ export namespace HumanGait {
     arms: { shoulder: 2, elbow: 30, swing: 0 },
   };
 
-  /** What a march leaves to the composition: the walk's, and the regulation and time it marches at. */
-  export interface IMarch extends IParams {
-    /** The drill regulation (`HUMAN_DRILL_CADENCES`); TC 3-21.5's quick time (`MARCH`) when absent. */
-    regulation?: IHumanDrillRegulation.Name;
-
-    /** The regulation's time by its own name (`ordinary`, `quick`...); its first time when absent. */
-    time?: string;
-  }
-
   /** A march: the drill step at the drill cadence, the arms swung straight. */
-  export const march: IHumanActionLaw<IMarch> = styled(
-    "march",
-    (context: IHumanActionContext<IMarch>): walk.IGait => {
-      const l: number = context.body.measure.hipHeight;
+  export const march: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IMarch> =
+    styled(
+      "march",
+      (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.IMarch>,
+      ): IAutoMovieMotionHumanWalkGait => {
+        const l: number = context.body.measure.hipHeight;
 
-      // The cadence and the drill step: the regulation's time, or the beat track's period when the march keeps step to one.
-      const drill: { cadence: number; step: number } = regulated(
-        context.params,
-      );
-      const beats: number[] =
-        context.params.cadence === undefined
-          ? []
-          : walkCadence.beats(context, context.params.cadence);
-      const cadence: number =
-        beats.length < 2 ? drill.cadence : 60 / walkCadence.period(beats);
+        // The cadence and the drill step: the regulation's time, or the beat track's period when the march keeps step to one.
+        const drill: { cadence: number; step: number } = regulated(
+          context.params,
+        );
+        const beats: number[] =
+          context.params.cadence === undefined
+            ? []
+            : walkCadence.beats(context, context.params.cadence);
+        const cadence: number =
+          beats.length < 2 ? drill.cadence : 60 / walkCadence.period(beats);
 
-      // The whole number of steps nearest the way in drill steps, taken at the cadence: the step and the speed follow from them. A march keeping station takes as many steps as the cadence fits in the station's span, and the step gives.
-      const resolved: IHumanActionContext<IMarch> =
-        walkStation.resolve(context);
-      const way: number = distance(resolved);
-      const station: IHumanFormation.IStation | undefined =
-        context.params.station;
-      const count: number =
-        station === undefined
-          ? Math.max(2, Math.round(way / (drill.step * l)))
-          : Math.max(
-              2,
-              Math.round(
-                ((walkStation.rests(context, station) - context.start) *
-                  cadence) /
-                  60,
-              ),
-            );
-      // The stepping plan measures the way along its own path; 2 % of slack
-      // keeps it on this count of steps. Its period is the longest step at
-      // the speed (`WalkPace`), so the speed is the slack step's at the
-      // cadence, and the drill step itself is taken at the cadence.
-      const step: number = (1.02 * way) / count;
-      const speed: number = (step * cadence) / 60;
-      return {
-        ...walk.walking((speed * speed) / (AutoMovieGravity.STANDARD * l)),
-        step: (): number => step / l,
-        arms: MARCH.arms,
-        unevenness: MARCH.unevenness,
-        called: true,
-      };
-    },
-  );
+        // The whole number of steps nearest the way in drill steps, taken at the cadence: the step and the speed follow from them. A march keeping station takes as many steps as the cadence fits in the station's span, and the step gives.
+        const resolved: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.IMarch> =
+          walkStation.resolve(context);
+        const way: number = distance(resolved);
+        const station: IAutoMovieMotionHumanFormation.IStation | undefined =
+          context.params.station;
+        const count: number =
+          station === undefined
+            ? Math.max(2, Math.round(way / (drill.step * l)))
+            : Math.max(
+                2,
+                Math.round(
+                  ((walkStation.rests(context, station) - context.start) *
+                    cadence) /
+                    60,
+                ),
+              );
+        // The stepping plan measures the way along its own path; 2 % of slack
+        // keeps it on this count of steps. Its period is the longest step at
+        // the speed (`WalkPace`), so the speed is the slack step's at the
+        // cadence, and the drill step itself is taken at the cadence.
+        const step: number = (1.02 * way) / count;
+        const speed: number = (step * cadence) / 60;
+        return {
+          ...walk.walking((speed * speed) / (AutoMovieGravity.STANDARD * l)),
+          step: (): number => step / l,
+          arms: MARCH.arms,
+          unevenness: MARCH.unevenness,
+          called: true,
+        };
+      },
+    );
 
   /**
    * Double time: steps a minute and the step in hip heights. TC 3-21.5
@@ -199,57 +208,56 @@ export namespace HumanGait {
   };
 
   /** Double time: the drill step at 180 a minute, run as a jog that keeps the count. */
-  export const doubleTime: IHumanActionLaw<IParams> = styled(
-    "doubleTime",
-    (context: IHumanActionContext<IParams>): walk.IGait => {
-      const l: number = context.body.measure.hipHeight;
+  export const doubleTime: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IParams> =
+    styled(
+      "doubleTime",
+      (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.IParams>,
+      ): IAutoMovieMotionHumanWalkGait => {
+        const l: number = context.body.measure.hipHeight;
 
-      // As the march: the nearest whole number of drill steps, with its
-      // slack, taken at the cadence.
-      const way: number = distance(context);
-      const step: number =
-        (1.02 * way) / Math.max(2, Math.round(way / (DOUBLE.step * l)));
-      const speed: number = (step * DOUBLE.cadence) / 60;
-      return {
-        ...run.GAITS.jog,
-        froude: (speed * speed) / (AutoMovieGravity.STANDARD * l),
-        step: (): number => step / l,
-        unevenness: MARCH.unevenness,
-        called: true,
-      };
-    },
-  );
+        // As the march: the nearest whole number of drill steps, with its
+        // slack, taken at the cadence.
+        const way: number = distance(context);
+        const step: number =
+          (1.02 * way) / Math.max(2, Math.round(way / (DOUBLE.step * l)));
+        const speed: number = (step * DOUBLE.cadence) / 60;
+        return {
+          ...run.GAITS.jog,
+          froude: (speed * speed) / (AutoMovieGravity.STANDARD * l),
+          step: (): number => step / l,
+          unevenness: MARCH.unevenness,
+          called: true,
+        };
+      },
+    );
 
   /** A sneak: slow short steps on bent knees, the arms held still and close. */
-  export const sneak: IHumanActionLaw<IParams> = styled(
-    "sneak",
-    (): walk.IGait => {
-      const walking: walk.IGait = walk.walking(SNEAK.froude);
+  export const sneak: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IParams> =
+    styled("sneak", (): IAutoMovieMotionHumanWalkGait => {
+      const walking: IAutoMovieMotionHumanWalkGait = walk.walking(SNEAK.froude);
       return {
         ...walking,
         step: (froude: number): number => SNEAK.step * walking.step(froude),
         bob: { mean: -SNEAK.drop, amplitude: 0 },
         arms: SNEAK.arms,
       };
-    },
-  );
+    });
 
   /** How far the pelvis rides below a walk's in a prowl, the sneak's crouched variant, hip heights (provisional). */
   export const PROWL: number = 0.12;
 
   /** A prowl: the sneak on deeply bent knees. */
-  export const prowl: IHumanActionLaw<IParams> = styled(
-    "prowl",
-    (): walk.IGait => {
-      const walking: walk.IGait = walk.walking(SNEAK.froude);
+  export const prowl: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IParams> =
+    styled("prowl", (): IAutoMovieMotionHumanWalkGait => {
+      const walking: IAutoMovieMotionHumanWalkGait = walk.walking(SNEAK.froude);
       return {
         ...walking,
         step: (froude: number): number => SNEAK.step * walking.step(froude),
         bob: { mean: -PROWL, amplitude: 0 },
         arms: SNEAK.arms,
       };
-    },
-  );
+    });
 
   /**
    * The trunk's forward lean of each mood's walk, degrees (provisional): a
@@ -266,17 +274,22 @@ export namespace HumanGait {
   };
 
   /** A sad walk: slow, the arms barely swinging, the trunk slumped. */
-  export const sad: IHumanActionLaw<IParams> = styled(
-    "sad",
-    (context: IHumanActionContext<IParams>): walk.IGait => mood("sad", context),
-  );
+  export const sad: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IParams> =
+    styled(
+      "sad",
+      (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.IParams>,
+      ): IAutoMovieMotionHumanWalkGait => mood("sad", context),
+    );
 
   /** A proud walk: upright, the arms swung freely. */
-  export const proud: IHumanActionLaw<IParams> = styled(
-    "proud",
-    (context: IHumanActionContext<IParams>): walk.IGait =>
-      mood("proud", context),
-  );
+  export const proud: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IParams> =
+    styled(
+      "proud",
+      (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.IParams>,
+      ): IAutoMovieMotionHumanWalkGait => mood("proud", context),
+    );
 
   /**
    * The limp (provisional): the slow walk's Froude number, the step as a
@@ -288,56 +301,58 @@ export namespace HumanGait {
   export const LIMP: Readonly<{ froude: number; step: number; share: number }> =
     { froude: 0.12, step: 0.85, share: 0.15 };
 
-  /** What a limp leaves to the composition: the walk's, and the leg spared. */
-  export interface ILimp extends IParams {
-    /** The leg spared; the right when absent. */
-    side?: "left" | "right";
-  }
-
   /** A stiff-knee limp: the spared leg also swings straight, barely clearing the floor. */
-  export const stiffLimp: IHumanActionLaw<ILimp> = styled(
-    "stiffLimp",
-    (context: IHumanActionContext<ILimp>): walk.IGait => {
-      const walking: walk.IGait = walk.walking(LIMP.froude);
-      const side: "left" | "right" = context.params.side ?? "right";
-      return {
-        ...walking,
-        step: (froude: number): number => LIMP.step * walking.step(froude),
-        limp: { side, share: LIMP.share },
-        stiff: side,
-      };
-    },
-  );
+  export const stiffLimp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.ILimp> =
+    styled(
+      "stiffLimp",
+      (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.ILimp>,
+      ): IAutoMovieMotionHumanWalkGait => {
+        const walking: IAutoMovieMotionHumanWalkGait = walk.walking(
+          LIMP.froude,
+        );
+        const side: "left" | "right" = context.params.side ?? "right";
+        return {
+          ...walking,
+          step: (froude: number): number => LIMP.step * walking.step(froude),
+          limp: { side, share: LIMP.share },
+          stiff: side,
+        };
+      },
+    );
 
   /** How far a tiptoe holds the heels off the floor, degrees about the toes' joint (provisional). */
   export const TIPTOE: number = 25;
 
   /** A tiptoe: the sneak's slow short steps on the balls of the feet, the heels never set down. */
-  export const tiptoe: IHumanActionLaw<IParams> = styled(
-    "tiptoe",
-    (): walk.IGait => {
-      const walking: walk.IGait = walk.walking(SNEAK.froude);
+  export const tiptoe: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IParams> =
+    styled("tiptoe", (): IAutoMovieMotionHumanWalkGait => {
+      const walking: IAutoMovieMotionHumanWalkGait = walk.walking(SNEAK.froude);
       return {
         ...walking,
         step: (froude: number): number => SNEAK.step * walking.step(froude),
         arms: SNEAK.arms,
         heels: TIPTOE,
       };
-    },
-  );
+    });
 
   /** A limp: an antalgic gait, the spared leg stood on briefly. */
-  export const limp: IHumanActionLaw<ILimp> = styled(
-    "limp",
-    (context: IHumanActionContext<ILimp>): walk.IGait => {
-      const walking: walk.IGait = walk.walking(LIMP.froude);
-      return {
-        ...walking,
-        step: (froude: number): number => LIMP.step * walking.step(froude),
-        limp: { side: context.params.side ?? "right", share: LIMP.share },
-      };
-    },
-  );
+  export const limp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.ILimp> =
+    styled(
+      "limp",
+      (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.ILimp>,
+      ): IAutoMovieMotionHumanWalkGait => {
+        const walking: IAutoMovieMotionHumanWalkGait = walk.walking(
+          LIMP.froude,
+        );
+        return {
+          ...walking,
+          step: (froude: number): number => LIMP.step * walking.step(froude),
+          limp: { side: context.params.side ?? "right", share: LIMP.share },
+        };
+      },
+    );
 
   /**
    * The intoxicated walk (provisional): the slow walk's Froude number, the
@@ -356,59 +371,69 @@ export namespace HumanGait {
   }> = { froude: 0.12, unevenness: 3, every: 2, aside: 0.15 };
 
   /** An intoxicated walk: slow, unsteady in time, wandering off its line and back. */
-  export const drunk: IHumanActionLaw<IParams> = {
-    name: "drunk",
-    family: walk.name,
-    interrupts: walk.interrupts,
-    yields: walk.yields,
-    plan: (context: IHumanActionContext<IParams>): IHumanActionPlan => {
-      const l: number = context.body.measure.hipHeight;
-      const feet: IHumanActionContext["entry"]["feet"] = context.entry.feet;
-      const from: IAutoMovieVector3 = {
-        x: (feet.left.ankle.x + feet.right.ankle.x) / 2,
-        y: 0,
-        z: (feet.left.ankle.z + feet.right.ankle.z) / 2,
-      };
-      const to: IAutoMovieVector3 = context.params.to;
-      const way: number = Math.hypot(to.x - from.x, to.z - from.z);
-
-      // The wander is laid on a straight way only: waypoints the composition gives are its own path.
-      const count: number =
-        context.params.via !== undefined || way < 1e-6
-          ? 0
-          : Math.max(0, Math.round(way / (DRUNK.every * l)) - 1);
-      const via: IAutoMovieVector3[] = [];
-      for (let k: number = 1; k <= count; ++k) {
-        const along: number = k / (count + 1);
-        const aside: number =
-          DRUNK.aside * l * (2 * context.random("wander").float(k) - 1);
-        via.push({
-          x: from.x + (to.x - from.x) * along - ((to.z - from.z) / way) * aside,
+  export const drunk: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IParams> =
+    {
+      name: "drunk",
+      family: walk.name,
+      interrupts: walk.interrupts,
+      yields: walk.yields,
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.IParams>,
+      ): IAutoMovieMotionHumanActionPlan => {
+        const l: number = context.body.measure.hipHeight;
+        const feet: IAutoMovieMotionHumanActionContext["entry"]["feet"] =
+          context.entry.feet;
+        const from: IAutoMovieVector3 = {
+          x: (feet.left.ankle.x + feet.right.ankle.x) / 2,
           y: 0,
-          z: from.z + (to.z - from.z) * along + ((to.x - from.x) / way) * aside,
-        });
-      }
-      return walk.locomote(
-        {
-          ...context,
-          params: { ...context.params, ...(count === 0 ? {} : { via }) },
-        },
-        { ...walk.walking(DRUNK.froude), unevenness: DRUNK.unevenness },
-      );
-    },
-  };
+          z: (feet.left.ankle.z + feet.right.ankle.z) / 2,
+        };
+        const to: IAutoMovieVector3 = context.params.to;
+        const way: number = Math.hypot(to.x - from.x, to.z - from.z);
+
+        // The wander is laid on a straight way only: waypoints the composition gives are its own path.
+        const count: number =
+          context.params.via !== undefined || way < 1e-6
+            ? 0
+            : Math.max(0, Math.round(way / (DRUNK.every * l)) - 1);
+        const via: IAutoMovieVector3[] = [];
+        for (let k: number = 1; k <= count; ++k) {
+          const along: number = k / (count + 1);
+          const aside: number =
+            DRUNK.aside * l * (2 * context.random("wander").float(k) - 1);
+          via.push({
+            x:
+              from.x +
+              (to.x - from.x) * along -
+              ((to.z - from.z) / way) * aside,
+            y: 0,
+            z:
+              from.z +
+              (to.z - from.z) * along +
+              ((to.x - from.x) / way) * aside,
+          });
+        }
+        return walk.locomote(
+          {
+            ...context,
+            params: { ...context.params, ...(count === 0 ? {} : { via }) },
+          },
+          { ...walk.walking(DRUNK.froude), unevenness: DRUNK.unevenness },
+        );
+      },
+    };
 }
 
 /** A mood's gait: the normal walk in the manner preset of the mood's name, a tempo factor slowing the speed by itself (the Froude number by its square), with the mood's lean. */
 function mood(
   name: "sad" | "proud",
-  context: IHumanActionContext<HumanGait.IParams>,
-): walk.IGait {
-  const manner: AutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.IParams>,
+): IAutoMovieMotionHumanWalkGait {
+  const manner: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
     context,
     AutoMovieMotionManner.PRESETS[name],
   );
-  const walking: walk.IGait = walk.walking(
+  const walking: IAutoMovieMotionHumanWalkGait = walk.walking(
     walk.FROUDE.normal / (manner.tempo * manner.tempo),
   );
   return {
@@ -424,13 +449,14 @@ function mood(
 }
 
 /** A march's cadence and step in hip heights: its regulation's time and pace, or TC 3-21.5's quick time. */
-function regulated(params: HumanGait.IMarch): {
+function regulated(params: IAutoMovieMotionHumanGait.IMarch): {
   cadence: number;
   step: number;
 } {
   if (params.regulation === undefined)
     return { cadence: HumanGait.MARCH.cadence, step: HumanGait.MARCH.step };
-  const row: IHumanDrillRegulation = HUMAN_DRILL_CADENCES[params.regulation];
+  const row: IAutoMovieMotionHumanDrillRegulation =
+    HUMAN_DRILL_CADENCES[params.regulation];
   const names: string[] = Object.keys(row.times);
   const time: string = params.time ?? names[0] ?? "";
   const cadence: number | undefined = row.times[time];
@@ -447,23 +473,29 @@ function regulated(params: HumanGait.IMarch): {
 }
 
 /** A walk in a gait of its own, under a name: the walk's cuts and yields, planned by its stepping plan. */
-function styled<P extends HumanGait.IParams>(
+function styled<P extends IAutoMovieMotionHumanGait.IParams>(
   name: string,
-  gait: (context: IHumanActionContext<P>) => walk.IGait,
-): IHumanActionLaw<P> {
+  gait: (
+    context: IAutoMovieMotionHumanActionContext<P>,
+  ) => IAutoMovieMotionHumanWalkGait,
+): IAutoMovieMotionHumanActionLaw<P> {
   return {
     name,
     family: walk.name,
     interrupts: walk.interrupts,
     yields: walk.yields,
-    plan: (context: IHumanActionContext<P>): IHumanActionPlan =>
-      walk.locomote(context, gait(context)),
+    plan: (
+      context: IAutoMovieMotionHumanActionContext<P>,
+    ): IAutoMovieMotionHumanActionPlan => walk.locomote(context, gait(context)),
   };
 }
 
 /** The length of the way from where the feet stand through the waypoints to the destination, metres. */
-function distance(context: IHumanActionContext<HumanGait.IParams>): number {
-  const feet: IHumanActionContext["entry"]["feet"] = context.entry.feet;
+function distance(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.IParams>,
+): number {
+  const feet: IAutoMovieMotionHumanActionContext["entry"]["feet"] =
+    context.entry.feet;
   let from: IAutoMovieVector3 = {
     x: (feet.left.ankle.x + feet.right.ankle.x) / 2,
     y: 0,

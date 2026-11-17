@@ -1,12 +1,15 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
 /**
  * Prepare the crawl's two flat-palm frames. Each current palm is placed
@@ -27,14 +30,14 @@ import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseReso
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns two fixed frame readers and at most two private contact vectors until release, borrowing immutable flat shapes. Each synchronous call releases its bilateral contexts/source/FK, current postures and wrists except fresh returned goal payloads; no workspace, queried time or result history is retained.
  */
 export function prepareCrawlPalms(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   forward: IAutoMovieVector3,
-  flat: Readonly<Record<"left" | "right", IHumanPosture["joints"]>>,
+  flat: Readonly<Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>>,
 ): (
-  posture: IHumanPosture,
+  posture: IAutoMovieMotionHumanPosture,
   palm: (side: "left" | "right") => IAutoMovieVector3,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-) => IHumanPosture {
+) => IAutoMovieMotionHumanPosture {
   const frames: Record<
     "left" | "right",
     ReturnType<typeof HumanHandTarget.prepareFrame>
@@ -54,18 +57,18 @@ export function prepareCrawlPalms(
   };
   const contacts: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
   return (
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     palm: (side: "left" | "right") => IAutoMovieVector3,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ): IHumanPosture => {
+  ): IAutoMovieMotionHumanPosture => {
     const both: ReturnType<typeof AutoMovieMotionHumanBend.prepareBoth> =
       AutoMovieMotionHumanBend.prepareBoth({ body, posture }, resolution);
-    let out: IHumanPosture = posture;
+    let out: IAutoMovieMotionHumanPosture = posture;
     for (const side of ["left", "right"] as const) {
       const point: IAutoMovieVector3 = palm(side);
       const frame: ReturnType<ReturnType<typeof HumanHandTarget.prepareFrame>> =
         frames[side](out);
-      const wrist: HumanHand.IWrist = frame.place(point);
+      const wrist: IAutoMovieMotionHumanHand.IWrist = frame.place(point);
       const bend: IAutoMovieVector3 = both(side).solve({
         point: wrist.point,
         rotation: frame.rotation,

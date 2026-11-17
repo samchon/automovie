@@ -1,11 +1,15 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRise,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * A rise onto the toes: both feet turn about their toes' joints, which stay
@@ -25,16 +29,6 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  */
 export namespace AutoMovieMotionHumanRise {
   /**
-   * Both feet as they stand flat.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that it holds one placement per foot, standing flat, in the placement frame of `HumanFoot`.
-   * @evidence contracts/development/design.md#principled-representation A record keyed by the two sides, each a foot placement, the form `foot` and `lift` read.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here for the rise and read by the stance solver and the kiss; it reuses `HumanFoot.IPlacement` instead of a second foot type.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed pair of keys, so neither a third foot nor a missing one can be written.
-   */
-  export type Stance = Record<"left" | "right", HumanFoot.IPlacement>;
-
-  /**
    * A foot with its heel raised about its toes' joint.
    *
    * @param body The body.
@@ -52,11 +46,11 @@ export namespace AutoMovieMotionHumanRise {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function foot(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    flat: HumanFoot.IPlacement,
+    flat: IAutoMovieMotionHumanFoot.IPlacement,
     degrees: number,
-  ): HumanFoot.IPlacement {
+  ): IAutoMovieMotionHumanFoot.IPlacement {
     return HumanFoot.pivot(
       body,
       side,
@@ -85,8 +79,8 @@ export namespace AutoMovieMotionHumanRise {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function lift(
-    body: IHumanBody,
-    stance: Stance,
+    body: IAutoMovieMotionHumanBody,
+    stance: IAutoMovieMotionHumanRise.Stance,
     degrees: number,
   ): IAutoMovieVector3 {
     const travel = (side: "left" | "right"): IAutoMovieVector3 =>
@@ -112,20 +106,19 @@ export namespace AutoMovieMotionHumanRise {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per written second.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props and retain no current placement, posture, time or FK workspace. Their declared input demand keeps the current root and own leg, including unchanged own-leg joints, while unrelated primitive writers may be omitted.
    */
-  export function legs(props: {
-    body: IHumanBody;
-    stance: Stance;
-    from: number;
-    to: number;
-    degrees: (seconds: number) => number;
-  }): IAutoMovieMotionHumanPrimitive[] {
+  export function legs(
+    props: IAutoMovieMotionHumanRise.ILegsProps,
+  ): IAutoMovieMotionHumanPrimitive[] {
     return (["left", "right"] as const).map(
       (side: "left" | "right"): IAutoMovieMotionHumanPrimitive => ({
         channels: [`${side}Leg`],
         reads: ["root", `${side}Leg`],
         from: props.from,
         to: props.to,
-        write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanPosture => {
           const degrees: number = props.degrees(seconds);
           return {
             ...posture,

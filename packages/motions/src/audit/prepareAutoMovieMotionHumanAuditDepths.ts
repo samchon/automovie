@@ -5,8 +5,11 @@ import {
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
-  IAutoMoviePhysicalProfile,
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -28,15 +31,15 @@ import { HumanColliders } from "../posture/HumanColliders";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader holds `b`, its inverse rotation, one sphere per shape and at most one inverse rotation per hull until its caller drops it; each reading returns a fresh depth array and keeps no probe, segment or depth.
  */
 export function prepareAutoMovieMotionHumanAuditDepths(
-  b: HumanColliders.IPlaced,
-): (probes: readonly IAutoMovieVector3[], a: HumanColliders.IPlaced) => Float64Array {
+  b: IAutoMovieMotionHumanColliders.IPlaced,
+): (probes: readonly IAutoMovieVector3[], a: IAutoMovieMotionHumanColliders.IPlaced) => Float64Array {
   const inverse: IAutoMovieQuaternion = Quaternion.inverse(b.pose.rotation);
 
   // Each shape's bounding sphere in the segment's frame: a probe outside it
   // is outside the shape, which then adds no depth.
   const balls: { centre: IAutoMovieVector3; radius: number }[] = b.shapes.map(
-    (shape: IAutoMoviePhysicalProfile.IShape): { centre: IAutoMovieVector3; radius: number } => {
-      const ball: HumanColliders.IBall = HumanColliders.bound(shape);
+    (shape: IAutoMoviePhysicalShape): { centre: IAutoMovieVector3; radius: number } => {
+      const ball: IAutoMovieMotionHumanColliders.IBall = HumanColliders.bound(shape);
       return {
         centre: Vector3.add(
           shape.transform.position,
@@ -50,8 +53,8 @@ export function prepareAutoMovieMotionHumanAuditDepths(
 
   // Each hull's faces, read off the engine's hull of its points at the
   // hull's first probe: the same record every probe read before.
-  let hulls: physicalHullFaces.IFace[][] | undefined;
-  return (probes: readonly IAutoMovieVector3[], a: HumanColliders.IPlaced): Float64Array => {
+  let hulls: IAutoMoviePhysicalHullFaces.IFace[][] | undefined;
+  return (probes: readonly IAutoMovieVector3[], a: IAutoMovieMotionHumanColliders.IPlaced): Float64Array => {
     const rotation: IAutoMovieQuaternion = Quaternion.multiply(
       inverse,
       a.pose.rotation,
@@ -79,7 +82,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
       let local: IAutoMovieVector3 | undefined;
       let deepest: number = 0;
       for (let s: number = 0; s < b.shapes.length; s++) {
-        const shape: IAutoMoviePhysicalProfile.IShape = b.shapes[s]!;
+        const shape: IAutoMoviePhysicalShape = b.shapes[s]!;
         const ball: { centre: IAutoMovieVector3; radius: number } = balls[s]!;
         const bx: number = lx - ball.centre.x;
         const by: number = ly - ball.centre.y;
@@ -119,7 +122,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
         const py: number = vy + unturn.w * uy + (unturn.z * ux - unturn.x * uz);
         const pz: number = vz + unturn.w * uz + (unturn.x * uy - unturn.y * ux);
         let inside: number = Infinity;
-        let faces: physicalHullFaces.IFace[] | undefined = hulls?.[s];
+        let faces: IAutoMoviePhysicalHullFaces.IFace[] | undefined = hulls?.[s];
         if (faces === undefined) {
           faces = physicalHullFaces(shape.points).faces;
           if (hulls === undefined) hulls = [];
@@ -142,7 +145,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
 }
 
 /** The identity frame a shape's distance is read in. */
-const IDENTITY: IAutoMoviePhysicalProfile.ITransform = {
+const IDENTITY: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 };

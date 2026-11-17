@@ -1,7 +1,9 @@
-import type { IAutoMovieMark } from "@automovie/engine";
+import type {
+  IAutoMovieInspectionTrail,
+  IAutoMovieMark,
+} from "@automovie/interface";
 
 import { AUTO_MOVIE_INSPECTION_KINDS } from "./AUTO_MOVIE_INSPECTION_KINDS.js";
-import type { IAutoMovieInspectionTrail } from "./IAutoMovieInspectionTrail.js";
 
 /** Legend entry of the trail kind. */
 const TRAIL: { readonly label: string; readonly color: number } =

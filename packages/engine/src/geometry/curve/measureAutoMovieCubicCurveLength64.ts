@@ -1,5 +1,12 @@
+import type {
+  AutoMovieCubicBezierControls3,
+  AutoMovieVector3Tuple,
+  IAutoMovieCubicBezierCurve64,
+  IAutoMovieCurveLengthMeasurement64,
+  IAutoMovieCurveLengthQuadrature64,
+} from "@automovie/interface";
+
 import { AutoMovieCurveLengthQuadrature64 } from "./AutoMovieCurveLengthQuadrature64";
-import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 
 /** Integrate a cubic curve's physical speed with composite eight-point
@@ -18,14 +25,9 @@ import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary descriptors borrow controls only during the call; the two-scalar result retains no input and the shared owner retains only fixed quadrature constants.
  */
 export function measureAutoMovieCubicCurveLength64(
-  curve: C.Cubic,
+  curve: IAutoMovieCubicBezierCurve64,
   subdivisions: number = 1,
-): {
-  /** Doubled-resolution integral of physical speed, mm. */
-  lengthMm: number;
-  /** Absolute difference between the two quadratures, mm; not a bound. */
-  differenceMm: number;
-} {
+): IAutoMovieCurveLengthMeasurement64 {
   assertAutoMovieCurve64(curve);
   if (
     !Number.isSafeInteger(subdivisions) ||
@@ -33,16 +35,25 @@ export function measureAutoMovieCubicCurveLength64(
     subdivisions > 1024
   )
     throw new Error("Cubic length subdivisions must be an integer in [1,1024]");
-  const measured: ReturnType<typeof AutoMovieCurveLengthQuadrature64.measure> =
+  const measured: IAutoMovieCurveLengthQuadrature64.IMeasureResult =
     AutoMovieCurveLengthQuadrature64.measure(
       curve.spans.map(
         (
-          p: C.Span,
-        ): Parameters<
-          typeof AutoMovieCurveLengthQuadrature64.measure
-        >[0][number] => ({
+          p: AutoMovieCubicBezierControls3,
+        ): [
+          readonly {
+            /** Original finite closed parameter interval, admitted by the caller. */
+            domain: readonly [number, number];
+            /** Original world derivative in mm per interval-parameter unit. */
+            derivative: (
+              parameter: number,
+            ) => readonly [number, number, number];
+          }[],
+          number,
+          boolean,
+        ][0][number] => ({
           domain: [0, 1],
-          derivative: (t: number): C.Vector => {
+          derivative: (t: number): Readonly<AutoMovieVector3Tuple> => {
             const s: number = 1 - t;
 
             /** The unchanged original Bernstein derivative component in local t. */

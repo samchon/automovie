@@ -1,6 +1,6 @@
-import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
-import { IAutoMovieScalarPredicate } from "./IAutoMovieScalarPredicate";
-import { IAutoMovieShotSpatialSelector } from "./IAutoMovieShotSpatialSelector";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieScalarPredicate } from "./IAutoMovieScalarPredicate";
+import type { IAutoMovieShotSpatialSelector } from "./IAutoMovieShotSpatialSelector";
 
 /**
  * One scalar state or event fact measured from compiled pose or world placement.

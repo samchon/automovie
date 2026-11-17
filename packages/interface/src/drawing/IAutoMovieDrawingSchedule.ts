@@ -1,6 +1,6 @@
-import { AutoMovieDrawingScheduleSubject } from "./AutoMovieDrawingScheduleSubject";
-import { IAutoMovieDrawingGap } from "./IAutoMovieDrawingGap";
-import { IAutoMovieDrawingScheduleRow } from "./IAutoMovieDrawingScheduleRow";
+import type { AutoMovieDrawingScheduleSubject } from "./AutoMovieDrawingScheduleSubject";
+import type { IAutoMovieDrawingGap } from "./IAutoMovieDrawingGap";
+import type { IAutoMovieDrawingScheduleRow } from "./IAutoMovieDrawingScheduleRow";
 
 /**
  * A schedule: one design's spaces, openings or connectors counted instead of drawn.

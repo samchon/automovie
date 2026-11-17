@@ -1,14 +1,16 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crawlFrame } from "./crawlFrame";
@@ -162,9 +164,9 @@ export namespace crawlChain {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The chain holds bounded frame coefficients, body lengths/places and at most 116 integer-elevation foot records from LOWEST through 120 until release; no noninteger bisection or queried shape is retained.
    */
   export function of(
-    body: IHumanBody,
-    standing: IHumanPosture,
-    frame: HumanFrame.IFrame,
+    body: IAutoMovieMotionHumanBody,
+    standing: IAutoMovieMotionHumanPosture,
+    frame: IAutoMovieMotionHumanFrame,
     forward: IAutoMovieVector3,
   ): IChain {
     const yaw: number = frame.yaw;
@@ -196,7 +198,7 @@ export namespace crawlChain {
       crawlFrame.wrists(body, standing, forward);
     const wv: number = (wrists.left.y + wrists.right.y) / 2;
     const ball = (side: "left" | "right"): IAutoMovieVector3 => {
-      const from: IHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
+      const from: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
       return floor.local(
         HumanFoot.point(body, side, "mtp", {
           ankle: from.point,

@@ -1,4 +1,5 @@
-import type { IAutoMovieRenderTextureTarget } from "./IAutoMovieRenderTextureTarget";
+import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
+
 import { autoMovieTextureFormatBytes } from "./autoMovieTextureFormatBytes";
 import { measureAutoMovieTextureStorage } from "./measureAutoMovieTextureStorage";
 

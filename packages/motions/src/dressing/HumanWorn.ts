@@ -2,18 +2,19 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
 /**
  * Where a wearable sits once worn: its `wear` socket on the body region it
@@ -48,12 +49,12 @@ export namespace HumanWorn {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function frame(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    prop: IHumanProp,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    prop: IAutoMovieMotionHumanProp,
     region: AutoMovieHumanoidRegion,
     turn: number = 0,
-  ): IHumanProp.IFrame {
+  ): IAutoMovieRigidTransform {
     return prepare(body, posture, prop, region)(turn);
   }
 
@@ -75,11 +76,11 @@ export namespace HumanWorn {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous grasp search owns a constant-size alignment, region frame and socket offset; releasing its builder releases them without a global cache.
    */
   export function prepare(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    prop: IHumanProp,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    prop: IAutoMovieMotionHumanProp,
     region: AutoMovieHumanoidRegion,
-  ): (turn: number) => IHumanProp.IFrame {
+  ): (turn: number) => IAutoMovieRigidTransform {
     return prepareSite(body, posture, prop, region).frame;
   }
 
@@ -94,9 +95,9 @@ export namespace HumanWorn {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed immutable body/posture/prop/region prove the shared receiving geometry; every turn remains actual and copied sites prevent output mutation from changing later frames.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous owner releases constant-size region/alignment/socket data with its builder; frame/site outputs are fresh numeric records without a body reader, query history or external handle.
    */
-  export function prepareSite(body: IHumanBody, posture: IHumanPosture,
-    prop: IHumanProp, region: AutoMovieHumanoidRegion): {
-    frame: (turn: number) => IHumanProp.IFrame;
+  export function prepareSite(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture,
+    prop: IAutoMovieMotionHumanProp, region: AutoMovieHumanoidRegion): {
+    frame: (turn: number) => IAutoMovieRigidTransform;
     point: () => IAutoMovieVector3;
   } {
     const wear: IAutoMovieAffordance = socketOf(prop);
@@ -106,7 +107,7 @@ export namespace HumanWorn {
       region,
     );
     const aligned: IAutoMovieQuaternion = alignment(wear)(at, posture.yaw);
-    const frame: (turn: number) => IHumanProp.IFrame = (turn: number): IHumanProp.IFrame => {
+    const frame: (turn: number) => IAutoMovieRigidTransform = (turn: number): IAutoMovieRigidTransform => {
       return placed(at, aligned, wear, turn);
     };
     return { frame, point: (): IAutoMovieVector3 => ({ ...at.point }) };
@@ -123,14 +124,14 @@ export namespace HumanWorn {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only immutable body/prop/region geometry proves fixed metadata equivalence; current posture, yaw, turn and optional FK loan stay query inputs, and changed fixed geometry requires another producer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns one fixed socket/rest basis and static region reader until release. Current region data and optional operation source release per call; fresh numeric frames retain no reader, query time, pose history or external handle.
    */
-  export function prepareMoving(body: IHumanBody, prop: IHumanProp,
-    region: AutoMovieHumanoidRegion): (posture: IHumanPosture, turn: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IHumanProp.IFrame {
+  export function prepareMoving(body: IAutoMovieMotionHumanBody, prop: IAutoMovieMotionHumanProp,
+    region: AutoMovieHumanoidRegion): (posture: IAutoMovieMotionHumanPosture, turn: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieRigidTransform {
     let wear: IAutoMovieAffordance | undefined;
     let read: ReturnType<typeof HumanTrunk.prepareRegion> | undefined;
     let align: ReturnType<typeof alignment> | undefined;
-    return (posture: IHumanPosture, turn: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanProp.IFrame => {
+    return (posture: IAutoMovieMotionHumanPosture, turn: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieRigidTransform => {
       wear ??= socketOf(prop);
       read ??= HumanTrunk.prepareRegion(body, region);
       const at: ReturnType<typeof HumanTrunk.region> = read(posture, resolution);
@@ -141,7 +142,7 @@ export namespace HumanWorn {
 }
 
 /** Original socket admission shared by cold, fixed-entry and changing-posture readers. */
-function socketOf(prop: IHumanProp): IAutoMovieAffordance {
+function socketOf(prop: IAutoMovieMotionHumanProp): IAutoMovieAffordance {
   const affordances: readonly IAutoMovieAffordance[] = prop.affordances ?? [];
   const wear: IAutoMovieAffordance | undefined = affordances.find(
     (a: IAutoMovieAffordance): boolean => a.id === "wear");
@@ -170,7 +171,7 @@ function alignment(wear: IAutoMovieAffordance):
 
 /** Original requested turn and socket translation, with no added normalization or grouping. */
 function placed(at: ReturnType<typeof HumanTrunk.region>, aligned: IAutoMovieQuaternion,
-  wear: IAutoMovieAffordance, turn: number): IHumanProp.IFrame {
+  wear: IAutoMovieAffordance, turn: number): IAutoMovieRigidTransform {
   const rotation: IAutoMovieQuaternion = Quaternion.normalize(
     Quaternion.multiply(Quaternion.fromAxisAngle(at.normal, turn), aligned));
   return { position: Vector3.subtract(at.point, Quaternion.rotateVector(rotation, wear.frame.translation)), rotation };

@@ -1,6 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { IAutoMovieZone } from "./IAutoMovieZone";
+import type {
+  IAutoMovieResolveZone,
+  IAutoMovieVector3,
+  IAutoMovieZone,
+} from "@automovie/interface";
 
 /**
  * The point of a zone a move goes to: a named landmark, or the zone's centre
@@ -22,7 +24,7 @@ import type { IAutoMovieZone } from "./IAutoMovieZone";
 export function resolveAutoMovieZone(
   zones: readonly IAutoMovieZone[],
   id: string,
-  where?: string | { bearing: number; share: number },
+  where?: IAutoMovieResolveZone.IWhere,
 ): IAutoMovieVector3 {
   const zone: IAutoMovieZone | undefined = zones.find(
     (z: IAutoMovieZone): boolean => z.id === id,

@@ -1,5 +1,5 @@
-import { AutoMovieDesignLifecycleRole } from "./AutoMovieDesignLifecycleRole";
-import { AutoMovieDesignPresence } from "./AutoMovieDesignPresence";
+import type { AutoMovieDesignLifecycleRole } from "./AutoMovieDesignLifecycleRole";
+import type { AutoMovieDesignPresence } from "./AutoMovieDesignPresence";
 
 /**
  * One subject's classification and presence at one phase.

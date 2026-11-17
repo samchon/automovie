@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   type resolveAutoMovieBoneRates,
   type resolveAutoMovieCenterOfMass,
   resolveAutoMovieMomentum,
@@ -7,7 +6,10 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieBodyMomentum,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -57,7 +59,7 @@ export function test_kinematics_centroidal_rates(): void {
     worldPosition: zero,
     worldRotation: identity,
   };
-  const model: resolveAutoMovieCenterOfMass.IModel = {
+  const model: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 2,
     segments: [{
       bone: "hips", mass: 2,
@@ -73,7 +75,7 @@ export function test_kinematics_centroidal_rates(): void {
   };
   const rates: Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate> = new Map([["hips", rate]]);
   const posed: resolveAutoMovieMomentum.IPosed = resolveAutoMovieMomentum.pose(model, bones);
-  const single: resolveAutoMovieMomentum.IMomentum = resolveAutoMovieMomentumRates(model, posed, bones, rates);
+  const single: IAutoMovieBodyMomentum = resolveAutoMovieMomentumRates(model, posed, bones, rates);
   expectMomentum("off-centre spin", single, {
     centre: { x: 1, y: 0, z: 0 }, velocity: { x: 7, y: 5, z: 0 },
     linear: { x: 14, y: 10, z: 0 }, angular: { x: 0, y: 0, z: 20 },
@@ -88,7 +90,7 @@ export function test_kinematics_centroidal_rates(): void {
   TestValidator.predicate("an edited result cannot change the next momentum",
     vclose(resolveAutoMovieMomentumRates(model, posed, bones, rates).angular, { x: 0, y: 0, z: 20 }, 1e-12));
 
-  const pair: resolveAutoMovieCenterOfMass.IModel = {
+  const pair: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 6,
     segments: [
       { bone: "hips", mass: 3, point: zero, inertia: zero, axes: identity },
@@ -143,7 +145,7 @@ export function test_kinematics_centroidal_rates(): void {
     centre: { x: 1, y: 0, z: 0 }, velocity: { x: 3.5, y: 2.5, z: 0 },
     linear: { x: 7, y: 5, z: 0 }, angular: { x: 0, y: 0, z: 10 },
   });
-  const massive: resolveAutoMovieCenterOfMass.IModel = {
+  const massive: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 8,
     segments: [{ ...model.segments[0]!, mass: 8, inertia: { x: 8, y: 12, z: 16 } }],
   };
@@ -159,7 +161,7 @@ export function test_kinematics_centroidal_rates(): void {
   const turnedRates: Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate> = new Map([["hips", {
     linear: zero, angular: { x: 1, y: 0, z: 0 },
   }]]);
-  const principalTurned: resolveAutoMovieCenterOfMass.IModel = {
+  const principalTurned: IAutoMovieResolveCenterOfMass.IModel = {
     ...model, segments: [{ ...model.segments[0]!, axes: quarter }],
   };
   expectMomentum("rotated bone-local principal frame", read(principalTurned, bones, turnedRates), {
@@ -171,7 +173,7 @@ export function test_kinematics_centroidal_rates(): void {
     linear: { x: 0, y: 0, z: 2 }, angular: { x: 3, y: 0, z: 0 },
   });
 
-  const masslessSpin: resolveAutoMovieCenterOfMass.IModel = {
+  const masslessSpin: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 2,
     segments: [model.segments[0]!, {
       bone: "spine", mass: 0, point: zero, inertia: { x: 0, y: 0, z: 2 }, axes: identity,
@@ -223,20 +225,20 @@ export function test_kinematics_centroidal_rates(): void {
 
 /** Prepare only the public posed input; no two-pose momentum supplies an oracle. */
 function read(
-  model: resolveAutoMovieCenterOfMass.IModel,
+  model: IAutoMovieResolveCenterOfMass.IModel,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   rates: ReadonlyMap<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>,
-): resolveAutoMovieMomentum.IMomentum {
+): IAutoMovieBodyMomentum {
   return resolveAutoMovieMomentumRates(model, resolveAutoMovieMomentum.pose(model, bones), bones, rates);
 }
 
 /** Compare every observable SI vector with a finite-aware binary64 bound. */
 function expectMomentum(
   label: string,
-  actual: resolveAutoMovieMomentum.IMomentum,
-  expected: resolveAutoMovieMomentum.IMomentum,
+  actual: IAutoMovieBodyMomentum,
+  expected: IAutoMovieBodyMomentum,
 ): void {
-  const fields: readonly (keyof resolveAutoMovieMomentum.IMomentum)[] = ["centre", "velocity", "linear", "angular"];
+  const fields: readonly (keyof IAutoMovieBodyMomentum)[] = ["centre", "velocity", "linear", "angular"];
   for (const field of fields)
     TestValidator.predicate(`${label}: ${field}`, vclose(actual[field], expected[field], 1e-12));
 }

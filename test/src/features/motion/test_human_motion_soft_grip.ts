@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieSoftBodyBoundarySample,
   Quaternion,
   Transform,
   Vector3,
@@ -8,15 +7,14 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieSoftBodyBoundarySample,
   IAutoMovieSoftBodyDomain,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+import { HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHandleShapes } from "../internal/motionHandleShapes";
@@ -31,7 +29,7 @@ const towel = (
   n: number,
   edge: number,
   seconds: number,
-): IHumanProp => {
+): IAutoMovieMotionHumanProp => {
   const rest: number[] = [];
   for (let row: number = 0; row < n; row++)
     for (let column: number = 0; column < n; column++)
@@ -122,8 +120,8 @@ const towel = (
  */
 export function test_human_motion_soft_grip(): void {
   const complaints: string[] = [];
-  const body: IHumanBody = motionHumanBody("m-average");
-  const m: IHumanBody["measure"] = body.measure;
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
   const edge: number = 2 * m.shoulderHalfWidth;
   const origin: IAutoMovieVector3 = {
     x: -m.shoulderHalfWidth,
@@ -131,8 +129,8 @@ export function test_human_motion_soft_grip(): void {
     z: 0.5 * (m.upperArm + m.forearm),
   };
   const perform = (
-    composition: HumanPerformance.IInput["composition"],
-  ): HumanPerformance =>
+    composition: IAutoMovieMotionHumanPerformance.IInput["composition"],
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "grip",
       props: [towel(origin, 8, edge, 8)],
@@ -148,7 +146,7 @@ export function test_human_motion_soft_grip(): void {
       composition,
     });
   const socket = (
-    p: HumanPerformance,
+    p: IAutoMovieMotionHumanPerformance,
     side: "left" | "right",
     t: number,
   ): IAutoMovieVector3 => {
@@ -176,7 +174,7 @@ export function test_human_motion_soft_grip(): void {
 
   // 1. One corner held.
   try {
-    const held: HumanPerformance = perform(
+    const held: IAutoMovieMotionHumanPerformance = perform(
       HumanChain.subject("a")
         .pickUp({ prop: "towel", handle: "cornerB", hand: "right" })
         .stand({ seconds: 1 }).node,
@@ -204,7 +202,7 @@ export function test_human_motion_soft_grip(): void {
 
   // 2. Two corners held spread.
   try {
-    const spread: HumanPerformance = perform(
+    const spread: IAutoMovieMotionHumanPerformance = perform(
       HumanChain.subject("a")
         .pickUp({ prop: "towel", handle: "cornerA", hand: "left" })
         .pickUp({ prop: "towel", handle: "cornerB", hand: "right" })

@@ -1,6 +1,11 @@
 import { createCart, createHandgun } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
@@ -9,7 +14,6 @@ import {
   HumanSegment,
   HumanVerdicts,
   HumanWeaponFirearm,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -47,15 +51,15 @@ export function test_human_motion_support_aim(): void {
   const gun: ReturnType<typeof createHandgun> = createHandgun({
     frame: "fullSize",
   });
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const target: IAutoMovieVector3 = {
     x: 0,
     y: body.measure.chestHeight,
     z: 10,
   };
   const perform = (
-    motion: (seconds: number) => HumanObject.Placement,
-  ): HumanPerformance =>
+    motion: (seconds: number) => IAutoMovieMotionHumanObject.Placement,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "support-aim",
       laws: [HumanWeaponFirearm.present],
@@ -88,10 +92,10 @@ export function test_human_motion_support_aim(): void {
         ).node,
     });
 
-  let performance: HumanPerformance;
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
     performance = perform(
-      (seconds: number): HumanObject.Placement => ({
+      (seconds: number): IAutoMovieMotionHumanObject.Placement => ({
         at: { x: seconds, y: 0, z: 0 },
         yaw: 0,
       }),
@@ -141,12 +145,14 @@ export function test_human_motion_support_aim(): void {
   };
   const from: number = overlay.start + overlay.plan.duration * 0.5;
   // The hold runs until the overlay begins to fade out (`HumanSegment.FADE`).
-  const to: number =
-    overlay.start + overlay.plan.duration - HumanSegment.FADE;
+  const to: number = overlay.start + overlay.plan.duration - HumanSegment.FADE;
   const first: number = off(from);
   let worst: number = 0;
   for (let k: number = 1; k <= 6; k++)
-    worst = Math.max(worst, Math.abs(off(from + ((to - from) * k) / 6) - first));
+    worst = Math.max(
+      worst,
+      Math.abs(off(from + ((to - from) * k) / 6) - first),
+    );
   TestValidator.predicate(
     `the bore stays on the target across the carry (${worst.toFixed(3)} of ${bound.toFixed(3)} degrees)`,
     worst <= bound,
@@ -155,7 +161,7 @@ export function test_human_motion_support_aim(): void {
   let refused: unknown = undefined;
   try {
     perform(
-      (seconds: number): HumanObject.Placement => ({
+      (seconds: number): IAutoMovieMotionHumanObject.Placement => ({
         at: { x: 0, y: 0, z: 0 },
         yaw: 90 * seconds,
       }),

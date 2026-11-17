@@ -1,10 +1,12 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
+  IAutoMovieSamplePhysicalTarget,
+} from "@automovie/interface";
 
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
 import { planPhysicalRootSupportTargets } from "./planPhysicalRootSupportTargets";
-import type { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
  * Optional endpoint IK owns only chains disjoint from balance posture. Its cached pose/twist endpoints survive native checkpoint continuation together.
@@ -18,16 +20,16 @@ import type { samplePhysicalTarget } from "./samplePhysicalTarget";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function trackPhysicalRootSupportTargets(input: {
-  /** Admitted provider and endpoint budget. */ body: Simulation.IBody;
+  /** Admitted provider and endpoint budget. */ body: IAutoMoviePhysicalSimulationInput.IBody;
   /** Native ownership and cached plans. */ bound: Bound;
-  /** Current declared endpoint effort. */ target: Simulation.ITarget;
+  /** Current declared endpoint effort. */ target: IAutoMoviePhysicalSimulationInput.ITarget;
   /** Current motor references, updated together. */ goals: Record<
     string,
-    ReturnType<typeof samplePhysicalTarget>
+    IAutoMovieSamplePhysicalTarget.IResult
   >;
   /** Root's actual native pose and authority. */ root: {
     bone: string;
-    pose: P.ITransform;
+    pose: IAutoMovieRigidTransform;
     dynamic: boolean;
   };
   /** Coordinates already owned by balance posture. */ excluded: ReadonlySet<string>;
@@ -38,7 +40,8 @@ export function trackPhysicalRootSupportTargets(input: {
   /** Positive declared cache frequency. */ rate: number;
 }): void {
   const { body, bound, goals }: typeof input = input;
-  const policy: Simulation.IBody["supportTracking"] = body.supportTracking;
+  const policy: IAutoMoviePhysicalSimulationInput.IBody["supportTracking"] =
+    body.supportTracking;
   if (
     !input.root.dynamic ||
     !policy ||
@@ -84,7 +87,7 @@ export function trackPhysicalRootSupportTargets(input: {
     const balance: ReturnType<typeof bound.planned.get> = bound.planned.get(
       body.id,
     );
-    const targets: Record<string, P.ITransform> =
+    const targets: Record<string, IAutoMovieRigidTransform> =
       balance?.step === input.step && balance.revision === input.revision
         ? balance.targets
         : input.target.segments;

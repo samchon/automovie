@@ -1,4 +1,4 @@
-import { IAutoMovieMesh } from "./IAutoMovieMesh";
+import type { IAutoMovieMesh } from "./IAutoMovieMesh";
 
 /**
  * Geometry whose explicit triangle attributes belong to the enclosed mesh.

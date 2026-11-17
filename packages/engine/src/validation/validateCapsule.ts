@@ -1,9 +1,8 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieCapsuleProxy,
+  IAutoMovieViolationCollector,
 } from "@automovie/interface";
-
-import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Require distinct skeleton endpoints that are declared and FK-reachable, plus finite positive radius.
@@ -21,13 +20,13 @@ export const validateCapsule: (
   path: string,
   skeletonBones: ReadonlySet<AutoMovieHumanoidBone>,
   reachableBones: ReadonlySet<AutoMovieHumanoidBone>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => boolean = (
   capsule: IAutoMovieCapsuleProxy,
   path: string,
   skeletonBones: ReadonlySet<AutoMovieHumanoidBone>,
   reachableBones: ReadonlySet<AutoMovieHumanoidBone>,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): boolean => {
   let valid: boolean = true;
   const endpoint: (bone: AutoMovieHumanoidBone, at: string) => void = (

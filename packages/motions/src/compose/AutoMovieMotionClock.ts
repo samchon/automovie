@@ -1,8 +1,13 @@
 import { minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionClockInstant,
+  IAutoMovieMotionClockPhase,
+  IAutoMovieMotionPhraseDurations,
+} from "@automovie/interface";
 
-import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
-import type { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
 import { AutoMovieMotionClockNative } from "./AutoMovieMotionClockNative";
+import type { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
 import { AutoMovieMotionWave } from "./AutoMovieMotionWave";
 
 /**
@@ -30,46 +35,11 @@ export namespace AutoMovieMotionClock {
   export const END: string = AutoMovieMotionClockNative.END;
 
   /**
-   * A named instant.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its unit, its range and the reserved names.
-   * @evidence contracts/development/design.md#principled-representation A name and its time in seconds since the action's start, the unit every plan is evaluated in.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, the least that places an instant; read by the clock's constructor and returned in its sorted list.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both members are required and plain; no share of the duration is stored beside the seconds it would repeat.
-   */
-  export interface IInstant {
-    /** Name, unique within the clock; never `start` or `end`. */
-    name: string;
 
-    /** Seconds since the action's start, in [0, duration]. */
-    seconds: number;
-  }
 
-  /**
-   * One phase of a sequence: the instant that opens it and how long it lasts.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what a phase is and how its name relates to the clock's instants; each member gives its unit.
-   * @evidence contracts/development/design.md#principled-representation A law decides phase lengths (a reach's travel time, a hold), so a phase carries a length and the clock derives the instants by summing.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read only by `sequence`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both members are required and plain; a length of zero is allowed and means two instants at one time.
-   */
-  export interface IPhase {
-    /** The instant that opens the phase. */
-    name: string;
+  
 
-    /** The phase's length, seconds; not negative. */
-    seconds: number;
-  }
-
-  /**
-   * The clock record, with its named-instant queries owned in one declaration.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies duration, named instants and inherited query members while preserving the original exported interface's declaration-merging surface.
-   * @evidence contracts/development/design.md#principled-representation Reuses the same action-local seconds and named-window interface.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The original public interface extends the sole clock record owner without duplicating members or blocking existing module/namespace augmentation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The declaration remains an interface; no inherited member is copied, widened or made optional.
-   */
-  export interface IClock extends IAutoMovieMotionClock {}
+  
 
   /**
    * Prepare native fixed intervals while preserving arbitrary custom clock callbacks.
@@ -82,7 +52,7 @@ export namespace AutoMovieMotionClock {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only constructor-owned private named times share interval preparation when the requested method is still original. Public at or the other query method is irrelevant to that closure; custom results and different seconds are never cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns the clock, names, original method references and optional fixed numeric interval until release; native construction records are weakly keyed by their live clock and retain no sample history or handles.
    */
-  export function prepare(clock: IClock, from: string, to: string): AutoMovieMotionInterval.IPrepared {
+  export function prepare(clock: IAutoMovieMotionClock, from: string, to: string): AutoMovieMotionInterval.IPrepared {
     return AutoMovieMotionClockNative.prepare(clock, from, to);
   }
 
@@ -97,7 +67,7 @@ export namespace AutoMovieMotionClock {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed window names and constructor-private interval metadata alone share; each sample captures the current requested envelope once, and nonoriginal callees retain their independent callback behavior.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning action retains clock, copied names and at most two numeric intervals until release; no caller array, pose, query result, time history or handle is retained.
    */
-  export function prepareEnvelope(clock: IClock, rise: readonly [string, string],
+  export function prepareEnvelope(clock: IAutoMovieMotionClock, rise: readonly [string, string],
     fall: readonly [string, string]): (seconds: number) => number {
     return AutoMovieMotionClockNative.prepareEnvelope(clock, rise, fall);
   }
@@ -117,7 +87,7 @@ export namespace AutoMovieMotionClock {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `minimumJerk`, the engine's one owner of the minimum-jerk profile.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The constructed clock retains one map/sorted array and its original closures; ClockNative weakly owns the method proof without retaining the clock key, query history or external resources.
    */
-  export function of(duration: number, instants: readonly IInstant[]): IClock {
+  export function of(duration: number, instants: readonly IAutoMovieMotionClockInstant[]): IAutoMovieMotionClock {
     return AutoMovieMotionClockNative.of(duration, instants);
   }
 
@@ -137,8 +107,8 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One pass over a handful of phases, with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing of its own; the clock it returns is `of`'s.
    */
-  export function sequence(phases: readonly IPhase[]): IClock {
-    const instants: IInstant[] = [];
+  export function sequence(phases: readonly IAutoMovieMotionClockPhase[]): IAutoMovieMotionClock {
+    const instants: IAutoMovieMotionClockInstant[] = [];
     let seconds: number = 0;
     for (const phase of phases) {
       if (!(phase.seconds >= 0))
@@ -147,34 +117,6 @@ export namespace AutoMovieMotionClock {
       seconds += phase.seconds;
     }
     return of(seconds, instants);
-  }
-
-  /**
-   * The lengths of a phrase's six phases, seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member names the two instants it lies between and its value when absent.
-   * @evidence contracts/development/design.md#principled-representation The phases of a gesture (Kendon 1980: preparation, hold, stroke, hold, retraction), with the stroke split at its decisive instant as BML 1.0 splits it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, the lengths between the seven standard instants; read only by `phrase`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The three phases a movement may lack are optional and read as zero, which puts two instants at one time instead of removing a name.
-   */
-  export interface IPhrase {
-    /** From `start` to `ready`: the part leaves rest for where its stroke starts. */
-    prepare: number;
-
-    /** From `ready` to `strokeStart`: the part waits there; 0 when absent. */
-    wait?: number;
-
-    /** From `strokeStart` to `stroke`: the stroke up to its decisive instant. */
-    attack: number;
-
-    /** From `stroke` to `strokeEnd`: the stroke after it; 0 when absent. */
-    follow?: number;
-
-    /** From `strokeEnd` to `relax`: the part stays where the stroke left it; 0 when absent. */
-    hold?: number;
-
-    /** From `relax` to `end`: the part returns to rest. */
-    retract: number;
   }
 
   /**
@@ -208,7 +150,7 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One pass over six lengths, with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing of its own; the clock it returns is `of`'s.
    */
-  export function phrase(durations: IPhrase): IClock {
+  export function phrase(durations: IAutoMovieMotionPhraseDurations ): IAutoMovieMotionClock {
     const lengths: readonly number[] = [
       durations.prepare,
       durations.wait ?? 0,
@@ -217,7 +159,7 @@ export namespace AutoMovieMotionClock {
       durations.hold ?? 0,
       durations.retract,
     ];
-    const instants: IInstant[] = [];
+    const instants: IAutoMovieMotionClockInstant[] = [];
     let seconds: number = 0;
     lengths.forEach((length: number, i: number): void => {
       if (!(length >= 0))
@@ -246,12 +188,12 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function repeat(span: readonly IPhase[], count: number): IPhase[] {
+  export function repeat(span: readonly IAutoMovieMotionClockPhase[], count: number): IAutoMovieMotionClockPhase[] {
     if (!(Number.isInteger(count) && count > 0))
       throw new Error("A movement repeats a positive whole number of times");
-    return Array.from({ length: count }, (_: unknown, i: number): IPhase[] =>
+    return Array.from({ length: count }, (_: unknown, i: number): IAutoMovieMotionClockPhase[] =>
       span.map(
-        (phase: IPhase): IPhase => ({
+        (phase: IAutoMovieMotionClockPhase): IAutoMovieMotionClockPhase => ({
           name: `${phase.name}${i + 1}`,
           seconds: phase.seconds,
         }),
@@ -280,7 +222,7 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function through(
-    clock: IClock,
+    clock: IAutoMovieMotionClock,
     window: readonly [string, string, string],
     seconds: number,
   ): number {
@@ -321,10 +263,10 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing of its own; the clock it returns is `of`'s.
    */
   export function stretch(
-    clock: IClock,
+    clock: IAutoMovieMotionClock,
     factor: (opening: string) => number,
-  ): IClock {
-    const instants: IInstant[] = [];
+  ): IAutoMovieMotionClock {
+    const instants: IAutoMovieMotionClockInstant[] = [];
     let opening: string = START;
     let before: number = 0;
     let seconds: number = 0;
@@ -366,10 +308,10 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function scale(
-    clock: IClock,
+    clock: IAutoMovieMotionClock,
     tempo: number,
     fixed: readonly string[] = [],
-  ): IClock {
+  ): IAutoMovieMotionClock {
     for (const name of fixed) clock.at(name);
     return stretch(clock, (opening: string): number =>
       fixed.includes(opening) ? 1 : tempo,
@@ -397,10 +339,10 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function align(
-    clock: IClock,
+    clock: IAutoMovieMotionClock,
     instant: string,
     seconds: number,
-  ): IClock {
+  ): IAutoMovieMotionClock {
     const at: number = clock.at(instant);
     if (!(at > 0) || !(seconds > 0))
       throw new Error(

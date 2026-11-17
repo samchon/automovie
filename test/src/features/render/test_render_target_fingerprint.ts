@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieRenderTargetDrift,
   autoMovieRenderDigest,
   autoMovieRenderTargetAssets,
   autoMovieRenderTargetSummary,
@@ -11,6 +10,7 @@ import {
   IAutoMovieRenderReport,
   IAutoMovieRenderTarget,
   IAutoMovieRenderTargetAsset,
+  type IAutoMovieRenderTargetDrift,
   IAutoMovieRenderTargetSettings,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

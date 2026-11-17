@@ -1,8 +1,10 @@
-import { AutoMovieHumanoidBone } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieBoneBuffer,
+  type IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../../kinematics/IAutoMovieResolvedBone";
 import { AutoMovieSweepRotation } from "./AutoMovieSweepRotation";
-import { IAutoMovieBoneBuffer } from "./IAutoMovieBoneBuffer";
 
 /**
  * Create the motion buffers of a rest skeleton.

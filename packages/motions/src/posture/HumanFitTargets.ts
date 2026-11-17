@@ -1,15 +1,13 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBodyFitTypes,
+  IAutoMovieMotionHumanJacobian,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanBodyFit } from "./HumanBodyFit";
 import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanFitTargetSlopes } from "./HumanFitTargetSlopes";
 import { HumanJacobian } from "./HumanJacobian";
@@ -53,20 +51,20 @@ export namespace HumanFitTargets {
   ): HumanBodyFitRows.IRead[] {
     const rows: HumanBodyFitRows.IRead[] = [];
     const current: HumanBodyFitRows.IReading = step.at;
-    step.targets.forEach((target: HumanBodyFit.ITarget, k: number): void => {
+    step.targets.forEach((target: IAutoMovieMotionHumanBodyFitTypes.ITarget, k: number): void => {
       const at: IFrame = frame(target, current, k);
-      const motions: HumanJacobian.ITwist[] = step.motions.map(
-        (motion: HumanJacobian.IMotion): HumanJacobian.ITwist =>
+      const motions: IAutoMovieMotionHumanJacobian.ITwist[] = step.motions.map(
+        (motion: IAutoMovieMotionHumanJacobian.IMotion): IAutoMovieMotionHumanJacobian.ITwist =>
           relative(target, current, k, motion, at),
       );
       const axes: readonly ("x" | "y" | "z")[] = target.axes ?? ["x", "y", "z"];
       const scaled: (
-        f: (motion: HumanJacobian.ITwist, i: number) => number,
+        f: (motion: IAutoMovieMotionHumanJacobian.ITwist, i: number) => number,
       ) => number[] = (
-        f: (motion: HumanJacobian.ITwist, i: number) => number,
+        f: (motion: IAutoMovieMotionHumanJacobian.ITwist, i: number) => number,
       ): number[] =>
         motions.map(
-          (motion: HumanJacobian.ITwist, i: number): number =>
+          (motion: IAutoMovieMotionHumanJacobian.ITwist, i: number): number =>
             f(motion, i) * step.units[i]! * mm,
         );
       const price: number = target.price ?? step.price;
@@ -78,7 +76,7 @@ export namespace HumanFitTargets {
               (r === current ? at : frame(target, r, k)).point[axis],
             target.goal[axis],
             scaled(
-              (motion: HumanJacobian.ITwist): number => motion.linear[axis],
+              (motion: IAutoMovieMotionHumanJacobian.ITwist): number => motion.linear[axis],
             ),
             price,
           );
@@ -95,7 +93,7 @@ export namespace HumanFitTargets {
           row: {
             key: `point-ball:${k}`,
             index: step.index,
-            coef: scaled((motion: HumanJacobian.ITwist): number =>
+            coef: scaled((motion: IAutoMovieMotionHumanJacobian.ITwist): number =>
               distance === 0 ? 0 : Vector3.dot(delta, motion.linear) / distance,
             ),
             l: -Infinity,
@@ -120,7 +118,7 @@ export namespace HumanFitTargets {
                 : -turn(target.rotation!, frame(target, r, k).turn)[axis],
             0,
             scaled(
-              (_motion: HumanJacobian.ITwist, i: number): number =>
+              (_motion: IAutoMovieMotionHumanJacobian.ITwist, i: number): number =>
                 columns[i]![axis],
             ),
             price,
@@ -147,7 +145,7 @@ export namespace HumanFitTargets {
                 axis,
               ),
             0,
-            scaled((_motion: HumanJacobian.ITwist, i: number): number =>
+            scaled((_motion: IAutoMovieMotionHumanJacobian.ITwist, i: number): number =>
               Vector3.dot(columns[i]!, axis),
             ),
             price,
@@ -175,7 +173,7 @@ export namespace HumanFitTargets {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function misses(
-    target: HumanBodyFit.ITarget,
+    target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
     r: HumanBodyFitRows.IReading,
     k: number,
   ): number[] {
@@ -216,7 +214,7 @@ export namespace HumanFitTargets {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function residual(
-    target: HumanBodyFit.ITarget,
+    target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
     r: HumanBodyFitRows.IReading,
     k: number,
   ): { point: number; turn: number } {
@@ -279,7 +277,7 @@ export namespace HumanFitTargets {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function tilt(
-    target: HumanBodyFit.ITarget,
+    target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
     rotation: IAutoMovieQuaternion,
   ): IAutoMovieVector3 {
     const w: IAutoMovieVector3 = Vector3.normalize(target.normal!.world);
@@ -337,7 +335,7 @@ const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /** Read each new goal frame on its actual anchor, sharing that same inverse with the current model's relative twists. */
 function frame(
-  target: HumanBodyFit.ITarget,
+  target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
   r: HumanBodyFitRows.IReading,
   k: number,
 ): IFrame {
@@ -361,19 +359,19 @@ function frame(
 
 /** Relative twists include the anchor's velocity at the effector point. */
 function relative(
-  target: HumanBodyFit.ITarget,
+  target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
   r: HumanBodyFitRows.IReading,
   k: number,
-  motion: HumanJacobian.IMotion,
+  motion: IAutoMovieMotionHumanJacobian.IMotion,
   at: IFrame,
-): HumanJacobian.ITwist {
-  const own: HumanJacobian.ITwist = HumanJacobian.twist(
+): IAutoMovieMotionHumanJacobian.ITwist {
+  const own: IAutoMovieMotionHumanJacobian.ITwist = HumanJacobian.twist(
     motion,
     target.bone,
     r.points[k]!,
   );
   if (at.anchor === undefined) return own;
-  const on: HumanJacobian.ITwist =
+  const on: IAutoMovieMotionHumanJacobian.ITwist =
     target.bone === at.anchor.bone
       ? own
       : HumanJacobian.twist(motion, at.anchor.bone, r.points[k]!);
@@ -392,7 +390,7 @@ function relative(
 
 /** Point error projected on the declared axes; a bound is a metric radius. */
 function error(
-  target: HumanBodyFit.ITarget,
+  target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
   point: IAutoMovieVector3,
 ): IAutoMovieVector3 {
   if (

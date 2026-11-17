@@ -1,4 +1,4 @@
-import type { AutoMovieComposition } from "@automovie/engine";
+import type { IAutoMovieComposition } from "@automovie/interface";
 import * as motions from "@automovie/motions";
 import { HUMAN_ACTIONS, HumanChain } from "@automovie/motions";
 
@@ -19,7 +19,7 @@ export namespace PlaygroundChain {
   /** The chain as this module drives it: each member present only when the installed package has it. */
   interface ILoose {
     /** The composition the chain holds. */
-    node: AutoMovieComposition;
+    node: IAutoMovieComposition;
 
     /** Append a vocabulary action. */
     act(name: string, params: object, anchor?: string): ILoose;
@@ -37,10 +37,10 @@ export namespace PlaygroundChain {
     over?(build: (overlay: ILoose) => ILoose): ILoose;
 
     /** Run other parts at the same instant. */
-    with(...parts: (ILoose | AutoMovieComposition)[]): ILoose;
+    with(...parts: (ILoose | IAutoMovieComposition)[]): ILoose;
 
     /** Follow with other parts. */
-    next(...parts: (ILoose | AutoMovieComposition)[]): ILoose;
+    next(...parts: (ILoose | IAutoMovieComposition)[]): ILoose;
   }
 
   /** A law record of the lexicon: anything with a name and a plan. */
@@ -77,7 +77,7 @@ export namespace PlaygroundChain {
   /** What a built composition needs beside its node. */
   export interface IBuilt {
     /** The composition. */
-    composition: AutoMovieComposition;
+    composition: IAutoMovieComposition;
 
     /** The lexicon laws it names, which the performance must be given. */
     laws: unknown[];
@@ -292,7 +292,7 @@ export namespace PlaygroundChain {
     const rest: ILoose[] = people === undefined ? joined.slice(1) : joined;
     if (head === undefined)
       throw new Error("The composition has no action; add one to a performer");
-    const scene: AutoMovieComposition = (
+    const scene: IAutoMovieComposition = (
       rest.length === 0 ? head : head.next(...rest)
     ).node;
     return {

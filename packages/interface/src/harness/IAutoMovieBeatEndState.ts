@@ -1,4 +1,4 @@
-import { IAutoMovieBeatEndActorState } from "./IAutoMovieBeatEndActorState";
+import type { IAutoMovieBeatEndActorState } from "./IAutoMovieBeatEndActorState";
 
 /**
  * Resolved forward state produced by one completed beat.

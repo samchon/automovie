@@ -1,16 +1,18 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
   HumanSegment,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
   look,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -44,33 +46,33 @@ import { motionHumanFrame } from "../internal/motionHumanFrame";
  * @evidence contracts/development/testing.md#execution-ownership Two independent wrappers of one canonical polygon Human and owned public callbacks in memory; no renderer, monkeypatch, private import or compiler is started.
  */
 export function test_human_motion_core_overlay_reuse(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const target: AutoMovieMotionTarget = {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const target: IAutoMovieMotionTarget = {
     kind: "point",
     frame: "world",
     at: { x: 0.3, y: 1.2, z: 6 },
   };
   let reads: number = 0;
-  const counted: IHumanActionLaw = {
+  const counted: IAutoMovieMotionHumanActionLaw = {
     name: "countedLook",
     overlay: look.overlay,
     interrupts: look.interrupts,
-    plan: (context: IHumanActionContext): IHumanActionPlan =>
+    plan: (context: IAutoMovieMotionHumanActionContext): IAutoMovieMotionHumanActionPlan =>
       look.plan({
         ...context,
         params: { target, with: "head", seconds: 1 },
         aim: (
-          asked: AutoMovieMotionTarget,
+          asked: IAutoMovieMotionTarget,
           seconds: number,
-        ): ReturnType<IHumanActionContext["aim"]> => {
+        ): ReturnType<IAutoMovieMotionHumanActionContext["aim"]> => {
           reads++;
           return context.aim(asked, seconds);
         },
       }),
   };
-  const perform: (observed: boolean) => HumanPerformance = (
+  const perform: (observed: boolean) => IAutoMovieMotionHumanPerformance = (
     observed: boolean,
-  ): HumanPerformance =>
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "overlay-reuse",
       laws: observed ? [counted] : [],
@@ -86,18 +88,18 @@ export function test_human_motion_core_overlay_reuse(): void {
       composition: HumanChain.subject("a")
         .stand({ seconds: 2, sway: 0 })
         .over(
-          (upper: HumanChain): HumanChain =>
+          (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
             upper.gesture({ kind: "wave", side: "right" }),
         )
         .over(
-          (upper: HumanChain): HumanChain =>
+          (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
             observed
               ? upper.registered("countedLook")
               : upper.look({ target, with: "head", seconds: 1 }),
         ).node,
     });
-  const measured: HumanPerformance = perform(true);
-  const ordinary: HumanPerformance = perform(false);
+  const measured: IAutoMovieMotionHumanPerformance = perform(true);
+  const ordinary: IAutoMovieMotionHumanPerformance = perform(false);
   const complaints: string[] = [];
   const resting: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     measured.bones("a", 0);

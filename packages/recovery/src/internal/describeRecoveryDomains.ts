@@ -1,8 +1,11 @@
-import type { IAutoMovieRecoveryDomainLedger } from "../structures/domain/IAutoMovieRecoveryDomainLedger";
-import type { IAutoMovieRecoveryTensorFamiliesInput } from "../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
+import type {
+  IAutoMovieRecoveryDomainLedger,
+  IAutoMovieRecoveryDomainsDescriptionOperation,
+  IAutoMovieRecoveryNamedDomainsDescriptionOperation,
+} from "@automovie/interface";
+
 import { describeRecoveryNamedDomains } from "./describeRecoveryNamedDomains";
 import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
-import type { reconstructRecovery } from "./reconstructRecovery";
 
 /**
  * Bind declared saved-domain identities to actual returned ownership records.
@@ -20,11 +23,11 @@ import type { reconstructRecovery } from "./reconstructRecovery";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local indexes expire after returning the ledger; outputs own metadata only and hold no mesh buffers or external resources.
  */
 export function describeRecoveryDomains(
-  input: IAutoMovieRecoveryTensorFamiliesInput,
-  result: ReturnType<typeof reconstructRecovery>,
-): IAutoMovieRecoveryDomainLedger {
+  input: Parameters<IAutoMovieRecoveryDomainsDescriptionOperation.Operation>[0],
+  result: Parameters<IAutoMovieRecoveryDomainsDescriptionOperation.Operation>[1],
+): ReturnType<IAutoMovieRecoveryDomainsDescriptionOperation.Operation> {
   type Member = IAutoMovieRecoveryDomainLedger["members"][number];
-  const named: ReturnType<typeof describeRecoveryNamedDomains> =
+  const named: ReturnType<IAutoMovieRecoveryNamedDomainsDescriptionOperation.Operation> =
     describeRecoveryNamedDomains(input, result);
   const members: Member[] = named.members;
   const owners: Map<string, string> = named.owners;

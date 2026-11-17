@@ -1,11 +1,7 @@
-import { IAutoMovieCompiledShotSource } from "@automovie/interface";
-
-import { IAutoMovieRenderPlanting } from "./IAutoMovieRenderPlanting";
-import { IAutoMovieRenderSoftPanel } from "./IAutoMovieRenderSoftPanel";
-import { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
-import type { IAutoMovieRenderTextureResidency } from "./IAutoMovieRenderTextureResidency";
-import { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
-import { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
+import type {
+  IAutoMovieRenderSubject,
+  IAutoMovieRenderSubjectOfShot,
+} from "@automovie/interface";
 
 /**
  * Read a compiled shot as a render subject.
@@ -23,27 +19,11 @@ import { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Canonical compiled conversion shares this field projection; result references intentionally track input arrays, so caching would not create an immutable subject snapshot.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned subject owns its wrapper and defaults while input arrays remain caller-owned; no domain solver, texture handle or task is retained.
  */
-export const autoMovieRenderSubjectOfShot: (props: {
-  compiled: IAutoMovieCompiledShotSource;
-  waterBodies?: readonly IAutoMovieRenderWaterBody[];
-  softBodies?: readonly IAutoMovieRenderSoftPanel[];
-  plantings?: readonly IAutoMovieRenderPlanting[];
-  textures?: readonly IAutoMovieRenderTextureSource[];
-  textureResidency?: IAutoMovieRenderTextureResidency;
-}) => IAutoMovieRenderSubject = (props: {
-  /** Fully builder-owned shot artifact. */
-  compiled: IAutoMovieCompiledShotSource;
-  /** Declared water bodies, if the production has any. */
-  waterBodies?: readonly IAutoMovieRenderWaterBody[];
-  /** Declared cloth panels, if the production has any. */
-  softBodies?: readonly IAutoMovieRenderSoftPanel[];
-  /** Declared planting clusters, if the production has any. */
-  plantings?: readonly IAutoMovieRenderPlanting[];
-  /** Known texture dimensions, if the caller resolved the assets. */
-  textures?: readonly IAutoMovieRenderTextureSource[];
-  /** Other live scopes and context-retained texture storage, when not fresh. */
-  textureResidency?: IAutoMovieRenderTextureResidency;
-}): IAutoMovieRenderSubject => ({
+export const autoMovieRenderSubjectOfShot: (
+  props: IAutoMovieRenderSubjectOfShot.IProps,
+) => IAutoMovieRenderSubject = (
+  props: IAutoMovieRenderSubjectOfShot.IProps,
+): IAutoMovieRenderSubject => ({
   scene: props.compiled.scene,
   models: props.compiled.models,
   environments: props.compiled.builtEnvironments ?? [],

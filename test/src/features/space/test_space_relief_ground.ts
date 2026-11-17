@@ -1,5 +1,4 @@
 import {
-  IAutoMovieFormationPlacement,
   followPathMotion,
   formationSlotPosition,
   heightAt,
@@ -13,6 +12,7 @@ import {
   worldSurfaceHeight,
 } from "@automovie/engine";
 import {
+  type IAutoMovieFormationPlacement,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieSkeleton,

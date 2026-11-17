@@ -1,12 +1,15 @@
+import type {
+  IAutoMovieCaptureCell,
+  IAutoMovieCaptureCellComparison,
+  IAutoMovieCaptureCellRecord,
+  IAutoMovieCaptureDrawing,
+  IAutoMovieCapturePlan,
+  IAutoMovieCaptureRecord,
+  IAutoMovieCaptureSubject,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
 import {
   AutoMovieCaptureFolder,
-  type IAutoMovieCaptureCell,
-  type IAutoMovieCaptureComparison,
-  type IAutoMovieCaptureDrawing,
-  type IAutoMovieCapturePlan,
-  type IAutoMovieCaptureRecord,
-  type IAutoMovieCaptureSubject,
-  type IAutoMovieRasterImage,
   decodeAutoMovieRasterPng,
   parseAutoMovieCapturePlanRequest,
   planAutoMovieCapture,
@@ -103,7 +106,7 @@ export async function test_capture_round_comparison(): Promise<void> {
     record: Extract<IAutoMovieCaptureRecord, { state: "complete" }>,
     index: number,
   ): string => {
-    const row: IAutoMovieCaptureRecord.Row = record.rows[index]!;
+    const row: IAutoMovieCaptureCellRecord = record.rows[index]!;
     return row.state === "drawn" ? row.hash : "";
   };
 
@@ -154,7 +157,7 @@ export async function test_capture_round_comparison(): Promise<void> {
       (cell: IAutoMovieCaptureCell): IAutoMovieCaptureDrawing =>
         flat(cell.index === 1),
     );
-  const changed: IAutoMovieCaptureComparison.Entry =
+  const changed: IAutoMovieCaptureCellComparison =
     third.comparison!.entries[1]!;
   TestValidator.equals(
     "one changed pixel is measured with its box and image",
@@ -225,7 +228,7 @@ export async function test_capture_round_comparison(): Promise<void> {
   TestValidator.equals(
     "a moved camera and an earlier failure are unmatched",
     moved.comparison!.entries.map(
-      (entry: IAutoMovieCaptureComparison.Entry): string =>
+      (entry: IAutoMovieCaptureCellComparison): string =>
         entry.state === "unmatched" ? entry.cause : entry.state,
     ),
     [

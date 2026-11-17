@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanArmGeometry,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -76,10 +77,10 @@ export namespace HumanArmTrajectorySweep {
     c: M.IContext,
     a: number,
     k: number,
-    from: G.IPlaced,
-    to: G.IPlaced,
+    from: IAutoMovieMotionHumanArmGeometry.IPlaced,
+    to: IAutoMovieMotionHumanArmGeometry.IPlaced,
   ): ISwept[] {
-    const frame: G.IFrame = c.frames[a]![k]!;
+    const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
     const out: ISwept[] = [];
     for (let probe: number = 0; probe < G.SURFACE; ++probe) {
       const [pa, r]: readonly [IAutoMovieVector3, number] = from.probes[probe]!;

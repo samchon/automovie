@@ -1,15 +1,19 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanLieDown,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { crawlChain } from "./crawlChain";
 import { crawlFrame } from "./crawlFrame";
-import type { lieDown } from "./lieDown";
 
 /**
  * The inchworm's posture at a placement of its hands and feet, by its
@@ -59,9 +63,9 @@ export namespace crawlInchwormPose {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This one stance construction releases its local FK/ROM sources and intermediate poses on return or throw; only original tilt and fresh clinical angle tuples return, with no reader/source token or pose history retained.
    */
   export function of(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     chain: crawlChain.IChain,
-    frame: HumanFrame.IFrame,
+    frame: IAutoMovieMotionHumanFrame,
     feet: Record<"left" | "right", number>,
     wrists: Record<"left" | "right", number>,
     laid: ReturnType<typeof crawlFrame.prepareLaid> = crawlFrame.prepareLaid(
@@ -70,7 +74,7 @@ export namespace crawlInchwormPose {
     ),
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projector?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): lieDown.IPose {
+  ): IAutoMovieMotionHumanLieDown.IPose {
     return prepare(body, chain, frame, laid)(feet, wrists, source, projector);
   }
 
@@ -94,9 +98,9 @@ export namespace crawlInchwormPose {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Construction owns one fixed frame, two bounded sole readers/contact vectors, knee scale and palm reader until the producer is released. Local or borrowed FK/ROM inputs and intermediate poses never enter the retained producer or clinical outputs; their synchronous owner releases them after the stance or stance batch.
    */
   export function prepare(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     chain: crawlChain.IChain,
-    frame: HumanFrame.IFrame,
+    frame: IAutoMovieMotionHumanFrame,
     laid: ReturnType<typeof crawlFrame.prepareLaid> = crawlFrame.prepareLaid(
       body,
       HumanFrame.forward(frame.yaw),
@@ -106,7 +110,7 @@ export namespace crawlInchwormPose {
     wrists: Record<"left" | "right", number>,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projector?: ReturnType<typeof prepareHumanPostureProjection>,
-  ) => lieDown.IPose {
+  ) => IAutoMovieMotionHumanLieDown.IPose {
     const DEG: number = 180 / Math.PI;
     const sides: readonly ["left", "right"] = ["left", "right"];
     const yaw: number = frame.yaw;
@@ -141,7 +145,7 @@ export namespace crawlInchwormPose {
       wrists: Record<"left" | "right", number>,
       source?: Parameters<typeof prepareHumanPoseResolution>[0],
       projector?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): lieDown.IPose => {
+    ): IAutoMovieMotionHumanLieDown.IPose => {
       const shape: crawlChain.IShape = chain.shape(
         (feet.left + feet.right) / 2,
         (wrists.left + wrists.right) / 2,
@@ -153,8 +157,8 @@ export namespace crawlInchwormPose {
         ) *
           DEG -
         chain.lean;
-      const target: IHumanPosture = crawlFrame.posed(body, yaw, 1, pitch, 0, 0);
-      const posture: IHumanPosture = {
+      const target: IAutoMovieMotionHumanPosture = crawlFrame.posed(body, yaw, 1, pitch, 0, 0);
+      const posture: IAutoMovieMotionHumanPosture = {
         ...target,
         root: crawlFrame.rootFor(
           body,
@@ -169,7 +173,7 @@ export namespace crawlInchwormPose {
       const kneeZ: number =
         (shape.hips.u + shape.ankle.u) / 2 + knee * Math.sin(shape.lam / DEG);
       for (const side of sides) {
-        const placement: HumanFoot.IPlacement = pivots[side](
+        const placement: IAutoMovieMotionHumanFoot.IPlacement = pivots[side](
           -shape.heel,
           floor.point({
             x: chain.balls[side].x,
@@ -193,7 +197,7 @@ export namespace crawlInchwormPose {
         prepareHumanPoseResolution(source);
       const projection: ReturnType<typeof prepareHumanPostureProjection> =
         projector ?? prepareHumanPostureProjection(body);
-      const placed: IHumanPosture = laid(
+      const placed: IAutoMovieMotionHumanPosture = laid(
         posture,
         (side: "left" | "right"): IAutoMovieVector3 =>
           floor.point({
@@ -203,7 +207,7 @@ export namespace crawlInchwormPose {
           }),
         resolution,
       );
-      const joints: lieDown.IPose["joints"] = {};
+      const joints: IAutoMovieMotionHumanLieDown.IPose["joints"] = {};
       for (const j of resolveHumanPosture.seeded(
         body,
         placed,

@@ -1,6 +1,8 @@
+import type {
+  IAutoMovieRecoveryFeasibleDiagnostics,
+  IAutoMovieRecoveryFeasibleFit,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryFeasibleDiagnostics,
-  type IAutoMovieRecoveryFeasibleFit,
   createRecoveryFeasibleDiagnostics,
   encodeRecoveryDiagnosticNumber,
 } from "@automovie/recovery";

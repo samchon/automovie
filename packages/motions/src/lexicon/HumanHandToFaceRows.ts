@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+} from "@automovie/interface";
+
 import { handToFace } from "../daily/handToFace";
 import { HumanActionRow } from "../law/HumanActionRow";
 
@@ -13,54 +18,70 @@ import { HumanActionRow } from "../law/HumanActionRow";
  */
 export namespace HumanHandToFaceRows {
   /** `handToFace` doing `drink`. */
-  export const faceDrink = HumanActionRow.of("faceDrink", handToFace, {
+  export const faceDrink: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperFace"]["faceDrink"]
+  > = HumanActionRow.of("faceDrink", handToFace, {
     task: "drink",
   });
 
   /** `handToFace` doing `sip`. */
-  export const faceSip = HumanActionRow.of("faceSip", handToFace, {
+  export const faceSip: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperFace"]["faceSip"]
+  > = HumanActionRow.of("faceSip", handToFace, {
     task: "sip",
   });
 
   /** `handToFace` doing `eat`. */
-  export const faceEat = HumanActionRow.of("faceEat", handToFace, {
+  export const faceEat: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperFace"]["faceEat"]
+  > = HumanActionRow.of("faceEat", handToFace, {
     task: "eat",
   });
 
   /** `handToFace` doing `bite`. */
-  export const faceBite = HumanActionRow.of("faceBite", handToFace, {
+  export const faceBite: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperFace"]["faceBite"]
+  > = HumanActionRow.of("faceBite", handToFace, {
     task: "bite",
   });
 
   /** `handToFace` doing `phone`. */
-  export const facePhone = HumanActionRow.of("facePhone", handToFace, {
+  export const facePhone: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperFace"]["facePhone"]
+  > = HumanActionRow.of("facePhone", handToFace, {
     task: "phone",
   });
 
   /** `handToFace` doing `read`. */
-  export const faceRead = HumanActionRow.of("faceRead", handToFace, {
+  export const faceRead: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperFace"]["faceRead"]
+  > = HumanActionRow.of("faceRead", handToFace, {
     task: "read",
   });
 
   /** `handToFace` doing `brushTeeth`. */
-  export const faceBrushTeeth = HumanActionRow.of(
-    "faceBrushTeeth",
-    handToFace,
-    { task: "brushTeeth" },
-  );
+  export const faceBrushTeeth: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperFace"]["faceBrushTeeth"]
+  > = HumanActionRow.of("faceBrushTeeth", handToFace, { task: "brushTeeth" });
 
   /** `handToFace` doing `comb`. */
-  export const faceComb = HumanActionRow.of("faceComb", handToFace, {
+  export const faceComb: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperFace"]["faceComb"]
+  > = HumanActionRow.of("faceComb", handToFace, {
     task: "comb",
   });
 
   /** `handToFace` doing `washFace`. */
-  export const faceWashFace = HumanActionRow.of("faceWashFace", handToFace, {
+  export const faceWashFace: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperFace"]["faceWashFace"]
+  > = HumanActionRow.of("faceWashFace", handToFace, {
     task: "washFace",
   });
 
   /** `handToFace` doing `wipeMouth`. */
-  export const faceWipeMouth = HumanActionRow.of("faceWipeMouth", handToFace, {
+  export const faceWipeMouth: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperFace"]["faceWipeMouth"]
+  > = HumanActionRow.of("faceWipeMouth", handToFace, {
     task: "wipeMouth",
   });
 }

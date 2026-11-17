@@ -1,7 +1,6 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   getConstraint,
@@ -14,13 +13,16 @@ import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  IAutoMovieJointRotationFrame,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanHand,
-  type IHumanBody,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -55,7 +57,7 @@ import { vclose } from "../internal/vclose";
 export function test_motion_joint_rotation_consumer(): void {
   const checks: O.IChecks = O.of();
   checks.scenario("canonical Human wrists and held points", (): void => {
-    const body: IHumanBody = motionHumanBody("m-average");
+    const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
     const original: IAutoMoviePose = resolveHumanPosture(
       body,
       stand.posture(body, { x: 0.4, y: 0, z: -0.3 }, 27),
@@ -73,7 +75,7 @@ export function test_motion_joint_rotation_consumer(): void {
         name,
         bone.constraint,
       );
-      const actualRig: swingTwistRange.IJoint | undefined = swingTwistRange.of(
+      const actualRig: IAutoMovieJointRotationFrame | undefined = swingTwistRange.of(
         name,
         body.skeleton,
       );
@@ -125,7 +127,7 @@ export function test_motion_joint_rotation_consumer(): void {
         qclose(observed.worldRotation, expected) &&
           nclose(Quaternion.angle(observed.worldRotation, expected), 0),
       );
-      const grip: HumanHand.IFrame = HumanHand.offset(body, side, "grip");
+      const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, side, "grip");
       const second: IAutoMovieVector3 = Vector3.add(
         grip.point,
         Vector3.scale(grip.normal, body.measure.forearm),

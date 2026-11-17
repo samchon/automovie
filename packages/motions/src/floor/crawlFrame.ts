@@ -1,16 +1,17 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -84,8 +85,8 @@ export namespace crawlFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function wrists(
-    body: IHumanBody,
-    standing: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    standing: IAutoMovieMotionHumanPosture,
     forward: IAutoMovieVector3,
   ): Record<"left" | "right", IAutoMovieVector3> {
     const wrist = (side: "left" | "right"): IAutoMovieVector3 =>
@@ -126,12 +127,12 @@ export namespace crawlFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function laid(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     palm: (side: "left" | "right") => IAutoMovieVector3,
     forward: IAutoMovieVector3,
-  ): IHumanPosture {
-    let out: IHumanPosture = posture;
+  ): IAutoMovieMotionHumanPosture {
+    let out: IAutoMovieMotionHumanPosture = posture;
     for (const side of ["left", "right"] as const)
       out = {
         ...out,
@@ -168,7 +169,7 @@ export namespace crawlFrame {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns two fixed hand readers until release and borrows the module's two immutable flat shape maps; neither the readers nor those constants retain an evaluated posture, FK workspace or query history.
    */
   export function prepareLaid(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     forward: IAutoMovieVector3,
   ): ReturnType<typeof prepareCrawlPalms> {
     return prepareCrawlPalms(body, forward, FLAT);
@@ -190,7 +191,7 @@ export namespace crawlFrame {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the same two immutable side-only flat maps as the laid-palm owner, while current posture joints and returned maps remain independent.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No state is retained by a call; its returned posture owns a fresh joint map and borrows only immutable angle tuples.
    */
-  export function flatHands(posture: IHumanPosture): IHumanPosture {
+  export function flatHands(posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture {
     return {
       ...posture,
       joints: { ...posture.joints, ...FLAT.left, ...FLAT.right },
@@ -218,12 +219,12 @@ export namespace crawlFrame {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous joint-metadata reader ends on return or throw; two side-only immutable flat shape maps and key lists are bounded module constants, and no current posture or blended result is retained.
    */
   export function armed(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    held: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>,
-    toward: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    held: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
+    toward: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
     share: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     return writeArms(body, posture, held, toward, share);
   }
 
@@ -240,10 +241,10 @@ export namespace crawlFrame {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One plan owns six bounded between readers until release, with no retained queried share, blended posture, current FK map or solver workspace.
    */
   export function prepareArmed(
-    body: IHumanBody,
-    held: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>,
-    toward: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>,
-  ): (posture: IHumanPosture, share: number) => IHumanPosture {
+    body: IAutoMovieMotionHumanBody,
+    held: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
+    toward: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
+  ): (posture: IAutoMovieMotionHumanPosture, share: number) => IAutoMovieMotionHumanPosture {
     const arm: (side: "left" | "right") => IArmReaders["left"] = (
       side: "left" | "right",
     ): IArmReaders["left"] => ({
@@ -267,28 +268,28 @@ export namespace crawlFrame {
       ),
     });
     const readers: IArmReaders = { left: arm("left"), right: arm("right") };
-    return (posture: IHumanPosture, share: number): IHumanPosture =>
+    return (posture: IAutoMovieMotionHumanPosture, share: number): IAutoMovieMotionHumanPosture =>
       writeArms(body, posture, held, toward, share, readers);
   }
 
   /** Fixed clinical pairs use their numerical owner; changing pairs share one synchronous metadata pass. */
   function writeArms(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    held: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>,
-    toward: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    held: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
+    toward: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
     share: number,
     prepared?: IArmReaders,
-  ): IHumanPosture {
-    const joints: IHumanPosture["joints"] = { ...posture.joints };
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+  ): IAutoMovieMotionHumanPosture {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     const blend: ReturnType<typeof blendHumanJoint.prepare> | undefined =
       prepared !== undefined || share <= 0 || share >= 1
         ? undefined
         : blendHumanJoint.prepare(body);
     for (const side of ["left", "right"] as const) {
-      const from: AutoMovieMotionHumanArm.IAngles = held[side];
-      const to: AutoMovieMotionHumanArm.IAngles = toward[side];
+      const from: IAutoMovieMotionHumanArmAngles.IAngles = held[side];
+      const to: IAutoMovieMotionHumanArmAngles.IAngles = toward[side];
       for (const [bone, key] of [
         [`${side}UpperArm`, "upper"],
         [`${side}LowerArm`, "lower"],
@@ -305,8 +306,8 @@ export namespace crawlFrame {
               ? to[key]
               : blend!(bone, from[key], to[key], share);
       }
-      const flat: IHumanPosture["joints"] = FLAT[side];
-      const was: IHumanPosture["joints"] = {};
+      const flat: IAutoMovieMotionHumanPosture["joints"] = FLAT[side];
+      const was: IAutoMovieMotionHumanPosture["joints"] = {};
       for (const bone of FLAT_BONES[side]) {
         const held: readonly [number, number, number] | undefined =
           from.fingers?.[bone] ?? posture.joints[bone];
@@ -341,13 +342,13 @@ export namespace crawlFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function posed(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     yaw: number,
     share: number,
     degrees: number,
     hike: number,
     neck: number,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     return {
       root: { x: 0, y: 0, z: 0 },
       yaw,
@@ -433,8 +434,8 @@ export namespace crawlFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function rootFor(
-    body: IHumanBody,
-    tilted: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    tilted: IAutoMovieMotionHumanPosture,
     hips: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     const joints = hipJoints(
@@ -447,7 +448,7 @@ export namespace crawlFrame {
   }
 
   /** Side-only flat clinical shapes are immutable inputs to both palm writers. */
-  const FLAT: Readonly<Record<"left" | "right", IHumanPosture["joints"]>> = {
+  const FLAT: Readonly<Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>> = {
     left: HumanHand.shape("left", "flat"),
     right: HumanHand.shape("right", "flat"),
   };

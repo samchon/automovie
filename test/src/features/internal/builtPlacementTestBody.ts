@@ -1,8 +1,8 @@
-import type { AutoMovieBuiltPlacementBodyLocator } from "@automovie/interface";
+import type { IAutoMovieBuiltPlacementBodyLocator } from "@automovie/interface";
 
 /** Construct an element or population body locator for the placement query. */
 export const builtPlacementTestBody = (
-  kind: AutoMovieBuiltPlacementBodyLocator["kind"],
+  kind: IAutoMovieBuiltPlacementBodyLocator["kind"],
   id: string,
-): AutoMovieBuiltPlacementBodyLocator =>
+): IAutoMovieBuiltPlacementBodyLocator =>
   kind === "element" ? { kind, id } : { kind, id };

@@ -1,31 +1,37 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionKey,
+  AutoMovieMotionHumanChannel,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionClockPhase,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanPlaced,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanWorkout,
+  IAutoMovieMotionHumanWorkoutKind,
+  IAutoMovieMotionHumanWorkoutLoad,
+  IAutoMovieMotionManner,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { tags } from "typia";
 
-import type { HumanActionKey } from "../HumanActionKey";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { StrikingBody } from "../striking/StrikingBody";
@@ -80,29 +86,18 @@ import { workoutFloorClearance } from "./workoutFloorClearance";
  */
 export namespace workout {
   /** The action's name. */
-  export const name: HumanActionKey = "workout";
+  export const name: AutoMovieMotionHumanActionKey = "workout";
 
   /** Cancel table: from the end, into standing, walking or another exercise. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       workout: ["fromRelax", "smooth"],
       walk: ["fromRelax", "smooth"],
     });
 
-  /** An exercise's name. */
-  export type Kind =
-    | WorkoutFloor.Name
-    | WorkoutEquipment.Name
-    | WorkoutGym.Name
-    | WorkoutBodyweight.Name
-    | WorkoutLying.Name
-    | WorkoutStanding.Name
-    | WorkoutPoses.Name
-    | WorkoutHanging.Name;
-
   /** The exercises. */
-  export const KINDS: Readonly<Record<Kind, WorkoutKind>> = {
+  export const KINDS: Readonly<Record<IAutoMovieMotionHumanWorkout.Kind, IAutoMovieMotionHumanWorkoutKind>> = {
     ...WorkoutFloor.KINDS,
     ...WorkoutEquipment.KINDS,
     ...WorkoutGym.KINDS,
@@ -113,47 +108,16 @@ export namespace workout {
     ...WorkoutHanging.KINDS,
   };
 
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The exercise, the count, the hold, the prop borne and whether the body stays down.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The kind is a closed union; no angle is typed by the author.
-   */
-  export interface IParams {
-    /** The exercise. */
-    kind: Kind;
-
-    /** Repetitions; the kind's own count when absent. */
-    reps?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
-
-    /** Seconds a held pose is stayed in; the kind's own when absent. */
-    hold?: number & tags.Minimum<0> & HumanUnit<"s">;
-
-    /** The prop the body bears on, by one of its affordances: a bench's `surface` under a kind that lies or sits raised, a bar's `bar` between the hands of a hanging kind, which hangs from nothing else. Its place when the action starts replaces the height the kind computes from the body, and the body goes to it. None when absent. */
-    on?: { prop: string; affordance: string; other?: string };
-
-    /** Whether the body stays on its support at the end instead of standing up; `false` when absent. */
-    stay?: boolean;
-
-    /** The prop the exercise is done with, already held (`WorkoutLoad`); none when absent. */
-    load?: WorkoutLoad.IParams;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
-
   /** One span of the plan: from an instant, between two keys. */
   interface ISpan {
     /** The instant that opens the span. */
     from: string;
 
     /** The key at its start. */
-    a: ExerciseKey.IKey;
+    a: IAutoMovieMotionHumanExerciseKey.IKey;
 
     /** The key at its end. */
-    b: ExerciseKey.IKey;
+    b: IAutoMovieMotionHumanExerciseKey.IKey;
   }
 
   /**
@@ -172,56 +136,56 @@ export namespace workout {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns O(spans) clocks/blend closures and at most one floor scalar per fixed endpoint key; no pose reader or time-query history is retained.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
-    const body: IHumanBody = context.body;
-    const kind: WorkoutKind = KINDS[p.kind];
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWorkout.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanWorkout.IParams = context.params;
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const kind: IAutoMovieMotionHumanWorkoutKind = KINDS[p.kind];
     const reps: number = p.reps ?? kind.reps;
     HumanBound.whole("reps", reps);
     if (p.hold !== undefined) HumanBound.least("hold", p.hold, 0, "s");
     const stay: boolean = p.stay === true;
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const standing: IHumanPosture = stand
+    const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
 
     // The support a prop gives: its affordance's place as the action starts.
     const borne: IAutoMovieVector3 | null =
       p.on === undefined ? null : WorkoutSupport.at(context, p.on);
-    const route: readonly WorkoutKind.IStep[] = kind.route(body, borne?.y);
-    const first: WorkoutKind.IStep = route[0]!;
-    const mirrored: readonly ExerciseKey.IKey[] | undefined =
+    const route: readonly IAutoMovieMotionHumanWorkoutKind.IStep[] = kind.route(body, borne?.y);
+    const first: IAutoMovieMotionHumanWorkoutKind.IStep = route[0]!;
+    const mirrored: readonly IAutoMovieMotionHumanExerciseKey.IKey[] | undefined =
       kind.alternate === true && reps >= 2
         ? route.map(
-            (step: WorkoutKind.IStep, i: number): ExerciseKey.IKey =>
+            (step: IAutoMovieMotionHumanWorkoutKind.IStep, i: number): IAutoMovieMotionHumanExerciseKey.IKey =>
               i === 0 ? step.key : ExerciseKey.mirror(step.key),
           )
         : undefined;
-    const stayed = (step: WorkoutKind.IStep): number =>
+    const stayed = (step: IAutoMovieMotionHumanWorkoutKind.IStep): number =>
       step.held === true && p.hold !== undefined ? p.hold : step.hold;
 
     // The spans: down from standing, the repetitions, up again.
-    const phases: AutoMovieMotionClock.IPhase[] = [];
+    const phases: IAutoMovieMotionClockPhase[] = [];
     const spans: ISpan[] = [];
     const held: string[] = [];
     const span = (
       from: string,
       seconds: number,
-      a: ExerciseKey.IKey,
-      b: ExerciseKey.IKey,
+      a: IAutoMovieMotionHumanExerciseKey.IKey,
+      b: IAutoMovieMotionHumanExerciseKey.IKey,
     ): void => {
       phases.push({ name: from, seconds });
       spans.push({ from, a, b });
     };
-    const stood: ExerciseKey.IKey = ExerciseKey.standing(body);
+    const stood: IAutoMovieMotionHumanExerciseKey.IKey = ExerciseKey.standing(body);
     span("enter", kind.enter, stood, first.key);
-    let last: ExerciseKey.IKey = first.key;
+    let last: IAutoMovieMotionHumanExerciseKey.IKey = first.key;
     for (let r: number = 1; r <= reps; r++) {
       for (let i: number = 1; i <= route.length; i++) {
-        const step: WorkoutKind.IStep = route[i % route.length]!;
-        const key: ExerciseKey.IKey =
+        const step: IAutoMovieMotionHumanWorkoutKind.IStep = route[i % route.length]!;
+        const key: IAutoMovieMotionHumanExerciseKey.IKey =
           i < route.length && kind.alternate === true && r % 2 === 0
             ? mirrored![i % route.length]!
             : step.key;
@@ -232,9 +196,9 @@ export namespace workout {
       }
     }
     if (!stay) span("release", kind.enter, last, stood);
-    const left: ExerciseKey.IKey = stay ? last : stood;
+    const left: IAutoMovieMotionHumanExerciseKey.IKey = stay ? last : stood;
     span("relax", 0, left, left);
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence(phases),
       modifiers,
       { holds: held },
@@ -243,7 +207,7 @@ export namespace workout {
 
     // Where the bearing bones stay.
     const yaw: number = standing.yaw;
-    const footed: (placed: IHumanPosture) => IHumanPosture = WorkoutFeet.keep(
+    const footed: (placed: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanPosture = WorkoutFeet.keep(
       context,
       kind,
       yaw,
@@ -257,7 +221,7 @@ export namespace workout {
     });
     const pins: ReadonlySet<AutoMovieHumanoidBone> = new Set(
       kind.pin.map(
-        (pin: ExerciseKey.Pin): AutoMovieHumanoidBone =>
+        (pin: IAutoMovieMotionHumanExerciseKey.Pin): AutoMovieHumanoidBone =>
           pin === "gripLeft" || pin === "gripRight"
             ? body.surfaces.sockets[pin].bone
             : pin,
@@ -279,19 +243,19 @@ export namespace workout {
 
     // How far the supported posture at the far end of each way down or up
     // sinks itself, by span, read once.
-    const far: Map<ExerciseKey.IKey, number> = new Map();
+    const far: Map<IAutoMovieMotionHumanExerciseKey.IKey, number> = new Map();
     function posture(
       seconds: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IHumanPosture {
+    ): IAutoMovieMotionHumanPosture {
       const read: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution(resolution);
       const project: ReturnType<typeof prepareHumanPostureProjection> =
         projection ?? prepareHumanPostureProjection(body);
-      const pinned: (key: ExerciseKey.IKey) => IHumanPosture = (
-        key: ExerciseKey.IKey,
-      ): IHumanPosture =>
+      const pinned: (key: IAutoMovieMotionHumanExerciseKey.IKey) => IAutoMovieMotionHumanPosture = (
+        key: IAutoMovieMotionHumanExerciseKey.IKey,
+      ): IAutoMovieMotionHumanPosture =>
         ExerciseKey.pinned(body, key, yaw, kind.pin, at, pins, read, project);
       let lo: number = 0;
       let hi: number = starts.length;
@@ -310,14 +274,14 @@ export namespace workout {
           ? Math.min(1, Math.max(0, (seconds - opened) / length))
           : 1;
       const u: number = minimumJerk.share(x);
-      const placed: IHumanPosture = pinned(blends[index]!(u));
+      const placed: IAutoMovieMotionHumanPosture = pinned(blends[index]!(u));
       // A stance is where the body already stands.
       if (kind.anchor === "stance") return footed(placed);
       // How far the body is on its support: carried there from standing.
       const down: number =
         s.a === stood ? (s.b === stood ? 0 : u) : s.b === stood ? 1 - u : 1;
       if (down >= 1) return placed;
-      const carried: IHumanPosture = {
+      const carried: IAutoMovieMotionHumanPosture = {
         ...placed,
         root: Vector3.lerp(standing.root, placed.root, down),
       };
@@ -330,10 +294,10 @@ export namespace workout {
       // sinks itself, so the way meets that posture continuously. Hands laid
       // on the floor are placed by the arm's solve after this, so a kind
       // that lays them is read without its keyed arms.
-      const sunk: (current: IHumanPosture) => number = (
-        current: IHumanPosture,
+      const sunk: (current: IAutoMovieMotionHumanPosture) => number = (
+        current: IAutoMovieMotionHumanPosture,
       ): number => floorClearance(current, read, project);
-      const endpoint: ExerciseKey.IKey = s.a === stood ? s.b : s.a;
+      const endpoint: IAutoMovieMotionHumanExerciseKey.IKey = s.a === stood ? s.b : s.a;
       const supported: number = far.get(endpoint) ?? sunk(pinned(endpoint));
       far.set(endpoint, supported);
       const rise: number = Math.max(0, sunk(carried) - down * supported);
@@ -358,7 +322,7 @@ export namespace workout {
       "rightLeg",
       ...(kind.hands === true ? [] : (["leftArm", "rightArm"] as const)),
     ];
-    const load: WorkoutLoad.ILoad | null =
+    const load: IAutoMovieMotionHumanWorkoutLoad.ILoad | null =
       p.load === undefined
         ? null
         : WorkoutLoad.of(context, p.load, kind.midfoot === true);
@@ -369,17 +333,17 @@ export namespace workout {
         from: 0,
         to: duration,
         write: (
-          _: IHumanPosture,
+          _: IAutoMovieMotionHumanPosture,
           seconds: number,
           _before?: IAutoMovieMotionHumanPrimitive.Reader,
           resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
           projection?: ReturnType<typeof prepareHumanPostureProjection>,
-        ): IHumanPosture => {
+        ): IAutoMovieMotionHumanPosture => {
           const read: ReturnType<typeof prepareHumanPoseResolution> =
             prepareHumanPoseResolution(resolution);
           const project: ReturnType<typeof prepareHumanPostureProjection> =
             projection ?? prepareHumanPostureProjection(body);
-          const placed: IHumanPosture = posture(seconds, read, project);
+          const placed: IAutoMovieMotionHumanPosture = posture(seconds, read, project);
           return load === null ? placed : load.apply(placed, read, project);
         },
       },
@@ -390,7 +354,7 @@ export namespace workout {
         prepareHumanPoseResolution();
       const project: ReturnType<typeof prepareHumanPostureProjection> =
         prepareHumanPostureProjection(body);
-      const set: IHumanPosture = ExerciseKey.pinned(
+      const set: IAutoMovieMotionHumanPosture = ExerciseKey.pinned(
         body,
         first.key,
         yaw,
@@ -441,7 +405,7 @@ export namespace workout {
             rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
             weight: present,
             place: (): ReturnType<
-              AutoMovieMotionHumanPlaced.IArm["place"]
+              IAutoMovieMotionHumanPlaced.IArm["place"]
             > => ({
               point,
               facing: { x: 0, y: -1, z: 0 },
@@ -454,8 +418,8 @@ export namespace workout {
 
     const from: number = clock.at(work) / duration;
     const to: number = stay ? 1 : clock.at("release") / duration;
-    const contacts: IHumanContactWindow[] = kind.supports.map(
-      (support: WorkoutKind.ISupport): IHumanContactWindow => ({
+    const contacts: IAutoMovieMotionHumanContactWindow[] = kind.supports.map(
+      (support: IAutoMovieMotionHumanWorkoutKind.ISupport): IAutoMovieMotionHumanContactWindow => ({
         part: support.part,
         kind: support.kind,
         from,
@@ -463,12 +427,12 @@ export namespace workout {
         support: { kind: "ground" },
       }),
     );
-    const posed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+    const posed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
       clock,
       primitives,
     });
-    const composed: IHumanActionPlan =
+    const composed: IAutoMovieMotionHumanActionPlan =
       load === null
         ? posed
         : {

@@ -13,6 +13,9 @@
 export type IAutoMovieLookAt =
   | IAutoMovieLookAt.IBone
   | IAutoMovieLookAt.IExpression;
+/**
+ * Bone-driven and expression-driven eye gaze alternatives.
+ */
 export namespace IAutoMovieLookAt {
   /**
    * Gaze turns the eye bones.

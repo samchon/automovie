@@ -1,5 +1,8 @@
-import type { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
-import type { IAutoMovieHumanHeadLayout } from "./IAutoMovieHumanHeadLayout";
+import type {
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadNoseFrame,
+  IAutoMovieHumanHeadPrior,
+} from "@automovie/interface";
 
 /**
  * The nose's own frame: origin at the pronasale's height, the axis running
@@ -13,24 +16,6 @@ import type { IAutoMovieHumanHeadLayout } from "./IAutoMovieHumanHeadLayout";
  * half width and the tip's lead past the face. Publishes {@link IFrame}.
  */
 export namespace AutoMovieHumanHeadNoseFrame {
-  /** The nose's measures at one height. */
-  export interface IFrame {
-    /** Length of the nose's axis, nasion over the pronasale, millimetres. */
-    span: number;
-
-    /** The nose's half width, the alar lobules' half span, millimetres. */
-    width: number;
-
-    /** The tip's lead past the face, millimetres. */
-    lead: number;
-
-    /** Normalised height: 0 at the tip, 1 at the nasion, negative under the tip. */
-    v: number;
-
-    /** Height of the alar lobules' centre: the subnasale's plus a share of the span. */
-    lobeY: number;
-  }
-
   /**
    * The nose's frame at a height.
    *
@@ -44,9 +29,9 @@ export namespace AutoMovieHumanHeadNoseFrame {
       IAutoMovieHumanHeadLayout,
       "nasion" | "tip" | "subnasale" | "noseWidth" | "noseLead"
     >,
-    face: Pick<AutoMovieHumanHeadPrior.IFace, "ala">,
+    face: Pick<IAutoMovieHumanHeadPrior.IFace, "ala">,
     y: number,
-  ): IFrame {
+  ): IAutoMovieHumanHeadNoseFrame.IFrame {
     const span: number = plan.nasion - plan.tip;
     return {
       span,

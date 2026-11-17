@@ -1,7 +1,7 @@
-import type { IAutoMoviePerformedShot } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
   IAutoMovieActionTarget,
+  IAutoMoviePerformedShot,
   IAutoMovieVector3,
 } from "@automovie/interface";
 

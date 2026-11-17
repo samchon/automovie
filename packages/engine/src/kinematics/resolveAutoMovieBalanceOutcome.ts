@@ -1,4 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieResolveBalanceOutcome,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/convexHull2D";
@@ -58,8 +61,8 @@ import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function resolveAutoMovieBalanceOutcome(
-  props: resolveAutoMovieBalanceOutcome.IProps,
-): resolveAutoMovieBalanceOutcome.IOutcome {
+  props: IAutoMovieResolveBalanceOutcome.IProps,
+): IAutoMovieResolveBalanceOutcome.IOutcome {
   const { mass, length, reach, step } = props;
   if (
     !(
@@ -129,7 +132,7 @@ export function resolveAutoMovieBalanceOutcome(
     direction,
   );
   const edge: number = exit(hull, centre, direction);
-  const bounds: resolveAutoMovieBalanceOutcome.IBounds = {
+  const bounds: IAutoMovieResolveBalanceOutcome.IBounds = {
     absorb:
       pushed > 0
         ? mass * w0 * Math.max(0, exit(hull, before, direction))
@@ -143,7 +146,7 @@ export function resolveAutoMovieBalanceOutcome(
   };
 
   const base: Omit<
-    resolveAutoMovieBalanceOutcome.IOutcome,
+    IAutoMovieResolveBalanceOutcome.IOutcome,
     "outcome" | "steps"
   > = {
     velocity,
@@ -177,84 +180,6 @@ export function resolveAutoMovieBalanceOutcome(
     steps.push(Vector3.add(from, Vector3.scale(along, reach)));
     from = Vector3.add(from, Vector3.scale(along, caught));
     left = (left - caught) * a;
-  }
-}
-/**
- * Companion types of {@link resolveAutoMovieBalanceOutcome}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame, unit and meaning.
- * @evidence contracts/development/design.md#principled-representation The body's state at the impulse as the pendulum sees it, and the outcome as a closed union with its steps and bounds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the force input (#3429) and the perturbation law (#3430) read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The pendulum's frequency and extrapolation are `resolveAutoMovieCenterOfMass`'s.
- */
-export namespace resolveAutoMovieBalanceOutcome {
-  /** A body's state at an impulse. */
-  export interface IProps {
-    /** The centre of mass, world metres. */
-    centre: IAutoMovieVector3;
-
-    /** Its velocity before the impulse, m/s. */
-    velocity: IAutoMovieVector3;
-
-    /** The body's mass, kilograms. */
-    mass: number;
-
-    /** The impulse, world N s. */
-    impulse: IAutoMovieVector3;
-
-    /** Where the impulse acts, world metres; the centre when absent. */
-    at?: IAutoMovieVector3;
-
-    /** The pendulum's length, metres (Hof's leg length, `resolveAutoMovieCenterOfMass.pendulum`). */
-    length: number;
-
-    /** The support points on the floor, world metres. */
-    support: readonly IAutoMovieVector3[];
-
-    /** The longest step from the centre, metres: a leg length. */
-    reach: number;
-
-    /** The margin a landed foot catches the extrapolated centre within, metres: half a foot's length. */
-    margin: number;
-
-    /** A capture step's swing time after the first, seconds. */
-    step: number;
-
-    /** The first capture step's landing after the impulse, seconds, the reaction and the weight shift included; `step` when absent. */
-    first?: number;
-
-    /** Gravitational acceleration, m/s²; standard when absent. */
-    gravity?: number;
-  }
-
-  /** The impulse magnitudes at which the outcome changes, N s. */
-  export interface IBounds {
-    /** Past it, the extrapolated centre leaves the base. */
-    absorb: number;
-
-    /** Past it, no number of steps catches the body. */
-    step: number;
-  }
-
-  /** What the impulse does. */
-  export interface IOutcome {
-    /** Absorbed within the base, caught by steps, or a fall. */
-    outcome: "absorb" | "step" | "fall";
-
-    /** The centre's velocity after the impulse, m/s. */
-    velocity: IAutoMovieVector3;
-
-    /** The change of angular momentum about the centre, kg m²/s. */
-    angular: IAutoMovieVector3;
-
-    /** The extrapolated centre after the impulse, world metres. */
-    extrapolated: IAutoMovieVector3;
-
-    /** The capture steps' landing points on the floor, in order; empty for an absorb or a fall. */
-    steps: IAutoMovieVector3[];
-
-    /** The impulse bounds along the push. */
-    bounds: IBounds;
   }
 }
 

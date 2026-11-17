@@ -3,11 +3,12 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTurnHumanPosture,
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "./IHumanPosture";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { turnHumanPosture } from "./turnHumanPosture";
 
@@ -25,11 +26,11 @@ import { turnHumanPosture } from "./turnHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary base indexing ends on return/throw; the caller owns the clamped pose and receives borrowed or freshly turned goals, without retained source history or handles.
  */
 export function assembleHumanPosture(
-  body: IHumanBody,
-  posture: IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
   base?: IAutoMoviePose,
   projection?: ReturnType<typeof prepareHumanPostureProjection>,
-): { pose: IAutoMoviePose; limbs: IHumanPosture["limbs"] } {
+): { pose: IAutoMoviePose; limbs: IAutoMovieMotionHumanPosture["limbs"] } {
   let kept: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> | undefined;
   if (base !== undefined) {
     kept = new Map();
@@ -47,7 +48,7 @@ export function assembleHumanPosture(
   if (clamp !== undefined && value !== undefined) {
     // The turn first, as below, so a goal the turn refuses is refused before
     // any clamp runs.
-    const turned: turnHumanPosture.ITurned = turnHumanPosture(posture);
+    const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(posture);
     const root: NonNullable<IAutoMoviePose["root"]> = Transform.of({ ...turned.position }, turned.rotation);
     const joints: IAutoMovieJointPose[] = body.skeleton.bones.map(
       (bone: IAutoMovieBone): IAutoMovieJointPose => {
@@ -67,7 +68,7 @@ export function assembleHumanPosture(
         : { bone: bone.bone, flexion: set[0], abduction: set[1], twist: set[2] };
     },
   );
-  const turned: turnHumanPosture.ITurned = turnHumanPosture(posture);
+  const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(posture);
   const root: NonNullable<IAutoMoviePose["root"]> = Transform.of({ ...turned.position }, turned.rotation);
 
   // A body whose projector lends no joint owner projects the pose whole.

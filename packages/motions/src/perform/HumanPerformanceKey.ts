@@ -1,5 +1,8 @@
-import type { HumanPerformance } from "./HumanPerformance";
-import type { IHumanPerformer } from "./IHumanPerformer";
+import type {
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformer,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
@@ -40,26 +43,26 @@ export namespace HumanPerformanceKey {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The key and constructed state share this exact scalar policy observation, including a stateful getter's first value, while the ordinary unchanged-input premise still governs the rest of memoization.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned record contains only key text and the captured mode scalar. Copied input data is call-local, and identity numbering uses weak keys released with their objects; no caller getter or input is retained in the memo key.
    */
-  export function of(input: HumanPerformance.IInput): {
+  export function of(input: IAutoMovieMotionHumanPerformance.IInput): {
     key: string;
-    flight: NonNullable<HumanPerformance.IInput["flight"]>;
+    flight: NonNullable<IAutoMovieMotionHumanPerformance.IInput["flight"]>;
   } {
-    const value: Omit<HumanPerformance.IInput, "performers"> & {
-      performers: (Omit<IHumanPerformer, "body"> & { body: string })[];
+    const value: Omit<IAutoMovieMotionHumanPerformance.IInput, "performers"> & {
+      performers: (Omit<IAutoMovieMotionHumanPerformer, "body"> & { body: string })[];
     } = {
       ...input,
       performers: input.performers.map(
         (
-          p: IHumanPerformer,
-        ): Omit<IHumanPerformer, "body"> & { body: string } => ({
+          p: IAutoMovieMotionHumanPerformer,
+        ): Omit<IAutoMovieMotionHumanPerformer, "body"> & { body: string } => ({
           ...p,
           body: identity(p.body),
         }),
       ),
     };
-    const selected: HumanPerformance.IInput["flight"] =
+    const selected: IAutoMovieMotionHumanPerformance.IInput["flight"] =
       Object.prototype.hasOwnProperty.call(value, "flight") ? value.flight : input.flight;
-    const flight: NonNullable<HumanPerformance.IInput["flight"]> = selected === undefined ? "staged" : selected;
+    const flight: NonNullable<IAutoMovieMotionHumanPerformance.IInput["flight"]> = selected === undefined ? "staged" : selected;
     if (flight !== "staged" && flight !== "physical")
       throw new HumanRefusal({
         kind: "parameter", axis: "flight", value: flight,

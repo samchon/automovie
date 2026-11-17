@@ -1,5 +1,10 @@
 import { minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanManipulate,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanHand } from "../posture/HumanHand";
@@ -27,22 +32,22 @@ import type { HumanHand } from "../posture/HumanHand";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns two arrays containing N press records and a copied prepared keyboard frame, borrowing the plan's key/home vectors until that plan is released; no population grows during playback or seeking.
  */
 export function typeTextPresses(
-  keys: readonly { at: IAutoMovieVector3; side: HumanHand.Side }[],
+  keys: readonly { at: IAutoMovieVector3; side: AutoMovieHumanSide }[],
   times: readonly number[],
   interval: number,
-  home: Record<HumanHand.Side, IAutoMovieVector3>,
-  frame: HumanFrame.IFrame,
+  home: Record<AutoMovieHumanSide, IAutoMovieVector3>,
+  frame: IAutoMovieMotionHumanFrame,
   hover: number,
   travel: number,
-): (side: HumanHand.Side, seconds: number) => IAutoMovieVector3 {
-  const presses: Record<HumanHand.Side, IPress[]> = { left: [], right: [] };
-  const previous: Record<HumanHand.Side, IAutoMovieVector3> = { ...home };
-  const until: Record<HumanHand.Side, number> = { left: 0, right: 0 };
+): (side: AutoMovieHumanSide, seconds: number) => IAutoMovieVector3 {
+  const presses: Record<AutoMovieHumanSide, IAutoMovieMotionHumanManipulate.IPress[]> = { left: [], right: [] };
+  const previous: Record<AutoMovieHumanSide, IAutoMovieVector3> = { ...home };
+  const until: Record<AutoMovieHumanSide, number> = { left: 0, right: 0 };
   const reach: number = 0.4 * interval;
   const lift: number = 0.6 * interval;
   const transform: HumanFrame.IPrepared = HumanFrame.prepare(frame);
   for (let i: number = 0; i < keys.length; i++) {
-    const key: { at: IAutoMovieVector3; side: HumanHand.Side } = keys[i]!;
+    const key: { at: IAutoMovieVector3; side: AutoMovieHumanSide } = keys[i]!;
     const press: number = times[i]!;
     const approach: number = press - reach;
     const start: number = Math.max(until[key.side], approach);
@@ -63,8 +68,8 @@ export function typeTextPresses(
     z: number,
     height: number,
   ): IAutoMovieVector3 => transform.point({ x, y: height, z });
-  return (side: HumanHand.Side, seconds: number): IAutoMovieVector3 => {
-    const ordered: readonly IPress[] = presses[side];
+  return (side: AutoMovieHumanSide, seconds: number): IAutoMovieVector3 => {
+    const ordered: readonly IAutoMovieMotionHumanManipulate.IPress[] = presses[side];
     if (Number.isNaN(seconds)) return world(previous[side].x, previous[side].z, hover);
     let low: number = 0;
     let high: number = ordered.length;
@@ -73,7 +78,7 @@ export function typeTextPresses(
       if (ordered[middle]!.end <= seconds) low = middle + 1;
       else high = middle;
     }
-    const active: IPress | undefined = ordered[low];
+    const active: IAutoMovieMotionHumanManipulate.IPress | undefined = ordered[low];
     if (active === undefined) return world(previous[side].x, previous[side].z, hover);
     if (seconds < active.approach) return world(active.from.x, active.from.z, hover);
     if (seconds < active.press) {

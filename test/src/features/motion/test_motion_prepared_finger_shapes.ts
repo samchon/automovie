@@ -1,10 +1,12 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanHand as Hand,
   HumanHand,
   HumanPrehension,
-  type IAutoMovieMotionHumanPrimitive,
-  type IHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -37,15 +39,15 @@ import { nclose } from "../internal/nclose";
  */
 export function test_motion_prepared_finger_shapes(): void {
   for (const side of ["left", "right"] as const) {
-    const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
     const flat: ReturnType<typeof Hand.prepareFingers> = Hand.prepareFingers(side, "flat");
     const thumbs: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
       `${side}ThumbMetacarpal`, `${side}ThumbProximal`, `${side}ThumbDistal`,
     ]);
     const names: AutoMovieHumanoidBone[] = Object.keys(relaxed) as AutoMovieHumanoidBone[];
-    const earlier: IHumanPosture["joints"] = flat(12, 1);
+    const earlier: IAutoMovieMotionHumanPosture["joints"] = flat(12, 1);
     for (const [curl, weight] of [[12, 1], [-8, 0.25], [12, 0.5], [0, 0], [12, 1]] as const) {
-      const output: IHumanPosture["joints"] = flat(curl, weight);
+      const output: IAutoMovieMotionHumanPosture["joints"] = flat(curl, weight);
       TestValidator.predicate(`${side} flat current curl=${curl}, weight=${weight}`,
         names.length === 15 && names.every((bone: AutoMovieHumanoidBone): boolean => {
           const expected: number = (1 - weight) * relaxed[bone]![0] +
@@ -57,17 +59,17 @@ export function test_motion_prepared_finger_shapes(): void {
     }
     const oldFinger: [number, number, number] = earlier[`${side}IndexProximal`]! as [number, number, number];
     oldFinger[0] = 999;
-    const raw: IHumanPosture = { root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0,
+    const raw: IAutoMovieMotionHumanPosture = { root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0,
       joints: { head: [7, 0, 0] }, limbs: {} };
     let multiplier: number = 1;
     const props: Hand.IShape = { side, shape: "flat", curl: 12, from: 0, to: 2,
       weight: (seconds: number): number => multiplier * seconds };
     const primitive: IAutoMovieMotionHumanPrimitive = Hand.shape(props);
-    const first: IHumanPosture = primitive.write(raw, 0.5);
+    const first: IAutoMovieMotionHumanPosture = primitive.write(raw, 0.5);
     const firstIndex: readonly [number, number, number] = first.joints[`${side}IndexProximal`]!;
     props.curl = -8;
     multiplier = 4;
-    const changed: IHumanPosture = primitive.write(raw, 0.5);
+    const changed: IAutoMovieMotionHumanPosture = primitive.write(raw, 0.5);
     TestValidator.predicate(`${side} same-time primitive reads new curl and clamped current weight`,
       names.every((bone: AutoMovieHumanoidBone): boolean =>
         triple(changed.joints[bone], [thumbs.has(bone) ? 0 : -8, 0, 0])) &&
@@ -75,13 +77,13 @@ export function test_motion_prepared_finger_shapes(): void {
     );
     props.shape = "fist";
     props.curl = 0;
-    const fist: IHumanPosture["joints"] = HumanHand.shape(side, "fist");
-    const renamed: IHumanPosture = primitive.write(raw, 0.5);
+    const fist: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "fist");
+    const renamed: IAutoMovieMotionHumanPosture = primitive.write(raw, 0.5);
     TestValidator.predicate(`${side} changed shape invalidates fixed named endpoints`,
       names.every((bone: AutoMovieHumanoidBone): boolean => triple(renamed.joints[bone], fist[bone]!)),
     );
     multiplier = -1;
-    const released: IHumanPosture = primitive.write(raw, 0.5);
+    const released: IAutoMovieMotionHumanPosture = primitive.write(raw, 0.5);
     TestValidator.predicate(`${side} negative current weight returns the relaxed endpoint`,
       names.every((bone: AutoMovieHumanoidBone): boolean => triple(released.joints[bone], relaxed[bone]!)),
     );
@@ -89,7 +91,7 @@ export function test_motion_prepared_finger_shapes(): void {
     props.curl = 12;
     multiplier = 1;
     first.joints[`${side}IndexProximal`] = [123, 456, 789];
-    const replay: IHumanPosture = primitive.write(raw, 0.5);
+    const replay: IAutoMovieMotionHumanPosture = primitive.write(raw, 0.5);
     TestValidator.predicate(`${side} repeated original inputs return fresh unpoisoned fingers`,
       replay !== first && replay.joints !== first.joints && replay.joints[`${side}IndexProximal`] !== firstIndex &&
       triple(replay.joints[`${side}IndexProximal`], [0.5 * relaxed[`${side}IndexProximal`]![0] + 6, 0, 0]) &&
@@ -107,7 +109,7 @@ export function test_motion_prepared_finger_shapes(): void {
   const read: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape(shapes, 0.5);
   const opening: readonly AutoMovieHumanoidBone[] = ["leftThumbProximal", "leftIndexProximal", "leftMiddleProximal"];
   const closing: readonly AutoMovieHumanoidBone[] = ["leftIndexProximal", "leftMiddleProximal", "leftRingProximal"];
-  const phases: readonly { u: number; keys: readonly AutoMovieHumanoidBone[]; expected: IHumanPosture["joints"] }[] = [
+  const phases: readonly { u: number; keys: readonly AutoMovieHumanoidBone[]; expected: IAutoMovieMotionHumanPosture["joints"] }[] = [
     { u: 0.75, keys: closing, expected: { leftIndexProximal: [12, 16, 20], leftMiddleProximal: [4, 0, 12], leftRingProximal: [16, 24, 32] } },
     { u: 0.5, keys: opening, expected: { leftThumbProximal: [0, 0, 0], leftIndexProximal: [24, 32, 40], leftMiddleProximal: [-8, 4, 16] } },
     { u: 0.125, keys: opening, expected: { leftThumbProximal: [459 / 128, 459 / 64, 1377 / 128], leftIndexProximal: [309 / 32, 565 / 32, 821 / 32], leftMiddleProximal: [-53 / 64, 53 / 128, 53 / 32] } },
@@ -117,8 +119,8 @@ export function test_motion_prepared_finger_shapes(): void {
     { u: 0.75, keys: closing, expected: { leftIndexProximal: [12, 16, 20], leftMiddleProximal: [4, 0, 12], leftRingProximal: [16, 24, 32] } },
   ];
   for (const { u, keys, expected } of phases) {
-    const prepared: IHumanPosture["joints"] = read(u);
-    const once: IHumanPosture["joints"] = HumanPrehension.shape(shapes, 0.5, u);
+    const prepared: IAutoMovieMotionHumanPosture["joints"] = read(u);
+    const once: IAutoMovieMotionHumanPosture["joints"] = HumanPrehension.shape(shapes, 0.5, u);
     TestValidator.equals(`prehension phase key order at ${u}`, Object.keys(prepared), [...keys]);
     TestValidator.predicate(`literal sparse prehension degrees at ${u}`,
       keys.every((bone: AutoMovieHumanoidBone): boolean =>
@@ -128,7 +130,7 @@ export function test_motion_prepared_finger_shapes(): void {
     old[0] = 987;
     old[1] = 654;
     old[2] = 321;
-    const fresh: IHumanPosture["joints"] = read(u);
+    const fresh: IAutoMovieMotionHumanPosture["joints"] = read(u);
     TestValidator.predicate(`prehension output edits cannot poison phase at ${u}`,
       fresh !== prepared && nclose(old[0], 987, 0) && keys.every((bone: AutoMovieHumanoidBone): boolean =>
         fresh[bone] !== prepared[bone] && triple(fresh[bone], expected[bone]!)),

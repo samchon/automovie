@@ -1,5 +1,6 @@
 import type {
   IAutoMovieAffordance,
+  IAutoMovieAffordanceCoupling,
   IAutoMovieMaterial,
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -7,6 +8,7 @@ import type {
 
 import { Archetype } from "./Archetype";
 import { ArchetypeArticulation } from "./ArchetypeArticulation";
+import type { ArchetypeConvexCell } from "./ArchetypeConvexCell";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import type { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
@@ -97,6 +99,7 @@ export class ArchetypeAssembly<
       refuse("members", 0, "an assembly needs a member", "give it a member");
 
     const parts: IAutoMovieModelPart[] = [];
+    const cells: Map<string, ArchetypeConvexCell.ICell> = new Map();
     const affordances: (IAutoMovieAffordance & {
       id: ArchetypeAssembly.Ids<M>;
     })[] = [];
@@ -133,12 +136,17 @@ export class ArchetypeAssembly<
 
       // The member at rest, every id prefixed and every frame placed.
       const rest: Archetype = member.archetype.articulate({});
+      const memberCells: ArchetypeConvexCell.Table = rest.convexCells;
       const prefix = (own: string): string => `${key}/${own}`;
       const end = (e: ArchetypeSpan.End): ArchetypeSpan.End =>
         e.affordance !== undefined
           ? { affordance: prefix(e.affordance) }
           : { part: prefix(e.part), at: e.at };
       for (const part of rest.parts) {
+        const cell: ArchetypeConvexCell.ICell | undefined = memberCells.get(
+          part.id,
+        );
+        if (cell !== undefined) cells.set(prefix(part.id), cell);
         const surface: ArchetypeFriction.Material | null = rest.surface(
           part.id,
         );
@@ -232,6 +240,7 @@ export class ArchetypeAssembly<
         id,
         name,
         parts,
+        cells,
         affordances,
         materials: [...materials.values()],
         properties,
@@ -272,7 +281,7 @@ export class ArchetypeAssembly<
    */
   public couple(
     follower: ArchetypeAssembly.Ids<M>,
-    follows: IAutoMovieAffordance.Follows & { id: ArchetypeAssembly.Ids<M> },
+    follows: IAutoMovieAffordanceCoupling & { id: ArchetypeAssembly.Ids<M> },
   ): ArchetypeAssembly<M> {
     const found: IAutoMovieAffordance | undefined =
       this.#props.affordances.find(

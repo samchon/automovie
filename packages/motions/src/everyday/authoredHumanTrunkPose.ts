@@ -1,8 +1,13 @@
 import { Transform } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTurnHumanPosture,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 
 /**
@@ -21,8 +26,8 @@ import { turnHumanPosture } from "../posture/turnHumanPosture";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses canonical turnHumanPosture/Transform owners and leaves all current joint/root admission with FK; no tuple, body, prior pose or current transform is used as a result-cache key.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds no operation state or history. The immediate caller owns the new pose/list/records and retains only the root subrecords according to the unchanged transform owner's borrowing policy.
  */
-export function authoredHumanTrunkPose(body: IHumanBody, posture: IHumanPosture,
-  joints: IHumanPosture["joints"]): IAutoMoviePose {
+export function authoredHumanTrunkPose(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture,
+  joints: IAutoMovieMotionHumanPosture["joints"]): IAutoMoviePose {
   const list: IAutoMovieJointPose[] = Object.entries(joints).map(
     ([bone, angles]: [string, readonly [number, number, number] | undefined]): IAutoMovieJointPose => ({
       bone: bone as AutoMovieHumanoidBone,
@@ -31,7 +36,7 @@ export function authoredHumanTrunkPose(body: IHumanBody, posture: IHumanPosture,
       twist: angles![2],
     }),
   );
-  const turned: turnHumanPosture.ITurned = turnHumanPosture({ ...posture, limbs: {} });
+  const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture({ ...posture, limbs: {} });
   return {
     skeleton: body.skeleton.id,
     root: Transform.of(turned.position, turned.rotation),

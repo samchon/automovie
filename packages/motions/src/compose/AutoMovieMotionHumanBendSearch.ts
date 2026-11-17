@@ -8,21 +8,23 @@ import {
   decomposeJointRotationOnBasis,
   hingedArmArticulation,
   jointRomOvershoot,
-  type IAutoMovieSwivelNear,
-  type IAutoMovieSwivelSeed,
   normalizeJointAxes,
   swingTwistRange,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
+  IAutoMovieSwivelNear,
+  IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmOvershoot } from "../posture/HumanArmOvershoot";
 import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
@@ -44,8 +46,8 @@ import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain
 export namespace AutoMovieMotionHumanBendSearch {
   /** The hanging arm's shoulder angles by body and side, clinical degrees. */
   const NEUTRAL: WeakMap<
-    IHumanBody,
-    Partial<Record<AutoMovieMotionHumanBend.Side, IAngles>>
+    IAutoMovieMotionHumanBody,
+    Partial<Record<AutoMovieHumanSide, IAngles>>
   > = new WeakMap();
 
   /**
@@ -155,12 +157,12 @@ export namespace AutoMovieMotionHumanBendSearch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains the chain, its ranges and the hanging arm's angles.
    */
   export function strainOf(
-    body: IHumanBody,
-    side: AutoMovieMotionHumanBend.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     rotation: IAutoMovieQuaternion | undefined,
     hang: (
-      body: IHumanBody,
-      side: AutoMovieMotionHumanBend.Side,
+      body: IAutoMovieMotionHumanBody,
+      side: AutoMovieHumanSide,
     ) => IAutoMovieVector3,
   ):
     | ((
@@ -222,8 +224,8 @@ export namespace AutoMovieMotionHumanBendSearch {
    */
   function best(
     chain: AutoMovieMotionHumanBendChain.IChain,
-    body: IHumanBody,
-    side: AutoMovieMotionHumanBend.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     point: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion | undefined,
     neutral: IAngles | null,
@@ -377,7 +379,7 @@ export namespace AutoMovieMotionHumanBendSearch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains what `search` retains.
    */
   export function continued(
-    props: Pick<AutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side" | "point" | "rotation">,
+    props: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side" | "point" | "rotation">,
     hang: Parameters<typeof search>[2],
     near?: IAutoMovieSwivelNear,
   ): { candidate: ICandidate; seed: IAutoMovieSwivelSeed } | string {
@@ -403,16 +405,16 @@ export namespace AutoMovieMotionHumanBendSearch {
    * @returns The angles, or null when the rig has no arm chain.
    */
   function neutralOf(
-    body: IHumanBody,
-    side: AutoMovieMotionHumanBend.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     hang: (
-      body: IHumanBody,
-      side: AutoMovieMotionHumanBend.Side,
+      body: IAutoMovieMotionHumanBody,
+      side: AutoMovieHumanSide,
     ) => IAutoMovieVector3,
   ): IAngles | null {
     const known: IAngles | undefined = NEUTRAL.get(body)?.[side];
     if (known !== undefined) return known;
-    const posture: AutoMovieMotionHumanBend.ISolve["posture"] = {
+    const posture: IAutoMovieMotionHumanBend.ISolve["posture"] = {
       root: { x: 0, y: 0, z: 0 }, yaw: 0,
     };
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
@@ -456,13 +458,13 @@ export namespace AutoMovieMotionHumanBendSearch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only those angles, in a weak map keyed by the body.
    */
   export function search(
-    props: AutoMovieMotionHumanBend.ISolve,
+    props: IAutoMovieMotionHumanBend.ISolve,
     rank: (
       chain: AutoMovieMotionHumanBendChain.IChain,
     ) => (candidate: ICandidate) => IScore,
     hang: (
-      body: IHumanBody,
-      side: AutoMovieMotionHumanBend.Side,
+      body: IAutoMovieMotionHumanBody,
+      side: AutoMovieHumanSide,
     ) => IAutoMovieVector3,
   ): ICandidate | string {
     return prepare(props, hang)(props, rank);
@@ -480,14 +482,14 @@ export namespace AutoMovieMotionHumanBendSearch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A synchronous search or bounded authored support-state plan owns one chain/collider record and neutral angles per exact fixed state until release. Obstruction readers and actual candidate closures remain inside one best call and release on return or throw; no FK reader, target result, sampled pose or global history is retained.
    */
   export function prepare(
-    props: Pick<AutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
+    props: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
     hang: Parameters<typeof search>[2],
     source?: AutoMovieMotionHumanBendChain.IPrepared,
-  ): (goal: Pick<AutoMovieMotionHumanBend.ISolve, "point" | "rotation">, rank: Parameters<typeof search>[1]) => ICandidate | string {
+  ): (goal: Pick<IAutoMovieMotionHumanBend.ISolve, "point" | "rotation">, rank: Parameters<typeof search>[1]) => ICandidate | string {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
       AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side, source);
     const neutral: IAngles | null = neutralOf(props.body, props.side, hang);
-    return (goal: Pick<AutoMovieMotionHumanBend.ISolve, "point" | "rotation">, rank: Parameters<typeof search>[1]): ICandidate | string => {
+    return (goal: Pick<IAutoMovieMotionHumanBend.ISolve, "point" | "rotation">, rank: Parameters<typeof search>[1]): ICandidate | string => {
       if (chain === null || neutral === null) return "the rig has no arm chain";
       const distance: number = Vector3.length(
         Vector3.subtract(goal.point, chain.shoulder),

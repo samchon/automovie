@@ -1,4 +1,4 @@
-import type { IAutoMovieCapturePlanRequest } from "@automovie/render";
+import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 
 /**
  * What the inspector holds between edits: the one request every control edits and the canvas draws, and the last refusal.

@@ -1,11 +1,15 @@
 import { AutoMovieAir, AutoMovieComposition } from "@automovie/engine";
-import type { IAutoMovieInteractionEvent } from "@automovie/interface";
+import type {
+  IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanBlast,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
 import {
   HumanBlast,
   HumanChain,
   HumanPerformance,
   HumanReaction,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,15 +40,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the six numbered scenarios.
  */
 export function test_human_motion_hit_record(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const blast: HumanBlast.IBlast = {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const blast: IAutoMovieMotionHumanBlast.IBlast = {
     id: "shell",
     point: { x: 0, y: 0.2, z: 0 },
     at: 1,
     radius: 6,
     impulse: 400,
   };
-  const make = (): HumanPerformance =>
+  const make = (): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "blast",
       blasts: [blast],
@@ -61,7 +65,7 @@ export function test_human_motion_hit_record(): void {
         ),
       ),
     });
-  const performance: HumanPerformance = make();
+  const performance: IAutoMovieMotionHumanPerformance = make();
   const hits: readonly IAutoMovieInteractionEvent[] = performance.hits();
 
   // 1. Two hits.

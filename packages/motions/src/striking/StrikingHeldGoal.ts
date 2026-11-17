@@ -1,9 +1,13 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanEffectorPointLimit,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { StrikingHeld } from "./StrikingHeld";
 import { StrikingRoll } from "./StrikingRoll";
 
@@ -27,7 +31,7 @@ export namespace StrikingHeldGoal {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One-shot and prepared goals share the same builder and tool-offset primitive; every current frame/bend is still consumed.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing. The caller owns fresh goal/contact/limit records, while frame rotation and bend retain their original borrowed-input semantics.
    */
-  export function goal(context: Pick<IHumanActionContext, "body">, tool: StrikingHeld.ITool, frame: StrikingHeld.IHandFrame, back: number, bend: IAutoMovieVector3): IHumanPosture.IGoal {
+  export function goal(context: Pick<IAutoMovieMotionHumanActionContext, "body">, tool: IAutoMovieMotionHumanStrikingHeld.ITool, frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame, back: number, bend: IAutoMovieVector3): IAutoMovieHumanLimbGoal {
     return read(tool, frame, back, bend, HumanHand.offset(context.body, tool.side, "grip").point);
   }
 
@@ -42,10 +46,10 @@ export namespace StrikingHeldGoal {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged canonical body, tool scalar geometry and kept-point distance establish equivalence; changing those requires another producer, while changing frames/bends are evaluated normally.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The enclosing fixed-tool action or synchronous candidate operation owns one grip, contact and at most two fixed limit records until its release; returned goals clone mutable task geometry and retain no producer or candidate history. Rotation/bend borrow inputs as before.
    */
-  export function prepare(context: Pick<IHumanActionContext, "body">, tool: StrikingHeld.ITool, back: number): (frame: StrikingHeld.IHandFrame, bend: IAutoMovieVector3) => IHumanPosture.IGoal {
+  export function prepare(context: Pick<IAutoMovieMotionHumanActionContext, "body">, tool: IAutoMovieMotionHumanStrikingHeld.ITool, back: number): (frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame, bend: IAutoMovieVector3) => IAutoMovieHumanLimbGoal {
     const grip: IAutoMovieVector3 = HumanHand.offset(context.body, tool.side, "grip").point;
     const fixed: IGeometry = { contact: Vector3.add(grip, offset(tool, back)), limits: tool.prop === undefined ? undefined : limits(tool, back, grip) };
-    return (frame: StrikingHeld.IHandFrame, bend: IAutoMovieVector3): IHumanPosture.IGoal => read(tool, frame, back, bend, grip, fixed);
+    return (frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame, bend: IAutoMovieVector3): IAutoMovieHumanLimbGoal => read(tool, frame, back, bend, grip, fixed);
   }
 
   /**
@@ -59,7 +63,7 @@ export namespace StrikingHeldGoal {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work All real held-point consumers delegate this one unchanged expression; the function caches no result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one independent vector and retains no tool, context, state or resource.
    */
-  export function offset(tool: StrikingHeld.ITool, back: number): IAutoMovieVector3 {
+  export function offset(tool: IAutoMovieMotionHumanStrikingHeld.ITool, back: number): IAutoMovieVector3 {
     return Vector3.subtract(tool.tip, Vector3.scale(tool.axis, back));
   }
 }
@@ -69,11 +73,11 @@ interface IGeometry {
   /** Kept-point contact relative to the wrist. */
   contact: IAutoMovieVector3;
   /** Original ordered bounded tool points, absent for a bare hand. */
-  limits?: readonly IHumanPosture.IPointLimit[];
+  limits?: readonly IAutoMovieHumanEffectorPointLimit[];
 }
 
 /** The original goal builder; only immutable local geometry may be supplied. */
-function read(tool: StrikingHeld.ITool, frame: StrikingHeld.IHandFrame, back: number, bend: IAutoMovieVector3, grip: IAutoMovieVector3, fixed?: IGeometry): IHumanPosture.IGoal {
+function read(tool: IAutoMovieMotionHumanStrikingHeld.ITool, frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame, back: number, bend: IAutoMovieVector3, grip: IAutoMovieVector3, fixed?: IGeometry): IAutoMovieHumanLimbGoal {
   return {
     point: Vector3.subtract(frame.point, Quaternion.rotateVector(frame.rotation, grip)),
     rotation: frame.rotation,
@@ -82,15 +86,15 @@ function read(tool: StrikingHeld.ITool, frame: StrikingHeld.IHandFrame, back: nu
     elbow: "strain",
     contact: fixed === undefined ? Vector3.add(grip, StrikingHeldGoal.offset(tool, back)) : { ...fixed.contact },
     ...(tool.prop === undefined ? {} : { limits: fixed === undefined ? limits(tool, back, grip) : fixed.limits!.map(
-      (limit: IHumanPosture.IPointLimit): IHumanPosture.IPointLimit => ({ contact: { ...limit.contact }, bound: limit.bound }),
+      (limit: IAutoMovieHumanEffectorPointLimit): IAutoMovieHumanEffectorPointLimit => ({ contact: { ...limit.contact }, bound: limit.bound }),
     ) }),
     ...(tool.prop === undefined ? {} : { planted: true }),
   };
 }
 
 /** The original two task limits in kept-point then working-tip order. */
-function limits(tool: StrikingHeld.ITool, back: number, grip: IAutoMovieVector3): IHumanPosture.IPointLimit[] {
-  return [back > 0 ? back : tool.length, 0].map((behind: number): IHumanPosture.IPointLimit => ({
+function limits(tool: IAutoMovieMotionHumanStrikingHeld.ITool, back: number, grip: IAutoMovieVector3): IAutoMovieHumanEffectorPointLimit[] {
+  return [back > 0 ? back : tool.length, 0].map((behind: number): IAutoMovieHumanEffectorPointLimit => ({
     contact: Vector3.add(grip, StrikingHeldGoal.offset(tool, behind)), bound: StrikingRoll.MISS,
   }));
 }

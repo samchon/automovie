@@ -1,5 +1,9 @@
+import type {
+  IAutoMovieMeasureMeshDefects,
+  IAutoMovieMeshDefect,
+} from "@automovie/interface";
+
 import { MESH_WELD_GRID } from "../constants/MESH_WELD_GRID";
-import type { IAutoMovieMeshDefect } from "./IAutoMovieMeshDefect";
 
 /** Shape state of a triangle with three distinct cells whose aspect is within the limit, or was not asked about. */
 const SOUND: number = 0;
@@ -34,8 +38,8 @@ const SLIVER: number = 2;
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The weld tables, the edge table and the typed arrays are local to one call and are garbage once it returns or throws. Only the returned list survives, and it holds vertex indices, not the mesh.
  */
 export function measureAutoMovieMeshDefects(
-  mesh: { positions: ArrayLike<number>; indices: ArrayLike<number> | null },
-  options?: { weld?: number; sliver?: number },
+  mesh: IAutoMovieMeasureMeshDefects.IMesh,
+  options?: IAutoMovieMeasureMeshDefects.IOptions,
 ): IAutoMovieMeshDefect[] {
   /** Flat xyz buffer, read in place. */
   const positions: ArrayLike<number> = mesh.positions;

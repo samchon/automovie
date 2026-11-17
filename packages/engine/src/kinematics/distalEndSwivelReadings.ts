@@ -2,11 +2,12 @@ import type {
   IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieRestFrame,
+  IAutoMovieSwivelArcs,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { swivelArcs } from "./swivelArcs";
 import { swivelJointReadings } from "./swivelJointReadings";
 
@@ -49,13 +50,13 @@ export namespace distalEndSwivelReadings {
    */
   export interface IReadings {
     /** The direction's component on the joint's flexion axis; the abduction's sine is its negative. */
-    onFlexion: swivelArcs.ISinusoid;
+    onFlexion: IAutoMovieSwivelArcs.ISinusoid;
 
     /** The direction's component on the joint's abduction axis. */
-    onAbduction: swivelArcs.ISinusoid;
+    onAbduction: IAutoMovieSwivelArcs.ISinusoid;
 
     /** The direction's component on the joint's right-handed twist axis. */
-    onTwist: swivelArcs.ISinusoid;
+    onTwist: IAutoMovieSwivelArcs.ISinusoid;
 
     /** The abduction's interval, rest-relative degrees within a quarter turn either way; null when unbounded. */
     abduction: readonly [number, number] | null;
@@ -139,7 +140,7 @@ export namespace distalEndSwivelReadings {
 
     // The direction's three components on the basis, each a sinusoid of the swivel.
     const sampled: IAutoMovieVector3[] = [0, 90, 180].map(props.direction);
-    const along = (axis: IAutoMovieVector3): swivelArcs.ISinusoid => {
+    const along = (axis: IAutoMovieVector3): IAutoMovieSwivelArcs.ISinusoid => {
       const [zero, quarter, half] = sampled.map(
         (d: IAutoMovieVector3): number => sense * Vector3.dot(d, axis),
       ) as [number, number, number];

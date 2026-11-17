@@ -1,6 +1,6 @@
-import { IAutoMoviePlantingBranch } from "./IAutoMoviePlantingBranch";
-import { IAutoMoviePlantingLeaf } from "./IAutoMoviePlantingLeaf";
-import { IAutoMovieSoftBounds } from "./IAutoMovieSoftBounds";
+import type { IAutoMoviePlantingBranch } from "./IAutoMoviePlantingBranch";
+import type { IAutoMoviePlantingLeaf } from "./IAutoMoviePlantingLeaf";
+import type { IAutoMovieSoftBounds } from "./IAutoMovieSoftBounds";
 
 /**
  * The derived structure of one planting recipe at its authored growth state.

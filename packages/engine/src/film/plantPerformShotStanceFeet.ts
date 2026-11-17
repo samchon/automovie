@@ -1,27 +1,27 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndFootPlant,
-  IAutoMovieBeatEndState,
+  IAutoMovieFootPlant,
   IAutoMovieJointAxes,
   IAutoMovieMotion,
+  IAutoMoviePerformedShot,
+  IAutoMoviePlantPerformShotStanceFeet,
+  IAutoMoviePlantedFeet,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
   IAutoMovieSceneNode,
   IAutoMovieSkeleton,
+  IAutoMovieStagedSet,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
 import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
+import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieFootPlant } from "../motion/IAutoMovieFootPlant";
-import { IAutoMoviePlantedFeet } from "../motion/IAutoMoviePlantedFeet";
 import { plantStanceFeet } from "../motion/plantStanceFeet";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { spaceGround } from "../space/spaceGround";
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { IAutoMoviePerformedShot } from "./IAutoMoviePerformedShot";
-import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**
  * Pin the stance feet of every gait-bearing or resumed actor clip, replacing the clip in `motions` and returning the world-space plants a later beat can resume.
@@ -44,26 +44,9 @@ import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each actor's rig/axis/frame lookups complete before its genuine snapshot is created. Subsequent ground reads use only the private rigid conversion and library-owned spaceGround/heightAt under that owner's unchanged-space preparation contract; no host ground/target callback runs inside the solve. Exact static/FK work serves detection/correction and prior plants are indexed once.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prior-plant index ends at return. Each actor's immutable rig snapshot and child-owned FK rows end after its synchronous planting call, with weak provenance retaining neither strongly. Only numeric planted clips/points enter caller motions and returned entries; no operation reader, rig workspace, callback history, task or handle escapes.
  */
-export function plantPerformShotStanceFeet(props: {
-  staged: IAutoMovieStagedSet.ISuccess;
-  motions: Record<string, IAutoMovieMotion>;
-  previous: IAutoMovieBeatEndState | null | undefined;
-  skeleton: (node: string) => IAutoMovieSkeleton | null;
-  jointAxes:
-    | ((
-        node: string,
-      ) =>
-        | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
-        | undefined)
-    | undefined;
-  restFrames:
-    | ((
-        node: string,
-      ) =>
-        | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
-        | undefined)
-    | undefined;
-}): IAutoMoviePerformedShot.ISuccess["plants"] {
+export function plantPerformShotStanceFeet(
+  props: IAutoMoviePlantPerformShotStanceFeet.IProps,
+): IAutoMoviePerformedShot.ISuccess["plants"] {
   const plants: IAutoMoviePerformedShot.ISuccess["plants"] = [];
   const previousByNode: Map<string, IAutoMovieBeatEndActorState> = new Map(
     (props.previous?.actors ?? []).map(
@@ -113,10 +96,12 @@ export function plantPerformShotStanceFeet(props: {
               z: plan.z,
             }).y;
           };
-    const jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined =
-      props.jointAxes?.(actor);
-    const restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined =
-      props.restFrames?.(actor);
+    const jointAxes:
+      | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
+      | undefined = props.jointAxes?.(actor);
+    const restFrames:
+      | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
+      | undefined = props.restFrames?.(actor);
     const planted: IAutoMoviePlantedFeet = plantStanceFeet({
       skeleton: rig,
       motion,

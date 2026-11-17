@@ -1,12 +1,11 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  type HumanSegment,
-  type IHumanBody,
-} from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
+import { HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -48,11 +47,11 @@ export function test_human_motion_floor_entry_base(): void {
   const STEP: number = 1 / 120;
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   for (const name of ["f-small", "m-large"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
     const perform = (composition: {
-      node: HumanPerformance.IInput["composition"];
-    }): HumanPerformance =>
+      node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+    }): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "floor-entry",
         performers: [
@@ -70,11 +69,13 @@ export function test_human_motion_floor_entry_base(): void {
     // The fastest joint centre and the highest rise of some bones across a seam.
     const seam = (
       label: string,
-      composition: { node: HumanPerformance.IInput["composition"] },
+      composition: {
+        node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+      },
       watched: readonly AutoMovieHumanoidBone[],
       rise: number,
     ): void => {
-      let performance: HumanPerformance;
+      let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = perform(composition);
       } catch (error) {
@@ -84,7 +85,8 @@ export function test_human_motion_floor_entry_base(): void {
         );
         return;
       }
-      const second: HumanSegment.ISegment = performance.segments("a")[1]!;
+      const second: IAutoMovieMotionHumanSegment =
+        performance.segments("a")[1]!;
       const at: number = second.entryTime;
       const left: Bones = performance.bones("a", at - STEP);
       let fastest: { speed: number; bone: string; seconds: number } = {

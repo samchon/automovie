@@ -1,8 +1,10 @@
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanFlightTurns,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
 
 /**
@@ -33,11 +35,11 @@ import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation
  */
 export function HumanPerformanceStagedFlightRotation(props:
   Omit<Parameters<typeof HumanPerformanceFlightRotation>[0], "orientation"> & {
-    turns: IHumanActionPlan.IFlightTurns;
+    turns: IAutoMovieMotionHumanFlightTurns;
   }): ReturnType<typeof HumanPerformanceFlightRotation> {
   const from: number = props.t0;
   const to: number = props.t1;
-  const request: IHumanActionPlan.IFlightTurns = props.turns;
+  const request: IAutoMovieMotionHumanFlightTurns = props.turns;
   const somersaultTurns: number = request.somersault;
   const somersault: number = somersaultTurns * 360;
   const twistTurns: number = request.twist;

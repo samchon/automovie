@@ -1,22 +1,22 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRestFrame,
   IAutoMovieSkeleton,
+  IAutoMovieSkeletonTopology,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
-import { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import { jointToQuaternion } from "./jointToQuaternion";
-import type { preparePoseResolution } from "./preparePoseResolution";
+import { preparePoseResolution } from "./preparePoseResolution";
 import { resolvePoseBone } from "./resolvePoseBone";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 
@@ -122,14 +122,16 @@ export const resolvePose: (
     if (required !== undefined && !required.has(bone.bone)) return;
     let art: IAutoMovieQuaternion | undefined = articulation.get(bone.bone);
     if (art === undefined) {
-      missingArticulation ??= prepared === undefined ? IDENTITY : Quaternion.identity();
+      missingArticulation ??=
+        prepared === undefined ? IDENTITY : Quaternion.identity();
       art = missingArticulation;
     }
     const reading: IAutoMovieResolvedBone =
       prepared === undefined
         ? resolvePoseBone(bone, parentWorldRot, parentWorldPos, art)
         : prepared.bone(bone, parentWorldRot, parentWorldPos, art);
-    if (requested === undefined || requested.has(bone.bone)) resolved.push(reading);
+    if (requested === undefined || requested.has(bone.bone))
+      resolved.push(reading);
 
     const children: readonly IAutoMovieBone[] | undefined =
       topology.childrenByParent.get(bone.bone);
@@ -139,9 +141,11 @@ export const resolvePose: (
   };
 
   const rootTranslation: IAutoMovieVector3 =
-    pose.root?.translation ?? (prepared === undefined ? ORIGIN : Vector3.create(0, 0, 0));
+    pose.root?.translation ??
+    (prepared === undefined ? ORIGIN : Vector3.create(0, 0, 0));
   const rootRotation: IAutoMovieQuaternion =
-    pose.root?.rotation ?? (prepared === undefined ? IDENTITY : Quaternion.identity());
+    pose.root?.rotation ??
+    (prepared === undefined ? IDENTITY : Quaternion.identity());
   const roots: readonly IAutoMovieBone[] | undefined =
     topology.childrenByParent.get(SKELETON_ROOT_PARENT);
   if (roots !== undefined && roots !== null)

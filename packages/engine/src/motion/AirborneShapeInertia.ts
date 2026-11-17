@@ -1,13 +1,17 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMoviePrincipalTensorFrame,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
 import { physicalPrincipalAxes } from "../physics/physicalPrincipalAxes";
-import type { integrateAirborneRotation } from "./integrateAirborneRotation";
 import type { AirborneShapeStatistics } from "./AirborneShapeStatistics";
+import type { integrateAirborneRotation } from "./integrateAirborneRotation";
 
 /** Only this owner can issue an unobserved numeric tensor capability. */
-const OWNERS: WeakMap<integrateAirborneRotation.IInstant, IState> = new WeakMap();
+const OWNERS: WeakMap<IAutoMovieIntegrateAirborneRotation.IInstant, IState> = new WeakMap();
 
 /** One private tensor, its original accessor and an optional lazy factor. */
 interface IState {
@@ -15,10 +19,10 @@ interface IState {
   matrix: number[][];
 
   /** The original own-property reader, compared before lending numeric work. */
-  get: (() => resolveAutoMovieMomentum.IPrincipal) | undefined;
+  get: (() => IAutoMoviePrincipalTensorFrame) | undefined;
 
   /** Original assignment behavior; replacing it ends numeric eligibility. */
-  set: ((value: resolveAutoMovieMomentum.IPrincipal) => void) | undefined;
+  set: ((value: IAutoMoviePrincipalTensorFrame) => void) | undefined;
 
   /** Public access may expose mutable principal coordinates, so ends reuse. */
   observed: boolean;
@@ -51,11 +55,11 @@ export function AirborneShapeInertia(
   matrix: number[][],
   relative: IAutoMovieVector3,
   statistics?: AirborneShapeStatistics.IStatistics,
-): integrateAirborneRotation.IInstant {
+): IAutoMovieIntegrateAirborneRotation.IInstant {
   const state: IState = { matrix, get: undefined, set: undefined, observed: false, statistics };
-  let principal: resolveAutoMovieMomentum.IPrincipal | undefined;
-  const instant: integrateAirborneRotation.IInstant = {
-    get inertia(): resolveAutoMovieMomentum.IPrincipal {
+  let principal: IAutoMoviePrincipalTensorFrame | undefined;
+  const instant: IAutoMovieIntegrateAirborneRotation.IInstant = {
+    get inertia(): IAutoMoviePrincipalTensorFrame {
       state.observed = true;
       state.factor = undefined;
       if (principal === undefined) {
@@ -64,7 +68,7 @@ export function AirborneShapeInertia(
       }
       return principal;
     },
-    set inertia(value: resolveAutoMovieMomentum.IPrincipal) {
+    set inertia(value: IAutoMoviePrincipalTensorFrame) {
       state.observed = true;
       state.factor = undefined;
       principal = value;
@@ -92,7 +96,7 @@ export namespace AirborneShapeInertia {
    *
    */
   export function factor(
-    instant: integrateAirborneRotation.IInstant,
+    instant: IAutoMovieIntegrateAirborneRotation.IInstant,
   ): physicalInertiaFactor.IPrepared | undefined {
     const state: IState | undefined = OWNERS.get(instant);
     if (state === undefined || state.observed) return undefined;
@@ -113,7 +117,7 @@ export namespace AirborneShapeInertia {
    * End numeric eligibility while leaving an issued public instant readable.
    *
    */
-  export function release(instant: integrateAirborneRotation.IInstant): void {
+  export function release(instant: IAutoMovieIntegrateAirborneRotation.IInstant): void {
     const state: IState | undefined = OWNERS.get(instant);
     if (state !== undefined) {
       state.factor = undefined;

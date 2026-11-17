@@ -1,4 +1,8 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieSkeletonPoseResolution,
+} from "@automovie/interface";
 
 import type { preparePoseJointResolution } from "./preparePoseJointResolution";
 
@@ -63,8 +67,8 @@ export function preparePoseTupleScan(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No bone subset, pose/time key, proxy row, optional validity certificate or alternative ROM convention is represented. All runtime names/values remain unchanged for their original admission owner.
  */
 export namespace preparePoseTupleScan {
-  /** Directly authored clinical triples, with omission meaning no authored record. */
-  export type IJoints = Partial<Record<AutoMovieHumanoidBone, ITuple>>;
+  /** Clinical tuples per bone (`IAutoMovieSkeletonPoseResolution.IJoints`). */
+  export type IJoints = IAutoMovieSkeletonPoseResolution.IJoints;
 
   /** Supply every staged value to actual private joint admission, never a public callback or reader key. */
   export type IScan = (reader: Pick<preparePoseJointResolution.IReader, "admitValues" | "validateValues">) => void;

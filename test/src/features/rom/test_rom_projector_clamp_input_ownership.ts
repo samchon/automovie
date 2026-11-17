@@ -1,11 +1,17 @@
 import {
   clampJointToSkeleton,
-  type IAutoMovieRestFrame,
   jointToQuaternionOnBasis,
   normalizeJointAxes,
   prepareJointRotationProjection,
 } from "@automovie/engine";
-import type { IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieSkeleton } from "@automovie/interface";
+import type {
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

@@ -1,4 +1,4 @@
-import { IAutoMovieGeneratedMeasurementProxy } from "./IAutoMovieGeneratedMeasurementProxy";
+import type { IAutoMovieGeneratedMeasurementProxy } from "./IAutoMovieGeneratedMeasurementProxy";
 
 /**
  * An explicitly selected projection envelope from registered JSON bytes or a closed generated recipe.

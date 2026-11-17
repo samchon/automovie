@@ -1,16 +1,16 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   Quaternion,
   resolvePose,
 } from "@automovie/engine";
-import {
-  type AutoMovieHumanoidBone,
-  type IAutoMovieBone,
-  type IAutoMovieJointPose,
-  type IAutoMovieSkeleton,
-  type IAutoMovieVector3,
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointPose,
+  IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

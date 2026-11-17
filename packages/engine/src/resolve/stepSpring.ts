@@ -1,6 +1,8 @@
-import {
+import type {
   IAutoMovieQuaternion,
+  IAutoMovieSphere,
   IAutoMovieSpringDriver,
+  IAutoMovieSpringState,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -8,8 +10,6 @@ import {
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieSpringSphere } from "./IAutoMovieSpringSphere";
-import { IAutoMovieSpringState } from "./IAutoMovieSpringState";
 import { readLocal } from "./readLocal";
 import { readWorld } from "./readWorld";
 
@@ -30,14 +30,14 @@ export const stepSpring: (
   state: IAutoMovieSpringState,
   dt: number,
   localById: Map<string, IAutoMovieTransform>,
-  colliders?: readonly IAutoMovieSpringSphere[],
+  colliders?: readonly IAutoMovieSphere[],
 ) => void = (
   d: IAutoMovieSpringDriver,
   world: Map<string, number[]>,
   state: IAutoMovieSpringState,
   dt: number,
   localById: Map<string, IAutoMovieTransform>,
-  colliders: readonly IAutoMovieSpringSphere[] = [],
+  colliders: readonly IAutoMovieSphere[] = [],
 ): void => {
   validateSpringInputs(d, dt);
   validateSpringColliders(colliders);
@@ -189,9 +189,9 @@ const validateSpringInputs: (d: IAutoMovieSpringDriver, dt: number) => void = (
 };
 
 const validateSpringColliders: (
-  colliders: readonly IAutoMovieSpringSphere[],
-) => void = (colliders: readonly IAutoMovieSpringSphere[]): void => {
-  colliders.forEach((sphere: IAutoMovieSpringSphere, i: number): void => {
+  colliders: readonly IAutoMovieSphere[],
+) => void = (colliders: readonly IAutoMovieSphere[]): void => {
+  colliders.forEach((sphere: IAutoMovieSphere, i: number): void => {
     validateSpringVector(`colliders[${i}].center`, sphere.center);
     validateSpringFinite(`colliders[${i}].radius`, sphere.radius);
     if (sphere.radius <= 0)

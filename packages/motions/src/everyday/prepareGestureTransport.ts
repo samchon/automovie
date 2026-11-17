@@ -1,7 +1,13 @@
 import { Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGestureStroke,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import type { gestureStroke } from "./gestureStroke";
@@ -25,15 +31,15 @@ import type { gestureStroke } from "./gestureStroke";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The planning reader holds its fixed inputs, one reference map and at most the rig's bone-name set until its owning gesture planning scope releases it; each probe's goals are local and no sampled-time history is retained.
  */
 export function prepareGestureTransport(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   entry: IAutoMoviePose,
-  sides: readonly HumanHand.Side[],
-): (stroke: (side: HumanHand.Side) => gestureStroke.IHand) => number {
+  sides: readonly AutoMovieHumanSide[],
+): (stroke: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanGestureStroke.IHand) => number {
   const requested: Set<AutoMovieHumanoidBone> = new Set();
   let reference: ReturnType<typeof poseBones> | undefined;
-  return (stroke: (side: HumanHand.Side) => gestureStroke.IHand): number => {
-    const goals: { side: HumanHand.Side; hand: gestureStroke.IHand }[] = sides.map(
-      (side: HumanHand.Side): { side: HumanHand.Side; hand: gestureStroke.IHand } =>
+  return (stroke: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanGestureStroke.IHand): number => {
+    const goals: { side: AutoMovieHumanSide; hand: IAutoMovieMotionHumanGestureStroke.IHand }[] = sides.map(
+      (side: AutoMovieHumanSide): { side: AutoMovieHumanSide; hand: IAutoMovieMotionHumanGestureStroke.IHand } =>
         ({ side, hand: stroke(side) }),
     );
     if (goals.length === 0) return 0;

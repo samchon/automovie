@@ -1,3 +1,5 @@
+import type { IAutoMovieRecoveryChartBoxSolve } from "@automovie/interface";
+
 /**
  * Minimize sum_axis(0.5*x' H x - rhs' x) on the supplied original control box.
  * H is an exactly symmetric sparse positive-semidefinite Gram matrix supplied
@@ -31,26 +33,9 @@
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One admitted sparse registry and its scaled entries serve every iteration. Candidate original gradients supply both objective qualification and best-iterate selection; the final best metric is recomputed from the same original problem.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Invocation-local maps, sparse arrays and O(M) vectors expire on return or throw. Only one newly owned interleaved Float64Array and scalar diagnostics transfer to the caller; no input mutation, global cache, process or native handle is acquired.
  */
-export function RecoveryChartBoxSolve(input: {
-  hessian: readonly (readonly (readonly [number, number])[])[];
-  rhs: readonly number[];
-  lower: readonly [number, number, number];
-  upper: readonly [number, number, number];
-  maxIterations: number;
-  gradientTolerance: number;
-  initialValues?: readonly number[];
-}): {
-  values: Float64Array;
-  iterations: number;
-  projectedGradient: number;
-  restarts: number;
-  objective: number;
-  initialObjective: number;
-  minimumPositiveDiagonal: number | null;
-  maximumDiagonal: number;
-  originalLipschitz: number;
-  scaledLipschitz: number;
-} {
+export function RecoveryChartBoxSolve(
+  input: Parameters<IAutoMovieRecoveryChartBoxSolve.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartBoxSolve.Operation> {
   const count: number = input.hessian.length,
     width: number = 3 * count;
   if (

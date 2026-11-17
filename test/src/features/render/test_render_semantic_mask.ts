@@ -1,13 +1,13 @@
 import {
-  IAutoMovieRenderSubject,
-  IAutoMovieSemanticMaskResolution,
   deriveAutoMovieSemanticMask,
   resolveAutoMovieSemanticMask,
 } from "@automovie/engine";
 import {
+  type IAutoMovieRenderSubject,
   IAutoMovieSceneNode,
   IAutoMovieSemanticMask,
   IAutoMovieSemanticMaskEntry,
+  type IAutoMovieSemanticMaskResolution,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

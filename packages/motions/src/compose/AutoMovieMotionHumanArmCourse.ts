@@ -1,12 +1,19 @@
 import { hingedArmSwivel } from "@automovie/engine";
-import type { IAutoMoviePose } from "@automovie/interface";
+import type {
+  AutoMovieHumanLimb,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanLimbFitFrame } from "../posture/HumanLimbFitFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 
@@ -49,7 +56,7 @@ export namespace AutoMovieMotionHumanArmCourse {
    */
   export interface IProps {
     /** The body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The span's instants, seconds. */
     span: { start: number; ready: number; relax: number; end: number };
@@ -57,8 +64,8 @@ export namespace AutoMovieMotionHumanArmCourse {
     /** Each arm's side, rest, return and the bone of another arm its grip rides, in the group's order. */
     arms: readonly {
       side: "left" | "right";
-      rest: AutoMovieMotionHumanArmAngles.IAngles;
-      back?: AutoMovieMotionHumanArmAngles.IAngles;
+      rest: IAutoMovieMotionHumanArmAngles.IAngles;
+      back?: IAutoMovieMotionHumanArmAngles.IAngles;
       on?: string;
     }[];
 
@@ -73,7 +80,7 @@ export namespace AutoMovieMotionHumanArmCourse {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; the caller of `course`, which implements it, carries this claim.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; the caller of `course`, which implements it, carries this claim.
      */
-    at: (seconds: number) => { posture: IHumanPosture; pose: IAutoMoviePose };
+    at: (seconds: number) => { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose };
 
     /**
      * An arm's goal at an instant, as the plan perceives it.
@@ -86,7 +93,7 @@ export namespace AutoMovieMotionHumanArmCourse {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; the caller of `course`, which implements it, carries this claim.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; the caller of `course`, which implements it, carries this claim.
      */
-    aimed: (arm: number, seconds: number) => IHumanPosture.IGoal;
+    aimed: (arm: number, seconds: number) => IAutoMovieHumanLimbGoal;
 
     /**
      * The trajectory problem on given waypoints, the optimiser's own.
@@ -147,7 +154,7 @@ export namespace AutoMovieMotionHumanArmCourse {
     times.push(span.end);
     const holding: (t: number) => boolean = (t: number): boolean =>
       t >= span.ready - 1e-9 && t <= span.relax + 1e-9;
-    const course: Map<number, HumanArmClearance.IArm[]> = new Map();
+    const course: Map<number, IAutoMovieMotionHumanArmClearance.IArm[]> = new Map();
     const fit: ReturnType<typeof solver> = solver(props);
 
     if (!times.some(holding)) return undefined;
@@ -174,8 +181,8 @@ export namespace AutoMovieMotionHumanArmCourse {
           same(arm.sites[k], arm.sites[held[0]!]),
         ),
     );
-    let near: resolveHumanPosture.INear = {};
-    let before: HumanArmClearance.IArm[] | undefined;
+    let near: IAutoMovieMotionHumanResolveHumanPosture.INear = {};
+    let before: IAutoMovieMotionHumanArmClearance.IArm[] | undefined;
     for (const k of held) {
       const t: number = times[k]!;
       if (still && before !== undefined) {
@@ -185,7 +192,7 @@ export namespace AutoMovieMotionHumanArmCourse {
       const solved: ReturnType<typeof fit> = fit(
         t,
         arms.map(
-          (_: IProps["arms"][number], a: number): IHumanPosture.IGoal =>
+          (_: IProps["arms"][number], a: number): IAutoMovieHumanLimbGoal =>
             props.aimed(a, t),
         ),
         near,
@@ -202,9 +209,9 @@ export namespace AutoMovieMotionHumanArmCourse {
           (
             _: IProps["arms"][number],
             a: number,
-          ): (HumanArmClearance.IArm | undefined)[] =>
+          ): (IAutoMovieMotionHumanArmClearance.IArm | undefined)[] =>
             times.map(
-              (t: number): HumanArmClearance.IArm | undefined =>
+              (t: number): IAutoMovieMotionHumanArmClearance.IArm | undefined =>
                 course.get(t)?.[a],
             ),
         ),
@@ -290,10 +297,10 @@ function solver(
   props: AutoMovieMotionHumanArmCourse.IProps,
 ): (
   t: number,
-  goals: readonly IHumanPosture.IGoal[],
-  near: resolveHumanPosture.INear,
-  before?: readonly HumanArmClearance.IArm[],
-) => { arms: HumanArmClearance.IArm[]; near: resolveHumanPosture.INear } {
+  goals: readonly IAutoMovieHumanLimbGoal[],
+  near: IAutoMovieMotionHumanResolveHumanPosture.INear,
+  before?: readonly IAutoMovieMotionHumanArmClearance.IArm[],
+) => { arms: IAutoMovieMotionHumanArmClearance.IArm[]; near: IAutoMovieMotionHumanResolveHumanPosture.INear } {
   // An arm that rides another is fitted after it, on the pose it placed.
   const order: number[] = props.arms
     .map(
@@ -309,10 +316,10 @@ function solver(
     );
   return (
     t: number,
-    goals: readonly IHumanPosture.IGoal[],
-    near: resolveHumanPosture.INear,
-    before?: readonly HumanArmClearance.IArm[],
-  ): { arms: HumanArmClearance.IArm[]; near: resolveHumanPosture.INear } => {
+    goals: readonly IAutoMovieHumanLimbGoal[],
+    near: IAutoMovieMotionHumanResolveHumanPosture.INear,
+    before?: readonly IAutoMovieMotionHumanArmClearance.IArm[],
+  ): { arms: IAutoMovieMotionHumanArmClearance.IArm[]; near: IAutoMovieMotionHumanResolveHumanPosture.INear } => {
     // Each arm alone on the base the planner already solved, the rest of
     // the body as it stands: one two-bone fit per arm, no posture solve.
     // The base holds the planned arms at rest, and a fit reads the pose it
@@ -335,12 +342,12 @@ function solver(
       );
     const next: Partial<
       Record<
-        IHumanPosture.Limb,
-        NonNullable<resolveHumanPosture.INear[IHumanPosture.Limb]>
+        AutoMovieHumanLimb,
+        NonNullable<IAutoMovieMotionHumanResolveHumanPosture.INear[AutoMovieHumanLimb]>
       >
     > = {};
     for (const a of order) {
-      const limb: IHumanPosture.Limb = `${props.arms[a]!.side}Arm`;
+      const limb: AutoMovieHumanLimb = `${props.arms[a]!.side}Arm`;
       const fitted: ReturnType<typeof resolveHumanPosture.limbSeeded> =
         resolveHumanPosture.limbSeeded(
           props.body,
@@ -364,7 +371,7 @@ function solver(
       arms: props.arms.map(
         (
           arm: AutoMovieMotionHumanArmCourse.IProps["arms"][number],
-        ): HumanArmClearance.IArm =>
+        ): IAutoMovieMotionHumanArmClearance.IArm =>
           AutoMovieMotionHumanArmAngles.angles(pose, arm.side),
       ),
       near: next,

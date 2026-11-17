@@ -1,10 +1,10 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieModel,
+  IAutoMovieRigLocalTransform,
 } from "@automovie/interface";
 import {
   type IAutoMovieModelObject,
-  type IAutoMovieRigLocalTransform,
   applyAutoMovieRigLocals,
   buildModel,
 } from "@automovie/render";

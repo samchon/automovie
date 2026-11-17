@@ -1,8 +1,12 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { walkFoot } from "../actions/walkFoot";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { staggerBounds } from "./staggerBounds";
 import type { staggerRecover } from "./staggerRecover";
@@ -38,11 +42,11 @@ import type { staggerRecover } from "./staggerRecover";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains nothing.
  */
 export function staggerSwingBow(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   step: staggerRecover.IStep,
-  standing: HumanFoot.IPlacement,
+  standing: IAutoMovieMotionHumanFoot.IPlacement,
   normal: IAutoMovieVector3,
-  swing: (seconds: number, bow: number) => walkFoot.IScheduled,
+  swing: (seconds: number, bow: number) => IAutoMovieMotionHumanWalkFoot.IScheduled,
 ): number {
   const stance: "left" | "right" = step.side === "left" ? "right" : "left";
   const along: IAutoMovieVector3 = { x: normal.z, y: 0, z: -normal.x };
@@ -72,7 +76,7 @@ export function staggerSwingBow(
   let minus: number = -Infinity;
   for (let i: number = 1; i < count; i++) {
     const seconds: number = step.start + (i / count) * (step.land - step.start);
-    const foot: walkFoot.IScheduled = swing(seconds, 0);
+    const foot: IAutoMovieMotionHumanWalkFoot.IScheduled = swing(seconds, 0);
     const outline: IAutoMovieVector3[] = HumanFoot.sole(body, step.side, foot.placement);
     const [qLo, qHi]: [number, number] = extent(outline, along);
     if (!(qHi > bLo && qLo < bHi)) continue;

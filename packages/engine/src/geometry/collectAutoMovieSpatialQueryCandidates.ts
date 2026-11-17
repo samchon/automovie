@@ -1,5 +1,7 @@
-import type { IAutoMovieMeshQueryHierarchy } from "./IAutoMovieMeshQueryHierarchy";
-import type { IAutoMovieSpatialQueryEntry } from "./IAutoMovieSpatialQueryEntry";
+import type {
+  IAutoMovieMeshQueryHierarchy,
+  IAutoMovieSpatialQueryEntry,
+} from "@automovie/interface";
 
 /**
  * Collect the hierarchy entries whose boxes can meet a subject box, ordered by

@@ -1,14 +1,18 @@
+import type {
+  IAutoMovieCaptureCellComparison,
+  IAutoMovieCaptureCellRecord,
+  IAutoMovieCaptureComparison,
+  IAutoMovieCaptureComparisonProps,
+  IAutoMovieCaptureLayout,
+  IAutoMovieCaptureRecord,
+  IAutoMovieRasterComparison,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
+
 import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
-import type { IAutoMovieRasterComparison } from "../picture/IAutoMovieRasterComparison.js";
-import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
 import { compareAutoMovieRasters } from "../picture/compareAutoMovieRasters.js";
 import { decodeAutoMovieRasterPng } from "../picture/decodeAutoMovieRasterPng.js";
 import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
-import type { AutoMovieCaptureFolder } from "./AutoMovieCaptureFolder.js";
-import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
-import type { IAutoMovieCaptureComparison } from "./IAutoMovieCaptureComparison.js";
-import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout.js";
-import type { IAutoMovieCaptureRecord } from "./IAutoMovieCaptureRecord.js";
 import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
 import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
 
@@ -27,28 +31,9 @@ import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each pair is read and measured once.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One pair of decoded stills, one difference image and the comparison sheet being filled are held at a time.
  */
-export async function compareAutoMovieCaptureRounds(props: {
-  /** The capture's folder, opened with the earlier round to compare against. */
-  folder: AutoMovieCaptureFolder;
-
-  /** Name of the earlier round. */
-  round: string;
-
-  /** This capture's rows, in plan order. */
-  rows: readonly IAutoMovieCaptureRecord.Row[];
-
-  /** How cells are paired. */
-  match: "cell" | "time";
-
-  /** Largest channel difference in bytes counted as unchanged. */
-  tolerance: number;
-
-  /** The reader the comparison sheets are laid out for. */
-  budget: IAutoMovieCaptureBudget;
-
-  /** This capture's still raster in pixels, which sizes the sheet cells. */
-  raster: { width: number; height: number };
-}): Promise<IAutoMovieCaptureComparison> {
+export async function compareAutoMovieCaptureRounds(
+  props: IAutoMovieCaptureComparisonProps,
+): Promise<IAutoMovieCaptureComparison> {
   const { folder, match } = props;
   const earlier: Extract<
     IAutoMovieCaptureRecord,
@@ -60,8 +45,8 @@ export async function compareAutoMovieCaptureRounds(props: {
     );
 
   // Pair rows by the values that must agree.
-  const key: (row: IAutoMovieCaptureRecord.Row) => string = (
-    row: IAutoMovieCaptureRecord.Row,
+  const key: (row: IAutoMovieCaptureCellRecord) => string = (
+    row: IAutoMovieCaptureCellRecord,
   ): string =>
     match === "time"
       ? row.time.seconds.toFixed(6)
@@ -74,19 +59,19 @@ export async function compareAutoMovieCaptureRounds(props: {
           row.view,
           row.pass,
         ]);
-  const before: Map<string, IAutoMovieCaptureRecord.Row> = new Map(
+  const before: Map<string, IAutoMovieCaptureCellRecord> = new Map(
     earlier.rows.map(
       (
-        row: IAutoMovieCaptureRecord.Row,
-      ): [string, IAutoMovieCaptureRecord.Row] => [key(row), row],
+        row: IAutoMovieCaptureCellRecord,
+      ): [string, IAutoMovieCaptureCellRecord] => [key(row), row],
     ),
   );
   const pairs: [
-    IAutoMovieCaptureRecord.Row | null,
-    IAutoMovieCaptureRecord.Row | null,
+    IAutoMovieCaptureCellRecord | null,
+    IAutoMovieCaptureCellRecord | null,
   ][] = [];
   for (const row of props.rows) {
-    const other: IAutoMovieCaptureRecord.Row | undefined = before.get(key(row));
+    const other: IAutoMovieCaptureCellRecord | undefined = before.get(key(row));
     before.delete(key(row));
     pairs.push([other ?? null, row]);
   }
@@ -102,8 +87,8 @@ export async function compareAutoMovieCaptureRounds(props: {
     // Every caption a comparison row can carry: each side's name, and the longest third caption.
     captions: pairs.flatMap(
       ([old, now]: [
-        IAutoMovieCaptureRecord.Row | null,
-        IAutoMovieCaptureRecord.Row | null,
+        IAutoMovieCaptureCellRecord | null,
+        IAutoMovieCaptureCellRecord | null,
       ]): string[] => [
         `${props.round} ${old?.name ?? "missing"}`,
         `now ${now?.name ?? "missing"}`,
@@ -119,13 +104,13 @@ export async function compareAutoMovieCaptureRounds(props: {
   );
   await folder.claim([
     ...props.rows.map(
-      (row: IAutoMovieCaptureRecord.Row): string => `diff-${row.name}.png`,
+      (row: IAutoMovieCaptureCellRecord): string => `diff-${row.name}.png`,
     ),
     ...sheetNames,
   ]);
 
   // Measure each pair and lay it on the sheets.
-  const entries: IAutoMovieCaptureComparison.Entry[] = [];
+  const entries: IAutoMovieCaptureCellComparison[] = [];
   const sheets: string[] = [];
   let sheet: AutoMovieRasterSheet | null = null;
   let filled: number = 0;
@@ -157,7 +142,7 @@ export async function compareAutoMovieCaptureRounds(props: {
     if (filled % layout.perSheet === 0) await flush();
   };
   for (const [old, now] of pairs) {
-    const entry: IAutoMovieCaptureComparison.Entry = decide(
+    const entry: IAutoMovieCaptureCellComparison = decide(
       props.round,
       match,
       old,
@@ -172,7 +157,7 @@ export async function compareAutoMovieCaptureRounds(props: {
         ? await decodeAutoMovieRasterPng(await folder.read(now.file))
         : null;
     let difference: IAutoMovieRasterImage | null = null;
-    let final: IAutoMovieCaptureComparison.Entry = entry;
+    let final: IAutoMovieCaptureCellComparison = entry;
     if (
       entry.state === "paired" &&
       entry.mode === "difference" &&
@@ -240,12 +225,12 @@ export async function compareAutoMovieCaptureRounds(props: {
 function decide(
   round: string,
   match: "cell" | "time",
-  old: IAutoMovieCaptureRecord.Row | null,
-  now: IAutoMovieCaptureRecord.Row | null,
-): IAutoMovieCaptureComparison.Entry {
-  const unmatched: (cause: string) => IAutoMovieCaptureComparison.Entry = (
+  old: IAutoMovieCaptureCellRecord | null,
+  now: IAutoMovieCaptureCellRecord | null,
+): IAutoMovieCaptureCellComparison {
+  const unmatched: (cause: string) => IAutoMovieCaptureCellComparison = (
     cause: string,
-  ): IAutoMovieCaptureComparison.Entry => ({
+  ): IAutoMovieCaptureCellComparison => ({
     state: "unmatched",
     current: now?.name ?? null,
     earlier: old?.name ?? null,

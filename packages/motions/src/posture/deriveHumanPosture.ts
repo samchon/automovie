@@ -1,9 +1,17 @@
 import { Transform } from "@automovie/engine";
-import type { IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
+import type {
+  AutoMovieHumanLimb,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMovieMotionHumanTurnHumanPosture,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbView } from "./HumanLimbView";
-import { IHumanPosture } from "./IHumanPosture";
+import { HumanPosture } from "./HumanPosture";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import type { resolveHumanPosture } from "./resolveHumanPosture";
 import { resolveHumanPostureSource } from "./resolveHumanPostureSource";
@@ -31,11 +39,11 @@ import { turnHumanPosture } from "./turnHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the result shares records and possibly the root with the given assembly, which callers treat as immutable.
  */
 export function deriveHumanPosture(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   assembled: resolveHumanPostureSource.IAssembled,
-  posture: IHumanPosture,
+  posture: IAutoMovieMotionHumanPosture,
 ): resolveHumanPostureSource.IAssembled {
-  const from: IHumanPosture = assembled.posture;
+  const from: IAutoMovieMotionHumanPosture = assembled.posture;
   const clamp: ReturnType<typeof prepareHumanPostureProjection.joints> =
     prepareHumanPostureProjection.joints(body, body.projection);
   const before: readonly IAutoMovieJointPose[] = assembled.pose.joints;
@@ -58,7 +66,7 @@ export function deriveHumanPosture(
   }
 
   // The root: the other assembly's own when root and heading are the same.
-  const turned: turnHumanPosture.ITurned = turnHumanPosture(posture);
+  const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(posture);
   const placed: boolean = Object.is(from.root.x, posture.root.x) && Object.is(from.root.y, posture.root.y) &&
     Object.is(from.root.z, posture.root.z) && Object.is(from.yaw, posture.yaw) &&
     Object.is(from.pitch, posture.pitch) && Object.is(from.roll, posture.roll);
@@ -87,7 +95,7 @@ export namespace deriveHumanPosture {
     assembled: resolveHumanPostureSource.IAssembled;
 
     /** What `resolveHumanPostureSource.fit` returned for that assembly's own goals, with no nearby seed. */
-    seeded: resolveHumanPosture.ISeeded;
+    seeded: IAutoMovieMotionHumanResolveHumanPosture.ISeeded;
   }
 
   /**
@@ -114,20 +122,20 @@ export namespace deriveHumanPosture {
    * @returns The fit, or undefined.
    */
   export function inherited(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     assembled: resolveHumanPostureSource.IAssembled,
     solved: ISolved,
-  ): resolveHumanPosture.ISeeded | undefined {
+  ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded | undefined {
     const before: resolveHumanPostureSource.IAssembled = solved.assembled;
-    const limbs: IHumanPosture.Limb[] = IHumanPosture.LIMBS.filter(
-      (limb: IHumanPosture.Limb): boolean => assembled.limbs[limb] !== undefined);
+    const limbs: AutoMovieHumanLimb[] = HumanPosture.LIMBS.filter(
+      (limb: AutoMovieHumanLimb): boolean => assembled.limbs[limb] !== undefined);
     if (limbs.length === 0 || Object.keys(assembled.limbs).length !== limbs.length ||
       Object.keys(before.limbs).length !== limbs.length ||
       assembled.posture.digits !== undefined || before.posture.digits !== undefined ||
       assembled.pose.joints.length !== before.pose.joints.length ||
       !same(assembled.pose.root, before.pose.root)) return undefined;
     for (const limb of limbs) {
-      const goal: IHumanPosture.IGoal | undefined = assembled.limbs[limb];
+      const goal: IAutoMovieHumanLimbGoal | undefined = assembled.limbs[limb];
       if (goal === undefined || !limb.endsWith("Leg") || goal.on !== undefined ||
         !same(goal, before.limbs[limb]) || solved.seeded.seeds[limb] === undefined) return undefined;
       for (const index of HumanLimbView.of(body, assembled.pose, limb, goal, []).at)
@@ -143,12 +151,12 @@ export namespace deriveHumanPosture {
         if (angle !== null && !Number.isFinite(angle)) return undefined;
       swapped.set(before.pose.joints[i]!, now);
     }
-    const seeds: resolveHumanPosture.ISeeded["seeds"] = {};
-    const values: resolveHumanPosture.ISeeded["values"] = {};
+    const seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] = {};
+    const values: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"] = {};
     for (const limb of limbs) {
-      const seed: resolveHumanPosture.ISeeded["seeds"][IHumanPosture.Limb] = solved.seeded.seeds[limb];
+      const seed: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][AutoMovieHumanLimb] = solved.seeded.seeds[limb];
       seeds[limb] = seed === null || seed === undefined ? null : { ...seed };
-      const value: resolveHumanPosture.ISeeded["values"][IHumanPosture.Limb] = solved.seeded.values[limb];
+      const value: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"][AutoMovieHumanLimb] = solved.seeded.values[limb];
       if (value !== undefined) values[limb] = { ...value };
     }
     return {

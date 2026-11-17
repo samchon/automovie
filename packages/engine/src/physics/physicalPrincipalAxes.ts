@@ -1,5 +1,5 @@
 import type {
-  IAutoMovieQuaternion,
+  IAutoMoviePrincipalTensorFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -28,10 +28,9 @@ import { quaternionFromAutoMovieBasis } from "../math/quaternionFromAutoMovieBas
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Three immutable pairs define the same cyclic order for every call. Each rotation's repeated factors and mirrored entries are reused without reassociating products. Only a complete sweep that performs no rotation proves later pair tests equivalent; no tensor, diagonalization result or mutable-input cache is retained.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no caller state between calls; numeric temporaries die with the call. Only the fixed three-pair order lives for the module lifetime.
  */
-export function physicalPrincipalAxes(tensor: number[][]): {
-  moments: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-} {
+export function physicalPrincipalAxes(
+  tensor: number[][],
+): IAutoMoviePrincipalTensorFrame {
   // Jacobi's stopping criterion must compare dimensionless entries rather
   // than mixing a fixed unit-one floor with moments measured in kg m².
   let scale: number = Number.NEGATIVE_INFINITY;

@@ -1,17 +1,19 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchSite,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
-import type { IAutoMovieMotionHumanTouch } from "../compose/IAutoMovieMotionHumanTouch";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -54,18 +56,18 @@ export namespace touchRegion {
    */
   export function reader(
     context: Pick<
-      IHumanActionContext,
+      IAutoMovieMotionHumanActionContext,
       "aim" | "body" | "prop" | "series" | "start"
     >,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: HumanHand.Side,
-    target: AutoMovieMotionTarget,
-    site: touchSite.ISite | undefined,
+    side: AutoMovieHumanSide,
+    target: IAutoMovieMotionTarget,
+    site: IAutoMovieMotionHumanTouchSite.ISite | undefined,
   ): (
-    target: AutoMovieMotionTarget,
+    target: IAutoMovieMotionTarget,
     legs: boolean,
-  ) => IAutoMovieMotionHumanTouch["region"] {
-    const body: IHumanBody = context.body;
+  ) => IAutoMovieMotionHumanTouch.ITouch["region"] {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const sited: ReturnType<typeof touchSite.of> | undefined =
       site === undefined ? undefined : touchSite.of(context, site);
     const shoulder: IAutoMovieVector3 = bones.get(
@@ -87,9 +89,9 @@ export namespace touchRegion {
       along = touchSite.span(context, target.subject, target.point, site.along);
     }
     return (
-      aimed: AutoMovieMotionTarget,
+      aimed: IAutoMovieMotionTarget,
       legs: boolean,
-    ): IAutoMovieMotionHumanTouch["region"] => {
+    ): IAutoMovieMotionHumanTouch.ITouch["region"] => {
       const requested: ReadonlySet<AutoMovieHumanoidBone> | undefined =
         legs && aimed.kind === "self" && onLeg(body, aimed)
           ? new Set<AutoMovieHumanoidBone>([body.surfaces.regions[aimed.region].bone])
@@ -97,14 +99,14 @@ export namespace touchRegion {
       const frames: ReturnType<typeof poseBones.prepare> | undefined =
         requested === undefined ? undefined : poseBones.prepare(body, requested);
       return (
-        posture: IHumanPosture,
+        posture: IAutoMovieMotionHumanPosture,
         seconds: number,
-        source?: Parameters<IAutoMovieMotionHumanTouch["region"]>[2],
-        projection?: Parameters<IAutoMovieMotionHumanTouch["region"]>[3],
-      ): touchSite.IFrame => {
+        source?: Parameters<IAutoMovieMotionHumanTouch.ITouch["region"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanTouch.ITouch["region"]>[3],
+      ): IAutoMovieMotionHumanTouchSite.IFrame => {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
           requested === undefined ? undefined : prepareHumanPoseResolution(source);
-        const frame: touchSite.IFrame = AutoMovieMotionHumanTouch.region(
+        const frame: IAutoMovieMotionHumanTouchSite.IFrame = AutoMovieMotionHumanTouch.region(
           context,
           aimed,
           context.start + seconds,
@@ -150,9 +152,9 @@ export namespace touchRegion {
    * @returns Metres, or `undefined`.
    */
   export function disc(
-    context: Pick<IHumanActionContext, "body" | "performer">,
-    target: AutoMovieMotionTarget,
-    site: touchSite.ISite | undefined,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "performer">,
+    target: IAutoMovieMotionTarget,
+    site: IAutoMovieMotionHumanTouchSite.ISite | undefined,
   ): number | undefined {
     if (site !== undefined && "draw" in site) return site.draw;
     if (site !== undefined && "within" in site) return site.within;
@@ -168,8 +170,8 @@ export namespace touchRegion {
 
 /** Whether a self region rides a leg, which a lean moves with the hips. */
 function onLeg(
-  body: IHumanActionContext["body"],
-  target: AutoMovieMotionTarget,
+  body: IAutoMovieMotionHumanActionContext["body"],
+  target: IAutoMovieMotionTarget,
 ): boolean {
   if (target.kind !== "self") return false;
   return /(UpperLeg|LowerLeg|Foot|Toes)$/.test(

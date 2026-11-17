@@ -1,9 +1,13 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanArmTrajectory,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import { HumanArmRefine } from "./HumanArmRefine";
@@ -67,13 +71,13 @@ export namespace HumanArmTrajectory {
     /** The arm. */
     side: "left" | "right";
     /** The arm at the first waypoint, and at the last unless `back` is given. */
-    rest: HumanArmClearance.IArm;
+    rest: IAutoMovieMotionHumanArmClearance.IArm;
     /** The arm at the last waypoint, where it returns to another arm than it left (a gesture that leaves from the entry and returns to the rest); `rest` when absent. */
-    back?: HumanArmClearance.IArm;
+    back?: IAutoMovieMotionHumanArmClearance.IArm;
     /** Its site at each waypoint, on the hold. */
     sites: readonly (ISite | undefined)[];
     /** The arm the goal's own solution gives at the hold's start, where its inverse kinematics starts first (`HumanArmSeed`). */
-    guess?: HumanArmClearance.IArm;
+    guess?: IAutoMovieMotionHumanArmClearance.IArm;
     /** Its segments' declared rests over the hold (M.IRest). */
     rests?: readonly M.IRest[];
     /** Its segments that grasp one object with the other arm over the action (`M.IContext.grasped`). */
@@ -90,7 +94,7 @@ export namespace HumanArmTrajectory {
    */
   export interface IProblem {
     /** The body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
     /** The waypoints' seconds, in time order. */
     times: readonly number[];
     /** What every arm is read against at each waypoint, the arms of the problem left out. */
@@ -110,17 +114,6 @@ export namespace HumanArmTrajectory {
      */
     share: (seconds: number) => number;
   }
-
-  /**
-   * An arm at any second of the solved span.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Declares action seconds and the existing clinical arm result returned by setup conversion of interpolated coordinates.
-   * @evidence contracts/development/design.md#principled-representation A time reader preserves random-order playback through the same Hermite trajectory instead of storing displayed poses.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface ArmCarry stores this callback and reads its arm; no optimiser/context getter is exposed.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias adds no endpoint clamping, interpolation policy or validation; the solve-produced reader retains the existing numerical owners.
-   */
-  export type Trajectory = (seconds: number) => HumanArmClearance.IArm;
-
   /**
    * A laid course as `admitted` read it (`HumanArmTrajectoryLaid.IAdmitted`).
    *
@@ -139,25 +132,8 @@ export namespace HumanArmTrajectory {
   export const admitted: typeof HumanArmTrajectoryLaid.admitted =
     HumanArmTrajectoryLaid.admitted;
 
-  /**
-   * A solved trajectory as plan data: what a later solve of the same action
-   * (a replan at another start or over a longer span) starts from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning, frame and what the record is for.
-   * @evidence contracts/development/design.md#principled-representation The knots' seconds, each arm's coordinates at each knot in the frame the problem was solved in (its mirror image for a left-first problem), and the penalty reached, the three things a penalty method's continuation needs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `solve` and taken back by `solve`; a holder passes it on unread.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No verdict is carried: a state is only a start, admitted anew by the solve that takes it.
-   */
-  export interface IState {
-    /** The knots' seconds, ascending. */
-    times: readonly number[];
-
-    /** Each arm's coordinates at each knot, in the solved problem's own order and mirror image. */
-    x: readonly (readonly (readonly number[])[])[];
-
-    /** The penalty the solution was reached at. */
-    penalty: number;
-  }
+  /** The interface contract (`IAutoMovieMotionHumanArmTrajectory.IState`). */
+  export type IState = IAutoMovieMotionHumanArmTrajectory.IState;
 
   /**
    * What `solve` gives: the arms' readers and the state they were read from.
@@ -169,7 +145,7 @@ export namespace HumanArmTrajectory {
    */
   export interface ISolved {
     /** Each arm's trajectory, in the problem's order. */
-    trajectories: Trajectory[];
+    trajectories: IAutoMovieMotionHumanArmTrajectory.Trajectory[];
 
     /** The solution, for a later solve of the same action to start from. */
     state: IState;
@@ -446,10 +422,10 @@ export namespace HumanArmTrajectory {
             : "put the hand on a site its arm reaches with the body clear",
       });
     }
-    const setups: G.ISetup[] = context.setups;
+    const setups: IAutoMovieMotionHumanArmGeometry.ISetup[] = context.setups;
     return {
       trajectories: problem.arms.map(
-        (_: IArm, a: number): Trajectory =>
+        (_: IArm, a: number): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
           HumanArmTrajectoryPlayback(setups, at, last.x, a),
       ),
       state: { times: [...at], x: last.x, penalty: last.penalty },
@@ -465,12 +441,12 @@ export namespace HumanArmTrajectory {
     let most: number = 1;
     x.forEach((arm: readonly (readonly number[])[], a: number): void => {
       for (let k: number = 0; k + 1 < c.n; ++k) {
-        const now: G.IPlaced = G.placed(
+        const now: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(
           c.setups[a]!,
           c.frames[a]![k]!,
           arm[k]!,
         );
-        const next: G.IPlaced = G.placed(
+        const next: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(
           c.setups[a]!,
           c.frames[a]![k + 1]!,
           arm[k + 1]!,
@@ -497,9 +473,9 @@ export namespace HumanArmTrajectory {
 /** A course's arms at a context's waypoints as coordinates, its first and returned last waypoint the context's rest and back. */
 function coursed(
   c: M.IContext,
-  course: readonly HumanArmTrajectory.Trajectory[],
+  course: readonly IAutoMovieMotionHumanArmTrajectory.Trajectory[],
 ): number[][][] {
-  return course.map((reader: HumanArmTrajectory.Trajectory, a: number): number[][] =>
+  return course.map((reader: IAutoMovieMotionHumanArmTrajectory.Trajectory, a: number): number[][] =>
     c.times.map((t: number, k: number): number[] =>
       k === 0
         ? [...c.rest[a]!]

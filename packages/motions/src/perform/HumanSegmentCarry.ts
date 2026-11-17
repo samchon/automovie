@@ -1,16 +1,14 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -41,9 +39,9 @@ export namespace HumanSegmentCarry {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only a fixed plan's per-side drive result is shared within this call; current hold windows and riding order are read at each exact second without retained selection or pose results.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Four scalar side states end with the call. The returned fresh array borrows the original holds, retains no reader or process, and lives only as long as its displayed evaluation.
    */
-  export function borne(person: HumanSegment.IPerson, segment: HumanSegment.ISegment,
-    seconds: number): HumanSegment.IHeld[] {
-    const out: HumanSegment.IHeld[] = [];
+  export function borne(person: IAutoMovieMotionHumanSegment.IPerson, segment: IAutoMovieMotionHumanSegment,
+    seconds: number): IAutoMovieMotionHumanSegment.IHeld[] {
+    const out: IAutoMovieMotionHumanSegment.IHeld[] = [];
     let left: boolean | undefined;
     let right: boolean | undefined;
     let ridingLeft: boolean = false;
@@ -87,12 +85,12 @@ export namespace HumanSegmentCarry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local getter borrows its parent's raw operation key until this call ends; canonical body FK owns O(K) successful dependency rows under that weak key. Holds keep only numerical carry frames/reference until forget. Returned arrays/tuples/goals/vectors are fresh, reference stays borrowed, and none retains the getter or key.
    */
   export function carries(
-    person: HumanSegment.IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     pose: IAutoMoviePose,
-    holds: readonly HumanSegment.IHeld[],
+    holds: readonly IAutoMovieMotionHumanSegment.IHeld[],
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     prepared?: prepareHumanSegmentPose.IPrepared,
-  ): ["leftArm" | "rightArm", IHumanPosture.IGoal][] {
+  ): ["leftArm" | "rightArm", IAutoMovieHumanLimbGoal][] {
     if (holds.length === 0) return [];
     const read: ReturnType<typeof prepareHumanPoseResolution> | undefined =
       resolution === undefined
@@ -103,8 +101,8 @@ export namespace HumanSegmentCarry {
     )!;
     return holds.map(
       (
-        h: HumanSegment.IHeld,
-      ): ["leftArm" | "rightArm", IHumanPosture.IGoal] => {
+        h: IAutoMovieMotionHumanSegment.IHeld,
+      ): ["leftArm" | "rightArm", IAutoMovieHumanLimbGoal] => {
         h.carry ??= capture(person, h, read, prepared);
         return [
           h.side === "left" ? "leftArm" : "rightArm",
@@ -130,7 +128,7 @@ export namespace HumanSegmentCarry {
 
   /** Fresh world bones, optionally borrowing the current operation's exact FK. */
   function bones(
-    person: HumanSegment.IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     pose: IAutoMoviePose,
     resolution?: ReturnType<typeof prepareHumanPoseResolution>,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
@@ -140,11 +138,11 @@ export namespace HumanSegmentCarry {
 
   /** A holding arm relative to the chest at the end of the action that took hold. */
   function capture(
-    person: HumanSegment.IPerson,
-    held: HumanSegment.IHeld,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    held: IAutoMovieMotionHumanSegment.IHeld,
     resolution?: ReturnType<typeof prepareHumanPoseResolution>,
     prepared?: prepareHumanSegmentPose.IPrepared,
-  ): HumanSegment.ICarry {
+  ): IAutoMovieMotionHumanSegment.ICarry {
     const at: number = Math.max(held.from, held.source.end);
     const pose: IAutoMoviePose = HumanSegmentPose.of(person, held.source, at, prepared);
     const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(

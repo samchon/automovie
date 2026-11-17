@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -57,8 +57,8 @@ export namespace HumanMountReach {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sample helper releases all FK/name readers and bounded ROM metadata on return or throw; the evaluator keeps only one circle of three vectors and one reach scalar per hand, without a reader or query history.
    */
   export function reach(
-    body: IHumanBody,
-    seated: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    seated: IAutoMovieMotionHumanPosture,
     sides: readonly ("left" | "right")[],
   ): (points: Partial<Record<"left" | "right", IAutoMovieVector3>>) => number {
     // The shoulders at three flexions, 0, half and the whole of `LEAN`.
@@ -136,8 +136,8 @@ export namespace HumanMountReach {
 
   /** Own the exact FK workspace only while the three actual trial poses are read. */
   function readSamples(
-    body: IHumanBody,
-    seated: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    seated: IAutoMovieMotionHumanPosture,
     angles: readonly [number, number, number],
     sides: readonly ("left" | "right")[],
   ): ReturnType<typeof poseBones>[] {

@@ -1,18 +1,23 @@
 import {
-  type AutoMovieLoftFrame,
   AutoMovieLoftSectionNative,
   AutoMovieLoftViewRead,
   AutoMovieLoftViewSource,
   AutoMovieNaturalSpline,
-  type AutoMovieViewAxis,
   AutoMovieViewSection,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
-import type { IAutoMovieConstructionView } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionView,
+  IAutoMovieHumanHeadEarFrame,
+  IAutoMovieHumanHeadEarPlate,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieNaturalCubicSpline,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
-import type { AutoMovieHumanHeadEarFrame } from "./AutoMovieHumanHeadEarFrame";
 import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
 import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
 import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
@@ -41,66 +46,6 @@ import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
  */
 export namespace AutoMovieHumanHeadEarPlate {
   /**
-   * A whole original plate section, including a distinct true-zero point.
-   * @evidence contracts/common.md#principled-implementation Keeps the native family, actual plane, signed source values and available physical scalar2 together.
-   * @evidence contracts/common.md#clear-and-simple-design One section record serves guide and relief consumers.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A true-zero source has no invented regular phase field or physical derivative.
-   * @evidence contracts/common.md#meaningful-documentation Values use calibration mm; phase and physical station2 availability are separate.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The section reader owns preparation.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fixed-size readings and its native closure.
-   */
-  export interface ISection {
-    /** Exact actual source plane. */
-    frame: AutoMovieLoftFrame.IFrame;
-    /** Four actual signed-support magnitudes and effective quarter fullness values. */
-    inputs: AutoMovieLoftViewRead.IValues;
-    /** Actual physical scalar2, when finite. */
-    jets: AutoMovieLoftViewRead.IJets | null;
-    /** Explicit physical-derivative failure, never zero-filled. */
-    jetFailure: string | null;
-    /** Native full phase function; null only when all four original extents are exactly zero. */
-    phase: ReturnType<typeof AutoMovieLoftSectionNative.phase> | null;
-  }
-
-  /**
-   * Source plate with separate named measurement stations, calibration mm.
-   * @evidence contracts/common.md#principled-implementation Named measurement stations and all relief readers retain the identical complete original section source and actual frame.
-   * @evidence contracts/common.md#clear-and-simple-design One plate exposes its full source and actual guide points to every relief consumer.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Opposite guides are read from the actual signed native field, never reflected from one positive outline.
-   * @evidence contracts/common.md#meaningful-documentation Fields identify calibration units, named anatomical stations and whole-section availability.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no work; the factory owns admission and readers.
-   * @evidence contracts/performance.md#reuse-equivalent-work Every course borrows the same admitted source instead of reconstructing the plate.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The composition owns its actual part, declaration and prepared original field.
-   */
-  export interface IOutput {
-    /** Original auricle view. */
-    part: IAutoMovieViewPart;
-    /** The identical metre declaration used by the raw part, all courses and production tree. */
-    view: IAutoMovieConstructionView;
-    /** Complete admitted original scalar family retained by all relief consumers. */
-    source: AutoMovieLoftViewSource.ISource;
-    /** Actual named upper/lower source stations after the one conversion. */
-    top: number;
-    /** Actual named subaurale station after the one conversion. */
-    bottom: number;
-    /** Horizontal posterior direction of each section. */
-    across: [number, number, number];
-    /** Horizontal plate-normal direction. */
-    normal: [number, number, number];
-    /** Actual c height. */
-    attachment: number;
-    /** Actual j height; generally different from c. */
-    posterior: number;
-    /** Tragal rim measurement height. */
-    tragion: number;
-    /** Actual attachment/posterior original guide point. */
-    point(station: number, posterior: boolean): [number, number, number];
-    /** Whole original source section and all available local derivatives. */
-    section(station: number): ISection;
-  }
-
-  /**
    * Author the plate and its named source/scalp endpoints together.
    *
    * @evidence contracts/common.md#principled-implementation Constructs c-j as B*q, with q perpendicular to the independently closed sa-sba chord; places p2 from the identical head source on a declared lateral line.
@@ -114,9 +59,9 @@ export namespace AutoMovieHumanHeadEarPlate {
   export function of(
     plan: IAutoMovieHumanHeadLayout,
     mass: IAutoMovieViewPart,
-    f: AutoMovieHumanHeadEarFrame.IFrame,
+    f: IAutoMovieHumanHeadEarFrame.IFrame,
     side: string,
-  ): IOutput {
+  ): IAutoMovieHumanHeadEarPlate.IOutput {
     const beta: number = Math.atan2(f.protrusion, f.breadth);
     const q: [number, number, number] = f.b.map(
       (v: number, i: number): number =>
@@ -187,7 +132,7 @@ export namespace AutoMovieHumanHeadEarPlate {
     widthSites.sort(
       (a: [number, number], b: [number, number]): number => a[0] - b[0],
     );
-    const width: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+    const width: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
       widthSites.map((p: [number, number]): number => theta(p[0])),
       widthSites.map((p: [number, number]): number => p[1]),
     );
@@ -220,7 +165,7 @@ export namespace AutoMovieHumanHeadEarPlate {
         ? { parameter: { type: "angle" as const, bottom: low, top: high } }
         : {}),
     });
-    const axis: AutoMovieViewAxis.IAxis = AutoMovieHumanHeadSourceAxis.of(
+    const axis: IAutoMovieViewAxis.IAxis = AutoMovieHumanHeadSourceAxis.of(
       {
         x: source((y: number): number => rootX(y) + half(y) * across[0]),
         y: source((y: number): number => y, false),
@@ -298,17 +243,19 @@ export namespace AutoMovieHumanHeadEarPlate {
     };
     const actualLow: number = station("subaurale");
     const actualHigh: number = station("superaurale");
-    const admitted: AutoMovieLoftViewSource.IResult | null =
+    const admitted: IAutoMovieLoftViewSource.IResult | null =
       AutoMovieLoftViewSource.create(actual.part);
     if (admitted === null || admitted.source === null)
       throw new Error(`Ear ${side} has no admitted original plate field`);
-    const original: AutoMovieLoftViewSource.ISource = admitted.source;
-    const section: (at: number) => ISection = (at: number): ISection => {
-      const inputs: AutoMovieLoftViewRead.IValues | string =
+    const original: IAutoMovieLoftViewSource.ISource = admitted.source;
+    const section: (at: number) => IAutoMovieHumanHeadEarPlate.ISection = (
+      at: number,
+    ): IAutoMovieHumanHeadEarPlate.ISection => {
+      const inputs: IAutoMovieLoftViewRead.IValues | string =
         AutoMovieLoftViewRead.values(original, at);
       if (typeof inputs === "string")
         throw new Error(`Ear source section: ${inputs}`);
-      const jets: AutoMovieLoftViewRead.IJets | string =
+      const jets: IAutoMovieLoftViewRead.IJets | string =
         AutoMovieLoftViewRead.jets(original, at);
       return {
         frame: actual.part.axis.at(at),
@@ -332,7 +279,7 @@ export namespace AutoMovieHumanHeadEarPlate {
       bottom: actualLow,
       section,
       point: (at: number, posteriorSide: boolean): [number, number, number] => {
-        const read: ISection = section(at);
+        const read: IAutoMovieHumanHeadEarPlate.ISection = section(at);
         if (read.phase === null) return [...read.frame.origin];
         const local: [number, number] = read.phase(
           posteriorSide ? 0 : Math.PI,

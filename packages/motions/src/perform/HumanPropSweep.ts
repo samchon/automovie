@@ -1,21 +1,22 @@
-import {
-  type IAutoMovieHit,
-  type IAutoMovieProjectile,
-  Vector3,
-  projectileFirstContact,
-} from "@automovie/engine";
+import { Vector3, projectileFirstContact } from "@automovie/engine";
 import type {
+  IAutoMovieHit,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropFlight,
+  IAutoMovieMotionHumanPropOutcome,
+  IAutoMovieMotionPropLaunch,
+  IAutoMoviePhysicalShape,
+  IAutoMovieProjectile,
+  IAutoMovieProjectileFirstContact,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 import type { HumanPropFlight } from "./HumanPropFlight";
-import type { HumanPropOutcome } from "./HumanPropOutcome";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * The one sweep of a flying prop (`HumanPropFlight`): its flight from a
@@ -59,16 +60,16 @@ export namespace HumanPropSweep {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Collider/shape arrays and their performance-capturing callbacks are call-local and released after the sweep or refusal; only the small meeting escapes, with no retained frame history, host or new cache.
    */
   export function sweep(
-    self: HumanPerformanceState,
-    prop: IHumanProp,
+    self: IAutoMovieMotionHumanPerformanceState,
+    prop: IAutoMovieMotionHumanProp,
     launcher: string,
     seconds: number,
     projectile: IAutoMovieProjectile,
     horizon: number,
     leave: string | undefined,
     departing?: string,
-  ): HumanPropOutcome.IMeeting | null {
-    const colliders: projectileFirstContact.ICollider[] = [
+  ): IAutoMovieMotionHumanPropOutcome.IMeeting | null {
+    const colliders: IAutoMovieProjectileFirstContact.ICollider[] = [
       projectileFirstContact.plane(
         "ground",
         { x: 0, y: 0, z: 0 },
@@ -85,7 +86,7 @@ export namespace HumanPropSweep {
           a: IAutoMovieVector3,
           b: IAutoMovieVector3,
           t: number,
-        ): projectileFirstContact.INearest => {
+        ): IAutoMovieProjectileFirstContact.INearest => {
           const at: number = seconds + t;
           const root: IAutoMovieVector3 = HumanPerformanceRead.posture(
             self,
@@ -117,7 +118,7 @@ export namespace HumanPropSweep {
         },
       });
     }
-    const solid: P.IShape[] = [];
+    const solid: IAutoMoviePhysicalShape[] = [];
     for (const other of self.props.values()) {
       if (other.subject === prop.subject || other.shapes === undefined)
         continue;
@@ -129,7 +130,7 @@ export namespace HumanPropSweep {
       // sweep's step at the muzzle's zero gap, each step a fresh read of
       // the shooter's displayed pose (firearm_shot_launch ran 7 minutes).
       if (carried(self, other.subject, launcher, seconds)) continue;
-      other.shapes.forEach((shape: P.IShape, k: number): void => {
+      other.shapes.forEach((shape: IAutoMoviePhysicalShape, k: number): void => {
         const id: string = `prop:${other.subject}:${k}`;
         if (id === leave) return;
         solid.push(shape);
@@ -137,7 +138,7 @@ export namespace HumanPropSweep {
           projectileFirstContact.shape(
             id,
             shape,
-            (t: number): P.ITransform =>
+            (t: number): IAutoMovieRigidTransform =>
               HumanPerformanceRead.prop(self, other.subject, seconds + t),
           ),
         );
@@ -158,7 +159,7 @@ export namespace HumanPropSweep {
     if (hit === null) return null;
     const id: string = hit.collider!;
     const at: number = seconds + hit.time;
-    const struck: HumanPropFlight.Struck = id.startsWith("person:")
+    const struck: IAutoMovieMotionHumanPropFlight.Struck = id.startsWith("person:")
       ? {
           kind: "person",
           subject: id.slice("person:".length),
@@ -181,24 +182,24 @@ export namespace HumanPropSweep {
 
   /** Whether a person holds or wears a prop at a film second. */
   function carried(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     person: string,
     seconds: number,
   ): boolean {
     return HumanPerformanceRead.grips(self, subject).some(
-      (g: HumanPerformanceState.IGrip): boolean =>
+      (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
         g.subject === person && g.from <= seconds && g.to >= seconds - 1e-6,
     );
   }
 
   /** Whether any action launches a prop. */
-  function launched(self: HumanPerformanceState, subject: string): boolean {
+  function launched(self: IAutoMovieMotionHumanPerformanceState, subject: string): boolean {
     for (const person of self.people.values())
       for (const segment of [...person.segments, ...person.overlays])
         if (
           (segment.plan.launches ?? []).some(
-            (l: IHumanActionPlan.ILaunch): boolean => l.prop === subject,
+            (l: IAutoMovieMotionPropLaunch): boolean => l.prop === subject,
           )
         )
           return true;
@@ -212,9 +213,9 @@ export namespace HumanPropSweep {
    * not counted.
    */
   function thinnest(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     launcher: string,
-    props: readonly P.IShape[],
+    props: readonly IAutoMoviePhysicalShape[],
   ): number {
     let least: number = Infinity;
     for (const shape of props) least = Math.min(least, size(shape));
@@ -233,7 +234,7 @@ export namespace HumanPropSweep {
   }
 
   /** A shape's least thickness, metres: a round shape's diameter, a box's least full extent; a hull is not counted. */
-  function size(shape: P.IShape): number {
+  function size(shape: IAutoMoviePhysicalShape): number {
     return shape.kind === "sphere" || shape.kind === "capsule"
       ? 2 * shape.radius
       : shape.kind === "box"

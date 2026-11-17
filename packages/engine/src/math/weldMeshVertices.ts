@@ -1,3 +1,5 @@
+import type { IAutoMovieWeldMeshVertices } from "@automovie/interface";
+
 import { MESH_WELD_GRID } from "../constants/MESH_WELD_GRID";
 
 /**
@@ -12,13 +14,9 @@ import { MESH_WELD_GRID } from "../constants/MESH_WELD_GRID";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One map reuses a label for every equal quantized triple within the mesh; no result survives across calls on mutable position arrays.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The temporary map is released on return; the caller owns V integer indexes and at most V label strings, and source position storage is not retained.
  */
-export function weldMeshVertices(positions: readonly number[]): {
-  /** Distinct delimiter-safe grid identities in first-occurrence order. */
-  labels: string[];
-
-  /** One label ordinal per input XYZ tuple, in the original vertex order. */
-  vertices: number[];
-} {
+export function weldMeshVertices(
+  positions: readonly number[],
+): IAutoMovieWeldMeshVertices.IResult {
   if (positions.length % 3 !== 0)
     throw new Error("Mesh welding requires complete finite XYZ tuples.");
   const labels: string[] = [];

@@ -7,12 +7,12 @@ import {
   IAutoMovieQuaternion,
   IAutoMovieSpace,
   IAutoMovieStageSetPiece,
+  type IAutoMovieSubjectContribution,
   IAutoMovieSurface,
   IAutoMovieValidation,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieSubjectContribution } from "../IAutoMovieSubjectContribution";
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";

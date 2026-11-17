@@ -1,4 +1,7 @@
-import type { IAutoMovieViewPart } from "@automovie/engine";
+import type {
+  IAutoMovieHumanFootSource,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanFootSource } from "../foot/AutoMovieHumanFootSource";
 
@@ -16,19 +19,19 @@ import { AutoMovieHumanFootSource } from "../foot/AutoMovieHumanFootSource";
 export function AutoMovieHumanLegDistal(
   part: IAutoMovieViewPart,
   thigh: number,
-): AutoMovieHumanFootSource.IRegion {
+): IAutoMovieHumanFootSource.IRegion {
   const last: number = part.stations.at(-1)!;
   if (!(Number.isFinite(thigh) && thigh >= part.stations[0]! && thigh < last))
     throw new Error(
       "The retained distal authority needs its actual named thigh inside the original domain",
     );
   const domain: readonly [number, number] = [thigh, last];
-  let original: AutoMovieHumanFootSource.ISource | undefined;
+  let original: IAutoMovieHumanFootSource.ISource | undefined;
   return {
     name: part.name,
     axis: part.axis,
     domain,
-    at(station: number): AutoMovieHumanFootSource.IStation {
+    at(station: number): IAutoMovieHumanFootSource.IStation {
       if (
         !(
           Number.isFinite(station) &&

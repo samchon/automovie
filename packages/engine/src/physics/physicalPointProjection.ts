@@ -1,7 +1,10 @@
 import type {
-  IAutoMoviePhysicalPointBound as Bound,
+  IAutoMoviePhysicalPointBound,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -22,12 +25,14 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
  */
 export function physicalPointProjection(
   body: string,
-  profiles: Readonly<Record<string, P>>,
-  actual: Readonly<Record<string, Readonly<Record<string, P.ITransform>>>>,
-  bound: Bound,
-  poses: Readonly<Record<string, P.ITransform>>,
+  profiles: Readonly<Record<string, IAutoMoviePhysicalProfile>>,
+  actual: Readonly<
+    Record<string, Readonly<Record<string, IAutoMovieRigidTransform>>>
+  >,
+  bound: IAutoMoviePhysicalPointBound,
+  poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
 ): number {
-  const reference: P.ITransform | undefined =
+  const reference: IAutoMovieRigidTransform | undefined =
     bound.reference.body === body
       ? poses[bound.reference.bone]
       : actual[bound.reference.body]?.[bound.reference.bone];
@@ -40,10 +45,11 @@ export function physicalPointProjection(
       ? physicalShapeSurfaceAnchor(
           reference,
           profiles[bound.reference.body]!.segments.find(
-            (segment: P.ISegment): boolean =>
+            (segment: IAutoMoviePhysicalSegment): boolean =>
               segment.bone === bound.reference.bone,
           )!.shapes.find(
-            (shape: P.IShape): boolean => shape.id === bound.reference.shape,
+            (shape: IAutoMoviePhysicalShape): boolean =>
+              shape.id === bound.reference.shape,
           )!,
           Quaternion.rotateVector(
             Quaternion.inverse(reference.rotation),

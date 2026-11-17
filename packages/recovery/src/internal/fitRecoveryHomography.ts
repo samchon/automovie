@@ -2,6 +2,10 @@ import {
   AutoMovieMatrix3,
   decomposeAutoMovieSingularMatrix,
 } from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryHomographyFittingOperation,
+  IAutoMovieRecoveryImagePointsNormalizationOperation,
+} from "@automovie/interface";
 
 import { normalizeRecoveryImagePoints } from "./normalizeRecoveryImagePoints";
 
@@ -19,16 +23,16 @@ import { normalizeRecoveryImagePoints } from "./normalizeRecoveryImagePoints";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only two owned nine-number matrices and the rank ratio return; normalized points, factors and designs are call-local with no retained cache or handle.
  */
 export function fitRecoveryHomography(
-  first: readonly (readonly [number, number])[],
-  second: readonly (readonly [number, number])[],
-  minimumRatio: number,
-  maxSweeps: number,
-): { matrix: number[]; inverse: number[]; designSingularRatio: number } {
+  first: Parameters<IAutoMovieRecoveryHomographyFittingOperation.Operation>[0],
+  second: Parameters<IAutoMovieRecoveryHomographyFittingOperation.Operation>[1],
+  minimumRatio: Parameters<IAutoMovieRecoveryHomographyFittingOperation.Operation>[2],
+  maxSweeps: Parameters<IAutoMovieRecoveryHomographyFittingOperation.Operation>[3],
+): ReturnType<IAutoMovieRecoveryHomographyFittingOperation.Operation> {
   if (first.length !== second.length || first.length < 4)
     throw new Error("camera-homography: at least four paired points required");
-  const a: ReturnType<typeof normalizeRecoveryImagePoints> =
+  const a: ReturnType<IAutoMovieRecoveryImagePointsNormalizationOperation.Operation> =
     normalizeRecoveryImagePoints(first);
-  const b: ReturnType<typeof normalizeRecoveryImagePoints> =
+  const b: ReturnType<IAutoMovieRecoveryImagePointsNormalizationOperation.Operation> =
     normalizeRecoveryImagePoints(second);
   const rows: number[][] = [];
   for (let at: number = 0; at < first.length; at++) {

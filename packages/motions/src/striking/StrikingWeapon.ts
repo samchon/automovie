@@ -1,19 +1,19 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionWeaponContact,
+  IAutoMovieMotionWeaponPath,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingWeaponBones } from "./StrikingWeaponBones";
 import { StrikingWeaponGirth } from "./StrikingWeaponGirth";
 import type { StrikingWeaponRecord } from "./StrikingWeaponRecord";
@@ -59,7 +59,7 @@ export namespace StrikingWeapon {
     channels?: readonly AutoMovieMotionHumanChannel[],
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: () => ReturnType<typeof prepareHumanPostureProjection>,
-  ) => IHumanPosture;
+  ) => IAutoMovieMotionHumanPosture;
 
   /**
    * A striking arm at a film second, fitted on its action's free course:
@@ -82,7 +82,7 @@ export namespace StrikingWeapon {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each call owns its pose/map until return or throw; only endpoint vectors escape, with no query history.
    */
   export function arm(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     course: Course,
     side: "left" | "right",
     seconds: number,
@@ -114,7 +114,7 @@ export namespace StrikingWeapon {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned array borrows existing bone positions and owns its new fist end.
    */
   export function posed(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: "left" | "right",
   ): IAutoMovieVector3[] {
@@ -159,7 +159,7 @@ export namespace StrikingWeapon {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary pose and map end at return or throw; only four endpoint vectors escape.
    */
   export function leg(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     course: Course,
     side: "left" | "right",
     seconds: number,
@@ -201,7 +201,7 @@ export namespace StrikingWeapon {
     ids: readonly string[];
 
     /** The limb that carries them. */
-    limb: IHumanActionPlan.IWeapon["limb"];
+    limb: IAutoMovieMotionWeaponPath["limb"];
 
     /**
      * One radius per capsule, metres: one number for a capsule of one
@@ -255,7 +255,7 @@ export namespace StrikingWeapon {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The chain's ends are its action's free course posed at a second, a pure function of the exact second for the plan's life (a stop freezes what is shown, not the free course), so the ends posed at a second serve every later read of that second by these weapons; equivalence is the exact second on this one chain. Weak metadata proves which endpoints belong to one chain and permits grouped reads.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each weak weapon key keeps only its chain/index while that weapon remains live. The posed ends are kept by the returned weapons' closures, one array of axis ends per distinct second read (the seconds the contact scans visit, a few hundred a strike), and are released with the plan's weapons; there is no bound short of that.
    */
-  export function capsules(chain: IChain): IHumanActionPlan.IWeapon[] {
+  export function capsules(chain: IChain): IAutoMovieMotionWeaponPath[] {
     if (chain.radii.length !== chain.ids.length)
       throw new Error("A weapon chain has one radius per capsule");
 
@@ -292,8 +292,8 @@ export namespace StrikingWeapon {
       },
     };
     return shared.ids.map(
-      (id: string, i: number): IHumanActionPlan.IWeapon => {
-        const weapon: IHumanActionPlan.IWeapon = {
+      (id: string, i: number): IAutoMovieMotionWeaponPath => {
+        const weapon: IAutoMovieMotionWeaponPath = {
           id,
           limb: chain.limb,
           ...radius(shared.radii[i]!),
@@ -334,7 +334,7 @@ export namespace StrikingWeapon {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The capsule constructor proves the two indexed ends share the same chain/body/course/second. Mutable stop-dependent work is rerun for each invocation and no result is cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak weapon keys retain only their owning chain/index while the plan owns the weapons; each read retains only its returned endpoint vectors, with no query history.
    */
-  export function read(weapon: IHumanActionPlan.IWeapon, seconds: number): IAxis {
+  export function read(weapon: IAutoMovieMotionWeaponPath, seconds: number): IAxis {
     return StrikingWeaponSample.read(weapon, seconds);
   }
 
@@ -354,9 +354,9 @@ export namespace StrikingWeapon {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local chain map ends with return or throw; returned axes contain only endpoint vectors and weapon keys, and no cache enters any body or plan.
    */
   export function sample(
-    weapons: readonly IHumanActionPlan.IWeapon[],
+    weapons: readonly IAutoMovieMotionWeaponPath[],
     seconds: number,
-  ): ReadonlyMap<IHumanActionPlan.IWeapon, IAxis> {
+  ): ReadonlyMap<IAutoMovieMotionWeaponPath, IAxis> {
     return StrikingWeaponSample.sample(weapons, seconds);
   }
 
@@ -375,7 +375,7 @@ export namespace StrikingWeapon {
   /** A capsule's radius members as a weapon carries them. */
   function radius(
     radii: number | readonly [number, number],
-  ): Pick<IHumanActionPlan.IWeapon, "radius" | "tailRadius"> {
+  ): Pick<IAutoMovieMotionWeaponPath, "radius" | "tailRadius"> {
     return typeof radii === "number"
       ? { radius: radii }
       : { radius: radii[0], tailRadius: radii[1] };
@@ -396,9 +396,9 @@ export namespace StrikingWeapon {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond return.
    */
   export function first(
-    events: readonly IHumanActionPlan.IContactEvent[],
-  ): IHumanActionPlan.IContactEvent | null {
-    let best: IHumanActionPlan.IContactEvent | null = null;
+    events: readonly IAutoMovieMotionWeaponContact[],
+  ): IAutoMovieMotionWeaponContact | null {
+    let best: IAutoMovieMotionWeaponContact | null = null;
     for (const e of events)
       if (best === null || e.seconds < best.seconds) best = e;
     return best;
@@ -434,7 +434,7 @@ export namespace StrikingWeapon {
 }
 
 /** Fixed demanded limb outputs; FK still admits all joints and computes every required ancestor. */
-const ENDS: Readonly<Record<IHumanPosture.Limb, ReadonlySet<AutoMovieHumanoidBone>>> = {
+const ENDS: Readonly<Record<AutoMovieHumanLimb, ReadonlySet<AutoMovieHumanoidBone>>> = {
   leftArm: new Set<AutoMovieHumanoidBone>(["leftUpperArm", "leftLowerArm", "leftHand"]),
   rightArm: new Set<AutoMovieHumanoidBone>(["rightUpperArm", "rightLowerArm", "rightHand"]),
   leftLeg: new Set<AutoMovieHumanoidBone>(["leftUpperLeg", "leftLowerLeg", "leftFoot"]),

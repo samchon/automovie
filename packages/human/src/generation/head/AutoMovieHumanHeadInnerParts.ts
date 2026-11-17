@@ -1,13 +1,15 @@
-import {
-  AutoMovieViewSection,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
+import { AutoMovieViewSection } from "@automovie/engine";
+import type {
+  IAutoMovieHumanHeadDome,
+  IAutoMovieHumanHeadFeatures,
+  IAutoMovieHumanHeadLandmarks,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadPrior,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
-import type { IAutoMovieHumanHeadLandmarks } from "../IAutoMovieHumanHeadLandmarks";
-import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
-import type { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
 import { AutoMovieHumanHeadLipPart } from "./AutoMovieHumanHeadLipPart";
 
 /**
@@ -70,8 +72,8 @@ export namespace AutoMovieHumanHeadInnerParts {
   export function of(
     plan: IAutoMovieHumanHeadLayout,
     parents: ReadonlyMap<string, IAutoMovieViewPart>,
-    attempts?: AutoMovieHumanHeadDome.IAttempt[],
-  ): AutoMovieHumanHeadFeatures.IFeature[] {
+    attempts?: IAutoMovieHumanHeadDome.IAttempt[],
+  ): IAutoMovieHumanHeadFeatures.IFeature[] {
     const parent: (name: string) => IAutoMovieViewPart = (
       name: string,
     ): IAutoMovieViewPart => {
@@ -84,9 +86,10 @@ export namespace AutoMovieHumanHeadInnerParts {
     const nose: IAutoMovieViewPart = parent("nose");
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
     const k: number = plan.scale;
-    const prior: AutoMovieHumanHeadPrior.IPrior = AutoMovieHumanHeadPrior.PRIOR;
-    const f: AutoMovieHumanHeadPrior.IFace = prior.face;
-    const out: AutoMovieHumanHeadFeatures.IFeature[] = [];
+    const prior: IAutoMovieHumanHeadPrior.IPrior =
+      AutoMovieHumanHeadPrior.PRIOR;
+    const f: IAutoMovieHumanHeadPrior.IFace = prior.face;
+    const out: IAutoMovieHumanHeadFeatures.IFeature[] = [];
     const alarSpan: number = plan.nasion - plan.tip;
     const nasalForward: number = m.pronasale[0] - m.subnasale[0];
 
@@ -132,7 +135,7 @@ export namespace AutoMovieHumanHeadInnerParts {
 
       // Prior.ala's half-heights are vertical n-prn ratios. A tilted local
       // support contributes only up.y of its length to that vertical span.
-      const ala: AutoMovieHumanHeadFeatures.IFeature[] = part(
+      const ala: IAutoMovieHumanHeadFeatures.IFeature[] = part(
         `nose.ala.${side}`,
         "nose",
         "merge",
@@ -281,13 +284,13 @@ export namespace AutoMovieHumanHeadInnerParts {
     height: number,
     seed: [number, number, number],
     host: IAutoMovieViewPart | string,
-    attempts?: AutoMovieHumanHeadDome.IAttempt[],
-  ): AutoMovieHumanHeadFeatures.IFeature[] {
+    attempts?: IAutoMovieHumanHeadDome.IAttempt[],
+  ): IAutoMovieHumanHeadFeatures.IFeature[] {
     const h: number = Math.max(INSET + 0.5, height);
     const e: [number, number, number, number] = extents.map(
       (x: number): number => Math.max(0.5, Math.abs(x)),
     ) as [number, number, number, number];
-    const dome: Omit<AutoMovieHumanHeadDome.IDome, "host"> = {
+    const dome: Omit<IAutoMovieHumanHeadDome.IDome, "host"> = {
       name,
       origin,
       outward,
@@ -316,7 +319,7 @@ export namespace AutoMovieHumanHeadInnerParts {
       });
       return [];
     }
-    const source: AutoMovieHumanHeadDome.IPart | null =
+    const source: IAutoMovieHumanHeadDome.IPart | null =
       AutoMovieHumanHeadDome.attempt(dome, host, seed, attempts);
     return source === null
       ? []

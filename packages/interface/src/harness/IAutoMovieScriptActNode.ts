@@ -1,5 +1,5 @@
-import { IAutoMovieActPayload } from "./IAutoMovieActPayload";
-import { IAutoMovieScriptNodeBase } from "./IAutoMovieScriptNodeBase";
+import type { IAutoMovieActPayload } from "./IAutoMovieActPayload";
+import type { IAutoMovieScriptNodeBase } from "./IAutoMovieScriptNodeBase";
 
 /**
  * A dramatic act of the screenplay tree.

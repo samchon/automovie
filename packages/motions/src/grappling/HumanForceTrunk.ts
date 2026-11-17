@@ -1,6 +1,6 @@
 import { getConstraint } from "@automovie/engine";
+import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { readHumanBone } from "../body/readHumanBone";
 
 /**
@@ -56,14 +56,15 @@ export namespace HumanForceTrunk {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The range is the engine's `getConstraint` on the body's rig.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function range(body: IHumanBody, side: "left" | "right"): number {
+  export function range(body: IAutoMovieMotionHumanBody, side: "left" | "right"): number {
     let sum: number = 0;
     for (const bone of ["spine", "chest"] as const) {
       const limits: ReturnType<typeof getConstraint> = getConstraint(
         bone,
         readHumanBone(body, bone)?.constraint ?? null,
       );
-      const abduction: NonNullable<
+      const abduction:
+        | NonNullable<
         ReturnType<typeof getConstraint>
       >["abduction"] | null = limits?.abduction ?? null;
       if (abduction === null || abduction === undefined) continue;

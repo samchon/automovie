@@ -1,6 +1,11 @@
-import type { IHumanBody } from "../body/IHumanBody";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanDrinkingArm,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
+
 import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 import { AutoMovieMotionHumanDrinkingSwivel } from "./AutoMovieMotionHumanDrinkingSwivel";
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
@@ -57,7 +62,7 @@ export namespace AutoMovieMotionHumanDrinkingPool {
     admits: () => AutoMovieMotionHumanDrinkingSwivel.IRanged["admits"];
 
     /** The arm tried so far that lies least past the drinking range (`AutoMovieMotionHumanDrinkingArm.nearer`); absent before the first. */
-    nearest?: AutoMovieMotionHumanDrinkingArm.INearest;
+    nearest?: IAutoMovieMotionHumanDrinkingArm.INearest;
 
     /** How many sides of the vessel's rim the search tries, 1 for a vessel whose side is fixed. */
     sides: number;
@@ -85,9 +90,9 @@ export namespace AutoMovieMotionHumanDrinkingPool {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search owns the pool until it returns or throws; it holds one reader, at most one bound and one nearest arm.
    */
   export function of(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
     sides: number = 1,
     span: number = AutoMovieMotionHumanTouchUpright.SPAN,
   ): IPool {

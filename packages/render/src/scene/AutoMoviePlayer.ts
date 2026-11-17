@@ -1,20 +1,20 @@
 import {
-  IAutoMovieMotionSample,
-  IAutoMovieRestFrame,
-  ISpringStep,
   clampPose,
   dampedSpring,
   resolveLookAt,
   sampleMotion,
 } from "@automovie/engine";
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieExpression,
-  type IAutoMovieJointAxes,
+  IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieMotion,
+  IAutoMovieMotionSample,
   IAutoMoviePose,
+  IAutoMovieRestFrame,
   IAutoMovieSkeleton,
+  IAutoMovieSpringStep,
 } from "@automovie/interface";
 
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
@@ -28,13 +28,13 @@ import { applyPose } from "./applyPose.js";
  */
 interface IAxisSprings {
   /** Flexion value and velocity carried between bounded solver updates. */
-  flexion: ISpringStep;
+  flexion: IAutoMovieSpringStep;
 
   /** Abduction value and velocity carried between the same updates. */
-  abduction: ISpringStep;
+  abduction: IAutoMovieSpringStep;
 
   /** Twist value and velocity carried between the same updates. */
-  twist: ISpringStep;
+  twist: IAutoMovieSpringStep;
 }
 
 /**
@@ -179,10 +179,10 @@ export class AutoMoviePlayer {
     };
 
     const axis: (
-      state: ISpringStep | undefined,
+      state: IAutoMovieSpringStep | undefined,
       target: number | null,
     ) => IAutoMovieSpringAxisSettlement = (
-      state: ISpringStep | undefined,
+      state: IAutoMovieSpringStep | undefined,
       target: number | null,
     ): IAutoMovieSpringAxisSettlement => {
       // A vanished axis DECAYS toward neutral instead of hard-resetting
@@ -199,7 +199,7 @@ export class AutoMoviePlayer {
         if (state === undefined)
           return { angle: null, next: { value: 0, velocity: 0 } };
         if (dt === 0) return { angle: state.value, next: state };
-        const r: ISpringStep = dampedSpring(
+        const r: IAutoMovieSpringStep = dampedSpring(
           state.value,
           state.velocity,
           0,
@@ -211,7 +211,7 @@ export class AutoMoviePlayer {
       if (state === undefined)
         return { angle: target, next: { value: target, velocity: 0 } };
       if (dt === 0) return { angle: state.value, next: state };
-      const r: ISpringStep = dampedSpring(
+      const r: IAutoMovieSpringStep = dampedSpring(
         state.value,
         state.velocity,
         target,

@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+
 import type { HumanQuadraticPreparation as Prep } from "./HumanQuadraticPreparation";
 import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
 
@@ -18,7 +20,7 @@ import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
  * @evidence contracts/development/common.md#meaningful-documentation Defines original storage admission, independent exact dependency groups, original-zero validation, count/complete-match outputs and failures.
  */
 export function HumanQuadraticAdmission(
-  problem: Q.IProblem,
+  problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
   prepared: Prep.IPrepared | undefined,
 ): {
   entries: number;
@@ -28,7 +30,7 @@ export function HumanQuadraticAdmission(
   rows: boolean;
   topology: boolean;
 } {
-  const { n, band, p, q, rows }: Q.IProblem = problem;
+  const { n, band, p, q, rows }: IAutoMovieMotionHumanQuadraticProgram.IProblem = problem;
   if (
     !Number.isSafeInteger(n) ||
     n < 0 ||
@@ -69,7 +71,7 @@ export function HumanQuadraticAdmission(
   let entries: number = 0;
   let lastIndices: readonly number[] | undefined;
   for (let r: number = 0; r < rows.length; ++r) {
-    const row: Q.IRow | undefined = rows[r];
+    const row: IAutoMovieMotionHumanQuadraticProgram.IRow | undefined = rows[r];
     if (row === undefined)
       throw new RangeError(`Malformed quadratic row ${r}`);
     const indices: readonly number[] = row.index;

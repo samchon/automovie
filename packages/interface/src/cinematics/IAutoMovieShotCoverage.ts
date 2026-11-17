@@ -1,5 +1,5 @@
-import { IAutoMovieClip } from "../core/IAutoMovieClip";
-import { IAutoMovieCameraIntent } from "./IAutoMovieCameraIntent";
+import type { IAutoMovieClip } from "../core/IAutoMovieClip";
+import type { IAutoMovieCameraIntent } from "./IAutoMovieCameraIntent";
 
 /**
  * One alternate camera take covering the shot's beat: the staged camera that

@@ -1,6 +1,13 @@
-import { type IAutoMovieResolvedBone, preparePoseResolution } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanTrunk, type IHumanBody, type IHumanPosture } from "@automovie/motions";
+import { preparePoseResolution } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { HumanTrunk } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -31,9 +38,9 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable motion unit uses an immutable canonical Human fixture, an owned body facade/tuple map/posture and genuine operation factories. It edits no shared skeleton/ROM/table, replaces no foreign method/global, imports no private helper and starts no host, renderer or compiler.
  */
 export function test_motion_trunk_tuple_staging(): void {
-  const canonical: IHumanBody = motionHumanBody("m-average");
+  const canonical: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const trace: string[] = [];
-  const body: IHumanBody = { ...canonical,
+  const body: IAutoMovieMotionHumanBody = { ...canonical,
     get skeleton(): IAutoMovieSkeleton { trace.push("skeleton"); return canonical.skeleton; } };
   const demand: ReadonlySet<AutoMovieHumanoidBone> = new Set(["head"]);
   const prepared: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(body, demand);
@@ -52,11 +59,11 @@ export function test_motion_trunk_tuple_staging(): void {
         if (name === "finger" && axis === 0 && state.lateFails) throw lateError;
         return name === "head" && axis === 0 ? state.flexion : 0;
       } });
-  const joints: IHumanPosture["joints"] = {
+  const joints: IAutoMovieMotionHumanPosture["joints"] = {
     get head(): readonly [number, number, number] { trace.push("map.head"); return head; },
     get leftIndexDistal(): readonly [number, number, number] { trace.push("map.finger"); return finger; },
   };
-  const posture: IHumanPosture = {
+  const posture: IAutoMovieMotionHumanPosture = {
     get root(): IAutoMovieVector3 { trace.push("root"); if (state.rootFails) throw rootError; return state.root; },
     yaw: 0, pitch: 0, roll: 0, joints, limbs: {},
   };

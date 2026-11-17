@@ -1,9 +1,11 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+
 import { HumanQuadraticInterior } from "./HumanQuadraticInterior";
 import type { HumanQuadraticInteriorSession } from "./HumanQuadraticInteriorSession";
 import { HumanQuadraticModel } from "./HumanQuadraticModel";
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
-import { HumanQuadraticValue } from "./HumanQuadraticValue";
 import { HumanQuadraticSolve } from "./HumanQuadraticSolve";
+import { HumanQuadraticValue } from "./HumanQuadraticValue";
 
 /**
  * A convex quadratic program with banded curvature and sparse rows, solved
@@ -60,89 +62,11 @@ export namespace HumanQuadraticProgram {
   export const TOLERANCE: number = 1e-3;
 
   /**
-   * One ordered row `l <= 誇 coef쨌x[index] <= u`, in its own consistent
-   * linear units. A soft weight has objective units per row unit.
-   *
-   * @evidence contracts/development/design.md#principled-representation Models a closed linear interval or its nonnegative l1 penalty; parallel indices and coefficients preserve duplicates, and solve validates lengths, finite values, indices and bound order.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The quadratic solver consumes the coefficients, interval and optional penalty; current SQP callers also use key to carry multipliers between convexifications.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the same row for every numeric constraint without body-specific cases; absence of weight means hard and zero weight remains a genuine soft row.
-   * @evidence contracts/development/common.md#meaningful-documentation States the linear form, row and penalty units, original ordering, zero compression and the meanings of optional key and weight.
-   */
-  export interface IRow {
-    /** The constraint the row linearises, so a later solve of the next convexification starts from its multiplier. */
-    key?: string;
 
-    /** Integer variable indices in [0, n); order and duplicate indices are preserved. */
-    index: readonly number[];
 
-    /** Finite coefficients, one per index; exact positive and negative zeros are omitted internally. */
-    coef: readonly number[];
+  
 
-    /** The interval's lower end; `-Infinity` for none. */
-    l: number;
-
-    /** The interval's upper end; `Infinity` for none. */
-    u: number;
-
-    /** Finite nonnegative l1 penalty weight; absent for a hard row. */
-    weight?: number;
-  }
-
-  /**
-   * A convex quadratic program. Curvature P must be positive semidefinite;
-   * admission validates finite storage, not convexity. P and q use objective
-   * units per variable squared and per variable respectively. Each P row
-   * supplies at least its in-range band entries; supplied trailing entries
-   * are finite but do not contribute beyond the last variable.
-   *
-   * @evidence contracts/development/design.md#principled-representation Stores the upper band of symmetric P, q and ordered sparse rows; solve checks nonnegative integer dimensions and finite compatible storage, while positive semidefiniteness remains a caller premise.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Contains only data consumed by the common quadratic solver and objective reader; each motion planner owns constructing its numeric convexification.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains arbitrary supported band widths, sparse rows and soft penalties without fixture or action categories; mutable arrays are compared numerically before reuse.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines convexity, units, upper-band indexing, finite storage and trailing-entry behavior.
-   */
-  export interface IProblem {
-    /** The number of variables. */
-    n: number;
-
-    /** Half-bandwidth of the curvature and of every row's coupling. */
-    band: number;
-
-    /** The curvature's band, `p[i][j]` the entry `(i, i + j)`. */
-    p: Float64Array[];
-
-    /** The linear term. */
-    q: Float64Array;
-
-    /** The rows, hard or soft. */
-    rows: readonly IRow[];
-  }
-
-  /**
-   * Unscaled primal-dual iterates for a solve of the same ordered rows.
-   * Each returned array is newly owned by the caller. Status and residual
-   * remain optional so callers may also supply manual warm iterates.
-   *
-   * @evidence contracts/development/design.md#principled-representation Carries variable values, split row values and row multipliers in original units; solve validates warm dimensions and finiteness, and solved status reports residual convergence rather than exact arithmetic.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Provides only the current warm-start arrays and termination diagnostics consumed by planners; no preparation cache, iterations counter or body data enters the public state.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Preserves the existing optional diagnostics for manually supplied warm starts and uses a closed termination union; unfinished and infeasible states do not claim a minimiser.
-   * @evidence contracts/development/common.md#meaningful-documentation States unscaled units, ordered-row compatibility, array ownership, optional manual-warm diagnostics and the meaning of each termination status.
-   */
-  export interface IState {
-    /** The variables. */
-    x: Float64Array;
-
-    /** Each row's value as the splitting holds it, inside or penalised toward its interval. */
-    z: Float64Array;
-
-    /** Each row's multiplier. */
-    y: Float64Array;
-
-    /** Why the solve stopped: its residuals met (`solved`, and `polished` when the active set's solve was kept), the hard rows certified infeasible, or the guard reached. */
-    status?: "solved" | "polished" | "infeasible" | "unfinished";
-
-    /** The unscaled primal and dual residuals the solve ended at, their infinity norms. */
-    residual?: { primal: number; dual: number };
-  }
+  
 
   /**
    * A solve's multipliers by its rows' keys, for the next convexification to
@@ -161,11 +85,11 @@ export namespace HumanQuadraticProgram {
    * @evidence contracts/development/common.md#meaningful-documentation Names the keyed SQP transfer, compatible-state premise, result ownership and repeated-key behavior.
    */
   export function multipliers(
-    problem: IProblem,
-    state: IState,
+    problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+    state: IAutoMovieMotionHumanQuadraticProgram.IState,
   ): Map<string, number> {
     const out: Map<string, number> = new Map();
-    problem.rows.forEach((row: IRow, r: number): void => {
+    problem.rows.forEach((row: IAutoMovieMotionHumanQuadraticProgram.IRow, r: number): void => {
       if (row.key !== undefined) out.set(row.key, state.y[r]!);
     });
     return out;
@@ -189,10 +113,10 @@ export namespace HumanQuadraticProgram {
    * @evidence contracts/development/common.md#meaningful-documentation Describes all OSQP stages, warm and keyed-dual inputs, convergence limits, rejection conditions, mutable output ownership and the preparation lifetime.
    */
   export function solve(
-    problem: IProblem,
-    warm?: IState,
+    problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+    warm?: IAutoMovieMotionHumanQuadraticProgram.IState,
     duals?: ReadonlyMap<string, number>,
-  ): IState {
+  ): IAutoMovieMotionHumanQuadraticProgram.IState {
     return HumanQuadraticSolve(
       problem.rows,
       Preparation.scaled(problem),
@@ -219,7 +143,7 @@ export namespace HumanQuadraticProgram {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one caller-owned model retaining its scaled matrices, copied original rows, O(n+m) scratch and at most three workspace factor owners plus its initial factor, each with upper/forward layouts; outputs and warm iterates remain independent and only discarded candidates may supply reset scratch.
    * @evidence contracts/development/common.md#meaningful-documentation States snapshot semantics, model invalidation, changing inputs, preparation failure and ownership.
    */
-  export function prepare(problem: IProblem): HumanQuadraticModel.IModel {
+  export function prepare(problem: IAutoMovieMotionHumanQuadraticProgram.IProblem): HumanQuadraticModel.IModel {
     return HumanQuadraticModel.of(problem, TOLERANCE);
   }
 
@@ -243,9 +167,9 @@ export namespace HumanQuadraticProgram {
    * @evidence contracts/development/common.md#meaningful-documentation States when to use it, the session, the absent result's meaning and the failure cases.
    */
   export function interior(
-    problem: IProblem,
+    problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
     session?: HumanQuadraticInteriorSession.ISession,
-  ): IState | undefined {
+  ): IAutoMovieMotionHumanQuadraticProgram.IState | undefined {
     return HumanQuadraticInterior(problem, session);
   }
 
@@ -267,9 +191,9 @@ export namespace HumanQuadraticProgram {
    * @evidence contracts/development/common.md#meaningful-documentation Defines the quadratic and soft-penalty expression, admitted-origin mode, ordered read-only observer and compatible finite-input premise.
    */
   export function value(
-    problem: IProblem,
+    problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
     x?: Float64Array,
-    observe?: (row: IRow, miss: number) => void,
+    observe?: (row: IAutoMovieMotionHumanQuadraticProgram.IRow, miss: number) => void,
   ): number {
     return HumanQuadraticValue(problem, x, observe);
   }

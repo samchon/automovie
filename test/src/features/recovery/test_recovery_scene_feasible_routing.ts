@@ -1,5 +1,5 @@
+import type { IAutoMovieRecoveryFeasibleJointOptions } from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryFeasibleJointOptions,
   admitRecoveryCameraScene,
   createRecoveryCameraScene,
 } from "@automovie/recovery";

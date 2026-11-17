@@ -1,5 +1,4 @@
 import {
-  IAutoMoviePlantChain,
   fitChainToTarget,
   indexSkeletonTopology,
   jointToQuaternion,
@@ -9,6 +8,7 @@ import {
   AutoMovieHumanoidBone,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  type IAutoMoviePlantChain,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieSkeleton,

@@ -2,12 +2,14 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieBone,
+  IAutoMovieHumanDigitGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanDigitFit } from "./HumanDigitFit";
-import { IHumanPosture } from "./IHumanPosture";
+import { HumanPosture } from "./HumanPosture";
 
 /**
  * Select independent world digit goals that can change requested bone frames.
@@ -23,10 +25,10 @@ import { IHumanPosture } from "./IHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary parent/ancestor sets end with selection; the at-most-ten-entry output borrows original goals and no body, reader, solve result or query history is retained.
  */
 export function selectHumanDigitGoals(
-  body: IHumanBody,
-  digits: NonNullable<IHumanPosture["digits"]>,
+  body: IAutoMovieMotionHumanBody,
+  digits: NonNullable<IAutoMovieMotionHumanPosture["digits"]>,
   requested: ReadonlySet<AutoMovieHumanoidBone>,
-): NonNullable<IHumanPosture["digits"]> {
+): NonNullable<IAutoMovieMotionHumanPosture["digits"]> {
   try {
     if (Object.keys(digits).some((name: string): boolean => !NAMES.has(name))) return digits;
     const byName: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map();
@@ -39,10 +41,10 @@ export function selectHumanDigitGoals(
         current = byName.get(current)?.parent;
       }
     }
-    const selected: NonNullable<IHumanPosture["digits"]> = {};
+    const selected: NonNullable<IAutoMovieMotionHumanPosture["digits"]> = {};
     let omitted: boolean = false;
-    for (const digit of IHumanPosture.DIGITS) {
-      const goal: IHumanPosture.IDigitGoal | undefined = digits[digit];
+    for (const digit of HumanPosture.DIGITS) {
+      const goal: IAutoMovieHumanDigitGoal | undefined = digits[digit];
       if (goal === undefined) continue;
       if (
         !Object.keys(goal).every((key: string): boolean => FIELDS.has(key)) ||
@@ -57,7 +59,7 @@ export function selectHumanDigitGoals(
 
       // The same closed digit/surface/side product HumanDigitFit uses names its canonical region.
       const key: AutoMovieHumanoidRegion = `${name.toLowerCase()}${goal.surface === "tip" ? "Tip" : "Pad"}${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion;
-      const region: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] = body.surfaces.regions[key];
+      const region: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] = body.surfaces.regions[key];
       if (region === undefined || !body.topology.reachableBones.has(region.bone) ||
         !finite(region.point) || !finite(region.normal)) return digits;
       if (chain.some((bone: AutoMovieHumanoidBone): boolean => ancestors.has(bone))) selected[digit] = goal;
@@ -75,7 +77,7 @@ function finite(point: IAutoMovieVector3): boolean {
 }
 
 /** Unknown raw names conservatively preserve the original full digit reader. */
-const NAMES: ReadonlySet<string> = new Set(IHumanPosture.DIGITS);
+const NAMES: ReadonlySet<string> = new Set(HumanPosture.DIGITS);
 
 /** An on attachment can depend on another fitted digit and therefore keeps the original order. */
 const FIELDS: ReadonlySet<string> = new Set(["point", "normal", "surface"]);

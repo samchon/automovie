@@ -1,8 +1,6 @@
-import {
-  type IAutoMovieInstanceSetPlacement,
-  instanceSlot,
-} from "@automovie/engine";
+import { instanceSlot } from "@automovie/engine";
 import type {
+  IAutoMovieInstanceSetPlacement,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";

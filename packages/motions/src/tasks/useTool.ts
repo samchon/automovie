@@ -1,14 +1,26 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionClockPhase,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanToolWork,
+  IAutoMovieMotionHumanUseTool,
+  IAutoMovieMotionManner,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { tags } from "typia";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -20,17 +32,12 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
-import { HumanToolWork } from "./HumanToolWork";
+import { poseBones } from "../posture/poseBones";
 import { HumanToolTurn } from "./HumanToolTurn";
+import { HumanToolWork } from "./HumanToolWork";
 
 /**
  * Working with a one-handed tool held in the hand, in cycles over a work
@@ -77,10 +84,10 @@ import { HumanToolTurn } from "./HumanToolTurn";
  */
 export namespace useTool {
   /** The action's name. */
-  export const name: HumanActionName = "useTool";
+  export const name: AutoMovieMotionHumanActionName = "useTool";
 
   /** Cancel table: work stops between cycles. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       { window: ["recover", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
@@ -92,39 +99,8 @@ export namespace useTool {
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
   export const overlay: boolean = true;
 
-  /** A kind of work. */
-  export type Kind = HumanToolWork.Kind;
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its default.
-   * @evidence contracts/development/design.md#principled-representation The work, the held tool, the work point, the hand and the count.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place or tool length is typed.
-   */
-  export interface IParams {
-    /** The work: hammering, sawing, stirring or driving a screw. */
-    tool: Kind;
-
-    /** The held tool's prop subject, in `hand` since a pick-up: its `face` contact is the working point and its line runs from its `grip` to its `face`. */
-    prop: string;
-
-    /** The work point: a nail, a cut line's middle, a screw; for a stir, the vessel's `inside` (`{ kind: "prop", subject, point: "inside" }`), whose `rim` bounds the circle. */
-    on: AutoMovieMotionTarget;
-
-    /** The working hand; the hand that holds `prop` when absent, `right` if both or neither do. */
-    hand?: HumanHand.Side;
-
-    /** How many cycles; 4 when absent. */
-    cycles?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
-
   /** Each work's cycle, seconds (provisional). */
-  export const PERIODS: Readonly<Record<Kind, number>> = {
+  export const PERIODS: Readonly<Record<IAutoMovieMotionHumanToolWork.Kind, number>> = {
     hammer: 0.6,
     saw: 0.8,
     stir: 1.0,
@@ -150,21 +126,6 @@ export namespace useTool {
     rotation: IAutoMovieQuaternion;
   }
 
-  /** A tool's plan: the working point's offset in the hand's frame and the work point. */
-  export interface IPlan extends IHumanActionPlan {
-    /** The tool. */
-    tool: {
-      /** The working point from the grip socket, in the hand's frame, metres. */
-      offset: IAutoMovieVector3;
-
-      /** The work point, world metres. */
-      on: IAutoMovieVector3;
-
-      /** The work. */
-      kind: Kind;
-    };
-  }
-
   /**
    * Plan a tool's use.
    *
@@ -180,12 +141,12 @@ export namespace useTool {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan's left/forward axes are private fresh arithmetic vectors, but borrowed aim-point coordinates remain live. Every angle, pivot read, cyclic goal and changing body fit remains actual; original half-cycle edge reuse and synchronous current-person FK/ROM forwarding remain.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains fixed tool/clock/grip/finger geometry. Current-call FK/ROM inputs are forwarded and never stored, without sampled poses, retained numerical readers or result/time history.
    */
-  export function plan(context: IHumanActionContext<IParams>): IPlan {
-    const body: IHumanBody = context.body;
-    const m: IHumanBody["measure"] = body.measure;
-    const kind: Kind = context.params.tool;
+  export function plan(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUseTool.IParams>): IAutoMovieMotionHumanUseTool.IPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const kind: IAutoMovieMotionHumanToolWork.Kind = context.params.tool;
     const subject: string = context.params.prop;
-    const side: HumanHand.Side =
+    const side: AutoMovieHumanSide =
       context.params.hand ??
       (context.entry.holds.left === subject &&
       context.entry.holds.right !== subject
@@ -193,7 +154,7 @@ export namespace useTool {
         : "right");
     const cycles: number = context.params.cycles ?? 4;
     HumanBound.whole("cycles", cycles);
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const yaw: number = context.entry.posture.yaw;
     const axes: (v: IAutoMovieVector3) => IAutoMovieVector3 = (v: IAutoMovieVector3): IAutoMovieVector3 =>
@@ -208,7 +169,7 @@ export namespace useTool {
     );
 
     // The held tool: its working point and its line in the hand's frame.
-    const held: AutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
       context,
       side,
       subject,
@@ -261,7 +222,7 @@ export namespace useTool {
     const strain: (pose: IWork, bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare>) => number = (
       pose: IWork, bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare>,
     ): number => {
-      const props: AutoMovieMotionHumanBend.ISolve = {
+      const props: IAutoMovieMotionHumanBend.ISolve = {
         body,
         posture: context.entry.posture,
         side,
@@ -299,7 +260,7 @@ export namespace useTool {
     })();
 
     // The clock: reach, the cycles, return.
-    const origin: AutoMovieMotionHumanArm.IOrigin =
+    const origin: IAutoMovieMotionHumanArmTarget.IOrigin =
       AutoMovieMotionHumanArm.origin(
         body,
         poseBones(body, context.entry.pose, undefined,
@@ -318,7 +279,7 @@ export namespace useTool {
       0.03,
     );
     const period: number = PERIODS[kind];
-    const phases: AutoMovieMotionClock.IPhase[] = [
+    const phases: IAutoMovieMotionClockPhase[] = [
       { name: "reaching", seconds: travel },
     ];
     for (let k: number = 1; k <= cycles; k++)
@@ -327,7 +288,7 @@ export namespace useTool {
         { name: `contact${k}`, seconds: period / 2 },
       );
     phases.push({ name: "recover", seconds: travel });
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence(phases),
       modifiers,
       { holds: [] },
@@ -386,10 +347,10 @@ export namespace useTool {
       }
     };
     const edge: ReturnType<typeof cycle> = cycle(0.5);
-    const hand: (posture: IHumanPosture, seconds: number) => AutoMovieMotionHumanArm.ITarget = (
-      posture: IHumanPosture,
+    const hand: (posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanArmTarget.ITarget = (
+      posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): AutoMovieMotionHumanArm.ITarget => {
+    ): IAutoMovieMotionHumanArmTarget.ITarget => {
       // Half a cycle from a contact at the ready instant and at the
       // recovery, so the reach and the return meet the cycle where it is.
       const phase: number =
@@ -414,11 +375,11 @@ export namespace useTool {
       };
     };
 
-    const base: IHumanActionPlan = AutoMovieMotionHumanBase.under(
+    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
       context,
       duration,
     );
-    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base,
       clock,
       contact: "contact1",
@@ -437,7 +398,7 @@ export namespace useTool {
       ],
     });
     // The fingers stay closed on the tool as the grip left them.
-    const fingers: IHumanPosture["joints"] = HumanGrip.fingers(
+    const fingers: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.fingers(
       context.entry.pose,
       side,
     );
@@ -446,11 +407,11 @@ export namespace useTool {
       contacts: [...composed.contacts, AutoMovieMotionHumanHeld.grip(held)],
       holds: [AutoMovieMotionHumanHeld.hold(context, held)],
       wields: { prop: subject, side, tip: "face" },
-      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
-        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
-        const posture: IHumanPosture = composed.posture(seconds, undefined, resolution, projection);
-        const limb: IHumanPosture.Limb = `${side}Arm`;
+      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
+        const posture: IAutoMovieMotionHumanPosture = composed.posture(seconds, undefined, resolution, projection);
+        const limb: AutoMovieHumanLimb = `${side}Arm`;
 
         // The task acts at the held face. Re-aim that existing rigid contact
         // when the wrist cannot attain the asked tool attitude.

@@ -1,18 +1,16 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import { StrikingStroke } from "./StrikingStroke";
 
 /**
  * A stopped weapon riding the body it met: after a strike's limb has stopped
@@ -76,7 +74,7 @@ export namespace StrikingRide {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work The enclosing ride captures its stop/participant identity but calls this reader at actual use time; it does not keep a stale displayed pose or share another actor's result.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride retains the closure for its lifetime, while each returned performer reference is borrowed during contact/grid evaluation; new resources and participant histories are not acquired.
      */
-    other(): IHumanActionContext.IPerformer;
+    other(): IAutoMovieMotionHumanPerformerReader;
 
     /** Film second of the stop. */
     stop: number;
@@ -140,10 +138,10 @@ export namespace StrikingRide {
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride owns at most floor((last requested second-stop)/STEP)+2 frames plus one contact and held goal; finite action clocks bound callers and settle/stop replacement or plan release drops the owner.
      */
     carry(
-      posture: IHumanPosture,
-      limb: IHumanPosture.Limb,
+      posture: IAutoMovieMotionHumanPosture,
+      limb: AutoMovieHumanLimb,
       seconds: number,
-    ): IHumanPosture;
+    ): IAutoMovieMotionHumanPosture;
   }
 
   /**
@@ -207,7 +205,7 @@ export namespace StrikingRide {
       filling = true;
       try {
         while (frames.length <= index) {
-          const other: IHumanActionContext.IPerformer = props.other();
+          const other: IAutoMovieMotionHumanPerformerReader = props.other();
           const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
             other.bones(props.stop + frames.length * STEP, requested);
           const resolved: IAutoMovieResolvedBone = bones.get(bone!)!;
@@ -229,7 +227,7 @@ export namespace StrikingRide {
     // where no side of the surface is defined and nothing is carried.
     const contact = (): IContact | null => {
       if (touch !== undefined) return touch;
-      const other: IHumanActionContext.IPerformer = props.other();
+      const other: IAutoMovieMotionHumanPerformerReader = props.other();
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         other.bones(props.stop, HumanColliders.bones(other.body));
       const geometry: ReturnType<typeof HumanColliders.reading> =
@@ -283,11 +281,11 @@ export namespace StrikingRide {
 
     return {
       carry: (
-        posture: IHumanPosture,
-        limb: IHumanPosture.Limb,
+        posture: IAutoMovieMotionHumanPosture,
+        limb: AutoMovieHumanLimb,
         seconds: number,
-      ): IHumanPosture => {
-        const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
+      ): IAutoMovieMotionHumanPosture => {
+        const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[limb];
         const lagged: number = seconds - 2 * STEP - props.stop;
         if (goal === undefined || goal.on !== undefined || !(lagged > 0))
           return posture;

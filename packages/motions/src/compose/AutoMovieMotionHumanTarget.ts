@@ -1,21 +1,25 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 
 /**
@@ -41,50 +45,6 @@ import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
  */
 export namespace AutoMovieMotionHumanTarget {
   /**
-   * A place an action is directed at, world frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its frame, unit and meaning when absent.
-   * @evidence contracts/development/design.md#principled-representation A point and the outward normal of the surface there, the frame a contact is made on, with whether a real thing is there.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members; `width` is optional because only some solid things state one, and the timing owner reads exactly this pair.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The target's kind is not carried, so no law can branch on it.
-   */
-  export interface IPlace {
-    /** The point, world metres. */
-    point: IAutoMovieVector3;
-
-    /** The outward unit normal of the surface at the point. */
-    normal: IAutoMovieVector3;
-
-    /** Whether a real thing is at the point, so it can be touched, gripped or struck. */
-    solid: boolean;
-
-    /** The thing's width across a grip or a touch, metres; unknown when absent. */
-    width?: number;
-  }
-
-  /**
-   * A default place in the performer's proportions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame; each member gives its unit, its sign and its value when absent.
-   * @evidence contracts/development/design.md#principled-representation A height in statures, a distance in arm lengths and a sideways offset in half shoulder widths, so the same record puts a short and a tall performer's hand where they would each hold it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, the least that places and faces a point ahead of a body; read by `fallback`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares of the body's measure, never metres; the facing is a closed union of the two cases the actions have.
-   */
-  export interface IDefault {
-    /** Height above the floor, as a share of the stature. */
-    height: number;
-
-    /** Distance ahead of the root, as a share of the arm (upper arm and forearm). */
-    range: number;
-
-    /** Offset toward the performer's left, as a share of the half shoulder width; negative is right, 0 when absent. */
-    lateral?: number;
-
-    /** Which way the place faces: back at the performer, or up as a table top does. */
-    facing: "performer" | "up";
-  }
-
-  /**
    * Default places (provisional shares):
    *
    * - `ahead`: at chest height most of an arm away, facing the performer; an
@@ -95,50 +55,12 @@ export namespace AutoMovieMotionHumanTarget {
    *   picked up or put down.
    */
   export const DEFAULTS: Readonly<
-    Record<"ahead" | "desk" | "floor", IDefault>
+    Record<"ahead" | "desk" | "floor", IAutoMovieMotionHumanTarget.IDefault>
   > = {
     ahead: { height: 0.72, range: 0.8, facing: "performer" },
     desk: { height: 0.42, range: 0.6, facing: "up" },
     floor: { height: 0, range: 0.6, facing: "up" },
   };
-
-  /**
-   * A named whole place: a key of `DEFAULTS`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the names are.
-   * @evidence contracts/development/design.md#principled-representation Derived from the table's keys, so a name without a record cannot be written.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One alias, read by `Place`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Not a second list beside the table.
-   */
-  export type Name = keyof typeof DEFAULTS;
-
-  /**
-   * Options of a hand's goal on a place.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and its default.
-   * @evidence contracts/development/design.md#principled-representation What a place does not decide about a hand on it: the surface laid on it, the shape, where the fingers point and how the elbow bends.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members, all optional because each has a default every targetless action can take; read by `hand`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hand's surface and shape unions and the bend presets.
-   */
-  export interface IHand {
-    /** The surface laid on the place; the palm when absent. */
-    surface?: HumanHand.Surface;
-
-    /** The hand shape held there; relaxed when absent. */
-    shape?: HumanHand.Shape;
-
-    /** Where the surface's forward points, world; chosen by `hand` when absent. */
-    forward?: IAutoMovieVector3;
-
-    /** The elbow's preset or shares; absent with `out` absent too, the elbow place `AutoMovieMotionHumanBend.solve` finds, and `hang` where it refuses the goal. */
-    bend?: AutoMovieMotionHumanBend.Arm | AutoMovieMotionHumanBend.IShares;
-
-    /** Extra flexion of every finger joint over the shape, degrees; 0 when absent. */
-    curl?: number;
-
-    /** A share added to the bend's outward share, as a manner's `bend` is; 0 when absent. Stated without `bend`, it widens `hang`. */
-    out?: number;
-  }
 
   /**
    * A default place on a posture.
@@ -157,12 +79,12 @@ export namespace AutoMovieMotionHumanTarget {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function fallback(
-    body: IHumanBody,
-    posture: Pick<IHumanPosture, "root" | "yaw">,
-    place: IDefault,
-  ): IPlace {
+    body: IAutoMovieMotionHumanBody,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    place: IAutoMovieMotionHumanTarget.IDefault,
+  ): IAutoMovieMotionHumanTarget.IPlace {
     const m = body.measure;
-    const frame: HumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: posture.root.x, y: 0, z: posture.root.z },
       yaw: posture.yaw,
     };
@@ -203,13 +125,13 @@ export namespace AutoMovieMotionHumanTarget {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function resolve(
-    context: Pick<IHumanActionContext, "aim" | "body">,
-    target: AutoMovieMotionTarget | undefined,
+    context: Pick<IAutoMovieMotionHumanActionContext, "aim" | "body">,
+    target: IAutoMovieMotionTarget | undefined,
     seconds: number,
-    posture: IHumanPosture,
-    place: IDefault,
+    posture: IAutoMovieMotionHumanPosture,
+    place: IAutoMovieMotionHumanTarget.IDefault,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ): IPlace {
+  ): IAutoMovieMotionHumanTarget.IPlace {
     if (target === undefined) return fallback(context.body, posture, place);
     switch (target.kind) {
       case "none":
@@ -262,7 +184,7 @@ export namespace AutoMovieMotionHumanTarget {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function away(
-    place: Pick<IPlace, "point">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point">,
     point: IAutoMovieVector3,
     yaw: number,
   ): IAutoMovieVector3 {
@@ -299,13 +221,13 @@ export namespace AutoMovieMotionHumanTarget {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function hand(
-    body: IHumanBody,
-    posture: Pick<IHumanPosture, "root" | "yaw"> &
-      Partial<Pick<IHumanPosture, "pitch" | "roll">>,
-    side: HumanHand.Side,
-    place: Pick<IPlace, "point" | "normal">,
-    options: IHand = {},
-  ): AutoMovieMotionHumanArm.ITarget {
+    body: IAutoMovieMotionHumanBody,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> &
+      Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll">>,
+    side: AutoMovieHumanSide,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    options: IAutoMovieMotionHumanTarget.IHand = {},
+  ): IAutoMovieMotionHumanArmTarget.ITarget {
     return HumanHandTarget(body, posture, side, place, options);
   }
 
@@ -322,10 +244,10 @@ export namespace AutoMovieMotionHumanTarget {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned plan-owned reader retains constant geometry snapshots and body metadata until release, with fresh output rotations and no query/result history.
    */
   export function prepareHand(
-    body: IHumanBody,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     normal: IAutoMovieVector3,
-    options: IHand = {},
+    options: IAutoMovieMotionHumanTarget.IHand = {},
   ): ReturnType<typeof HumanHandTarget.prepare> {
     return HumanHandTarget.prepare(body, side, normal, options);
   }
@@ -350,12 +272,12 @@ export namespace AutoMovieMotionHumanTarget {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function foot(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    place: Pick<IPlace, "point">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point">,
     heading: number,
     pivot: "heel" | "ball" | "toe" | "sole" = "ball",
-  ): HumanFoot.IPlacement {
+  ): IAutoMovieMotionHumanFoot.IPlacement {
     return HumanFoot.pivot(body, side, pivot, place.point, heading, 0);
   }
 }

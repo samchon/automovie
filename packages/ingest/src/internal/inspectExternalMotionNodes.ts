@@ -1,4 +1,5 @@
-import type { IAutoMovieExternalMotionNodeInspection } from "../IAutoMovieExternalMotionNodeInspection";
+import type { IAutoMovieExternalMotionNodeInspection } from "@automovie/interface";
+
 import { finiteTuple } from "./finiteTuple";
 import { object } from "./object";
 

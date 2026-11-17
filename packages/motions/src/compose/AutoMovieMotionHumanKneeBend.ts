@@ -1,8 +1,11 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 
 /**
@@ -25,7 +28,7 @@ export namespace AutoMovieMotionHumanKneeBend {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses HumanFrame's existing scalar point owner, which also owns prepared fixed-point products.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh point with no retained body, current posture, reader, history or handle.
    */
-  export function at(body: IHumanBody, posture: IPosture, side: AutoMovieMotionHumanBend.Side,
+  export function at(body: IAutoMovieMotionHumanBody, posture: IPosture, side: AutoMovieHumanSide,
     heading: number = posture.yaw, splay: number = 0): IAutoMovieVector3 {
     return HumanFrame.point({ origin: HumanFrame.point({ origin: posture.root, yaw: posture.yaw },
       body.rest.get(`${side}LowerLeg`)!), yaw: heading + (side === "left" ? splay : -splay) },
@@ -43,7 +46,7 @@ export namespace AutoMovieMotionHumanKneeBend {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The genuine fixed rest point/foot heading/splay justify product reuse; changed yaw replaces one inner reader, while changed fixed body/geometry requires another producer. No earlier world knee or leg answer is reused.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns one lazy rest snapshot, outer transform and at most one last-yaw inner transform until release; it retains no current root, world point, FK loan, pose/time history or handle.
    */
-  export function prepare(body: IHumanBody, side: AutoMovieMotionHumanBend.Side,
+  export function prepare(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
     heading: number, splay: number = 0): (posture: IPosture) => IAutoMovieVector3 {
     let rest: IAutoMovieVector3 | undefined;
     let inner: { yaw: number; point: ReturnType<typeof HumanFrame.preparePoint> } | undefined;
@@ -67,4 +70,4 @@ export namespace AutoMovieMotionHumanKneeBend {
 }
 
 /** Existing current horizontal body frame; no full pose or solved leg is represented. */
-type IPosture = Pick<IHumanPosture, "root" | "yaw">;
+type IPosture = Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">;

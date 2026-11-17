@@ -1,0 +1,50 @@
+import type { IAutoMovieMotionHumanApproach } from "../everyday/IAutoMovieMotionHumanApproach";
+import type { IAutoMovieMotionHumanPursuit } from "./IAutoMovieMotionHumanPursuit";
+
+/**
+ * Open parameters of the pursuit lexicon family, keyed by each runtime export name.
+ * Omitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.
+ * HumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
+ * @evidence contracts/development/design.md#principled-representation The pursuit family is a closed export-name map with the exact Omit projection of each source law.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the pursuit row parameter map used by the family registry and schema generator.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
+ */
+export interface IAutoMovieMotionHumanLexiconPursuitParams {
+  /** Come up behind a person at the social distance, as a follower closes the gap. */
+  follow: Omit<IAutoMovieMotionHumanApproach.IParams, "side" | "at" | "track">;
+
+  /** Come to a person's left side at the personal distance, as an escort takes station. */
+  escort: Omit<IAutoMovieMotionHumanApproach.IParams, "side" | "at" | "track">;
+
+  /** Close on a person fast, to arm's length, as a chase ends. */
+  chase: Omit<IAutoMovieMotionHumanApproach.IParams, "pace" | "at" | "track">;
+
+  /** Step up face to face, as a confrontation begins. */
+  confront: Omit<IAutoMovieMotionHumanApproach.IParams, "side" | "at">;
+
+  /**
+   * Head a moving person off: a run to where they will be when the runner
+   * gets there, stopping at arm's length of that place (the handing gap of
+   * `HumanProxemics`), not to where they are when it begins.
+   *
+   * The meeting instant is the one at which the run to the person's place
+   * at that instant ends at that instant, found by planning the run to
+   * where they are at each estimate and taking its end as the next, up to
+   * eight times, to within one 24th of a second. Their place is read from
+   * their placed actions, so they are composed before the runner. A person
+   * the pace does not close on is refused with the last estimate. First
+   * pass: one straight run, so the bearing to the person is held only as
+   * far as both go straight (Fajen and Warren 2007 describe the curved
+   * approach of real interceptions).
+   */
+  intercept: IAutoMovieMotionHumanPursuit.IIntercept;
+
+  /**
+   * Run straight away from a person: a run to the point `metres` from where
+   * the performer stands, on the line from the person through the
+   * performer. Glances back are a look performed over it.
+   */
+  flee: IAutoMovieMotionHumanPursuit.IFlee;
+}

@@ -1,8 +1,19 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { tags } from "typia";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanAthletics,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -10,15 +21,8 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { sprintStartSet } from "./sprintStartSet";
 
@@ -56,10 +60,10 @@ import { sprintStartSet } from "./sprintStartSet";
  */
 export namespace athletics {
   /** The action's name. */
-  export const name: HumanActionName = "athletics";
+  export const name: AutoMovieMotionHumanActionName = "athletics";
 
   /** Cancel table: the gun releases the start into a run. */
-  export const interrupts: IHumanActionLaw["interrupts"] =
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       run: ["fromRelax", "reflex"],
       stand: ["fromRelax", "smooth"],
@@ -105,28 +109,6 @@ export namespace athletics {
   export const CROUCH: number = 1.5;
 
   /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The front foot and the time held.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No block spacing in metres: the knees decide it.
-   */
-  export interface IParams {
-    /** The front foot; `left` when absent. */
-    front?: "left" | "right";
-
-    /** The sprinter's sex, the stratum whose measured centre-of-mass distance the set takes (`CENTRE`); `male` when absent. */
-    sex?: "female" | "male";
-
-    /** Seconds held in the set; 1.5 when absent. */
-    seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
-
-  /**
    * The set position's hips, pitch and feet for a body in front of a line.
    *
    * @param context The body.
@@ -144,8 +126,8 @@ export namespace athletics {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function set(
-    context: Pick<IHumanActionContext, "body">,
-    entry: IHumanPosture,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    entry: IAutoMovieMotionHumanPosture,
     front: "left" | "right",
     sex: "female" | "male" = "male",
   ): ReturnType<typeof sprintStartSet.of> {
@@ -167,24 +149,24 @@ export namespace athletics {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the set position and the clock.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
-    const body: IHumanActionContext["body"] = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanAthletics.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanAthletics.IParams = context.params;
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const hold: number = p.seconds ?? 1.5;
     HumanBound.least("seconds", hold, 0, "s");
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const front: "left" | "right" = p.front ?? "left";
     const rear: "left" | "right" = front === "left" ? "right" : "left";
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const target: ReturnType<typeof set> = set(
       context,
       entry,
       front,
       p.sex ?? "male",
     );
-    const timed: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: CROUCH,
         attack: 0,
@@ -193,7 +175,7 @@ export namespace athletics {
       }),
       modifiers,
     );
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       timed.duration,
       [
         ...timed.instants,
@@ -206,7 +188,7 @@ export namespace athletics {
     const into: (seconds: number) => number =
       AutoMovieMotionClock.prepare(clock, "start", "ready").progress;
     // The span the arms are planned over: the reach to the place, held to the end.
-    const span: AutoMovieMotionHumanArm.ISpan = {
+    const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
       start: clock.at("start"),
       ready: clock.at("ready"),
       relax: clock.at("end"),
@@ -223,8 +205,8 @@ export namespace athletics {
       chest: (target.joints.chest?.[0] ?? 0) - (entry.joints.chest?.[0] ?? 0),
     };
     const pitchDelta: number = target.pitch - entry.pitch;
-    const flexed: (joints: IHumanPosture["joints"], bone: "spine" | "chest", share: number) => readonly [number, number, number] = (
-      joints: IHumanPosture["joints"], bone: "spine" | "chest", share: number,
+    const flexed: (joints: IAutoMovieMotionHumanPosture["joints"], bone: "spine" | "chest", share: number) => readonly [number, number, number] = (
+      joints: IAutoMovieMotionHumanPosture["joints"], bone: "spine" | "chest", share: number,
     ): readonly [number, number, number] => {
       const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
       return [was[0] + flexions[bone] * share, was[1], was[2]];
@@ -235,10 +217,10 @@ export namespace athletics {
         reads: ["root", "trunk"],
         from: 0,
         to: clock.duration,
-        write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+        write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
           const w: number = into(seconds);
           // The spine's share of the trunk's tilt comes in with the pelvis's.
-          const pitched: IHumanPosture = {
+          const pitched: IAutoMovieMotionHumanPosture = {
             ...posture,
             pitch: posture.pitch + pitchDelta * w,
             joints: {
@@ -265,11 +247,11 @@ export namespace athletics {
       [front, "start", "half"],
       [rear, "half", "ready"],
     ] as const) {
-      const stance: HumanFoot.IPlacement = {
+      const stance: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle: context.entry.feet[side].ankle,
         rotation: context.entry.feet[side].rotation,
       };
-      const block: HumanFoot.IPlacement = target.feet[side];
+      const block: IAutoMovieMotionHumanFoot.IPlacement = target.feet[side];
       const trajectory: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> = AutoMovieMotionHumanLeg.prepareArc(stance, block, 0.05 * body.measure.stature);
       const half: number = ready / 2;
       const a: number = from === "start" ? 0 : half;
@@ -283,9 +265,9 @@ export namespace athletics {
           from: 0,
           to: clock.duration,
           placement: (
-            _: IHumanPosture,
+            _: IAutoMovieMotionHumanPosture,
             seconds: number,
-          ): HumanFoot.IPlacement =>
+          ): IAutoMovieMotionHumanFoot.IPlacement =>
             trajectory(share(seconds)),
           planted: (seconds: number): boolean => {
             const at: number = share(seconds);

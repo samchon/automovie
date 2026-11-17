@@ -1,9 +1,13 @@
-import { type IAutoMovieRandom, minimumJerk, preparePoseResolution } from "@automovie/engine";
-import type { IAutoMovieMotionEvent } from "@automovie/interface";
+import { minimumJerk, preparePoseResolution } from "@automovie/engine";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 
-import type { IHumanLayer } from "../law/IHumanLayer";
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { HumanSkill } from "../skill/HumanSkill";
@@ -41,20 +45,20 @@ export namespace HumanSegmentLayer {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each layer clears both borrowed sources in finally, and outer source parameters clear on return/throw. Retained context getters then create fresh independent preparations; the layer contract forbids retaining an obtained reader/projector. No result map or parent workspace enters output postures, and retained action callbacks keep only their original person/second state.
    */
   export function apply(
-    person: HumanSegment.IPerson,
-    posture: IHumanPosture,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    posture: IAutoMovieMotionHumanPosture,
     seconds: number,
     resolution?: Resolution,
     projection?: Projection,
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     if (person.layers.length === 0) return posture;
 
     // Action results remain fresh: a layer may retain this reader and ask
     // after placement has changed, or mutate its own returned event list.
-    const action: () => IHumanLayer.IAction | undefined = ():
-      | IHumanLayer.IAction
+    const action: () => IAutoMovieMotionHumanLayer.IAction | undefined = ():
+      | IAutoMovieMotionHumanLayer.IAction
       | undefined => {
-      const active: HumanSegment.ISegment | undefined =
+      const active: IAutoMovieMotionHumanSegment | undefined =
         HumanSegmentSelection.last(person.segments, seconds);
       return active === undefined
         ? undefined
@@ -66,7 +70,7 @@ export namespace HumanSegmentLayer {
             events: active.plan.events.map(
               (
                 event: IAutoMovieMotionEvent,
-              ): IHumanLayer.IAction["events"][number] => ({
+              ): IAutoMovieMotionHumanLayer.IAction["events"][number] => ({
                 name: event.name,
                 seconds: active.start + event.share * active.plan.duration,
               }),
@@ -77,9 +81,9 @@ export namespace HumanSegmentLayer {
     try {
       return person.layers.reduce(
         (
-          current: IHumanPosture,
-          { layer, from, to, fade }: HumanSegment.ILayered,
-        ): IHumanPosture => {
+          current: IAutoMovieMotionHumanPosture,
+          { layer, from, to, fade }: IAutoMovieMotionHumanSegment.ILayered,
+        ): IAutoMovieMotionHumanPosture => {
           const edge: number = Math.min(seconds - from, to - seconds);
           if (!(edge > 0)) return current;
           const weight: number = edge >= fade ? 1 : minimumJerk.share(edge / fade);
@@ -88,7 +92,7 @@ export namespace HumanSegmentLayer {
           const projected: ReturnType<typeof borrowProjection> | undefined =
             projection === undefined ? undefined : borrowProjection(person.performer.body, projection);
           try {
-            const written: IHumanPosture = layer.apply(current, seconds, {
+            const written: IAutoMovieMotionHumanPosture = layer.apply(current, seconds, {
               ...person.layer,
               action,
               ...(borrowed === undefined ? {} : { resolution: borrowed.read }),
@@ -113,14 +117,14 @@ export namespace HumanSegmentLayer {
 }
 
 /** A layer may borrow only a same-body exact FK getter during its current apply. */
-type Resolution = NonNullable<IHumanLayer.IContext["resolution"]>;
+type Resolution = NonNullable<IAutoMovieMotionHumanLayer.IContext["resolution"]>;
 
 /** A genuine direct-joint projector borrowed within this layer application. */
 type Projection = ReturnType<typeof prepareHumanPostureProjection>;
 
 /** A retained getter cannot retain the parent operation's ROM preparation. */
-function borrowProjection(body: IHumanBody, source: Projection | undefined): {
-  read: NonNullable<IHumanLayer.IContext["projection"]>; release: () => void;
+function borrowProjection(body: IAutoMovieMotionHumanBody, source: Projection | undefined): {
+  read: NonNullable<IAutoMovieMotionHumanLayer.IContext["projection"]>; release: () => void;
 } {
   let borrowed: Projection | undefined = source;
   source = undefined;

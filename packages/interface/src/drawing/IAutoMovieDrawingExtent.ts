@@ -1,4 +1,4 @@
-import { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
+import type { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
 
 /**
  * Page bounding box of a drawing's content, in metres.

@@ -1,5 +1,9 @@
-import type { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
-import type { IAutoMovieQuadraticWorkingSetStep } from "./IAutoMovieQuadraticWorkingSetStep";
+import type {
+  IAutoMovieQuadraticConstraintBasis,
+  IAutoMovieQuadraticRow,
+  IAutoMovieQuadraticWorkingSetStep,
+} from "@automovie/interface";
+
 import { createAutoMovieQuadraticConstraintBasis } from "./createAutoMovieQuadraticConstraintBasis";
 
 /**
@@ -37,7 +41,7 @@ export function solveAutoMovieQuadraticWorkingSetStep(
   free: readonly boolean[],
   preceding: readonly number[],
 ): IAutoMovieQuadraticWorkingSetStep {
-  const basis: ReturnType<typeof createAutoMovieQuadraticConstraintBasis> =
+  const basis: IAutoMovieQuadraticConstraintBasis =
     createAutoMovieQuadraticConstraintBasis(
       rows,
       bounds,
@@ -166,14 +170,13 @@ export function solveAutoMovieQuadraticWorkingSetStep(
       retained.push(at);
       projectedFlatLinear.push(dot(column, flatLinear));
     }
-    const curvature: ReturnType<
-      typeof createAutoMovieQuadraticConstraintBasis
-    > = createAutoMovieQuadraticConstraintBasis(
-      objectiveRows,
-      objectiveRows.map((): number => 0),
-      objectiveRows.map((): boolean => false),
-      diagonal.length,
-    );
+    const curvature: IAutoMovieQuadraticConstraintBasis =
+      createAutoMovieQuadraticConstraintBasis(
+        objectiveRows,
+        objectiveRows.map((): number => 0),
+        objectiveRows.map((): boolean => false),
+        diagonal.length,
+      );
     if (curvature.refusal !== null)
       return fail("working-reduced-curvature: " + curvature.refusal);
     const count: number = curvature.rank,

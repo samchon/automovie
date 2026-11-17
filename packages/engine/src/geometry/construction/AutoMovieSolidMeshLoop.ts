@@ -1,11 +1,14 @@
-import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
-import type { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
-import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidMeshLoop,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
-type Vec3 = AutoMovieSolidVector.Vec3;
-type ILoop = AutoMovieSolidMesh.ILoop;
-type IMesh = AutoMovieSolidMesh.IMesh;
+import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
+import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
+
+type Vec3 = AutoMovieVector3Tuple;
 const { dot, norm, sub } = AutoMovieSolidVector;
 
 /**
@@ -38,7 +41,7 @@ export namespace AutoMovieSolidMeshLoop {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a boolean and retains no input or scratch after returning.
    */
   export function keeps(
-    loop: ILoop,
+    loop: IAutoMovieSolidMesh.ILoop,
     u: number,
     v: number,
     jet: IAutoMovieSolidSurface.IJet,
@@ -66,16 +69,18 @@ export namespace AutoMovieSolidMeshLoop {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Captures O(S+L) scratch for L loops until the returned reader is dropped; the face retains it only through its synchronous call.
    */
   export function prepare(
-    loops: readonly ILoop[],
+    loops: readonly IAutoMovieSolidMesh.ILoop[],
     period: number | undefined,
-  ): Classifier {
-    const raw: Classifier = (
+  ): IAutoMovieSolidMeshLoop.Classifier {
+    const raw: IAutoMovieSolidMeshLoop.Classifier = (
       u: number,
       v: number,
       jet: IAutoMovieSolidSurface.IJet,
       margin: number,
     ): boolean =>
-      loops.every((l: ILoop): boolean => keeps(l, u, v, jet, margin, period));
+      loops.every((l: IAutoMovieSolidMesh.ILoop): boolean =>
+        keeps(l, u, v, jet, margin, period),
+      );
     const states: (IState | undefined)[] = new Array<IState | undefined>(
       loops.length,
     );
@@ -88,7 +93,10 @@ export namespace AutoMovieSolidMeshLoop {
           continue;
         }
         if (!("value" in entry)) return raw;
-        states[k] = { input: entry.value as ILoop, checked: false };
+        states[k] = {
+          input: entry.value as IAutoMovieSolidMesh.ILoop,
+          checked: false,
+        };
       }
     } catch {
       return raw;
@@ -184,7 +192,8 @@ export namespace AutoMovieSolidMeshLoop {
               Math.abs(AutoMovieSolidCycle.shift(v, box[2], period) - box[2]) -
                 box[3],
             );
-        const shear: number = E > 0 && G > 0 ? Math.abs(F) / Math.sqrt(E * G) : 1;
+        const shear: number =
+          E > 0 && G > 0 ? Math.abs(F) / Math.sqrt(E * G) : 1;
         if (
           (1 - shear) * (E * gapU * gapU + G * gapV * gapV) >
           margin * margin * (1 + 1e-9)
@@ -201,19 +210,11 @@ export namespace AutoMovieSolidMeshLoop {
       return true;
     };
   }
-
-  /** A point classifier in chart coordinates, with a world-mm margin. */
-  type Classifier = (
-    u: number,
-    v: number,
-    jet: IAutoMovieSolidSurface.IJet,
-    margin: number,
-  ) => boolean;
   /** The numerical fields the parity and metric readings consume. */
-  type Chart = Pick<ILoop, "kind" | "chart">;
+  type Chart = Pick<IAutoMovieSolidMesh.ILoop, "kind" | "chart">;
   /** Scratch owned by one prepared face, never published into a body. */
   interface IState {
-    /** Original input for live fallback. */ input: ILoop;
+    /** Original input for live fallback. */ input: IAutoMovieSolidMesh.ILoop;
     /** Whether snapshot eligibility was inspected. */ checked: boolean;
     /** Copied numerical chart, or null for live fallback. */ chart?: Chart | null;
     /** Existing kept-side predicate over that copy. */ side?: (
@@ -230,7 +231,7 @@ export namespace AutoMovieSolidMeshLoop {
   }
 
   /** Copy only own data-valued numerical fields, without invoking ordinary getters. */
-  function snapshot(loop: ILoop): Chart | null {
+  function snapshot(loop: IAutoMovieSolidMesh.ILoop): Chart | null {
     try {
       const kind: unknown = Object.getOwnPropertyDescriptor(
         loop,
@@ -297,7 +298,7 @@ export namespace AutoMovieSolidMeshLoop {
 
   /** Live metric reading after kept-side acceptance, preserving its original operation order. */
   function minimum(
-    loop: Pick<ILoop, "chart">,
+    loop: Pick<IAutoMovieSolidMesh.ILoop, "chart">,
     u: number,
     v: number,
     jet: IAutoMovieSolidSurface.IJet,
@@ -312,7 +313,7 @@ export namespace AutoMovieSolidMeshLoop {
 
   /** Full segment minimum; optional differences are the same subtractions prepared once. */
   function distance(
-    loop: Pick<ILoop, "chart">,
+    loop: Pick<IAutoMovieSolidMesh.ILoop, "chart">,
     u: number,
     v: number,
     E: number,
@@ -385,7 +386,7 @@ export namespace AutoMovieSolidMeshLoop {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar; per-query foot records are temporary, with no loop, point list or score cache retained after the call.
    */
   export function nearest(
-    loop: ILoop,
+    loop: IAutoMovieSolidMesh.ILoop,
     points: readonly [number, number][],
     period: number | undefined,
   ): number {
@@ -417,7 +418,10 @@ export namespace AutoMovieSolidMeshLoop {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call rebuilds cumulative lengths; aligned's quarter queries and the later Zip inputs currently repeat those arc reads rather than share a prepared result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh N-entry parameter array; intermediate positions and the cumulative array are call-local, with no mesh or vertex list retained globally.
    */
-  export function arc(mesh: IMesh, ids: readonly number[]): number[] {
+  export function arc(
+    mesh: IAutoMovieSolidMesh.IMesh,
+    ids: readonly number[],
+  ): number[] {
     const p = (v: number): Vec3 => [
       mesh.positions[3 * v]!,
       mesh.positions[3 * v + 1]!,
@@ -456,7 +460,7 @@ export namespace AutoMovieSolidMeshLoop {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh reordered cycle; the unchosen array, arc arrays and point vectors are call-local, with no retained mesh, reader or cross-face cache.
    */
   export function aligned(
-    mesh: IMesh,
+    mesh: IAutoMovieSolidMesh.IMesh,
     loop: readonly number[],
     cycle: readonly number[],
   ): number[] {

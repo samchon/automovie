@@ -1,5 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBodyFitTypes,
+  IAutoMovieMotionHumanJacobian,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -36,7 +38,7 @@ export namespace HumanFitTargetSlopes {
    */
   export function rotation(
     e: IAutoMovieVector3,
-    motions: readonly HumanJacobian.ITwist[],
+    motions: readonly IAutoMovieMotionHumanJacobian.ITwist[],
   ): IAutoMovieVector3[] {
     if (motions.length === 0) return [];
     const angle: number = Vector3.length(e);
@@ -44,7 +46,7 @@ export namespace HumanFitTargetSlopes {
       angle < Number.EPSILON ** 0.25
         ? 1 / 12 + (angle * angle) / 720
         : 1 / (angle * angle) - 1 / (2 * angle * Math.tan(angle / 2));
-    return motions.map((motion: HumanJacobian.ITwist): IAutoMovieVector3 => {
+    return motions.map((motion: IAutoMovieMotionHumanJacobian.ITwist): IAutoMovieVector3 => {
       const omega: IAutoMovieVector3 = motion.angular;
       const cross: IAutoMovieVector3 = Vector3.cross(e, omega);
       return Vector3.add(
@@ -76,9 +78,9 @@ export namespace HumanFitTargetSlopes {
    * @evidence contracts/development/common.md#meaningful-documentation States the analytic method, target-frame units, projection owner, degeneracies, empty-list behavior and ownership.
    */
   export function normal(
-    goal: NonNullable<HumanBodyFit.ITarget["normal"]>,
+    goal: NonNullable<IAutoMovieMotionHumanBodyFitTypes.ITarget["normal"]>,
     rotation: IAutoMovieQuaternion,
-    motions: readonly HumanJacobian.ITwist[],
+    motions: readonly IAutoMovieMotionHumanJacobian.ITwist[],
   ): IAutoMovieVector3[] {
     if (motions.length === 0) return [];
     const w: IAutoMovieVector3 = Vector3.normalize(goal.world);
@@ -94,7 +96,7 @@ export namespace HumanFitTargetSlopes {
           "A planar-normal fit needs a non-antiparallel starting normal",
         );
       return motions.map(
-        (motion: HumanJacobian.ITwist): IAutoMovieVector3 =>
+        (motion: IAutoMovieMotionHumanJacobian.ITwist): IAutoMovieVector3 =>
           Vector3.subtract(
             motion.angular,
             Vector3.scale(w, Vector3.dot(w, motion.angular)),
@@ -102,7 +104,7 @@ export namespace HumanFitTargetSlopes {
       );
     }
     const angle: number = Math.atan2(sine, cosine);
-    return motions.map((motion: HumanJacobian.ITwist): IAutoMovieVector3 => {
+    return motions.map((motion: IAutoMovieMotionHumanJacobian.ITwist): IAutoMovieVector3 => {
       const dn: IAutoMovieVector3 = Vector3.cross(motion.angular, n);
       const dc: IAutoMovieVector3 = Vector3.cross(w, dn);
       const ds: number = Vector3.dot(c, dc) / sine;

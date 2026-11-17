@@ -1,6 +1,6 @@
-import { IAutoMovieColor } from "../color/IAutoMovieColor";
-import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
-import { IAutoMovieLightShadow } from "./IAutoMovieLightShadow";
+import type { IAutoMovieColor } from "../color/IAutoMovieColor";
+import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { IAutoMovieLightShadow } from "./IAutoMovieLightShadow";
 
 /**
  * Shared light identity, world placement, linear emission and explicitly admitted shadow state.

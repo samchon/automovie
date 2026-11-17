@@ -1,7 +1,5 @@
-import type {
-  IAutoMovieTextureImageFacts,
-  validateTextureAssets,
-} from "@automovie/engine";
+import type { validateTextureAssets } from "@automovie/engine";
+import type { IAutoMovieTextureImageFacts } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import type { ITextureAssetClosureOverrides } from "./ITextureAssetClosureOverrides";

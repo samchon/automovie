@@ -1,13 +1,14 @@
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+
 /**
- * A motor-goal relationship between actual scene colliders. It names geometry,
- * not a prerecorded world coordinate or an asserted successful contact. The
- * runtime fits bounded joint goals toward the current receiver surface; only
- * the solver's subsequent positive contact impulse establishes a physical hit.
+ * A collider relationship fitted as articulated motor intent.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (A motor-goal relationship between actual scene colliders) and documents 9 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents A motor-goal relationship between actual scene colliders: interface of 9 members (`id`, `kind`, `chain`, `source`, `target`, `weight`, ...); units and frames named in its text: world, local, metres, metre. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAutoMoviePhysicalContactBinding` in packages/interface/src/physics/IAutoMoviePhysicalContactBinding.ts; its surface is the 9 members listed and the text shows 7 other files naming it, mostly packages/engine (4), test (2), packages/interface (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * admitPhysicalContactBindings resolves both colliders, checks a contiguous actuator chain, finite weights and compression, and a nonzero receiver normal when supplied. It rejects duplicate relationship identities and incompatible same-bone contacts. Contact compression is bounded by both materials' soft-layer allowance; separation requires zero. Simultaneous fitting retains residual error when geometry or actuator limits prevent satisfying the request.
+ *
+ * @evidence contracts/development/design.md#principled-representation Source and target collider identities specify contact or separation in actual placement, with bounded iteration count and a metre residual tolerance.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The geometric target solver reads one relationship record for arbitrary articulated bodies; the physical profile owns collider shape and material data.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The binding supplies motor intent rather than teleporting a body or declaring a solved contact impulse; failed reach remains a residual.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the admission path, reference resolution, compression rule, optional normal and bounded fitting behavior.
  */
 export interface IAutoMoviePhysicalContactBinding {
   /** Stable authoring relationship identity within this target. */
@@ -17,17 +18,26 @@ export interface IAutoMoviePhysicalContactBinding {
   /** Proximal-to-distal actuator chain ending at the source bone. */
   chain: string[];
   /** Source collider on this body. */
-  source: { bone: string; shape: string };
+  source: {
+    /** Segment bone owning the source collider. */
+    bone: string;
+
+    /** Collider identity within that segment. */
+    shape: string;
+  };
   /** Receiver collider, read in its actual current world placement. */
   target: {
+    /** Existing body identity in the simultaneous simulation input. */
     body: string;
+
+    /** Segment bone owning the receiver collider. */
     bone: string;
+
+    /** Collider identity within the receiver segment. */
     shape: string;
-    /** Optional nonzero bone-local outward direction selecting a particular receiver surface. */ normal?: {
-      x: number;
-      y: number;
-      z: number;
-    };
+
+    /** Optional nonzero bone-local outward direction selecting a receiver surface; absent leaves the surface unconstrained. Allowed only for contact. */
+    normal?: IAutoMovieVector3;
   };
   /** Blend of the authored path toward this relationship, in [0,1]. */
   weight: number;

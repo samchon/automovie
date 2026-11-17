@@ -1,7 +1,20 @@
-import { type IAutoMovieResolvedBone, Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "./HumanHand";
 
 /**
@@ -17,20 +30,20 @@ import type { HumanHand } from "./HumanHand";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cold frame/bone reads retain nothing. A prepared point reader owns one fixed local vector and original fixed geometry callback until release; digital fallback borrows original body/geometry. Returned points/maps/frames remain fresh with no current bones, time, result history, handle or task retained.
  */
 export function readHumanHandFrame(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   bones: Bones,
-  side: HumanHand.Side,
-  surface: HumanHand.Surface,
-  offset: () => HumanHand.IFrame,
+  side: AutoMovieHumanSide,
+  surface: IAutoMovieMotionHumanHand.Surface,
+  offset: () => IAutoMovieMotionHumanHand.IFrame,
   digital: boolean,
-): HumanHand.IFrame {
+): IAutoMovieMotionHumanHand.IFrame {
   const hand: WorldBone = bones.get(`${side}Hand`)!;
-  const local: HumanHand.IFrame = offset();
+  const local: IAutoMovieMotionHumanHand.IFrame = offset();
   const turn: (v: IAutoMovieVector3) => IAutoMovieVector3 =
     (v: IAutoMovieVector3): IAutoMovieVector3 => Quaternion.rotateVector(hand.worldRotation, v);
   if (!digital) return { point: worldPoint(hand.worldPosition, local.point, hand.worldRotation),
     normal: turn(local.normal), forward: turn(local.forward) };
-  const actual: resolveAutoMovieHumanoidSurfaces.IFrame = region(body, side, surface);
+  const actual: IAutoMovieHumanoidSurfaces.IFrame = region(body, side, surface);
   const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
     resolveAutoMovieHumanoidSurfaces.place(actual, bones.get(actual.bone)!);
   return { point: placed.point, normal: placed.normal, forward: turn(local.forward) };
@@ -55,8 +68,8 @@ export namespace readHumanHandFrame {
    * Release this fixed local-point reader with its owner; it keeps no pose,
    * bones map, queried time, world point or result history.
    */
-  export function preparePoint(body: IHumanBody, side: HumanHand.Side,
-    surface: HumanHand.Surface, offset: () => HumanHand.IFrame, digital: boolean):
+  export function preparePoint(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
+    surface: IAutoMovieMotionHumanHand.Surface, offset: () => IAutoMovieMotionHumanHand.IFrame, digital: boolean):
     (bones: Bones) => IAutoMovieVector3 {
     if (digital) return (bones: Bones): IAutoMovieVector3 =>
       readHumanHandFrame(body, bones, side, surface, offset, true).point;
@@ -82,7 +95,7 @@ export namespace readHumanHandFrame {
    * The query coordinates no retained work.
    * Returns a fresh caller-owned set and retains no body or metadata.
    */
-  export function bones(body: IHumanBody, side: HumanHand.Side, surface: HumanHand.Surface,
+  export function bones(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide, surface: IAutoMovieMotionHumanHand.Surface,
     digital: boolean): ReadonlySet<AutoMovieHumanoidBone> {
     const requested: Set<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
     if (digital) requested.add(region(body, side, surface).bone);
@@ -103,8 +116,8 @@ function worldPoint(position: IAutoMovieVector3, point: IAutoMovieVector3,
 }
 
 /** Preserve the original body-owned digital surface key and its actual bone. */
-function region(body: IHumanBody, side: HumanHand.Side,
-  surface: HumanHand.Surface): resolveAutoMovieHumanoidSurfaces.IFrame {
+function region(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
+  surface: IAutoMovieMotionHumanHand.Surface): IAutoMovieHumanoidSurfaces.IFrame {
   return body.surfaces.regions[
     `${surface}${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
   ];

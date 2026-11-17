@@ -1,8 +1,9 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticCholesky } from "./HumanQuadraticCholesky";
 import { HumanQuadraticInteriorSession as Session } from "./HumanQuadraticInteriorSession";
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
-import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
 import { HumanQuadraticRow } from "./HumanQuadraticRow";
 import { HumanQuadraticSubstitute } from "./HumanQuadraticSubstitute";
 import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
@@ -103,9 +104,9 @@ import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace"
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Without a session all scratch is the call's own, one banded factor and O(n + m) vectors, released on return or throw; a session holds one scaling, one scratch set of its sizes and one point until its caller drops it; the returned arrays are fresh.
  */
 export function HumanQuadraticInterior(
-  problem: Q.IProblem,
+  problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
   session?: Session.ISession,
-): Q.IState | undefined {
+): IAutoMovieMotionHumanQuadraticProgram.IState | undefined {
   // A session's later solves are scaled by its first one's variable and
   // cost scales (`HumanQuadraticPreparation.IScaling`).
   const s: B.IScaled = Preparation.scaled(problem, session?.scaling);
@@ -290,8 +291,8 @@ export function HumanQuadraticInterior(
   // One solve from the iterate the arrays hold, cold or warm: the state it
   // ends with, and whether it met `ACCURACY` (a converged solve, whose point
   // a session keeps for the next program of the same rows).
-  const run = (): { state: Q.IState | undefined; converged: boolean } => {
-    let fair: Q.IState | undefined;
+  const run = (): { state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined; converged: boolean } => {
+    let fair: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
 
     // The last step's size against the iterate's, largest components. The
     // residuals alone do not bound the iterate's error where the curvature is
@@ -437,7 +438,7 @@ export function HumanQuadraticInterior(
     session?.point !== undefined &&
     Session.warm(s, session.point, live, soft, free, bound, x, t, lambda, e, nu, value)
   ) {
-    const warmed: { state: Q.IState | undefined; converged: boolean } = run();
+    const warmed: { state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined; converged: boolean } = run();
     if (warmed.converged) return warmed.state;
   }
   cold();

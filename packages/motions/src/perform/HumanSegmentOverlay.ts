@@ -1,21 +1,23 @@
-import {
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSeededChainFit,
-  type IAutoMovieSwivelNear,
-  minimumJerk,
-  preparePoseResolution,
-} from "@automovie/engine";
+import { minimumJerk, preparePoseResolution } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanChannelClaim,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelNear,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -49,7 +51,7 @@ export namespace HumanSegmentOverlay {
    */
   export interface IOverlaid extends HumanSegmentPose.ISeeded {
     /** World goals have received the root turn; attached goals retain `on`. */
-    contacts: IHumanPosture["limbs"];
+    contacts: IAutoMovieMotionHumanPosture["limbs"];
   }
 
   /**
@@ -100,24 +102,24 @@ export namespace HumanSegmentOverlay {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Query slots, branch indexes, blender and local FK supplier release on return/throw; no returned pose/seed/goal retains them. A weak overlay entry retains only its latest copied claims, merger and encountered closed bone-name booleans until replacement or overlay release, never a body, posture, time, FK reader or query history. Raw provenance stays weak at its existing owner.
    */
   export function overlaid(
-    person: HumanSegment.IPerson,
-    posture: IHumanPosture,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    posture: IAutoMovieMotionHumanPosture,
     seconds: number,
-    carried: readonly HumanSegment.IHeld[] = [],
+    carried: readonly IAutoMovieMotionHumanSegment.IHeld[] = [],
     near?: HumanSegmentPose.INear,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
   ): IOverlaid {
-    const body: IHumanBody = person.performer.body;
+    const body: IAutoMovieMotionHumanBody = person.performer.body;
     const projection: Parameters<typeof resolveHumanPosture.seeded>[6] = prepared?.clamp;
-    const active: HumanSegment.IOverlay[] | undefined =
+    const active: IAutoMovieMotionHumanSegment.IOverlay[] | undefined =
       person.overlays.length === 0 ? undefined : running(person, seconds);
     const seeds: HumanSegmentPose.IFits = new Map();
     const observed: ReadonlySet<AutoMovieHumanoidBone> | undefined =
       requested !== undefined && near === undefined && carried.length === 0 && !active?.some(
-        (overlay: HumanSegment.IOverlay): boolean => overlay.plan.contacts.some(
-          (window: IHumanContactWindow): boolean => {
+        (overlay: IAutoMovieMotionHumanSegment.IOverlay): boolean => overlay.plan.contacts.some(
+          (window: IAutoMovieMotionHumanContactWindow): boolean => {
             const share: number = (seconds - overlay.start) / overlay.plan.duration;
             return share >= window.from && share <= window.to;
           },
@@ -133,17 +135,17 @@ export namespace HumanSegmentOverlay {
 
     // Fade branches have different under-postures and fit seeds, but read
     // each overlay's raw plan and fade weight at the same local second.
-    let postures: (IHumanPosture | undefined)[] | undefined;
+    let postures: (IAutoMovieMotionHumanPosture | undefined)[] | undefined;
     let weights: (number | undefined)[] | undefined;
     let ordinals: (number | undefined)[] | undefined;
     let ownership: (Map<AutoMovieHumanoidBone, boolean> | undefined)[] | undefined;
     let blender: ReturnType<typeof blendHumanJoint.prepare> | undefined;
     let driving:
-      | Map<HumanSegment.IOverlay, Partial<Record<"left" | "right", boolean>>>
+      | Map<IAutoMovieMotionHumanSegment.IOverlay, Partial<Record<"left" | "right", boolean>>>
       | undefined;
     const mergers: (ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge> | undefined)[] = [];
     function drives(
-      overlay: HumanSegment.IOverlay,
+      overlay: IAutoMovieMotionHumanSegment.IOverlay,
       side: "left" | "right",
     ): boolean {
       let sides: Partial<Record<"left" | "right", boolean>> | undefined =
@@ -156,14 +158,14 @@ export namespace HumanSegmentOverlay {
     }
     function build(
       k: number,
-      under: IHumanPosture,
-      used: readonly HumanSegment.IOverlay[],
+      under: IAutoMovieMotionHumanPosture,
+      used: readonly IAutoMovieMotionHumanSegment.IOverlay[],
       tag: string,
       repeated: boolean,
-    ): { pose: IAutoMoviePose; contacts: IHumanPosture["limbs"] } {
-      const overlay: HumanSegment.IOverlay | undefined = active?.[k];
+    ): { pose: IAutoMoviePose; contacts: IAutoMovieMotionHumanPosture["limbs"]; } {
+      const overlay: IAutoMovieMotionHumanSegment.IOverlay | undefined = active?.[k];
       if (overlay === undefined) {
-        const fitted: resolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
+        const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
           body,
           under,
           undefined,
@@ -179,8 +181,8 @@ export namespace HumanSegmentOverlay {
           person,
           leaf,
           carried.filter(
-            (h: HumanSegment.IHeld): boolean =>
-              !used.some((o: HumanSegment.IOverlay): boolean =>
+            (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
+              !used.some((o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
                 drives(o, h.side),
               ),
           ),
@@ -205,7 +207,7 @@ export namespace HumanSegmentOverlay {
         }
         return { pose: leaf, contacts: {} };
       }
-      const written: IHumanPosture = (mergers[k] ??=
+      const written: IAutoMovieMotionHumanPosture = (mergers[k] ??=
         merger(overlay))(
         under,
         ((postures ??= [])[k] ??= overlay.plan.posture(
@@ -239,7 +241,7 @@ export namespace HumanSegmentOverlay {
         tag === "" ? `${ordinal}` : `${tag},${ordinal}`,
         revisited,
       );
-      const contacts: IHumanPosture["limbs"] = {
+      const contacts: IAutoMovieMotionHumanPosture["limbs"] = {
         ...contactGoals(
           overlay,
           written,
@@ -326,7 +328,7 @@ export namespace HumanSegmentOverlay {
 
     // Every pose `build` returns is assembled or fitted in this evaluation,
     // so the private refit may share its untouched records.
-    const fitted: resolveHumanPosture.ISeeded = refitHumanPosture(
+    const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = refitHumanPosture(
       body,
       built.pose,
       built.contacts,
@@ -352,18 +354,18 @@ export namespace HumanSegmentOverlay {
    * without constructing four unused lookup keys and intermediate arrays.
    */
   function continuations(
-    limbs: IHumanPosture["limbs"],
+    limbs: IAutoMovieMotionHumanPosture["limbs"],
     near: HumanSegmentPose.INear | undefined,
     tag?: string,
-  ): resolveHumanPosture.INear | undefined {
-    const ordered: IHumanPosture.Limb[] = resolveHumanPosture.order(limbs);
+  ): IAutoMovieMotionHumanResolveHumanPosture.INear | undefined {
+    const ordered: AutoMovieHumanLimb[] = resolveHumanPosture.order(limbs);
     if (near === undefined) return undefined;
     const prefix: string = tag === undefined ? "contact" : `leaf:${tag}`;
     return Object.fromEntries(
       ordered.flatMap(
         (
-          limb: IHumanPosture.Limb,
-        ): [IHumanPosture.Limb, IAutoMovieSwivelNear][] => {
+          limb: AutoMovieHumanLimb,
+        ): [AutoMovieHumanLimb, IAutoMovieSwivelNear][] => {
           const continued: IAutoMovieSwivelNear | undefined =
             HumanSegmentPose.nearby(near, `${prefix}:${limb}`);
           return continued === undefined ? [] : [[limb, continued]];
@@ -387,26 +389,26 @@ export namespace HumanSegmentOverlay {
    * The enclosing synchronous evaluation owns the FK context; returned goals contain fresh transform values and retain no context or reader.
    */
   function contactGoals(
-    overlay: HumanSegment.IOverlay,
-    written: IHumanPosture,
+    overlay: IAutoMovieMotionHumanSegment.IOverlay,
+    written: IAutoMovieMotionHumanPosture,
     over: IAutoMoviePose,
     seconds: number,
-    person: HumanSegment.IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     resolution?: () => ReturnType<typeof preparePoseResolution>,
-  ): IHumanPosture["limbs"] {
+  ): IAutoMovieMotionHumanPosture["limbs"] {
     const share: number = (seconds - overlay.start) / overlay.plan.duration;
-    const contacts: IHumanPosture["limbs"] = {};
-    const turned: IHumanPosture["limbs"] =
+    const contacts: IAutoMovieMotionHumanPosture["limbs"] = {};
+    const turned: IAutoMovieMotionHumanPosture["limbs"] =
       written.rotation === undefined
         ? written.limbs
         : turnHumanPosture(written).limbs;
     let requested: Set<AutoMovieHumanoidBone> | undefined;
-    let selected: Map<IHumanPosture.Limb, IHumanPosture.IGoal | undefined> | undefined;
+    let selected: Map<AutoMovieHumanLimb, IAutoMovieHumanLimbGoal | undefined> | undefined;
     for (const window of overlay.plan.contacts) {
       if (share < window.from || share > window.to) continue;
-      const limb: IHumanPosture.Limb | undefined = limbOf(window.part);
+      const limb: AutoMovieHumanLimb | undefined = limbOf(window.part);
       if (limb === undefined || !overlay.channels.includes(limb)) continue;
-      const goal: IHumanPosture.IGoal | undefined = turned[limb];
+      const goal: IAutoMovieHumanLimbGoal | undefined = turned[limb];
       (selected ??= new Map()).set(limb, goal);
       if (goal !== undefined) continue;
       const chain: ReturnType<typeof HumanLimbFit.chain> =
@@ -439,8 +441,8 @@ export namespace HumanSegmentOverlay {
 
   /** The limb carrying a contact part, if the part belongs to a limb. */
   function limbOf(
-    part: IHumanContactWindow["part"],
-  ): IHumanPosture.Limb | undefined {
+    part: IAutoMovieMotionHumanContactWindow["part"],
+  ): AutoMovieHumanLimb | undefined {
     if (part === "seat" || part === "back") return undefined;
     const side: "left" | "right" = part.startsWith("left") ? "left" : "right";
     return `${side}${/(Hand|Arm)$/.test(part) ? "Arm" : "Leg"}`;
@@ -462,24 +464,24 @@ export namespace HumanSegmentOverlay {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a caller-owned array of borrowed overlays and retains no query, person or external handle.
    */
   export function running(
-    person: HumanSegment.IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
-  ): HumanSegment.IOverlay[] {
+  ): IAutoMovieMotionHumanSegment.IOverlay[] {
     return person.overlays.filter(
-      (o: HumanSegment.IOverlay): boolean =>
+      (o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
         seconds >= o.entryTime - 1e-12 && seconds <= o.end + 1e-12,
     );
   }
 }
 
 /** Static selection metadata; every ordered claim is rechecked before cross-query reuse. */
-function merger(overlay: HumanSegment.IOverlay): ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge> {
-  const claims: readonly AutoMovieMotionHumanChannel.Claim[] = overlay.channels;
+function merger(overlay: IAutoMovieMotionHumanSegment.IOverlay): ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge> {
+  const claims: readonly AutoMovieMotionHumanChannelClaim[] = overlay.channels;
   const kept: IMerger | undefined = MERGERS.get(overlay);
   if (kept !== undefined && kept.claims.length === claims.length &&
-    kept.claims.every((claim: AutoMovieMotionHumanChannel.Claim, i: number): boolean => claim === claims[i]))
+    kept.claims.every((claim: AutoMovieMotionHumanChannelClaim, i: number): boolean => claim === claims[i]))
     return kept.read;
-  const fixed: readonly AutoMovieMotionHumanChannel.Claim[] = [...claims];
+  const fixed: readonly AutoMovieMotionHumanChannelClaim[] = [...claims];
   const read: IMerger["read"] = AutoMovieMotionHumanChannel.prepareMerge(fixed);
   MERGERS.set(overlay, { claims: fixed, read });
   return read;
@@ -487,9 +489,9 @@ function merger(overlay: HumanSegment.IOverlay): ReturnType<typeof AutoMovieMoti
 
 /** One overlay's latest exact claim-domain reader, containing no evaluated posture. */
 interface IMerger {
-  claims: readonly AutoMovieMotionHumanChannel.Claim[];
+  claims: readonly AutoMovieMotionHumanChannelClaim[];
   read: ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge>;
 }
 
 /** Claim metadata follows the existing overlay lifetime without retaining the overlay key. */
-const MERGERS: WeakMap<HumanSegment.IOverlay, IMerger> = new WeakMap();
+const MERGERS: WeakMap<IAutoMovieMotionHumanSegment.IOverlay, IMerger> = new WeakMap();

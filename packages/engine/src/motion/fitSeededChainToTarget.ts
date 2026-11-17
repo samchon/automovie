@@ -1,18 +1,18 @@
 import type {
+  IAutoMovieFitChainToTargetProps,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelNear,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { preparePoseResolution } from "../kinematics/preparePoseResolution";
-import type { IAutoMovieSwivelNear } from "../kinematics/IAutoMovieSwivelNear";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
-import type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
 import type { IAutoMovieChainContinuationObserver } from "./IAutoMovieChainContinuationObserver";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
+import { continueHingedOrientation } from "./continueHingedOrientation";
 import { fitChainBend } from "./fitChainBend";
 import { fitHingedChainBend } from "./fitHingedChainBend";
-import { continueHingedOrientation } from "./continueHingedOrientation";
 import { orientChainEffector } from "./orientChainEffector";
 import { prepareChainFit } from "./prepareChainFit";
 import { resolveBoneMap } from "./resolveBoneMap";
@@ -46,9 +46,9 @@ import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A source producer owns one lazy O(J+B) base workspace until release; it retains no goal binding. Each bound workspace owns its own reference/continuity maps and borrows source data until caller release. Bounded search records end per target, and only caller-owned results escape. There are no global caches, handles or tasks.
  */
 export function fitSeededChainToTarget(
-  input: IFitChainToTargetProps,
+  input: IAutoMovieFitChainToTargetProps,
 ): IAutoMovieSeededChainFit {
-  const { target, ...source }: IFitChainToTargetProps = input;
+  const { target, ...source }: IAutoMovieFitChainToTargetProps = input;
   return fitSeededChainToTarget.prepare(source).fit(target);
 }
 
@@ -169,7 +169,7 @@ export namespace fitSeededChainToTarget {
    * The three returned methods own one preparation workspace with O(J+B) borrowed input reachability and O(J) derived maps; no global cache or handle survives caller release.
    */
   export function prepare(
-    source: Omit<IFitChainToTargetProps, "target">,
+    source: Omit<IAutoMovieFitChainToTargetProps, "target">,
     readAuthored?: Parameters<typeof prepareChainFit>[1],
     resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution(),
     poseResolution?: prepareSkeletonPoseResolution.IRig,
@@ -187,11 +187,11 @@ export namespace fitSeededChainToTarget {
   }
 
   /** Fixed rig, original pose, chain and clinical mappings of a synchronous goal search. */
-  export type ISource = Pick<IFitChainToTargetProps,
+  export type ISource = Pick<IAutoMovieFitChainToTargetProps,
     "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames">;
 
   /** Live goal/search fields; target points remain the bound workspace's fit input. */
-  export type IOptions = Omit<IFitChainToTargetProps, keyof ISource | "target">;
+  export type IOptions = Omit<IAutoMovieFitChainToTargetProps, keyof ISource | "target">;
 
   /**
    * Prepare one unchanged source for a synchronous search whose goals may
@@ -224,7 +224,7 @@ export namespace fitSeededChainToTarget {
         fixed = prepareChainFit({ skeleton, pose, chain, topology, jointAxes, restFrames },
           readAuthored, resolution, poseResolution);
       }
-      const props: Omit<IFitChainToTargetProps, "target"> = {
+      const props: Omit<IAutoMovieFitChainToTargetProps, "target"> = {
         ...fixed.props,
         bend, effectorRotation, referencePose, referenceWeight, obstruction, strain, near,
       };
@@ -241,9 +241,9 @@ function preparedWorkspace(
   resolution: ReturnType<typeof preparePoseResolution>,
   poseResolution?: prepareSkeletonPoseResolution.IRig,
 ): fitSeededChainToTarget.IWorkspace {
-  const finish: (props: IFitChainToTargetProps,
+  const finish: (props: IAutoMovieFitChainToTargetProps,
     bend: IAutoMovieSeededChainFit) => IAutoMovieSeededChainFit = (
-    props: IFitChainToTargetProps, bend: IAutoMovieSeededChainFit,
+    props: IAutoMovieFitChainToTargetProps, bend: IAutoMovieSeededChainFit,
   ): IAutoMovieSeededChainFit => ({
     pose: orientChainEffector(
       props, bend.pose, workspace.prepared ?? undefined, workspace.rig,
@@ -253,14 +253,14 @@ function preparedWorkspace(
   });
   return {
       fit: (target: IAutoMovieVector3, near?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit => {
-        const props: IFitChainToTargetProps = near === undefined
+        const props: IAutoMovieFitChainToTargetProps = near === undefined
           ? { ...workspace.props, target } : { ...workspace.props, target, near };
         return finish(props, fitChainBend(props, workspace));
       },
       continued: (target: IAutoMovieVector3,
         near: IAutoMovieSwivelNear,
         observe?: IAutoMovieChainContinuationObserver): IAutoMovieSeededChainFit => {
-        const props: IFitChainToTargetProps = { ...workspace.props, target, near };
+        const props: IAutoMovieFitChainToTargetProps = { ...workspace.props, target, near };
         const admitted: boolean = Number.isFinite(near.swivel) &&
           Number.isInteger(near.branch) && near.branch >= 0 &&
           near.branch <= 1 && Number.isFinite(near.tolerance) && near.tolerance > 0;
@@ -279,7 +279,7 @@ function preparedWorkspace(
         }
         if (candidate !== null && candidate.fitted !== null)
           return finish(props, candidate.fitted);
-        const cold: IFitChainToTargetProps = { ...props, near: undefined };
+        const cold: IAutoMovieFitChainToTargetProps = { ...props, near: undefined };
         observe?.("coldAttempt");
         return finish(cold, fitChainBend(cold, workspace));
       },

@@ -5,18 +5,19 @@ import {
   IAutoMovieBuiltSpace,
   IAutoMovieClearanceBox,
   IAutoMovieModel,
+  type IAutoMoviePassageBlockage,
   IAutoMoviePropBox,
+  type IAutoMoviePropClearanceBounds,
   IAutoMoviePropRelation,
   IAutoMoviePropSpec,
+  type IAutoMoviePropSupportFace,
   IAutoMovieStageSetPiece,
+  type IAutoMovieValidatePropPlacementGeometry,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { builtElementRestMatrices } from "../architecture/builtElementRestMatrices";
 import { builtPlacedPartBoxes } from "../architecture/builtPlacedPartBoxes";
-import { ViolationCollector } from "../validation/ViolationCollector";
-import { IAutoMoviePassageBlockage } from "./IAutoMoviePassageBlockage";
-import { IAutoMoviePropClearanceBounds } from "./IAutoMoviePropClearanceBounds";
-import { IAutoMoviePropSupportFace } from "./IAutoMoviePropSupportFace";
 import { createPropPassageBlocker } from "./createPropPassageBlocker";
 import { propBoundsOverlap } from "./propBoundsOverlap";
 import { propBoxAxisIsSound } from "./propBoxAxisIsSound";
@@ -45,34 +46,9 @@ const PLACEMENT_EPSILON: number = 1e-9;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares each prop's occupancy across its checks and prepares each judged environment's passage bounds once through createPropPassageBlocker, keyed by that environment object during the synchronous validation. Inputs stay unchanged for the call; no closure is reused across later mutable environment revisions.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns the sound-prop list and a lazy map of passage queries for at most the judged environments until return; each query retains that environment's measured passage boxes. All temporary lists, maps and queries are released after validation, while violations transfer to the caller's collector.
  */
-export function validatePropPlacementGeometry(props: {
-  /** Every registry entry in declaration order, with what the registry gate resolved for it. */
-  entries: readonly {
-    /** The registry's prop. */
-    prop: IAutoMoviePropSpec;
-
-    /** Its index in the registry, for violation paths. */
-    index: number;
-
-    /** The one set piece staging it, or `undefined` when zero or several do. */
-    piece: IAutoMovieStageSetPiece | undefined;
-
-    /** Whether `forgeProp` accepted it. */
-    forged: boolean;
-
-    /** Whether its node is declared once. */
-    unique: boolean;
-
-    /** The uniquely declared environment of its `in-space` target, or `null`. */
-    located: IAutoMovieBuiltEnvironment | null;
-  }[];
-
-  /** Built environments by id, holding only ids declared exactly once. */
-  environments: ReadonlyMap<string, IAutoMovieBuiltEnvironment>;
-
-  /** Collector the violations are appended to. */
-  out: ViolationCollector;
-}): void {
+export function validatePropPlacementGeometry(
+  props: IAutoMovieValidatePropPlacementGeometry.IProps,
+): void {
   const staged: IStagedProp[] = [];
   for (const entry of props.entries) {
     if (!entry.forged || !entry.unique || entry.piece === undefined) continue;
@@ -145,7 +121,7 @@ function soundBox(box: IAutoMoviePropBox): boolean {
 /** Refuse every declared keep-out volume another staged prop's occupancy enters. */
 function validateClearances(
   staged: readonly IStagedProp[],
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void {
   for (const entry of staged) {
     const declared: readonly IAutoMovieClearanceBox[] | undefined =
@@ -173,7 +149,7 @@ function validateClearances(
 /** Refuse two placed props sharing interior volume without a declared contact. */
 function validateOverlaps(
   staged: readonly IStagedProp[],
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void {
   const contacts: Set<string> = new Set<string>();
   for (const entry of staged)
@@ -210,7 +186,7 @@ function pairKey(left: string, right: string): string {
 function validateSupports(
   staged: readonly IStagedProp[],
   environments: ReadonlyMap<string, IAutoMovieBuiltEnvironment>,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void {
   const hosts: Map<string, IStagedProp> = new Map(
     staged.map((entry: IStagedProp): [string, IStagedProp] => [
@@ -299,7 +275,7 @@ function judgedEnvironment(
 function validateOccupancy(
   entry: IStagedProp,
   environment: IAutoMovieBuiltEnvironment,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   blocked: (bounds: IAutoMoviePropBox) => IAutoMoviePassageBlockage[],
 ): void {
   const path: string = `$input.props[${entry.index}]`;

@@ -1,5 +1,9 @@
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
-import { type IHumanBody, createHumanBody } from "@automovie/motions";
+import type {
+  IAutoMovieHumanCanonicalBody,
+  IAutoMovieMotionHumanBody,
+} from "@automovie/interface";
+import { createHumanBody } from "@automovie/motions";
 
 import { PLAYGROUND_BODIES } from "../data/PLAYGROUND_BODIES";
 
@@ -15,10 +19,10 @@ export namespace PlaygroundBodies {
   /** One prepared body. */
   export interface IPrepared {
     /** The canonical body, which the polygon man is drawn from. */
-    canonical: AutoMovieHumanCanonicalBody.IBody;
+    canonical: IAutoMovieHumanCanonicalBody.IBody;
 
     /** The body a performance is planned on. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
   }
 
   const prepared: Map<string, IPrepared> = new Map();
@@ -40,7 +44,7 @@ export namespace PlaygroundBodies {
         `No body is named ${id}; the playground has ${Object.keys(PLAYGROUND_BODIES).join(", ")}`,
       );
 
-    const canonical: AutoMovieHumanCanonicalBody.IBody =
+    const canonical: IAutoMovieHumanCanonicalBody.IBody =
       AutoMovieHumanCanonicalBody.prepare(entry.parameters, {
         mass: entry.mass,
         id,

@@ -1,10 +1,8 @@
 # Narrative population statements
 
-Contract: [obligations/narratives.md](../../obligations/narratives.md).
-
 ## Continuity and progression
 
-1. Every unit is classified by its actual event, understanding, relationship, emotion, pressure, rhythm or formal contribution.
+1. Every unit is classified by its event, understanding, relationship, emotion, pressure, rhythm or formal contribution.
 2. Functionless duplication and independently addressable progressions hidden together are identified, while inseparable montage, continuous action, parallel and other owned forms are preserved, including those spanning consecutive scenes of one place and time each.
 3. Exits and entries connect through their causal or declared formal relation.
 4. The order of movable units is tested for what it contributes, without imposing linearity on episodic, nonlinear or nonhuman work.
@@ -23,7 +21,7 @@ Contract: [obligations/narratives.md](../../obligations/narratives.md).
 Promises:
 
 1. Read without prior settings knowledge, the opening gives a reason to continue and timely understanding of people, relationships, pressure, time and space.
-2. The answer traces actual introductions and returns, the declared engine and rewards, every payoff's setup, risk or cost, and the longest gaps without promised satisfaction.
+2. The answer traces introductions and returns, the declared engine and rewards, every payoff's setup, risk or cost, and the longest gaps without promised satisfaction.
 3. The answer reports spans where the engine fails, rewards are unearned or worn out, or an eventual return cannot support the delay.
 4. The ending follows from the established choices and costs, and the answer names what the last event decides and why the work stops there. Exception: an open ending needs grounds, not total explanation or a compulsory epilogue.
 
@@ -38,6 +36,6 @@ Time and variation:
     - the material occupying attention;
     - recurring image-sound functions.
 8. Treatments compare assigned exchanges; scripts and the screenplay compare their realization.
-9. Each classification rests on all actual members, not samples or character summaries. Counts locate patterns; reading judges them.
+9. Each classification rests on all members, not samples or character summaries. Counts locate patterns; reading judges them.
 10. An owned uniform form, refrain, silence, narrow world or long frustration realizes its purpose.
 11. Central concerns develop through changed events, choices, relationships, places, images, sound and form, and motifs gain force instead of appending or repeating an answer.

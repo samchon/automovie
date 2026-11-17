@@ -1,6 +1,6 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieSoftCompliance } from "./IAutoMovieSoftCompliance";
-import { IAutoMovieSoftStiffness } from "./IAutoMovieSoftStiffness";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieSoftCompliance } from "./IAutoMovieSoftCompliance";
+import type { IAutoMovieSoftStiffness } from "./IAutoMovieSoftStiffness";
 
 /**
  * Fixed-step integration settings and declared seek budgets.

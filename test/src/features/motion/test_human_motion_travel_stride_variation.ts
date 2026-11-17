@@ -1,11 +1,16 @@
-import type { IAutoMovieMotionEvent } from "@automovie/interface";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -42,31 +47,35 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_travel_stride_variation(): void {
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const strides = (row: string | null, seed: string): number[] => {
-      const standing: HumanChain = HumanChain.subject("a").stand({
+      const standing: IAutoMovieMotionHumanChain = HumanChain.subject(
+        "a",
+      ).stand({
         seconds: 0.3,
       });
       const to: { x: number; y: number; z: number } = { x: 0, y: 0, z: 16 };
-      const performance: HumanPerformance = new HumanPerformance({
-        seed,
-        laws: [...HUMAN_LEXICON.gait!],
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-        ],
-        composition: (row === null
-          ? standing.walk({ to })
-          : standing.registered(row, { to })
-        ).node,
-      });
-      const segment: HumanSegment.ISegment = performance.segments("a")[1]!;
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const performance: IAutoMovieMotionHumanPerformance =
+        new HumanPerformance({
+          seed,
+          laws: [...HUMAN_LEXICON.gait!],
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          composition: (row === null
+            ? standing.walk({ to })
+            : standing.registered(row, { to })
+          ).node,
+        });
+      const segment: IAutoMovieMotionHumanSegment =
+        performance.segments("a")[1]!;
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
         body,

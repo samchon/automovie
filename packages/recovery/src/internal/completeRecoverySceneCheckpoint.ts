@@ -1,24 +1,22 @@
 import type {
-  IAutoMovieRecoveryCameraMapPolicy,
+  IAutoMovieRecoveryCameraMapRefinementOperation,
   IAutoMovieRecoveryCameraSceneBudget,
+  IAutoMovieRecoveryCheckpointReporting,
+  IAutoMovieRecoveryFeasibleJointOptions,
+  IAutoMovieRecoveryFeasibleReportCapacity,
+  IAutoMovieRecoveryMapJointFit,
+  IAutoMovieRecoveryMapLandmark,
+  IAutoMovieRecoveryMapObservation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoverySceneCheckpointCompletionOperation,
+  IAutoMovieRecoverySceneLandmark,
+  IAutoMovieRecoverySceneLandmarksGrowthOperation,
+  IAutoMovieRecoveryScenePointEvaluationOperation,
 } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapJointFit } from "../structures/image/IAutoMovieRecoveryMapJointFit";
-import type { IAutoMovieRecoveryMapLandmark } from "../structures/image/IAutoMovieRecoveryMapLandmark";
-import type { IAutoMovieRecoveryMapObservation } from "../structures/image/IAutoMovieRecoveryMapObservation";
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
-import type { IAutoMovieRecoverySceneLandmark } from "../structures/image/IAutoMovieRecoverySceneLandmark";
-import type { IAutoMovieRecoverySceneWork } from "../structures/image/IAutoMovieRecoverySceneWork";
-import type { IAutoMovieRecoveryCheckpointReporting } from "../structures/internal/IAutoMovieRecoveryCheckpointReporting";
-import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
-import type { IAutoMovieRecoveryFeasibleReportCapacity } from "../structures/internal/IAutoMovieRecoveryFeasibleReportCapacity";
-import type { IAutoMovieRecoverySceneCheckpoint } from "../structures/internal/IAutoMovieRecoverySceneCheckpoint";
-import type { IAutoMovieRecoverySceneCheckpointTrace } from "../structures/internal/IAutoMovieRecoverySceneCheckpointTrace";
 import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
 import { growRecoverySceneLandmarks } from "./growRecoverySceneLandmarks";
-import type { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
 import { prepareRecoveryCheckpointReportCapacity } from "./prepareRecoveryCheckpointReportCapacity";
 import { refineRecoveryCameraMap } from "./refineRecoveryCameraMap";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
@@ -40,23 +38,19 @@ import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a detached qualified proposal or explicit failed diagnostics returns. Explicit feasible calls borrow the scene reporting scope or prepay256 for one direct checkpoint scope; every growth and fit uses its remaining scene/fit capacity. Internal feasible selection admits four candidates/current/checkpoint/factors, adaptive design and any requested lagged F/S/A envelope before allocating. Its owned seeds expire per fit rather than crossing changed-population closure passes. Observers own O(V+L+E) clones per event/history; absent observers allocate none. Unaccepted factors/candidates/proposals expire, consumed work remains, and no image or external handle is retained.
  */
 export function completeRecoverySceneCheckpoint(
-  initialPoses: readonly (IAutoMovieRecoveryMapPose | null)[],
-  initialLandmarks: readonly IAutoMovieRecoveryMapLandmark[],
-  tracks: ReturnType<typeof linkRecoveryCameraTracks>["tracks"],
-  charts: readonly ReturnType<typeof createRecoveryCameraChart>[],
-  policy: IAutoMovieRecoveryCameraMapPolicy,
-  budget: IAutoMovieRecoveryCameraSceneBudget,
-  work: IAutoMovieRecoverySceneWork,
-  checkpoint: () => void,
-  onProposal: (
-    points: number,
-    observations: number,
-    report: IAutoMovieRecoveryMapJointFit | null,
-  ) => void = (): void => {},
-  onTrace?: (trace: IAutoMovieRecoverySceneCheckpointTrace) => void,
-  feasible?: IAutoMovieRecoveryFeasibleJointOptions,
-  reportCapacity?: IAutoMovieRecoveryFeasibleReportCapacity,
-): IAutoMovieRecoverySceneCheckpoint {
+  initialPoses: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[0],
+  initialLandmarks: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[1],
+  tracks: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[2],
+  charts: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[3],
+  policy: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[4],
+  budget: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[5],
+  work: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[6],
+  checkpoint: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[7],
+  onProposal: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[8] = (): void => {},
+  onTrace?: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[9],
+  feasible?: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[10],
+  reportCapacity?: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[11],
+): ReturnType<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation> {
   let poses: (IAutoMovieRecoveryMapPose | null)[] = initialPoses.map(
     (
       pose: IAutoMovieRecoveryMapPose | null,
@@ -97,7 +91,7 @@ export function completeRecoverySceneCheckpoint(
           ...budget,
           maxResidentLinearEntries: reporting.sceneEntries,
         };
-  let proposal: ReturnType<typeof growRecoverySceneLandmarks> =
+  let proposal: ReturnType<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation> =
     growRecoverySceneLandmarks(
       tracks,
       initialLandmarks,
@@ -154,7 +148,7 @@ export function completeRecoverySceneCheckpoint(
         joint: null,
       }),
     );
-    const refined: ReturnType<typeof refineRecoveryCameraMap> =
+    const refined: ReturnType<IAutoMovieRecoveryCameraMapRefinementOperation.Operation> =
       refineRecoveryCameraMap(
         active.map((view: number): IAutoMovieRecoveryMapPose => poses[view]!),
         compact,
@@ -206,7 +200,7 @@ export function completeRecoverySceneCheckpoint(
             viewIndex: active[observation.viewIndex]!,
           }),
         );
-      const measured: ReturnType<typeof evaluateRecoveryScenePoint> =
+      const measured: ReturnType<IAutoMovieRecoveryScenePointEvaluationOperation.Operation> =
         evaluateRecoveryScenePoint(
           landmark.point,
           observations,
@@ -254,7 +248,7 @@ export function completeRecoverySceneCheckpoint(
         maximumReprojectionErrorPx: null,
         minimumPointParallaxDegrees: null,
       };
-    const completed: ReturnType<typeof growRecoverySceneLandmarks> =
+    const completed: ReturnType<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation> =
       growRecoverySceneLandmarks(
         tracks,
         landmarks,

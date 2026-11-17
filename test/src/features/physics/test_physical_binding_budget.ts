@@ -5,6 +5,12 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalContactBinding as Binding,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePreparePhysicalGeometry,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import assert from "node:assert/strict";
@@ -32,7 +38,7 @@ import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 export async function test_physical_binding_budget(): Promise<void> {
   const profile: P = PhysicalModelFixtures.quadrupod();
   const receiver: P = PhysicalFixtures.sphere();
-  const geometry: Geometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
   /** Independent separation rows exercise the real variable-row consumer without introducing a body-name rule. */
   const bindings: (
     count: number,
@@ -52,7 +58,8 @@ export async function test_physical_binding_budget(): Promise<void> {
         source: {
           bone: "upper-0",
           shape: own.segments.find(
-            (segment: P.ISegment): boolean => segment.bone === "upper-0",
+            (segment: IAutoMoviePhysicalSegment): boolean =>
+              segment.bone === "upper-0",
           )!.shapes[0]!.id,
         },
         target: { body: "receiver", bone: "root", shape: "surface" },
@@ -62,14 +69,15 @@ export async function test_physical_binding_budget(): Promise<void> {
         tolerance: 0.0001,
       }),
     );
-  const input: Simulation.IInput = PhysicalFixtures.input(
-    [
-      PhysicalFixtures.body("assembly", profile, 1 / 120),
-      PhysicalFixtures.body("receiver", receiver, 1 / 120),
-    ],
-    1 / 120,
-  );
-  const source: Simulation.IBody = input.bodies[0]!;
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input(
+      [
+        PhysicalFixtures.body("assembly", profile, 1 / 120),
+        PhysicalFixtures.body("receiver", receiver, 1 / 120),
+      ],
+      1 / 120,
+    );
+  const source: IAutoMoviePhysicalSimulationInput.IBody = input.bodies[0]!;
   source.targets[0]!.bindings = bindings(17);
   assert.throws((): string => Simulation.identity(input), /budget/);
   source.maximumBindings = 17;
@@ -106,19 +114,20 @@ export async function test_physical_binding_budget(): Promise<void> {
   for (const segment of compound.segments)
     segment.shapes = Array.from(
       { length: 3 },
-      (_: unknown, index: number): P.IShape => ({
+      (_: unknown, index: number): IAutoMoviePhysicalShape => ({
         ...structuredClone(segment.shapes[0]!),
         id: `${segment.shapes[0]!.id}-${index}`,
       }),
     );
-  const bounded: Simulation.IInput = PhysicalFixtures.input(
-    [
-      PhysicalFixtures.body("assembly", compound, 1 / 120),
-      PhysicalFixtures.body("receiver", receiver, 1 / 120),
-    ],
-    1 / 120,
-  );
-  const body: Simulation.IBody = bounded.bodies[0]!;
+  const bounded: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input(
+      [
+        PhysicalFixtures.body("assembly", compound, 1 / 120),
+        PhysicalFixtures.body("receiver", receiver, 1 / 120),
+      ],
+      1 / 120,
+    );
+  const body: IAutoMoviePhysicalSimulationInput.IBody = bounded.bodies[0]!;
   body.selfAvoidance = { iterations: 1, tolerance: 0.0001 };
   body.maximumBindings = 256;
   // 39 floor rows + 594 enabled shape-pair rows + 130*3 contact rows + one separation =1024.
@@ -132,13 +141,13 @@ export async function test_physical_binding_budget(): Promise<void> {
     id: "over-residual-budget",
   });
   assert.throws((): string => Simulation.identity(bounded), /budget/);
-  const root: P.ISegment = structuredClone(
+  const root: IAutoMoviePhysicalSegment = structuredClone(
     PhysicalFixtures.sphere(0.01).segments[0]!,
   );
-  const leaves: P.ISegment[] = Array.from(
+  const leaves: IAutoMoviePhysicalSegment[] = Array.from(
     { length: 65 },
-    (_: unknown, index: number): P.ISegment => {
-      const segment: P.ISegment = structuredClone(root);
+    (_: unknown, index: number): IAutoMoviePhysicalSegment => {
+      const segment: IAutoMoviePhysicalSegment = structuredClone(root);
       segment.bone = `leaf-${index}`;
       const angle: number = (2 * Math.PI * index) / 65;
       segment.neutral.position = {
@@ -155,14 +164,14 @@ export async function test_physical_binding_budget(): Promise<void> {
     centerOfMass: {
       x:
         leaves.reduce(
-          (sum: number, segment: P.ISegment): number =>
+          (sum: number, segment: IAutoMoviePhysicalSegment): number =>
             sum + segment.neutral.position.x,
           0,
         ) / 66,
       y: 1,
       z:
         leaves.reduce(
-          (sum: number, segment: P.ISegment): number =>
+          (sum: number, segment: IAutoMoviePhysicalSegment): number =>
             sum + segment.neutral.position.z,
           0,
         ) / 66,
@@ -172,7 +181,7 @@ export async function test_physical_binding_budget(): Promise<void> {
     materials: structuredClone(receiver.materials),
     segments: [root, ...leaves],
     joints: leaves.map(
-      (segment: P.ISegment): P.IJoint => ({
+      (segment: IAutoMoviePhysicalSegment): IAutoMoviePhysicalJoint => ({
         id: segment.bone,
         parent: root.bone,
         child: segment.bone,
@@ -202,17 +211,19 @@ export async function test_physical_binding_budget(): Promise<void> {
       }),
     ),
   };
-  const coordinates: Simulation.IInput = PhysicalFixtures.input(
-    [
-      PhysicalFixtures.body("star", star, 1 / 120),
-      PhysicalFixtures.body("receiver", receiver, 1 / 120),
-    ],
-    1 / 120,
-  );
-  const selected: Simulation.IBody = coordinates.bodies[0]!;
+  const coordinates: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input(
+      [
+        PhysicalFixtures.body("star", star, 1 / 120),
+        PhysicalFixtures.body("receiver", receiver, 1 / 120),
+      ],
+      1 / 120,
+    );
+  const selected: IAutoMoviePhysicalSimulationInput.IBody =
+    coordinates.bodies[0]!;
   selected.maximumBindings = 65;
   const independent: Binding[] = leaves.map(
-    (segment: P.ISegment, index: number): Binding => ({
+    (segment: IAutoMoviePhysicalSegment, index: number): Binding => ({
       id: `independent-${index}`,
       kind: "separate",
       chain: [segment.bone],
@@ -259,7 +270,9 @@ export async function test_physical_binding_budget(): Promise<void> {
   selected.targets[0]!.pointBounds = [];
   Simulation.identity(coordinates);
   for (const active of [48, 64, 65]) {
-    const branches: P.ISegment[] = structuredClone(leaves.slice(0, 24));
+    const branches: IAutoMoviePhysicalSegment[] = structuredClone(
+      leaves.slice(0, 24),
+    );
     const compact: P = {
       ...structuredClone(star),
       id: `locked-axis-star-${active}`,
@@ -269,24 +282,30 @@ export async function test_physical_binding_budget(): Promise<void> {
       centerOfMass: {
         x:
           branches.reduce(
-            (sum: number, segment: P.ISegment): number =>
+            (sum: number, segment: IAutoMoviePhysicalSegment): number =>
               sum + segment.neutral.position.x,
             0,
           ) / 25,
         y: 1,
         z:
           branches.reduce(
-            (sum: number, segment: P.ISegment): number =>
+            (sum: number, segment: IAutoMoviePhysicalSegment): number =>
               sum + segment.neutral.position.z,
             0,
           ) / 25,
       },
       segments: [structuredClone(root), ...branches],
       joints: star.joints.slice(0, 24).map(
-        (joint: P.IJoint, index: number): P.IJoint => ({
+        (
+          joint: IAutoMoviePhysicalJoint,
+          index: number,
+        ): IAutoMoviePhysicalJoint => ({
           ...structuredClone(joint),
           axes: (["x", "y", "z"] as const).map(
-            (axis: P.IAxis["axis"], coordinate: number): P.IAxis => ({
+            (
+              axis: IAutoMoviePhysicalJointAxis["axis"],
+              coordinate: number,
+            ): IAutoMoviePhysicalJointAxis => ({
               ...joint.axes[0]!,
               axis,
               minimum: index * 3 + coordinate < active ? -1 : 0,
@@ -297,10 +316,11 @@ export async function test_physical_binding_budget(): Promise<void> {
         }),
       ),
     };
-    const admitted: Simulation.IInput = PhysicalFixtures.input(
-      [PhysicalFixtures.body("locked-star", compact, 1 / 120)],
-      1 / 120,
-    );
+    const admitted: IAutoMoviePhysicalSimulationInput.IInput =
+      PhysicalFixtures.input(
+        [PhysicalFixtures.body("locked-star", compact, 1 / 120)],
+        1 / 120,
+      );
     admitted.bodies[0]!.selfAvoidance = { iterations: 1, tolerance: 0.0001 };
 
     // Adjacent root/leaf pairs are excluded: 25 floor rows + 24*23/2 self rows = 301.

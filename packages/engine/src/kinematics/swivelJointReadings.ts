@@ -1,13 +1,14 @@
 import type {
   IAutoMovieAngleRange,
+  IAutoMovieAxisFrame,
   IAutoMovieJointAxes,
   IAutoMovieQuaternion,
+  IAutoMovieSwivelArcs,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
 import { swivelArcs } from "./swivelArcs";
 
 /**
@@ -46,8 +47,8 @@ export namespace swivelJointReadings {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The two forms are a discriminated union; neither is optional in the other.
    */
   export type IRead =
-    | { sine: swivelArcs.ISinusoid }
-    | { y: swivelArcs.ISinusoid; x: swivelArcs.ISinusoid; turn: 1 | -1 };
+    | { sine: IAutoMovieSwivelArcs.ISinusoid }
+    | { y: IAutoMovieSwivelArcs.ISinusoid; x: IAutoMovieSwivelArcs.ISinusoid; turn: 1 | -1 };
 
   /** The three clinical axes, in the order a constraint lists them. */
   export const AXES: readonly Axis[] = ["flexion", "abduction", "twist"];
@@ -96,7 +97,7 @@ export namespace swivelJointReadings {
         );
       },
     );
-    const entry = (i: number, j: number): swivelArcs.ISinusoid => {
+    const entry = (i: number, j: number): IAutoMovieSwivelArcs.ISinusoid => {
       const [zero, quarter, half] = sampled.map(
         (m: number[][]): number => m[i]![j]!,
       ) as [number, number, number];

@@ -1,11 +1,11 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -31,10 +31,10 @@ import { crawlFrame } from "./crawlFrame";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One issued source preparation, FK/name readers and bounded ROM metadata end with this synchronous search. Current candidates own only weak provenance and do not accumulate; only the final fresh map and scalar pitch escape.
  */
 export function crawlPitch(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   hips: IAutoMovieVector3,
   shoulderY: number,
-  template: IHumanPosture,
+  template: IAutoMovieMotionHumanPosture,
 ): { pitch: number; bones: ReturnType<typeof poseBones> } {
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
@@ -48,8 +48,8 @@ export function crawlPitch(
   const at: (degrees: number) => ReturnType<typeof poseBones> = (
     degrees: number,
   ): ReturnType<typeof poseBones> => {
-    const tilted: IHumanPosture = { ...template, pitch: degrees };
-    const posture: IHumanPosture = {
+    const tilted: IAutoMovieMotionHumanPosture = { ...template, pitch: degrees };
+    const posture: IAutoMovieMotionHumanPosture = {
       ...tilted,
       root: crawlFrame.rootFor(body, tilted, hips),
     };

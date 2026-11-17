@@ -1,5 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 
@@ -38,8 +41,8 @@ export namespace HumanArmDifferential {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The private column buffer holds three doubles per setup coordinate, and the chain reader holds three latest joint-triple entries; both end with this synchronous step and escape through no result or callback. Returned coordinates are fresh, source buffers are not retained, and zero displacement creates no reader.
    */
   export function step(
-    setup: G.ISetup,
-    frame: G.IFrame,
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+    frame: IAutoMovieMotionHumanArmGeometry.IFrame,
     q: readonly number[],
     contact: IAutoMovieVector3,
     r: IAutoMovieVector3,

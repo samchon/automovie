@@ -1,11 +1,14 @@
-import type { IAutoMovieMaterial } from "@automovie/interface";
+import type {
+  AutoMovieBuiltinTexturePurpose,
+  IAutoMovieMaterial,
+  IAutoMovieMaterialTextureSlotsMaterialTextureSlot,
+  IAutoMovieRenderTextureResidency,
+  IAutoMovieRenderTextureResident,
+  IAutoMovieRenderTextureSource,
+  IAutoMovieRenderTextureTarget,
+} from "@automovie/interface";
 
 import { materialTextureSlots } from "../validation/materialTextureSlots";
-import type { AutoMovieBuiltinTexturePurpose } from "./AutoMovieBuiltinTexturePurpose";
-import type { IAutoMovieRenderTextureResidency } from "./IAutoMovieRenderTextureResidency";
-import type { IAutoMovieRenderTextureResident } from "./IAutoMovieRenderTextureResident";
-import type { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
-import type { IAutoMovieRenderTextureTarget } from "./IAutoMovieRenderTextureTarget";
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
@@ -55,7 +58,7 @@ export function autoMovieRenderTextureDigest(
           resident.materials.flatMap((material: IAutoMovieMaterial): string[] =>
             materialTextureSlots(material).map(
               (
-                slot: ReturnType<typeof materialTextureSlots>[number],
+                slot: IAutoMovieMaterialTextureSlotsMaterialTextureSlot[][number],
               ): string =>
                 typeof slot.binding === "string"
                   ? slot.binding

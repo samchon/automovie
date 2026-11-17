@@ -2,6 +2,9 @@ import { sceneFogTransmittance } from "@automovie/engine";
 import {
   IAutoMovieFog,
   IAutoMovieMotion,
+  type IAutoMoviePoseKeypointActor,
+  type IAutoMoviePoseKeypointFrame,
+  type IAutoMoviePoseKeypointSidecar,
   IAutoMovieScene,
   IAutoMovieSequence,
   IAutoMovieShot,
@@ -10,9 +13,6 @@ import {
 } from "@automovie/interface";
 import {
   IAutoMovieModelObject,
-  IAutoMoviePoseKeypointActor,
-  IAutoMoviePoseKeypointFrame,
-  IAutoMoviePoseKeypointSidecar,
   buildModel,
   buildScene,
   planPoseKeypointSidecar,

@@ -12,7 +12,6 @@ export * from "./RecoveryAtlasObservationFeatures";
 export * from "./RecoveryAtlasObservationNormals";
 export * from "./RecoveryAtlasObservationPublish";
 export * from "./RecoveryAtlasObservationSource";
-export * from "./RecoveryAtlasObservationTypes";
 export * from "./RecoveryBezierFit";
 export * from "./RecoveryChartAreaObservations";
 export * from "./RecoveryChartAssembly";

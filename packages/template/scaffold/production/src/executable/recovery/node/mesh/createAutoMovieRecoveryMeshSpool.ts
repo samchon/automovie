@@ -1,11 +1,11 @@
-import type { tessellateAutoMovieLocalHermite64 as T } from "@automovie/engine";
-import type { IAutoMovieMesh } from "@automovie/interface";
-import {
-  type IAutoMovieRecoveryByteDigest,
-  type IAutoMovieRecoveryFileReceipt,
-  type IAutoMovieRecoveryMeshChunkOwner,
-  type IAutoMovieRecoveryMeshSpool,
-} from "@automovie/recovery";
+import type {
+  IAutoMovieByteDigest,
+  IAutoMovieFileReceipt,
+  IAutoMovieLocalHermiteStream64,
+  IAutoMovieMesh,
+  IAutoMovieRecoveryMeshChunkOwner,
+  IAutoMovieRecoveryMeshSpool,
+} from "@automovie/interface";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -136,7 +136,10 @@ export function createAutoMovieRecoveryMeshSpool(
     construction,
     ownership,
     counts,
-    append: (chunk: T.Chunk, owner: IAutoMovieRecoveryMeshChunkOwner): void => {
+    append: (
+      chunk: IAutoMovieLocalHermiteStream64.Chunk,
+      owner: IAutoMovieRecoveryMeshChunkOwner,
+    ): void => {
       const count: number = chunk.positions.length / 3;
       if (
         chunk.vertexStart !== counts.vertices ||
@@ -180,7 +183,9 @@ export function createAutoMovieRecoveryMeshSpool(
           triangleCount: chunk.indices.length / 3,
           physicalVertexIds: chunk.physicalVertexIds,
           patches: chunk.faceRanges.map(
-            (range: T.Chunk["faceRanges"][number]): object => ({
+            (
+              range: IAutoMovieLocalHermiteStream64.Chunk["faceRanges"][number],
+            ): object => ({
               ...range,
               triangleStart: counts.triangles + range.triangleStart,
             }),
@@ -193,10 +198,7 @@ export function createAutoMovieRecoveryMeshSpool(
       counts.triangles += chunk.indices.length / 3;
       counts.chunks++;
     },
-    commit: (
-      output: string,
-      context: object,
-    ): IAutoMovieRecoveryFileReceipt => {
+    commit: (output: string, context: object): IAutoMovieFileReceipt => {
       for (const channel of channels) flush(channel);
       if (
         channels[0]!.items !== counts.vertices * 3 ||
@@ -232,10 +234,7 @@ export function createAutoMovieRecoveryMeshSpool(
         channel.committedFiles = channel.files.length;
       return { ...previous };
     },
-    publish: (
-      output: string,
-      artifact: object,
-    ): IAutoMovieRecoveryByteDigest => {
+    publish: (output: string, artifact: object): IAutoMovieByteDigest => {
       for (const channel of channels) flush(channel);
       return writeAutoMovieRecoveryArtifact(
         output,

@@ -1,31 +1,31 @@
-import { Vector3, rotationBetween } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
-  AutoMoviePrimitiveShape,
   IAutoMovieAffordance,
   IAutoMovieModelPart,
-  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import { poseArchetypeSpanGrips } from "./poseArchetypeSpanGrips";
+import { resolveArchetypeSpanParts } from "./resolveArchetypeSpanParts";
 
 /**
  * A taut line between two frames of a model that move apart: a bowstring from a limb tip to the nock, a sling's cord from the hand to the pouch, a trace from a collar to a cart.
  *
- * A span is a round part, a cylinder of its radius, whose two ends are attached to two places of the model, each a point fixed in one of its parts or the origin of one of its affordances. After every pose the part is laid again straight between where its ends then are, so it stays attached at both whatever the articulations do. Its mass is counted at rest only, as `Archetype.body` documents for every articulated part. A span may state the line's rest length; it is then slack whenever its ends come closer than that length, and is still drawn straight here: a production that needs it to hang builds a cord on the same two ends (#3448), so a line is declared once.
+ * A span is a round part, a cylinder of its radius, attached to two part-local points or affordance origins. An explicit held overhang extends the line beyond an affordance and keeps that grip's line axis on the actual span. After every pose its ends and held frames are resolved together. Mass counts at rest only, as `Archetype.body` documents. A stated rest length reports slack when the drawn length is shorter; it does not simulate a hanging cord.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a span is, what its ends may be, when it is laid, how its mass counts and what slack means.
  * @evidence contracts/development/design.md#principled-representation A line segment between two attachment points, each a part-local point or an affordance's origin, drawn as a cylinder of fixed radius whose length and orientation follow its ends.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The span record, its end union, its state, and the two operations the archetype calls: `lay` after every pose and `state` for a span's ends and slack (#3475).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owns span endpoints, current state, geometry-only lay and complete pose emission. The constructor consumes geometry plus held frames; body-floor preview uses geometry only.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts An end is a discriminated union, so it names a part with a point or an affordance, never both.
  */
 export namespace ArchetypeSpan {
   /**
    * Where one end of a span is attached.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States both forms.
-   * @evidence contracts/development/design.md#principled-representation A part with a point in its own coordinates, or an affordance whose origin the end follows; discriminated by which key is present, each forbidding the other's.
+   * @evidence contracts/development/common.md#meaningful-documentation States both anchor forms and the optional held-line extension in metres.
+   * @evidence contracts/development/design.md#principled-representation A part-local point or affordance origin anchors the span. An affordance's explicit nonnegative overhang extends away from the opposite anchor and aligns its grip axis with the line; numeric admission remains runtime.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the two ends of `ISpan`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The members mark the other form's keys `never`, so an end cannot name both.
    */
@@ -39,6 +39,9 @@ export namespace ArchetypeSpan {
 
         /** A part end names no affordance. */
         affordance?: never;
+
+        /** Held overhang belongs only to an affordance anchor. */
+        overhang?: never;
       }
     | {
         /** The affordance whose origin the end follows. */
@@ -49,6 +52,9 @@ export namespace ArchetypeSpan {
 
         /** An affordance end takes the affordance's origin. */
         at?: never;
+
+        /** Metres beyond the grip away from the opposite anchor; when present, the grip's +X follows the span's unoriented line. */
+        overhang?: number;
       };
 
   /**
@@ -96,6 +102,21 @@ export namespace ArchetypeSpan {
 
     /** Whether the ends are closer than the rest length; false for a line that states none. */
     slack: boolean;
+  }
+
+  /**
+   * Span geometry and held contact frames resolved from the same pose.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two actual model lists updated together without changing contact origins or identities.
+   * @evidence contracts/development/design.md#principled-representation One result keeps drawn spans and their held-frame axes consistent with the same endpoint calculation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The Archetype constructor consumes both lists; geometry-only callers retain lay's existing surface.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No replacement contact vocabulary, hidden anchor or fitted frame is introduced.
+   */
+  export interface IPose {
+    /** Posed parts with each declared line rebuilt at its actual endpoints. */
+    parts: IAutoMovieModelPart[];
+    /** Original contact semantics with explicitly held axes aligned to the line. */
+    affordances: IAutoMovieAffordance[];
   }
 
   /**
@@ -171,12 +192,12 @@ export namespace ArchetypeSpan {
    * @param parts The posed parts.
    * @param affordances The posed affordances.
    * @returns Its state.
-   * @throws {ArchetypeRefusal} As `locate` does.
+   * @throws {ArchetypeRefusal} For a missing anchor, coincident/nonfinite geometry or invalid physical radius, rest length or held extension.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Both ends located, their distance compared with the rest length.
+   * @evidence contracts/development/implementation.md#principled-implementation Locate both anchors, extend a held endpoint away from the opposite anchor by its declared overhang, then compare the finite drawn length with the rest length.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two locations and one comparison.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Slack is exact: equal to the rest length is taut.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Slack is exact: equal to the rest length is taut. Invalid lengths and coincident anchors refuse instead of producing an invented direction.
    * @evidence contracts/development/implementation.md#efficient-algorithms As `locate`, twice.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `locate`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -187,9 +208,72 @@ export namespace ArchetypeSpan {
     parts: readonly IAutoMovieModelPart[],
     affordances: readonly IAutoMovieAffordance[],
   ): IState {
-    const from: IAutoMovieVector3 = locate(archetype, span.from, parts, affordances);
-    const to: IAutoMovieVector3 = locate(archetype, span.to, parts, affordances);
-    const length: number = Vector3.length(Vector3.subtract(to, from));
+    const start: IAutoMovieVector3 = locate(
+      archetype,
+      span.from,
+      parts,
+      affordances,
+    );
+    const end: IAutoMovieVector3 = locate(
+      archetype,
+      span.to,
+      parts,
+      affordances,
+    );
+    const fromOverhang: number = overhang(archetype, span.id, span.from);
+    const toOverhang: number = overhang(archetype, span.id, span.to);
+    const offset: IAutoMovieVector3 = Vector3.subtract(end, start);
+    const distance: number = Math.hypot(offset.x, offset.y, offset.z);
+    if (
+      ![
+        start.x,
+        start.y,
+        start.z,
+        end.x,
+        end.y,
+        end.z,
+        distance,
+        span.radius,
+      ].every(Number.isFinite) ||
+      !(span.radius > 0) ||
+      (span.length !== null &&
+        !(Number.isFinite(span.length) && span.length >= 0)) ||
+      !(distance > 0)
+    )
+      refuse(
+        archetype,
+        span.id,
+        distance,
+        "span geometry and held overhang must be finite, with distinct anchors for an extension",
+      );
+    const direction: IAutoMovieVector3 =
+      distance === 0
+        ? { x: 0, y: 0, z: 0 }
+        : {
+            x: offset.x / distance,
+            y: offset.y / distance,
+            z: offset.z / distance,
+          };
+    const from: IAutoMovieVector3 =
+      fromOverhang === 0
+        ? start
+        : Vector3.subtract(start, Vector3.scale(direction, fromOverhang));
+    const to: IAutoMovieVector3 =
+      toOverhang === 0
+        ? end
+        : Vector3.add(end, Vector3.scale(direction, toOverhang));
+    const length: number = Math.hypot(
+      to.x - from.x,
+      to.y - from.y,
+      to.z - from.z,
+    );
+    if (!(Number.isFinite(length) && length > 0))
+      refuse(
+        archetype,
+        span.id,
+        length,
+        "the extended span cannot be represented as finite geometry",
+      );
     return {
       from,
       to,
@@ -209,11 +293,11 @@ export namespace ArchetypeSpan {
    * @throws {ArchetypeRefusal} As `locate` does, or when a span's ends meet, which leaves no line to draw.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is replaced and each refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The builder's rod: a cylinder of the span's radius and the ends' distance, centred between them, its axis `+Y` turned onto the line by the shortest rotation. Ends are read from the pose, never from a span laid before, so a span is never laid on a span.
+   * @evidence contracts/development/implementation.md#principled-implementation The shared dependency resolver places each actual cylinder between its current anchors. A span attached to another span reads its predecessor's current frame in topological order; cycles refuse.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One state and one part per span.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Coincident ends are refused rather than drawn as a part of no length, which the model validator refuses.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in spans times parts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `state` and the engine's `rotationBetween`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shared current-state reader and the same dependency/geometry owner as complete pose emission.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lay(
@@ -223,46 +307,98 @@ export namespace ArchetypeSpan {
     affordances: readonly IAutoMovieAffordance[],
   ): IAutoMovieModelPart[] {
     if (spans.length === 0) return parts;
-    const laid: Map<string, IAutoMovieTransform> = new Map();
-    const heights: Map<string, number> = new Map();
-    for (const span of spans) {
-      const now: IState = state(archetype, span, parts, affordances);
-      if (!(now.length > 0))
-        throw new ArchetypeRefusal({
-          kind: "articulation",
-          archetype,
-          axis: span.id,
-          value: now.length,
-          feasible: null,
-          reason: `the span "${span.id}" has both ends at one point`,
-          fix: "articulate the model so the span's ends stay apart",
-        });
-      heights.set(span.id, now.length);
-      laid.set(span.id, {
-        translation: Vector3.scale(Vector3.add(now.from, now.to), 0.5),
-        rotation: rotationBetween(
-          { x: 0, y: 1, z: 0 },
-          Vector3.subtract(now.to, now.from),
-        ),
-        scale: { ...ArchetypeFrame.UNIT },
-      });
-    }
-    return parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart => {
-      const transform: IAutoMovieTransform | undefined = laid.get(part.id);
-      if (transform === undefined || part.geometry.type !== "primitive")
-        return part;
-      const shape: AutoMoviePrimitiveShape = part.geometry.shape;
-      return {
-        ...part,
-        geometry: {
-          ...part.geometry,
-          shape:
-            shape.type === "cylinder"
-              ? { ...shape, height: heights.get(part.id)! }
-              : shape,
-        },
-        transform,
-      };
+    return resolve(archetype, spans, parts, affordances).parts;
+  }
+
+  /**
+   * Resolve drawn lines and their explicitly held grip axes together.
+   *
+   * @param archetype The identity used in actionable refusals.
+   * @param spans Declared lines with part-local or affordance anchors.
+   * @param parts Current actual parts before the lines are rebuilt.
+   * @param affordances Current contact frames, with held origins already placed.
+   * @returns Actual line parts and matching grip frames without mutating inputs.
+   * @throws {ArchetypeRefusal} For invalid geometry, missing anchors or incompatible line directions sharing one grip.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States same-pose line/grip ownership, preserved held origins, explicit overhang semantics and conflict refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Resolve each span once, draw its finite cylinder and minimally rotate each explicit held contact's +X onto that line. An opposite axis represents the same round grip, chosen closest to its current orientation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One state list serves shared geometry placement and held-axis alignment before the two model lists are returned.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip origin never moves, no hidden anchor is added and incompatible simultaneous line directions refuse rather than letting the last span win.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Endpoint lookup costs O(S(P+A)); geometry and contact maps cost O(S+P+A) for spans, parts and contacts, without repeated state calculation in this operation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same computed endpoints drive both emitted cylinder axes and grip rotations; lay reuses the same placement owner for geometry-only consumers.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources State and alignment maps are call-local; new changed frames and parts escape, no pose cache or external resource is retained.
+   */
+  export function pose(
+    archetype: string,
+    spans: readonly ISpan[],
+    parts: IAutoMovieModelPart[],
+    affordances: IAutoMovieAffordance[],
+  ): IPose {
+    if (spans.length === 0) return { parts, affordances };
+    const resolved: ReturnType<typeof resolveArchetypeSpanParts> = resolve(
+      archetype,
+      spans,
+      parts,
+      affordances,
+    );
+    return {
+      parts: resolved.parts,
+      affordances: poseArchetypeSpanGrips(
+        archetype,
+        spans,
+        resolved.states,
+        affordances,
+      ),
+    };
+  }
+
+  /** Endpoint semantics stay with this namespace while graph/geometry work has one shared owner. */
+  function resolve(
+    archetype: string,
+    spans: readonly ISpan[],
+    parts: IAutoMovieModelPart[],
+    affordances: readonly IAutoMovieAffordance[],
+  ): ReturnType<typeof resolveArchetypeSpanParts> {
+    return resolveArchetypeSpanParts(
+      archetype,
+      spans,
+      parts,
+      (span: ISpan, current: readonly IAutoMovieModelPart[]): IState =>
+        state(archetype, span, current, affordances),
+    );
+  }
+
+  /** A held extension is a physical length, never a missing or negative anchor. */
+  function overhang(archetype: string, id: string, end: End): number {
+    const value: number = end.overhang === undefined ? 0 : end.overhang;
+    if (
+      !(Number.isFinite(value) && value >= 0) ||
+      (end.affordance === undefined && end.overhang !== undefined)
+    )
+      refuse(
+        archetype,
+        id,
+        value,
+        "held overhang must be a finite nonnegative affordance-end length",
+      );
+    return value;
+  }
+
+  /** One existing refusal type carries the original physical request. */
+  function refuse(
+    archetype: string,
+    id: string,
+    value: unknown,
+    reason: string,
+  ): never {
+    throw new ArchetypeRefusal({
+      kind: "parameter",
+      archetype,
+      axis: id,
+      value,
+      feasible: null,
+      reason,
+      fix: "supply finite distinct anchors and compatible explicitly held line directions",
     });
   }
 }

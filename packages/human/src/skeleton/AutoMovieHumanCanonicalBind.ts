@@ -1,3 +1,13 @@
+import type {
+  IAutoMovieHumanBodySources,
+  IAutoMovieHumanCalibrationBone,
+  IAutoMovieHumanEyeSeat,
+  IAutoMovieHumanHeadPrior,
+  IAutoMovieHumanLimbRest,
+  IAutoMovieHumanNeckSource,
+  IAutoMovieHumanSkeletonLaw,
+} from "@automovie/interface";
+
 import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLaw } from "../generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanHeadArcs } from "../generation/AutoMovieHumanHeadArcs";
@@ -58,7 +68,7 @@ export namespace AutoMovieHumanCanonicalBind {
   /** The bind joints with the stature they are scaled by. */
   export interface IOutput {
     /** Parent-before-child bones, calibration mm. */
-    bones: AutoMovieHumanSkeletonLaw.IBone[];
+    bones: IAutoMovieHumanCalibrationBone[];
 
     /** Stature in the same calibration mm. */
     stature: number;
@@ -76,13 +86,13 @@ export namespace AutoMovieHumanCanonicalBind {
   export function of(params: IAutoMovieHumanParameters): IOutput {
     // The resolved inputs and frame; every solve behind this record is an
     // explicit request this function never makes.
-    const original: AutoMovieHumanBodyLaw.IOriginal =
+    const original: IAutoMovieHumanBodySources.IOriginal =
       AutoMovieHumanBodyLaw.prepareSources(params);
     const sex: AutoMovieHumanSex = AutoMovieHumanBodyAnatomy.sexOf(params);
     const stature: number = original.stature;
 
     // The neck's axis and the head's landmarks, before any neck or head curve.
-    const neck: AutoMovieHumanNeckSource.IOutput = AutoMovieHumanNeckSource.of(
+    const neck: IAutoMovieHumanNeckSource.IOutput = AutoMovieHumanNeckSource.of(
       original.headInputs,
       original.limbs.legs.scale,
     );
@@ -104,13 +114,13 @@ export namespace AutoMovieHumanCanonicalBind {
 
     // The shoulder stands on the acromion and the neck's tape radius at the
     // neck base, in place of the detailed figure's solved neck-base course.
-    const shoulder: AutoMovieHumanLimbRest.IShoulder =
+    const shoulder: IAutoMovieHumanLimbRest.IShoulder =
       AutoMovieHumanShoulderDatum.create(original.trunkInputs, stature, [
         neckBase[0],
         neckBase[1],
         neckRadius,
       ]);
-    const limbs: AutoMovieHumanLimbRest.IOutput = AutoMovieHumanLimbRest.create(
+    const limbs: IAutoMovieHumanLimbRest.IOutput = AutoMovieHumanLimbRest.create(
       {
         stature,
         arms: original.limbs.arms,
@@ -119,7 +129,7 @@ export namespace AutoMovieHumanCanonicalBind {
         sex,
         diagnostics: original.diagnostics,
         hipForward: original.frame.perineum,
-        shoulder: (): AutoMovieHumanLimbRest.IShoulder => shoulder,
+        shoulder: (): IAutoMovieHumanLimbRest.IShoulder => shoulder,
       },
     );
 
@@ -130,7 +140,7 @@ export namespace AutoMovieHumanCanonicalBind {
       limbs.leg("right").hip,
       0.5,
     );
-    const body: AutoMovieHumanSkeletonLaw.IOutput =
+    const body: IAutoMovieHumanSkeletonLaw.IOutput =
       AutoMovieHumanSkeletonLaw.body(
         { stature, diagnostics: original.diagnostics },
         {
@@ -155,15 +165,15 @@ export namespace AutoMovieHumanCanonicalBind {
 
     // The globes sit behind the nasion's skin on the median profile, each at
     // its own opening's lateral place, as the head lane seats them.
-    const face: AutoMovieHumanHeadPrior.IFace =
+    const face: IAutoMovieHumanHeadPrior.IFace =
       AutoMovieHumanHeadPrior.PRIOR.face;
     const seat: number =
       AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion) -
       face.eyeRecess * plan.scale;
-    const eyes: IAutoMovieHumanBodyCalibration.IEye[] = (
+    const eyes: IAutoMovieHumanEyeSeat[] = (
       ["left", "right"] as const
     ).map(
-      (side: "left" | "right"): IAutoMovieHumanBodyCalibration.IEye => ({
+      (side: "left" | "right"): IAutoMovieHumanEyeSeat => ({
         side,
         centre: [
           seat - face.marginForward * plan.scale,

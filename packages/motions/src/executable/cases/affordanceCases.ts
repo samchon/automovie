@@ -5,14 +5,15 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidSocket,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanOperate,
+  IAutoMovieMotionHumanOperateDrive,
+  IAutoMovieMotionHumanPerformance,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { operate } from "../../affordance/operate";
-import type { operateDrive } from "../../affordance/operateDrive";
-import type { IHumanBody } from "../../body/IHumanBody";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
@@ -68,7 +69,7 @@ export function affordanceCases(
     });
     const mechanisms: [
       string,
-      Exclude<operate.Mechanism, { kind: "insert" }>,
+      Exclude<IAutoMovieMotionHumanOperate.Mechanism, { kind: "insert" }>,
     ][] = [
       ["button", { kind: "button", at: at(-0.15, 1.1, 0.5) }],
       ["knob", { kind: "knob", at: at(-0.2, 0.95, 0.5), turn: 90 }],
@@ -88,11 +89,12 @@ export function affordanceCases(
       ],
     ];
     for (const [label, mechanism] of mechanisms) {
-      const performance: HumanPerformance = FamilyCaseKit.perform(
-        "affordance",
-        [{ subject: "a", body: who.body }],
-        HumanChain.subject("a").act("operate", { mechanism }),
-      );
+      const performance: IAutoMovieMotionHumanPerformance =
+        FamilyCaseKit.perform(
+          "affordance",
+          [{ subject: "a", body: who.body }],
+          HumanChain.subject("a").act("operate", { mechanism }),
+        );
       const ready: number = FamilyCaseKit.event(performance, "ready");
       const start: number = FamilyCaseKit.event(performance, "strokeStart");
       const end: number = FamilyCaseKit.event(performance, "strokeEnd");
@@ -101,7 +103,7 @@ export function affordanceCases(
         point: (mechanism.at as { at: IAutoMovieVector3 }).at,
         normal: towardPerformer,
       };
-      const hinge: operateDrive.IHinge | undefined =
+      const hinge: IAutoMovieMotionHumanOperateDrive.IHinge | undefined =
         mechanism.kind === "hinge"
           ? { point: (mechanism.hinge as { at: IAutoMovieVector3 }).at }
           : undefined;
@@ -213,8 +215,8 @@ export function affordanceCases(
 
 /** A body socket's displayed world point. */
 function socket(
-  body: IHumanBody,
-  performance: HumanPerformance,
+  body: IAutoMovieMotionHumanBody,
+  performance: IAutoMovieMotionHumanPerformance,
   seconds: number,
   name: AutoMovieHumanoidSocket,
 ): IAutoMovieVector3 {

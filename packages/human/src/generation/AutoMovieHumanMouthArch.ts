@@ -1,4 +1,9 @@
-import type { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
+import type {
+  IAutoMovieHumanMouthArch,
+  IAutoMovieHumanMouthPrior,
+  IAutoMovieHumanToothPlacement,
+} from "@automovie/interface";
+
 import { AutoMovieHumanMouthPrior as Prior } from "./AutoMovieHumanMouthPrior";
 
 /**
@@ -14,15 +19,6 @@ import { AutoMovieHumanMouthPrior as Prior } from "./AutoMovieHumanMouthPrior";
  * under a micrometre for arches of a few centimetres.
  */
 export namespace AutoMovieHumanMouthArch {
-  /** A beta arch fitted to one quadrant's teeth. */
-  export interface IArch {
-    /** Full width between the arch's ends, mm. */
-    width: number;
-
-    /** Depth from the ends' line to the front, mm. */
-    depth: number;
-  }
-
   /**
    * The upper arch: its half length is the quadrant's crown widths, and its
    * first molars' mesiobuccal cusps, a quarter of the molar past its mesial
@@ -34,17 +30,25 @@ export namespace AutoMovieHumanMouthArch {
    * @param teeth One quadrant's crowns from the central incisor back.
    * @returns The arch.
    */
-  export function arch(teeth: readonly Prior.ITooth[]): IArch {
+  export function arch(
+    teeth: readonly IAutoMovieHumanMouthPrior.ITooth[],
+  ): IAutoMovieHumanMouthArch.IArch {
     const total: number = teeth.reduce(
-      (s: number, t: Prior.ITooth): number => s + t.width,
+      (s: number, t: IAutoMovieHumanMouthPrior.ITooth): number => s + t.width,
       0,
     );
     const cusp: number =
       teeth
         .slice(0, 5)
-        .reduce((s: number, t: Prior.ITooth): number => s + t.width, 0) +
+        .reduce(
+          (s: number, t: IAutoMovieHumanMouthPrior.ITooth): number =>
+            s + t.width,
+          0,
+        ) +
       teeth[5]!.width / 4;
-    const sized: (ratio: number) => IArch = (ratio: number): IArch => {
+    const sized: (ratio: number) => IAutoMovieHumanMouthArch.IArch = (
+      ratio: number,
+    ): IAutoMovieHumanMouthArch.IArch => {
       // Chord lengths are positively homogeneous in width. Keep the former
       // solve's bounds, including saturation, without remeasuring 60 scales.
       const w: number = Math.min(
@@ -78,19 +82,19 @@ export namespace AutoMovieHumanMouthArch {
    * @returns The jaw's teeth, left side first.
    */
   export function place(
-    crowns: readonly Prior.ITooth[],
-    upper: IArch,
+    crowns: readonly IAutoMovieHumanMouthPrior.ITooth[],
+    upper: IAutoMovieHumanMouthArch.IArch,
     inset: number,
     start: number,
-    edge: [number, number],
+    edge: IAutoMovieHumanMouthArch.PlaceEdge,
     cant: number,
     jaw: "upper" | "lower",
-  ): AutoMovieHumanMouth.ITooth[] {
-    const out: AutoMovieHumanMouth.ITooth[] = [];
+  ): IAutoMovieHumanToothPlacement[] {
+    const out: IAutoMovieHumanToothPlacement[] = [];
     const front: number = beta(upper, 0);
     for (const side of [1, -1] as const) {
       let length: number = 0;
-      crowns.forEach((crown: Prior.ITooth): void => {
+      crowns.forEach((crown: IAutoMovieHumanMouthPrior.ITooth): void => {
         // The lower cusp line is the upper's moved inward by the overjet, and
         // its teeth stand side by side along it from the midline. A crown's
         // centre lies a quarter of its depth inside the cusp line.
@@ -132,7 +136,10 @@ export namespace AutoMovieHumanMouthArch {
    * @param a The arch.
    * @param lateral Lateral place from the midline, mm.
    */
-  export function beta(a: IArch, lateral: number): number {
+  export function beta(
+    a: IAutoMovieHumanMouthArch.IArch,
+    lateral: number,
+  ): number {
     const s: number = lateral / a.width;
     const q: number = Math.max(0, (0.5 + s) * (0.5 - s));
     return BETA * a.depth * q ** Prior.ARCH_POWER;
@@ -158,7 +165,11 @@ export namespace AutoMovieHumanMouthArch {
    * arch, inset toward its inside; the arch's own curve for no inset. Walked
    * in fine chords, since the beta arch has no closed arc length.
    */
-  function walk(a: IArch, length: number, inset: number = 0): IStep {
+  function walk(
+    a: IAutoMovieHumanMouthArch.IArch,
+    length: number,
+    inset: number = 0,
+  ): IStep {
     const steps: number = 2000;
     const half: number = a.width / 2;
     const at = (lateral: number): IStep => {
@@ -204,7 +215,7 @@ export namespace AutoMovieHumanMouthArch {
   }
 
   /** Half arc length of an arch, mm, walked in 2000 chords. */
-  function halfLength(a: IArch): number {
+  function halfLength(a: IAutoMovieHumanMouthArch.IArch): number {
     let travelled: number = 0;
     let previous: [number, number] = [0, beta(a, 0)];
     const steps: number = 2000;

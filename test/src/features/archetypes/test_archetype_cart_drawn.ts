@@ -143,7 +143,9 @@ export function test_archetype_cart_drawn(): void {
       const towed: ArchetypeRide.IRide<
         createCart.Affordance,
         createCart.Dimension
-      > = ArchetypeRide.towed(leader, "hitch", cart, "coupling");
+      > = ArchetypeRide.towed(leader, "hitch", cart, "coupling", {
+        support: createCart.towing(cart),
+      });
       for (const seconds of [0, 5, 10, 15, 20])
         if (
           gap(

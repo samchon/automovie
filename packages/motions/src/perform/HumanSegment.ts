@@ -1,28 +1,20 @@
-import type { IAutoMovieSchedule } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanInterruptRow,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
+  IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
-import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
-import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
-import type { IHumanLayer } from "../law/IHumanLayer";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { poseBones } from "../posture/poseBones";
-import type { HumanSkill } from "../skill/HumanSkill";
 import { HumanSegmentCut } from "./HumanSegmentCut";
 import { HumanSegmentEntry } from "./HumanSegmentEntry";
 import { HumanSegmentPose } from "./HumanSegmentPose";
-import type { IHumanPerformer } from "./IHumanPerformer";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
@@ -51,72 +43,12 @@ import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
  * name and pass straight to their owners.
  */
 export namespace HumanSegment {
-  /** One displayed pose as its evaluation produced it, kept with what its readers take from it. */
-  export interface IShown {
-    /** The complete pose. */
-    pose: IAutoMoviePose;
+  /** The interface contract (`IAutoMovieMotionHumanSegment.IShown`). */
+  export type IShown = IAutoMovieMotionHumanSegment.IShown;
 
-    /** The pose's bones as the body's rig admitted them (`poseBones.read`): made when the pose's bones are first read and taken by every later reader of them, so the pose is admitted once; absent until then. */
-    reading?: ReturnType<typeof poseBones.read>;
-  }
+  
 
-  /** One person's state in a performance. */
-  export interface IPerson {
-    /** The performer. */
-    performer: IHumanPerformer;
-
-    /** The resolved skill. */
-    skill: HumanSkill.ISkill;
-
-    /** Placed actions, in film order. */
-    segments: ISegment[];
-
-    /** Actions placed over those, in placement order: each takes its claimed channels from the carrier while it runs. */
-    overlays: IOverlay[];
-
-    /** The standing posture before the first action. */
-    initial: IHumanPosture;
-
-    /** Displayed poses already evaluated, by film second; bounded to 4096 entries. */
-    cache: Map<number, IShown>;
-
-    /** Whether the schedule is still being resolved: nothing is cached meanwhile, because another person's actions may not be placed yet. */
-    resolving: boolean;
-
-    /**
-     * Displayed poses read while one action is being planned, by film second
-     * (`planning`): what is placed does not change during one plan, so its
-     * readers share each pose; absent outside a plan.
-     */
-    planning?: Map<number, IShown>;
-
-    /** Additive layers over the person's actions, in order, each inside its window. */
-    layers: ILayered[];
-
-    /** What a layer can read. */
-    layer: IHumanLayer.IContext;
-
-    /** Props this person's actions left held, in placement order. */
-    holds: IHeld[];
-
-    /** Resolved stops of this person's weapons, film seconds, keyed by `weapon(segment, id)`. */
-    stops: Map<string, number>;
-  }
-
-  /** A layer and the film seconds it runs in. */
-  export interface ILayered {
-    /** The layer. */
-    layer: IHumanLayer;
-
-    /** The second it starts; minus infinity for the whole film. */
-    from: number;
-
-    /** The second it ends; infinity for the whole film. */
-    to: number;
-
-    /** Seconds over which it comes in and goes out. */
-    fade: number;
-  }
+  
 
   /**
    * A weapon's key among its person's stops.
@@ -125,65 +57,11 @@ export namespace HumanSegment {
    * @param id The weapon's id within its plan.
    * @returns The key.
    */
-  export function weapon(segment: ISegment, id: string): string {
+  export function weapon(segment: IAutoMovieMotionHumanSegment, id: string): string {
     return `${segment.index}:${id}`;
   }
 
-  /** A prop held across actions. */
-  export interface IHeld {
-    /** The holding hand. */
-    side: "left" | "right";
-
-    /** The prop's subject. */
-    prop: string;
-
-    /** The holding fingers' clinical angles. */
-    fingers: Readonly<
-      Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
-    >;
-
-    /** The action that took hold. */
-    source: ISegment;
-
-    /** Film second the hold starts. */
-    from: number;
-
-    /** Film second a later action takes the hand over; infinite while none has. */
-    until: number;
-
     /**
-     * Whether the action that took the hand over rides a carrier. The
-     * carrier is still running then, so the hold ends for it at `until`
-     * too, where a hold taken over by the next action still rides every
-     * action entered before the takeover.
-     */
-    riding?: boolean;
-
-    /** The holding arm relative to the chest, captured when the carry starts. */
-    carry?: ICarry;
-  }
-
-  /**
-   * A holding arm as its action left it, which the carry keeps: the hand's
-   * frame and the elbow in the chest's frame, and the arm's own solution
-   * (`IHumanPosture.IGoal.reference`), so the carried arm stays in the
-   * configuration it took hold in.
-   */
-  export interface ICarry {
-    /** The hand joint in the chest's frame, metres. */
-    position: IAutoMovieVector3;
-
-    /** The hand's rotation in the chest's frame. */
-    rotation: IAutoMovieQuaternion;
-
-    /** The elbow in the chest's frame, metres: the carry's bend hint. */
-    elbow: IAutoMovieVector3;
-
-    /** The arm's solution there. */
-    reference: IHumanPosture.IReference;
-  }
-
-  /**
    * Whether a plan drives a hand: it has a contact window on it or names it.
    *
    * @param plan The plan.
@@ -191,70 +69,14 @@ export namespace HumanSegment {
    * @returns Whether it drives the hand.
    */
   export function drives(
-    plan: IHumanActionPlan,
+    plan: IAutoMovieMotionHumanActionPlan,
     side: "left" | "right",
   ): boolean {
     return (
       plan.contacts.some(
-        (c: IHumanContactWindow): boolean => c.part === `${side}Hand`,
+        (c: IAutoMovieMotionHumanContactWindow): boolean => c.part === `${side}Hand`,
       ) || (plan.hands ?? []).includes(side)
     );
-  }
-
-  /** One placed action. */
-  export interface ISegment {
-    /** Order within the person's actions. */
-    index: number;
-
-    /** The schedule entry's walk-order index. */
-    entry: number;
-
-    /** The action's stable id: its anchor or its name. */
-    id: string;
-
-    /** The action. */
-    name: HumanActionKey;
-
-    /** Its parameters. */
-    params: object;
-
-    /** Its law. */
-    law: IHumanActionLaw<never>;
-
-    /** The context it was planned in. */
-    context: IHumanActionContext<never>;
-
-    /** Its plan. */
-    plan: IHumanActionPlan;
-
-    /** Film second of the law's time zero. */
-    start: number;
-
-    /** Film second it becomes active. */
-    entryTime: number;
-
-    /** Film second it stops: its cut or its end. */
-    end: number;
-
-    /** The transition that entered it, when it follows another action. */
-    transition?: {
-      /** Transition kind. */
-      kind: IHumanInterruptRow["kind"];
-      /** Offset decay time, seconds. */
-      blend: number;
-      /** The action it follows. */
-      source: ISegment;
-      /** Film second of the cut. */
-      cut: number;
-      /** The offset, captured on first use. */
-      offset?: (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose;
-    };
-  }
-
-  /** One action placed over a carrier. */
-  export interface IOverlay extends ISegment {
-    /** The channels, or single digits, it takes from the carrier. */
-    channels: readonly AutoMovieMotionHumanChannel.Claim[];
   }
 
   /** How long an overlay takes to come in over its carrier and to give its channels back, seconds (provisional, the voluntary blend of a cancel row doubled so both ends fit a short gesture). */
@@ -275,13 +97,13 @@ export namespace HumanSegment {
    */
   export function row(
     subject: string,
-    previous: ISegment | undefined,
-    before: IAutoMovieSchedule.IEntry | undefined,
-    name: HumanActionKey,
+    previous: IAutoMovieMotionHumanSegment | undefined,
+    before: IAutoMovieScheduleEntry | undefined,
+    name: AutoMovieMotionHumanActionKey,
     start: number,
-    accepts: IHumanActionLaw["accepts"] = {},
-    family: HumanActionKey = name,
-  ): IHumanInterruptRow | undefined {
+    accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {},
+    family: AutoMovieMotionHumanActionKey = name,
+  ): IAutoMovieMotionHumanInterruptRow | undefined {
     return HumanSegmentCut.row(
       subject,
       previous,
@@ -300,7 +122,7 @@ export namespace HumanSegment {
    * @param plan The plan.
    * @returns The share.
    */
-  export function share(at: number | string, plan: IHumanActionPlan): number {
+  export function share(at: number | string, plan: IAutoMovieMotionHumanActionPlan): number {
     if (typeof at === "number") return at;
     const event = plan.events.find((e) => e.name === at);
     if (event === undefined)
@@ -328,11 +150,11 @@ export namespace HumanSegment {
    * @returns The entry state.
    */
   export function entry(
-    person: IPerson,
-    previous: ISegment | undefined,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    previous: IAutoMovieMotionHumanSegment | undefined,
     seconds: number,
     blend?: number,
-  ): IHumanEntryState {
+  ): IAutoMovieMotionHumanEntryState {
     return HumanSegmentEntry.entry(person, previous, seconds, blend);
   }
 
@@ -344,7 +166,7 @@ export namespace HumanSegment {
    * @returns The pose.
    */
   export function displayed(
-    person: IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
@@ -361,7 +183,7 @@ export namespace HumanSegment {
    *
    * @param person The person.
    */
-  export function forget(person: IPerson): void {
+  export function forget(person: IAutoMovieMotionHumanSegment.IPerson): void {
     for (const segment of person.segments) {
       segment.plan.settle?.();
       if (segment.transition !== undefined) delete segment.transition.offset;
@@ -386,14 +208,14 @@ export namespace HumanSegment {
    * @param run The planning.
    * @returns What the planning returns.
    */
-  export function planning<T>(people: Iterable<IPerson>, run: () => T): T {
-    const all: IPerson[] = [...people];
-    const nested: boolean[] = all.map((person: IPerson): boolean => person.planning !== undefined);
+  export function planning<T>(people: Iterable<IAutoMovieMotionHumanSegment.IPerson>, run: () => T): T {
+    const all: IAutoMovieMotionHumanSegment.IPerson[] = [...people];
+    const nested: boolean[] = all.map((person: IAutoMovieMotionHumanSegment.IPerson): boolean => person.planning !== undefined);
     for (const person of all) person.planning = new Map();
     try {
       return run();
     } finally {
-      all.forEach((person: IPerson, i: number): void => {
+      all.forEach((person: IAutoMovieMotionHumanSegment.IPerson, i: number): void => {
         if (nested[i]) person.planning = new Map();
         else delete person.planning;
       });
@@ -406,7 +228,7 @@ export namespace HumanSegment {
    *
    * @param people Every person of the performance.
    */
-  export function placed(people: Iterable<IPerson>): void {
+  export function placed(people: Iterable<IAutoMovieMotionHumanSegment.IPerson>): void {
     for (const person of people) person.planning?.clear();
   }
 
@@ -420,7 +242,7 @@ export namespace HumanSegment {
    *
    * @param person The person.
    */
-  export function settle(person: IPerson): void {
+  export function settle(person: IAutoMovieMotionHumanSegment.IPerson): void {
     forget(person);
     person.resolving = false;
   }

@@ -1,3 +1,5 @@
+import type { IAutoMovieSolveSoftBodyCompliantSweep } from "@automovie/interface";
+
 import { SOFT_BODY_NEIGHBOURS } from "./SOFT_BODY_NEIGHBOURS";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
 
@@ -15,10 +17,11 @@ import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
  * compliance in metres per newton. The multiplier's increment is
  * dlambda = (-C - alpha~ lambda) / (w_i + w_k + alpha~), and the particles
  * move by w_i dlambda n and -w_k dlambda n, w the inverse masses. Unlike the
- * relaxation weight of the plain position-based solver, the stiffness this
- * gives does not depend on the sweep count or the step (the paper's section
- * 4), so a cord's stretch and bend are the same at 4 and at 16 sweeps. A
- * compliance of zero is an inextensible edge. On a cord, a one-wide
+ * relaxation weight of the plain position-based solver, compliance represents
+ * a physical constitutive parameter with explicit step scaling (the paper's
+ * section 4). Finite Gauss-Seidel iteration leaves residual error: four and
+ * sixteen sweeps need not produce identical stretch or bend. Zero compliance
+ * requests an inextensible edge but does not certify convergence. On a cord, a one-wide
  * lattice, the second neighbours are its bending constraint in distance form:
  * the distance between the ends of two consecutive segments, which is
  * regular at a straight rest where the angle between the segments is not
@@ -39,25 +42,9 @@ import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each sweep reads the positions the last one left; nothing is cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Writes only the caller's predicted and multiplier buffers.
  */
-export const solveSoftBodyCompliantSweep: (props: {
-  columns: number;
-  rows: number;
-  predicted: Float64Array<ArrayBufferLike>;
-  inverseMass: Float64Array<ArrayBufferLike>;
-  restLength: Float64Array<ArrayBufferLike>;
-  compliance: readonly number[];
-  lambda: Float64Array<ArrayBufferLike>;
-  dt: number;
-}) => void = (props: {
-  columns: number;
-  rows: number;
-  predicted: Float64Array<ArrayBufferLike>;
-  inverseMass: Float64Array<ArrayBufferLike>;
-  restLength: Float64Array<ArrayBufferLike>;
-  compliance: readonly number[];
-  lambda: Float64Array<ArrayBufferLike>;
-  dt: number;
-}): void => {
+export const solveSoftBodyCompliantSweep: (
+  props: IAutoMovieSolveSoftBodyCompliantSweep.IProps,
+) => void = (props: IAutoMovieSolveSoftBodyCompliantSweep.IProps): void => {
   const { columns, rows, predicted, inverseMass, lambda }: typeof props = props;
   const slots: number = SOFT_BODY_NEIGHBOURS.length;
   const scale: number = 1 / (props.dt * props.dt);

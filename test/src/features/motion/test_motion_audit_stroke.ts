@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanAuditStroke } from "@automovie/interface";
 import { AutoMovieMotionHumanAuditStroke } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,8 +35,8 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation States the scalars, the reading's settings and the 8 scenarios with their numbers.
  */
 export function test_motion_audit_stroke(): void {
-  type Result = AutoMovieMotionHumanAuditStroke.IResult;
-  type Extreme = AutoMovieMotionHumanAuditStroke.IExtreme;
+  type Result = IAutoMovieMotionHumanAuditStroke.IResult;
+  type Extreme = IAutoMovieMotionHumanAuditStroke.IExtreme;
   const read = (
     signal: (seconds: number) => number,
     from: number = 0,

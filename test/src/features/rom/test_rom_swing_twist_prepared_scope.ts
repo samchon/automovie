@@ -1,7 +1,9 @@
 import { swingTwistRange } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
+  IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
+  IAutoMovieSwingTwistRange,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -50,7 +52,7 @@ export function test_rom_swing_twist_prepared_scope(): void {
     abduction: { x: 0, y: 1, z: 0 },
     twist: { x: 0, y: 0, z: 1 },
   };
-  const joint: swingTwistRange.IJoint = {
+  const joint: IAutoMovieJointRotationFrame = {
     axes,
     frame: { twist: { sign: -1, neutral: 10 } },
   };
@@ -79,7 +81,7 @@ export function test_rom_swing_twist_prepared_scope(): void {
   /** Admit observed finite coordinates before comparing their physical values. */
   function physical(
     label: string,
-    reading: swingTwistRange.IReading,
+    reading: IAutoMovieSwingTwistRange.IReading,
     flexion: number,
     twist: number,
   ): void {
@@ -97,13 +99,13 @@ export function test_rom_swing_twist_prepared_scope(): void {
   }
 
   scenario("immutable prepared numerical readings", (): void => {
-    const prepared: swingTwistRange.IJoint = swingTwistRange.prepare(joint);
+    const prepared: IAutoMovieJointRotationFrame = swingTwistRange.prepare(joint);
     if (!(prepared !== joint && Object.isFrozen(prepared) &&
       prepared.axes === axes && prepared.frame === joint.frame))
       findings.push("prepared wrapper does not own exactly its borrowed frame");
-    const a: swingTwistRange.IReading = swingTwistRange.read(rotation(0, 30), prepared);
-    const b: swingTwistRange.IReading = swingTwistRange.read(rotation(20, -15), prepared);
-    const restored: swingTwistRange.IReading = swingTwistRange.read(rotation(0, 30), prepared);
+    const a: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(rotation(0, 30), prepared);
+    const b: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(rotation(20, -15), prepared);
+    const restored: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(rotation(0, 30), prepared);
     physical("A", a, 0, 30);
     physical("B", b, 20, -15);
     physical("restored A", restored, 0, 30);
@@ -136,11 +138,11 @@ export function test_rom_swing_twist_prepared_scope(): void {
       abduction: axes.abduction,
       twist: axes.twist,
     };
-    const prepared: swingTwistRange.IJoint = swingTwistRange.prepare({
+    const prepared: IAutoMovieJointRotationFrame = swingTwistRange.prepare({
       axes: observed, frame: joint.frame,
     });
     if (reads !== 0) findings.push("preparation eagerly read numerical axes");
-    if (!throwsError((): swingTwistRange.IReading =>
+    if (!throwsError((): IAutoMovieSwingTwistRange.IReading =>
       swingTwistRange.read(rotation(0, 30), prepared), "owned basis input refused once"))
       findings.push("first numerical admission did not propagate the owned refusal");
     physical("retry after refusal", swingTwistRange.read(rotation(0, 30), prepared), 0, 30);
@@ -154,25 +156,25 @@ export function test_rom_swing_twist_prepared_scope(): void {
     const invalid: IAutoMovieJointAxes = {
       ...axes, flexion: { x: 0, y: 0, z: 0 },
     };
-    const raw: swingTwistRange.IJoint = {
+    const raw: IAutoMovieJointRotationFrame = {
       axes: { ...axes, flexion: { ...axes.flexion } }, frame: joint.frame,
     };
     physical("raw before axes edit", swingTwistRange.read(rotation(0, 30), raw), 0, 30);
     raw.axes.flexion.x = 0;
-    if (!throwsError((): swingTwistRange.IReading =>
+    if (!throwsError((): IAutoMovieSwingTwistRange.IReading =>
       swingTwistRange.read(rotation(0, 30), raw), "flexion"))
       findings.push("a warmed ordinary frame skipped current axis admission");
     raw.axes.flexion.x = 1;
     physical("raw recovery", swingTwistRange.read(rotation(0, 30), raw), 0, 30);
 
-    const prepared: swingTwistRange.IJoint = swingTwistRange.prepare(joint);
+    const prepared: IAutoMovieJointRotationFrame = swingTwistRange.prepare(joint);
     physical("source wrapper warmed", swingTwistRange.read(rotation(0, 30), prepared), 0, 30);
-    const copied: swingTwistRange.IJoint = { ...prepared, axes: invalid };
-    const inherited: swingTwistRange.IJoint = Object.create(prepared, {
+    const copied: IAutoMovieJointRotationFrame = { ...prepared, axes: invalid };
+    const inherited: IAutoMovieJointRotationFrame = Object.create(prepared, {
       axes: { value: invalid, enumerable: true, writable: true, configurable: true },
     });
     for (const [label, frame] of [["copied", copied], ["inherited", inherited]] as const)
-      if (!throwsError((): swingTwistRange.IReading =>
+      if (!throwsError((): IAutoMovieSwingTwistRange.IReading =>
         swingTwistRange.read(rotation(0, 30), frame), "flexion"))
         findings.push(`${label} frame borrowed another wrapper's admitted basis`);
     physical("original wrapper remains valid", swingTwistRange.read(rotation(0, 30), prepared), 0, 30);

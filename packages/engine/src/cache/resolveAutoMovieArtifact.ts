@@ -1,5 +1,7 @@
-import type { IAutoMovieArtifactResolution } from "./IAutoMovieArtifactResolution";
-import type { IAutoMovieArtifactStore } from "./IAutoMovieArtifactStore";
+import type {
+  IAutoMovieArtifactResolution,
+  IAutoMovieArtifactStore,
+} from "@automovie/interface";
 
 /**
  * Read one keyed artifact, or compute and store it: the read-or-compute step

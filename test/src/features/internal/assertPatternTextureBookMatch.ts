@@ -1,13 +1,15 @@
 import {
-  type IAutoMoviePatternPlacement,
-  type IAutoMoviePatternPoint,
-  type IAutoMoviePatternTextureTransform,
-  type IAutoMoviePatternTexturing,
-  type IAutoMovieSurfacePatternResult,
-  type IAutoMovieSurfacePatternZone,
   autoMoviePatternTextureTransforms,
   generateAutoMovieSurfacePattern,
 } from "@automovie/engine";
+import type {
+  IAutoMoviePatternPlacement,
+  IAutoMoviePatternPoint,
+  IAutoMoviePatternTextureTransform,
+  IAutoMoviePatternTexturing,
+  IAutoMovieSurfacePatternResult,
+  IAutoMovieSurfacePatternZone,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { pattern, rectangle, zone } from "./patternFixtures";

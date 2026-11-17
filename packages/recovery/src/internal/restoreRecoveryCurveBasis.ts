@@ -1,5 +1,6 @@
+import type { AutoMovieRecoveryCurveData } from "@automovie/interface";
+
 import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecoveryCurves";
-import type { AutoMovieRecoveryCurveData } from "../typings/AutoMovieRecoveryCurveData";
 
 /**
  * Restore saved Hermite curves for the Bernstein reconstruction operators.

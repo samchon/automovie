@@ -1,13 +1,15 @@
 import type {
+  AutoMovieInspectionShade,
   IAutoMovieCapturePlanRequest,
-  IAutoMovieInspectionRequest,
-} from "@automovie/render";
+} from "@automovie/interface";
+
 import type { ChangeEvent, JSX } from "react";
 
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 
+
 /** Every shade, keyed so the compiler refuses a list that misses one. */
-const SHADES: Record<IAutoMovieInspectionRequest.Shade, true> = {
+const SHADES: Record<AutoMovieInspectionShade, true> = {
   beauty: true,
   depth: true,
   mask: true,
@@ -87,6 +89,6 @@ export function AutoMovieInspectorShadePanel(props: {
 }
 
 /** Whether a text is one of the shades offered. */
-function isShade(text: string): text is IAutoMovieInspectionRequest.Shade {
+function isShade(text: string): text is AutoMovieInspectionShade {
   return Object.hasOwn(SHADES, text);
 }

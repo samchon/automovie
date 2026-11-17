@@ -1,42 +1,40 @@
 # Behavior statements
 
-Contract: [behaviors.md](../behaviors.md).
-
 ## Studied laws
 
-1. The behavior was written after its study, and its key poses in the performer's own body frame, timing, reach, contact surfaces, legal and illegal actions, outcome rules and variation ranges come from that study.
-2. It performs no action the study does not record.
-3. Every constant is a named law that states its source or derivation, and none was tuned until a scene looked right.
-4. Durations and speeds scale with the body, under [time scale](../../../motion/laws/declaration.md#time-scale).
-5. The unit tests compare the behavior's results with the study's values.
-6. The action is not one the installed motion vocabulary performs, alone or joined with others. A reaction to a force or a hit is the vocabulary's, given the outcome the screenplay decided, never its automatic outcome. A vocabulary defect is reported under [installed packages](../../../development/reuse.md#installed-packages), never reimplemented.
+1. A relation names its installed actions and operators, and the screenplay facts it realizes. It studies only what [research](../../../story/planning/research.md#what-needs-a-study) requires; installed defaults and ordinary screenplay choices need no new derivation.
+2. A new motion law performs an action the installed vocabulary cannot express, alone or joined with others. A faulty installed action is never replaced by a new law.
+3. Every constant the behavior adds states its source or derivation, and none was tuned until a scene looked right. Calling a package default adds no new constant to derive.
+4. A motion law's key poses, reach, contact surfaces and variation ranges come from its prior study. A pure rule or table cites the rules it adds and tests their classifications and boundaries against independent expectations.
+5. A motion law scales duration and speed with the body under [time scale](../../../motion/laws/declaration.md#time-scale), and its tests compare results with the study's values.
+6. A relation's tests check its own choice and coordination through the vocabulary's measures under [motion checks](../../../development/testing.md#motion-checks), without repeating the installed actions' internal physical tests.
 7. A person's row or law is registered with the vocabulary under [vocabulary extension](../../../motion/laws/extension.md), so the vocabulary performs it.
 8. A deliberately stylized departure states its factor and reason.
 
 ## Relational goals
 
-1. Each goal names its end effector, target, approach, window and whether the target is frozen or tracked, under [effector goals](../../../motion/laws/authoring.md#writing-a-goal).
+1. A relation supplies the actual performer, counterpart target, outcome and synchronization to the installed action. A motion law's goals name effector, target, approach, window and whether the target is frozen or tracked, under [effector goals](../../../motion/laws/authoring.md#writing-a-goal).
 2. No absolute coordinate, offset or tuned joint angle stands in for a goal.
-3. The behavior's documentation declares its [out-of-reach rule](../../../motion/laws/authoring.md#out-of-reach), the code follows it, and no target is clamped silently.
-4. Each contact has a declared window and [support frame](../../../motion/laws/contacts.md#windows-and-support-frames).
-5. An interaction decides the outcome class from the composed intents by its research outcome table first.
-6. Geometry then realizes and audits that outcome, so a geometric miss fails the audit instead of changing the outcome.
+3. A motion law declares and follows its [out-of-reach rule](../../../motion/laws/authoring.md#out-of-reach). A relation retains the installed action's rule, and neither silently clamps a target.
+4. A motion law declares each contact's window and [support frame](../../../motion/laws/contacts.md#windows-and-support-frames); a relation uses its action's declared events and contacts.
+5. A relation passes the screenplay's decided outcome to the vocabulary. A new outcome law realizes that class from the studied rules rather than choosing a different result for the story.
+6. What the installed package reports of the action establishes its outcome; a geometric miss stays a failure, and a scheduled impact event alone establishes no contact or solved impulse.
 7. A consequence such as sweat, a scuff, dust or a sound cue follows only from a computed outcome.
-8. The unit tests assert each bound of [motion verification](../../../motion/laws/verification.md) that applies, each taken from the requirement or the study:
+8. A motion law's unit tests assert each bound of [motion verification](../../../motion/laws/verification.md) that applies, each taken from the requirement or the study:
     - end-effector-to-target distance;
     - penetration;
     - slip;
     - range of motion;
     - balance;
     - continuity at cuts.
-9. The unit tests run across bodies of several statures and proportions, and against the partners and props the scenes use.
+9. A motion law's unit tests run across bodies of several statures and proportions, and against the partners and props the scenes use. Relations verify their own cases without taking ownership of that SDK test population. Pure rules and tables test their input domains; they need no body or effector when they plan no motion.
 
 ## Deterministic evaluation
 
-1. The behavior resolves its composition into a frozen schedule once, and each pose is a pure function of that plan and film time, under [plan and time](../../../motion/laws/declaration.md#plan-and-time).
-2. It plans from the [entry state](../../../motion/laws/declaration.md#entry-state): the displayed pose and velocity, the planted feet and what the hands hold.
-3. It names its [events and decisive instant](../../../motion/laws/declaration.md#events-and-the-decisive-instant).
-4. It declares the [cuts](../../../motion/laws/transitions.md#declared-cuts) it admits, with their windows and kinds, and the plan refuses an unlisted cut when it is built.
+1. A relation shares the film's schedule resolution; it does not resolve a new performance at every sample. Each pose is a pure function of the plan and film time, under [plan and time](../../../motion/laws/declaration.md#plan-and-time).
+2. A motion law plans from the [entry state](../../../motion/laws/declaration.md#entry-state): displayed pose and velocity, planted feet and held objects. A relation preserves that entry through the vocabulary's operators.
+3. A motion law declares its [events and decisive instant](../../../motion/laws/declaration.md#events-and-the-decisive-instant); a relation synchronizes on the installed actions' events.
+4. A motion law declares its [cuts](../../../motion/laws/transitions.md#declared-cuts), windows and kinds. A relation uses those admitted cuts, and an unlisted cut is refused when the plan is built. Pure rules and tables declare their inputs without inventing motion events or cuts.
 5. Variation draws from the installed packages' seeded generator, from a [stream](../../../motion/laws/variation.md#independent-draws) keyed by the film seed and stable identities, never from `Math.random` or a clock.
 6. Variation stays within the domain its cited law bounds, and no seed, skill or member trait changes an outcome class or the count of members an outcome takes.
 7. No result depends on history that only sequential playback builds or on a transient source. Exception: a stated limitation that names the consumer it affects.

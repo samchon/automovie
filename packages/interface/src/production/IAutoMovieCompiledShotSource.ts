@@ -1,10 +1,10 @@
-import { IAutoMovieModel } from "../model/IAutoMovieModel";
-import { IAutoMovieCompiledEffect } from "./IAutoMovieCompiledEffect";
-import { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
-import { IAutoMovieCompiledInstanceSet } from "./IAutoMovieCompiledInstanceSet";
-import { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
-import { IAutoMovieFormationSlotMotion } from "./IAutoMovieFormationSlotMotion";
-import { IAutoMovieShotSourceOutput } from "./IAutoMovieShotSourceOutput";
+import type { IAutoMovieModel } from "../model/IAutoMovieModel";
+import type { IAutoMovieCompiledEffect } from "./IAutoMovieCompiledEffect";
+import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
+import type { IAutoMovieCompiledInstanceSet } from "./IAutoMovieCompiledInstanceSet";
+import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
+import type { IAutoMovieFormationSlotMotion } from "./IAutoMovieFormationSlotMotion";
+import type { IAutoMovieShotSourceOutput } from "./IAutoMovieShotSourceOutput";
 
 /**
  * Host-composed shot artifact consumed by render and numerical oracle services. Resolved models and compact populations travel with source-authored scene and motion, so consumers read one supplied snapshot.

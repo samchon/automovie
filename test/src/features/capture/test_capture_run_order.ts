@@ -1,12 +1,15 @@
+import type {
+  IAutoMovieCaptureCell,
+  IAutoMovieCaptureCellRecord,
+  IAutoMovieCaptureDrawing,
+  IAutoMovieCapturePlan,
+  IAutoMovieCaptureRecord,
+  IAutoMovieCaptureStorage,
+  IAutoMovieCaptureSubject,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
 import {
   AutoMovieCaptureFolder,
-  type IAutoMovieCaptureCell,
-  type IAutoMovieCaptureDrawing,
-  type IAutoMovieCapturePlan,
-  type IAutoMovieCaptureRecord,
-  type IAutoMovieCaptureStorage,
-  type IAutoMovieCaptureSubject,
-  type IAutoMovieRasterImage,
   decodeAutoMovieRasterPng,
   hashAutoMovieRasterImage,
   parseAutoMovieCapturePlanRequest,
@@ -141,7 +144,7 @@ export async function test_capture_run_order(): Promise<void> {
       record.request,
       record.sheets,
       record.files,
-      record.rows.map((row: IAutoMovieCaptureRecord.Row): unknown[] => [
+      record.rows.map((row: IAutoMovieCaptureCellRecord): unknown[] => [
         row.name,
         row.state,
         row.sheet,

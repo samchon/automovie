@@ -1,4 +1,4 @@
-import { IAutoMovieDesignPhaseState } from "./IAutoMovieDesignPhaseState";
+import type { IAutoMovieDesignPhaseState } from "./IAutoMovieDesignPhaseState";
 
 /**
  * The complete state of a work once one phase has completed.

@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanBreastFootprint } from "@automovie/interface";
+
 import { AutoMovieHumanTrunkFeatureProfile } from "./AutoMovieHumanTrunkFeatureProfile";
 
 /**
@@ -19,27 +21,6 @@ export namespace AutoMovieHumanBreastFootprint {
   /** Lateral half width over the bust point's place off the midline. Conventional, flagged. */
   export const REACH: number = 0.8;
 
-  /** The footprint. */
-  export interface IFootprint {
-    /** Lateral half width, mm. */
-    half: number;
-
-    /** Reach below the bust point, mm: its height over the fold. */
-    lower: number;
-
-    /** Reach above it, mm. */
-    upper: number;
-
-    /**
-     * The normalised radius of a point of the breast's plane.
-     *
-     * @param u Along the lateral axis, mm.
-     * @param v Along the up axis, mm.
-     * @returns The radius, 1 at the rim.
-     */
-    rho: (u: number, v: number) => number;
-  }
-
   /**
    * The footprint.
    *
@@ -47,7 +28,10 @@ export namespace AutoMovieHumanBreastFootprint {
    * @param lower The bust point's height over the inframammary fold, mm.
    * @returns The footprint.
    */
-  export function create(lateral: number, lower: number): IFootprint {
+  export function create(
+    lateral: number,
+    lower: number,
+  ): IAutoMovieHumanBreastFootprint.IFootprint {
     const half: number = REACH * lateral;
     const l: number = Math.max(1, lower);
     const upper: number = UPPER * l;
@@ -56,7 +40,8 @@ export namespace AutoMovieHumanBreastFootprint {
       half,
       lower: l,
       upper,
-      rho: (u: number, v: number): number => AutoMovieHumanTrunkFeatureProfile.rho(u, v, half, l, upper),
+      rho: (u: number, v: number): number =>
+        AutoMovieHumanTrunkFeatureProfile.rho(u, v, half, l, upper),
     };
   }
 }

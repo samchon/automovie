@@ -1,11 +1,10 @@
 import {
   IAutoMovieColor,
   IAutoMovieLight,
+  type IAutoMovieLightOverride,
   IAutoMovieLightShadow,
   IAutoMovieTransform,
 } from "@automovie/interface";
-
-import { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
 
 /**
  * Reconstruct an admitted light kind from staged fields and present overrides, preserving optional shadow policy and area extents. Unanimated nested values remain borrowed; the direct helper returns a new light record while shot resolution bypasses untouched lights.

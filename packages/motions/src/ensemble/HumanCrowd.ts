@@ -1,21 +1,23 @@
-import {
-  AutoMovieGravity,
-  type IAutoMovieCrowdAgent,
-  type IAutoMovieRandom,
-  steerAutoMovieCrowd,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieGravity, steerAutoMovieCrowd } from "@automovie/engine";
+import type {
+  IAutoMovieCrowdAgent,
+  IAutoMovieMotionHumanCrowd,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieRandom,
+  IAutoMovieSteerCrowd,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { run } from "../actions/run";
 import { walk } from "../actions/walk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanObstacle } from "../perform/HumanObstacle";
 import { HumanResponse } from "../skill/HumanResponse";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HUMAN_ATTRIBUTE_EFFECTS } from "./HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "./HumanAttribute";
-import type { HumanEnsemble } from "./HumanEnsemble";
-import type { IHumanFormation } from "./IHumanFormation";
 
 /**
  * A crowd that keeps no formation, steered: each member (or each walking
@@ -48,53 +50,6 @@ export namespace HumanCrowd {
   /** The least share of its gait's speed a member's draw may give: one half, about 2.6 `SPREAD`s below the mean (provisional: a floor that keeps the normal draw's far tail from a walker who barely moves). */
   export const SLOWEST: number = 0.5;
 
-  /** What a crowd is steered by. */
-  export interface IRequest {
-    /** Each member's goals: a point, or points in order. */
-    goals: (
-      member: HumanEnsemble.IMember,
-    ) => IAutoMovieVector3 | readonly IAutoMovieVector3[];
-
-    /** Its gait. */
-    gait: "walk" | "run";
-
-    /** The film second of the cue they set off on. */
-    start: number;
-
-    /** The film second the pass ends. */
-    until: number;
-
-    /** Each member's delay after the cue; none when absent. */
-    latency?: HumanResponse.Latency;
-
-    /** Whether they flee: morale then raises the desired speed and the herding share. Not when absent. */
-    flight?: boolean;
-
-    /** What they steer round. */
-    obstacles?: readonly HumanObstacle.IObstacle[];
-
-    /** Groups that walk together, each steered as one agent of its members' combined breadth; none when absent. */
-    groups?: readonly HumanEnsemble.IGroup[];
-  }
-
-  /** A steered crowd. */
-  export interface IResult {
-    /** Each member's course frame, by member index; a grouped member's is its group's. */
-    frames: readonly IHumanFormation.ICourse[];
-
-    /** Each member's arrival second, or null when it does not arrive by `until`. */
-    arrivals: readonly (number | null)[];
-  }
-
-  /** A member's drawn desire: its desired speed, metres per second, and its delay after the cue, seconds. */
-  export interface IDesired {
-    /** The desired speed, metres per second. */
-    speed: number;
-
-    /** The delay after the cue, seconds. */
-    delay: number;
-  }
-
   /**
    * A member's desired speed and delay as the pass draws them: its gait's
    * speed at its leg length scaled by its keyed normal draw (floored at
@@ -109,11 +64,14 @@ export namespace HumanCrowd {
    * @returns The member's desire.
    */
   export function desired(
-    ensemble: HumanEnsemble.IEnsemble,
-    m: HumanEnsemble.IMember,
-    request: Pick<IRequest, "gait" | "latency" | "flight">,
-  ): IDesired {
-    const skill: HumanSkill.ISkill = HumanSkill.resolve(
+    ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
+    m: IAutoMovieMotionHumanEnsemble.IMember,
+    request: Pick<
+      IAutoMovieMotionHumanCrowd.IRequest,
+      "gait" | "latency" | "flight"
+    >,
+  ): IAutoMovieMotionHumanCrowd.IDesired {
+    const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
       m.proficiency,
       ensemble.input.seed,
     );
@@ -179,27 +137,34 @@ export namespace HumanCrowd {
    * @throws {HumanRefusal} When two members, or a member and an obstacle, stay closer than their summed radii for longer than one step: the pass is kinematic and does not push.
    */
   export function steer(
-    ensemble: HumanEnsemble.IEnsemble,
-    request: IRequest,
-  ): IResult {
-    const members: readonly HumanEnsemble.IMember[] = ensemble.members;
-    const grouped: Map<number, HumanEnsemble.IGroup> = new Map();
+    ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
+    request: IAutoMovieMotionHumanCrowd.IRequest,
+  ): IAutoMovieMotionHumanCrowd.IResult {
+    const members: readonly IAutoMovieMotionHumanEnsemble.IMember[] =
+      ensemble.members;
+    const grouped: Map<number, IAutoMovieMotionHumanEnsemble.IGroup> =
+      new Map();
     for (const group of request.groups ?? [])
       for (const index of group.members) grouped.set(index, group);
 
     // One agent per lone member and per group, led by its first member.
-    const leaders: HumanEnsemble.IMember[] = members.filter(
-      (m: HumanEnsemble.IMember): boolean =>
+    const leaders: IAutoMovieMotionHumanEnsemble.IMember[] = members.filter(
+      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
         (grouped.get(m.index)?.members[0] ?? m.index) === m.index,
     );
     const agents: IAutoMovieCrowdAgent[] = leaders.map(
-      (m: HumanEnsemble.IMember): IAutoMovieCrowdAgent => {
-        const group: HumanEnsemble.IGroup | undefined = grouped.get(m.index);
+      (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieCrowdAgent => {
+        const group: IAutoMovieMotionHumanEnsemble.IGroup | undefined =
+          grouped.get(m.index);
         const breadth: number = (group?.members ?? [m.index]).reduce(
           (sum: number, i: number): number => sum + 2 * half(members[i]!),
           0,
         );
-        const { speed, delay }: IDesired = desired(ensemble, m, request);
+        const { speed, delay }: IAutoMovieMotionHumanCrowd.IDesired = desired(
+          ensemble,
+          m,
+          request,
+        );
         return {
           at: m.place.at,
           goal: request.goals(m),
@@ -221,12 +186,12 @@ export namespace HumanCrowd {
     const obstacles: IAutoMovieCrowdAgent.IObstacle[] = (
       request.obstacles ?? []
     ).map(
-      (o: HumanObstacle.IObstacle): IAutoMovieCrowdAgent.IObstacle => ({
+      (o: IAutoMovieMotionHumanObstacle): IAutoMovieCrowdAgent.IObstacle => ({
         footprint: o.footprint,
         ...(o.motion === undefined ? {} : { motion: o.motion }),
       }),
     );
-    const pass: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({
+    const pass: IAutoMovieSteerCrowd.IResult = steerAutoMovieCrowd({
       agents,
       obstacles,
       from: Math.min(request.start, request.until - 1e-3),
@@ -253,9 +218,12 @@ export namespace HumanCrowd {
     // Each agent's course sampled at the film's rate, a member taking its agent's.
     const step: number = 1 / 24;
     const count: number = Math.ceil((request.until - request.start) / step);
-    const frames: IHumanFormation.ICourse[] = leaders.map(
-      (_: HumanEnsemble.IMember, a: number): IHumanFormation.ICourse => {
-        const samples: IHumanFormation.ISample[] = [];
+    const frames: IAutoMovieMotionHumanFormation.ICourse[] = leaders.map(
+      (
+        _: IAutoMovieMotionHumanEnsemble.IMember,
+        a: number,
+      ): IAutoMovieMotionHumanFormation.ICourse => {
+        const samples: IAutoMovieMotionHumanFormation.ISample[] = [];
         for (let k: number = 0; k <= count; ++k) {
           const seconds: number = Math.min(
             request.until,
@@ -268,20 +236,23 @@ export namespace HumanCrowd {
       },
     );
     const byLeader: Map<number, number> = new Map(
-      leaders.map((m: HumanEnsemble.IMember, a: number): [number, number] => [
-        m.index,
-        a,
-      ]),
+      leaders.map(
+        (
+          m: IAutoMovieMotionHumanEnsemble.IMember,
+          a: number,
+        ): [number, number] => [m.index, a],
+      ),
     );
-    const agentOf = (m: HumanEnsemble.IMember): number =>
+    const agentOf = (m: IAutoMovieMotionHumanEnsemble.IMember): number =>
       byLeader.get(grouped.get(m.index)?.members[0] ?? m.index)!;
     return {
       frames: members.map(
-        (m: HumanEnsemble.IMember): IHumanFormation.ICourse =>
-          frames[agentOf(m)]!,
+        (
+          m: IAutoMovieMotionHumanEnsemble.IMember,
+        ): IAutoMovieMotionHumanFormation.ICourse => frames[agentOf(m)]!,
       ),
       arrivals: members.map(
-        (m: HumanEnsemble.IMember): number | null =>
+        (m: IAutoMovieMotionHumanEnsemble.IMember): number | null =>
           pass.courses[agentOf(m)]!.arrival,
       ),
     };
@@ -294,7 +265,7 @@ export namespace HumanCrowd {
    * @param member The member.
    * @returns The half breadth.
    */
-  export function half(member: HumanEnsemble.IMember): number {
+  export function half(member: IAutoMovieMotionHumanEnsemble.IMember): number {
     return (
       member.body.measure.shoulderHalfWidth + member.body.measure.upperArmRadius
     );

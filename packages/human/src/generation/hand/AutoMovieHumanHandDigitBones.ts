@@ -1,23 +1,33 @@
-import type { IAutoMovieHumanHandDigit } from "./IAutoMovieHumanHandDigit";
-import type { IAutoMovieHumanHandFinger } from "./IAutoMovieHumanHandFinger";
-import type { IAutoMovieHumanHandScales } from "./IAutoMovieHumanHandScales";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanDigitLine,
+  IAutoMovieHumanDigitProfile,
+  IAutoMovieHumanDigitSection,
+  IAutoMovieHumanHandDigit,
+  IAutoMovieHumanHandDigitBones,
+  IAutoMovieHumanHandFinger,
+  IAutoMovieHumanHandScales,
+} from "@automovie/interface";
+
+import { AutoMovieHumanMonotoneCubic } from "../../lofting/AutoMovieHumanMonotoneCubic";
+import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
+import { AutoMovieHumanDigitLine } from "../AutoMovieHumanDigitLine";
+import { AutoMovieHumanDigitSection } from "../AutoMovieHumanDigitSection";
 import { AutoMovieHumanDigitPalmarShare } from "./AutoMovieHumanDigitPalmarShare";
 import { AutoMovieHumanDigitProfile } from "./AutoMovieHumanDigitProfile";
 import { AutoMovieHumanDigitRing } from "./AutoMovieHumanDigitRing";
 import { AutoMovieHumanDigitTipCap } from "./AutoMovieHumanDigitTipCap";
-import { AutoMovieHumanHandWebCrest } from "./AutoMovieHumanHandWebCrest";
-import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
-import { AutoMovieHumanDigitLine } from "../AutoMovieHumanDigitLine";
-import { AutoMovieHumanDigitSection } from "../AutoMovieHumanDigitSection";
 import { AutoMovieHumanHandDigitLaw } from "./AutoMovieHumanHandDigitLaw";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-import { AutoMovieHumanMonotoneCubic } from "../../lofting/AutoMovieHumanMonotoneCubic";
+import { AutoMovieHumanHandWebCrest } from "./AutoMovieHumanHandWebCrest";
 
-type Vec3 = AutoMovieHumanHandVector.Vec3;
-const { sub, norm, across, cross }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-const { linePoint }: typeof AutoMovieHumanHandDigitLaw = AutoMovieHumanHandDigitLaw;
-const { at: palmarShare }: typeof AutoMovieHumanDigitPalmarShare = AutoMovieHumanDigitPalmarShare;
+const { sub, norm, across, cross }: typeof AutoMovieHumanHandVector =
+  AutoMovieHumanHandVector;
+const { linePoint }: typeof AutoMovieHumanHandDigitLaw =
+  AutoMovieHumanHandDigitLaw;
+const { at: palmarShare }: typeof AutoMovieHumanDigitPalmarShare =
+  AutoMovieHumanDigitPalmarShare;
 
 /**
  * A digit on its bones: its centre line from its legs, its sections as palmar
@@ -45,16 +55,22 @@ export namespace AutoMovieHumanHandDigitBones {
    */
   export function onBones(
     d: IAutoMovieHumanHandDigit,
-    start: Vec3,
-    legs: readonly { direction: Vec3; length: number }[],
+    start: AutoMovieVector3Tuple,
+    legs: IAutoMovieHumanHandDigitBones.OnBonesLegs,
     rootAt: number,
     joints: readonly number[],
     hand: IAutoMovieHumanHandScales,
   ): IAutoMovieHumanHandFinger {
-    const length: number = legs.reduce((s: number, l: { length: number }): number => s + l.length, 0);
+    const length: number = legs.reduce(
+      (s: number, l: { length: number }): number => s + l.length,
+      0,
+    );
     const formEnd: number = d.cap + norm(sub(d.pole, linePoint(d, d.cap)));
     const size = (s: number): [number, number] => {
-      const f: number = Math.min(d.cap, Math.min(1, Math.max(0, (s - rootAt) / (length - rootAt))) * formEnd);
+      const f: number = Math.min(
+        d.cap,
+        Math.min(1, Math.max(0, (s - rootAt) / (length - rootAt))) * formEnd,
+      );
       return [
         AutoMovieHumanMonotoneCubic.interpolate(d.width, f) * hand.across,
         AutoMovieHumanMonotoneCubic.interpolate(d.depth, f) * hand.through,
@@ -65,13 +81,18 @@ export namespace AutoMovieHumanHandDigitBones {
       return Math.sqrt(w * h);
     };
     const softness: number = AutoMovieHumanArmPrior.PRIOR.arm.softness;
-    const line: AutoMovieHumanDigitLine.ILine = AutoMovieHumanDigitLine.build(
+    const line: IAutoMovieHumanDigitLine.ILine = AutoMovieHumanDigitLine.build(
       start,
-      legs.map((l: { direction: Vec3; length: number }, i: number): AutoMovieHumanDigitLine.ILeg => ({
-        direction: l.direction,
-        length: l.length,
-        turn: i + 1 < legs.length ? softness * radius(joints[i]!) : 0,
-      })),
+      legs.map(
+        (
+          l: { direction: AutoMovieVector3Tuple; length: number },
+          i: number,
+        ): IAutoMovieHumanDigitLine.ILeg => ({
+          direction: l.direction,
+          length: l.length,
+          turn: i + 1 < legs.length ? softness * radius(joints[i]!) : 0,
+        }),
+      ),
       FINGER_STEP,
     );
 
@@ -86,12 +107,21 @@ export namespace AutoMovieHumanHandDigitBones {
 
     // The form's cap, the end of the distal span: where its radius reaches
     // the length left to the apex.
-    const formCap: number = AutoMovieHumanDigitTipCap.start({ radius, length, from: rootAt });
+    const formCap: number = AutoMovieHumanDigitTipCap.start({
+      radius,
+      length,
+      from: rootAt,
+    });
     const thumb: boolean = rootAt === 0;
     const base: (s: number) => [number, number, number] = thumb
       ? formBase
-      : AutoMovieHumanDigitProfile.span(size(rootAt), [rootAt, joints[0]!, joints[1]!, formCap]);
-    const profile: AutoMovieHumanDigitProfile.IInput = {
+      : AutoMovieHumanDigitProfile.span(size(rootAt), [
+          rootAt,
+          joints[0]!,
+          joints[1]!,
+          formCap,
+        ]);
+    const profile: IAutoMovieHumanDigitProfile.IInput = {
       base,
       root: rootAt,
       joints: [joints[0]!, joints[1]!],
@@ -100,33 +130,50 @@ export namespace AutoMovieHumanHandDigitBones {
       softness,
       thumb,
     };
-    const shape: (s: number) => AutoMovieHumanDigitSection.IShape = AutoMovieHumanDigitProfile.of(profile);
+    const shape: (s: number) => IAutoMovieHumanDigitSection.IShape =
+      AutoMovieHumanDigitProfile.of(profile);
 
     // The tip closes where the composed section's radius reaches the length
     // left to the apex (`AutoMovieHumanDigitTipCap`).
     const cap: number = AutoMovieHumanDigitTipCap.start({
       radius: (s: number): number => {
-        const q: AutoMovieHumanDigitSection.IShape = shape(s);
+        const q: IAutoMovieHumanDigitSection.IShape = shape(s);
 
         return Math.sqrt(q.width * ((q.palmar + q.dorsal) / 2));
       },
       length,
       from: rootAt,
     });
-    const pole: Vec3 = AutoMovieHumanDigitTipCap.apex(line.at(cap), line.tangent(cap), cap, length);
-    const across_: Vec3 = [...AutoMovieHumanArmPrior.PRIOR.hand.across];
+    const pole: AutoMovieVector3Tuple = AutoMovieHumanDigitTipCap.apex(
+      line.at(cap),
+      line.tangent(cap),
+      cap,
+      length,
+    );
+    const across_: AutoMovieVector3Tuple = [
+      ...AutoMovieHumanArmPrior.PRIOR.hand.across,
+    ];
     const sense: number = d.angles.length > 1 && d.angles[1]! < 0 ? -1 : 1;
-    const ring = (s: number): Vec3[] => {
-      const c: Vec3 = line.at(s);
-      const t: Vec3 = line.tangent(Math.min(cap, s));
-      const b: Vec3 = across(across_, t);
-      const n: Vec3 = cross(b, t);
+    const ring = (s: number): AutoMovieVector3Tuple[] => {
+      const c: AutoMovieVector3Tuple = line.at(s);
+      const t: AutoMovieVector3Tuple = line.tangent(Math.min(cap, s));
+      const b: AutoMovieVector3Tuple = across(across_, t);
+      const n: AutoMovieVector3Tuple = cross(b, t);
       const count: number = d.angles.length;
-      const knots: [number, number][] = sectionKnots(shape(Math.min(cap, s)), count);
-      return knots.map((_: [number, number], m: number): Vec3 => {
-        const [x, y] = knots[sense === 1 ? m : (count - m) % count]!;
-        return [c[0] + x * b[0] + y * n[0], c[1] + x * b[1] + y * n[1], c[2] + x * b[2] + y * n[2]];
-      });
+      const knots: [number, number][] = sectionKnots(
+        shape(Math.min(cap, s)),
+        count,
+      );
+      return knots.map(
+        (_: [number, number], m: number): AutoMovieVector3Tuple => {
+          const [x, y] = knots[sense === 1 ? m : (count - m) % count]!;
+          return [
+            c[0] + x * b[0] + y * n[0],
+            c[1] + x * b[1] + y * n[1],
+            c[2] + x * b[2] + y * n[2],
+          ];
+        },
+      );
     };
 
     // Its first own section from its own bones: where it parts from its
@@ -138,21 +185,37 @@ export namespace AutoMovieHumanHandDigitBones {
     // joint.
     const p1From: number = thumb ? joints[0]! : 0;
     const p1To: number = thumb ? joints[1]! : joints[0]!;
-    const web: number = p1From + AutoMovieHumanHandWebCrest.PALMAR_SHARE * (p1To - p1From);
-    const webShape: AutoMovieHumanDigitSection.IShape = shape(web);
+    const web: number =
+      p1From + AutoMovieHumanHandWebCrest.PALMAR_SHARE * (p1To - p1From);
+    const webShape: IAutoMovieHumanDigitSection.IShape = shape(web);
     const first: number = Math.min(
       cap - 3,
-      Math.max(rootAt, web + AutoMovieHumanSeamUnion.width((webShape.palmar + webShape.dorsal) / 2, webShape.width)),
+      Math.max(
+        rootAt,
+        web +
+          AutoMovieHumanSeamUnion.width(
+            (webShape.palmar + webShape.dorsal) / 2,
+            webShape.width,
+          ),
+      ),
     );
     // The nail plate's window; its dorsal side is the section's -y
     // (`AutoMovieHumanDigitSection`), the ring's -n.
-    const plate: { root: number; edge: number; width: number } = AutoMovieHumanDigitProfile.nail(profile);
-    const plateTangent: Vec3 = line.tangent(plate.root);
-    const plateNormal: Vec3 = cross(across(across_, plateTangent), plateTangent);
+    const plate: { root: number; edge: number; width: number } =
+      AutoMovieHumanDigitProfile.nail(profile);
+    const plateTangent: AutoMovieVector3Tuple = line.tangent(plate.root);
+    const plateNormal: AutoMovieVector3Tuple = cross(
+      across(across_, plateTangent),
+      plateTangent,
+    );
     const plateLength: number = norm(plateNormal) || 1;
-    const dorsal: Vec3 = [-plateNormal[0] / plateLength, -plateNormal[1] / plateLength, -plateNormal[2] / plateLength];
+    const dorsal: AutoMovieVector3Tuple = [
+      -plateNormal[0] / plateLength,
+      -plateNormal[1] / plateLength,
+      -plateNormal[2] / plateLength,
+    ];
     return {
-      joints: joints.map((s: number): Vec3 => line.at(s)),
+      joints: joints.map((s: number): AutoMovieVector3Tuple => line.at(s)),
       points: line.points,
       step: line.step,
       line,
@@ -177,10 +240,17 @@ export namespace AutoMovieHumanHandDigitBones {
    * @param shape The section's shape, mm.
    * @param count Control points.
    */
-  function sectionKnots(shape: AutoMovieHumanDigitSection.IShape, count: number): [number, number][] {
-    if (count % 4 !== 0 || count < 16) return AutoMovieHumanDigitSection.knots(shape, count);
+  function sectionKnots(
+    shape: IAutoMovieHumanDigitSection.IShape,
+    count: number,
+  ): [number, number][] {
+    if (count % 4 !== 0 || count < 16)
+      return AutoMovieHumanDigitSection.knots(shape, count);
 
-    const p: [number, number][] = AutoMovieHumanDigitRing.controls(shape, count);
+    const p: [number, number][] = AutoMovieHumanDigitRing.controls(
+      shape,
+      count,
+    );
 
     return p.map((q: [number, number], m: number): [number, number] => {
       const a: [number, number] = p[(m - 1 + count) % count]!;

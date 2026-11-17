@@ -1,15 +1,16 @@
 import {
   IAutoMovieModel,
+  type IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import { Transform } from "../math/Transform";
 import { Vector3 } from "../math/Vector3";
 import { physicalModelRestTransforms } from "./physicalModelRestTransforms";
 import { primitiveCentroid } from "./primitiveCentroid";
 import { primitiveVolume } from "./primitiveVolume";
-import { Transform } from "../math/Transform";
 
 /**
  * Volume-weighted center of mass of a model's primitive geometry, in the
@@ -41,7 +42,7 @@ export const deriveCenterOfMass: (
 ): IAutoMovieVector3 | null => {
   let total: number = 0;
   let weighted: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const bones: ReturnType<typeof physicalModelRestTransforms> =
+  const bones: Map<string, IAutoMovieRigidTransform> =
     physicalModelRestTransforms(model);
   for (const part of model.parts) {
     if (part.geometry.type !== "primitive") continue;

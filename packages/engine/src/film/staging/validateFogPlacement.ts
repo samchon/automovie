@@ -1,4 +1,5 @@
-import { ViolationCollector } from "../../validation/ViolationCollector";
+import type { IAutoMovieViolationCollector } from "@automovie/interface";
+
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
 import { isRecord } from "../../validation/isRecord";
 import { validateColor } from "../../validation/validateColor";
@@ -25,7 +26,7 @@ import { validateColor } from "../../validation/validateColor";
 export function validateFogPlacement(
   fog: unknown,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void {
   if (!isRecord(fog)) {
     out.push("type", path, "fog must be a JSON object", fog);

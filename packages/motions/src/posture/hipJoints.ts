@@ -1,11 +1,12 @@
-import { type IAutoMovieResolvedBone, type preparePoseResolution, Transform } from "@automovie/engine";
+import { Transform, preparePoseResolution } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { poseBones } from "./poseBones";
 
 /** Only the two upper-leg origins are outputs; FK includes their pelvis ancestry. */
@@ -13,7 +14,7 @@ const HIP_BONES: ReadonlySet<AutoMovieHumanoidBone> =
   new Set(["leftUpperLeg", "rightUpperLeg"]);
 
 /** One genuine static two-hip demand per live unchanged body, without any pose state. */
-const HIP_READERS: WeakMap<IHumanBody, ReturnType<typeof poseBones.prepare>> = new WeakMap();
+const HIP_READERS: WeakMap<IAutoMovieMotionHumanBody, ReturnType<typeof poseBones.prepare>> = new WeakMap();
 
 /**
  * The two hip joints under a root: they depend only on the root, its
@@ -36,7 +37,7 @@ const HIP_READERS: WeakMap<IHumanBody, ReturnType<typeof poseBones.prepare>> = n
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One static demand closure per weak live-body key releases with that body and retains no operation reader or pose. Each call owns a small pose/map and two fresh output points, without history, handles or tasks.
  */
 export function hipJoints(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   root: IAutoMovieVector3,
   rotation: IAutoMovieQuaternion,
   pelvis?: readonly [number, number, number],

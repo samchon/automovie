@@ -1,7 +1,8 @@
-import type { clampPose } from "@automovie/engine";
-import type { IAutoMoviePose } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
+import { clampPose } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 /**
  * A body's ordinary ROM projection: every actual joint of a pose projected in
@@ -22,7 +23,7 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing: the body owns its projector and its static rig metadata for the body's life, never a pose, target, result, FK reader or query history; returned pose ownership remains the engine's fresh wrapper/array and borrowed-member contract. Member facts: joints: The borrower holds the body's callable only for its operation.
  */
 export function prepareHumanPostureProjection(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
 ): (pose: IAutoMoviePose) => IAutoMoviePose {
   return body.projection;
 }
@@ -50,7 +51,7 @@ export namespace prepareHumanPostureProjection {
    * numerical answer, verdict, query history or handle is retained.
    */
   export function joints(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     source?: (pose: IAutoMoviePose) => IAutoMoviePose,
   ): clampPose.IPrepared["joints"] | undefined {
     return source !== undefined && source === body.projection ? body.projection.joints : undefined;
@@ -68,7 +69,7 @@ export namespace prepareHumanPostureProjection {
    * @returns The form when `source` is the body's projector, or undefined.
    */
   export function values(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     source?: (pose: IAutoMoviePose) => IAutoMoviePose,
   ): clampPose.IPrepared["values"] | undefined {
     return source !== undefined && source === body.projection ? body.projection.values : undefined;
@@ -76,7 +77,7 @@ export namespace prepareHumanPostureProjection {
 
   /** Project every actual joint of a pose through the body's projector; `source`, the function a caller passes along, is used only when it is that projector, which it then is. */
   export function project(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
     _source?: (pose: IAutoMoviePose) => IAutoMoviePose,
   ): IAutoMoviePose {

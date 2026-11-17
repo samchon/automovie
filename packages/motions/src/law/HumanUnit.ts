@@ -1,3 +1,4 @@
+import type { AutoMovieMotionHumanUnit } from "@automovie/interface";
 import type { tags } from "typia";
 
 /**
@@ -19,7 +20,7 @@ export type HumanUnit<Unit extends HumanUnit.Name> = tags.JsonSchemaPlugin<{
 /** Companion types of {@link HumanUnit}. */
 export namespace HumanUnit {
   /** The units a parameter is stated in; empty for a pure number. */
-  export type Name = "s" | "m" | "degrees" | "hand" | "beats/min" | "";
+  export type Name = AutoMovieMotionHumanUnit;
 
   /** A number from `Min` to `Max` with a default, in a unit: the bounds, the default and the unit carried into the schema as one type. */
   export type Bounded<

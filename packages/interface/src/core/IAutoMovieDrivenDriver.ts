@@ -1,5 +1,5 @@
-import { IAutoMovieChannel } from "./IAutoMovieChannel";
-import { IAutoMovieDrivenCurve } from "./IAutoMovieDrivenCurve";
+import type { IAutoMovieChannel } from "./IAutoMovieChannel";
+import type { IAutoMovieDrivenCurve } from "./IAutoMovieDrivenCurve";
 
 /**
  * One scalar channel computed from another. Several drivers can share one source to drive separate scalar outputs.

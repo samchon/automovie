@@ -1,11 +1,15 @@
 import { createHandgun, createHolster } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanOperateInsert,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
-  type IHumanBody,
   operateInsert,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -42,9 +46,9 @@ export function test_human_motion_operate_insert(): void {
   });
   const DEPTH: number = 0.1;
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stand = { at: { x: 0.2, y: 0.9, z: 0.45 }, yaw: 0, fixed: true };
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "insert",
@@ -142,7 +146,7 @@ export function test_human_motion_operate_insert(): void {
   }
 
   // 4. The depth by progress.
-  const withdrawn: operateInsert.IMechanism = {
+  const withdrawn: IAutoMovieMotionHumanOperateInsert.IMechanism = {
     kind: "insert",
     prop: "p",
     into: { kind: "point", frame: "world", at: { x: 0, y: 0, z: 0 } },

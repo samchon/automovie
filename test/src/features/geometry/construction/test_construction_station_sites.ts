@@ -1,14 +1,19 @@
 import {
-  type AutoMovieConstructionRealization,
   AutoMovieLoftChain,
   AutoMovieLoftViewSource,
   AutoMovieViewCurves,
   AutoMovieViewLoft,
   AutoMovieViewParallelAxis,
-  type IAutoMovieViewPart,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
-import type { IAutoMovieConstructionView } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionRealization,
+  IAutoMovieConstructionView,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewCurves,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionNativeContinuation as Made } from "../../internal/construction/ConstructionNativeContinuation";
@@ -205,16 +210,16 @@ function girth(): IAutoMovieViewPart.IOutline {
 
 /** Four original signed curves and any direct scalar source survive row-policy refusal. */
 function source(part: IAutoMovieViewPart, failures: string[]): void {
-  const curves: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(part);
+  const curves: IAutoMovieViewCurves.IResult = AutoMovieViewCurves.create(part);
   if (
     curves.diagnostics.length !== 0 ||
     curves.curves.some(
-      (curve: AutoMovieViewCurves.ICurve): boolean => curve.outline === null,
+      (curve: IAutoMovieViewCurves.ICurve): boolean => curve.outline === null,
     )
   )
     failures.push("A station-site refusal erased an admitted original curve.");
   for (const [index, curve] of curves.curves.entries()) {
-    const read: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(
+    const read: IAutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(
       curve,
       part.axis,
       SITE,
@@ -229,7 +234,7 @@ function source(part: IAutoMovieViewPart, failures: string[]): void {
     )
       failures.push("Original scalar changed to satisfy emission policy.");
   }
-  const direct: AutoMovieLoftViewSource.IResult | null =
+  const direct: IAutoMovieLoftViewSource.IResult | null =
     AutoMovieLoftViewSource.create(part);
   if (direct !== null && direct.source === null)
     failures.push(
@@ -239,7 +244,7 @@ function source(part: IAutoMovieViewPart, failures: string[]): void {
 
 /** No partial final chain/section/surface replaces a missing declared site. */
 function rejected(
-  loft: AutoMovieViewLoft.IResult,
+  loft: IAutoMovieViewLoft.IResult,
   name: string,
   failures: string[],
 ): void {
@@ -251,7 +256,9 @@ function rejected(
     failures.push(`${name}: missing site still published a final loft.`);
   if (
     !loft.diagnostics.some(
-      (diagnostic: AutoMovieViewLoft.IResult["diagnostics"][number]): boolean =>
+      (
+        diagnostic: IAutoMovieViewLoft.IResult["diagnostics"][number],
+      ): boolean =>
         diagnostic.contract === "stations" &&
         diagnostic.detail.includes(name) &&
         diagnostic.detail.includes(String(SITE)),
@@ -267,7 +274,7 @@ function admitted(
   originX: number,
   failures: string[],
 ): void {
-  const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+  const loft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
   if (
     loft.chain === null ||
     loft.surface === null ||
@@ -324,11 +331,12 @@ function multiple(failures: string[]): void {
     insert(curve, `departure ${q}`, 0, 0, 0);
     required.push([`departure ${q}`, curve]);
   });
-  const missing: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+  const missing: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
   if (
     missing.diagnostics.filter(
-      (diagnostic: AutoMovieViewLoft.IResult["diagnostics"][number]): boolean =>
-        diagnostic.contract === "stations",
+      (
+        diagnostic: IAutoMovieViewLoft.IResult["diagnostics"][number],
+      ): boolean => diagnostic.contract === "stations",
     ).length !== 9
   )
     failures.push(
@@ -397,13 +405,13 @@ function consumers(failures: string[]): void {
     station: SITE / 1000,
     value: 0.003,
   });
-  const declared: AutoMovieConstructionRealization.IWithoutSkin =
+  const declared: IAutoMovieConstructionRealization.IWithoutSkin =
     realizeAutoMovieConstruction(
       { name: "sites.ast", root: view },
       { chord: 0.00005, skin: false },
     );
   const part: IAutoMovieViewPart = fixtures()[0]![1];
-  const evaluated: AutoMovieConstructionRealization.IWithoutSkin =
+  const evaluated: IAutoMovieConstructionRealization.IWithoutSkin =
     realizeAutoMovieConstruction(
       {
         name: "sites.source",
@@ -430,7 +438,7 @@ function consumers(failures: string[]): void {
     0.002,
     9,
   );
-  const closed: AutoMovieConstructionRealization.IWithoutSkin =
+  const closed: IAutoMovieConstructionRealization.IWithoutSkin =
     realizeAutoMovieConstruction(
       { name: "sites.poles", root: pole },
       { chord: 0.00005, skin: false },

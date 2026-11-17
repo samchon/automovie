@@ -1,4 +1,4 @@
-import { IAutoMovieShotDefinition } from "./IAutoMovieShotDefinition";
+import type { IAutoMovieShotDefinition } from "./IAutoMovieShotDefinition";
 
 /**
  * One source-level shot registration, as `defineShot` returns it.

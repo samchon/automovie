@@ -1,21 +1,17 @@
+import type {
+  AutoMovieLoftSectionLegacyRows,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftCoefficientSource,
+  IAutoMovieLoftSectionJet,
+  IAutoMovieLoftSectionLegacy,
+  IAutoMovieLoftSectionPhase,
+  IAutoMovieStationHermite,
+} from "@automovie/interface";
+
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-
-/** Local coordinates and their phase partials, mm and radians. */
-type Phase = { p: [number, number]; t: [number, number]; tt: [number, number] };
-
-/** Cartesian total2 in physical station and polar/correspondence phase. */
-type Jet = Phase & {
-  s: [number, number];
-  ss: [number, number];
-  st: [number, number];
-};
-
-/** Three complete coefficient functions, not frozen Cartesian point jets. */
-type Rows = readonly [readonly number[], readonly number[], readonly number[]];
 
 /**
  * The actual legacy spline generating field used by a mixed native boundary.
@@ -26,22 +22,6 @@ type Rows = readonly [readonly number[], readonly number[], readonly number[]];
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftSectionLegacy {
-  /**
-   * Complete value or physical source2 basis data of one station.
-   *
-   * @evidence contracts/development/design.md#principled-representation The discriminant distinguishes one value row from three actual station derivative rows of the same generating field.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface No unavailable derivative row exists on the value variant.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Value-only preparation never fills missing first/second derivatives with zero.
-   * @evidence contracts/development/common.md#meaningful-documentation Order is value, first station and second station, with spline control layout.
-   */
-  export type IPrepared =
-    | { kind: "value"; order: number; rows: readonly [number[]] }
-    | {
-        kind: "jet";
-        order: number;
-        rows: readonly [number[], number[], number[]];
-      };
-
   /**
    * Prepare only the requested station capability of the existing spline field.
    *
@@ -57,7 +37,7 @@ export namespace AutoMovieLoftSectionLegacy {
     chain: IAutoMovieLoftChain,
     station: number,
     order: 0 | 2,
-  ): IPrepared {
+  ): IAutoMovieLoftSectionLegacy.IPrepared {
     if (chain.basis !== "spline")
       throw new Error(
         "A mixed continuation requires the existing complete spline basis.",
@@ -70,16 +50,16 @@ export namespace AutoMovieLoftSectionLegacy {
     const b: IAutoMovieLoftChain.ILayer = chain.layers[hi]!;
     const H: number = b.y - a.y;
     const u: number = Math.min(1, Math.max(0, (station - a.y) / H));
-    const source: AutoMovieLoftCoefficientSource.IControls | null =
+    const source: IAutoMovieLoftCoefficientSource.IControls | null =
       AutoMovieLoftCoefficientSource.controls(chain, station);
     const quintic: boolean =
       a.curvatures !== undefined && b.curvatures !== undefined;
-    const first: AutoMovieStationHermite.IEnd = source?.a ?? {
+    const first: IAutoMovieStationHermite.IEnd = source?.a ?? {
       value: a.coefficients,
       slope: a.slopes,
       ...(quintic ? { curvature: a.curvatures! } : {}),
     };
-    const last: AutoMovieStationHermite.IEnd = source?.b ?? {
+    const last: IAutoMovieStationHermite.IEnd = source?.b ?? {
       value: b.coefficients,
       slope: b.slopes,
       ...(quintic ? { curvature: b.curvatures! } : {}),
@@ -131,7 +111,10 @@ export namespace AutoMovieLoftSectionLegacy {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the basis evaluation between value and both phase derivatives.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns three fresh local vectors and retains no output.
    */
-  export function phase(prepared: IPrepared, phi: number): Phase {
+  export function phase(
+    prepared: IAutoMovieLoftSectionLegacy.IPrepared,
+    phi: number,
+  ): IAutoMovieLoftSectionPhase {
     const q: [number, number, number, number, number, number] =
       AutoMovieSplineCurve.jet(prepared.rows[0], prepared.order, phi);
     return admit({ p: [q[0], q[1]], t: [q[2], q[3]], tt: [q[4], q[5]] });
@@ -148,10 +131,13 @@ export namespace AutoMovieLoftSectionLegacy {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses prepared actual station rows and the value/phase result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh required vectors; unused higher derivative components are neither required finite nor exposed.
    */
-  export function jet(prepared: IPrepared, phi: number): Jet {
+  export function jet(
+    prepared: IAutoMovieLoftSectionLegacy.IPrepared,
+    phi: number,
+  ): IAutoMovieLoftSectionJet {
     if (prepared.kind !== "jet")
       throw new Error("The legacy station has no prepared physical source2.");
-    const q: Phase = phase(prepared, phi);
+    const q: IAutoMovieLoftSectionPhase = phase(prepared, phi);
     const first: [number, number, number, number, number, number] =
       AutoMovieSplineCurve.jet(prepared.rows[1], prepared.order, phi);
     const second: [number, number, number, number, number, number] =
@@ -176,11 +162,11 @@ export namespace AutoMovieLoftSectionLegacy {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one or three fresh rows without a cache or host reference.
    */
   export function extend(
-    rows: Rows,
+    rows: AutoMovieLoftSectionLegacyRows,
     order: number,
     displacement: number,
     derivative: 0 | 2,
-  ): IPrepared {
+  ): IAutoMovieLoftSectionLegacy.IPrepared {
     if (
       rows.length !== 3 ||
       !rows.every(
@@ -213,7 +199,7 @@ export namespace AutoMovieLoftSectionLegacy {
 }
 
 /** Admit only the required returned total-order components, never unused higher partials. */
-function admit<T extends Phase>(out: T): T {
+function admit<T extends IAutoMovieLoftSectionPhase>(out: T): T {
   if (
     !Object.values(out).every(
       (row: unknown): boolean =>

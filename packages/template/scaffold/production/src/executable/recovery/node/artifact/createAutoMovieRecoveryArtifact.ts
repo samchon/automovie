@@ -1,7 +1,9 @@
+import type {
+  IAutoMovieRecoveryArtifact,
+  IAutoMovieRecoveryArtifactInput,
+  IAutoMovieRecoveryOpenContinuation,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryArtifact,
-  type IAutoMovieRecoveryArtifactInput,
-  type IAutoMovieRecoveryOpenContinuation,
   describeRecoveryNamedDomains,
   readRecoveryMetadata as read,
 } from "@automovie/recovery";

@@ -1,3 +1,5 @@
+import type { IAutoMovieRecoveryChartControlRelations } from "@automovie/interface";
+
 /**
  * Eliminate acyclic affine control relations without changing their coefficients.
  * Original control IDs remain the independent term addresses; they are never
@@ -23,37 +25,9 @@
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Every control expression and its depth are computed once and reused by all dependent relations; repeated source IDs combine in a bounded map. There is no cross-call cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local ownership maps, traversal state and flattened expressions expire on return or throw. Outputs own their arrays; controls and explicit sparse/depth budgets bound retained data, and no handles or input arrays escape.
  */
-export function RecoveryChartControlRelations(input: {
-  /** Nonnegative native-array control count, at most 2^32-1 original IDs. */
-  controls: number;
-  /** Each listed control has exactly this finite millimetre position. */
-  fixed: readonly { id: number; pointMm: readonly [number, number, number] }[];
-  /** Dependent controls and their finite weighted original-ID expressions. */
-  relations: readonly {
-    id: number;
-    terms: readonly { id: number; weight: number }[];
-  }[];
-  /** Positive safe cap on intermediate provenance and final independent terms. */
-  maxTerms: number;
-  /** Nonnegative safe cap on the relation-edge dependency depth. */
-  maxDepth: number;
-}): {
-  /** Unowned original IDs, in ascending order; these are the free variables. */
-  independent: number[];
-  /** One sparse millimetre expression per original control, in input ID order. */
-  expressions: {
-    constant: [number, number, number];
-    terms: { id: number; weight: number }[];
-  }[];
-  /** Largest final independent term count, excluding folded fixed sources. */
-  maximumTerms: number;
-  /** Largest declared relation-edge depth, including zero-weight dependencies. */
-  maximumDepth: number;
-  /** Least retained flattened source weight; zero for an empty expression. */
-  minimumWeight: number;
-  /** Largest absolute deviation of pre-folding source weight sum from one. */
-  maximumWeightSumError: number;
-} {
+export function RecoveryChartControlRelations(
+  input: Parameters<IAutoMovieRecoveryChartControlRelations.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartControlRelations.Operation> {
   if (
     !input ||
     !Number.isSafeInteger(input.controls) ||
@@ -176,9 +150,8 @@ export function RecoveryChartControlRelations(input: {
       stack.pop();
     }
   }
-  const expressions: ReturnType<
-    typeof RecoveryChartControlRelations
-  >["expressions"] = [];
+  const expressions: ReturnType<IAutoMovieRecoveryChartControlRelations.Operation>["expressions"] =
+    [];
   let maximumTerms: number = 0,
     minimumWeight: number = Infinity,
     maximumWeightSumError: number = 0;

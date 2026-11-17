@@ -1,6 +1,8 @@
-import { IAutoMovieSurfaceRegistry } from "./IAutoMovieSurfaceRegistry";
-import { IAutoMovieSurfaceSample } from "./IAutoMovieSurfaceSample";
-import { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
+import type {
+  IAutoMovieSurfaceRegistry,
+  IAutoMovieSurfaceSample,
+  IAutoMovieSweepRig,
+} from "@automovie/interface";
 
 /**
  * Create the vertex registry of a surface rig.

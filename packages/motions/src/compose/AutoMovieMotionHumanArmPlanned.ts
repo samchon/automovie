@@ -1,21 +1,26 @@
-import type { IAutoMoviePose } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanArmTrajectory,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
-import type { HumanColliders } from "../posture/HumanColliders";
-import type { HumanHand } from "../posture/HumanHand";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAimed } from "./AutoMovieMotionHumanArmAimed";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
-import type { AutoMovieMotionHumanArmCarry } from "./AutoMovieMotionHumanArmCarry";
 import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObservation";
 import { AutoMovieMotionHumanArmRetimed } from "./AutoMovieMotionHumanArmRetimed";
 import { AutoMovieMotionHumanArmRide } from "./AutoMovieMotionHumanArmRide";
@@ -33,101 +38,8 @@ import { AutoMovieMotionHumanArmStated } from "./AutoMovieMotionHumanArmStated";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The trajectory's problem is the planner's own (`HumanArmTrajectory`); this file only reads it off the action.
  */
 export namespace AutoMovieMotionHumanArmPlanned {
-  /**
-   * The instants of an action an arm is planned over, seconds since the
-   * action's start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each instant's meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The reach, the hold and the return are bounded by four instants of the action's clock.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by `planned`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Seconds, not clock names, so a law without a clock (a gesture) fits.
-   */
-  export interface ISpan {
-    /** The arm leaves its rest. */
-    start: number;
-
-    /** The hand is on its site. */
-    ready: number;
-
-    /** The hand leaves its site; `end` itself for a hand that stays on it to the end. */
-    relax: number;
-
-    /** The arm is back at rest, or, for a hand that stays on its site, the span ends with it there. */
-    end: number;
-  }
-
-  /**
-   * Arms moved over one span as one trajectory problem: each carry that
-   * names the group joins it, and the first to be written solves it for all.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States who joins and who solves.
-   * @evidence contracts/development/design.md#principled-representation Two arms whose paths are coupled are one problem (Erdmann and Lozano-Pérez 1987), so the group holds them and their one solution.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The members, the solution and the guard against re-entry.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The solution is kept so every member reads the same plan.
-   */
-  export interface ITogether {
-    /** The carries of the group, in the order they joined. */
-    carries: AutoMovieMotionHumanArmCarry.ICarry[];
-
-    /** Each arm's trajectory, once solved. */
-    solved?: Map<HumanHand.Side, HumanArmTrajectory.Trajectory>;
-
-    /** Whether the group is being solved, so a member asked during the solve is refused instead of solved twice. */
-    solving?: boolean;
-
-    /** The solutions an earlier plan of this same action reached (`last` of that plan's group), by the arms solved together (`IWarm`'s key): given by whoever plans the action again, each is the first start of the matching solve. Absent, every solve starts from its course. */
-    warm?: ReadonlyMap<string, IWarm>;
-
-    /** The solutions this plan's optimiser reached, by the arms solved together, written as each is solved: what a replan of the same action hands to its group's `warm`. A problem whose laid course was admitted is not optimised and writes none. */
-    last?: Map<string, IWarm>;
-
-    /** Whether the group's span is its law's own, which a replan at a slower tempo lengthens (`HumanPerformanceTempo`); unset for a span an end of which another performer or a cue fixes (a meeting). Only such a span is handed back for a longer one before an optimisation (`HumanArmTrajectory.solve`). */
-    stretches?: boolean;
-  }
-
-  /**
-   * An optimised arm trajectory as plan data, handed from one plan of an
-   * action to the next plan of the same action (an alignment trial and its
-   * placement, a replan over a longer span). Its key in a group's `warm` and
-   * `last` is the sides of the arms solved together, in the group's order,
-   * joined by `+` (`right`, `left+right`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is handed on, between whom, and the key it is filed under.
-   * @evidence contracts/development/design.md#principled-representation The span the solution was reached on beside the solver's own state, so the next plan can carry it phrase by phrase onto its own span.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Written and read by `planned`; a holder between two plans passes it on unread.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No verdict or pose is carried; the next solve admits the state anew, so a state of another action can cost time and never a wrong plan.
-   */
-  export interface IWarm {
-    /** The span the solution was reached on. */
-    span: ISpan;
-
-    /** The solver's state (`HumanArmTrajectory.ISolved.state`). */
-    state: HumanArmTrajectory.IState;
-  }
-
-  /**
-   * One arm of `planned`: the carry's own members, and the arm it returns to.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is taken from the carry and what is added.
-   * @evidence contracts/development/design.md#principled-representation An arm's task: its rest, its goal, its weight and its declared contacts, and the arm it ends at.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The carry's members `planned` reads, and `back`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The members are the carry's own by `Pick`, not restated.
-   */
-  export interface IPlanned extends Pick<
-    AutoMovieMotionHumanArmCarry.ICarry,
-    | "side"
-    | "rest"
-    | "goal"
-    | "perceived"
-    | "weight"
-    | "rests"
-    | "grasp"
-    | "disc"
-    | "on"
-  > {
-    /** The arm at the end of the span, where it returns to another arm than it left; `rest` when absent. */
-    back?: AutoMovieMotionHumanArmAngles.IAngles;
-  }
+  /** The interface contract (`IAutoMovieMotionHumanArmPlanned.IWarm`). */
+  export type IWarm = IAutoMovieMotionHumanArmPlanned.IWarm;
 
   /**
    * A group for arms moved together.
@@ -144,7 +56,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The group holds its carries and their solution, released with the primitives that close over it; the handover maps are the performance's.
    */
-  export function together(handover?: IHumanActionContext.IHandover, stretches?: boolean): ITogether {
+  export function together(handover?: IAutoMovieMotionHumanActionContext.IHandover, stretches?: boolean): IAutoMovieMotionHumanArmPlanned.ITogether {
     return {
       carries: [],
       ...(handover?.warm === undefined ? {} : { warm: handover.warm }),
@@ -206,12 +118,12 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This synchronous plan owns raw/base/site maps, at most two endpoint angle records per arm and one exact FK preparation until return/throw. Only completed fits publish; no global result/time cache is added. Returned trajectories use their existing playback factory and solved-waypoint data, retaining none of these maps/getters or preparation callbacks.
    */
   export function planned(
-    body: IHumanBody,
-    span: ISpan,
-    carries: readonly IPlanned[],
-    before: IHumanActionPlan["posture"],
-    plan?: Pick<ITogether, "warm" | "last" | "stretches">,
-  ): Map<HumanHand.Side, HumanArmTrajectory.Trajectory> {
+    body: IAutoMovieMotionHumanBody,
+    span: IAutoMovieMotionHumanArmPlanned.ISpan,
+    carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[],
+    before: IAutoMovieMotionHumanActionPlan["posture"],
+    plan?: Pick<IAutoMovieMotionHumanArmPlanned.ITogether, "warm" | "last" | "stretches">,
+  ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory> {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
     // Each phrase is an interval cut into pieces, its own end left to the
@@ -226,8 +138,8 @@ export namespace AutoMovieMotionHumanArmPlanned {
     };
 
     // A posture with the planned arms left out.
-    const without = (p: IHumanPosture): IHumanPosture => {
-      const limbs: IHumanPosture["limbs"] = { ...p.limbs };
+    const without = (p: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...p.limbs };
       for (const c of carries) delete limbs[`${c.side}Arm`];
       return { ...p, limbs };
     };
@@ -236,28 +148,29 @@ export namespace AutoMovieMotionHumanArmPlanned {
     // out, the base each arm is read against, and each arm's goal there as
     // the plan perceives it, each read once however often the plan and its
     // refinement ask (each arm's goal by AutoMovieMotionHumanArmAimed).
-    const read: Map<number, { posture: IHumanPosture; pose: IAutoMoviePose }> = new Map();
-    const at = (t: number): { posture: IHumanPosture; pose: IAutoMoviePose } => {
-      let found: { posture: IHumanPosture; pose: IAutoMoviePose } | undefined = read.get(t);
+    const read: Map<number, { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose }> = new Map();
+    const at = (t: number): { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose } => {
+      let found:
+        | { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose } | undefined = read.get(t);
       if (found === undefined) {
-        const posture: IHumanPosture = before(t, undefined, resolution, projection);
+        const posture: IAutoMovieMotionHumanPosture = before(t, undefined, resolution, projection);
         found = { posture, pose: resolveHumanPosture.seeded(body, without(posture),
           undefined, undefined, resolution, undefined, projection).pose };
         read.set(t, found);
       }
       return found;
     };
-    const aimed: (a: number, t: number) => IHumanPosture.IGoal =
+    const aimed: (a: number, t: number) => IAutoMovieHumanLimbGoal =
       AutoMovieMotionHumanArmAimed(body, carries, at, resolution, projection);
-    const fits: Map<number, AutoMovieMotionHumanArmAngles.IAngles>[] =
-      carries.map((): Map<number, AutoMovieMotionHumanArmAngles.IAngles> => new Map());
+    const fits: Map<number, IAutoMovieMotionHumanArmAngles.IAngles>[] =
+      carries.map((): Map<number, IAutoMovieMotionHumanArmAngles.IAngles> => new Map());
 
     /** Travel and the initial guess share only completed fits of the same cached endpoint inputs. */
-    const fitted = (a: number, t: number): AutoMovieMotionHumanArmAngles.IAngles => {
-      let found: AutoMovieMotionHumanArmAngles.IAngles | undefined = fits[a]!.get(t);
+    const fitted = (a: number, t: number): IAutoMovieMotionHumanArmAngles.IAngles => {
+      let found: IAutoMovieMotionHumanArmAngles.IAngles | undefined = fits[a]!.get(t);
       if (found === undefined) {
-        const p: IHumanPosture = at(t).posture;
-        const c: IPlanned = carries[a]!;
+        const p: IAutoMovieMotionHumanPosture = at(t).posture;
+        const c: IAutoMovieMotionHumanArmPlanned.IPlanned = carries[a]!;
         // One planned arm stands alone on the base already resolved without
         // it: the rest of the body is that base's, so only the arm is fitted
         // (the limbs fit in order and nothing reads an arm fitted last).
@@ -269,8 +182,8 @@ export namespace AutoMovieMotionHumanArmPlanned {
         // the posture solve.
         const apart: boolean =
           carries.length === 2 &&
-          carries.every((o: IPlanned): boolean => o.on === undefined) &&
-          carries.every((o: IPlanned): boolean => o === c || p.limbs[`${o.side}Arm`] === undefined);
+          carries.every((o: IAutoMovieMotionHumanArmPlanned.IPlanned): boolean => o.on === undefined) &&
+          carries.every((o: IAutoMovieMotionHumanArmPlanned.IPlanned): boolean => o === c || p.limbs[`${o.side}Arm`] === undefined);
         found = AutoMovieMotionHumanArmAngles.angles(carries.length === 1
           ? HumanLimbFit.fit(body, at(t).pose, `${c.side}Arm`, aimed(a, t), ["left", "right"],
               undefined, undefined, resolution).pose
@@ -286,10 +199,10 @@ export namespace AutoMovieMotionHumanArmPlanned {
     };
     const travel = (t: number, sign: -1 | 1): number => {
       let longest: number = 0;
-      const p: IHumanPosture = at(t).posture;
-      carries.forEach((c: IPlanned, a: number): void => {
-        const fit: AutoMovieMotionHumanArmAngles.IAngles = fitted(a, t);
-        const rest: AutoMovieMotionHumanArmAngles.IAngles = sign === 1 ? c.rest : (c.back ?? c.rest);
+      const p: IAutoMovieMotionHumanPosture = at(t).posture;
+      carries.forEach((c: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): void => {
+        const fit: IAutoMovieMotionHumanArmAngles.IAngles = fitted(a, t);
+        const rest: IAutoMovieMotionHumanArmAngles.IAngles = sign === 1 ? c.rest : (c.back ?? c.rest);
         const duration: number = carries.length === 1
           ? AutoMovieMotionHumanArmObservation.reachingPose(body, at(t).pose, c.side, rest, fit, resolution)
           : reaching(body, p, c.side, rest, fit, resolution, projection);
@@ -326,8 +239,8 @@ export namespace AutoMovieMotionHumanArmPlanned {
         found = {
           pose: at(t).pose,
           others: carries.flatMap(
-            (_: IPlanned, a: number): HumanColliders.IPlaced[] => {
-              const goal: IHumanPosture.IGoal = aimed(a, t);
+            (_: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): IAutoMovieMotionHumanColliders.IPlaced[] => {
+              const goal: IAutoMovieHumanLimbGoal = aimed(a, t);
               return [...(goal.clear ?? []), ...(goal.rests ?? [])];
             },
           ),
@@ -342,7 +255,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     // Each arm's own fit at the hold's start, the optimiser's seed's first
     // start: fitted only once the laid course is refused, since an admitted
     // course reads no guess.
-    let guesses: AutoMovieMotionHumanArmAngles.IAngles[] | undefined;
+    let guesses: IAutoMovieMotionHumanArmAngles.IAngles[] | undefined;
 
     // Each arm's site at an instant, read once however often the refinement
     // reads the problem again: a refinement adds instants, and the site at
@@ -358,12 +271,12 @@ export namespace AutoMovieMotionHumanArmPlanned {
       body,
       times: waypoints,
       share: carries[0]!.weight,
-      arms: carries.map((c: IPlanned, a: number): HumanArmTrajectory.IArm => {
+      arms: carries.map((c: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): HumanArmTrajectory.IArm => {
         const rider: number =
           c.on === undefined
             ? -1
             : carries.findIndex(
-                (o: IPlanned): boolean => o !== c && c.on!.startsWith(o.side),
+                (o: IAutoMovieMotionHumanArmPlanned.IPlanned): boolean => o !== c && c.on!.startsWith(o.side),
               );
         // The site where the arm's goal puts it at an instant, on the hold.
         const located = (t: number): HumanArmTrajectory.ISite | undefined => {
@@ -377,7 +290,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
             resolution,
           );
           if (rider < 0) return own;
-          const lead: IPlanned = carries[rider]!;
+          const lead: IAutoMovieMotionHumanArmPlanned.IPlanned = carries[rider]!;
 
           // A grip on an object both hands hold rides the lead hand's own
           // site, the hand as the plan puts it there: a closed chain
@@ -441,17 +354,17 @@ export namespace AutoMovieMotionHumanArmPlanned {
       });
     if (laid?.admitted !== true) {
       guesses = carries.map(
-        (_: IPlanned, a: number): AutoMovieMotionHumanArmAngles.IAngles =>
+        (_: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): IAutoMovieMotionHumanArmAngles.IAngles =>
           fitted(a, span.ready),
       );
       waypoints();
     }
-    let solved: HumanArmTrajectory.Trajectory[];
+    let solved: IAutoMovieMotionHumanArmTrajectory.Trajectory[];
     if (laid?.admitted === true) solved = laid.trajectories;
     else {
       // An earlier plan's solution of these arms, carried onto this span,
       // starts the solve; this plan's own is left for the next.
-      const key: string = carries.map((c: IPlanned): string => c.side).join("+");
+      const key: string = carries.map((c: IAutoMovieMotionHumanArmPlanned.IPlanned): string => c.side).join("+");
       const earlier: IWarm | undefined = plan?.warm?.get(key);
       const result: HumanArmTrajectory.ISolved = HumanArmTrajectory.solve(
         problem, times, laid,
@@ -465,9 +378,9 @@ export namespace AutoMovieMotionHumanArmPlanned {
     return new Map(
       carries.map(
         (
-          c: IPlanned,
+          c: IAutoMovieMotionHumanArmPlanned.IPlanned,
           a: number,
-        ): [HumanHand.Side, HumanArmTrajectory.Trajectory] => [
+        ): [AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory] => [
           c.side,
           solved[a]!,
         ],

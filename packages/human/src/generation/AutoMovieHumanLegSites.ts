@@ -1,5 +1,10 @@
+import type {
+  AutoMovieHumanSexPair,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanLegSites,
+} from "@automovie/interface";
+
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
-import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
 
 /**
  * The leg's surveyed sites and depth: where the calf's greatest girth stands,
@@ -23,13 +28,14 @@ import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures"
  */
 export namespace AutoMovieHumanLegSites {
   /** The calf level's share of the lateral malleolus to mid-patella span, women and men: 0.6414 (SD 0.0345) and 0.6537 (0.0269). */
-  export const CALF_SHARE: readonly [number, number] = [0.6414, 0.6537];
+  export const CALF_SHARE: AutoMovieHumanSexPair<number> = [0.6414, 0.6537];
 
   /** Thigh clearance on the proximal thigh girth, women and men, mm: R2 0.66 and 0.74, residual SD 7.0 and 6.4 mm. */
-  export const THIGH_DEPTH_ON_THIGH: readonly [{ readonly a: number; readonly b: number }, { readonly a: number; readonly b: number }] = [
-    { a: 32.27, b: 0.2183 },
-    { a: 37.12, b: 0.2197 },
-  ];
+  export const THIGH_DEPTH_ON_THIGH: IAutoMovieHumanLegSites.ThighDepthOnThigh =
+    [
+      { a: 32.27, b: 0.2183 },
+      { a: 37.12, b: 0.2197 },
+    ];
 
   /**
    * The calf's greatest girth's height.
@@ -39,8 +45,16 @@ export namespace AutoMovieHumanLegSites {
    * @param patella Mid-patella height, mm.
    * @returns The calf level above the floor, mm.
    */
-  export function calf(measures: IAutoMovieHumanBodyMeasures, malleolus: number, patella: number): number {
-    return malleolus + CALF_SHARE[measures.sex === AutoMovieHumanSex.Female ? 0 : 1] * (patella - malleolus);
+  export function calf(
+    measures: IAutoMovieHumanBodyMeasures,
+    malleolus: number,
+    patella: number,
+  ): number {
+    return (
+      malleolus +
+      CALF_SHARE[measures.sex === AutoMovieHumanSex.Female ? 0 : 1] *
+        (patella - malleolus)
+    );
   }
 
   /**
@@ -51,7 +65,8 @@ export namespace AutoMovieHumanLegSites {
    * @returns The thigh's depth, mm.
    */
   export function thighDepth(measures: IAutoMovieHumanBodyMeasures): number {
-    const fit: { readonly a: number; readonly b: number } = THIGH_DEPTH_ON_THIGH[measures.sex === AutoMovieHumanSex.Female ? 0 : 1];
+    const fit: { readonly a: number; readonly b: number } =
+      THIGH_DEPTH_ON_THIGH[measures.sex === AutoMovieHumanSex.Female ? 0 : 1];
     return fit.a + fit.b * measures.thighCircumference;
   }
 

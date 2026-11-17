@@ -1,10 +1,13 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
+  IAutoMovieScanJointRom,
+  IAutoMovieSwingTwistRange,
 } from "@automovie/interface";
 
 import { SwingTwistFramePreparation } from "../kinematics/SwingTwistFramePreparation";
@@ -65,11 +68,11 @@ export function scanJointRom(
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
   report: (
-    part: scanJointRom.Part,
+    part: IAutoMovieScanJointRom.Part,
     actual: number,
     overshoot: number | undefined,
   ) => void,
-  rig?: swingTwistRange.IJoint,
+  rig?: IAutoMovieJointRotationFrame,
 ): void {
   scan(joint, constraint, report, rig, false);
 }
@@ -83,7 +86,7 @@ function scan(
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
   report: Parameters<typeof scanJointRom>[2] | undefined,
-  rig: swingTwistRange.IJoint | undefined,
+  rig: IAutoMovieJointRotationFrame | undefined,
   score: boolean,
   compose?: (joint: IAutoMovieJointPose) => IAutoMovieQuaternion,
   rotation?: IAutoMovieQuaternion,
@@ -94,7 +97,7 @@ function scan(
   // angles: the swing past the reach of its flexion and abduction ranges,
   // then the twist past its interval, in the frame its clinical angles are
   // written in: the caller's rig's, or the humanoid tables'.
-  const range: swingTwistRange.IJoint | undefined =
+  const range: IAutoMovieJointRotationFrame | undefined =
     constraint.swingTwist === undefined || constraint.swingTwist === null
       ? undefined
       : (rig ?? swingTwistRange.of(joint.bone));
@@ -179,11 +182,14 @@ function gate(
   rotation: IAutoMovieQuaternion,
   swingTwist: NonNullable<IAutoMovieJointConstraint["swingTwist"]>,
   constraint: IAutoMovieJointConstraint,
-  range: swingTwistRange.IJoint,
+  range: IAutoMovieJointRotationFrame,
   report: Parameters<typeof scanJointRom>[2] | undefined,
   score: boolean,
 ): number {
-  const reading: swingTwistRange.IReading = swingTwistRange.read(rotation, range);
+  const reading: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(
+    rotation,
+    range,
+  );
   const reach: number = swingTwistRange.radius(
     constraint,
     range,
@@ -212,7 +218,7 @@ function fault(
   total: number,
   report: Parameters<typeof scanJointRom>[2] | undefined,
   score: boolean,
-  part: scanJointRom.Part,
+  part: IAutoMovieScanJointRom.Part,
   actual: number,
   overshoot: number | undefined,
 ): number {
@@ -233,15 +239,6 @@ function fault(
  */
 export namespace scanJointRom {
   /**
-   * What a fault is measured on: one clinical axis, or the combined swing.
-   *
-   * A closed union of the three clinical axes and their combined swing, one
-   * literal for each reported check. The gate maps it to a message and audits
-   * to a fault location; it remains exhaustively checkable rather than string.
-   */
-  export type Part = "flexion" | "abduction" | "twist" | "swing";
-
-  /**
    * Sum the same faults in their report order, without a collector closure.
    * Missing distances are nonfinite faults and add Infinity, never zero.
    * This entry runs the same full scan with its existing rig admission and
@@ -255,7 +252,7 @@ export namespace scanJointRom {
   export function overshoot(
     joint: IAutoMovieJointPose,
     constraint: IAutoMovieJointConstraint,
-    rig?: swingTwistRange.IJoint,
+    rig?: IAutoMovieJointRotationFrame,
   ): number {
     return scan(joint, constraint, undefined, rig, true);
   }
@@ -289,18 +286,20 @@ export namespace scanJointRom {
   export function prepare(
     bone: AutoMovieHumanoidBone,
     constraint: IAutoMovieJointConstraint,
-    rig?: swingTwistRange.IJoint,
+    rig?: IAutoMovieJointRotationFrame,
   ): (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number {
-    const source: swingTwistRange.IJoint | undefined =
+    const source: IAutoMovieJointRotationFrame | undefined =
       constraint.swingTwist === undefined || constraint.swingTwist === null
         ? undefined
-        : rig ?? swingTwistRange.of(bone);
-    const range: swingTwistRange.IJoint | undefined =
+        : (rig ?? swingTwistRange.of(bone));
+    const range: IAutoMovieJointRotationFrame | undefined =
       source === undefined ? undefined : swingTwistRange.prepare(source);
     let composer:
       | ReturnType<typeof jointToQuaternionOnBasis.prepare>
       | undefined;
-    const compose: ((joint: IAutoMovieJointPose) => IAutoMovieQuaternion) | undefined =
+    const compose:
+      | ((joint: IAutoMovieJointPose) => IAutoMovieQuaternion)
+      | undefined =
       range === undefined
         ? undefined
         : (joint: IAutoMovieJointPose): IAutoMovieQuaternion => {
@@ -310,14 +309,14 @@ export namespace scanJointRom {
                   range,
                   "jointToQuaternion axes",
                 );
-              composer = jointToQuaternionOnBasis.prepare(
-                basis!,
-                range.frame,
-              );
+              composer = jointToQuaternionOnBasis.prepare(basis!, range.frame);
             }
             return composer(joint);
           };
-    return (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion): number =>
+    return (
+      joint: IAutoMovieJointPose,
+      rotation?: IAutoMovieQuaternion,
+    ): number =>
       scan(joint, constraint, undefined, range, true, compose, rotation);
   }
 
@@ -340,14 +339,16 @@ export namespace scanJointRom {
   export function prepareRotated(
     bone: AutoMovieHumanoidBone,
     constraint: IAutoMovieJointConstraint | null,
-    rig?: swingTwistRange.IJoint,
+    rig?: IAutoMovieJointRotationFrame,
   ): ((rotation: IAutoMovieQuaternion) => number) | null {
     if (constraint === null) return null;
-    const swingTwist: IAutoMovieJointConstraint["swingTwist"] = constraint.swingTwist;
+    const swingTwist: IAutoMovieJointConstraint["swingTwist"] =
+      constraint.swingTwist;
     if (swingTwist === undefined || swingTwist === null) return null;
-    const source: swingTwistRange.IJoint | undefined = rig ?? swingTwistRange.of(bone);
+    const source: IAutoMovieJointRotationFrame | undefined =
+      rig ?? swingTwistRange.of(bone);
     if (source === undefined) return null;
-    const range: swingTwistRange.IJoint = swingTwistRange.prepare(source);
+    const range: IAutoMovieJointRotationFrame = swingTwistRange.prepare(source);
     return (rotation: IAutoMovieQuaternion): number =>
       gate(0, rotation, swingTwist, constraint, range, undefined, true);
   }

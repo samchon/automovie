@@ -3,7 +3,6 @@ import {
   DEFAULT_JOINT_AXES,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieRestFrame,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -11,11 +10,11 @@ import type {
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
 
 /**
  * Snapshot the live scalar prerequisites of one actual cold free-leg or joint-only source
@@ -31,7 +30,7 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One weak body's current immutable scalar snapshot may serve multiple actual cold producers only after a fresh complete comparison. Every producer/consumer rereads bound body and canonical tables, so in-place edits, replacements and order changes invalidate; no previous comparison verdict, pose or fit answer is retained.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak body owns one current typed metadata snapshot/checker; issued sources retain their original checker only until release. No linked epoch history, FK reader, target, fitted result, callback result or handle is retained here.
  */
-export function prepareHumanPostureRigCheck(body: IHumanBody): (() => boolean) | undefined {
+export function prepareHumanPostureRigCheck(body: IAutoMovieMotionHumanBody): (() => boolean) | undefined {
   try {
     const current: (() => boolean) | undefined = CURRENT.get(body);
     if (current !== undefined && current()) return current;
@@ -44,8 +43,8 @@ export function prepareHumanPostureRigCheck(body: IHumanBody): (() => boolean) |
       fallback: DEFAULT_JOINT_AXES,
       frames: Object.entries(HUMANOID_REST_FRAME),
     });
-    const rig: IHumanBody["poseResolution"] = body.poseResolution;
-    const topology: IHumanBody["topology"] = body.topology;
+    const rig: IAutoMovieMotionHumanBody["poseResolution"] = body.poseResolution;
+    const topology: IAutoMovieMotionHumanBody["topology"] = body.topology;
     const check: () => boolean = (): boolean => {
       try {
         const same: boolean = body.poseResolution === rig && body.topology === topology &&
@@ -72,14 +71,14 @@ export function prepareHumanPostureRigCheck(body: IHumanBody): (() => boolean) |
 }
 
 /** Only current immutable metadata is shared; every reuse performs a fresh live comparison. */
-const CURRENT: WeakMap<IHumanBody, () => boolean> = new WeakMap();
+const CURRENT: WeakMap<IAutoMovieMotionHumanBody, () => boolean> = new WeakMap();
 
 /** One topology entry, including ordered child records rather than names alone. */
 type IChildren = readonly [string, readonly IAutoMovieBone[]];
 
 /** Owned source snapshots for exactly the fields the former signature projected. */
 interface ISnapshot {
-  skeleton: IHumanBody["skeleton"];
+  skeleton: IAutoMovieMotionHumanBody["skeleton"];
   children: readonly IChildren[];
   reachable: readonly AutoMovieHumanoidBone[];
   defaults: readonly (readonly [string, IAutoMovieJointConstraint | undefined])[];

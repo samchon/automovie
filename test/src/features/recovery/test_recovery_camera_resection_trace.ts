@@ -1,6 +1,8 @@
+import type {
+  IAutoMovieRecoveryResectionDesignTrace,
+  IAutoMovieRecoveryResectionTrace,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryResectionDesignTrace,
-  type IAutoMovieRecoveryResectionTrace,
   createRecoveryCameraChart,
   fitRecoveryResectionConsensus,
   fitRecoveryResectionDesign,

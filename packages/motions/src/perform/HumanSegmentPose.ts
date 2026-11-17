@@ -1,17 +1,26 @@
 import {
-  type IAutoMoviePoseRig,
-  type IAutoMovieSeededChainFit,
   inertializePose,
   poseJointCodec,
   samplePoseVelocity,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose } from "@automovie/interface";
+import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMoviePose,
+  IAutoMoviePoseJointCodec,
+  IAutoMoviePoseRig,
+  IAutoMoviePoseState,
+  IAutoMovieSeededChainFit,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { humanRig } from "../posture/humanRig";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
@@ -52,7 +61,7 @@ export namespace HumanSegmentPose {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The person owns the FIFO-bounded 4096-entry map and releases it on forget; returned cached pose references retain their existing borrowed ownership, with no copy or new process-wide cache.
    */
   export function displayed(
-    person: HumanSegment.IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
@@ -82,8 +91,8 @@ export namespace HumanSegmentPose {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The wrapper retains no state and returns the evaluator's original pose reference.
    */
   export function of(
-    person: HumanSegment.IPerson,
-    segment: HumanSegment.ISegment,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment,
     seconds: number,
     prepared?: prepareHumanSegmentPose.IPrepared,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
@@ -113,8 +122,8 @@ export namespace HumanSegmentPose {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The outer evaluation owns its preparation, local pose/seed maps and per-side metadata until return or throw. Only last successful FK dependency tuples and rig metadata are retained during that operation. No returned pose, fit seed or transition offset captures the preparation. Existing held carry numbers and concrete transition codecs retain their original forget lifetime.
    */
   export function seeded(
-    person: HumanSegment.IPerson,
-    segment: HumanSegment.ISegment,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment,
     seconds: number,
     near?: INear,
     prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(
@@ -122,11 +131,11 @@ export namespace HumanSegmentPose {
     ),
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): ISeeded {
-    const body: IHumanBody = person.performer.body;
+    const body: IAutoMovieMotionHumanBody = person.performer.body;
     if (prepared.body !== body)
       throw new Error("A displayed evaluation borrows its own body's rig preparation");
     const clamp: (pose: IAutoMoviePose) => IAutoMoviePose = prepared.clamp;
-    const transition: HumanSegment.ISegment["transition"] = segment.transition;
+    const transition: IAutoMovieMotionHumanSegment["transition"] = segment.transition;
     const observed: ReadonlySet<AutoMovieHumanoidBone> | undefined =
       requested !== undefined && near === undefined && person.holds.length === 0 && person.stops.size === 0 &&
       !(transition !== undefined && transition.kind !== "redirect" &&
@@ -141,27 +150,27 @@ export namespace HumanSegmentPose {
       t: number,
       fits?: INear,
     ): {
-      posture: IHumanPosture;
-      carried: HumanSegment.IHeld[];
+      posture: IAutoMovieMotionHumanPosture;
+      carried: IAutoMovieMotionHumanSegment.IHeld[];
       pose: IAutoMoviePose;
       seeds: IFits;
     } {
       const reader: typeof segment.plan.posture = segment.plan.posture;
       const localSeconds: number = t - segment.start;
-      const raw: IHumanPosture = Reflect.apply(reader, segment.plan, [
+      const raw: IAutoMovieMotionHumanPosture = Reflect.apply(reader, segment.plan, [
         Math.min(segment.plan.duration, Math.max(0, localSeconds)),
         undefined, prepared.resolution, prepared.clamp,
       ]);
-      let written: IHumanPosture = layered(
+      let written: IAutoMovieMotionHumanPosture = layered(
         person, raw,
         t,
         prepared.resolution,
         prepared.clamp,
       );
 
-      const borne: HumanSegment.IHeld[] = HumanSegmentCarry.borne(person, segment, t);
+      const borne: IAutoMovieMotionHumanSegment.IHeld[] = HumanSegmentCarry.borne(person, segment, t);
       if (borne.length !== 0) {
-        const joints: IHumanPosture["joints"] = { ...written.joints };
+        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...written.joints };
         for (const h of borne) Object.assign(joints, h.fingers);
         written = { ...written, joints };
       }
@@ -180,8 +189,8 @@ export namespace HumanSegmentPose {
     }
     const now: ReturnType<typeof shown> = shown(seconds, near);
     const seeds: IFits = now.seeds;
-    let posture: IHumanPosture = now.posture;
-    const carried: HumanSegment.IHeld[] = now.carried;
+    let posture: IAutoMovieMotionHumanPosture = now.posture;
+    const carried: IAutoMovieMotionHumanSegment.IHeld[] = now.carried;
     let pose: IAutoMoviePose = now.pose;
 
     // Whether the pose is still the leaf resolve's own: no overlay or hold
@@ -194,8 +203,8 @@ export namespace HumanSegmentPose {
     function fit(
       name: string,
       at: IAutoMoviePose,
-      limb: IHumanPosture.Limb,
-      goal: IHumanPosture.IGoal,
+      limb: AutoMovieHumanLimb,
+      goal: IAutoMovieHumanLimbGoal,
     ): IAutoMoviePose {
       const fitted: IAutoMovieSeededChainFit = HumanLimbFit.fit(
         body,
@@ -214,17 +223,17 @@ export namespace HumanSegmentPose {
     // A carried hand no overlay drives keeps its goal as a planted one, so
     // the transition's offset below never moves what it holds. A hand an
     // overlay drives is that overlay's, faded in and out by `overlaid`.
-    let kept: HumanSegment.IHeld[] = carried;
+    let kept: IAutoMovieMotionHumanSegment.IHeld[] = carried;
     if (carried.length !== 0) {
-      const active: HumanSegment.IOverlay[] = HumanSegmentOverlay.running(
+      const active: IAutoMovieMotionHumanSegment.IOverlay[] = HumanSegmentOverlay.running(
         person,
         seconds,
       );
       const driven: Partial<Record<"left" | "right", boolean>> = {};
       kept = carried.filter(
-        (h: HumanSegment.IHeld): boolean =>
+        (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
           !(driven[h.side] ??= active.some(
-            (o: HumanSegment.IOverlay): boolean =>
+            (o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
               HumanSegment.drives(o.plan, h.side),
           )),
       );
@@ -247,7 +256,7 @@ export namespace HumanSegmentPose {
           HumanSegment.weapon(segment, w.id),
         );
         if (s === undefined || seconds <= s) continue;
-        const goal: IHumanPosture.IGoal = (stopped ??= HumanSegmentStop.reader(
+        const goal: IAutoMovieHumanLimbGoal = (stopped ??= HumanSegmentStop.reader(
           person,
           segment,
           prepared,
@@ -266,7 +275,7 @@ export namespace HumanSegmentPose {
       // the motion rather than differences in fit resolution.
       if (transition.offset === undefined || transition.offset === null) {
         const rig: IAutoMoviePoseRig = humanRig(body);
-        const codec: () => poseJointCodec.ICodec = poseJointCodec.prepare(rig);
+        const codec: () => IAutoMoviePoseJointCodec.ICodec = poseJointCodec.prepare(rig);
         transition.offset = inertializePose(
           continued(
             (t: number, near?: INear): ISeeded =>
@@ -334,7 +343,7 @@ export namespace HumanSegmentPose {
     // keeps the leaf's solution (`HumanSegmentPlant.settled`).
     if (plain && posture.digits === undefined && posture.rotation === undefined &&
       HumanSegmentPlant.settled(fitted, pose, posture.limbs, seeds)) return { pose, seeds };
-    const planted: resolveHumanPosture.ISeeded = HumanSegmentPlant.fit(
+    const planted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = HumanSegmentPlant.fit(
       body,
       pose,
       posture.limbs,
@@ -378,7 +387,7 @@ export namespace HumanSegmentPose {
     const tolerance: number = samplePoseVelocity.tolerance(STEP, duration);
     let fits: IFits;
     const samples: IAutoMoviePose[] = [];
-    const state: samplePoseVelocity.IState = samplePoseVelocity(
+    const state: IAutoMoviePoseState = samplePoseVelocity(
       (t: number): IAutoMoviePose => {
         const instant: ISeeded = read(t);
         fits = instant.seeds;
@@ -464,12 +473,12 @@ export namespace HumanSegmentPose {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The wrapper retains nothing and returns the delegated posture reference unchanged.
    */
   export function layered(
-    person: HumanSegment.IPerson,
-    posture: IHumanPosture,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    posture: IAutoMovieMotionHumanPosture,
     seconds: number,
     resolution?: prepareHumanSegmentPose.IPrepared["resolution"],
     projection?: prepareHumanSegmentPose.IPrepared["clamp"],
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     return HumanSegmentLayer.apply(person, posture, seconds, resolution, projection);
   }
 
@@ -485,7 +494,7 @@ export namespace HumanSegmentPose {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state and returns the resolver's result unchanged.
    */
   export function initial(
-    person: HumanSegment.IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMoviePose {

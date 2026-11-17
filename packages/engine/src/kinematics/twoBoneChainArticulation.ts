@@ -1,9 +1,12 @@
-import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieTwoBoneArticulation,
+  IAutoMovieTwoBoneChainArticulation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
-import { IAutoMovieTwoBoneArticulation } from "./IAutoMovieTwoBoneArticulation";
 import { aimRotation } from "./aimRotation";
 import { solveTwoBoneIK } from "./solveTwoBoneIK";
 
@@ -114,29 +117,8 @@ export namespace twoBoneChainArticulation {
   }
 }
 
-/** Direct source/target inputs in resolved world coordinates. */
-interface IProps {
-  /** Resolved chain-root bone (hip or shoulder) in world space. */
-  upper: IAutoMovieChainBone;
-
-  /** Resolved mid bone (knee or elbow) in world space. */
-  lower: IAutoMovieChainBone;
-
-  /** World position of the end effector (foot or hand) on the resolved chain. */
-  end: IAutoMovieVector3;
-
-  /** World target the end effector should land on. */
-  target: IAutoMovieVector3;
-
-  /**
-   * World normal of the bend plane, overriding the world-down derivation; any
-   * nonzero length. A caller whose mid joint is a hinge passes the hinge axis
-   * so the solve stays in the only plane that joint can bend in. Rotation
-   * follows the right-hand rule about it, so its two signs are the chain's two
-   * bend branches.
-   */
-  bendNormal?: IAutoMovieVector3;
-}
+/** Direct source/target inputs in resolved world coordinates (the interface contract). */
+type IProps = IAutoMovieTwoBoneChainArticulation.IProps;
 
 /** One fixed source, with inverses first completed at their original evaluation sites. */
 interface ISource {

@@ -1,10 +1,11 @@
-import { type IAutoMovieResolveOutput, resolveFrame } from "@automovie/engine";
+import { resolveFrame } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieChannelLimit,
   IAutoMovieClip,
   IAutoMovieDrivenDriver,
   IAutoMovieNode,
+  type IAutoMovieResolveOutput,
   IAutoMovieTrack,
   IAutoMovieTransform,
 } from "@automovie/interface";

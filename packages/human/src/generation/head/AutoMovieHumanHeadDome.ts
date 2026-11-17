@@ -1,4 +1,10 @@
-import { AutoMovieViewAxis, type IAutoMovieViewPart } from "@automovie/engine";
+import { AutoMovieViewAxis } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHeadDome,
+  IAutoMovieHumanHeadDomeHost,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadDomeHost } from "./AutoMovieHumanHeadDomeHost";
 
@@ -28,66 +34,6 @@ import { AutoMovieHumanHeadDomeHost } from "./AutoMovieHumanHeadDomeHost";
  */
 export namespace AutoMovieHumanHeadDome {
   /**
-   * The cap's complete original material datum, owned by DomeHost.
-   *
-   * @evidence contracts/common.md#principled-implementation Preserves the identical source/frame/contact record used by the native material reader.
-   * @evidence contracts/common.md#clear-and-simple-design One alias retains the existing regional input boundary without copying the host definition.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The alias adds no fitted value, alternate parent or unavailable derivative.
-   * @evidence contracts/common.md#meaningful-documentation DomeHost owns calibration-mm fields and plane-only versus contact semantics.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A type alias performs no work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The original host factories own preparation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources An alias acquires no resources.
-   */
-  export type IHost = AutoMovieHumanHeadDomeHost.IHost;
-
-  /**
-   * A cap retaining its actual original material contact for downstream consumers.
-   *
-   * @evidence contracts/common.md#principled-implementation The same complete source/frame/contact used to author embedding remains attached to the original part.
-   * @evidence contracts/common.md#clear-and-simple-design One record preserves geometry and its actual borrowed material owner.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Retaining a contact claims neither whole-footprint agreement nor Boolean acceptance.
-   * @evidence contracts/common.md#meaningful-documentation Null means a caller supplied no original material parent.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no work.
-   * @evidence contracts/performance.md#reuse-equivalent-work Regional metadata borrows the identical prepared contact.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The composition owns the part and its transitive original-parent source.
-   */
-  export interface IPart extends IAutoMovieViewPart {
-    /** Identical source contact consumed by embedding, or null without an original parent. */
-    attachment: IHost | null;
-  }
-
-  /**
-   * One actual source attempt collected before publishing any composed result.
-   * @evidence contracts/common.md#principled-implementation Records the real caller's parent domain, independent placement anchor, nominal base and successful regular native contact or original exception.
-   * @evidence contracts/common.md#clear-and-simple-design One record represents either success or failure without manufacturing geometry.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Collection cannot turn a failed source into a published part or proxy.
-   * @evidence contracts/common.md#meaningful-documentation Source stations and world positions use calibration mm; error retains the original cause.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Data performs no work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The attempt factory owns original construction.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The explicit inspection owns its bounded actual-caller records.
-   */
-  export interface IAttempt {
-    /** Actual child source name. */
-    name: string;
-    /** Identical original frame, widths, rise and profile, before parent queries. */
-    definition: Omit<IDome, "host">;
-    /** Actual selected material owner, distinct from the tree's parent label. */
-    parent: string | null;
-    /** Identical original parent retained for independent source/frame inspection, even after a failed attachment query. */
-    parentSource: IAutoMovieViewPart | null;
-    /** Original declared physical station domain, without extension or clamping. */
-    domain: [number, number] | null;
-    /** Original child nominal base, independent of attachment. */
-    base: [number, number, number];
-    /** Original source placement anchor; distinct from a derived parent-surface contact. */
-    point: [number, number, number];
-    /** Successful native surface contact, distinct from the original placement anchor. */
-    attachment: IHost | null;
-    /** Original failed premise or null for an actual successful source. */
-    error: string | null;
-  }
-
-  /**
    * Attempt the actual caller once and optionally collect every sibling outcome.
    *
    * @param dome Actual original cap definition, before any parent query.
@@ -105,12 +51,12 @@ export namespace AutoMovieHumanHeadDome {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only an explicitly supplied caller-owned inspection array retains outcomes.
    */
   export function attempt(
-    dome: Omit<IDome, "host">,
+    dome: Omit<IAutoMovieHumanHeadDome.IDome, "host">,
     parent: IAutoMovieViewPart | undefined,
-    point: [number, number, number],
-    attempts?: IAttempt[],
-  ): IPart | null {
-    let host: IHost | null = null;
+    point: AutoMovieVector3Tuple,
+    attempts?: IAutoMovieHumanHeadDome.IAttempt[],
+  ): IAutoMovieHumanHeadDome.IPart | null {
+    let host: IAutoMovieHumanHeadDomeHost.IHost | null = null;
     const record: (error: string | null) => void = (
       error: string | null,
     ): void => {
@@ -131,7 +77,7 @@ export namespace AutoMovieHumanHeadDome {
     };
     try {
       host = parent === undefined ? null : contact(parent, dome);
-      const part: IPart = {
+      const part: IAutoMovieHumanHeadDome.IPart = {
         ...of({ ...dome, ...(host === null ? {} : { host }) }),
         attachment: host,
       };
@@ -144,53 +90,6 @@ export namespace AutoMovieHumanHeadDome {
       );
       return null;
     }
-  }
-
-  /**
-   * A dome's generating frame and positive dimensions in calibration mm.
-   *
-   * @evidence contracts/common.md#principled-implementation Separates the caller's frame, footprint, rise, profile and shoulder from the optional host-curvature estimate.
-   * @evidence contracts/common.md#clear-and-simple-design A single record supplies the cap source.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Contains no person selector, reference target or join-driven shape override.
-   * @evidence contracts/common.md#meaningful-documentation Documents each field's units, orientation and optional default.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A data contract chooses no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data contract coordinates no work.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data contract owns no runtime resource lifecycle.
-   */
-  export interface IDome {
-    /** Chain name. */
-    name: string;
-
-    /** Nominal cap-base centre before the stem's embedding offset, world mm. */
-    origin: [number, number, number];
-
-    /** Unit direction from the cap base to its apex, inward for a cutter. */
-    outward: [number, number, number];
-
-    /** Unit long direction of the footprint, square to `outward`. */
-    along: [number, number, number];
-
-    /** Half extents of the base along `+u`, `+v`, `-u`, `-v`, mm, positive. */
-    extents: [number, number, number, number];
-
-    /** Height from the base to the apex, mm. */
-    height: number;
-
-    /** Exponent of the projection profile, 2 for the ellipse. */
-    profile: number;
-
-    /** Conic shoulder of every quarter. */
-    shoulder: number;
-
-    /**
-     * Explicit parent-plane datum or numeric host radius, calibration mm.
-     * A datum queries native curvature in its actual frame and radial direction.
-     * The base sinks by
-     * the sagitta estimate `e^2 / (2 R)` of the longest half extent `e`;
-     * absent, R is e. A supplied local radius or size proxy is not a
-     * certified least principal radius over the complete footprint.
-     */
-    host?: number | IHost;
   }
 
   /**
@@ -259,7 +158,7 @@ export namespace AutoMovieHumanHeadDome {
    * @evidence contracts/performance.md#reuse-equivalent-work Four outlines share the identical station list and profile; sagitta and axis placement are computed once.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The returned part owns its bounded knot arrays and small closures; call-local intermediates and no global references survive separately.
    */
-  export function of(dome: IDome): IAutoMovieViewPart {
+  export function of(dome: IAutoMovieHumanHeadDome.IDome): IAutoMovieViewPart {
     const w: [number, number, number] = dome.outward;
     const u: [number, number, number] = dome.along;
     const v: [number, number, number] = [
@@ -360,7 +259,7 @@ export namespace AutoMovieHumanHeadDome {
    * @evidence contracts/performance.md#reuse-equivalent-work Reads one radius from the supplied prepared host datum and uses it once; the parent is not readmitted.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one scalar and retains no temporary native geometry or borrowed source.
    */
-  export function sagitta(dome: IDome): number {
+  export function sagitta(dome: IAutoMovieHumanHeadDome.IDome): number {
     const e: number = Math.max(...dome.extents);
     const R: number =
       typeof dome.host === "object"
@@ -386,8 +285,8 @@ export namespace AutoMovieHumanHeadDome {
    */
   export function attachment(
     parent: IAutoMovieViewPart,
-    point: [number, number, number],
-  ): IHost {
+    point: AutoMovieVector3Tuple,
+  ): IAutoMovieHumanHeadDomeHost.IHost {
     return AutoMovieHumanHeadDomeHost.attachment(parent, point);
   }
 
@@ -404,8 +303,8 @@ export namespace AutoMovieHumanHeadDome {
    */
   export function contact(
     parent: IAutoMovieViewPart,
-    dome: Omit<IDome, "host">,
-  ): IHost {
+    dome: Omit<IAutoMovieHumanHeadDome.IDome, "host">,
+  ): IAutoMovieHumanHeadDomeHost.IHost {
     return AutoMovieHumanHeadDomeHost.contact(parent, dome);
   }
 }

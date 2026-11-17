@@ -1,21 +1,21 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieHingedArticulation,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieJointRotationDomain,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieResolvedJointAngles,
+  IAutoMovieRestFrame,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { getConstraint } from "../rom/getConstraint";
-import { IAutoMovieHingedArticulation } from "./IAutoMovieHingedArticulation";
-import type { IAutoMovieJointRotationDomain } from "./IAutoMovieJointRotationDomain";
-import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
-import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import { armChainFault } from "./armChainFault";
 import { clinicalDeviation } from "./clinicalDeviation";
 import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
@@ -138,8 +138,14 @@ export function reachPose(
     lowerName,
     lowerBone.constraint,
   );
-  const upperDomain: IAutoMovieJointRotationDomain = { bone: upperName, constraint: upperConstraint };
-  const lowerDomain: IAutoMovieJointRotationDomain = { bone: lowerName, constraint: lowerConstraint };
+  const upperDomain: IAutoMovieJointRotationDomain = {
+    bone: upperName,
+    constraint: upperConstraint,
+  };
+  const lowerDomain: IAutoMovieJointRotationDomain = {
+    bone: lowerName,
+    constraint: lowerConstraint,
+  };
 
   const jointsOf: (
     upperDelta: IAutoMovieQuaternion,
@@ -150,11 +156,21 @@ export function reachPose(
   ): [IAutoMovieClinicalJoint, IAutoMovieClinicalJoint] => [
     {
       bone: upperName,
-      ...decomposeJointRotation(upperDelta, upperAxes, restFrames[upperName], upperDomain),
+      ...decomposeJointRotation(
+        upperDelta,
+        upperAxes,
+        restFrames[upperName],
+        upperDomain,
+      ),
     },
     {
       bone: lowerName,
-      ...decomposeJointRotation(lowerDelta, lowerAxes, restFrames[lowerName], lowerDomain),
+      ...decomposeJointRotation(
+        lowerDelta,
+        lowerAxes,
+        restFrames[lowerName],
+        lowerDomain,
+      ),
     },
   ];
 

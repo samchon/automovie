@@ -1,15 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+import { poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -53,8 +49,8 @@ export function test_human_motion_core_hand_rotation_blade(): void {
     Math.PI;
   const bound: number = (Math.atan(0.015 / 0.9) * 180) / Math.PI;
   for (const name of ["f-small", "m-large"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const standing: IHumanPosture = stand.posture(
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const standing: IAutoMovieMotionHumanPosture = stand.posture(
       body,
       { x: 0, y: 0, z: 0 },
       0,
@@ -97,7 +93,7 @@ export function test_human_motion_core_hand_rotation_blade(): void {
       const asked: IAutoMovieQuaternion = Quaternion.normalize(
         Quaternion.multiply(Quaternion.fromAxisAngle(axis, turn), rest),
       );
-      const posture: IHumanPosture = {
+      const posture: IAutoMovieMotionHumanPosture = {
         ...standing,
         limbs: {
           ...standing.limbs,

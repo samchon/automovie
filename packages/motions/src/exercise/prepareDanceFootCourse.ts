@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanFoot } from "@automovie/interface";
+
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import type { HumanFoot } from "../posture/HumanFoot";
 
@@ -19,7 +21,7 @@ interface IInterval {
   at: IOffset;
 
   /** Actual rigid departure and arrival placements, borrowed unchanged. */
-  placements: readonly [HumanFoot.IPlacement, HumanFoot.IPlacement];
+  placements: readonly [IAutoMovieMotionHumanFoot.IPlacement, IAutoMovieMotionHumanFoot.IPlacement];
 
   /** Native fixed geometry, acquired only when placement is actually observed. */
   arc?: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>;
@@ -56,7 +58,7 @@ interface IReading {
  */
 export function prepareDanceFootCourse(
   path: readonly { beat: number; at: IOffset }[],
-  placements: ReadonlyMap<IOffset, HumanFoot.IPlacement>,
+  placements: ReadonlyMap<IOffset, IAutoMovieMotionHumanFoot.IPlacement>,
   origin: IOffset,
   period: number,
   clearance: number,
@@ -65,7 +67,7 @@ export function prepareDanceFootCourse(
   along: (seconds: number) => IOffset;
 
   /** Fresh current world ankle and foot rotation from the native arc. */
-  placed: (seconds: number) => HumanFoot.IPlacement;
+  placed: (seconds: number) => IAutoMovieMotionHumanFoot.IPlacement;
 
   /** Whether the original half-beat swing has completed. */
   planted: (seconds: number) => boolean;
@@ -114,7 +116,7 @@ export function prepareDanceFootCourse(
         z: from.z + (at.z - from.z) * current.swing,
       };
     },
-    placed: (seconds: number): HumanFoot.IPlacement => {
+    placed: (seconds: number): IAutoMovieMotionHumanFoot.IPlacement => {
       const current: IReading = read(seconds);
       const interval: IInterval = current.interval;
       interval.arc ??= AutoMovieMotionHumanLeg.prepareArc(

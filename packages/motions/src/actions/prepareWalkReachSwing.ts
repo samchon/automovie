@@ -1,7 +1,17 @@
-import { Quaternion, Vector3, minimumJerk, wrapDegrees } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  wrapDegrees,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -40,11 +50,11 @@ interface IBounds {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action retains fixed body/bound/socket geometry, and each correction releases its actual toe-offset and fixed-heading shank reader on return or throw; no queried foot, hip, rotation or time history is retained.
  */
 export function prepareWalkReachSwing(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   side: "left" | "right",
   bounds: IBounds,
-): (settled: walkReach.IGround, foot: walkFoot.IFoot, share?: number) => walkFoot.IEnd {
-  const m: IHumanBody["measure"] = body.measure;
+): (settled: walkReach.IGround, foot: IAutoMovieMotionHumanWalkFoot.IFoot, share?: number) => walkFoot.IEnd {
+  const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
   const limit: number = Math.sqrt(
     m.thigh ** 2 + m.shank ** 2 +
       2 * m.thigh * m.shank * Math.cos((bounds.knee * Math.PI) / 180),
@@ -54,7 +64,7 @@ export function prepareWalkReachSwing(
   const behind: ReturnType<typeof walkLeg.prepareBehind> = walkLeg.prepareBehind(body);
   const heel: ReturnType<typeof HumanFoot.prepareHeight> = HumanFoot.prepareHeight(body, side, "heel");
   const toeAt: ReturnType<typeof HumanFoot.prepareHeight.articulated> = HumanFoot.prepareHeight.articulated(body, side, "toe");
-  return (settled: walkReach.IGround, foot: walkFoot.IFoot, share?: number): walkFoot.IEnd => {
+  return (settled: walkReach.IGround, foot: IAutoMovieMotionHumanWalkFoot.IFoot, share?: number): walkFoot.IEnd => {
     const h: IAutoMovieVector3 = settled.hips[side];
 
     // A trunk tilt counts because extension is measured in the settled pelvis.
@@ -100,7 +110,7 @@ export function prepareWalkReachSwing(
     // is only off the floor: restoring the scheduled clearance would feed
     // the turn it answers (a raised ankle leans the shank further).
     const toe: ReturnType<typeof HumanFoot.prepareHeight> = toeAt(foot.toes);
-    const lowest: (placement: HumanFoot.IPlacement) => number = (placement: HumanFoot.IPlacement): number =>
+    const lowest: (placement: IAutoMovieMotionHumanFoot.IPlacement) => number = (placement: IAutoMovieMotionHumanFoot.IPlacement): number =>
       Math.min(toe(placement), heel(placement));
     const ankleRange: ReturnType<typeof walkLeg.prepareAnkleRange> = walkLeg.prepareAnkleRange(body, HumanFoot.heading(rotation));
     for (let k: number = 0; k < 8; k++) {

@@ -1,14 +1,14 @@
 import {
   HUMANOID_JOINT_AXES,
-  IAutoMovieArmChainFault,
-  IAutoMovieResolvedBone,
   armChainFault,
   reachPose,
   resolvePose,
 } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
+  type IAutoMovieArmChainFault,
   IAutoMovieBone,
+  type IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";

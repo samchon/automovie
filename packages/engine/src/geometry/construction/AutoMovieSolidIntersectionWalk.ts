@@ -1,21 +1,24 @@
+import type {
+  AutoMovieSolidChartVector4,
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidIntersectionWalk,
+  IAutoMovieSolidSurface,
+  IAutoMovieSolidTraceLaw,
+} from "@automovie/interface";
+
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
-import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidTraceLaw } from "./AutoMovieSolidTraceLaw";
 import { AutoMovieSolidTraceSolve } from "./AutoMovieSolidTraceSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
-import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** World point or direction used by the original predictor. */
-type Vec3 = AutoMovieSolidVector.Vec3;
-/** The original s/phi/y/theta iterate order. */
-type Vec4 = [number, number, number, number];
+type Vec3 = AutoMovieVector3Tuple;
 /** Surface partials used to construct the intersection tangent. */
 type IJet = IAutoMovieSolidSurface.IJet;
 /** The unchanged public meeting-point result. */
-type IPoint = AutoMovieSolidIntersection.IPoint;
-/** The unchanged public input, borrowed for its original seed reads. */
-type IInput = AutoMovieSolidIntersection.IInput;
+type IPoint = IAutoMovieSolidIntersection.IPoint;
 /** World-vector operations for the original tangent and predictor equations. */
 const { add, cross, dot, norm, scale, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
@@ -29,18 +32,6 @@ const { add, cross, dot, norm, scale, sub }: typeof AutoMovieSolidVector =
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidIntersectionWalk {
-  /** A walked reference law and the original starting preimages. */
-  interface IWalk {
-    /** The original reference-guide law used for requested arc parameterization. */
-    law: AutoMovieSolidTraceLaw.ILaw;
-
-    /** `[s, phi, y, theta]` at `t = 0`. */
-    x: Vec4;
-
-    /** The host face at `t = 0`. */
-    face: number;
-  }
-
   /**
    * Walk the loop from the seed by pseudo-arclength continuation, once to
    * measure its polygonal length and once in equal chords, then make the
@@ -72,13 +63,13 @@ export namespace AutoMovieSolidIntersectionWalk {
   export function create(
     part: IAutoMovieSolidSurface,
     host: IAutoMovieSolidAtlas,
-    input: IInput,
+    input: IAutoMovieSolidIntersection.IInput,
     count: number,
     tolerance: number,
     walkSteps: number,
     walkPoints: number,
     closingSteps: number,
-  ): IWalk | string {
+  ): IAutoMovieSolidIntersectionWalk.IWalk | string {
     /** Read the two original surface jets and consistently orient their cross-normal tangent. */
     const tangent: (p: IPoint, along: Vec3 | null) => Vec3 | null = (
       p: IPoint,
@@ -104,10 +95,10 @@ export namespace AutoMovieSolidIntersectionWalk {
     };
 
     /** The original affine plane equation for a pseudo-arclength correction. */
-    const across: (c: Vec3, m: Vec3) => AutoMovieSolidTraceLaw.ILaw = (
+    const across: (c: Vec3, m: Vec3) => IAutoMovieSolidTraceLaw.ILaw = (
       c: Vec3,
       m: Vec3,
-    ): AutoMovieSolidTraceLaw.ILaw => ({
+    ): IAutoMovieSolidTraceLaw.ILaw => ({
       g: (p: Vec3): number => dot(sub(p, c), m),
       grad: (): [Vec3, number] => [m, 0],
       gt: (): number => 0,
@@ -121,7 +112,7 @@ export namespace AutoMovieSolidIntersectionWalk {
     const face0: number = input.seed.face ?? 0;
 
     /** Original seed preimages, in their established coordinate order. */
-    const x0: Vec4 = [
+    const x0: AutoMovieSolidChartVector4 = [
       input.seed.s,
       input.seed.phi,
       input.seed.y,
@@ -179,10 +170,10 @@ export namespace AutoMovieSolidIntersectionWalk {
       const predicted: Vec3 = add(p.point, scale(T, h));
 
       /** Accepted preimages before the original secant guess. */
-      const x: Vec4 = [p.s, p.phi, p.y, p.theta];
+      const x: AutoMovieSolidChartVector4 = [p.s, p.phi, p.y, p.theta];
 
       /** Original same-face extrapolation or unchanged-face starting guess. */
-      const guess: Vec4 =
+      const guess: AutoMovieSolidChartVector4 =
         previous === null || previous.face !== p.face
           ? x
           : [
@@ -218,7 +209,9 @@ export namespace AutoMovieSolidIntersectionWalk {
      * curve walked either way, and a point where the two surfaces nearly touch can be passed from one side when it loses the walk from the
      * other: an ear's mirrored hollow lost its walk at the point its twin passes, the twin walking it the other way round.
      */
-    const around: (sense: 1 | -1) => number | string = (sense: 1 | -1): number | string => {
+    const around: (sense: 1 | -1) => number | string = (
+      sense: 1 | -1,
+    ): number | string => {
       let h: number = stride;
 
       /** Current accepted point of the first length walk. */
@@ -235,7 +228,8 @@ export namespace AutoMovieSolidIntersectionWalk {
       for (let k: number = 0; k < walkSteps * count; k++) {
         /** Displacement from the current point back toward its start. */
         const ahead: Vec3 = sub(start.point, p.point);
-        if (k > 2 && norm(ahead) <= h && dot(ahead, T) > 0) return length + norm(ahead);
+        if (k > 2 && norm(ahead) <= h && dot(ahead, T) > 0)
+          return length + norm(ahead);
 
         /** Candidate retained through the original failed-halving loop. */
         let next: IPoint | null = null;
@@ -316,9 +310,13 @@ export namespace AutoMovieSolidIntersectionWalk {
           for (
             let halving: number = 0;
             left > 1e-9 * chord && halving < AutoMovieSolidTraceSolve.HALVINGS;
-
           ) {
-            const part: IPoint | null = step(from, heading, Math.min(h, left), last);
+            const part: IPoint | null = step(
+              from,
+              heading,
+              Math.min(h, left),
+              last,
+            );
             if (part === null) {
               h /= 2;
               halving++;
@@ -379,7 +377,8 @@ export namespace AutoMovieSolidIntersectionWalk {
       [c0, p0, g0, c1] = [c1, p1, g1, c2];
     }
     // Walked against `T0`, the points are read back in its order from the seed, so the parameter still increases along `n_part x n_host`.
-    const ordered: Vec3[] = sense === 1 ? p0 : [p0[0]!, ...p0.slice(1).reverse()];
+    const ordered: Vec3[] =
+      sense === 1 ? p0 : [p0[0]!, ...p0.slice(1).reverse()];
     return {
       law: AutoMovieSolidTraceLaw.arc(ordered),
       x: [start.s, start.phi, start.y, start.theta],

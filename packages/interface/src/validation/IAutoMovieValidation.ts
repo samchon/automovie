@@ -1,4 +1,4 @@
-import { IAutoMovieConstraintViolation } from "./IAutoMovieConstraintViolation";
+import type { IAutoMovieConstraintViolation } from "./IAutoMovieConstraintViolation";
 
 /**
  * Result of the engine validation checks actually invoked for an artifact.
@@ -14,6 +14,9 @@ export type IAutoMovieValidation =
   | IAutoMovieValidation.ISuccess
   | IAutoMovieValidation.IFailure;
 
+/**
+ * Success and failure envelopes for the checks that actually ran.
+ */
 export namespace IAutoMovieValidation {
   /**
    * No collected error-severity violation.

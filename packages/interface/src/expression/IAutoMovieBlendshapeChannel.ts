@@ -1,4 +1,4 @@
-import { AutoMovieArkitChannel } from "./AutoMovieArkitChannel";
+import type { AutoMovieArkitChannel } from "./AutoMovieArkitChannel";
 
 /**
  * One ARKit blendshape channel set to a weight.

@@ -3,9 +3,10 @@ import {
   Vector3,
   decomposeAutoMovieSingularMatrix,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
+import type {
+  IAutoMovieRecoveryCameraPointTriangulationOperation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Triangulate one observation pair in the first-camera, unit-baseline gauge.
@@ -24,25 +25,14 @@ import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only an owned three-coordinate point and scalar diagnostics escape; call-local factors and rays expire, and no image, process or cache remains.
  */
 export function triangulateRecoveryCameraPoint(
-  firstPoint: readonly [number, number],
-  secondPoint: readonly [number, number],
-  first: ReturnType<typeof createRecoveryCameraChart>,
-  second: ReturnType<typeof createRecoveryCameraChart>,
-  pose: {
-    rotation: readonly number[];
-    translation: readonly [number, number, number];
-  },
-  minimumDesignRatio: number,
-  maxSweeps: number,
-): {
-  point: [number, number, number];
-  firstDepth: number;
-  secondDepth: number;
-  positiveDepth: boolean;
-  parallaxRadians: number;
-  firstReprojectionPx: number;
-  secondReprojectionPx: number;
-} | null {
+  firstPoint: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[0],
+  secondPoint: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[1],
+  first: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[2],
+  second: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[3],
+  pose: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[4],
+  minimumDesignRatio: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[5],
+  maxSweeps: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[6],
+): ReturnType<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation> {
   const ray1: [number, number, number] = AutoMovieMatrix3.apply(first.inverse, [
     ...firstPoint,
     1,

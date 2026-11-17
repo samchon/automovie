@@ -1,13 +1,17 @@
 import {
   AutoMovieBernstein64 as B,
-  type IAutoMovieCurve64 as C,
   realizeAutoMovieBicubicAtlas64,
 } from "@automovie/engine";
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieCubicBezierControls3,
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryEventChartInput,
+  IAutoMovieRecoveryEventCurveArc,
+  IAutoMovieRecoveryEventCurvePiece,
+} from "@automovie/interface";
 import {
   AutoMovieRecoveryEventCurve as E,
-  type IAutoMovieRecoveryEventChartInput,
-  type IAutoMovieRecoveryEventCurveArc,
-  type IAutoMovieRecoveryEventCurvePiece,
   compileAutoMovieRecoveryNativeNamedChart as compile,
   prepareAutoMovieRecoveryAnnularChart,
 } from "@automovie/recovery";
@@ -34,7 +38,11 @@ export function test_geometry_recovery_native_named_chart(): void {
     maxVertices: 16384,
     toleranceMm: 0.01,
   };
-  const tuple: (points: B.Poly) => C.Span = (points: B.Poly): C.Span => [
+  const tuple: (
+    points: AutoMovieBernsteinPolynomial64,
+  ) => AutoMovieCubicBezierControls3 = (
+    points: AutoMovieBernsteinPolynomial64,
+  ): AutoMovieCubicBezierControls3 => [
     points[0]!,
     points[1]!,
     points[2]!,
@@ -46,13 +54,16 @@ export function test_geometry_recovery_native_named_chart(): void {
         const curves: IAutoMovieRecoveryEventCurveArc[] = [0.13, 0.51].map(
           (q: number, row: number): IAutoMovieRecoveryEventCurveArc => {
             const y: number = origin + (row * scale) / 1024;
-            const net: B.Poly = [
+            const net: AutoMovieBernsteinPolynomial64 = [
               [0.3 * scale, y, 0.3 * scale],
               [1 * scale, y, 0.7 * scale],
               [2 * scale, y, 1.1 * scale],
               [2.7 * scale, y, 0.8 * scale],
             ];
-            const split: [B.Poly, B.Poly] = B.split(net, q);
+            const split: [
+              AutoMovieBernsteinPolynomial64,
+              AutoMovieBernsteinPolynomial64,
+            ] = B.split(net, q);
             return E.fromCurve({
               type: "cubicBezier",
               name: `course${row}`,
@@ -134,7 +145,7 @@ export function test_geometry_recovery_native_named_chart(): void {
     name: string,
     y: number,
   ): IAutoMovieRecoveryEventCurveArc => {
-    const points: C.Vector[] = [
+    const points: Readonly<AutoMovieVector3Tuple>[] = [
       [0, y, 0],
       [3, y, 0],
       [3, y, 3],
@@ -148,7 +159,10 @@ export function test_geometry_recovery_native_named_chart(): void {
       phaseUnit: "normalized",
       phaseIntervals: [1, 1, 1, 1],
       spans: points.map(
-        (point: C.Vector, i: number): C.Span =>
+        (
+          point: Readonly<AutoMovieVector3Tuple>,
+          i: number,
+        ): AutoMovieCubicBezierControls3 =>
           E.controls(
             E.line(point, points[(i + 1) % 4]!, `${name}-edge${i}`).pieces[0]!,
           ),

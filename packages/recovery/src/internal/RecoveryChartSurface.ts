@@ -1,8 +1,12 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMoviePolylineFit,
+  IAutoMovieRecoveryChartLeafFit,
+  IAutoMovieRecoveryChartMap,
+  IAutoMovieRecoveryChartSurface,
+} from "@automovie/interface";
 
 import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
-import type { RecoveryChartBoundary } from "./RecoveryChartBoundary";
-import { RecoveryChartFit as J } from "./RecoveryChartFit";
 import { RecoveryChartLeafFit as L } from "./RecoveryChartLeafFit";
 import { RecoveryChartMap as M } from "./RecoveryChartMap";
 
@@ -21,9 +25,9 @@ import { RecoveryChartMap as M } from "./RecoveryChartMap";
  * they neither impose exact cross-chart G1 nor certify the original embedding.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States path direction, accepted-parameter authority, source-private lifetime and separate numerical, continuity and surface-fidelity qualifications.
- * @evidence contracts/development/design.md#principled-representation Represents Private four-sided disk observations to a jointly fitted bicubic coefficient atlas: companion namespace of 1 member (`fit`); units and frames named in its text: local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `RecoveryChartSurface` in packages/recovery/src/internal/RecoveryChartSurface.ts; its surface is the 1 member listed and the text shows 1 other file naming it, mostly packages/recovery (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * @evidence contracts/development/design.md#principled-representation Private millimetre triangle observations and four authoritative boundaries define a fitted C0 bicubic field with explicit numerical and refinement budgets.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Surface fitting coordinates the common boundary, harmonic map and constrained coefficient owners; interface owns the call's observation and result contracts.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Area quadrature, coefficient residual and boundary sharing remain separately qualified; unsupported refinement retains its preceding admitted field.
  */
 export namespace RecoveryChartSurface {
   /**
@@ -38,55 +42,10 @@ export namespace RecoveryChartSurface {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Accepted boundary coefficients, registrations and the private harmonic map are reused across every refit. New knots restrict the same boundary authority; only interior coefficients are solved again against original observations.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One chart's source arrays and numerical buffers remain live until return; maxPatches bounds the leaf registry and iteration budgets bound solves without dropping observations.
    */
-  export function fit(input: {
-    name: string;
-    verticesMm: readonly C.Vector[];
-    triangles: readonly (readonly [number, number, number])[];
-    sides: readonly [
-      readonly number[],
-      readonly number[],
-      readonly number[],
-      readonly number[],
-    ];
-    toleranceMm: number;
-    maxSpans: number;
-    cornerDegrees: number;
-    maxPatches: number;
-    maxIterations: number;
-    maxObservationRows?: number;
-    maxRefinements?: number;
-    physicalGradientLengthMm?: number;
-    boundaries?: readonly ReturnType<
-      ReturnType<typeof RecoveryChartBoundary>["get"]
-    >[];
-  }): {
-    controlsMm: C.Vector[];
-    patches: { id: string; controlIds: number[] }[];
-    qualified: boolean;
-    boundary: F.Result[];
-    map: M.Result;
-    joint: Omit<J.Result, "controls">;
-    partition: { u: number[]; v: number[] };
-    continuity: "C0-only";
-    leafLayout: ReturnType<typeof L>["leafLayout"];
-    areaObservation: {
-      qualified: boolean;
-      rows: number;
-      sourceAreaMm2: number;
-      quadratureMinimumRows: number;
-      integratedAreaMm2: number | null;
-      maximumRelativeAreaDiscrepancy: number | null;
-      reason: string | null;
-    };
-    refinement: {
-      rounds: number;
-      reason: string;
-      residualsMm: number[];
-      areaRmsMm: (number | null)[];
-      attemptedPatches: number[];
-    };
-  } {
-    const curves: F.Result[] = [],
+  export function fit(
+    input: Parameters<IAutoMovieRecoveryChartSurface.Fit>[0],
+  ): ReturnType<IAutoMovieRecoveryChartSurface.Fit> {
+    const curves: IAutoMoviePolylineFit[] = [],
       registrations: number[][] = [],
       partitions: number[][] = [];
     for (let side: number = 0; side < 4; side++) {
@@ -126,8 +85,9 @@ export namespace RecoveryChartSurface {
         partitions.push([...boundary.knots]);
         continue;
       }
-      const points: C.Vector[] = ids.map(
-          (id: number): C.Vector => input.verticesMm[id]!,
+      const points: Readonly<AutoMovieVector3Tuple>[] = ids.map(
+          (id: number): Readonly<AutoMovieVector3Tuple> =>
+            input.verticesMm[id]!,
         ),
         corners: number[] = [];
       for (let i: number = 1; i + 1 < points.length; i++) {
@@ -153,7 +113,7 @@ export namespace RecoveryChartSurface {
         )
           corners.push(i);
       }
-      const fitted: F.Result = F.fit(
+      const fitted: IAutoMoviePolylineFit = F.fit(
         {
           name: `${input.name}.boundary.${side}`,
           pointsMm: points,
@@ -222,7 +182,7 @@ export namespace RecoveryChartSurface {
         fixed.set(vertex, { vertex, u: pair[0], v: pair[1] });
       }),
     );
-    const map: M.Result = M.parameterize({
+    const map: IAutoMovieRecoveryChartMap.Result = M.parameterize({
       vertices: input.verticesMm.length,
       triangles: input.triangles,
       fixed: [...fixed.values()],
@@ -244,7 +204,7 @@ export namespace RecoveryChartSurface {
       throw new Error(
         "Finite area-observation and refinement budgets are required",
       );
-    const fitted: ReturnType<typeof L> = L({
+    const fitted: ReturnType<IAutoMovieRecoveryChartLeafFit.Operation> = L({
       name: input.name,
       verticesMm: input.verticesMm,
       triangles: input.triangles,

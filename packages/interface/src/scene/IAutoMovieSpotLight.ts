@@ -1,4 +1,4 @@
-import { IAutoMovieLightBase } from "./IAutoMovieLightBase";
+import type { IAutoMovieLightBase } from "./IAutoMovieLightBase";
 
 /**
  * Aimed punctual source with finite-position falloff and a declared emission cone.

@@ -1,4 +1,5 @@
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
+import type { IAutoMovieRecoveryMapPose } from "@automovie/interface";
+
 import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
 
 /**

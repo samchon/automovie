@@ -1,4 +1,5 @@
-import { HumanChain, HumanRefusal, type IHumanBody } from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+import { HumanChain, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanLawCovering } from "../internal/motionHumanLawCovering";
@@ -31,7 +32,7 @@ export function test_motion_sweep_failure(): void {
   const read: (side?: "left" | "right") => string[] = (
     side?: "left" | "right",
   ): string[] => motionHumanLawCovering.mirrors({
-    touch: (pick: motionHumanLawSweep.Pick, body: IHumanBody): motionHumanLawSweep.IScene => {
+    touch: (pick: motionHumanLawSweep.Pick, body: IAutoMovieMotionHumanBody): motionHumanLawSweep.IScene => {
       const actual: string | undefined = pick("side");
       if (actual === side && side !== undefined) {
         if (side === "left") throw new Error("owned left stage failure");

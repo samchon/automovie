@@ -1,8 +1,8 @@
-import {
-  type AutoMovieBuiltinTexturePurpose,
-  type IAutoMovieRenderTextureSource,
-  measureAutoMovieTextureStorage,
-} from "@automovie/engine";
+import { measureAutoMovieTextureStorage } from "@automovie/engine";
+import type {
+  AutoMovieBuiltinTexturePurpose,
+  IAutoMovieRenderTextureSource,
+} from "@automovie/interface";
 import {
   AutoMovieTextureCache,
   buildLight,

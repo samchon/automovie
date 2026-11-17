@@ -1,7 +1,11 @@
-import type { IAutoMovieJointAxes, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieAxisFrame,
+  IAutoMovieJointAxes,
+  IAutoMovieJointRotationFrame,
+  IAutoMovieRestFrame,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import type { swingTwistRange } from "./swingTwistRange";
@@ -30,7 +34,7 @@ import type { swingTwistRange } from "./swingTwistRange";
 export function readsSwingTwistFrame(
   basis: IAutoMovieJointAxes,
   frame: IAutoMovieRestFrame | undefined,
-  joint: swingTwistRange.IJoint,
+  joint: IAutoMovieJointRotationFrame,
 ): boolean {
   const own: IAutoMovieJointAxes =
     SwingTwistFramePreparation.normalized(joint, "swingTwistExcludedSwivels axes") ??

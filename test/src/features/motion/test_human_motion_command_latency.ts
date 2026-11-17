@@ -1,13 +1,16 @@
 import { AutoMovieComposition } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+} from "@automovie/interface";
 import {
-  HumanChain,
   HumanCue,
   HumanEnsemble,
   HumanPerformance,
   HumanResponse,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanEnsemble,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -50,7 +53,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_command_latency(): void {
   const findings: string[] = [];
-  const pool: IHumanBody[] = [
+  const pool: IAutoMovieMotionHumanBody[] = [
     motionHumanBody("m-average"),
     motionHumanBody("f-small"),
     motionHumanBody("m-tall"),
@@ -58,9 +61,9 @@ export function test_human_motion_command_latency(): void {
   const word: number = 3;
   const group = (
     id: string,
-    preset: IHumanEnsemble["preset"],
+    preset: IAutoMovieMotionHumanEnsemble["preset"],
     count: number,
-  ): HumanEnsemble.IEnsemble =>
+  ): IAutoMovieMotionHumanEnsemble.IEnsemble =>
     HumanEnsemble.of({
       id,
       seed: "volley",
@@ -73,15 +76,16 @@ export function test_human_motion_command_latency(): void {
       }),
     });
   const starts = (
-    ensembles: readonly HumanEnsemble.IEnsemble[],
+    ensembles: readonly IAutoMovieMotionHumanEnsemble.IEnsemble[],
     caution: boolean,
     latency: boolean = true,
     before: boolean = false,
   ): Map<string, number> => {
-    const performance: HumanPerformance = new HumanPerformance({
+    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "volley",
-      performers: ensembles.flatMap((e: HumanEnsemble.IEnsemble) =>
-        HumanEnsemble.performers(e),
+      performers: ensembles.flatMap(
+        (e: IAutoMovieMotionHumanEnsemble.IEnsemble) =>
+          HumanEnsemble.performers(e),
       ),
       cues: {
         orders: HumanCue.orders([
@@ -89,10 +93,13 @@ export function test_human_motion_command_latency(): void {
         ]),
       },
       composition: AutoMovieComposition.parallel(
-        ...ensembles.map((e: HumanEnsemble.IEnsemble) =>
+        ...ensembles.map((e: IAutoMovieMotionHumanEnsemble.IEnsemble) =>
           HumanEnsemble.chains(
             e,
-            (_: HumanEnsemble.IMember, chain: HumanChain) =>
+            (
+              _: IAutoMovieMotionHumanEnsemble.IMember,
+              chain: IAutoMovieMotionHumanChain,
+            ) =>
               (before
                 ? chain.look({
                     target: {
@@ -117,15 +124,22 @@ export function test_human_motion_command_latency(): void {
     const out: Map<string, number> = new Map();
     for (const e of ensembles)
       for (const m of e.members) {
-        const segments: readonly HumanSegment.ISegment[] = performance.segments(
-          m.subject,
-        );
+        const segments: readonly IAutoMovieMotionHumanSegment[] =
+          performance.segments(m.subject);
         out.set(m.subject, segments[segments.length - 1]!.entryTime - word);
       }
     return out;
   };
-  const elite: HumanEnsemble.IEnsemble = group("e", "elite", 30);
-  const militia: HumanEnsemble.IEnsemble = group("m", "militia", 30);
+  const elite: IAutoMovieMotionHumanEnsemble.IEnsemble = group(
+    "e",
+    "elite",
+    30,
+  );
+  const militia: IAutoMovieMotionHumanEnsemble.IEnsemble = group(
+    "m",
+    "militia",
+    30,
+  );
   const stats = (values: readonly number[]): { mean: number; sd: number } => {
     const mean: number =
       values.reduce((a: number, b: number): number => a + b, 0) / values.length;
@@ -140,8 +154,13 @@ export function test_human_motion_command_latency(): void {
       ),
     };
   };
-  const of = (map: Map<string, number>, e: HumanEnsemble.IEnsemble): number[] =>
-    e.members.map((m: HumanEnsemble.IMember): number => map.get(m.subject)!);
+  const of = (
+    map: Map<string, number>,
+    e: IAutoMovieMotionHumanEnsemble.IEnsemble,
+  ): number[] =>
+    e.members.map(
+      (m: IAutoMovieMotionHumanEnsemble.IMember): number => map.get(m.subject)!,
+    );
 
   // 1. The floor and the spreads.
   const warned: Map<string, number> = starts([elite, militia], true);

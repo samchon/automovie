@@ -1,8 +1,9 @@
+import type {
+  IAutoMoviePreserveSweepVolume,
+  IAutoMovieSweep,
+} from "@automovie/interface";
+
 import { AutoMovieSpline } from "./AutoMovieSpline";
-import { IAutoMovieSweep } from "./IAutoMovieSweep";
-import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
-import { IAutoMovieSweepOrientation } from "./IAutoMovieSweepOrientation";
-import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 import { integrateAutoMovieSweepVolume } from "./integrateAutoMovieSweepVolume";
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";
@@ -30,19 +31,9 @@ import { settleAutoMovieSweepVolume } from "./settleAutoMovieSweepVolume";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Section moments, authored rest target and knot layout are immutable per compiled sweep and computed once. The returned writer reads the current shared orientation and current girth multipliers on each pose, so it never reuses an old pose's scale output.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning rig retains 1200 moment numbers, 801 packed planes, 400 midpoint scales and O(K) profile/work arrays with this closure. One additional scale-slot-sized staging buffer prevents partial scale publication on refusal. The supplied scale/girth buffers and orientation are shared with that same rig and released with it; caller registration is sealed before these references are captured.
  */
-export function preserveAutoMovieSweepVolume(props: {
-  surface: IAutoMovieSweepSurface;
-  orientation: IAutoMovieSweepOrientation;
-  joints: readonly boolean[];
-  scaleU: readonly number[];
-  girth: Float64Array;
-  scales: Float64Array;
-  writeFrame: (
-    frame: IAutoMovieSweepFrame,
-    out: Float64Array,
-    at: number,
-  ) => void;
-}): () => void {
+export function preserveAutoMovieSweepVolume(
+  props: IAutoMoviePreserveSweepVolume.IProps,
+): () => void {
   const {
     surface,
     orientation,

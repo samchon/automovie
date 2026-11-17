@@ -7,15 +7,11 @@ import {
   ArchetypeMarks,
   ArchetypeRefusal,
 } from "@automovie/archetypes";
-import {
-  type IAutoMovieMark,
-  Quaternion,
-  Vector3,
-  validateModel,
-} from "@automovie/engine";
+import { Quaternion, Vector3, validateModel } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieConstraintViolation,
+  IAutoMovieMark,
   IAutoMovieModel,
   IAutoMovieModelPart,
   IAutoMovieValidation,

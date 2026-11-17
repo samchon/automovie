@@ -19,17 +19,17 @@ export namespace QuadrupedMotion {
    * @returns The share of the way along and the share of the clearance up.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what each share is.
-   * @evidence contracts/development/implementation.md#principled-implementation The minimum-jerk lift-and-place model: the foot is brought from its lift-off to its next landing along the stride by the minimum-jerk path (`minimumJerk`, Flash and Hogan 1985), and in height by two such paths, lift-off to the apex at the swing's middle and the apex to touchdown, the apex the swing's clearance (`QuadrupedGait.IGait.lift`). No gait source read gives a swing path's shape, so this is the minimum-jerk optimum for those two targets, not a measured trajectory: the foot leaves and meets the ground at rest in both directions and passes the clearance at the middle.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One profile along, two halves up.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
+   * @evidence contracts/development/implementation.md#principled-implementation The minimum-jerk lift-and-place model: the foot is brought from its lift-off to its next landing along the stride by the minimum-jerk path (`minimumJerk`, Flash and Hogan 1985), and in height by the same path in forward then reverse time. Evaluate the first half through the engine owner and use its exact symmetry s(1-t)=1-s(t) for the second half, avoiding the polynomial's cancellation near completion. No gait source read gives a swing path's shape, so this is the minimum-jerk optimum for those two targets, not a measured trajectory: the foot leaves and meets the ground at rest in both directions and passes the clearance at the middle.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One stable profile along and the same profile at a symmetric lift-time coordinate.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No negative-clearance clamp, numerical floor tolerance, changed target or species-specific phase patch hides endpoint overshoot; time reflection preserves the same quintic path.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's `minimumJerk`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function swing(u: number): { along: number; rise: number } {
     return {
-      along: minimumJerk(u).s,
-      rise: u < 0.5 ? minimumJerk(2 * u).s : 1 - minimumJerk(2 * u - 1).s,
+      along: progress(u),
+      rise: progress(2 * Math.min(u, 1 - u)),
     };
   }
 
@@ -71,4 +71,9 @@ export namespace QuadrupedMotion {
     );
     return half * Math.cos(2 * Math.PI * (phase - leading));
   }
+}
+
+/** Sample the existing quintic by its first-half value and exact time symmetry. */
+function progress(u: number): number {
+  return u <= 0.5 ? minimumJerk(u).s : 1 - minimumJerk(1 - u).s;
 }

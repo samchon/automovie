@@ -1,17 +1,18 @@
-import {
+import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieJointRotationDomain,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
+  IAutoMovieRestFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { nearestAngleAlias } from "../math/nearestAngleAlias";
 import { readRotatedVector } from "../math/readRotatedVector";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
-import { IAutoMovieJointRotationDomain } from "./IAutoMovieJointRotationDomain";
-import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import { alternateRigJointAngles } from "./alternateRigJointAngles";
 import { jointRomOvershoot } from "./jointRomOvershoot";
 import { normalizeJointAxes } from "./normalizeJointAxes";
@@ -23,20 +24,35 @@ const RAD2DEG: number = 180 / Math.PI;
 const QUATERNION_AXES: readonly ["x", "y", "z", "w"] = ["x", "y", "z", "w"];
 
 /** Keep all original rotations before any dot, without per-column vector records. */
-function appendRotation(x: number, y: number, z: number, columns: number[]): void {
+function appendRotation(
+  x: number,
+  y: number,
+  z: number,
+  columns: number[],
+): void {
   columns.push(x, y, z);
 }
 
 /** Original dot read/multiply/add order against one completed private column. */
-function columnDot(axis: IAutoMovieVector3, columns: readonly number[], offset: number): number {
-  return axis.x * columns[offset]! + axis.y * columns[offset + 1]! +
-    axis.z * columns[offset + 2]!;
+function columnDot(
+  axis: IAutoMovieVector3,
+  columns: readonly number[],
+  offset: number,
+): number {
+  return (
+    axis.x * columns[offset]! +
+    axis.y * columns[offset + 1]! +
+    axis.z * columns[offset + 2]!
+  );
 }
 
 /** Three lazy successful affine readings, independent of every quaternion/chart. */
-type IClinicalReaders = Readonly<Record<
-  keyof IAutoMovieResolvedJointAngles, ReturnType<typeof toClinicalAngle.prepare>
->>;
+type IClinicalReaders = Readonly<
+  Record<
+    keyof IAutoMovieResolvedJointAngles,
+    ReturnType<typeof toClinicalAngle.prepare>
+  >
+>;
 
 /**
  * Projected cosine at or below which the gimbal convention pins one outer
@@ -160,8 +176,10 @@ function extract(
       {
         flexion: Math.atan2(-r12, cosine) * RAD2DEG,
         abduction:
-          Math.atan2(columnDot(basis.flexion, columns, 6), columnDot(twistAxis, columns, 6)) *
-          RAD2DEG,
+          Math.atan2(
+            columnDot(basis.flexion, columns, 6),
+            columnDot(twistAxis, columns, 6),
+          ) * RAD2DEG,
         twist: handed * Math.atan2(r10, r11) * RAD2DEG,
       },
       basis,
@@ -238,7 +256,7 @@ export namespace decomposeJointRotationOnBasis {
       abduction: toClinicalAngle.prepare(),
       twist: toClinicalAngle.prepare(),
     };
-    return (): (q: IAutoMovieQuaternion) => IAutoMovieResolvedJointAngles =>
+    return (): ((q: IAutoMovieQuaternion) => IAutoMovieResolvedJointAngles) =>
       (q: IAutoMovieQuaternion): IAutoMovieResolvedJointAngles =>
         extract(q, basis, frame, domain, readers);
   }
@@ -251,11 +269,12 @@ function clinical(
   readers: IClinicalReaders | undefined,
 ): IAutoMovieResolvedJointAngles {
   // toClinicalAngle only returns null for a null input; these are numbers.
-  if (readers !== undefined) return {
-    flexion: readers.flexion(rig.flexion, frame?.flexion)!,
-    abduction: readers.abduction(rig.abduction, frame?.abduction)!,
-    twist: readers.twist(rig.twist, frame?.twist)!,
-  };
+  if (readers !== undefined)
+    return {
+      flexion: readers.flexion(rig.flexion, frame?.flexion)!,
+      abduction: readers.abduction(rig.abduction, frame?.abduction)!,
+      twist: readers.twist(rig.twist, frame?.twist)!,
+    };
   return {
     flexion: toClinicalAngle(rig.flexion, frame?.flexion)!,
     abduction: toClinicalAngle(rig.abduction, frame?.abduction)!,
@@ -284,7 +303,11 @@ function lift(
   domain: IAutoMovieJointRotationDomain | undefined,
   readers: IClinicalReaders | undefined,
 ): IAutoMovieResolvedJointAngles {
-  const principal: IAutoMovieResolvedJointAngles = clinical(rig, frame, readers);
+  const principal: IAutoMovieResolvedJointAngles = clinical(
+    rig,
+    frame,
+    readers,
+  );
   if (domain === undefined || domain.constraint === null) return principal;
 
   // Both Euler readings of one rotation share its swing-twist status; the
@@ -312,7 +335,8 @@ function lift(
     // Numeric aliases cannot improve zero and therefore need no allocation.
     if (overshoot === 0) break;
     const candidate: IAutoMovieResolvedJointAngles = align(
-      index === 0 ? principal : alternate, constraint,
+      index === 0 ? principal : alternate,
+      constraint,
     );
 
     // An unchanged alias scores the same and cannot be strictly better.
@@ -356,7 +380,8 @@ interface IHandednessState {
 }
 
 /** Each basis's handedness, remembered with the components it was read from. */
-const HANDEDNESS: WeakMap<IAutoMovieJointAxes, IHandednessState> = new WeakMap();
+const HANDEDNESS: WeakMap<IAutoMovieJointAxes, IHandednessState> =
+  new WeakMap();
 
 /** A basis's nine components, flexion, abduction and twist, each x, y, z. */
 const componentsOf: (basis: IAutoMovieJointAxes) => number[] = (
@@ -403,7 +428,8 @@ const handednessOf: (basis: IAutoMovieJointAxes) => IHandedness = (
   const known: IHandednessState | undefined = HANDEDNESS.get(basis);
   if (known?.fixed === true) return known.read;
   const now: number[] = componentsOf(basis);
-  if (known !== undefined && sameComponents(known.values, now)) return known.read;
+  if (known !== undefined && sameComponents(known.values, now))
+    return known.read;
 
   // Right-handedness of the basis: +1 when flex × abd = +twist. A left-handed
   // triple is made right-handed by extracting against −twist, then negating the
@@ -439,11 +465,16 @@ const BOXES: WeakMap<IAutoMovieJointConstraint, IBox> = new WeakMap();
 /** Collect original own keys/count before reading any compared member value. */
 function sameBox(known: IBox, constraint: IAutoMovieJointConstraint): boolean {
   const keys: string[] = Object.keys(constraint);
-  return keys.length === known.size && keys.every(
-    (key: string): boolean => key === "swingTwist" || Object.is(
-      (known.constraint as unknown as Record<string, unknown>)[key],
-      (constraint as unknown as Record<string, unknown>)[key],
-    ),
+  return (
+    keys.length === known.size &&
+    keys.every(
+      (key: string): boolean =>
+        key === "swingTwist" ||
+        Object.is(
+          (known.constraint as unknown as Record<string, unknown>)[key],
+          (constraint as unknown as Record<string, unknown>)[key],
+        ),
+    )
   );
 }
 
@@ -461,7 +492,8 @@ const boxOf: (
   if (constraint.swingTwist === undefined || constraint.swingTwist === null)
     return constraint;
   const known: IBox | undefined = BOXES.get(constraint);
-  if (known !== undefined && sameBox(known, constraint)) return known.constraint;
+  if (known !== undefined && sameBox(known, constraint))
+    return known.constraint;
   const box: IAutoMovieJointConstraint = { ...constraint, swingTwist: null };
   BOXES.set(constraint, { constraint: box, size: Object.keys(box).length });
   return box;

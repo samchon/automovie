@@ -1,4 +1,8 @@
-import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
+import type {
+  IAutoMovieCaptureBudget,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
+
 import { stampAutoMovieRasterLabel } from "./stampAutoMovieRasterLabel.js";
 
 /**
@@ -57,7 +61,7 @@ export class AutoMovieRasterSheet {
   private readonly lines: number;
 
   /** How a picture is reduced into its cell. */
-  private readonly reduction: "area" | "nearest";
+  private readonly reduction: IAutoMovieCaptureBudget["reduction"];
 
   /**
    * Height in pixels of the caption strip a sheet writes under a cell of the given height, holding `lines` lines: the label stamp's 3 × 5 font at a scale of one font pixel per 90 cell pixels, at least one, one font pixel between lines and two of margin above and below.
@@ -163,7 +167,7 @@ export class AutoMovieRasterSheet {
     columns: number,
     cellWidth: number,
     cellHeight: number,
-    reduction: "area" | "nearest" = "area",
+    reduction: IAutoMovieCaptureBudget["reduction"] = "area",
     lines: number = 1,
   ) {
     this.capacity = capacity;

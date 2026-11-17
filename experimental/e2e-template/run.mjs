@@ -15,7 +15,9 @@
 //    its tarball while the scaffold's `catalog:automovie` references stay as
 //    created, and checks the lockfile names every tarball;
 // 4. runs the created scripts: `lint`, `test`, `build` in each production, and
-//    `evidence`.
+//    `evidence`, including a nested test that imports the installed SDK;
+// 5. loads those SDK imports in the development and built inspector pages,
+//    and exercises Play and Pause in the pinned headless browser.
 //
 // Packing `@automovie/template` runs its `prepare` script, which rebuilds the
 // checkout's `packages/template/generated`, so run one layout at a time per
@@ -51,10 +53,20 @@ const run = (label, command, args, cwd) => {
     .map((part) => (/\s/.test(part) ? `"${part}"` : part))
     .join(" ");
   console.log(`\n=== ${label}\n$ ${line}\n  (in ${cwd})`);
-  // pnpm is a .cmd shim on Windows, which only a shell can start.
+  // PowerShell resolves Windows command shims without relying on cmd syntax.
+  const windowsInvocation =
+    "& " +
+    [command, ...args]
+      .map((part) => `'${part.replaceAll("'", "''")}'`)
+      .join(" ") +
+    "; exit $LASTEXITCODE";
   const result =
     process.platform === "win32"
-      ? spawnSync(line, { cwd, stdio: "inherit", shell: true })
+      ? spawnSync(
+          "powershell.exe",
+          ["-NoProfile", "-Command", windowsInvocation],
+          { cwd, stdio: "inherit" },
+        )
       : spawnSync(command, args, { cwd, stdio: "inherit" });
   const ok = result.status === 0;
   results.push({ label, ok });
@@ -156,6 +168,83 @@ const verifyLockfile = (directory) => {
 const install = (directory) =>
   run("pnpm install", "pnpm", ["install", "--no-frozen-lockfile"], directory);
 
+/** Exercise the runtime project selected for a discovered SDK consumer. */
+const addSdkConsumer = (directory) => {
+  const nested = path.join(directory, "test", "features", "installed-sdk");
+  fs.mkdirSync(nested, { recursive: true });
+  fs.writeFileSync(
+    path.join(nested, "test_installed_sdk.ts"),
+    `import assert from "node:assert/strict";
+import { createRing } from "@automovie/archetypes";
+import { HumanChain } from "@automovie/motions";
+
+/**
+ * Execute installed SDK consumers through the generated nested test project.
+ *
+ * Scenarios: a real archetype and a typed motion chain are constructed after
+ * dynamic test discovery, so the runtime must find the production's lint
+ * configuration through the test directory's inherited compiler options.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the nested runtime integration and two actual installed SDK consumers.
+ * @evidence contracts/development/testing.md#behavioral-verification Test discovery must load and execute both public producers; a missing inherited lint configuration fails before either assertion.
+ * @evidence contracts/development/testing.md#independent-expectations The public producers return a nonempty model and a composition node. No package algorithm or observed fixture value is repeated.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers installed archetype and motion imports in a nested discovered module, beyond the starter's Node-only tests.
+ * @evidence contracts/development/testing.md#execution-ownership Runs through the generated pnpm test command and its actual dynamic loader, without a browser or patched dependency.
+ */
+export function test_installed_sdk(): void {
+  assert.ok(createRing({ id: "sdk-consumer" }).parts.length > 0);
+  assert.ok(HumanChain.subject("sdk-consumer").stand({ seconds: 1 }).node);
+}
+`,
+  );
+  fs.writeFileSync(
+    path.join(directory, "src", "installedSdkSmoke.ts"),
+    `import { createRing } from "@automovie/archetypes";
+import { HumanChain } from "@automovie/motions";
+
+// E2E-only: execute published SDK imports in the inspector's browser graph.
+if (createRing({ id: "browser-sdk" }).parts.length === 0 ||
+    !HumanChain.subject("browser-sdk").stand({ seconds: 1 }).node)
+  throw new Error("Installed SDK returned no model or motion chain");
+document.documentElement.dataset.sdkSmoke = "ready";
+`,
+  );
+  for (const entry of ["main.ts", "subjects.ts"]) {
+    const file = path.join(directory, "src", entry);
+    fs.writeFileSync(
+      file,
+      `import "./installedSdkSmoke";\n` + fs.readFileSync(file, "utf8"),
+    );
+  }
+};
+
+/** Run the browser consumer against the installed SDK, never source aliases. */
+const browserSmoke = (directory) => {
+  if (
+    run(
+      "install headless browser",
+      "pnpm",
+      [
+        "exec",
+        "playwright-core",
+        "install",
+        "--with-deps",
+        "chromium-headless-shell",
+      ],
+      directory,
+    )
+  )
+    run(
+      "development and built inspector",
+      process.execPath,
+      [
+        path.join(ROOT, "experimental", "e2e-template", "browser.mjs"),
+        directory,
+      ],
+      directory,
+    );
+};
+
 // 2. Install the packed CLI, as `npx automovie` would fetch it.
 const tool = path.join(work, "tool");
 fs.mkdirSync(tool);
@@ -197,10 +286,12 @@ if (layout === "production") {
   bind(target);
   if (!install(target)) finish();
   verifyLockfile(target);
+  addSdkConsumer(target);
   run("pnpm run lint", "pnpm", ["run", "lint"], target);
   run("pnpm run test", "pnpm", ["run", "test"], target);
   run("pnpm run build", "pnpm", ["run", "build"], target);
   run("pnpm run evidence", "pnpm", ["run", "evidence"], target);
+  browserSmoke(target);
 } else {
   if (
     !run(
@@ -226,6 +317,8 @@ if (layout === "production") {
       finish();
   if (!install(target)) finish();
   verifyLockfile(target);
+  for (const production of productions)
+    addSdkConsumer(path.join(target, "movies", production));
   run("pnpm run lint", "pnpm", ["run", "lint"], target);
   run("pnpm run test", "pnpm", ["run", "test"], target);
   for (const production of productions)
@@ -236,5 +329,7 @@ if (layout === "production") {
       path.join(target, "movies", production),
     );
   run("pnpm run evidence", "pnpm", ["run", "evidence"], target);
+  for (const production of productions)
+    browserSmoke(path.join(target, "movies", production));
 }
 finish();

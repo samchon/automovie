@@ -1,9 +1,11 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type AutoMovieRingPlacement,
+  type IAutoMovieFootprintRing,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { pointInPolygon } from "../architecture/pointInPolygon";
 import { closestPointOnSegmentXZ } from "../math/closestPointOnSegmentXZ";
-import { AutoMovieRingPlacement } from "./AutoMovieRingPlacement";
-import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
 import { FOOTPRINT_EPSILON } from "./constants/FOOTPRINT_EPSILON";
 
 /**

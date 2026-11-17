@@ -1,0 +1,161 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanOperate } from "./IAutoMovieMotionHumanOperate";
+
+/**
+ * The part an operation moves on a prop that articulates, and the drive the
+ * operation publishes for it: the hand and the part follow one function of
+ * the stroke's progress, the prop posed at the articulation's travel there.
+ *
+ * The operated contact is the prop's articulation itself (a trigger, a
+ * button, a knob) or a contact that rides one of the mechanism's kinds,
+ * however far up its chain (a door's lever on its latch on its hinge, a
+ * drawer's pull on its slider, `IAutoMovieAffordance.rides`). The
+ * stroke moves that articulation from where the performance has it at the
+ * operation's start by the mechanism's amount, converting a prior writer's
+ * coordinate of that degree through the engine's articulation map, in the articulation's own
+ * unit and sign: degrees for a hinge's swing or a knob's turn, metres for a
+ * slider's or a button's travel. The hand's goal at a progress is the
+ * contact of the prop posed at that travel, so the hand cannot drift from
+ * the part; the drive writes the same travel at the same progress.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation point: A point of the line, world metres. axis: Its unit axis; the vertical when absent. point: World metres.
+ * @evidence contracts/development/design.md#principled-representation point: A point of the line, world metres. axis: Its unit axis; the vertical when absent. point: World metres.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateDrive.ts (operateDrive.part, return); affordance/operateDrive.ts (operateDrive.hinge, part); affordance/operateDrive.ts (operateDrive.drive, part); affordance/operateDrive.ts (operateDrive.hinge, return); affordance/operateDrive.ts (operateDrive.radius, line); affordance/operateDrive.ts (operateDrive.foot, line).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanOperate.Mechanism identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ */
+export namespace IAutoMovieMotionHumanOperateDrive {
+  /**
+   * A leaf's hinge line: a point of it and its unit axis, the vertical when absent (a door's line given by a point).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation point: A point of the line, world metres. axis: Its unit axis; the vertical when absent.
+   * @evidence contracts/development/design.md#principled-representation point: A point of the line, world metres. axis: Its unit axis; the vertical when absent.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateDrive.ts (operateDrive.hinge, return); affordance/operateDrive.ts (operateDrive.radius, line); affordance/operateDrive.ts (operateDrive.foot, line); affordance/operateState.ts (operateState.at, hinge); affordance/operate.ts (operate.plan); executable/cases/affordanceCases.ts (affordanceCases).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   */
+  export interface IHinge {
+    /** A point of the line, world metres. */
+    point: IAutoMovieVector3;
+
+    /** Its unit axis; the vertical when absent. */
+    axis?: IAutoMovieVector3;
+  }
+
+  /**
+   * A contact's world point and outward unit normal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation point: World metres.
+   * @evidence contracts/development/design.md#principled-representation point: World metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateDrive.ts (operateDrive.part, return); affordance/operateDrive.ts (operateDrive.part).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   */
+  export interface IPlace {
+    /** World metres. */
+    point: IAutoMovieVector3;
+
+    /** Outward unit normal. */
+    normal: IAutoMovieVector3;
+  }
+
+  /**
+   * An operated part of an articulated prop.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation line: A hinge articulation's own line at the stroke's start, world: a point of it and its unit axis, the affordance frame's `+Y`, about which a positive travel turns by the right-hand rule (a door's upright hinge, a gun cock's cross pin). Absent for any other articulation.
+   * @evidence contracts/development/design.md#principled-representation line: A hinge articulation's own line at the stroke's start, world: a point of it and its unit axis, the affordance frame's `+Y`, about which a positive travel turns by the right-hand rule (a door's upright hinge, a gun cock's cross pin). Absent for any other articulation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateDrive.ts (operateDrive.part, return); affordance/operateDrive.ts (operateDrive.hinge, part); affordance/operateDrive.ts (operateDrive.drive, part); affordance/operate.ts (operate.plan).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanOperateDrive.IPlace, IAutoMovieMotionHumanOperateDrive.ILine identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   */
+  export interface IPart {
+    /** The prop's subject. */
+    prop: string;
+
+    /** The contact the hand takes. */
+    contact: string;
+
+    /** The articulation the contact moves with. */
+    articulation: string;
+
+    /** The articulation's travel at the operation's start. */
+    base: number;
+
+    /** The signed amount the operation moves it by. */
+    amount: number;
+
+    /**
+     * The contact's world place at a progress of the stroke, on the prop as
+     * it is shown at a film second: a held prop that moves meanwhile (a bow
+     * raised while it is drawn) carries its part with it.
+     *
+     * @param progress 0 at the stroke's start, 1 at its end.
+     * @param seconds The film second the prop is read at; the operation's start when absent.
+     * @returns The point and outward normal.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanOperateDrive.IPart.place: The contact's world place at a progress of the stroke, on the prop as it is shown at a film second: a held prop that moves meanwhile (a bow raised while it is drawn) carries its part with it.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperateDrive.IPart.place is used through packages/motions/src/affordance/operate.ts.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanOperateDrive.IPart.place is used through packages/motions/src/affordance/operate.ts.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperateDrive.IPart.place is used through packages/motions/src/affordance/operate.ts.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanOperateDrive.IPart.place is used through packages/motions/src/affordance/operate.ts.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanOperateDrive.IPart.place is used through packages/motions/src/affordance/operate.ts.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanOperateDrive.IPart.place is used through packages/motions/src/affordance/operate.ts.
+     */
+    place(
+      progress: number,
+      seconds?: number,
+    ): IAutoMovieMotionHumanOperateDrive.IPlace;
+
+    /**
+     * A hinge articulation's own line at the stroke's start, world: a point
+     * of it and its unit axis, the affordance frame's `+Y`, about which a
+     * positive travel turns by the right-hand rule (a door's upright hinge,
+     * a gun cock's cross pin). Absent for any other articulation.
+     */
+    line?: IAutoMovieMotionHumanOperateDrive.ILine;
+  }
+
+  /**
+   * A turning line, world.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation point: A point of the line, metres.
+   * @evidence contracts/development/design.md#principled-representation point: A point of the line, metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateDrive.ts (operateDrive.part.line, return); affordance/operateDrive.ts (operateDrive.part).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   */
+  export interface ILine {
+    /** A point of the line, metres. */
+    point: IAutoMovieVector3;
+
+    /** Its unit axis. */
+    axis: IAutoMovieVector3;
+  }
+
+  /**
+   * A mechanism's signed amount in its articulation's unit: a button's press and a slider's travel in metres (a button's 0.005 when absent, as `operate` presses it), a knob's turn and a hinge's swing in degrees. Input mechanism of operateDrive.amount. The mechanism, not an insertion.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation kind: Exclusion pattern removing insertion from the amount calculation; socket insertion is handled by its separate law.
+   * @evidence contracts/development/design.md#principled-representation kind: Exclusion pattern removing insertion from the amount calculation; socket insertion is handled by its separate law.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateDrive.ts (operateDrive.amount, mechanism).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanOperate.Mechanism identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   */
+  export type IAmountMechanism = Exclude<
+    IAutoMovieMotionHumanOperate.Mechanism,
+    {
+      /** Exclusion pattern removing insertion from the amount calculation; socket insertion is handled by its separate law. */
+      kind: "insert";
+    }
+  >;
+
+  /**
+   * A hinged leaf's line: the vertical through the point the mechanism names (a door's), or else the operated prop's own hinge articulation (`IPart.line`), however it lies: a gun cock's cross pin. Input mechanism of operateDrive.hinge. The hinge mechanism.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation kind: Selects rotation of the operated object about its hinge.
+   * @evidence contracts/development/design.md#principled-representation kind: Selects rotation of the operated object about its hinge.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateDrive.ts (operateDrive.hinge, mechanism).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanOperate.Mechanism identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+   */
+  export type IHingeMechanism = Extract<
+    IAutoMovieMotionHumanOperate.Mechanism,
+    {
+      /** Selects rotation of the operated object about its hinge. */
+      kind: "hinge";
+    }
+  >;
+}

@@ -6,17 +6,22 @@ import {
   AutoMovieViewAxis,
   AutoMovieViewLoft,
   AutoMovieViewSection,
-  type IAutoMovieLoftChain,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftCoefficientSource,
+  IAutoMovieLoftSurfaceJet,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
 
 /** A layer whose explicit interpolation data is visible to the test's copy/invalid-input scenarios. */
 type Layer = IAutoMovieLoftChain.ILayer & {
-  coefficientSource?: AutoMovieLoftCoefficientSource.ISource;
+  coefficientSource?: IAutoMovieLoftCoefficientSource.ISource;
 };
 
 /**
@@ -39,7 +44,7 @@ export function test_construction_operator_pole_coefficients(): void {
   const failures: string[] = [];
   for (const scale of [0.001, 1, 1000])
     for (const mode of ["bottom", "top", "both"] as const) {
-      const parameter: AutoMovieConstructionOutlineParameter =
+      const parameter: IAutoMovieConstructionOutlineParameter =
         mode === "both"
           ? { type: "angle", bottom: 0, top: 4 * scale }
           : {
@@ -65,7 +70,7 @@ export function test_construction_operator_pole_coefficients(): void {
             : [0, 0.01, 0.5, 1, 1.5, 2, 2.5, 3, 3.99, 4]
       ).map((value: number): number => value * scale);
       for (const station of samples) {
-        const controls: AutoMovieLoftCoefficientSource.IControls | null =
+        const controls: IAutoMovieLoftCoefficientSource.IControls | null =
           AutoMovieLoftCoefficientSource.controls(prepared, station);
         if (controls === null) {
           failures.push(
@@ -110,7 +115,7 @@ export function test_construction_operator_pole_coefficients(): void {
       const clone: IAutoMovieLoftChain = structuredClone(prepared);
       const middle: number =
         (stations[0]! + stations[stations.length - 1]!) / 2;
-      const copy: AutoMovieLoftCoefficientSource.IControls | null =
+      const copy: IAutoMovieLoftCoefficientSource.IControls | null =
         AutoMovieLoftCoefficientSource.controls(clone, middle);
       if (copy === null) failures.push("value copy lost its pole coordinate");
       else
@@ -249,7 +254,7 @@ function consumer(
     order: 16,
     samples: 32,
   };
-  const result: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+  const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
   if (
     result.chain === null ||
     result.surface === null ||
@@ -313,7 +318,11 @@ function consumer(
       continue;
     }
     const radius: [number, number, number] = oracle(station, scale, mode);
-    const jet: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, station, 0);
+    const jet: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+      chain,
+      station,
+      0,
+    );
     const vectors: number[][] = [
       AutoMovieLoftChain.point(chain, station, 0),
       jet.p,

@@ -1,10 +1,10 @@
-import { IAutoMovieDerivedArtifact } from "./IAutoMovieDerivedArtifact";
-import { IAutoMovieDesignDecision } from "./IAutoMovieDesignDecision";
-import { IAutoMovieDesignLifecycle } from "./IAutoMovieDesignLifecycle";
-import { IAutoMovieDesignPhase } from "./IAutoMovieDesignPhase";
-import { IAutoMovieDesignRevision } from "./IAutoMovieDesignRevision";
-import { IAutoMovieDesignSubject } from "./IAutoMovieDesignSubject";
-import { IAutoMovieDesignVariant } from "./IAutoMovieDesignVariant";
+import type { IAutoMovieDerivedArtifact } from "./IAutoMovieDerivedArtifact";
+import type { IAutoMovieDesignDecision } from "./IAutoMovieDesignDecision";
+import type { IAutoMovieDesignLifecycle } from "./IAutoMovieDesignLifecycle";
+import type { IAutoMovieDesignPhase } from "./IAutoMovieDesignPhase";
+import type { IAutoMovieDesignRevision } from "./IAutoMovieDesignRevision";
+import type { IAutoMovieDesignSubject } from "./IAutoMovieDesignSubject";
+import type { IAutoMovieDesignVariant } from "./IAutoMovieDesignVariant";
 
 /**
  * Phases, alternatives, and derivation for one work, over identities other graphs own.

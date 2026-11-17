@@ -1,3 +1,5 @@
+import type { IAutoMovieSwivelArcs } from "@automovie/interface";
+
 import { hingedArmSwivel } from "./hingedArmSwivel";
 import type { swivelArcs } from "./swivelArcs";
 
@@ -46,7 +48,7 @@ export namespace swivelArcMinimum {
    */
   export interface IProps<T> {
     /** The arcs searched, degrees, in the order ties are resolved in; an arc a full turn wide or wider is the whole circle. */
-    arcs: readonly swivelArcs.IArc[];
+    arcs: readonly IAutoMovieSwivelArcs.IArc[];
 
     /**
      * The actual scorer at a swivel, degrees; periodic over a turn.
@@ -137,12 +139,12 @@ export namespace swivelArcMinimum {
     // The visit: every arc in the order given, or by ascending bound until
     // an arc's bound exceeds the least key read.
     const order: number[] = props.arcs.map(
-      (_: swivelArcs.IArc, index: number): number => index,
+      (_: IAutoMovieSwivelArcs.IArc, index: number): number => index,
     );
     const floors: number[] | null =
       props.bounded === undefined
         ? null
-        : props.arcs.map((arc: swivelArcs.IArc): number =>
+        : props.arcs.map((arc: IAutoMovieSwivelArcs.IArc): number =>
             props.bounded!.below(arc.from, arc.to),
           );
     if (floors !== null)
@@ -172,7 +174,7 @@ export namespace swivelArcMinimum {
   }
 
   /** One arc's candidates in fold order: each scored swivel, a local minimum's refinement after its step. */
-  function over<T>(props: IProps<T>, arc: swivelArcs.IArc): T[] {
+  function over<T>(props: IProps<T>, arc: IAutoMovieSwivelArcs.IArc): T[] {
     const whole: boolean = arc.to - arc.from >= 360;
 
     // The swivels scored: the circle's steps, or the arc's start, the grid

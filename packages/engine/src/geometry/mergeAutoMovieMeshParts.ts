@@ -1,8 +1,10 @@
-import { IAutoMovieMesh } from "@automovie/interface";
+import {
+  IAutoMovieMesh,
+  type IAutoMovieMeshAssembly,
+  type IAutoMovieMeshGroup,
+  type IAutoMovieMeshPart,
+} from "@automovie/interface";
 
-import { IAutoMovieMeshAssembly } from "./IAutoMovieMeshAssembly";
-import { IAutoMovieMeshGroup } from "./IAutoMovieMeshGroup";
-import { IAutoMovieMeshPart } from "./IAutoMovieMeshPart";
 import { mergeAutoMovieMeshes } from "./mergeAutoMovieMeshes";
 import { transformAutoMovieMesh } from "./transformAutoMovieMesh";
 import { triangleIndicesOf } from "./triangleIndicesOf";

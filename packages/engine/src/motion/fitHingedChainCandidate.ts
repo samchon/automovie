@@ -1,38 +1,40 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  IAutoMovieJointRotationFrame,
+  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
+  IAutoMovieRestFrame,
+  IAutoMovieSolvedChainPlant,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { boxExcludedSwivels } from "../kinematics/boxExcludedSwivels";
 import { clinicalDeviation } from "../kinematics/clinicalDeviation";
-import type { IAutoMovieResolvedJointAngles } from "../kinematics/IAutoMovieResolvedJointAngles";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
-import { hingedArmArticulation } from "../kinematics/hingedArmArticulation";
 import { distalEndSwivelArcs } from "../kinematics/distalEndSwivelArcs";
 import { distalEndSwivelMiss } from "../kinematics/distalEndSwivelMiss";
+import { distalEndSwivelNearest } from "../kinematics/distalEndSwivelNearest";
 import { distalEndSwivelReadings } from "../kinematics/distalEndSwivelReadings";
 import type { distalTwistSwivelRange } from "../kinematics/distalTwistSwivelRange";
-import { immobileAxisSwivels } from "../kinematics/immobileAxisSwivels";
-import { distalEndSwivelNearest } from "../kinematics/distalEndSwivelNearest";
+import { hingedArmArticulation } from "../kinematics/hingedArmArticulation";
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { hingedSwivelAhead } from "../kinematics/hingedSwivelAhead";
+import { immobileAxisSwivels } from "../kinematics/immobileAxisSwivels";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { readsSwingTwistFrame } from "../kinematics/readsSwingTwistFrame";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { getConstraint } from "../rom/getConstraint";
 import { scanJointRom } from "../rom/scanJointRom";
-import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { basisOf } from "./basisOf";
 import { distalTwistRange } from "./distalTwistRange";
 import { fitHingedClosedRoots } from "./fitHingedClosedRoots";
@@ -41,10 +43,9 @@ import { hingedChainSide } from "./hingedChainSide";
 import { hingedRotationStart } from "./hingedRotationStart";
 import { hingedTwistStart } from "./hingedTwistStart";
 import { posedHingeSwing } from "./posedHingeSwing";
+import type { prepareChainFit } from "./prepareChainFit";
 import { readHingeRange } from "./readHingeRange";
 import { solveDistalTwist } from "./solveDistalTwist";
-import type { prepareChainFit } from "./prepareChainFit";
-import type { prepareChainPlant } from "./prepareChainPlant";
 
 /**
  * The hinged chain's candidate: `hingedArmArticulation`'s swivel sweep with
@@ -134,8 +135,8 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns any borrowed workspace rig; this target's scoring closures and bounded sweep data are released when the search returns. Only the selected candidate escapes, and no target history, handle or background task is retained.
  */
 export function fitHingedChainCandidate(
-  props: IFitChainToTargetProps,
-  prepared: NonNullable<ReturnType<typeof prepareChainPlant>>,
+  props: IAutoMovieFitChainToTargetProps,
+  prepared: NonNullable<IAutoMoviePreparedChainPlant | null>,
   axes: IAutoMovieJointAxes,
   rotation?: IAutoMovieQuaternion,
   rig?: prepareChainFit.IRig,
@@ -275,7 +276,7 @@ export function fitHingedChainCandidate(
   // rotation where the angles are decomposed on the range's own basis and
   // rest frame (`readsSwingTwistFrame`), so the scan composes nothing back.
   const upperConstraint: IAutoMovieJointConstraint | null = prepared.upperDomain.constraint;
-  const upperRange: swingTwistRange.IJoint | undefined =
+  const upperRange: IAutoMovieJointRotationFrame | undefined =
     upperConstraint === null || upperConstraint.swingTwist === undefined || upperConstraint.swingTwist === null
       ? undefined
       : swingTwistRange.of(props.chain.upper);
@@ -927,8 +928,8 @@ interface IEnd {
 
 /** Read the end joint as `fitHingedRotationError` reads it, from the rig when one is lent. */
 function endOf(
-  props: IFitChainToTargetProps,
-  prepared: NonNullable<ReturnType<typeof prepareChainPlant>>,
+  props: IAutoMovieFitChainToTargetProps,
+  prepared: NonNullable<IAutoMoviePreparedChainPlant | null>,
   rig: prepareChainFit.IRig | undefined,
 ): IEnd {
   const effector: AutoMovieHumanoidBone = props.chain.effector;

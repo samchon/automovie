@@ -1,11 +1,13 @@
 import {
-  type AutoMoviePhysicalSimulation as Simulation,
   Vector3,
   bindPhysicalWorld,
   collectPhysicalSupports,
   trackPhysicalSupports,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
   IAutoMovieFootfallPattern as Pattern,
   IAutoMovieVector3 as V,
@@ -30,11 +32,11 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  */
 export async function test_physical_support_departure(): Promise<void> {
   await RAPIER.init();
-  const root: P.ISegment = structuredClone(
+  const root: IAutoMoviePhysicalSegment = structuredClone(
     PhysicalFixtures.sphere(0.03).segments[0]!,
   );
   root.neutral.position = { x: 0, y: 0.5, z: 0 };
-  const foot: P.ISegment = structuredClone(
+  const foot: IAutoMoviePhysicalSegment = structuredClone(
     PhysicalFixtures.sphere().segments[0]!,
   );
   foot.bone = "foot";
@@ -102,7 +104,7 @@ export async function test_physical_support_departure(): Promise<void> {
       },
     ],
   };
-  const body: Simulation.IBody = PhysicalFixtures.body(
+  const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
     "hinge",
     profile,
     1 / 120,
@@ -130,7 +132,8 @@ export async function test_physical_support_departure(): Promise<void> {
     target.dynamicSegments = ["foot"];
     target.supportStrength = { foot: 1 };
   }
-  const input: Simulation.IInput = PhysicalFixtures.input([body], 1 / 120);
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], 1 / 120);
   Object.assign(input, { floor: 0, substeps: 1, contactTolerance: 0.0001 });
   const world: World = new RAPIER.World({ x: 0, y: 0, z: 0 });
   try {
@@ -162,16 +165,22 @@ export async function test_physical_support_departure(): Promise<void> {
       ),
     );
     for (const kind of ["stance", "reserved", "elevated", "moving"] as const) {
-      const target: Simulation.ITarget = structuredClone(body.targets[0]!);
+      const target: IAutoMoviePhysicalSimulationInput.ITarget = structuredClone(
+        body.targets[0]!,
+      );
       if (kind === "reserved") target.unavailableSupports = ["foot"];
       const goals: Parameters<typeof trackPhysicalSupports>[0]["goals"] =
         Object.fromEntries(
           profile.segments.map(
             (
-              segment: P.ISegment,
+              segment: IAutoMoviePhysicalSegment,
             ): [
               string,
-              { pose: P.ITransform; velocity: V; angularVelocity: V },
+              {
+                pose: IAutoMovieRigidTransform;
+                velocity: V;
+                angularVelocity: V;
+              },
             ] => [
               segment.bone,
               {

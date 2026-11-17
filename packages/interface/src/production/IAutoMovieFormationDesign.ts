@@ -1,8 +1,8 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { AutoMovieFormationCapability } from "./AutoMovieFormationCapability";
-import { IAutoMovieFormationBlock } from "./IAutoMovieFormationBlock";
-import { IAutoMovieFormationLayout } from "./IAutoMovieFormationLayout";
-import { IAutoMovieModelLod } from "./IAutoMovieModelLod";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieFormationCapability } from "./AutoMovieFormationCapability";
+import type { IAutoMovieFormationBlock } from "./IAutoMovieFormationBlock";
+import type { IAutoMovieFormationLayout } from "./IAutoMovieFormationLayout";
+import type { IAutoMovieModelLod } from "./IAutoMovieModelLod";
 
 /**
  * A unit-level formation whose members are deterministic derived slots.

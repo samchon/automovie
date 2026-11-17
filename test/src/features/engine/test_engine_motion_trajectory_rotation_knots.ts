@@ -1,5 +1,6 @@
 import { integrateMotionTrajectory } from "@automovie/engine";
 import type {
+  IAutoMovieIntegrateMotionTrajectory,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -77,12 +78,12 @@ export function test_engine_motion_trajectory_rotation_knots(): void {
     const mode: string = adaptive ? "adaptive" : "fixed";
     const borrowed: (readonly number[])[] = [];
     let calls: number = 0;
-    const path: integrateMotionTrajectory.ITrajectory =
+    const path: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
       integrateMotionTrajectory({
         f: (
           seconds: number,
           state: readonly number[],
-        ): integrateMotionTrajectory.IRate => {
+        ): IAutoMovieIntegrateMotionTrajectory.IRate => {
           calls++;
           borrowed.push(state);
           if (state.length !== 0)
@@ -109,7 +110,7 @@ export function test_engine_motion_trajectory_rotation_knots(): void {
 
     /** Admit each observed public state before logarithms can hide NaN. */
     function read(seconds: number): IAutoMovieQuaternion | null {
-      const state: integrateMotionTrajectory.IState = path.at(seconds);
+      const state: IAutoMovieIntegrateMotionTrajectory.IState = path.at(seconds);
       if (state.x.length !== 0 || state.q === null || !qunit(state.q, 1e-12)) {
         findings.push(`${mode}: invalid orientation-only state at ${seconds}`);
         return null;
@@ -182,7 +183,7 @@ export function test_engine_motion_trajectory_rotation_knots(): void {
       }
     }
 
-    const owned: integrateMotionTrajectory.IState = path.at(0.37);
+    const owned: IAutoMovieIntegrateMotionTrajectory.IState = path.at(0.37);
     owned.x.push(17);
     read(0.37);
     if (

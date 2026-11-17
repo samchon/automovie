@@ -1,8 +1,8 @@
-import { IAutoMoviePerformedShot } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
   IAutoMovieActionTarget,
   IAutoMovieConstraintViolation,
+  IAutoMoviePerformedShot,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

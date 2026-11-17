@@ -5,7 +5,13 @@ import {
   convexHull2D,
   integrateMotionTrajectory,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanForceSite,
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieMotionHumanForceExchange,
+  IAutoMovieMotionHumanSustainedForce,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanForce } from "../perform/HumanForce";
 import { HumanForceDrawn } from "./HumanForceDrawn";
@@ -115,19 +121,7 @@ export namespace HumanForceExchange {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function breaking(props: {
-    /** Kilograms. */
-    mass: number;
-
-    /** The pendulum's eigenfrequency, 1/s. */
-    frequency: number;
-
-    /** The base's extent along the pull, metres. */
-    edge: number;
-
-    /** Seconds from the pull's start to the broken base. */
-    seconds: number;
-  }): number {
+  export function breaking(props: IAutoMovieMotionHumanForceExchange.IBreakingProps ): number {
     const { mass, frequency, edge, seconds } = props;
     if (!(mass > 0 && frequency > 0 && edge > 0 && seconds > 0))
       throw new Error(
@@ -152,19 +146,7 @@ export namespace HumanForceExchange {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function broken(props: {
-    /** Kilograms. */
-    mass: number;
-
-    /** The pendulum's eigenfrequency, 1/s. */
-    frequency: number;
-
-    /** The base's extent along the pull, metres. */
-    edge: number;
-
-    /** Newtons. */
-    force: number;
-  }): number {
+  export function broken(props: IAutoMovieMotionHumanForceExchange.IBrokenProps ): number {
     const { mass, frequency, edge, force } = props;
     if (!(force > 0)) return Number.POSITIVE_INFINITY;
     return (
@@ -187,19 +169,7 @@ export namespace HumanForceExchange {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The complete one-shot and actual fixed-pull response readers share one analytic owner. Response requests offset only per yield frame and consumes a paired complete break-state once; this facade reads every supplied input anew.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh complete state and retains no props, clock, body, prepared factory, pose or numerical history.
    */
-  export function drawn(props: {
-    /** Kilograms. */
-    mass: number;
-
-    /** The pendulum's eigenfrequency, 1/s. */
-    frequency: number;
-
-    /** Newtons. */
-    force: number;
-
-    /** Seconds since the pull started. */
-    seconds: number;
-  }): { offset: number; speed: number; extrapolated: number } {
+  export function drawn(props: IAutoMovieMotionHumanForceExchange.IDrawnProps ): IAutoMovieMotionHumanForceExchange.IDrawnResult {
     return HumanForceDrawn.sample(props);
   }
 
@@ -221,86 +191,12 @@ export namespace HumanForceExchange {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function resisted(
-    props: {
-      /** Kilograms. */
-      mass: number;
-
-      /** Newtons, horizontal. */
-      force: number;
-
-      /** The grip's height above the floor, metres. */
-      height: number;
-
-      /** The base's extent from the centre along the pull, metres. */
-      edge: number;
-    },
+    props: IAutoMovieMotionHumanForceExchange.IResistedProps,
     gravity: number = AutoMovieGravity.STANDARD,
   ): number | null {
     const shift: number = (props.force * props.height) / (props.mass * gravity);
     return shift <= props.edge ? shift : null;
   }
-
-  /**
-   * A throw's swing about the fulcrum, read by time from the base's break.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the clock and each reading's unit.
-   * @evidence contracts/development/design.md#principled-representation Scalar angle and rate readings share the same integrated swing; sample reads both at one instant.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The release and original two readings remain required; the throw consumes optional sample for a paired read and legacy implementations remain assignable.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The paired reading returns fresh scalars rather than exposing the trajectory's state array.
-   */
-  export interface ISwing {
-    /** Seconds from the break to the release. */
-    release: number;
-
-    /**
-     * The centre's angle from the vertical through the fulcrum, radians.
-     *
-     * @param seconds Seconds since the break; held at release afterward.
-     * @returns The integrated swing angle.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines the break-relative clock, vertical reference, radian result and release clamp of swing's producer.
-     * @evidence contracts/development/implementation.md#principled-implementation swing reads the angle component of the integrated driven pendulum state at min(seconds, release); no new integration or angle law is substituted.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The producer delegates to one shared indexed span reader and selects component zero; HumanForceThrow uses it during the rigid swing.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Release clamping holds the actual integrated release state; no scripted angle, new tolerance or cached pose replaces a reading.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One constant-time span selection and one existing trajectory read per call; integration cost and span storage remain with swing construction.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work All readings borrow the trajectory integrated for this swing's fixed physical inputs. Consumers needing angle and rate together may use sample; individual reads do not memoise time answers.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains its swing's trajectory spans for the owning plan's lifetime; each reading returns only a number and acquires no resource or history.
-     */
-    angle(seconds: number): number;
-
-    /**
-     * The angular rate about the fulcrum, radians per second.
-     *
-     * @param seconds Seconds since the break; held at release afterward.
-     * @returns The integrated swing rate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines the break-relative clock, rate unit and release clamp of swing's producer.
-     * @evidence contracts/development/implementation.md#principled-implementation swing reads component one of the same integrated pendulum state at min(seconds, release), preserving the momentum used for release flight.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared indexed span reader supplies the scalar component; HumanForceThrow reads release angle and rate together when sample exists.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Returns the actual integrated rate without a synthetic launch speed, pose cache or altered release threshold.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One constant-time span selection and one trajectory read; the producer's existing integration and span storage dominate setup.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows this swing's already-integrated fixed-input trajectory; sample combines paired release reads without sharing results across different seconds or swings.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns the captured trajectory spans; a call adds no retained state and returns one scalar.
-     */
-    rate(seconds: number): number;
-
-    /**
-     * Both readings from one trajectory evaluation, radians and radians per second.
-     *
-     * @param seconds Seconds since the base's break.
-     * @returns A fresh angle and rate record, held at release afterward.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument, units, release clamp and fresh result.
-     * @evidence contracts/development/implementation.md#principled-implementation Reads the same integrated state as angle and rate once for consumers needing both.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One trajectory reading and two scalar fields.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not expose or retain the trajectory's state array.
-     * @evidence contracts/development/implementation.md#efficient-algorithms swing selects one span by index and reads its trajectory once for both scalar components, replacing the two separate release reads in HumanForceThrow.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The angle and rate share one actual state at the same clamped second of this swing's fixed physical trajectory; no reading is shared across calls or swings.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns the captured trajectories; each call returns a fresh scalar record without exposing state arrays or adding query history.
-     */
-    sample?(seconds: number): { angle: number; rate: number };
-  }
-
   /**
    * A throw's swing about the fulcrum, from the momentum the pull left to
    * the release where the centre comes level with the fulcrum.
@@ -318,44 +214,23 @@ export namespace HumanForceExchange {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The swing holds its spans' trajectories for as long as its plan.
    */
   export function swing(
-    props: {
-      /** Kilograms. */
-      mass: number;
-
-      /** The moment of inertia about the centre on the swing's axis, kg m². */
-      inertia: number;
-
-      /** The centre's distance from the fulcrum, metres. */
-      radius: number;
-
-      /** The starting angle from the vertical, radians, positive toward the throw. */
-      angle: number;
-
-      /** The starting rate, radians per second. */
-      rate: number;
-
-      /** The pull's moment about the fulcrum on the swing's axis while it lasts, N m; none when absent. */
-      torque?: number;
-
-      /** Seconds since the break the pull lasts; none when absent. */
-      until?: number;
-    },
+    props: IAutoMovieMotionHumanForceExchange.ISwingProps,
     gravity: number = AutoMovieGravity.STANDARD,
-  ): ISwing | null {
+  ): IAutoMovieMotionHumanForceExchange.ISwing | null {
     const { mass, radius } = props;
     const moment: number = props.inertia + mass * radius * radius;
     const k: number = (mass * gravity * radius) / moment;
     const span: number = 1 / Math.sqrt(k);
     const until: number = props.until ?? 0;
     const drive: number = (props.torque ?? 0) / moment;
-    const rate = (t: number, x: readonly number[]): integrateMotionTrajectory.IRate => ({
+    const rate = (t: number, x: readonly number[]): IAutoMovieIntegrateMotionTrajectory.IRate => ({
       dx: [x[1]!, k * Math.sin(x[0]!) + (t < until ? drive : 0)],
     });
-    const spans: integrateMotionTrajectory.ITrajectory[] = [];
+    const spans: IAutoMovieIntegrateMotionTrajectory.ITrajectory[] = [];
     let state: readonly number[] = [props.angle, props.rate];
     let t0: number = 0;
     for (;;) {
-      const trajectory: integrateMotionTrajectory.ITrajectory =
+      const trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
         integrateMotionTrajectory({
           f: rate,
           x0: state,
@@ -377,7 +252,7 @@ export namespace HumanForceExchange {
       );
       return spans[index]!.at(seconds).x;
     };
-    const last: integrateMotionTrajectory.ITrajectory =
+    const last: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
       spans[spans.length - 1]!;
     const release: number = bracketedBisection(
       (seconds: number): boolean => at(seconds)[0]! < Math.PI / 2,
@@ -411,29 +286,11 @@ export namespace HumanForceExchange {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function pull(props: {
-    /** The pulled person. */
-    subject: string;
-
-    /** The grip sites on that person. */
-    sites: readonly HumanForce.At[];
-
-    /** The horizontal pull direction, unit, world. */
-    direction: IAutoMovieVector3;
-
-    /** Newtons in all. */
-    force: number;
-
-    /** Film seconds, start. */
-    from: number;
-
-    /** Film seconds, end. */
-    to: number;
-  }): HumanForce.ISustained[] {
+  export function pull(props: IAutoMovieMotionHumanForceExchange.IPullProps ): IAutoMovieMotionHumanSustainedForce[] {
     const each: number =
       props.sites.length === 0 ? 0 : props.force / props.sites.length;
     return props.sites.map(
-      (at: HumanForce.At): HumanForce.ISustained => ({
+      (at: AutoMovieHumanForceSite): IAutoMovieMotionHumanSustainedForce => ({
         kind: "sustained",
         subject: props.subject,
         at,

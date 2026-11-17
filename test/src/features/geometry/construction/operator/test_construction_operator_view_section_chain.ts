@@ -1,14 +1,20 @@
 import {
   AutoMovieLoftChain,
-  type AutoMovieLoftContract,
   AutoMovieLoftFrame,
   AutoMovieLoftJet,
   AutoMovieViewAxis,
   AutoMovieViewLoft,
   AutoMovieViewSection,
-  type IAutoMovieLoftChain,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftContract,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftSurfaceJet,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 /** Four signed source extents in their existing guide order. */
 type Quarters = IAutoMovieViewPart.IQuarters<number>;
@@ -39,10 +45,10 @@ export function test_construction_operator_view_section_chain(): void {
 
   // 1. A valid part.
   const made: IAutoMovieViewPart = part();
-  const result: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(made);
+  const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(made);
   if (result.diagnostics.length !== 0)
     failures.push(
-      `valid part: diagnostics ${result.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => `${d.contract}: ${d.detail}`).join("; ")}`,
+      `valid part: diagnostics ${result.diagnostics.map((d: IAutoMovieLoftContract.IDiagnostic): string => `${d.contract}: ${d.detail}`).join("; ")}`,
     );
   if (result.surface === null) failures.push("valid part: no solid surface");
   if (result.continuity.phase !== "C2" || result.continuity.station !== "C2")
@@ -76,9 +82,9 @@ export function test_construction_operator_view_section_chain(): void {
         failures.push(
           `station ${s}: declared box [${view?.extents.join(", ")}] against the outlines [${want.join(", ")}]`,
         );
-      const section: AutoMovieViewLoft.IStation | undefined =
+      const section: IAutoMovieViewLoft.IStation | undefined =
         result.sections.find(
-          (x: AutoMovieViewLoft.IStation): boolean => x.station === s,
+          (x: IAutoMovieViewLoft.IStation): boolean => x.station === s,
         );
       const g: number = girthAt(made, s);
       if (
@@ -106,11 +112,11 @@ export function test_construction_operator_view_section_chain(): void {
     // jets, so a real break can only be made across two chains).
     const own: (
       c: IAutoMovieLoftChain,
-    ) => (s: number, t: number) => AutoMovieLoftJet.IJet =
+    ) => (s: number, t: number) => IAutoMovieLoftSurfaceJet =
       (
         c: IAutoMovieLoftChain,
-      ): ((s: number, t: number) => AutoMovieLoftJet.IJet) =>
-      (s: number, t: number): AutoMovieLoftJet.IJet =>
+      ): ((s: number, t: number) => IAutoMovieLoftSurfaceJet) =>
+      (s: number, t: number): IAutoMovieLoftSurfaceJet =>
         AutoMovieLoftJet.at(c, s, t);
     for (let i: number = 1; i + 1 < chain.layers.length; i++)
       failures.push(...station(own(chain), chain.layers[i]!.y));
@@ -181,7 +187,7 @@ export function test_construction_operator_view_section_chain(): void {
 
     // Separate layer records keep the equivalence reader immutable when bent
     // receives its defect; all six vectors must first equal the original.
-    const originalJet: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+    const originalJet: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
       chain,
       107.5,
       0.37,
@@ -194,7 +200,7 @@ export function test_construction_operator_view_section_chain(): void {
         }),
       ),
     };
-    const copiedJet: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+    const copiedJet: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
       equivalent,
       107.5,
       0.37,
@@ -210,10 +216,10 @@ export function test_construction_operator_view_section_chain(): void {
     layer.curvatures = layer.curvatures!.map((c: number, k: number): number =>
       k === 0 ? c + 0.01 : c,
     );
-    const broken: (s: number, t: number) => AutoMovieLoftJet.IJet = (
+    const broken: (s: number, t: number) => IAutoMovieLoftSurfaceJet = (
       s: number,
       t: number,
-    ): AutoMovieLoftJet.IJet =>
+    ): IAutoMovieLoftSurfaceJet =>
       s < layer.y
         ? AutoMovieLoftJet.at(chain, s, t)
         : AutoMovieLoftJet.at(bent, s, t);
@@ -226,13 +232,13 @@ export function test_construction_operator_view_section_chain(): void {
   // 3. Broken inputs, each reported.
   const crossed: IAutoMovieViewPart = part();
   crossed.front.negative.knots[1]!.value = 55;
-  const c: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(crossed);
-  const order: AutoMovieLoftContract.IDiagnostic[] = c.diagnostics.filter(
-    (d: AutoMovieLoftContract.IDiagnostic): boolean =>
+  const c: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(crossed);
+  const order: IAutoMovieLoftContract.IDiagnostic[] = c.diagnostics.filter(
+    (d: IAutoMovieLoftContract.IDiagnostic): boolean =>
       d.contract === "outline order",
   );
   if (
-    !order.some((d: AutoMovieLoftContract.IDiagnostic): boolean =>
+    !order.some((d: IAutoMovieLoftContract.IDiagnostic): boolean =>
       d.detail.includes("station 100 mm"),
     )
   )
@@ -245,7 +251,7 @@ export function test_construction_operator_view_section_chain(): void {
   )
     failures.push("crossed outline: station 100 kept in the chain");
   const dropped: number = c.diagnostics.filter(
-    (d: AutoMovieLoftContract.IDiagnostic): boolean =>
+    (d: IAutoMovieLoftContract.IDiagnostic): boolean =>
       d.contract === "outline order" ||
       d.contract === "half extent" ||
       d.contract === "view section" ||
@@ -260,36 +266,37 @@ export function test_construction_operator_view_section_chain(): void {
     );
   const outside: IAutoMovieViewPart = part();
   for (const k of outside.side.negative.knots) k.value = 5;
-  const o: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(outside);
+  const o: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(outside);
   if (o.chain !== null) failures.push("axis outside the box: a chain is built");
   if (
     o.diagnostics.filter(
-      (d: AutoMovieLoftContract.IDiagnostic): boolean =>
+      (d: IAutoMovieLoftContract.IDiagnostic): boolean =>
         d.contract === "half extent",
     ).length !== outside.stations.length
   )
     failures.push(
       `axis outside the box: ${o.diagnostics.length} diagnostics, expected one half extent per station`,
     );
-  const odd: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
+  const odd: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
     ...part(),
     order: 10,
   });
   if (
     odd.chain !== null ||
     !odd.diagnostics.some(
-      (d: AutoMovieLoftContract.IDiagnostic): boolean => d.contract === "order",
+      (d: IAutoMovieLoftContract.IDiagnostic): boolean =>
+        d.contract === "order",
     )
   )
     failures.push("order 10: no order diagnostic, or a chain");
-  const single: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
+  const single: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create({
     ...part(),
     stations: [100],
   });
   if (
     single.chain !== null ||
     !single.diagnostics.some(
-      (d: AutoMovieLoftContract.IDiagnostic): boolean =>
+      (d: IAutoMovieLoftContract.IDiagnostic): boolean =>
         d.contract === "stations",
     )
   )
@@ -300,10 +307,10 @@ export function test_construction_operator_view_section_chain(): void {
     ...part([50, 30, -38, -26], [0, 0, 0, 0]),
     pole: "top",
   };
-  const t: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(tipped);
+  const t: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(tipped);
   if (t.chain === null)
     failures.push(
-      `pole: no chain (${t.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => d.detail).join("; ")})`,
+      `pole: no chain (${t.diagnostics.map((d: IAutoMovieLoftContract.IDiagnostic): string => d.detail).join("; ")})`,
     );
   else {
     if (
@@ -360,7 +367,7 @@ function part(
   const girth: IAutoMovieViewPart.IOutline = {
     knots: stations.map((s: number, i: number): IAutoMovieViewPart.IKnot => {
       const e: Quarters = [at[i]![0], at[i]![1], -at[i]![2], -at[i]![3]];
-      const range: AutoMovieViewSection.IRange | null = e.every(
+      const range: IAutoMovieViewSection.IRange | null = e.every(
         (x: number): boolean => x > 0,
       )
         ? AutoMovieViewSection.range({ extents: e })
@@ -418,7 +425,7 @@ function knot(
   extents: Quarters,
 ): string[] {
   const out: string[] = [];
-  const f: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(chain, s);
+  const f: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(chain, s);
   const point: (t: number) => V3 = AutoMovieLoftChain.sampler(chain, s);
   for (let g: number = 0; g < 4; g++) {
     const [x, z]: [number, number] = AutoMovieLoftFrame.local(
@@ -452,7 +459,7 @@ function knot(
  * mm squared).
  */
 function station(
-  jet: (s: number, t: number) => AutoMovieLoftJet.IJet,
+  jet: (s: number, t: number) => IAutoMovieLoftSurfaceJet,
   y: number,
 ): string[] {
   const out: string[] = [];
@@ -460,7 +467,7 @@ function station(
   for (let i: number = 0; i < 8; i++) {
     const t: number = (2 * Math.PI * i) / 8 + 0.1;
     const read: (s: number) => V3[] = (s: number): V3[] => {
-      const j: AutoMovieLoftJet.IJet = jet(s, t);
+      const j: IAutoMovieLoftSurfaceJet = jet(s, t);
       return [j.p, j.s, j.ss] as V3[];
     };
     const [b1, b2, a1, a2]: V3[][] = [

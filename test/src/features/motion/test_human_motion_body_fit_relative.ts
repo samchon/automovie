@@ -1,18 +1,19 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanBodyFitTypes,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanBodyFit,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -46,9 +47,12 @@ export function test_human_motion_body_fit_relative(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const all: motionComplaints.IGatherer = motionComplaints();
   const tolerance: number = HumanBodyFit.TOLERANCE;
-  const shown: (body: IHumanBody, posture: IHumanPosture) => Bones = (
-    body: IHumanBody,
-    posture: IHumanPosture,
+  const shown: (
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ) => Bones = (
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
   ): Bones => poseBones(body, resolveHumanPosture(body, posture));
   const relative: (
     bones: Bones,
@@ -73,14 +77,14 @@ export function test_human_motion_body_fit_relative(): void {
     };
   };
   for (const name of ["f-small", "m-average", "m-short-armed"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const entry: IHumanPosture = stand.posture(
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const entry: IAutoMovieMotionHumanPosture = stand.posture(
       body,
       { x: 0.7, y: body.measure.stature, z: -0.4 },
       name === "m-short-armed" ? 90 : 25,
     );
     try {
-      const wanted: IHumanPosture = {
+      const wanted: IAutoMovieMotionHumanPosture = {
         ...entry,
         root: Vector3.add(entry.root, { x: 0.03, y: 0, z: 0.02 }),
         joints: {
@@ -103,48 +107,49 @@ export function test_human_motion_body_fit_relative(): void {
       );
       const normal: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
       const pinned: IAutoMovieVector3 = { x: 0.03, y: 0.02, z: 0.01 };
-      const fitted: HumanBodyFit.IResult = HumanBodyFit.fit({
-        body,
-        posture: entry,
-        variables: [
-          { kind: "place", axis: "x" },
-          { kind: "place", axis: "z" },
-          { kind: "angle", bone: "chest", axis: 0 },
-          { kind: "angle", bone: "leftLowerArm", axis: 0 },
-        ],
-        targets: [
-          { bone: "head", goal: expected.get("head")!.worldPosition },
-          {
-            bone: "chest",
-            goal: expected.get("chest")!.worldPosition,
-            axes: [],
-            rotation: expected.get("chest")!.worldRotation,
-          },
-          {
-            bone: "leftHand",
-            on: "chest",
-            goal: hand.point,
-            rotation: hand.rotation,
-          },
-          {
-            bone: "rightHand",
-            on: "chest",
-            goal: right.point,
-            axes: [],
-            normal: {
-              local: normal,
-              world: Quaternion.rotateVector(right.rotation, normal),
+      const fitted: IAutoMovieMotionHumanBodyFitTypes.IResult =
+        HumanBodyFit.fit({
+          body,
+          posture: entry,
+          variables: [
+            { kind: "place", axis: "x" },
+            { kind: "place", axis: "z" },
+            { kind: "angle", bone: "chest", axis: 0 },
+            { kind: "angle", bone: "leftLowerArm", axis: 0 },
+          ],
+          targets: [
+            { bone: "head", goal: expected.get("head")!.worldPosition },
+            {
+              bone: "chest",
+              goal: expected.get("chest")!.worldPosition,
+              axes: [],
+              rotation: expected.get("chest")!.worldRotation,
             },
-          },
-          {
-            bone: "head",
-            point: pinned,
-            on: "head",
-            goal: pinned,
-            rotation: Quaternion.identity(),
-          },
-        ],
-      });
+            {
+              bone: "leftHand",
+              on: "chest",
+              goal: hand.point,
+              rotation: hand.rotation,
+            },
+            {
+              bone: "rightHand",
+              on: "chest",
+              goal: right.point,
+              axes: [],
+              normal: {
+                local: normal,
+                world: Quaternion.rotateVector(right.rotation, normal),
+              },
+            },
+            {
+              bone: "head",
+              point: pinned,
+              on: "head",
+              goal: pinned,
+              rotation: Quaternion.identity(),
+            },
+          ],
+        });
       const bones: Bones = shown(body, fitted.posture);
       const got: ReturnType<typeof relative> = relative(
         bones,
@@ -206,25 +211,27 @@ export function test_human_motion_body_fit_relative(): void {
     );
     const radius: number = 0.02;
     try {
-      const moved: HumanBodyFit.IResult = HumanBodyFit.fit({
-        body,
-        posture: entry,
-        variables: [
-          { kind: "place", axis: "x" },
-          { kind: "place", axis: "z" },
-        ],
-        targets: [
-          {
-            bone: "head",
-            goal: bones.get("head")!.worldPosition,
-            bound: radius,
+      const moved: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit(
+        {
+          body,
+          posture: entry,
+          variables: [
+            { kind: "place", axis: "x" },
+            { kind: "place", axis: "z" },
+          ],
+          targets: [
+            {
+              bone: "head",
+              goal: bones.get("head")!.worldPosition,
+              bound: radius,
+            },
+          ],
+          centre: {
+            point: Vector3.add(centre, { x: 0.012, y: 0, z: 0.012 }),
+            axes: ["x", "z"],
           },
-        ],
-        centre: {
-          point: Vector3.add(centre, { x: 0.012, y: 0, z: 0.012 }),
-          axes: ["x", "z"],
         },
-      });
+      );
       const actual: Bones = shown(body, moved.posture);
       const distance: number = Vector3.length(
         Vector3.subtract(
@@ -250,12 +257,13 @@ export function test_human_motion_body_fit_relative(): void {
         ["boundary", { x: radius, y: 0, z: 0 }, true],
         ["diagonal outside", { x: 0.018, y: 0, z: 0.018 }, false],
       ] as const) {
-        const rigid: HumanBodyFit.IResult = HumanBodyFit.fit({
-          body,
-          posture: entry,
-          variables: [{ kind: "place", axis: "x" }],
-          targets: [{ bone: "head", on: "head", goal, bound: radius }],
-        });
+        const rigid: IAutoMovieMotionHumanBodyFitTypes.IResult =
+          HumanBodyFit.fit({
+            body,
+            posture: entry,
+            variables: [{ kind: "place", axis: "x" }],
+            targets: [{ bone: "head", on: "head", goal, bound: radius }],
+          });
         const actualDistance: number = Math.sqrt(
           goal.x ** 2 + goal.y ** 2 + goal.z ** 2,
         );
@@ -270,7 +278,7 @@ export function test_human_motion_body_fit_relative(): void {
       }
       all.refuses(
         `${name} a negative physical radius`,
-        (): HumanBodyFit.IResult =>
+        (): IAutoMovieMotionHumanBodyFitTypes.IResult =>
           HumanBodyFit.fit({
             body,
             posture: entry,

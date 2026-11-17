@@ -1,6 +1,5 @@
 import {
   AutoMovieGravity,
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   integrateAirborneRotation,
@@ -11,7 +10,13 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLimbFitFrame,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -19,14 +24,13 @@ import {
   HumanLimbFitFrame,
   HumanPerformance,
   type HumanSegment,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 import { performance } from "node:perf_hooks";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanFrame } from "../internal/motionHumanFrame";
 import { motionHumanFlightDiagnostic } from "../internal/motionHumanFlightDiagnostic";
+import { motionHumanFrame } from "../internal/motionHumanFrame";
 import { motionHumanTakeoffDiagnostic } from "../internal/motionHumanTakeoffDiagnostic";
 import { qunit } from "../internal/qunit";
 
@@ -84,10 +88,10 @@ export function test_human_motion_core_flight_sample(): void {
   const complaints: string[] = [];
   const bodyCpuStart: NodeJS.CpuUsage = process.cpuUsage();
   const bodyStart: number = performance.now();
-  const body: IHumanBody = { ...motionHumanBody("m-average") };
+  const body: IAutoMovieMotionHumanBody = { ...motionHumanBody("m-average") };
   const bodyMs: number = performance.now() - bodyStart;
   const bodyCpuUs: NodeJS.CpuUsage = process.cpuUsage(bodyCpuStart);
-  const memoryStart: HumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
+  const memoryStart: IAutoMovieMotionHumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
   console.log(
     JSON.stringify({
       sample: "canonical-human-flight",
@@ -104,7 +108,7 @@ export function test_human_motion_core_flight_sample(): void {
   const params: Parameters<typeof motionHumanTakeoffDiagnostic>[2] = {
     to: { x: 0, y: 0, z: 1 }, apex: 0.5, rotation: { somersault: 1 },
   };
-  const input: HumanPerformance.IInput = {
+  const input: IAutoMovieMotionHumanPerformance.IInput = {
     seed: "flight",
     flight: "physical",
     performers: [
@@ -131,7 +135,7 @@ export function test_human_motion_core_flight_sample(): void {
       console.log(JSON.stringify({ sample: "jump-takeoff-control-error", error: error instanceof Error ? error.message : String(error) }));
     }
   };
-  let film: HumanPerformance;
+  let film: IAutoMovieMotionHumanPerformance;
   try {
     film = new HumanPerformance(input, observation);
   } catch (error) {
@@ -160,7 +164,7 @@ export function test_human_motion_core_flight_sample(): void {
       shapeWork: planningShapeWork,
     }),
   );
-  const segment: HumanSegment.ISegment = film.segments("a")[1]!;
+  const segment: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
   const event: (name: string) => number = (name: string): number => {
     const share: number | undefined = segment.plan.events.find(
       (item: IAutoMovieMotionEvent): boolean => item.name === name,
@@ -175,7 +179,7 @@ export function test_human_motion_core_flight_sample(): void {
     "a finite flight interval contains the landing observation",
     Number.isFinite(from) && Number.isFinite(to) && to - from > 2e-6,
   );
-  const observationMemoryStart: HumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
+  const observationMemoryStart: IAutoMovieMotionHumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
   const observationCpuStart: NodeJS.CpuUsage = process.cpuUsage();
   const observationStart: number = performance.now();
   const firstCpuStart: NodeJS.CpuUsage = process.cpuUsage();
@@ -278,7 +282,7 @@ export function test_human_motion_core_flight_sample(): void {
     complaints.push(
       `actual flight: winding ${winding / (2 * Math.PI)}, landing ${previous}/${endTilt}/${endTwist} rad, bound ${bound}`,
     );
-  const model: resolveAutoMovieCenterOfMass.IModel =
+  const model: IAutoMovieResolveCenterOfMass.IModel =
     resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
   const delta: number = integrateAirborneRotation.DELTA;
   const observations: motionHumanFlightDiagnostic.IObservation[] = [];
@@ -413,13 +417,13 @@ export function test_human_motion_core_flight_sample(): void {
 }
 
 /** Copy actual public counters once after a stopped timing window, without counting inner work. */
-function memorySince(body: IHumanBody, before: HumanLimbFitFrame.IStatistics): {
-  snapshot: HumanLimbFitFrame.IStatistics;
-  delta: HumanLimbFitFrame.IStatistics;
+function memorySince(body: IAutoMovieMotionHumanBody, before: IAutoMovieMotionHumanLimbFitFrame.IStatistics): {
+  snapshot: IAutoMovieMotionHumanLimbFitFrame.IStatistics;
+  delta: IAutoMovieMotionHumanLimbFitFrame.IStatistics;
 } {
-  const snapshot: HumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
-  const delta: HumanLimbFitFrame.IStatistics = { ...snapshot };
-  for (const key of Object.keys(snapshot) as (keyof HumanLimbFitFrame.IStatistics)[])
+  const snapshot: IAutoMovieMotionHumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
+  const delta: IAutoMovieMotionHumanLimbFitFrame.IStatistics = { ...snapshot };
+  for (const key of Object.keys(snapshot) as (keyof IAutoMovieMotionHumanLimbFitFrame.IStatistics)[])
     delta[key] -= before[key];
   return { snapshot, delta };
 }

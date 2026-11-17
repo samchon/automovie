@@ -1,6 +1,11 @@
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanJoints } from "./AutoMovieMotionHumanJoints";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * Head phrases: the head moved on the neck by joint angles, with no target
@@ -37,7 +42,7 @@ export namespace AutoMovieMotionHumanHead {
   export function share(
     axis: 0 | 1 | 2,
     degrees: number,
-  ): AutoMovieMotionHumanJoints.Angles {
+  ): IAutoMovieMotionHumanJoints.Angles {
     const neck: [number, number, number] = [0, 0, 0];
     neck[axis] = NECK * degrees;
     const head: [number, number, number] = [0, 0, 0];
@@ -48,7 +53,7 @@ export namespace AutoMovieMotionHumanHead {
   /** An oscillation of one head angle over a window. */
   function oscillate(
     axis: 0 | 1 | 2,
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     window: readonly [string, string],
     cycles: number,
     degrees: number,
@@ -60,7 +65,7 @@ export namespace AutoMovieMotionHumanHead {
       channels: ["head"],
       from,
       to,
-      delta: (seconds: number): AutoMovieMotionHumanJoints.Angles => {
+      delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles => {
         const opening: string = window[0];
         const closing: string = window[1];
         if (wave === undefined || wave.from !== opening || wave.to !== closing)
@@ -89,7 +94,7 @@ export namespace AutoMovieMotionHumanHead {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its arguments and at most one fixed wave reader until released, without retaining samples or postures.
    */
   export function nod(
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     window: readonly [string, string],
     cycles: number,
     degrees: number,
@@ -115,7 +120,7 @@ export namespace AutoMovieMotionHumanHead {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its fixed arguments and one lazy wave reader, without per-second samples or posture results.
    */
   export function shake(
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     window: readonly [string, string],
     cycles: number,
     degrees: number,
@@ -141,7 +146,7 @@ export namespace AutoMovieMotionHumanHead {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function tilt(
-    clock: AutoMovieMotionClock.IClock,
+    clock: IAutoMovieMotionClock,
     rise: readonly [string, string],
     fall: readonly [string, string],
     degrees: number,

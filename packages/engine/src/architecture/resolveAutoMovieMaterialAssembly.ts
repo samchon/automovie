@@ -1,14 +1,13 @@
-import {
+import type {
   IAutoMovieConstraintViolation,
   IAutoMovieMaterialAssembly,
   IAutoMovieMaterialLayer,
-  IAutoMovieMaterialSubstance,
+  IAutoMovieResolvedAssembly,
+  IAutoMovieResolvedLayer,
+  IAutoMovieValidateMaterialAssembly,
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { IAutoMovieAssemblyHost } from "./IAutoMovieAssemblyHost";
-import { IAutoMovieResolvedAssembly } from "./IAutoMovieResolvedAssembly";
-import { IAutoMovieResolvedLayer } from "./IAutoMovieResolvedLayer";
 import { validateAutoMovieMaterialAssembly } from "./validateAutoMovieMaterialAssembly";
 
 /**
@@ -39,20 +38,11 @@ import { validateAutoMovieMaterialAssembly } from "./validateAutoMovieMaterialAs
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one build-up that coordinates no work across calls; callers that place the same build-up repeatedly own any caching.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates only the returned record, one resolved layer per input layer, which the caller owns; nothing else outlives the call.
  */
-export const resolveAutoMovieMaterialAssembly: (props: {
-  /** Layered build-up to place; validated before any position is computed. */ assembly: IAutoMovieMaterialAssembly;
-  /** Substances the layers may cite; omitted skips reference resolution. */ substances?: readonly IAutoMovieMaterialSubstance[];
-  /** Host dimension the layers must sum to; omitted skips the comparison. */ host?: IAutoMovieAssemblyHost;
-}) => IAutoMovieResolvedAssembly = (props: {
-  /** Layered build-up to place; validated before any position is computed. */
-  assembly: IAutoMovieMaterialAssembly;
-
-  /** Substances the layers may cite; omitted skips reference resolution. */
-  substances?: readonly IAutoMovieMaterialSubstance[];
-
-  /** Host dimension the layers must sum to; omitted skips the comparison. */
-  host?: IAutoMovieAssemblyHost;
-}): IAutoMovieResolvedAssembly => {
+export const resolveAutoMovieMaterialAssembly: (
+  props: IAutoMovieValidateMaterialAssembly.IProps,
+) => IAutoMovieResolvedAssembly = (
+  props: IAutoMovieValidateMaterialAssembly.IProps,
+): IAutoMovieResolvedAssembly => {
   const validated: IAutoMovieValidation =
     validateAutoMovieMaterialAssembly(props);
   if (validated.success === false) {

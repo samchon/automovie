@@ -1,7 +1,10 @@
-import type { IAutoMovieAffordance } from "@automovie/interface";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieAffordanceCoupling,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { AffordanceArticulation } from "./AffordanceArticulation";
-import { ViolationCollector } from "./ViolationCollector";
 import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
 import { affordanceLeadingTravel } from "./affordanceLeadingTravel";
 import { affordanceTravelRange } from "./affordanceTravelRange";
@@ -30,12 +33,12 @@ export const validateAffordanceArticulation: (
   affordances: readonly IAutoMovieAffordance[],
   parts: ReadonlySet<string>,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   affordances: readonly IAutoMovieAffordance[],
   parts: ReadonlySet<string>,
   path: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const byId: Map<string, IAutoMovieAffordance> = new Map();
   for (const affordance of affordances)
@@ -132,9 +135,9 @@ function admitFollows(
   follower: IAutoMovieAffordance,
   byId: ReadonlyMap<string, IAutoMovieAffordance>,
   fp: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void {
-  const follows: IAutoMovieAffordance.Follows = follower.follows!;
+  const follows: IAutoMovieAffordanceCoupling = follower.follows!;
   if (!ARTICULATIONS.has(follower.kind)) {
     collector.push(
       "type",

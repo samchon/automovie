@@ -1,7 +1,5 @@
 # Realized speech statements
 
-Contract: [principles/realized.md](../../principles/realized.md).
-
 ## Speaker plausibility
 
 Speakers:

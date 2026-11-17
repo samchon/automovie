@@ -4,12 +4,29 @@ import {
   Vector3,
   minimumJerk,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCatchObject,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPlacedAction,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanThrowObjectLaunch,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { HumanBall } from "../ballStrike/HumanBall";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
@@ -17,17 +34,11 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -71,10 +82,10 @@ import { throwObject } from "./throwObject";
  */
 export namespace catchObject {
   /** The action's name. */
-  export const name: HumanActionName = "catchObject";
+  export const name: AutoMovieMotionHumanActionName = "catchObject";
 
   /** Cancel table: a secured catch is thrown back, stood with, or walked with. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     throwObject: [
       { window: ["secured", 1], kind: "inertialize", entry: 0, blend: 0.2 },
     ],
@@ -89,31 +100,6 @@ export namespace catchObject {
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
   export const overlay: boolean = true;
 
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The throw's anchor, the hands and the object's size.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No catch point is typed by the author.
-   */
-  export interface IParams {
-    /** The anchor of the throw caught. */
-    from: string;
-
-    /** One hand or two; `two` when absent. */
-    hands?: "one" | "two";
-
-    /** The catching hand when one; `right` when absent. */
-    side?: HumanHand.Side;
-
-    /** The ball caught, its prop subject: its `grip` contact's aperture is its diameter (`createBall`'s contacts). */
-    ball: string;
-
-    /** A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent. */
-    glove?: string;
-  }
-
   /** How far ahead of the root the object is met, arm lengths (provisional). */
   export const REACH: number = 0.6;
 
@@ -127,33 +113,6 @@ export namespace catchObject {
 
   /** How long the give takes, seconds (provisional). */
   export const GIVE_TIME: number = 0.15;
-
-  /**
-   * A catch's action plan with its actual world object centre over time.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the original action plan plus action-local object-centre reader in world metres.
-   * @evidence contracts/development/design.md#principled-representation Extends the canonical action plan with the caught object's continuous centre path, before contact on the throw trajectory and afterward on the original give/carry path.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only object extends IHumanActionPlan; performance and ball consumers retain the same motion/contact fields and this centre reader.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses canonical action/vector types, without storing a sampled pose or encoding a fixture-specific catch point.
-   */
-  export interface IPlan extends IHumanActionPlan {
-    /**
-     * The object's centre at a second of the action.
-     *
-     * @param seconds Seconds since the action's start.
-     * @returns World metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines action-local seconds and world-metre centre output over the original contact/give/carry phases.
-     * @evidence contracts/development/implementation.md#principled-implementation The actual composed posture supplies the sternum for the held phase; the original ballistic and give equations supply earlier phases.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The returned implementation delegates to one shared phase owner after reading its actual composed posture.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No phase endpoint, trajectory, give distance, clock progress or contact timing changes.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Retains the original composed-posture query; phase geometry is constant work plus current sternum FK only after securing.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Arm targets and this public reader use the same original object-path owner; one query-local exact FK getter lends only checked metadata to its full composition and actual final sternum observation, while posture/time remain actual inputs.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its original path/composed closure until release. Each public call releases its local FK getter on return or throw and returns only the numeric centre, without an object-position or pose history.
-     */
-    object(seconds: number): IAutoMovieVector3;
-  }
-
   /**
    * Plan a catch.
    *
@@ -169,9 +128,9 @@ export namespace catchObject {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed rank geometry and final hand-surface metadata are shared without answers; each roll/current target remains actual. Runtime Frame FK loans reach only actual raw sternum reads, and a public object call lends one local getter through its original full composition and final centre observation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Rank-loop geometry releases before its hand primitive returns; the plan owns original launch/clock and constant-size hand/path metadata. Each runtime loan/local object getter releases per synchronous call; no candidate fit, sampled pose or query history is retained.
    */
-  export function plan(context: IHumanActionContext<IParams>): IPlan {
-    const body: IHumanBody = context.body;
-    const m: IHumanBody["measure"] = body.measure;
+  export function plan(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>): IAutoMovieMotionHumanCatchObject.IPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const arm: number = m.upperArm + m.forearm;
     const radius: number = HumanBall.of(
       context,
@@ -179,8 +138,8 @@ export namespace catchObject {
       context.start,
       "ball",
     ).radius;
-    const placed: IHumanActionContext.IPlaced = context.action(context.params.from);
-    const launch: throwObject.ILaunch | undefined = throwObject.of(placed.plan);
+    const placed: IAutoMovieMotionHumanPlacedAction = context.action(context.params.from);
+    const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined = throwObject.of(placed.plan);
     if (launch === undefined)
       throw new HumanRefusal({
         kind: "participant",
@@ -194,10 +153,10 @@ export namespace catchObject {
         fix: "give the throw an anchor and name that anchor in from",
       });
     const released: number = placed.start + launch.seconds - context.start;
-    const standing: IHumanPosture = stand
+    const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const frame: HumanFrame.IFrame = {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { ...standing.root, y: 0 },
       yaw: standing.yaw,
     };
@@ -275,7 +234,7 @@ export namespace catchObject {
       });
     const secured: number = contact + GIVE_TIME;
     const held: number = secured + 0.4;
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       held + 0.6,
       [
         { name: "reach", seconds: reach },
@@ -294,11 +253,11 @@ export namespace catchObject {
       Vector3.scale(along, GIVE),
     );
     let sternumAt: ReturnType<typeof HumanTrunk.prepareRegion> | undefined;
-    const object: (seconds: number, posture: IHumanPosture,
-      resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => IAutoMovieVector3 = (
+    const object: (seconds: number, posture: IAutoMovieMotionHumanPosture,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => IAutoMovieVector3 = (
       seconds: number,
-      posture: IHumanPosture,
-      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+      posture: IAutoMovieMotionHumanPosture,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): IAutoMovieVector3 => {
       if (seconds <= contact)
         return throwObject.path(launch, Math.max(0, seconds - released));
@@ -327,7 +286,7 @@ export namespace catchObject {
       { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
       { x: 1, y: 0, z: 0 },
     );
-    const sides: HumanHand.Side[] =
+    const sides: AutoMovieHumanSide[] =
       (context.params.hands ?? "two") === "two"
         ? ["left", "right"]
         : [context.params.side ?? "right"];
@@ -336,7 +295,7 @@ export namespace catchObject {
         ? undefined
         : HumanGlove.pocket(context, context.params.glove, sides);
     const entryBones: ReturnType<typeof poseBones> = poseBones(body, context.entry.pose,
-      undefined, new Set(sides.map((side: HumanHand.Side): AutoMovieHumanoidBone => `${side}Hand`)));
+      undefined, new Set(sides.map((side: AutoMovieHumanSide): AutoMovieHumanoidBone => `${side}Hand`)));
     // The hand on the ball: its palm's target, or with a glove the palm's
     // turn moved so the pocket meets the ball.
     const pocketPoint: (back: IAutoMovieVector3, rotation: IAutoMovieQuaternion) => IAutoMovieVector3 = (
@@ -348,8 +307,8 @@ export namespace catchObject {
     // Which way the fingers point on the ball: of the turns about the palm's
     // normal, upward first, the one the arm holds at the contact with the
     // least strain, so the wrist's range decides it.
-    const pointing: (side: HumanHand.Side, outward: IAutoMovieVector3) => IAutoMovieVector3 = (
-      side: HumanHand.Side,
+    const pointing: (side: AutoMovieHumanSide, outward: IAutoMovieVector3) => IAutoMovieVector3 = (
+      side: AutoMovieHumanSide,
       outward: IAutoMovieVector3,
     ): IAutoMovieVector3 => {
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -388,7 +347,7 @@ export namespace catchObject {
         );
         const frame: ReturnType<typeof hand.frame> = hand.frame(standing, outward, fingers);
         const point: IAutoMovieVector3 = pocketPoint(back, frame.rotation);
-        const solve: AutoMovieMotionHumanBend.ISolve = {
+        const solve: IAutoMovieMotionHumanBend.ISolve = {
           body,
           posture: standing,
           side,
@@ -403,7 +362,7 @@ export namespace catchObject {
       }
       return best.fingers;
     };
-    const hand: (side: HumanHand.Side) => IAutoMovieMotionHumanPrimitive = (side: HumanHand.Side): IAutoMovieMotionHumanPrimitive => {
+    const hand: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanPrimitive = (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive => {
       const outward: IAutoMovieVector3 =
         sides.length === 2
           ? Vector3.scale(left, side === "left" ? 1 : -1)
@@ -429,8 +388,8 @@ export namespace catchObject {
           side,
           "palm",
         ),
-        target: (posture: IHumanPosture, seconds: number,
-          resolution?: Parameters<IHumanActionPlan["posture"]>[2]): AutoMovieMotionHumanArm.ITarget => {
+        target: (posture: IAutoMovieMotionHumanPosture, seconds: number,
+          resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): IAutoMovieMotionHumanArmTarget.ITarget => {
           const centre: IAutoMovieVector3 = object(
             Math.max(seconds, contact),
             posture,
@@ -440,7 +399,7 @@ export namespace catchObject {
             centre,
             Vector3.scale(outward, radius),
           );
-          const target: AutoMovieMotionHumanArm.ITarget = prepared(posture, back);
+          const target: IAutoMovieMotionHumanArmTarget.ITarget = prepared(posture, back);
           if (pocket === undefined) return target;
           corrected ??= AutoMovieMotionHumanArmTarget.prepareTarget(body, side, "palm", "relaxed");
           return corrected({ ...target, point: pocketPoint(back, target.rotation) });
@@ -450,11 +409,11 @@ export namespace catchObject {
       });
     };
 
-    const base: IHumanActionPlan = AutoMovieMotionHumanBase.under(
+    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
       context,
       duration,
     );
-    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base,
       clock,
       contact: "contact",

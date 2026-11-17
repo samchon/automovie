@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   integrateAirborneRotation,
@@ -7,7 +6,10 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieIntegrateAirborneRotation,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -62,10 +64,10 @@ export function test_engine_airborne_tabulated_history(): void {
   const findings: string[] = [];
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const identity: IAutoMovieQuaternion = Quaternion.identity();
-  const model: resolveAutoMovieCenterOfMass.IModel = {
+  const model: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 2,
     segments: (["hips", "head"] as const).map(
-      (bone: "hips" | "head"): resolveAutoMovieCenterOfMass.ISegment => ({
+      (bone: "hips" | "head"): IAutoMovieResolveCenterOfMass.ISegment => ({
         bone,
         mass: 1,
         point: zero,
@@ -89,7 +91,7 @@ export function test_engine_airborne_tabulated_history(): void {
     return new Map(
       model.segments.map(
         (
-          part: resolveAutoMovieCenterOfMass.ISegment,
+          part: IAutoMovieResolveCenterOfMass.ISegment,
           i: number,
         ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
           part.bone,
@@ -116,7 +118,7 @@ export function test_engine_airborne_tabulated_history(): void {
     );
   if (reads !== 0 || Object.values(observation.read()).some((n: number): boolean => n !== 0))
     findings.push(`construction read ${reads} shapes or counted work`);
-  const first: integrateAirborneRotation.IInstant = history(0.5004);
+  const first: IAutoMovieIntegrateAirborneRotation.IInstant = history(0.5004);
   if (reads !== 121 || observation.read().uniqueNumericNodes !== 121)
     findings.push(
       `the first query read ${reads} shapes and counted ${observation.read().uniqueNumericNodes} nodes, 121 expected`,
@@ -125,7 +127,7 @@ export function test_engine_airborne_tabulated_history(): void {
   // 2. Closed forms off the knots and at the ends.
   const built: number = reads;
   for (const t of [0, 0.0031, 0.1234, 0.25004, 0.3771, 0.5004, 0.6219, 0.7493, 0.8762, 0.9979, 1]) {
-    const instant: integrateAirborneRotation.IInstant = history(t);
+    const instant: IAutoMovieIntegrateAirborneRotation.IInstant = history(t);
     const relative: IAutoMovieVector3 = instant.relative;
     const moments: number[] = [
       instant.inertia.moments.x,
@@ -165,7 +167,7 @@ export function test_engine_airborne_tabulated_history(): void {
 
   // 4. A flight over the table against the stencil history's.
   const flown = (
-    over: integrateAirborneRotation.IHistory,
+    over: IAutoMovieIntegrateAirborneRotation.IHistory,
   ): IAutoMovieQuaternion =>
     integrateAirborneRotation({
       history: over,

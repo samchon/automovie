@@ -1,5 +1,6 @@
 import {
   AutoMovieRenderMetric,
+  type IAutoMovieEvaluateRenderBudget,
   IAutoMovieRenderAnalysisGap,
   IAutoMovieRenderBudget,
   IAutoMovieRenderContributor,
@@ -55,24 +56,11 @@ import { AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS } from "./constants/AUTOMOVIE_
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each metric's one rank supplies contributors, omitted totals and pass recovery together; the mutable inventory/budget prevents identity-only report caching.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the report/findings and borrowed target; rank maps/text are call-local, with no retained scene, resource handle or evaluation task.
  */
-export const evaluateAutoMovieRenderBudget: (props: {
-  inventory: IAutoMovieRenderInventory;
-  budget: IAutoMovieRenderBudget | null;
-  mask: IAutoMovieSemanticMask;
-  target: IAutoMovieRenderTarget;
-  maxContributors?: number;
-}) => IAutoMovieRenderReport = (props: {
-  /** Measured cost of the artifact. */
-  inventory: IAutoMovieRenderInventory;
-  /** Declared limits, or `null` for a production that declares none. */
-  budget: IAutoMovieRenderBudget | null;
-  /** Semantic palette the owners in this report are addressable in. */
-  mask: IAutoMovieSemanticMask;
-  /** Renderer, settings and assets the measurement is bound to. */
-  target: IAutoMovieRenderTarget;
-  /** Dominant-owner bound; defaults to the exported maximum. */
-  maxContributors?: number;
-}): IAutoMovieRenderReport => {
+export const evaluateAutoMovieRenderBudget: (
+  props: IAutoMovieEvaluateRenderBudget.IProps,
+) => IAutoMovieRenderReport = (
+  props: IAutoMovieEvaluateRenderBudget.IProps,
+): IAutoMovieRenderReport => {
   const {
     inventory,
     budget,

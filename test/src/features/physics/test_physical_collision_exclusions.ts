@@ -1,9 +1,15 @@
 import {
-  type AutoMoviePhysicsCache,
   AutoMoviePhysicalSimulation as Simulation,
   Vector3,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -26,19 +32,22 @@ const DURATION: number = 0.1;
  */
 export async function test_physical_collision_exclusions(): Promise<void> {
   const profile: P = PhysicalFixtures.sphere();
-  const root: P.ISegment = profile.segments[0]!;
-  const carrier: P.ISegment = structuredClone(root);
+  const root: IAutoMoviePhysicalSegment = profile.segments[0]!;
+  const carrier: IAutoMoviePhysicalSegment = structuredClone(root);
   carrier.bone = "carrier";
   carrier.neutral.position = { x: 0, y: 1.2, z: 0 };
-  const tip: P.ISegment = structuredClone(root);
+  const tip: IAutoMoviePhysicalSegment = structuredClone(root);
   tip.bone = "tip";
   tip.neutral.position = { x: 0.05, y: 1.05, z: 0 };
   profile.segments.push(carrier, tip);
   profile.mass = 3;
   profile.centerOfMass = { x: 0.05 / 3, y: 3.25 / 3, z: 0 };
   profile.joints = [carrier, tip].map(
-    (segment: P.ISegment, index: number): P.IJoint => {
-      const parent: P.ISegment = index === 0 ? root : carrier;
+    (
+      segment: IAutoMoviePhysicalSegment,
+      index: number,
+    ): IAutoMoviePhysicalJoint => {
+      const parent: IAutoMoviePhysicalSegment = index === 0 ? root : carrier;
       return {
         id: segment.bone,
         parent: parent.bone,
@@ -77,16 +86,22 @@ export async function test_physical_collision_exclusions(): Promise<void> {
   ];
   // Twelve steps: an admitted overlap separates within a few steps, and a
   // checkpoint every four steps gives the late impulse a restored world.
-  const input: Simulation.IInput = PhysicalFixtures.input(
-    [PhysicalFixtures.body("rig", profile, DURATION)],
-    DURATION,
-  );
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input(
+      [PhysicalFixtures.body("rig", profile, DURATION)],
+      DURATION,
+    );
   input.checkpointEvery = 4;
-  const excluded: Simulation = await Simulation.compute(input);
-  const includedInput: Simulation.IInput = structuredClone(input);
+  const excluded: IAutoMoviePhysicalSimulation =
+    await Simulation.compute(input);
+  const includedInput: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(input);
   includedInput.bodies[0]!.profile.collisionExclusions = [];
-  const included: Simulation = await Simulation.compute(includedInput);
-  const drift: (run: Simulation) => number = (run: Simulation): number =>
+  const included: IAutoMoviePhysicalSimulation =
+    await Simulation.compute(includedInput);
+  const drift: (run: IAutoMoviePhysicalSimulation) => number = (
+    run: IAutoMoviePhysicalSimulation,
+  ): number =>
     Vector3.length(
       Vector3.subtract(
         run.cache.at(DURATION).bodies.rig!.tip!.position,
@@ -101,7 +116,8 @@ export async function test_physical_collision_exclusions(): Promise<void> {
     "admitted overlap delivers a physical displacement",
     drift(included) > 0.005,
   );
-  const edited: Simulation.IInput = structuredClone(input);
+  const edited: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(input);
   edited.impulses.push({
     step: 9,
     body: "rig",
@@ -109,10 +125,13 @@ export async function test_physical_collision_exclusions(): Promise<void> {
     point: tip.neutral.position,
     impulse: { x: 0.1, y: 0, z: 0 },
   });
-  const resumed: Simulation = await Simulation.compute(edited, excluded);
-  const fresh: Simulation = await Simulation.compute(edited);
+  const resumed: IAutoMoviePhysicalSimulation = await Simulation.compute(
+    edited,
+    excluded,
+  );
+  const fresh: IAutoMoviePhysicalSimulation = await Simulation.compute(edited);
   const firstDifference: number = resumed.cache.frames.findIndex(
-    (frame: AutoMoviePhysicsCache.IFrame, index: number): boolean =>
+    (frame: IAutoMoviePhysicalFrame, index: number): boolean =>
       JSON.stringify(frame) !== JSON.stringify(fresh.cache.frames[index]),
   );
   TestValidator.predicate(

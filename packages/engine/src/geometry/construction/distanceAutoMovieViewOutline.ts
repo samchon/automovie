@@ -1,4 +1,5 @@
-import type { AutoMovieViewOutline } from "./AutoMovieViewOutline";
+import type { IAutoMovieViewOutline } from "@automovie/interface";
+
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
 
@@ -17,7 +18,7 @@ import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
  * @returns Sorted unique endpoint/knot/numerical critical stations, or a premise/arithmetic failure string.
  */
 export function distanceAutoMovieViewOutline(
-  outline: AutoMovieViewOutline.IOutline,
+  outline: IAutoMovieViewOutline.IOutline,
   targetStation: number,
   targetValue: number,
   domain: readonly [number, number],
@@ -35,13 +36,13 @@ export function distanceAutoMovieViewOutline(
   if (outline.parameter?.type === "angle")
     return "source graph distance supports only station/root parameters in a fixed orthonormal chart, not angle, moving-frame or general three-dimensional curves";
   if (domain[0] === domain[1]) return [domain[0]];
-  const { xs, ys, curvatures }: AutoMovieViewOutline.IOutline["spline"] =
+  const { xs, ys, curvatures }: IAutoMovieViewOutline.IOutline["spline"] =
     outline.spline;
   const result: number[] = [
     domain[0],
     ...outline.knots
       .map(
-        (k: AutoMovieViewOutline.IOutline["knots"][number]): number =>
+        (k: IAutoMovieViewOutline.IOutline["knots"][number]): number =>
           k.station,
       )
       .filter((s: number): boolean => s > domain[0] && s < domain[1]),
@@ -53,7 +54,7 @@ export function distanceAutoMovieViewOutline(
     const x0: number = xs[i]!;
     const h: number = xs[i + 1]! - x0;
     if (x0 >= end || xs[i + 1]! <= start) continue;
-    const p: AutoMovieViewOutline.IOutline["parameter"] = outline.parameter;
+    const p: IAutoMovieViewOutline.IOutline["parameter"] = outline.parameter;
     const sign: number = p?.type === "root" && p.end === "top" ? -1 : 1;
     const station: number[] =
       p === undefined

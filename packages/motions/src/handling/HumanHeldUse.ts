@@ -1,34 +1,38 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanGrip,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanHeldUse,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanProp,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanGrasp } from "./HumanGrasp";
-import { HumanGraspUse } from "./HumanGraspUse";
 import { HumanGraspTarget } from "./HumanGraspTarget";
+import { HumanGraspUse } from "./HumanGraspUse";
 import { HumanGrip } from "./HumanGrip";
 
 /**
@@ -46,37 +50,13 @@ import { HumanGrip } from "./HumanGrip";
  */
 export namespace HumanHeldUse {
   /** The digits whose phalanges and tips a held tool's hand keeps out of the body. */
-  export const DIGITS: readonly HumanGrip.Digit[] = [
+  export const DIGITS: readonly IAutoMovieMotionHumanGrip.Digit[] = [
     "Thumb",
     "Index",
     "Middle",
     "Ring",
     "Little",
   ];
-
-  /** The grasp a held tool was taken up by for its use (`pickUp`'s `handle` and `use.line`), which an act that uses it keeps. */
-  export interface IGrasp {
-    /** The handle the tool was taken by. */
-    handle: string;
-
-    /** The line its use names (`HumanGraspUse.IUse.line`). */
-    line: HumanGraspUse.IUse["line"];
-  }
-
-  /** What an act states of the held tool it uses: the prop, its working point, the grasp kept and the other hand's handle, each absent when unused. */
-  export interface IKept {
-    /** The held prop's subject id. */
-    prop?: string;
-
-    /** The prop's working point, one of its affordance ids. */
-    point?: string;
-
-    /** The grasp the prop was taken up by for its use. */
-    grasp?: IGrasp;
-
-    /** The prop's handle the other hand takes. */
-    other?: string;
-  }
 
   /**
    * The key of an act that keeps the grasp a held tool was taken up by, or
@@ -98,11 +78,11 @@ export namespace HumanHeldUse {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function kept(
-    context: Pick<IHumanActionContext, "body" | "entry" | "prop" | "start">,
-    side: HumanHand.Side,
-    kept: IKept,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "start">,
+    side: AutoMovieHumanSide,
+    kept: IAutoMovieMotionHumanHeldUse.IKept,
     region: AutoMovieHumanoidRegion | null,
-  ): HumanGrasp.IKey | null {
+  ): IAutoMovieMotionHumanGrasp.IKey | null {
     if (kept.grasp === undefined) {
       if (kept.other !== undefined)
         throw new HumanRefusal({
@@ -154,14 +134,14 @@ export namespace HumanHeldUse {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Digit points and collider query workspace belong only to this synchronous key search. Returned key/judge data retain their actual local tool/contact geometry, without the clearance workspace, fixed base, FK loan, candidate history or external handle.
    */
   export function key(
-    context: Pick<IHumanActionContext, "body" | "entry" | "prop" | "start">,
-    side: HumanHand.Side,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "start">,
+    side: AutoMovieHumanSide,
     prop: string,
     point: string,
-    grasp: IGrasp,
+    grasp: IAutoMovieMotionHumanHeldUse.IGrasp,
     region: AutoMovieHumanoidRegion,
-  ): HumanGrasp.IKey {
-    const body: IHumanBody = context.body;
+  ): IAutoMovieMotionHumanGrasp.IKey {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       context.entry.pose,
@@ -217,7 +197,7 @@ export namespace HumanHeldUse {
       if (!holding.test(bone)) apart.set(bone, frame);
     const geometry: ReturnType<typeof HumanColliders.reading> =
       HumanColliders.reading(body, apart);
-    const clear: (wrist: HumanHand.IWrist) => number = (wrist: HumanHand.IWrist): number => {
+    const clear: (wrist: IAutoMovieMotionHumanHand.IWrist) => number = (wrist: IAutoMovieMotionHumanHand.IWrist): number => {
       let least: number = Infinity;
       for (const digit of digits) {
         const point: IAutoMovieVector3 = Vector3.add(
@@ -268,29 +248,17 @@ export namespace HumanHeldUse {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the held owner, the grasp's target, hand and reachable search, the bend solver and the arm carry.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over the tool read at plan time and one hint.
    */
-  export function second(props: {
-    context: Pick<
-      IHumanActionContext,
-      "body" | "entry" | "prop" | "start" | "subject"
-    >;
-    clock: AutoMovieMotionClock.IClock;
-    side: HumanHand.Side;
-    prop: string;
-    handle: string;
-    key: HumanGrasp.IKey;
-    goal: (posture: IHumanPosture, seconds: number) => IHumanPosture.IGoal;
-    weight: (seconds: number) => number;
-  }): IAutoMovieMotionHumanPrimitive[] {
+  export function second(props: IAutoMovieMotionHumanHeldUse.ISecondProps ): IAutoMovieMotionHumanPrimitive[] {
     const { context, clock } = props;
-    const body: IHumanBody = context.body;
-    const other: HumanHand.Side = props.side === "right" ? "left" : "right";
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const other: AutoMovieHumanSide = props.side === "right" ? "left" : "right";
     const place: ReturnType<typeof HumanGrasp.prepareHand> = HumanGrasp.prepareHand(body, other);
-    const held: AutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
       context,
       props.side,
       props.prop,
     );
-    const record: IHumanProp = context.prop(props.prop).prop;
+    const record: IAutoMovieMotionHumanProp = context.prop(props.prop).prop;
     const socket: IAutoMovieVector3 = HumanHand.offset(
       body,
       props.side,
@@ -299,7 +267,7 @@ export namespace HumanHeldUse {
 
     // The other handle where a wrist of the holding hand puts the tool.
     const prepared: ReturnType<typeof HumanGraspTarget> = HumanGraspTarget(record, props.handle);
-    const target: (wrist: HumanHand.IWrist) => HumanGrasp.IFrame = (wrist: HumanHand.IWrist): HumanGrasp.IFrame =>
+    const target: (wrist: IAutoMovieMotionHumanHand.IWrist) => HumanGrasp.IFrame = (wrist: IAutoMovieMotionHumanHand.IWrist): HumanGrasp.IFrame =>
       prepared.frame({
         position: Vector3.add(
           wrist.point,
@@ -316,14 +284,14 @@ export namespace HumanHeldUse {
     // The turn about the handle the other arm reaches best with the tool
     // at its use, and the elbow the arm takes there, carried with the body
     // as the place it falls back to where no place is legal.
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const used: HumanGrasp.IFrame = target(props.key.wrist);
-    const chosen: HumanGrasp.IReach = HumanGrasp.reachable(
+    const chosen: IAutoMovieMotionHumanGrasp.IReach = HumanGrasp.reachable(
       body,
       entry,
       other,
       AutoMovieMotionHumanBend.hang(body, entry, other),
-      (turn: number, tilt: number): HumanHand.IWrist =>
+      (turn: number, tilt: number): IAutoMovieMotionHumanHand.IWrist =>
         place(HumanGrasp.around(used, turn), tilt),
     );
     const hint: IAutoMovieVector3 = HumanFrame.local(
@@ -332,7 +300,7 @@ export namespace HumanHeldUse {
         new Set<AutoMovieHumanoidBone>([`${other}LowerArm`])).get(`${other}LowerArm`)!.worldPosition,
     );
     // The other hand's reach, hold and return, as its weight states them.
-    const span: AutoMovieMotionHumanArm.ISpan | undefined =
+    const span: IAutoMovieMotionHumanArmPlanned.ISpan | undefined =
       AutoMovieMotionHumanArm.stated(props.weight, 0, clock.duration);
     const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried(
       {
@@ -344,11 +312,11 @@ export namespace HumanHeldUse {
         weight: props.weight,
         ...(span === undefined ? {} : { span }),
         goal: (
-          posture: IHumanPosture,
+          posture: IAutoMovieMotionHumanPosture,
           seconds: number,
-        ): IHumanPosture.IGoal => {
-          const first: IHumanPosture.IGoal = props.goal(posture, seconds);
-          const wrist: HumanHand.IWrist = place(
+        ): IAutoMovieHumanLimbGoal => {
+          const first: IAutoMovieHumanLimbGoal = props.goal(posture, seconds);
+          const wrist: IAutoMovieMotionHumanHand.IWrist = place(
             HumanGrasp.around(
               target({
                 point: first.point,
@@ -384,7 +352,7 @@ export namespace HumanHeldUse {
             from: clock.at("ready") / clock.duration,
             to: clock.at("relax") / clock.duration,
             support: { kind: "prop", subject: props.prop },
-          } satisfies IHumanContactWindow,
+          } satisfies IAutoMovieMotionHumanContactWindow,
         ],
       },
       AutoMovieMotionHumanHand.form(

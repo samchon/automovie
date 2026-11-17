@@ -1,7 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -27,14 +29,14 @@ import { floorEntryJoints } from "./floorEntryJoints";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The explicit caller owns endpoint pairs, two floor scalars, one fixed hip reader and at most one native collider reader until release. Current FK/ROM, posed maps and outputs never enter retained metadata or history.
  */
 export function prepareFloorEntryBlend(
-  body: IHumanBody,
-  from: IHumanPosture,
-  to: IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  from: IAutoMovieMotionHumanPosture,
+  to: IAutoMovieMotionHumanPosture,
 ): (
   weight: number,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   projection?: ReturnType<typeof prepareHumanPostureProjection>,
-) => IHumanPosture {
+) => IAutoMovieMotionHumanPosture {
   const interpolate: ReturnType<typeof floorEntryJoints.prepare> = floorEntryJoints.prepare(from.joints, to.joints);
   const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
   let floor: ReturnType<typeof knockdown.prepareRest> | undefined;
@@ -43,12 +45,12 @@ export function prepareFloorEntryBlend(
     weight: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IHumanPosture => {
+  ): IAutoMovieMotionHumanPosture => {
     if (weight <= 0) return from;
     if (weight >= 1) return to;
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
     const project: ReturnType<typeof prepareHumanPostureProjection> = projection ?? prepareHumanPostureProjection(body);
-    const sunk: (posture: IHumanPosture) => number = (posture: IHumanPosture): number => {
+    const sunk: (posture: IAutoMovieMotionHumanPosture) => number = (posture: IAutoMovieMotionHumanPosture): number => {
       floor ??= knockdown.prepareRest(body);
       return Math.max(0, floor(posture, read, project) - posture.root.y);
     };
@@ -58,13 +60,13 @@ export function prepareFloorEntryBlend(
       sunkTo: sunk(to),
     };
     const lerp: (a: number, b: number) => number = (a: number, b: number): number => a + (b - a) * weight;
-    const joints: IHumanPosture["joints"] = interpolate(weight);
-    const heading: Pick<IHumanPosture, "yaw" | "pitch" | "roll"> = {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = interpolate(weight);
+    const heading: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> = {
       yaw: from.yaw + turn * weight,
       pitch: lerp(from.pitch, to.pitch),
       roll: lerp(from.roll, to.roll),
     };
-    const carried: IHumanPosture = {
+    const carried: IAutoMovieMotionHumanPosture = {
       ...heading,
       root: Vector3.subtract(fixed.hips(weight), Quaternion.rotateVector(resolveHumanPosture.heading(heading), body.rest.get("hips")!)),
       joints,

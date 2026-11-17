@@ -1,5 +1,5 @@
-import { IAutoMoviePlantingPlacement } from "./IAutoMoviePlantingPlacement";
-import { IAutoMovieSoftBounds } from "./IAutoMovieSoftBounds";
+import type { IAutoMoviePlantingPlacement } from "./IAutoMoviePlantingPlacement";
+import type { IAutoMovieSoftBounds } from "./IAutoMovieSoftBounds";
 
 /**
  * The deterministic arrangement of one planting cluster.

@@ -1,11 +1,14 @@
 import { createDrinkware } from "@automovie/archetypes";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditContinuity,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -42,7 +45,7 @@ export function test_human_motion_core_pick_up_reach(): void {
     ["m-average", ["far"]],
     ["f-small", ["near"]],
   ] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
     for (const [label, at] of (
       [
@@ -52,7 +55,7 @@ export function test_human_motion_core_pick_up_reach(): void {
     ).filter(([label]: readonly ["near" | "far", unknown]): boolean =>
       (places as readonly string[]).includes(label),
     )) {
-      let film: HumanPerformance;
+      let film: IAutoMovieMotionHumanPerformance;
       try {
         film = new HumanPerformance({
           seed: "reach",

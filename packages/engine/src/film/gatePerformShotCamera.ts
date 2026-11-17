@@ -1,13 +1,14 @@
 import {
   IAutoMovieBlockingCoverage,
   IAutoMovieCamera,
+  type IAutoMovieEnginePerformShotGateContext,
+  type IAutoMovieGatePerformShotCamera,
+  type IAutoMoviePerformShotCoverageJob,
+  type IAutoMoviePerformShotFrameJob,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { describeInvalidValue } from "../validation/describeInvalidValue";
-import { IPerformShotCoverageJob } from "./IPerformShotCoverageJob";
-import { IPerformShotFrameJob } from "./IPerformShotFrameJob";
-import { IPerformShotGateContext } from "./IPerformShotGateContext";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
@@ -35,14 +36,10 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The covered-camera map is dropped on return; the caller owns the returned jobs, at most one per coverage intent.
  */
 export function gatePerformShotCamera(
-  context: IPerformShotGateContext,
-  props: {
-    liveCamera: string | null;
-    frames: readonly IPerformShotFrameJob[];
-    coverage: readonly IAutoMovieBlockingCoverage[];
-  },
-): { liveCamera: string | null; coverageJobs: IPerformShotCoverageJob[] } {
-  const frames: readonly IPerformShotFrameJob[] = props.frames;
+  context: IAutoMovieEnginePerformShotGateContext,
+  props: IAutoMovieGatePerformShotCamera.IProps,
+): IAutoMovieGatePerformShotCamera.IResult {
+  const frames: readonly IAutoMoviePerformShotFrameJob[] = props.frames;
   let liveCamera: string | null = props.liveCamera;
   if (liveCamera === null) {
     const first: IAutoMovieCamera | undefined = context.staged.scene.cameras[0];
@@ -63,22 +60,27 @@ export function gatePerformShotCamera(
       liveCamera = first.id;
     }
   }
-  const coverageJobs: IPerformShotCoverageJob[] = gateCoverage(
+  const coverageJobs: IAutoMoviePerformShotCoverageJob[] = gateCoverage(
     context,
     liveCamera,
     props.coverage,
   );
-  const coverageCameras: Map<IAutoMovieCamera, IPerformShotCoverageJob> =
-    new Map(
-      coverageJobs.map(
-        (
-          job: IPerformShotCoverageJob,
-        ): [IAutoMovieCamera, IPerformShotCoverageJob] => [job.camera, job],
-      ),
-    );
+  const coverageCameras: Map<
+    IAutoMovieCamera,
+    IAutoMoviePerformShotCoverageJob
+  > = new Map(
+    coverageJobs.map(
+      (
+        job: IAutoMoviePerformShotCoverageJob,
+      ): [IAutoMovieCamera, IAutoMoviePerformShotCoverageJob] => [
+        job.camera,
+        job,
+      ],
+    ),
+  );
   context.staged.scene.cameras.forEach(
     (camera: IAutoMovieCamera, index: number): void => {
-      const job: IPerformShotCoverageJob | undefined =
+      const job: IAutoMoviePerformShotCoverageJob | undefined =
         coverageCameras.get(camera);
       const hero: boolean = frames.length > 0 && camera.id === liveCamera;
       if (job === undefined && !hero) return;
@@ -89,7 +91,7 @@ export function gatePerformShotCamera(
         job !== undefined
           ? job.intent.move === "whip"
           : frames.some(
-              (entry: IPerformShotFrameJob): boolean =>
+              (entry: IAutoMoviePerformShotFrameJob): boolean =>
                 entry.action.move === "whip",
             ),
       );
@@ -100,11 +102,11 @@ export function gatePerformShotCamera(
 
 /** Gate the blocking's coverage intents against the elected live camera. */
 function gateCoverage(
-  context: IPerformShotGateContext,
+  context: IAutoMovieEnginePerformShotGateContext,
   liveCamera: string | null,
   coverage: readonly IAutoMovieBlockingCoverage[],
-): IPerformShotCoverageJob[] {
-  const jobs: IPerformShotCoverageJob[] = [];
+): IAutoMoviePerformShotCoverageJob[] {
+  const jobs: IAutoMoviePerformShotCoverageJob[] = [];
   const covered: Map<string, number> = new Map();
   coverage.forEach(
     (intent: IAutoMovieBlockingCoverage, index: number): void => {
@@ -177,7 +179,7 @@ function gateCoverage(
 
 /** Refuse a camera the framing solve cannot compile a move from. */
 function validateFramingCamera(
-  context: IPerformShotGateContext,
+  context: IAutoMovieEnginePerformShotGateContext,
   camera: IAutoMovieCamera,
   path: string,
   readsRotation: boolean,

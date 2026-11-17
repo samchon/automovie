@@ -1,9 +1,15 @@
-import type { IAutoMovieSwivelNear } from "@automovie/engine";
-import type { IAutoMoviePose } from "@automovie/interface";
+import type {
+  AutoMovieHumanLimb,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieSwivelNear,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { HumanPosture } from "../posture/HumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { refitHumanPosture } from "../posture/refitHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSegmentPose } from "./HumanSegmentPose";
@@ -45,12 +51,12 @@ export namespace HumanSegmentPlant {
   export function settled(
     before: IAutoMoviePose,
     clamped: IAutoMoviePose,
-    limbs: IHumanPosture["limbs"],
+    limbs: IAutoMovieMotionHumanPosture["limbs"],
     seeds: HumanSegmentPose.IFits,
   ): boolean {
-    const planted: IHumanPosture.Limb[] = [];
+    const planted: AutoMovieHumanLimb[] = [];
     const bones: Set<string> = new Set();
-    for (const limb of IHumanPosture.LIMBS) {
+    for (const limb of HumanPosture.LIMBS) {
       if (limbs[limb]?.planted !== true) continue;
       if (!seeds.has(`leaf::${limb}`)) return false;
       planted.push(limb);
@@ -89,18 +95,18 @@ export namespace HumanSegmentPlant {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The filtered goal dictionary, order and optional nearby projection belong to this synchronous call and release on return or failure. Goal payloads remain borrowed; the resolver preserves its no-plant pose identity or fitted-result ownership. No callback, reader, cache or process is retained here.
    */
   export function fit(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limbs: IHumanPosture["limbs"],
+    limbs: IAutoMovieMotionHumanPosture["limbs"],
     near?: HumanSegmentPose.INear,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ): resolveHumanPosture.ISeeded {
-    const selected: [string, IHumanPosture.IGoal][] = Object.entries(limbs).filter(
-      ([, goal]: [string, IHumanPosture.IGoal]): boolean => goal.planted === true,
+  ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
+    const selected: [string, IAutoMovieHumanLimbGoal][] = Object.entries(limbs).filter(
+      ([, goal]: [string, IAutoMovieHumanLimbGoal]): boolean => goal.planted === true,
     );
     if (selected.length === 0 && near === undefined) return { pose, seeds: {}, values: {} };
-    const plants: IHumanPosture["limbs"] = Object.fromEntries(selected);
-    const ordered: IHumanPosture.Limb[] = resolveHumanPosture.order(plants);
+    const plants: IAutoMovieMotionHumanPosture["limbs"] = Object.fromEntries(selected);
+    const ordered: AutoMovieHumanLimb[] = resolveHumanPosture.order(plants);
 
     // The pose is this evaluation's own clamped intermediate, so the private
     // refit may share its untouched records instead of issuing clones.
@@ -113,8 +119,8 @@ export namespace HumanSegmentPlant {
         : Object.fromEntries(
             ordered.flatMap(
               (
-                limb: IHumanPosture.Limb,
-              ): [IHumanPosture.Limb, IAutoMovieSwivelNear][] => {
+                limb: AutoMovieHumanLimb,
+              ): [AutoMovieHumanLimb, IAutoMovieSwivelNear][] => {
                 const continued: IAutoMovieSwivelNear | undefined =
                   HumanSegmentPose.nearby(near, `planted:${limb}`);
                 return continued === undefined ? [] : [[limb, continued]];

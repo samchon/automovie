@@ -1,6 +1,5 @@
 import {
   AutoMovieGravity,
-  IAutoMovieLaunchResult,
   compileLaunch,
   projectileAt,
 } from "@automovie/engine";
@@ -8,6 +7,7 @@ import {
   AutoMovieInteractionEventKind,
   IAutoMovieInteractionEvent,
   IAutoMovieLaunchAction,
+  type IAutoMovieLaunchResult,
   IAutoMovieReactAction,
   IAutoMovieVector3,
 } from "@automovie/interface";

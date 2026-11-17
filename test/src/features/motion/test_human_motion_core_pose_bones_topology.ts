@@ -1,7 +1,6 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   Quaternion,
   Transform,
   jointToQuaternion,
@@ -12,15 +11,13 @@ import type {
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
-import {
-  type IHumanBody,
-  createHumanBody,
-  poseBones,
-} from "@automovie/motions";
+import { createHumanBody, poseBones } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -91,20 +88,20 @@ export function test_human_motion_core_pose_bones_topology(): void {
     nclose(actual.z, expected.z, 0) &&
     nclose(actual.w, expected.w, 0);
   const direct: (
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
   ) => IAutoMovieResolvedBone[] = (
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
   ): IAutoMovieResolvedBone[] =>
     resolvePose(pose, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME);
   const compare: (
     label: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
   ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
     label: string,
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
     const expected: IAutoMovieResolvedBone[] = direct(body, pose);
@@ -150,7 +147,7 @@ export function test_human_motion_core_pose_bones_topology(): void {
   };
 
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const mixed: IAutoMovieJointPose[] = [
       { bone: "spine", flexion: 8, abduction: -3, twist: 4 },
       { bone: "chest", flexion: -7, abduction: 0, twist: 0 },
@@ -343,7 +340,7 @@ export function test_human_motion_core_pose_bones_topology(): void {
   }
 
   scenario("actual canonical axes override", (): void => {
-    const source: IHumanBody = motionHumanBody("m-average");
+    const source: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
     const host: IAutoMovieJointAxes | undefined = HUMANOID_JOINT_AXES.leftHand;
     if (host === undefined) throw new Error("Canonical wrist has no host axes");
     const declared: IAutoMovieJointAxes = {
@@ -359,7 +356,7 @@ export function test_human_motion_core_pose_bones_topology(): void {
           bone.bone === "leftHand" ? { ...bone, axes: declared } : bone,
       ),
     };
-    const body: IHumanBody = createHumanBody(skeleton, source.profile);
+    const body: IAutoMovieMotionHumanBody = createHumanBody(skeleton, source.profile);
     const joint: IAutoMovieJointPose = {
       bone: "leftHand",
       flexion: 17,

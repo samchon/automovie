@@ -1,12 +1,11 @@
 import { Quaternion } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLimbFitFrame,
   IAutoMoviePose,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "./IHumanPosture";
 
 /**
  * The frame a limb fit is solved in (`solveHumanLimbFit`): the root's world
@@ -39,110 +38,6 @@ import type { IHumanPosture } from "./IHumanPosture";
  */
 export namespace HumanLimbFitFrame {
   /**
-   * A root-position/heading frame; omitted y retains an explicit floor frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names world-metre translation, world-up heading inverse and the legacy omitted-y zero convention.
-   * @evidence contracts/development/design.md#principled-representation Translation and a unit inverse-heading quaternion define one rigid reference frame; optional y denotes exactly zero rather than a second solver mode.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface of constructs the frame consumed by point/pose/goal and the memory's single normalization path; existing explicit floor frames remain valid.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains no target, solve result or resolved flag; numerical quaternion/frame admission remains the caller's canonical-pose premise.
-   */
-  export interface IFrame {
-    /** The root's x, world metres. */
-    x: number;
-
-    /** The root's y, world metres; omission means zero for an explicit floor frame. */
-    y?: number;
-
-    /** The root's z, world metres. */
-    z: number;
-
-    /** The turn into the frame: minus the heading about +Y. */
-    into: IAutoMovieQuaternion;
-  }
-
-  /**
-   * A body's limb-fit work counters, copied by statistics for cost tests.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each counter counts, including the former memory's hit/miss fields that now stay zero.
-   * @evidence contracts/development/design.md#principled-representation Cumulative actual solve-attempt, curve, continuation and course counts describe work for one weak body lifetime.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface work updates actual events and statistics exposes an independent observation without a reset, fixture key or result override; hits and misses remain only while specifications written against the memory read them.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Counters report actual operations and never decide physical acceptance or substitute for a fit.
-   */
-  export interface IStatistics {
-    /** Fits read from the former fit memory: always 0, since every fit is solved directly; kept while specifications written against the memory read it. */
-    hits: number;
-
-    /** Fits solved and kept by the former memory: always 0, for the same reason. */
-    misses: number;
-
-    /** Actual solver attempts without a near seed, including failed attempts. */
-    coldFits: number;
-
-    /** Actual solver attempts with a near seed, including failed attempts. */
-    continuedFits: number;
-
-    /** Actual outer owned-free-curve queries, including unsupported inputs. */
-    curveQueries: number;
-
-    /** Actual current near-correction probes, including canonical-anchor construction. */
-    curveProbes: number;
-
-    /** Current probes passing every physical, bracket and chain-continuity check. */
-    curveAccepted: number;
-
-    /** Actual ordinary cold source preparations used as canonical anchors. */
-    curveColdAnchors: number;
-
-    /** Actual ordinary cold source preparations used as current-target fallbacks. */
-    curveColdFallbacks: number;
-
-    /** Rejected current candidates that required a finer deterministic predecessor. */
-    curveRefinements: number;
-
-    /** Actual algebraic orientation-root physical candidate trials. */
-    orientationRootTrials: number;
-
-    /** Actual accepted algebraic orientation-root returns. */
-    orientationRootAccepted: number;
-
-    /** Actual ordinary near-refinement calls inside the explicit continuation dispatcher. */
-    continuationNearAttempts: number;
-
-    /** Actual ordinary cold-fit calls inside the explicit continuation dispatcher. */
-    continuationColdAttempts: number;
-
-    /** Arm courses laid without optimisation and admitted by the trajectory model (`AutoMovieMotionHumanArmCourse`). */
-    courseAdmitted: number;
-
-    /** Arm courses the trajectory model refused, handed to the optimiser as its seed. */
-    courseFallbacks: number;
-
-    /** Refused courses whose worst term was a probe's speed (`HumanArmTrajectoryModel.IEvaluation.worst.term`). */
-    courseRefusedSpeed: number;
-
-    /** Refused courses whose worst term was a probe swept into a shape between waypoints. */
-    courseRefusedSwept: number;
-
-    /** Refused courses whose worst term was the hand off its site along the surface. */
-    courseRefusedSite: number;
-
-    /** Refused courses whose worst term was the hand inside its site. */
-    courseRefusedLift: number;
-
-    /** Refused courses whose worst term was a task point off its asked place. */
-    courseRefusedLimit: number;
-
-    /** Refused courses whose worst term was a probe inside a shape at a waypoint. */
-    courseRefusedProbe: number;
-
-    /** Refused courses whose worst term was a body corner inside the arm. */
-    courseRefusedEmbedded: number;
-
-    /** Refused courses whose worst term was one arm inside the other. */
-    courseRefusedCrossing: number;
-  }
-
-  /**
    * The frame a fit of a pose and a goal is remembered in, or null when it
    * stays in the world.
    *
@@ -160,8 +55,8 @@ export namespace HumanLimbFitFrame {
    */
   export function of(
     pose: IAutoMoviePose,
-    goal: IHumanPosture.IGoal,
-  ): IFrame | null {
+    goal: IAutoMovieHumanLimbGoal,
+  ): IAutoMovieMotionHumanLimbFitFrame.IFrame | null {
     if (
       pose.root === null ||
       goal.on !== undefined ||
@@ -198,7 +93,7 @@ export namespace HumanLimbFitFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh vector and retains no frame or point.
    */
   export function point(
-    frame: IFrame,
+    frame: IAutoMovieMotionHumanLimbFitFrame.IFrame,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     return Quaternion.rotateVector(frame.into, {
@@ -223,7 +118,7 @@ export namespace HumanLimbFitFrame {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows unchanged joints/scale only during normalization; actual numerical fit and stored-output ownership remain with the existing memory owner.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input and returns the original root-null pose or fresh outer/root/translation/rotation records with unchanged members borrowed.
    */
-  export function pose(frame: IFrame, pose: IAutoMoviePose): IAutoMoviePose {
+  export function pose(frame: IAutoMovieMotionHumanLimbFitFrame.IFrame, pose: IAutoMoviePose): IAutoMoviePose {
     if (pose.root === null) return pose;
     return {
       ...pose,
@@ -238,7 +133,7 @@ export namespace HumanLimbFitFrame {
   /**
    * A goal in the frame: its point and bend moved and its rotation turned;
    * everything else as it is, its contact too, which lies in the end joint's
-   * own rest frame (`IHumanPosture.IGoal.contact`) and turns with the joint.
+   * own rest frame (`HumanPosture.IGoal.contact`) and turns with the joint.
    *
    * @param frame The frame.
    * @param goal The goal, attached to no bone and naming no collider.
@@ -253,9 +148,9 @@ export namespace HumanLimbFitFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new goal with new changed vectors/rotation and borrowed unchanged metadata, retaining no input or query history.
    */
   export function goal(
-    frame: IFrame,
-    goal: IHumanPosture.IGoal,
-  ): IHumanPosture.IGoal {
+    frame: IAutoMovieMotionHumanLimbFitFrame.IFrame,
+    goal: IAutoMovieHumanLimbGoal,
+  ): IAutoMovieHumanLimbGoal {
     return {
       ...goal,
       point: point(frame, goal.point),
@@ -317,7 +212,7 @@ export namespace HumanLimbFitFrame {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each supplied event is counted once at its actual owning call site.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One fixed scalar record is weakly owned per body; no input, key, pose, callback, output or query population is retained.
    */
-  export function work(body: IHumanBody, event: Exclude<keyof IStatistics, "hits" | "misses">, amount: number = 1): void {
+  export function work(body: IAutoMovieMotionHumanBody, event: Exclude<keyof IAutoMovieMotionHumanLimbFitFrame.IStatistics, "hits" | "misses">, amount: number = 1): void {
     counters(body)[event] += amount;
   }
 
@@ -335,13 +230,13 @@ export namespace HumanLimbFitFrame {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Every observation reads current effects; no previous statistics result is cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned record belongs to the caller; this read adds no retained state beyond the existing weak body counters.
    */
-  export function statistics(body: IHumanBody): IStatistics {
+  export function statistics(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanLimbFitFrame.IStatistics {
     return { ...counters(body) };
   }
 
   /** Lazily allocate the one bounded scalar population for an actual body. */
-  function counters(body: IHumanBody): IStatistics {
-    let out: IStatistics | undefined = COUNTS.get(body);
+  function counters(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanLimbFitFrame.IStatistics {
+    let out: IAutoMovieMotionHumanLimbFitFrame.IStatistics | undefined = COUNTS.get(body);
     if (out === undefined) {
       out = { hits: 0, misses: 0, coldFits: 0, continuedFits: 0,
         curveQueries: 0, curveProbes: 0, curveAccepted: 0, curveColdAnchors: 0,
@@ -356,5 +251,5 @@ export namespace HumanLimbFitFrame {
   }
 
   /** The counts, by body, released with the body. */
-  const COUNTS: WeakMap<IHumanBody, IStatistics> = new WeakMap();
+  const COUNTS: WeakMap<IAutoMovieMotionHumanBody, IAutoMovieMotionHumanLimbFitFrame.IStatistics> = new WeakMap();
 }

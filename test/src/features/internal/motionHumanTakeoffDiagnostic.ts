@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   Vector3,
   clampPose,
   integrateAirborneRotation,
@@ -8,14 +7,24 @@ import {
   resolveAutoMovieCenterOfMass,
   resolveAutoMovieMomentum,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMoviePose,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionManner,
   HumanChain,
   HumanPerformance,
   type HumanSegment,
-  type IHumanBody,
-  type IHumanPosture,
   jump,
   poseBones,
   resolveHumanPosture,
@@ -61,7 +70,7 @@ interface IPhase {
   localSeconds: number;
 
   /** Original raw planner output, including actual planted/contact fields. */
-  raw: IHumanPosture;
+  raw: IAutoMovieMotionHumanPosture;
 
   /** Separately observed canonical stages; no stage is an expected answer. */
   stages: IStage[];
@@ -70,7 +79,7 @@ interface IPhase {
 /** The three canonical stages that the control reads without a transition. */
 interface IResolved {
   /** Raw native planner intent before any resolution. */
-  raw: IHumanPosture;
+  raw: IAutoMovieMotionHumanPosture;
 
   /** Ordinary cold public posture resolution. */
   resolved: IAutoMoviePose;
@@ -118,8 +127,8 @@ interface IResolved {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Control poses and reductions live only until this single log returns; history is cleared in finally. The ordinary performance owner retains its existing two-input memo policy. No host, process, global observer or external handle is created.
  */
 export function motionHumanTakeoffDiagnostic(
-  body: IHumanBody,
-  input: HumanPerformance.IInput,
+  body: IAutoMovieMotionHumanBody,
+  input: IAutoMovieMotionHumanPerformance.IInput,
   params: Parameters<typeof jump.plan>[0]["params"],
 ): void {
   const started: number = performance.now();
@@ -127,12 +136,12 @@ export function motionHumanTakeoffDiagnostic(
   const problems: string[] = [];
   if (input.performers.length !== 1 || input.performers[0]?.body !== body)
     throw new Error("Takeoff control needs the original single canonical performer");
-  const control: HumanPerformance = new HumanPerformance({
+  const control: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: input.seed,
     performers: input.performers,
     composition: HumanChain.subject("a").stand({ seconds: 0.3 }).stand({ seconds: 0.1 }).node,
   });
-  const segment: HumanSegment.ISegment | undefined = control.segments("a")[1];
+  const segment: IAutoMovieMotionHumanSegment | undefined = control.segments("a")[1];
   if (segment === undefined) throw new Error("Takeoff control has no public entered stand context");
   const context: Parameters<typeof jump.plan>[0] = { ...segment.context, params };
   const plan: ReturnType<typeof jump.plan> = jump.plan(context);
@@ -144,7 +153,7 @@ export function motionHumanTakeoffDiagnostic(
     from: context.start + plan.flight.from * plan.duration,
     to: context.start + plan.flight.to * plan.duration,
   };
-  const model: resolveAutoMovieCenterOfMass.IModel = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+  const model: IAutoMovieResolveCenterOfMass.IModel = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
   const phases: IPhase[] = [];
   const masses: Map<number, resolveAutoMovieMomentum.IPosed> = new Map();
   const selected: readonly AutoMovieHumanoidBone[] = [
@@ -163,12 +172,12 @@ export function motionHumanTakeoffDiagnostic(
 
   /** Cold public resolution followed by the actual final planted-goal stage. */
   function resolveAt(seconds: number): IResolved {
-    const raw: IHumanPosture = plan.posture(seconds - context.start);
+    const raw: IAutoMovieMotionHumanPosture = plan.posture(seconds - context.start);
     if (raw.rotation !== undefined) throw new Error("The control jump unexpectedly received a flight rotation");
     const resolved: IAutoMoviePose = resolveHumanPosture(body, raw);
     const clamped: IAutoMoviePose = clampPose(resolved, body.skeleton);
-    const plants: IHumanPosture["limbs"] = Object.fromEntries(Object.entries(raw.limbs).filter(
-      ([, goal]: [string, IHumanPosture.IGoal]): boolean => goal.planted === true,
+    const plants: IAutoMovieMotionHumanPosture["limbs"] = Object.fromEntries(Object.entries(raw.limbs).filter(
+      ([, goal]: [string, IAutoMovieHumanLimbGoal]): boolean => goal.planted === true,
     ));
     resolveHumanPosture.order(plants);
     const planted: IAutoMoviePose = resolveHumanPosture.refit(body, clamped, plants).pose;
@@ -255,7 +264,7 @@ export function motionHumanTakeoffDiagnostic(
     span,
   );
   const switchAt: number = span.from + delta;
-  const historyRows: { seconds: number; instant: integrateAirborneRotation.IInstant }[] = [];
+  const historyRows: { seconds: number; instant: IAutoMovieIntegrateAirborneRotation.IInstant }[] = [];
   try {
     for (const seconds of [adjacent(switchAt, -1), switchAt, adjacent(switchAt, 1)]) {
       try {
@@ -284,7 +293,7 @@ export function motionHumanTakeoffDiagnostic(
       base: context.entry.base,
     },
     p, off, span, delta, switchAt,
-    segmentOrder: model.segments.map((segment: resolveAutoMovieCenterOfMass.ISegment): AutoMovieHumanoidBone => segment.bone),
+    segmentOrder: model.segments.map((segment: IAutoMovieResolveCenterOfMass.ISegment): AutoMovieHumanoidBone => segment.bone),
     phases, velocities, velocitiesFinite, historyRows, problems,
     wallMs: performance.now() - started, cpuUs: process.cpuUsage(cpu),
   }));

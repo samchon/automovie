@@ -1,4 +1,5 @@
-import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
+
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
@@ -19,9 +20,12 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  * all sections). Regenerated through the engine's view loft from these numbers alone, the vertices of each section's hull lie
  * 0.19 mm from it on average and at most 1.46 mm; what lies inside that hull is not modelled. 39 independent numbers.
  */
-export const AutoMovieHumanF1Nostril: AutoMovieHumanConicLoft.IFamily = {
+export const AutoMovieHumanF1Nostril: IAutoMovieHumanConicLoft.IFamily = {
   name: "nostril",
-  centres: [AutoMovieHumanF1Joints.nostrilRoot, AutoMovieHumanF1Joints.nostrilTip],
+  centres: [
+    AutoMovieHumanF1Joints.nostrilRoot,
+    AutoMovieHumanF1Joints.nostrilTip,
+  ],
   halves: [],
   up: AutoMovieHumanF1Placement.direction("nostril.up"),
   layout: AutoMovieHumanConicSection.limb(0),
@@ -54,5 +58,5 @@ export const AutoMovieHumanF1Nostril: AutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, a station placed by anatomy; its cap starts at `from`.
-  tips: [null, {from: 13, tip: 16}],
+  tips: [null, { from: 13, tip: 16 }],
 };

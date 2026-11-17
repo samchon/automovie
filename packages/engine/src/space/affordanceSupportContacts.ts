@@ -1,5 +1,5 @@
 import {
-  IAutoMovieAffordance,
+  type IAutoMovieAffordanceSupportContacts,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -35,16 +35,11 @@ import { Vector3 } from "../math/Vector3";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Canonical Quaternion.rotateVector and Vector3.add own the arithmetic; each call reads its current frames without retaining pose-dependent contacts across changed placement.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the fresh contact array and points; intermediate points leave scope and neither model, extent nor host handle is retained by the helper.
  */
-export const affordanceSupportContacts: (props: {
-  affordance: IAutoMovieAffordance;
-  parentWorld: IAutoMovieTransform;
-}) => IAutoMovieVector3[] = (props: {
-  /** The declared contact face. Must be a `"stack-top"` with an extent. */
-  affordance: IAutoMovieAffordance;
-
-  /** The owning model's root in world space. */
-  parentWorld: IAutoMovieTransform;
-}): IAutoMovieVector3[] => {
+export const affordanceSupportContacts: (
+  props: IAutoMovieAffordanceSupportContacts.IProps,
+) => IAutoMovieVector3[] = (
+  props: IAutoMovieAffordanceSupportContacts.IProps,
+): IAutoMovieVector3[] => {
   const { affordance, parentWorld }: typeof props = props;
   if (affordance.kind !== "stack-top")
     throw new Error(

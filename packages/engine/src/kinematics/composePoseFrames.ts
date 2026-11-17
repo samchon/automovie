@@ -1,10 +1,9 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 
 /**
  * Compose every bone's frame of one rooted rig from its articulations, in

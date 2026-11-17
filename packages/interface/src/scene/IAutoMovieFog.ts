@@ -1,4 +1,4 @@
-import { IAutoMovieColor } from "../color/IAutoMovieColor";
+import type { IAutoMovieColor } from "../color/IAutoMovieColor";
 
 /**
  * Scene-wide exponential-squared depth fog matching the viewer's FogExp2 projection.

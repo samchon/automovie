@@ -19,12 +19,12 @@ Glass, mirrors, hair and thin wires reconstruct poorly, so give such a subject a
 
 ## Pose
 
-A body that will be rigged stands with its arms and legs apart and holds no large prop, because limbs that touch fuse to the body or to each other. Choose the A-pose or the T-pose that the skeleton the result will be bound to expects, because a rig and a retargeter read the body's proportions from that pose and are more accurate when the poses match.
+A body that will be rigged stands with its arms and legs apart and holds no large prop, because limbs that touch fuse to the body or to each other. Choose the A-pose or the T-pose that the skeleton the result will be bound to expects, because a rig and a retargeter read the body's proportions from that pose.
 
 ## Several views
 
 Views constrain the hidden sides, so give them to a model that takes them, in the views and order it names; a model that takes one image gains nothing from more. Make them under the same light, style, camera distance and scale, each with its background removed, and space them far enough apart to show different sides, because near-identical views make the model mirror one side.
 
-The views must agree, and views made one at a time drift apart. Rendering them from a shape the subject already has keeps them aligned, as [views rendered from the shape](shape-hints.md#views-rendered-from-the-shape) sets; some models instead generate the missing views from the front one, or read a single turnaround sheet.
+The views must agree, and views made one at a time drift apart. Rendering them from a shape the subject already has keeps them aligned; some models instead generate the missing views from the front one, or read a single turnaround sheet.
 
 Sources: [Meshy pose and hands](https://help.meshy.ai/en/articles/16102152-fix-character-pose-face-and-hand-issues-in-meshy), [Meshy multi-view](https://www.meshy.ai/tutorials/multi-view-image-to-3d), [Unity humanoid avatar](https://docs.unity.com/en-us/engine/current/manual/assets-and-media/asset-types/models/importing/configuringthe-avatar), [Unreal retargeting](https://dev.epicgames.com/documentation/en-us/unreal-engine/ik-rig-animation-retargeting-in-unreal-engine), [Meshy image to 3D](https://docs.meshy.ai/en/webapp/image-to-3d), [Meshy image tips](https://help.meshy.ai/en/articles/15723519-how-to-get-better-image-to-3d-results-in-meshy), [Meshy multi-image](https://docs.meshy.ai/api/multi-image-to-3d), [Tripo image to model](https://developers.tripo3d.com/en/docs/generation-image-to-model/standard), [Tripo multiview](https://developers.tripo3d.com/en/docs/generation-multiview-to-model/standard), [Tripo image tips](https://www.tripo3d.ai/blog/best-images-for-image-to-3d).

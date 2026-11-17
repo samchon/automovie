@@ -1,15 +1,20 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingStance,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingGuard } from "./StrikingGuard";
 import { StrikingGuardBones } from "./StrikingGuardBones";
@@ -61,22 +66,6 @@ export namespace StrikingStance {
   export const REAR_TOE: number = 45;
 
   /**
-   * A stance: which side leads and the heading of the line to the opponent.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and the heading's convention.
-   * @evidence contracts/development/design.md#principled-representation A closed lead union and a heading in degrees about +Y.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values every stance query reads; queries needing only the lead take that part.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IStance {
-    /** The leading side: `left` is orthodox, `right` southpaw. */
-    lead: "left" | "right";
-
-    /** Heading of the line toward the opponent, degrees about +Y (0 faces +Z). */
-    line: number;
-  }
-
-  /**
    * The rear side of a stance.
    *
    * @param stance The stance.
@@ -90,7 +79,7 @@ export namespace StrikingStance {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function rear(stance: Pick<IStance, "lead">): "left" | "right" {
+  export function rear(stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">): "left" | "right" {
     return stance.lead === "left" ? "right" : "left";
   }
 
@@ -109,7 +98,7 @@ export namespace StrikingStance {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function heading(stance: IStance): number {
+  export function heading(stance: IAutoMovieMotionHumanStrikingStance.IStance): number {
     return stance.line + (stance.lead === "left" ? -TURN : TURN);
   }
 
@@ -127,7 +116,7 @@ export namespace StrikingStance {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function length(body: IHumanBody): number {
+  export function length(body: IAutoMovieMotionHumanBody): number {
     return LENGTH_SHARE * 2 * body.measure.shoulderHalfWidth;
   }
 
@@ -148,16 +137,16 @@ export namespace StrikingStance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function feet(
-    body: IHumanBody,
-    stance: IStance,
+    body: IAutoMovieMotionHumanBody,
+    stance: IAutoMovieMotionHumanStrikingStance.IStance,
     centre: IAutoMovieVector3,
-  ): Record<"left" | "right", HumanFoot.IPlacement> {
-    const frame: HumanFrame.IFrame = {
+  ): Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> {
+    const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: centre.x, y: 0, z: centre.z },
       yaw: stance.line,
     };
     const half: number = length(body) / 2;
-    const out = {} as Record<"left" | "right", HumanFoot.IPlacement>;
+    const out = {} as Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
     for (const side of ["left", "right"] as const) {
       const lead: boolean = side === stance.lead;
       const x: number = (side === "left" ? 1 : -1) * body.measure.hipHalfWidth;
@@ -201,7 +190,7 @@ export namespace StrikingStance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function sink(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     yaw: number,
     ankles: Record<"left" | "right", IAutoMovieVector3>,
@@ -252,13 +241,13 @@ export namespace StrikingStance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function guard(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    stance: Pick<IStance, "lead">,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">,
     drop: Partial<Record<"left" | "right", number>> = {},
     posed?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ): Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> {
+  ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
     return StrikingGuard(body, posture, stance, drop, posed, resolution);
   }
 
@@ -280,12 +269,12 @@ export namespace StrikingStance {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns fixed body/demand and guard inputs until release. Each query owns fresh frames/goals and optional exact FK/genuine unchanged-table ROM loans only until return or throw; the fixed-demand producer retains no reader, projector, posture or time history.
    */
   export function prepareGuard(
-    body: IHumanBody,
-    stance: Pick<IStance, "lead">,
+    body: IAutoMovieMotionHumanBody,
+    stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">,
     drop: Partial<Record<"left" | "right", number>> = {},
-  ): (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> {
+  ): (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
     const trunk: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, StrikingGuardBones(body));
-    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> =>
+    return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> =>
       StrikingGuard(body, posture, stance, drop, trunk(posture, resolution, projection));
   }
 
@@ -311,11 +300,11 @@ export namespace StrikingStance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function glove(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     fist: IAutoMovieVector3,
     elbow: IAutoMovieVector3,
-  ): IHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     const along: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(fist, elbow),
     );
@@ -352,10 +341,10 @@ export namespace StrikingStance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function legs(
-    body: IHumanBody,
-    feet: Record<"left" | "right", HumanFoot.IPlacement>,
+    body: IAutoMovieMotionHumanBody,
+    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
     planted: Record<"left" | "right", boolean> = { left: true, right: true },
-  ): Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
+  ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
     return StrikingLegGoals.read(body, feet, planted);
   }
 
@@ -376,10 +365,10 @@ export namespace StrikingStance {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owner retains two private immutable geometric snapshots until plan release; each output is independent and captures no reader, pose, time or fit history.
    */
   export function prepareLegs(
-    body: IHumanBody,
-    feet: Record<"left" | "right", HumanFoot.IPlacement>,
+    body: IAutoMovieMotionHumanBody,
+    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
     planted: Record<"left" | "right", boolean> = { left: true, right: true },
-  ): () => Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
+  ): () => Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
     return StrikingLegGoals.prepare(body, feet, planted);
   }
 
@@ -403,7 +392,7 @@ export namespace StrikingStance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function joints(
-    entry?: IHumanPosture["joints"],
+    entry?: IAutoMovieMotionHumanPosture["joints"],
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     return {
       neck: [12, entry?.neck?.[1] ?? 0, entry?.neck?.[2] ?? 0],
@@ -435,9 +424,9 @@ export namespace StrikingStance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function facing(
-    joints: IHumanPosture["joints"],
+    joints: IAutoMovieMotionHumanPosture["joints"],
     turned: number,
-  ): IHumanPosture["joints"] {
+  ): IAutoMovieMotionHumanPosture["joints"] {
     const share: number = Math.max(-FACING, Math.min(FACING, 0.5 * turned));
     const neck: readonly [number, number, number] = joints.neck ?? [0, 0, 0];
     const head: readonly [number, number, number] = joints.head ?? [0, 0, 0];

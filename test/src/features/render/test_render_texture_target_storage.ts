@@ -1,6 +1,4 @@
 import {
-  type IAutoMovieRenderTextureResidency,
-  type IAutoMovieRenderTextureTarget,
   autoMovieRenderTextureDigest,
   measureAutoMovieRenderTextureClosure,
   measureAutoMovieRenderTextureTarget,
@@ -8,6 +6,8 @@ import {
 import type {
   IAutoMovieMaterial,
   IAutoMovieRenderTextureCost,
+  IAutoMovieRenderTextureResidency,
+  IAutoMovieRenderTextureTarget,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

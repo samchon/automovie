@@ -1,4 +1,15 @@
-import { AutoMovieRecoveryConicApproximation as C, approximateAutoMovieRecoveryConicsAhn, approximateAutoMovieRecoveryConicsGhosh } from "@automovie/recovery";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieConicApproximation,
+  IAutoMoviePlanarCurveSource,
+  IAutoMovieRegisteredConicArc,
+} from "@automovie/interface";
+import {
+  AutoMovieRecoveryConicApproximation as C,
+  approximateAutoMovieRecoveryConicsAhn,
+  approximateAutoMovieRecoveryConicsGhosh,
+} from "@automovie/recovery";
+
 import { ConicPaperInput as I } from "./ConicPaperInput";
 
 /** Bounded paper experiments; unsupported source charts remain missing rather than becoming source-mesh fallbacks. */
@@ -10,7 +21,7 @@ export namespace ConicPaperFit {
     /** Complete covers every source chart; partial/refused omit charts; unattempted reached the global wall budget. */
     status: "complete" | "partial" | "refused" | "unattempted";
     /** Accepted rational quadratics only, with no cubic or mesh fallback for missing intervals. */
-    arcs: C.IArc[];
+    arcs: IAutoMovieRegisteredConicArc[];
     /** Actual source evaluation and derivative callbacks, including a budget-triggering call. */
     queries: number;
     /** Distinct algorithm admission failures, numerical qualifications and experiment limits. */
@@ -58,50 +69,139 @@ export namespace ConicPaperFit {
     /** Method-specific mandatory source-critical boundaries and shared preprocessing cost; no source smoothing is performed. */
     critical: I.CriticalSummary;
     /** Bidirectional held-out polyline estimates for the first complete curve of each region; not population-wide bounds. */
-    independent: { region: string; key: string; arcs: number; polylineEstimateMm: number }[];
+    independent: {
+      region: string;
+      key: string;
+      arcs: number;
+      polylineEstimateMm: number;
+    }[];
   }
 
   /** Fit all closed inputs in source order, preserving every omitted and unattempted chart in the receipt. */
-  export function run(packet: I.Packet, method: "ahn" | "ghosh", wallBudgetMs: number): Result {
+  export function run(
+    packet: I.Packet,
+    method: "ahn" | "ghosh",
+    wallBudgetMs: number,
+  ): Result {
     const started: number = performance.now();
-    const solver: typeof approximateAutoMovieRecoveryConicsAhn = method === "ahn" ? approximateAutoMovieRecoveryConicsAhn : approximateAutoMovieRecoveryConicsGhosh;
-    const result: Result = { method, milliseconds: 0, toleranceMm: 0.5, maximumDepth: 8, wallBudgetMs,
-      queryBudgetPerCurve: 100000, records: [], groups: {}, queries: 0, maximumReportedSampleErrorMm: 0,
-      critical: { charts: 0, stationaryRoots: 0, zeroCurvatureRoots: 0, affineCriticalRoots: 0, collinearCharts: 0, selectedBreaks: 0, collapsedBreaks: 0, computedCharts: 0, cachedCharts: 0, milliseconds: 0 }, independent: [] };
+    const solver: typeof approximateAutoMovieRecoveryConicsAhn =
+      method === "ahn"
+        ? approximateAutoMovieRecoveryConicsAhn
+        : approximateAutoMovieRecoveryConicsGhosh;
+    const result: Result = {
+      method,
+      milliseconds: 0,
+      toleranceMm: 0.5,
+      maximumDepth: 8,
+      wallBudgetMs,
+      queryBudgetPerCurve: 100000,
+      records: [],
+      groups: {},
+      queries: 0,
+      maximumReportedSampleErrorMm: 0,
+      critical: {
+        charts: 0,
+        stationaryRoots: 0,
+        zeroCurvatureRoots: 0,
+        affineCriticalRoots: 0,
+        collinearCharts: 0,
+        selectedBreaks: 0,
+        collapsedBreaks: 0,
+        computedCharts: 0,
+        cachedCharts: 0,
+        milliseconds: 0,
+      },
+      independent: [],
+    };
     const validated: Set<string> = new Set();
     for (const loop of packet.loops) {
-      const record: Record = { key: loop.key, status: "unattempted", arcs: [], queries: 0, diagnostics: [] };
+      const record: Record = {
+        key: loop.key,
+        status: "unattempted",
+        arcs: [],
+        queries: 0,
+        diagnostics: [],
+      };
       if (performance.now() - started < wallBudgetMs) {
         let failures: number = 0;
         for (let i: number = 0; i < loop.curve.spans.length; ++i) {
           try {
-            const chart: C.ICurve = I.chart(loop.curve.spans[i]!, i, (): void => {
-              ++record.queries;
-              if (record.queries > result.queryBudgetPerCurve) throw new Error("Experiment query budget reached; remaining source charts omitted.");
-            }, method, (summary: I.CriticalSummary, diagnostics: readonly string[]): void => {
-              for (const key of Object.keys(summary) as (keyof I.CriticalSummary)[]) result.critical[key] += summary[key];
-              for (const message of diagnostics)
-                if (!record.diagnostics.includes("critical: " + message)) record.diagnostics.push("critical: " + message);
+            const chart: IAutoMoviePlanarCurveSource = I.chart(
+              loop.curve.spans[i]!,
+              i,
+              (): void => {
+                ++record.queries;
+                if (record.queries > result.queryBudgetPerCurve)
+                  throw new Error(
+                    "Experiment query budget reached; remaining source charts omitted.",
+                  );
+              },
+              method,
+              (
+                summary: I.CriticalSummary,
+                diagnostics: readonly string[],
+              ): void => {
+                for (const key of Object.keys(
+                  summary,
+                ) as (keyof I.CriticalSummary)[])
+                  result.critical[key] += summary[key];
+                for (const message of diagnostics)
+                  if (!record.diagnostics.includes("critical: " + message))
+                    record.diagnostics.push("critical: " + message);
+              },
+            );
+            const fitted: IAutoMovieConicApproximation.IResult = solver(chart, {
+              toleranceMm: result.toleranceMm,
+              maximumArcs: 32,
+              maximumDepth: result.maximumDepth,
             });
-            const fitted: C.IResult = solver(chart, { toleranceMm: result.toleranceMm, maximumArcs: 32, maximumDepth: result.maximumDepth });
             record.arcs.push(...fitted.arcs);
             if (fitted.status !== "complete") ++failures;
             for (const message of fitted.diagnostics)
-              if (!record.diagnostics.includes(message)) record.diagnostics.push(message);
-            result.maximumReportedSampleErrorMm = Math.max(result.maximumReportedSampleErrorMm, fitted.maximumSampleErrorMm);
-            if (record.queries > result.queryBudgetPerCurve) { ++failures; break; }
+              if (!record.diagnostics.includes(message))
+                record.diagnostics.push(message);
+            result.maximumReportedSampleErrorMm = Math.max(
+              result.maximumReportedSampleErrorMm,
+              fitted.maximumSampleErrorMm,
+            );
+            if (record.queries > result.queryBudgetPerCurve) {
+              ++failures;
+              break;
+            }
           } catch (error) {
             ++failures;
-            record.diagnostics.push(error instanceof Error ? error.message : String(error));
+            record.diagnostics.push(
+              error instanceof Error ? error.message : String(error),
+            );
             if (record.queries > result.queryBudgetPerCurve) break;
           }
         }
-        record.status = failures === 0 ? "complete" : record.arcs.length > 0 ? "partial" : "refused";
-      } else record.diagnostics.push("Experiment wall budget reached before this source curve was attempted.");
+        record.status =
+          failures === 0
+            ? "complete"
+            : record.arcs.length > 0
+              ? "partial"
+              : "refused";
+      } else
+        record.diagnostics.push(
+          "Experiment wall budget reached before this source curve was attempted.",
+        );
       result.records.push(record);
       result.queries += record.queries;
-      for (const name of ["all", "region:" + loop.region, "quality:" + loop.quality]) {
-        const count: Count = result.groups[name] ?? { curves: 0, spans: 0, complete: 0, partial: 0, refused: 0, unattempted: 0, conicArcs: 0 };
+      for (const name of [
+        "all",
+        "region:" + loop.region,
+        "quality:" + loop.quality,
+      ]) {
+        const count: Count = result.groups[name] ?? {
+          curves: 0,
+          spans: 0,
+          complete: 0,
+          partial: 0,
+          refused: 0,
+          unattempted: 0,
+          conicArcs: 0,
+        };
         ++count.curves;
         count.spans += loop.curve.spans.length;
         ++count[record.status];
@@ -111,31 +211,62 @@ export namespace ConicPaperFit {
 
       // Independent geometry comparisons use held-out polylines, not the fit's parameter residual.
       if (record.status === "complete" && !validated.has(loop.region)) {
-        result.independent.push({ region: loop.region, key: loop.key, arcs: record.arcs.length, polylineEstimateMm: compare(loop, record.arcs) });
+        result.independent.push({
+          region: loop.region,
+          key: loop.key,
+          arcs: record.arcs.length,
+          polylineEstimateMm: compare(loop, record.arcs),
+        });
         validated.add(loop.region);
       }
       if (result.records.length % 100 === 0)
-        process.stdout.write(JSON.stringify({ event: "conic-fit-progress", method, curves: result.records.length, elapsedMs: performance.now() - started, count: result.groups.all }) + "\n");
+        process.stdout.write(
+          JSON.stringify({
+            event: "conic-fit-progress",
+            method,
+            curves: result.records.length,
+            elapsedMs: performance.now() - started,
+            count: result.groups.all,
+          }) + "\n",
+        );
     }
     result.milliseconds = performance.now() - started;
     return result;
   }
 
   /** A finite bidirectional point-to-polyline estimate on one independently selected complete curve per region. */
-  function compare(loop: I.Loop, arcs: readonly C.IArc[]): number {
+  function compare(
+    loop: I.Loop,
+    arcs: readonly IAutoMovieRegisteredConicArc[],
+  ): number {
     let maximum: number = 0;
     for (const arc of arcs) {
-      const ordinal: number = Math.min(loop.curve.spans.length - 1, Math.floor(arc.domain[0]));
-      const source: C.Point[] = [];
-      const fitted: C.Point[] = [];
+      const ordinal: number = Math.min(
+        loop.curve.spans.length - 1,
+        Math.floor(arc.domain[0]),
+      );
+      const source: Readonly<AutoMovieVector2Tuple>[] = [];
+      const fitted: Readonly<AutoMovieVector2Tuple>[] = [];
       for (let i: number = 0; i <= 32; ++i) {
-        source.push(I.value(loop.curve.spans[ordinal]!, arc.domain[0] - ordinal + (arc.domain[1] - arc.domain[0]) * i / 32, 0));
+        source.push(
+          I.value(
+            loop.curve.spans[ordinal]!,
+            arc.domain[0] -
+              ordinal +
+              ((arc.domain[1] - arc.domain[0]) * i) / 32,
+            0,
+          ),
+        );
         fitted.push(C.evaluate(arc, i / 32));
       }
-      for (const [a, b] of [[source, fitted], [fitted, source]])
+      for (const [a, b] of [
+        [source, fitted],
+        [fitted, source],
+      ])
         for (const p of a!) {
           let closest: number = Infinity;
-          for (let i: number = 1; i < b!.length; ++i) closest = Math.min(closest, distance(p, b![i - 1]!, b![i]!));
+          for (let i: number = 1; i < b!.length; ++i)
+            closest = Math.min(closest, distance(p, b![i - 1]!, b![i]!));
           maximum = Math.max(maximum, closest);
         }
     }
@@ -143,11 +274,21 @@ export namespace ConicPaperFit {
   }
 
   /** Euclidean point-to-segment distance, in the original millimetre chart. */
-  function distance(p: C.Point, a: C.Point, b: C.Point): number {
+  function distance(
+    p: Readonly<AutoMovieVector2Tuple>,
+    a: Readonly<AutoMovieVector2Tuple>,
+    b: Readonly<AutoMovieVector2Tuple>,
+  ): number {
     const x: number = b[0] - a[0];
     const y: number = b[1] - a[1];
     const square: number = x * x + y * y;
-    const t: number = square === 0 ? 0 : Math.max(0, Math.min(1, ((p[0] - a[0]) * x + (p[1] - a[1]) * y) / square));
+    const t: number =
+      square === 0
+        ? 0
+        : Math.max(
+            0,
+            Math.min(1, ((p[0] - a[0]) * x + (p[1] - a[1]) * y) / square),
+          );
     return Math.hypot(p[0] - a[0] - t * x, p[1] - a[1] - t * y);
   }
 }

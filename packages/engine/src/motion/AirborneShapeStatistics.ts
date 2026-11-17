@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanLimbFitFrame } from "@automovie/interface";
+
 /** Native observers lend only their private numeric state to a history. */
 const OBSERVERS: WeakMap<AirborneShapeStatistics.IObserver, AirborneShapeStatistics.IStatistics> = new WeakMap();
 
@@ -74,16 +76,16 @@ export namespace AirborneShapeStatistics {
    */
   export interface IObserver {
     /** Return fresh cumulative scalar totals; called only by the explicit reporter. */
-    read(): IStatistics;
+    read(): IAutoMovieMotionHumanLimbFitFrame.IStatistics;
   }
 
   /**
    * Borrow native counter storage once when a history is constructed.
    *
    */
-  export function borrow(observer?: IObserver): IStatistics | undefined {
+  export function borrow(observer?: IObserver): IAutoMovieMotionHumanLimbFitFrame.IStatistics | undefined {
     if (observer === undefined) return undefined;
-    const statistics: IStatistics | undefined = OBSERVERS.get(observer);
+    const statistics: IAutoMovieMotionHumanLimbFitFrame.IStatistics | undefined = OBSERVERS.get(observer);
     if (statistics === undefined) throw new Error("Airborne statistics needs a native observer handle");
     return statistics;
   }

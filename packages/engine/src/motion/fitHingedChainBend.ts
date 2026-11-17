@@ -1,13 +1,13 @@
 import type {
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSolvedChainPlant,
 } from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
-import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { PLANT_RESIDUAL_EPSILON } from "./constants/PLANT_RESIDUAL_EPSILON";
 import { fitHingedChainCandidate } from "./fitHingedChainCandidate";
 import type { prepareChainFit } from "./prepareChainFit";
@@ -34,7 +34,7 @@ import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The call borrows one source workspace and owns one candidate, two clamped joints and one endpoint until return/throw. Only candidate metadata and a possible independent fitted joint-array result escape; no history, handle or global cache is acquired.
  */
 export function fitHingedChainBend(
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   workspace: prepareChainFit.IWorkspace,
 ): {
   candidate: IAutoMovieSolvedChainPlant;

@@ -1,5 +1,8 @@
 import { AutoMovieGravity, integrateMotionTrajectory } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanSustainedForce,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanForce,
   HumanForceExchange,
@@ -90,13 +93,21 @@ export function test_human_motion_force_exchange_laws(): void {
           all.check(
             `${mass} kg, ${frequency}/s, ${edge} m, ${seconds} s: the extrapolated centre is ${drawn.extrapolated} m at the break, the edge expected`,
             close(drawn.extrapolated, edge, 1e-9) &&
-              close(drawn.offset, a * (Math.cosh(frequency * seconds) - 1), 1e-9),
+              close(
+                drawn.offset,
+                a * (Math.cosh(frequency * seconds) - 1),
+                1e-9,
+              ),
           );
         }
   all.check(
     "no pull never breaks the base",
-    HumanForceExchange.broken({ mass: 75, frequency: 3, edge: 0.1, force: 0 }) ===
-      Number.POSITIVE_INFINITY,
+    HumanForceExchange.broken({
+      mass: 75,
+      frequency: 3,
+      edge: 0.1,
+      force: 0,
+    }) === Number.POSITIVE_INFINITY,
   );
 
   // 3. The base's extent along a direction.
@@ -109,7 +120,11 @@ export function test_human_motion_force_exchange_laws(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   all.check(
     "the square's extent along +X is 0.5 m",
-    close(HumanForceExchange.edge(origin, { x: 1, y: 0, z: 0 }, square), 0.5, 1e-9),
+    close(
+      HumanForceExchange.edge(origin, { x: 1, y: 0, z: 0 }, square),
+      0.5,
+      1e-9,
+    ),
   );
   all.check(
     "the square's extent along the diagonal is 0.5 sqrt 2 m",
@@ -125,8 +140,11 @@ export function test_human_motion_force_exchange_laws(): void {
   );
   all.check(
     "a point outside the square has no extent",
-    HumanForceExchange.edge({ x: 2, y: 0, z: 0 }, { x: 1, y: 0, z: 0 }, square) ===
-      0,
+    HumanForceExchange.edge(
+      { x: 2, y: 0, z: 0 },
+      { x: 1, y: 0, z: 0 },
+      square,
+    ) === 0,
   );
 
   // 4. The resisted shift and its bound.
@@ -135,16 +153,24 @@ export function test_human_motion_force_exchange_laws(): void {
   all.check(
     "a resisted pull shifts the centre of pressure F h / (M g)",
     close(
-      HumanForceExchange.resisted({ mass: 75, force: 100, height: 1.2, edge: 1 }) ??
-        NaN,
+      HumanForceExchange.resisted({
+        mass: 75,
+        force: 100,
+        height: 1.2,
+        edge: 1,
+      }) ?? NaN,
       shift,
       1e-9,
     ),
   );
   all.check(
     "a resisted pull exactly at the edge holds",
-    HumanForceExchange.resisted({ mass: 75, force: 100, height: 1.2, edge: shift }) !==
-      null,
+    HumanForceExchange.resisted({
+      mass: 75,
+      force: 100,
+      height: 1.2,
+      edge: shift,
+    }) !== null,
   );
   all.check(
     "a resisted pull past the edge is null",
@@ -190,8 +216,13 @@ export function test_human_motion_force_exchange_laws(): void {
   }
   all.check(
     "a slow swing from before the vertical with no pull stops short: null",
-    HumanForceExchange.swing({ mass, inertia, radius, angle: -0.5, rate: 0.1 }) ===
-      null,
+    HumanForceExchange.swing({
+      mass,
+      inertia,
+      radius,
+      angle: -0.5,
+      rate: 0.1,
+    }) === null,
   );
   all.check(
     "the same swing driven by the weight's moment releases",
@@ -207,18 +238,20 @@ export function test_human_motion_force_exchange_laws(): void {
   );
 
   // 6. The pull over its grips.
-  const pulled: HumanForce.ISustained[] = HumanForceExchange.pull({
-    subject: "b",
-    sites: ["chestLeft", "elbowRight"],
-    direction: { x: 0, y: 0, z: 1 },
-    force: 600,
-    from: 0,
-    to: 1,
-  });
+  const pulled: IAutoMovieMotionHumanSustainedForce[] = HumanForceExchange.pull(
+    {
+      subject: "b",
+      sites: ["chestLeft", "elbowRight"],
+      direction: { x: 0, y: 0, z: 1 },
+      force: 600,
+      from: 0,
+      to: 1,
+    },
+  );
   all.check(
     `a pull of 600 N over two grips gives ${pulled.length} forces of ${pulled.map((f) => JSON.stringify(HumanForce.at(f, 0.5))).join(", ")}`,
     pulled.length === 2 &&
-      pulled.every((f: HumanForce.ISustained): boolean => {
+      pulled.every((f: IAutoMovieMotionHumanSustainedForce): boolean => {
         const v: IAutoMovieVector3 = HumanForce.at(f, 0.5);
         return close(v.z, 300, 1e-12) && v.x === 0 && v.y === 0;
       }),

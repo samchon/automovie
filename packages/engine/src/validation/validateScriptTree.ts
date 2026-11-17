@@ -1,7 +1,9 @@
 import {
   IAutoMovieBeat,
   IAutoMovieScriptNode,
+  type IAutoMovieValidateScriptTree,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
@@ -54,21 +56,11 @@ const ALLOWED_PARENTS: Record<
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares one first-declaration node index across roots, parent edges, cross references and cycles, and memoizes completed parent chains only during this synchronous validation; no result is reused after mutable script inputs can change.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns indexes, cycle paths and collector until return; transient state is bounded by node and beat counts, with violations growing by the failing authored fields. Only the validation and its violations transfer to the caller, with no retained cache or handles.
  */
-export function validateScriptTree(props: {
-  /** The refinement tree to validate. */
-  tree: IAutoMovieScriptNode[];
-
-  /** The script's flat beats the beat-kind nodes must join. */
-  beats: IAutoMovieBeat[];
-
-  /** Flat script logline the intent root must preserve verbatim. */
-  logline: string;
-
-  /** Flat script theme the intent root must preserve verbatim. */
-  theme: string;
-}): IAutoMovieValidation {
+export function validateScriptTree(
+  props: IAutoMovieValidateScriptTree.IProps,
+): IAutoMovieValidation {
   const path: string = "$input.tree";
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const { tree, beats }: typeof props = props;
 
   const byId: Map<string, IIndexedNode> = new Map();
@@ -250,7 +242,7 @@ export function validateScriptTree(props: {
 /** Memoize each parent chain's first repeated node, then report in authored id order. */
 function validateRefinementCycles(
   byId: ReadonlyMap<string, IIndexedNode>,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
   path: string,
 ): void {
   const completed: Set<string> = new Set();

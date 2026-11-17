@@ -1,22 +1,24 @@
-import {
+import type {
+  AutoMovieClinicalAxis,
+  IAutoMovieAxisFrame,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { multiplyQuaternionInto } from "../math/multiplyQuaternionInto";
-import { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toRigAngle } from "../rom/toRigAngle";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import { prepareJointRotationFactor } from "./prepareJointRotationFactor";
 
 /** The three clinical coordinates, read in their existing admission order. */
-type AutoMovieClinicalAxis = "flexion" | "abduction" | "twist";
 
 /** One raw inner-product writer; its prepared form retains fixed axis support only. */
-type IInnerProductWriter = ReturnType<typeof multiplyQuaternionInto.prepareCardinal>;
+type IInnerProductWriter = ReturnType<
+  typeof multiplyQuaternionInto.prepareCardinal
+>;
 
 /** Fixed-basis composition with an optional current-call clinical frame. */
 type IComposition = (
@@ -27,28 +29,43 @@ type IComposition = (
 /** Actual completed raw components; no caller/query input is retained by a reader. */
 type IRawReader = <Result, Context>(
   joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
-  read: (x: number, y: number, z: number, w: number, context: Context) => Result,
+  read: (
+    x: number,
+    y: number,
+    z: number,
+    w: number,
+    context: Context,
+  ) => Result,
   context: Context,
 ) => Result;
 
 /** The same raw owner also accepts a call-local frame for ordinary mutable composition. */
 type IRawComposition = <Result, Context>(
   joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
-  read: (x: number, y: number, z: number, w: number, context: Context) => Result,
+  read: (
+    x: number,
+    y: number,
+    z: number,
+    w: number,
+    context: Context,
+  ) => Result,
   context: Context,
   currentFrame?: IAutoMovieRestFrame,
 ) => Result;
 
 /** Fixed direction/length readers for a genuine immutable normalizer output. */
-type IDirectAxisReaders = Readonly<Record<
-  AutoMovieClinicalAxis, ReturnType<typeof Quaternion.prepareAxisAngle>
->>;
+type IDirectAxisReaders = Readonly<
+  Record<AutoMovieClinicalAxis, ReturnType<typeof Quaternion.prepareAxisAngle>>
+>;
 
 /** Weak source-only preparation; no frame, angle, factor or target is retained. */
-const DIRECT_AXIS_READERS: WeakMap<IAutoMovieJointAxes, IDirectAxisReaders> = new WeakMap();
+const DIRECT_AXIS_READERS: WeakMap<IAutoMovieJointAxes, IDirectAxisReaders> =
+  new WeakMap();
 
 /** Ordinary/accessor inputs retain all original direct axis reads/admission. */
-function directAxisReaders(basis: IAutoMovieJointAxes): IDirectAxisReaders | undefined {
+function directAxisReaders(
+  basis: IAutoMovieJointAxes,
+): IDirectAxisReaders | undefined {
   if (!normalizeJointAxes.owns(basis)) return undefined;
   const known: IDirectAxisReaders | undefined = DIRECT_AXIS_READERS.get(basis);
   if (known !== undefined) return known;
@@ -114,15 +131,27 @@ export function jointToQuaternionOnBasis(
   frame?: IAutoMovieRestFrame,
 ): IAutoMovieQuaternion {
   const readers: IDirectAxisReaders | undefined = directAxisReaders(basis);
-  const qFlexion: IAutoMovieQuaternion = readers === undefined
-    ? Quaternion.fromAxisAngle(basis.flexion, readAngle(joint, "flexion", frame?.flexion))
-    : readers.flexion(readAngle(joint, "flexion", frame?.flexion));
-  const qAbduction: IAutoMovieQuaternion = readers === undefined
-    ? Quaternion.fromAxisAngle(basis.abduction, readAngle(joint, "abduction", frame?.abduction))
-    : readers.abduction(readAngle(joint, "abduction", frame?.abduction));
-  const qTwist: IAutoMovieQuaternion = readers === undefined
-    ? Quaternion.fromAxisAngle(basis.twist, readAngle(joint, "twist", frame?.twist))
-    : readers.twist(readAngle(joint, "twist", frame?.twist));
+  const qFlexion: IAutoMovieQuaternion =
+    readers === undefined
+      ? Quaternion.fromAxisAngle(
+          basis.flexion,
+          readAngle(joint, "flexion", frame?.flexion),
+        )
+      : readers.flexion(readAngle(joint, "flexion", frame?.flexion));
+  const qAbduction: IAutoMovieQuaternion =
+    readers === undefined
+      ? Quaternion.fromAxisAngle(
+          basis.abduction,
+          readAngle(joint, "abduction", frame?.abduction),
+        )
+      : readers.abduction(readAngle(joint, "abduction", frame?.abduction));
+  const qTwist: IAutoMovieQuaternion =
+    readers === undefined
+      ? Quaternion.fromAxisAngle(
+          basis.twist,
+          readAngle(joint, "twist", frame?.twist),
+        )
+      : readers.twist(readAngle(joint, "twist", frame?.twist));
   return basis.twistPlacement === "distal"
     ? Quaternion.multiply(qAbduction, Quaternion.multiply(qFlexion, qTwist))
     : Quaternion.multiply(qTwist, Quaternion.multiply(qAbduction, qFlexion));
@@ -138,9 +167,9 @@ export function jointToQuaternionOnBasis(
  */
 export namespace jointToQuaternionOnBasis {
   /** At most two unchanged, predeclared rig angles per axis; never target readings. */
-  export type IFixedAngles = Partial<Record<
-    AutoMovieClinicalAxis, readonly [number] | readonly [number, number]
-  >>;
+  export type IFixedAngles = Partial<
+    Record<AutoMovieClinicalAxis, readonly [number] | readonly [number, number]>
+  >;
 
   /**
    * Prepare a composer for one query's changing clinical coordinates on the
@@ -237,13 +266,26 @@ function preparedComposition(
   operation?: IOperationState,
   mutable: boolean = false,
 ): IComposition {
-  const read: IRawComposition = scalarComposition(basis, frame, operation, mutable);
-  return (joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>, currentFrame?: IAutoMovieRestFrame): IAutoMovieQuaternion =>
+  const read: IRawComposition = scalarComposition(
+    basis,
+    frame,
+    operation,
+    mutable,
+  );
+  return (
+    joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
+    currentFrame?: IAutoMovieRestFrame,
+  ): IAutoMovieQuaternion =>
     read(joint, quaternionRecord, undefined, currentFrame);
 }
 
 /** Fresh public output after every original raw scalar expression has completed. */
-function quaternionRecord(x: number, y: number, z: number, w: number): IAutoMovieQuaternion {
+function quaternionRecord(
+  x: number,
+  y: number,
+  z: number,
+  w: number,
+): IAutoMovieQuaternion {
   return { x, y, z, w };
 }
 
@@ -256,14 +298,14 @@ function scalarComposition(
 ): IRawComposition {
   const fixedOperation: IOperationState | undefined =
     operation?.fixedAngles === undefined ? undefined : operation;
-  const flexion: prepareJointRotationFactor.IReader = prepareJointRotationFactor(
-    "flexion", operation, mutable,
-  );
-  const abduction: prepareJointRotationFactor.IReader = prepareJointRotationFactor(
-    "abduction", operation, mutable,
-  );
+  const flexion: prepareJointRotationFactor.IReader =
+    prepareJointRotationFactor("flexion", operation, mutable);
+  const abduction: prepareJointRotationFactor.IReader =
+    prepareJointRotationFactor("abduction", operation, mutable);
   const twist: prepareJointRotationFactor.IReader = prepareJointRotationFactor(
-    "twist", operation, mutable,
+    "twist",
+    operation,
+    mutable,
   );
   let innerLeft: IAutoMovieQuaternion | undefined;
   let innerRight: IAutoMovieQuaternion | undefined;
@@ -273,11 +315,19 @@ function scalarComposition(
   let readOuter: typeof multiplyQuaternionInto.read | undefined;
   return <Result, Context>(
     joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
-    read: (x: number, y: number, z: number, w: number, context: Context) => Result,
+    read: (
+      x: number,
+      y: number,
+      z: number,
+      w: number,
+      context: Context,
+    ) => Result,
     context: Context,
     currentFrame?: IAutoMovieRestFrame,
   ): Result => {
-    const actualFrame: IAutoMovieRestFrame | undefined = mutable ? currentFrame : frame;
+    const actualFrame: IAutoMovieRestFrame | undefined = mutable
+      ? currentFrame
+      : frame;
     const qFlexion: IAutoMovieQuaternion = flexion(
       basis.flexion,
       actualFrame?.flexion,
@@ -297,20 +347,24 @@ function scalarComposition(
     const left: IAutoMovieQuaternion = distal ? qFlexion : qAbduction;
     const right: IAutoMovieQuaternion = distal ? qTwist : qFlexion;
     if (innerLeft !== left || innerRight !== right) {
-      const shared: IAutoMovieQuaternion | undefined = fixedOperation === undefined
-        ? undefined
-        : fixedInnerProduct(fixedOperation, distal, left, right);
+      const shared: IAutoMovieQuaternion | undefined =
+        fixedOperation === undefined
+          ? undefined
+          : fixedInnerProduct(fixedOperation, distal, left, right);
       if (shared !== undefined) inner = shared;
       else {
         if (dynamicInner === undefined)
           dynamicInner = Quaternion.multiply(left, right);
         else {
           if (writeInner === undefined) {
-            writeInner = operation?.innerWriter ?? (normalizeJointAxes.owns(basis)
-              ? multiplyQuaternionInto.prepareCardinal(
-                  distal ? basis.flexion : basis.abduction,
-                  distal ? basis.twist : basis.flexion,
-                ) : multiplyQuaternionInto);
+            writeInner =
+              operation?.innerWriter ??
+              (normalizeJointAxes.owns(basis)
+                ? multiplyQuaternionInto.prepareCardinal(
+                    distal ? basis.flexion : basis.abduction,
+                    distal ? basis.twist : basis.flexion,
+                  )
+                : multiplyQuaternionInto);
             if (operation !== undefined && operation.innerWriter === undefined)
               operation.innerWriter = writeInner;
           }
@@ -328,26 +382,52 @@ function scalarComposition(
     // Zero components retain those exact terms/order to keep their zero sign.
     const outerAxis: AutoMovieClinicalAxis = distal ? "abduction" : "twist";
     const identities: number = operation?.identityMasks?.[outerAxis] ?? 0;
-    const constants: IFixedReadings | undefined = identities === 0
-      ? undefined : operation?.fixedFactors?.[outerAxis];
-    if (constants !== undefined &&
-      ((identities & 1) !== 0 && outer === constants[0] ||
-        (identities & 2) !== 0 && outer === constants[1]) &&
-      Number.isFinite(product.x + product.y + product.z + product.w)) {
-      const x: number = product.x !== 0 ? product.x
-        : product.x + outer.x * product.w + outer.y * product.z - outer.z * product.y;
-      const y: number = product.y !== 0 ? product.y
-        : product.y - outer.x * product.z + outer.y * product.w + outer.z * product.x;
-      const z: number = product.z !== 0 ? product.z
-        : product.z + outer.x * product.y - outer.y * product.x + outer.z * product.w;
-      const w: number = product.w !== 0 ? product.w
-        : product.w - outer.x * product.x - outer.y * product.y - outer.z * product.z;
+    const constants: IFixedReadings | undefined =
+      identities === 0 ? undefined : operation?.fixedFactors?.[outerAxis];
+    if (
+      constants !== undefined &&
+      (((identities & 1) !== 0 && outer === constants[0]) ||
+        ((identities & 2) !== 0 && outer === constants[1])) &&
+      Number.isFinite(product.x + product.y + product.z + product.w)
+    ) {
+      const x: number =
+        product.x !== 0
+          ? product.x
+          : product.x +
+            outer.x * product.w +
+            outer.y * product.z -
+            outer.z * product.y;
+      const y: number =
+        product.y !== 0
+          ? product.y
+          : product.y -
+            outer.x * product.z +
+            outer.y * product.w +
+            outer.z * product.x;
+      const z: number =
+        product.z !== 0
+          ? product.z
+          : product.z +
+            outer.x * product.y -
+            outer.y * product.x +
+            outer.z * product.w;
+      const w: number =
+        product.w !== 0
+          ? product.w
+          : product.w -
+            outer.x * product.x -
+            outer.y * product.y -
+            outer.z * product.z;
       return read(x, y, z, w, context);
     }
     if (readOuter === undefined) {
-      readOuter = operation?.outerReader ?? (normalizeJointAxes.owns(basis)
-        ? multiplyQuaternionInto.prepareCardinalLeft(distal ? basis.abduction : basis.twist)
-        : multiplyQuaternionInto.read);
+      readOuter =
+        operation?.outerReader ??
+        (normalizeJointAxes.owns(basis)
+          ? multiplyQuaternionInto.prepareCardinalLeft(
+              distal ? basis.abduction : basis.twist,
+            )
+          : multiplyQuaternionInto.read);
       if (operation !== undefined && operation.outerReader === undefined)
         operation.outerReader = readOuter;
     }
@@ -366,17 +446,29 @@ function fixedInnerProduct(
     operation.fixedFactors?.[distal ? "flexion" : "abduction"];
   const rightFactors: IFixedReadings | undefined =
     operation.fixedFactors?.[distal ? "twist" : "flexion"];
-  const leftIndex: number = leftFactors === undefined ? -1
-    : left === leftFactors[0] ? 0 : left === leftFactors[1] ? 1 : -1;
-  const rightIndex: number = rightFactors === undefined ? -1
-    : right === rightFactors[0] ? 0 : right === rightFactors[1] ? 1 : -1;
+  const leftIndex: number =
+    leftFactors === undefined
+      ? -1
+      : left === leftFactors[0]
+        ? 0
+        : left === leftFactors[1]
+          ? 1
+          : -1;
+  const rightIndex: number =
+    rightFactors === undefined
+      ? -1
+      : right === rightFactors[0]
+        ? 0
+        : right === rightFactors[1]
+          ? 1
+          : -1;
   if (leftIndex < 0 || rightIndex < 0) return undefined;
   const index: number = leftIndex * 2 + rightIndex;
-  const known: IAutoMovieQuaternion | undefined = operation.fixedInnerProducts?.[index];
+  const known: IAutoMovieQuaternion | undefined =
+    operation.fixedInnerProducts?.[index];
   if (known !== undefined) return known;
   const quaternion: IAutoMovieQuaternion = Quaternion.multiply(left, right);
   operation.fixedInnerProducts ??= [];
   operation.fixedInnerProducts[index] = quaternion;
   return quaternion;
 }
-

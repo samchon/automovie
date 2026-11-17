@@ -1,13 +1,16 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanKuzushi,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { HumanBound } from "../law/HumanBound";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -37,10 +40,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  */
 export namespace kuzushi {
   /** The action's name. */
-  export const name: HumanActionKey = "kuzushi";
+  export const name: AutoMovieMotionHumanActionKey = "kuzushi";
 
   /** Cancel table: a broken base may be cut into anything once it is full, as a throw cuts it. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["broken", 1], kind: "inertialize", entry: 0 }],
   };
 
@@ -49,25 +52,6 @@ export namespace kuzushi {
 
   /** How far forward the body tips when none is asked, degrees (provisional: past the toes for an adult). */
   export const DEPTH: number = 15;
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation The tip's size and how long it is held.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The partner is named for the composition's mutual join; the tip itself reads only the body.
-   */
-  export interface IParams {
-    /** The partner who breaks the base, for the mutual join; unread by the tip. */
-    partner?: string;
-
-    /** How far forward the body tips about the ankles, degrees in (0, 30]; `DEPTH` when absent. */
-    depth?: number;
-
-    /** Seconds the tip is held; 1 when absent. */
-    hold?: number;
-  }
 
   /**
    * Plan a broken base.
@@ -85,19 +69,17 @@ export namespace kuzushi {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base plan and the pivot.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKuzushi.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanKuzushi.IParams = context.params;
     const body = context.body;
     const depth: number = p.depth ?? DEPTH;
     HumanBound.within("depth", depth, 0, 30, "degrees", "minimum");
     const hold: number = p.hold ?? 1;
     HumanBound.least("hold", hold, 0, "s");
     const duration: number = 2 * TIP + hold;
-    const base: IHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      duration,
-    );
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, duration);
 
     // The pivot: the ankles' midpoint, in the world and in the rest body.
     const feet = context.entry.feet;
@@ -109,8 +91,11 @@ export namespace kuzushi {
       Vector3.add(body.rest.get("leftFoot")!, body.rest.get("rightFoot")!),
       0.5,
     );
-    const tipped = (posture: IHumanPosture, pitch: number): IHumanPosture => {
-      const turned: IHumanPosture = {
+    const tipped = (
+      posture: IAutoMovieMotionHumanPosture,
+      pitch: number,
+    ): IAutoMovieMotionHumanPosture => {
+      const turned: IAutoMovieMotionHumanPosture = {
         ...posture,
         pitch: posture.pitch + pitch,
       };
@@ -129,7 +114,7 @@ export namespace kuzushi {
         { name: "relax", share: (TIP + hold) / duration },
       ],
       contacts: base.contacts,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number =
           t < TIP

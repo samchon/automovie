@@ -1,7 +1,16 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -9,7 +18,6 @@ import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHuman
 import { HumanFrame } from "./HumanFrame";
 import { HumanHand } from "./HumanHand";
 import { placeHumanHandSurface } from "./placeHumanHandSurface";
-import type { IHumanPosture } from "./IHumanPosture";
 
 /**
  * Build the original surface-on-place hand target with one orientation and
@@ -24,17 +32,17 @@ import type { IHumanPosture } from "./IHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cold calls retain nothing; the plan owns fixed body/options/offset/alignment and lazy emitter metadata until release. Issued raw rows weakly retain only ArmTarget's fixed surface metadata while those rows live; current rotations are fresh and points remain borrowed, without an operation FK reader, query/time/pose history or external handle.
  */
 export function HumanHandTarget(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   posture: IPosture,
-  side: HumanHand.Side,
-  place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+  side: AutoMovieHumanSide,
+  place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
   options: AutoMovieMotionHumanTarget.IHand,
-): AutoMovieMotionHumanArm.ITarget {
-  const surface: HumanHand.Surface = options.surface ?? "palm";
-  const shape: HumanHand.Shape = options.shape ?? "relaxed";
+): IAutoMovieMotionHumanArmTarget.ITarget {
+  const surface: IAutoMovieMotionHumanHand.Surface = options.surface ?? "palm";
+  const shape: IAutoMovieMotionHumanHand.Shape = options.shape ?? "relaxed";
   const normal: IAutoMovieVector3 = Vector3.scale(Vector3.normalize(place.normal), -1);
   const rotation: IAutoMovieQuaternion = oriented(posture, normal, options.forward,
-    (): HumanHand.IFrame => HumanHand.offset(body, side, surface, shape));
+    (): IAutoMovieMotionHumanHand.IFrame => HumanHand.offset(body, side, surface, shape));
   return target(body, posture, side, place.point, options, surface, shape, rotation,
     (): IAutoMovieVector3 => HumanHand.place(body, side, surface, place.point, rotation, shape).point);
 }
@@ -62,15 +70,15 @@ export namespace HumanHandTarget {
    * The plan owns one body reference and constant-size private option/offset/rotation data until release; returned rotations are fresh copies and points are borrowed as before, without a query/result history or external handle.
    */
   export function prepare(
-    body: IHumanBody,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     placeNormal: IAutoMovieVector3,
     options: AutoMovieMotionHumanTarget.IHand = {},
-  ): (posture: IPosture, point: IAutoMovieVector3) => AutoMovieMotionHumanArm.ITarget {
+  ): (posture: IPosture, point: IAutoMovieVector3) => IAutoMovieMotionHumanArmTarget.ITarget {
     const fixed: AutoMovieMotionHumanTarget.IHand = structuredClone(options);
     const frame: ReturnType<typeof prepareFrame> = prepareFrame(body, side, placeNormal, fixed);
     const emit: ITargetEmitter = targetEmitter(body, side, fixed.surface ?? "palm", fixed.shape ?? "relaxed");
-    return (posture: IPosture, point: IAutoMovieVector3): AutoMovieMotionHumanArm.ITarget => {
+    return (posture: IPosture, point: IAutoMovieVector3): IAutoMovieMotionHumanArmTarget.ITarget => {
       const current: ReturnType<ReturnType<typeof prepareFrame>> = frame(posture);
       return target(body, posture, side, point, fixed, current.surface, current.shape, current.rotation,
         (): IAutoMovieVector3 => current.place(point).point, emit);
@@ -90,25 +98,25 @@ export namespace HumanHandTarget {
    * body metadata are retained, with no pose/point/result/time history.
    */
   export function prepareFrame(
-    body: IHumanBody,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     placeNormal: IAutoMovieVector3,
     options: Pick<AutoMovieMotionHumanTarget.IHand, "surface" | "shape" | "forward"> = {},
   ): (posture: IPosture) => {
-    surface: HumanHand.Surface;
-    shape: HumanHand.Shape;
+    surface: IAutoMovieMotionHumanHand.Surface;
+    shape: IAutoMovieMotionHumanHand.Shape;
     rotation: IAutoMovieQuaternion;
-    place: (point: IAutoMovieVector3) => HumanHand.IWrist;
+    place: (point: IAutoMovieVector3) => IAutoMovieMotionHumanHand.IWrist;
   } {
     const fixed: typeof options = structuredClone(options);
     const inputNormal: IAutoMovieVector3 = { ...placeNormal };
-    const surface: HumanHand.Surface = fixed.surface ?? "palm";
-    const shape: HumanHand.Shape = fixed.shape ?? "relaxed";
+    const surface: IAutoMovieMotionHumanHand.Surface = fixed.surface ?? "palm";
+    const shape: IAutoMovieMotionHumanHand.Shape = fixed.shape ?? "relaxed";
     let normal: IAutoMovieVector3 | undefined;
-    let local: HumanHand.IFrame | undefined;
+    let local: IAutoMovieMotionHumanHand.IFrame | undefined;
     let rotation: IAutoMovieQuaternion | undefined;
-    let placement: ((point: IAutoMovieVector3) => HumanHand.IWrist) | undefined;
-    const offset: () => HumanHand.IFrame = (): HumanHand.IFrame =>
+    let placement: ((point: IAutoMovieVector3) => IAutoMovieMotionHumanHand.IWrist) | undefined;
+    const offset: () => IAutoMovieMotionHumanHand.IFrame = (): IAutoMovieMotionHumanHand.IFrame =>
       (local ??= structuredClone(HumanHand.offset(body, side, surface, shape)));
     const align: ReturnType<typeof HumanHand.prepareAlignment> = fixedAlignment(offset);
     return (posture: IPosture): ReturnType<ReturnType<typeof prepareFrame>> => {
@@ -118,7 +126,7 @@ export namespace HumanHandTarget {
         : (rotation ??= oriented(posture, normal, fixed.forward, offset, align));
       const current: IAutoMovieQuaternion = { ...aligned };
       return { surface, shape, rotation: current,
-        place: (point: IAutoMovieVector3): HumanHand.IWrist => {
+        place: (point: IAutoMovieVector3): IAutoMovieMotionHumanHand.IWrist => {
           return (fixed.forward === undefined
             ? placeHumanHandSurface(offset().point, point, { ...aligned })
             : (placement ??= placeHumanHandSurface.prepare(offset().point, aligned))(point));
@@ -139,21 +147,21 @@ export namespace HumanHandTarget {
    * Returned wrist points/rotations are fresh, while target points remain
    * borrowed as before; the owner releases fixed geometry with its plan.
    */
-  export function prepareMoving(body: IHumanBody, side: HumanHand.Side,
+  export function prepareMoving(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
     options: AutoMovieMotionHumanTarget.IHand = {}): {
     frame: (posture: IPosture, normal: IAutoMovieVector3, forward?: IAutoMovieVector3) => {
-      rotation: IAutoMovieQuaternion; place: (point: IAutoMovieVector3) => HumanHand.IWrist;
+      rotation: IAutoMovieQuaternion; place: (point: IAutoMovieVector3) => IAutoMovieMotionHumanHand.IWrist;
     };
-    target: (posture: IPosture, place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-      forward?: IAutoMovieVector3) => AutoMovieMotionHumanArm.ITarget;
-    wrist: (posture: IPosture, place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-      forward?: IAutoMovieVector3) => HumanHand.IWrist;
+    target: (posture: IPosture, place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+      forward?: IAutoMovieVector3) => IAutoMovieMotionHumanArmTarget.ITarget;
+    wrist: (posture: IPosture, place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+      forward?: IAutoMovieVector3) => IAutoMovieMotionHumanHand.IWrist;
   } {
     const fixed: AutoMovieMotionHumanTarget.IHand = structuredClone(options);
-    const surface: HumanHand.Surface = fixed.surface ?? "palm";
-    const shape: HumanHand.Shape = fixed.shape ?? "relaxed";
-    let local: HumanHand.IFrame | undefined;
-    const offset: () => HumanHand.IFrame = (): HumanHand.IFrame =>
+    const surface: IAutoMovieMotionHumanHand.Surface = fixed.surface ?? "palm";
+    const shape: IAutoMovieMotionHumanHand.Shape = fixed.shape ?? "relaxed";
+    let local: IAutoMovieMotionHumanHand.IFrame | undefined;
+    const offset: () => IAutoMovieMotionHumanHand.IFrame = (): IAutoMovieMotionHumanHand.IFrame =>
       (local ??= structuredClone(HumanHand.offset(body, side, surface, shape)));
     const align: ReturnType<typeof HumanHand.prepareAlignment> = fixedAlignment(offset);
     const emit: ITargetEmitter = targetEmitter(body, side, surface, shape);
@@ -161,19 +169,19 @@ export namespace HumanHandTarget {
       normal: IAutoMovieVector3, forward?: IAutoMovieVector3): ReturnType<ReturnType<typeof prepareMoving>["frame"]> => {
       const rotation: IAutoMovieQuaternion = oriented(posture, Vector3.scale(Vector3.normalize(normal), -1),
         forward ?? fixed.forward, offset, align);
-      return { rotation, place: (point: IAutoMovieVector3): HumanHand.IWrist =>
+      return { rotation, place: (point: IAutoMovieVector3): IAutoMovieMotionHumanHand.IWrist =>
         placeHumanHandSurface(offset().point, point, rotation) };
     };
     return {
       frame,
-      target: (posture: IPosture, place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-        forward?: IAutoMovieVector3): AutoMovieMotionHumanArm.ITarget => {
+      target: (posture: IPosture, place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+        forward?: IAutoMovieVector3): IAutoMovieMotionHumanArmTarget.ITarget => {
         const current: ReturnType<typeof frame> = frame(posture, place.normal, forward);
         return target(body, posture, side, place.point, fixed, surface, shape, current.rotation,
           (): IAutoMovieVector3 => current.place(place.point).point, emit);
       },
-      wrist: (posture: IPosture, place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-        forward?: IAutoMovieVector3): HumanHand.IWrist => {
+      wrist: (posture: IPosture, place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+        forward?: IAutoMovieVector3): IAutoMovieMotionHumanHand.IWrist => {
         return frame(posture, place.normal, forward).place(place.point);
       },
     };
@@ -190,28 +198,28 @@ export namespace HumanHandTarget {
    * the per-query wrist reader never escapes in the returned goal.
    */
   export function prepareGoal(
-    body: IHumanBody,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     options: Omit<AutoMovieMotionHumanTarget.IHand, "curl"> = {},
-  ): (posture: IPosture, place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-    forward?: IAutoMovieVector3) => IHumanPosture.IGoal {
+  ): (posture: IPosture, place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    forward?: IAutoMovieVector3) => IAutoMovieHumanLimbGoal {
     const fixed: AutoMovieMotionHumanTarget.IHand = structuredClone(options);
-    const surface: HumanHand.Surface = fixed.surface ?? "palm";
-    const shape: HumanHand.Shape = fixed.shape ?? "relaxed";
-    let local: HumanHand.IFrame | undefined;
-    const offset: () => HumanHand.IFrame = (): HumanHand.IFrame =>
+    const surface: IAutoMovieMotionHumanHand.Surface = fixed.surface ?? "palm";
+    const shape: IAutoMovieMotionHumanHand.Shape = fixed.shape ?? "relaxed";
+    let local: IAutoMovieMotionHumanHand.IFrame | undefined;
+    const offset: () => IAutoMovieMotionHumanHand.IFrame = (): IAutoMovieMotionHumanHand.IFrame =>
       (local ??= structuredClone(HumanHand.offset(body, side, surface, shape)));
     const align: ReturnType<typeof HumanHand.prepareAlignment> = fixedAlignment(offset);
-    return (posture: IPosture, place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-      forward?: IAutoMovieVector3): IHumanPosture.IGoal => {
+    return (posture: IPosture, place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+      forward?: IAutoMovieVector3): IAutoMovieHumanLimbGoal => {
       const normal: IAutoMovieVector3 = Vector3.scale(Vector3.normalize(place.normal), -1);
       const rotation: IAutoMovieQuaternion = oriented(posture, normal, forward ?? fixed.forward, offset, align);
-      let placed: HumanHand.IWrist | undefined;
-      const wrist: () => HumanHand.IWrist = (): HumanHand.IWrist => {
+      let placed: IAutoMovieMotionHumanHand.IWrist | undefined;
+      const wrist: () => IAutoMovieMotionHumanHand.IWrist = (): IAutoMovieMotionHumanHand.IWrist => {
         placed ??= placeHumanHandSurface(offset().point, place.point, rotation);
         return placed;
       };
-      const current: AutoMovieMotionHumanArm.ITarget = target(body, posture, side,
+      const current: IAutoMovieMotionHumanArmTarget.ITarget = target(body, posture, side,
         place.point, fixed, surface, shape, rotation, (): IAutoMovieVector3 => wrist().point);
       return AutoMovieMotionHumanArmTarget.fromWrist(wrist(), current.bend, { ...offset().point });
     };
@@ -219,14 +227,14 @@ export namespace HumanHandTarget {
 }
 
 /** Root and clinical heading information used by the existing bend owners. */
-type IPosture = Pick<IHumanPosture, "root" | "yaw"> & Partial<Pick<IHumanPosture, "pitch" | "roll">>;
+type IPosture = Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> & Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll">>;
 
 /** Preserve the original heading/up choice and lazy offset read before alignment. */
 function oriented(
   posture: IPosture,
   normal: IAutoMovieVector3,
   explicit: IAutoMovieVector3 | undefined,
-  offset: () => HumanHand.IFrame,
+  offset: () => IAutoMovieMotionHumanHand.IFrame,
   align?: ReturnType<typeof HumanHand.prepareAlignment>,
 ): IAutoMovieQuaternion {
   let forward: IAutoMovieVector3;
@@ -242,7 +250,7 @@ function oriented(
 }
 
 /** Delay fixed-rest preparation until the first actual world's original alignment admission. */
-function fixedAlignment(offset: () => HumanHand.IFrame): ReturnType<typeof HumanHand.prepareAlignment> {
+function fixedAlignment(offset: () => IAutoMovieMotionHumanHand.IFrame): ReturnType<typeof HumanHand.prepareAlignment> {
   let align: ReturnType<typeof HumanHand.prepareAlignment> | undefined;
   return (world: Parameters<ReturnType<typeof HumanHand.prepareAlignment>>[0]): IAutoMovieQuaternion => {
     align ??= HumanHand.prepareAlignment(offset());
@@ -252,17 +260,17 @@ function fixedAlignment(offset: () => HumanHand.IFrame): ReturnType<typeof Human
 
 /** Assemble the target while evaluating only the bend branch the caller requested. */
 function target(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   posture: IPosture,
-  side: HumanHand.Side,
+  side: AutoMovieHumanSide,
   point: IAutoMovieVector3,
   options: AutoMovieMotionHumanTarget.IHand,
-  surface: HumanHand.Surface,
-  shape: HumanHand.Shape,
+  surface: IAutoMovieMotionHumanHand.Surface,
+  shape: IAutoMovieMotionHumanHand.Shape,
   rotation: IAutoMovieQuaternion,
   wrist: () => IAutoMovieVector3,
   emit?: ITargetEmitter,
-): AutoMovieMotionHumanArm.ITarget {
+): IAutoMovieMotionHumanArmTarget.ITarget {
   const bend: IAutoMovieVector3 = options.bend === undefined && options.out === undefined
     ? AutoMovieMotionHumanBend.solve({ body, posture, side, point: wrist(), rotation, fallback: "hang" })
     : AutoMovieMotionHumanBend.arm(body, posture, side, options.bend, options.out ?? 0);
@@ -282,10 +290,10 @@ function target(
 type ITargetEmitter = ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareTarget>;
 
 /** Acquire fixed surface issuance only after an actual complete target is built. */
-function targetEmitter(body: IHumanBody, side: HumanHand.Side,
-  surface: HumanHand.Surface, shape: HumanHand.Shape): ITargetEmitter {
+function targetEmitter(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
+  surface: IAutoMovieMotionHumanHand.Surface, shape: IAutoMovieMotionHumanHand.Shape): ITargetEmitter {
   let emit: ITargetEmitter | undefined;
-  return (placement: Parameters<ITargetEmitter>[0]): AutoMovieMotionHumanArm.ITarget => {
+  return (placement: Parameters<ITargetEmitter>[0]): IAutoMovieMotionHumanArmTarget.ITarget => {
     emit ??= AutoMovieMotionHumanArmTarget.prepareTarget(body, side, surface, shape);
     return emit(placement);
   };

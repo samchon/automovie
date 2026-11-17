@@ -1,25 +1,28 @@
 import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBase,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGetUp,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanLieDown,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSupport,
+  IAutoMovieMotionManner,
   IAutoMoviePose,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { support } from "../actions/support";
-import type { IHumanBody } from "../body/IHumanBody";
-import type { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { HumanBase } from "../law/HumanBase";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanSupport } from "../law/HumanSupport";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { floorEntry } from "./floorEntry";
 import { lieDown } from "./lieDown";
@@ -66,57 +69,14 @@ import { lieDown } from "./lieDown";
  */
 export namespace getUp {
   /** The action's name. */
-  export const name: HumanActionName = "getUp";
+  export const name: AutoMovieMotionHumanActionName = "getUp";
 
   /** Cancel table: once standing, into anything a stand can become. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["standing", 1], kind: "inertialize", entry: 0 }],
   };
-
-  /**
-   * How the axial region gets up: symmetric flexion or full rotation,
-   * following VanSant 1988's two implemented route patterns.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names both implemented axial patterns and their source; the namespace states the missing partial-rotation variants and plan's entry-dependent choice.
-   * @evidence contracts/development/design.md#principled-representation Derives the closed route discriminator from PATTERNS rather than duplicating its permitted string values.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The author parameter, route table and actual planner use this same two-value discriminator.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Encodes no joint angles, physical result or performer preset; the entry orientation and selected support route still determine the actual rise.
-   */
-  export type Pattern = (typeof PATTERNS)[number];
-
   /** The patterns of {@link Pattern}, as data. */
-  export const PATTERNS: readonly ["symmetric", "rotation"] = ["symmetric", "rotation"];
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation A closed pattern, a side and a manner.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No angle is typed by the author.
-   */
-  export interface IParams {
-    /** The pattern; `symmetric` from the back when absent, and always `rotation` from the front or the hands and knees. */
-    pattern?: Pattern;
-
-    /** The foot set forward in the half kneel of the rotation; `right` when absent. */
-    lead?: "left" | "right";
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
-
-  /**
-   * A preferred floor posture's whole-body tilt and authored joints, shared
-   * with the lying route; the support planner still solves the actual key.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines route preferences as tilt and authored joints, distinct from a solved floor stance.
-   * @evidence contracts/development/design.md#principled-representation Aliases lieDown.IPose, preserving the same degree-valued posture representation for shared floor positions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface POSES, quiet and route mirroring use this shared shape; no parallel pose or support-result hierarchy is added.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias certifies no fit or contact result and contains no cache marker; actual support keys, floor bounds and ROM remain with their original owners.
-   */
-  export type IPose = lieDown.IPose;
-
+  export const PATTERNS: readonly ["symmetric", "rotation"] = ["symmetric", "rotation"] satisfies readonly NonNullable< IAutoMovieMotionHumanGetUp.Pattern>[];
   /** The share of the trained young adult's supine-to-stand time a body takes, seconds (Ulbrich et al. 2000: 2.6 s). */
   export const SECONDS: number = 2.6;
 
@@ -128,8 +88,8 @@ export namespace getUp {
    */
   export const POSES: Readonly<
     Record<
-      "sit" | "squat" | "prone" | "quadruped" | "halfKneel" | "stood",
-      IPose
+      IAutoMovieMotionHumanGetUp.Stage,
+      IAutoMovieMotionHumanLieDown.IPose
     >
   > = {
     sit: lieDown.POSES.sit,
@@ -164,8 +124,8 @@ export namespace getUp {
    */
   export const BEARS: Readonly<
     Record<
-      keyof typeof POSES,
-      readonly (HumanSupport.Part | "lead" | "trail")[]
+      IAutoMovieMotionHumanGetUp.Stage,
+      readonly (IAutoMovieMotionHumanSupport.Part | "lead" | "trail")[]
     >
   > = {
     sit: ["seat", "leftFoot", "rightFoot", "leftHand", "rightHand"],
@@ -184,7 +144,7 @@ export namespace getUp {
   };
   /** The routes, each a list of postures with the event of its arrival. */
   export const ROUTES: Readonly<
-    Record<Pattern, readonly (readonly [keyof typeof POSES, string])[]>
+    Record<IAutoMovieMotionHumanGetUp.Pattern, readonly (readonly [IAutoMovieMotionHumanGetUp.Stage, string])[]>
   > = {
     symmetric: [
       ["sit", "seated"],
@@ -218,9 +178,9 @@ export namespace getUp {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan is the support planner's.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const kind: HumanBase.Kind = context.entry.base.kind;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGetUp.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const kind: IAutoMovieMotionHumanBase.Kind = context.entry.base.kind;
     if (
       kind === "standing" ||
       kind === "seated" ||
@@ -241,19 +201,19 @@ export namespace getUp {
             ? "rise from a seat with rise"
             : "lie down, kneel or crawl before it, or leave it out",
       });
-    const entered: IHumanPosture = floorEntry.displayed(context);
+    const entered: IAutoMovieMotionHumanPosture = floorEntry.displayed(context);
     const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(entered);
 
     // On the back the chest faces up; anything else rises by the rotation.
     const up: number = Quaternion.rotateVector(heading, { x: 0, y: 0, z: 1 }).y;
     const supine: boolean = kind === "lying" && up > 0;
-    const pattern: Pattern = supine
+    const pattern: IAutoMovieMotionHumanGetUp.Pattern = supine
       ? (context.params.pattern ?? "symmetric")
       : "rotation";
 
     // From the back the whole route; from the front it starts past the roll,
     // and from the hands and knees past the hands and knees as well.
-    const route: readonly (readonly [keyof typeof POSES, string])[] =
+    const route: readonly (readonly [ IAutoMovieMotionHumanGetUp.Stage, string])[] =
       kind !== "lying"
         ? ROUTES.rotation.slice(2)
         : supine
@@ -263,26 +223,26 @@ export namespace getUp {
     const trail: "left" | "right" = lead === "right" ? "left" : "right";
 
     // Each phase takes its share of a whole rise from lying.
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const phase: number =
       (SECONDS / ROUTES[supine ? pattern : "rotation"].length) *
       modifiers.tempo;
 
     // Standing is the stand law's quiet stance (`quiet`).
-    const stood: IPose = quiet(context.body);
+    const stood: IAutoMovieMotionHumanLieDown.IPose = quiet(context.body);
 
     // The stances: each posture of the route on what it bears on, turned half
     // about the vertical after a roll from the back, so the head stays where
     // it lay.
     // The leading foot steps ahead into the half kneel, and the trailing foot
     // steps up beside it to stand.
-    const stances: HumanSupport.IStance[] = route.map(
-      ([key, event]: (typeof route)[number], i: number): HumanSupport.IStance => ({
+    const stances: IAutoMovieMotionHumanSupport.IStance[] = route.map(
+      ([key, event]: (typeof route)[number], i: number): IAutoMovieMotionHumanSupport.IStance => ({
         contacts: BEARS[key].map(
           (
-            part: HumanSupport.Part | "lead" | "trail",
-          ): HumanSupport.IContact => ({
+            part: IAutoMovieMotionHumanSupport.Part | "lead" | "trail",
+          ): IAutoMovieMotionHumanSupport.IContact => ({
             part:
               part === "lead"
                 ? `${lead}Foot`
@@ -309,7 +269,7 @@ export namespace getUp {
         event,
       }),
     );
-    const planned: IHumanActionPlan = support.plan({
+    const planned: IAutoMovieMotionHumanActionPlan = support.plan({
       ...context,
       params: { stances },
     });
@@ -331,12 +291,12 @@ export namespace getUp {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses stand.posture and the actual ordinary resolver, retaining live fit-memory behavior on every call rather than introducing a body-owned quiet-pose cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns its own joint dictionary/triples and retains no pose, reader, body result or history.
    */
-  export function quiet(body: IHumanBody): IPose {
+  export function quiet(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanLieDown.IPose {
     const pose: IAutoMoviePose = resolveHumanPosture(
       body,
       stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
     );
-    const joints: AutoMovieMotionHumanJoints.Angles = {};
+    const joints: IAutoMovieMotionHumanJoints.Angles = {};
     for (let i: number = 0; i < pose.joints.length; ++i) {
       const joint: IAutoMovieJointPose = pose.joints[i]!;
       joints[joint.bone] = [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
@@ -347,9 +307,9 @@ export namespace getUp {
   function keyed(
     pitch: number,
     a: { hip: number; knee: number; ankle: number; shoulder: number },
-  ): IPose {
+  ): IAutoMovieMotionHumanLieDown.IPose {
     // The hands at rest; every arm angle is the key's own below.
-    const joints: AutoMovieMotionHumanJoints.Angles = {
+    const joints: IAutoMovieMotionHumanJoints.Angles = {
       ...HumanHand.shape("left", "relaxed"),
       ...HumanHand.shape("right", "relaxed"),
     };
@@ -364,8 +324,8 @@ export namespace getUp {
   }
 
   /** A posture with its left and right sides exchanged. */
-  function mirrored(pose: IPose): IPose {
-    const joints: AutoMovieMotionHumanJoints.Angles = {};
+  function mirrored(pose: IAutoMovieMotionHumanLieDown.IPose): IAutoMovieMotionHumanLieDown.IPose {
+    const joints: IAutoMovieMotionHumanJoints.Angles = {};
     for (const [bone, angles] of Object.entries(pose.joints) as [
       AutoMovieHumanoidBone,
       readonly [number, number, number],

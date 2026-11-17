@@ -1,15 +1,19 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBendLower,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bendLower } from "../everyday/bendLower";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -48,7 +52,7 @@ export namespace pickUpLift {
    */
   export interface IRaise {
     /** The trunk's inclination at `lifted`, as the bend law solves it on the stance's bottom posture; null when the trunk is not used. */
-    trunk: bendLower.ISolved | null;
+    trunk: IAutoMovieMotionHumanBendLower.ISolved | null;
 
     /** The share of the way down the stance holds at `lifted`, 0 to 1: 1 where it does not straighten. */
     share: number;
@@ -79,19 +83,19 @@ export namespace pickUpLift {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous raise owns bounded shoulder-name and exact FK metadata until return/throw. Returned scalar raise data contain no reader, posture answer, callback map, sample history or external handle.
    */
   export function raise(
-    context: IHumanActionContext<object>,
-    side: HumanHand.Side,
+    context: IAutoMovieMotionHumanActionContext<object>,
+    side: AutoMovieHumanSide,
     lifted: IAutoMovieVector3,
     stance: pickUpPosture.IStance | null,
-    held: IHumanPosture,
+    held: IAutoMovieMotionHumanPosture,
   ): IRaise | null {
-    const body: IHumanBody = context.body;
+    const body: IAutoMovieMotionHumanBody = context.body;
     const arm: number = body.measure.upperArm + body.measure.forearm;
     const readShoulder: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(
       body, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]),
     );
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const far: (posture: IHumanPosture) => number = (posture: IHumanPosture): number =>
+    const far: (posture: IAutoMovieMotionHumanPosture) => number = (posture: IAutoMovieMotionHumanPosture): number =>
       Vector3.length(Vector3.subtract(lifted,
         readShoulder(posture, resolution).get(`${side}UpperArm`)!.worldPosition));
     if (far(held) <= arm + 1e-6) return ARM;
@@ -157,15 +161,15 @@ export namespace pickUpLift {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Optional observation loans belong only to this synchronous call and are never stored in the returned posture, stance or history.
    */
   export function posed(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     raise: IRaise,
     at: pickUpPosture.IStance["at"],
     share: number,
     inclined: number,
-    resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-    projection?: Parameters<IHumanActionPlan["posture"]>[3],
-  ): IHumanPosture {
-    const posture: IHumanPosture = at(share, resolution, projection);
+    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+  ): IAutoMovieMotionHumanPosture {
+    const posture: IAutoMovieMotionHumanPosture = at(share, resolution, projection);
     if (raise.trunk === null || inclined <= 0) return posture;
     const pitch: number = raise.trunk.pitch * inclined;
     return bendLower.lower(
@@ -208,15 +212,15 @@ export namespace pickUpLift {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous judgement releases its hand reader, exact workspace and actual fit/maps on return/throw; no loan, pose, score/time history or handle enters the plan.
    */
   export function judged(
-    context: IHumanActionContext<{ prop: string; handle: string }>,
-    side: HumanHand.Side,
+    context: IAutoMovieMotionHumanActionContext<{ prop: string; handle: string; }>,
+    side: AutoMovieHumanSide,
     lift: number,
-    plan: IHumanActionPlan,
+    plan: IAutoMovieMotionHumanActionPlan,
     closed: number,
     lifted: number,
   ): void {
     if (lift <= 0) return;
-    const body: IHumanBody = context.body;
+    const body: IAutoMovieMotionHumanBody = context.body;
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const readHand: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);

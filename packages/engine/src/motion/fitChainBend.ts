@@ -1,21 +1,23 @@
-import {
+import type {
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRestFrame,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSolvePreparedChainPlantProps,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
+import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import type { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
-import type { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
 import { PLANT_RESIDUAL_EPSILON } from "./constants/PLANT_RESIDUAL_EPSILON";
 import { fitHingedChainBend } from "./fitHingedChainBend";
+import { fitHingedChainCandidate } from "./fitHingedChainCandidate";
 import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
 import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
@@ -43,15 +45,15 @@ import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sweep/minima arrays hold at most 32 entries each, with two raw rotations and a lazy continuity reader per retained score. The incumbent additionally holds two clamped joint records rather than a copied full pose. Composers retain bounded factors. Search records release with the target, including on throw; only one final pose/seed escape, with no history or handles.
  */
 export const fitChainBend: (
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   workspace: prepareChainFit.IWorkspace,
 ) => IAutoMovieSeededChainFit = (
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   workspace: prepareChainFit.IWorkspace,
 ): IAutoMovieSeededChainFit => {
   const prepared: prepareChainFit.IWorkspace["prepared"] = workspace.prepared;
   if (prepared === null) return { pose: props.pose, seed: null };
-  const solveProps: ISolvePreparedChainPlantProps = {
+  const solveProps: IAutoMovieSolvePreparedChainPlantProps = {
     prepared,
     target: props.target,
     jointAxes: props.jointAxes,
@@ -86,7 +88,8 @@ export const fitChainBend: (
   // not the reach shorter than 1e-6), whatever the bend plane; a chain
   // without one keeps its pose. The pole candidate itself is solved below,
   // only when the hinged candidate is not the answer.
-  const source: ReturnType<typeof workspace.articulation> = workspace.articulation();
+  const source: ReturnType<typeof workspace.articulation> =
+    workspace.articulation();
   targetPreparation = source === null ? null : source.target(props.target);
   if (targetPreparation === null) return { pose: props.pose, seed: null };
   const { authored }: prepareChainFit.IReading = workspace.read();
@@ -146,7 +149,8 @@ export const fitChainBend: (
     let turned: number | undefined;
     const continuity: () => number = (): number => {
       if (turned === undefined)
-        turned = workspace.continuity(upper.bone, upperRotation) +
+        turned =
+          workspace.continuity(upper.bone, upperRotation) +
           workspace.continuity(lower.bone, lowerRotation);
       return turned;
     };
@@ -181,8 +185,10 @@ export const fitChainBend: (
   // A hinged chain takes the swivel candidate whenever it reaches, so the
   // choice never alternates between two methods from frame to frame; the
   // hint plane and the sweep remain for a chain the swivel cannot solve.
-  const hinged: ReturnType<typeof fitHingedChainBend> =
-    fitHingedChainBend(props, workspace);
+  const hinged: ReturnType<typeof fitHingedChainBend> = fitHingedChainBend(
+    props,
+    workspace,
+  );
   if (hinged !== null) {
     if (hinged.fitted !== null) return hinged.fitted;
     consider(hinged.candidate);
@@ -199,7 +205,8 @@ export const fitChainBend: (
       : hintNormal(prepared.upper.worldPosition, props.target, props.bend),
   )!;
   consider(pole);
-  if (canFinish(props, best)) return { pose: plantPose(props, workspace, best), seed: null };
+  if (canFinish(props, best))
+    return { pose: plantPose(props, workspace, best), seed: null };
 
   const upper: IAutoMovieResolvedBone = prepared.upper;
   const reachAxis: IAutoMovieVector3 = Vector3.normalize(
@@ -237,7 +244,8 @@ export const fitChainBend: (
     );
     if (Vector3.length(referenceNormal) >= 1e-6) {
       consider(solve(Vector3.normalize(referenceNormal))!);
-      if (canFinish(props, best)) return { pose: plantPose(props, workspace, best), seed: null };
+      if (canFinish(props, best))
+        return { pose: plantPose(props, workspace, best), seed: null };
     }
   }
 
@@ -246,7 +254,8 @@ export const fitChainBend: (
   for (let index: number = 0; index < segments; ++index) {
     const angle: number = (2 * Math.PI * index) / segments;
     sweep.push({ angle, ...consider(solve(normalAt(angle))!) });
-    if (canFinish(props, best)) return { pose: plantPose(props, workspace, best), seed: null };
+    if (canFinish(props, best))
+      return { pose: plantPose(props, workspace, best), seed: null };
   }
   const minima: IPlantBendCandidate[] = sweep.filter(
     (entry: IPlantBendCandidate, index: number): boolean => {
@@ -279,7 +288,8 @@ export const fitChainBend: (
           ...consider(solve(normalAt(angle))!),
         };
         if (comparePlantCandidate(candidate, center) < 0) center = candidate;
-        if (canFinish(props, best)) return { pose: plantPose(props, workspace, best), seed: null };
+        if (canFinish(props, best))
+          return { pose: plantPose(props, workspace, best), seed: null };
       }
     }
   }
@@ -291,7 +301,7 @@ const PLANT_CONTINUITY_EPSILON: number = 1e-12;
 
 /** The original exact-pin stopping rule, evaluated from the current best after each candidate. */
 function canFinish(
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   best: IPlantCandidateScore,
 ): boolean {
   return (
@@ -311,18 +321,20 @@ interface IPlantCandidateScore {
 }
 
 /** Best actual source or clamped joint pair, without copying unused intermediate pose arrays. */
-type IPlantCandidate = IPlantCandidateScore & (
-  | { kind: "source" }
-  | { kind: "fitted"; upper: IAutoMovieJointPose; lower: IAutoMovieJointPose }
-);
+type IPlantCandidate = IPlantCandidateScore &
+  (
+    | { kind: "source" }
+    | { kind: "fitted"; upper: IAutoMovieJointPose; lower: IAutoMovieJointPose }
+  );
 
 /** Only the final selected clamped pair needs the source's ordered unrelated-joint prefix. */
 function plantPose(
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   workspace: prepareChainFit.IWorkspace,
   candidate: IPlantCandidate,
 ): IAutoMoviePose {
-  return candidate.kind === "source" ? props.pose
+  return candidate.kind === "source"
+    ? props.pose
     : workspace.pose(candidate.upper, candidate.lower);
 }
 

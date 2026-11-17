@@ -1,12 +1,11 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieAxisFrame,
   IAutoMovieJointAxes,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 
 /**
  * Own-data copies and exact numerical comparisons used by prepared FK.

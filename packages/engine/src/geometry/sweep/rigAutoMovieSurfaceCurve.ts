@@ -1,10 +1,11 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieRigSurfaceCurve,
+  type IAutoMovieSurfaceCurveRig,
+  type IAutoMovieSurfacePoint,
+  type IAutoMovieSweepTransport,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { IAutoMovieBoneBuffer } from "./IAutoMovieBoneBuffer";
-import { IAutoMovieSurfaceCurveRig } from "./IAutoMovieSurfaceCurveRig";
-import { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
-import { IAutoMovieSurfacePoint } from "./IAutoMovieSurfacePoint";
-import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
 
 /** Shortest tangent part a curve keeps in a sweep's tangent plane before it is refused as meeting the sweep along its normal. */
@@ -40,21 +41,11 @@ const FLAT: number = 1e-9;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The spline is updated once per pose and serves every sample of the curve.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the spline buffers, 3 n rest points and nine numbers of normal and direction.
  */
-export const rigAutoMovieSurfaceCurve: (props: {
-  name: string;
-  curve: IAutoMovieSurfaceNetwork.ICurve;
-  from: IAutoMovieSurfacePoint;
-  to: IAutoMovieSurfacePoint;
-  bone: number;
-  bones: IAutoMovieBoneBuffer | null;
-}) => IAutoMovieSurfaceCurveRig = (props: {
-  name: string;
-  curve: IAutoMovieSurfaceNetwork.ICurve;
-  from: IAutoMovieSurfacePoint;
-  to: IAutoMovieSurfacePoint;
-  bone: number;
-  bones: IAutoMovieBoneBuffer | null;
-}): IAutoMovieSurfaceCurveRig => {
+export const rigAutoMovieSurfaceCurve: (
+  props: IAutoMovieRigSurfaceCurve.IProps,
+) => IAutoMovieSurfaceCurveRig = (
+  props: IAutoMovieRigSurfaceCurve.IProps,
+): IAutoMovieSurfaceCurveRig => {
   const { name, curve, from, to, bone, bones } = props;
   const through: IAutoMovieVector3[] = curve.through ?? [];
   const n: number = through.length + 2;

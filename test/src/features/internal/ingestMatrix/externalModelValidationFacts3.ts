@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieExternalModelInspection,
-  inspectAutoMovieExternalModelBytes,
-} from "@automovie/ingest";
+import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
+import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 
 import { throwsError } from "../predicates";
 import type { ExternalModelMatrixObject } from "./ExternalModelMatrixObject";

@@ -1,6 +1,11 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoftCurves64,
+  IAutoMovieCubicBezierCurve64,
+  IAutoMovieSampleContourRing64,
+} from "@automovie/interface";
+
 import { AutoMovieContourLoftCurves64 as C } from "./AutoMovieContourLoftCurves64";
-import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
-import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
 
 /**
  * Sample one declared closed polynomial without leaking a local refusal downstream.
@@ -18,18 +23,19 @@ import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Knots and source restrictions transfer to one loft invocation and expire with it; input controls remain caller-owned and no global cache survives.
  */
 export function sampleAutoMovieContourRing64(
-  curve: IAutoMovieCurve64.Cubic,
+  curve: IAutoMovieCubicBezierCurve64,
   toleranceMm: number,
-): {
-  name: string;
-  knots: C.Knot[];
-  period: number;
-  unsupported?: string;
-} {
+): IAutoMovieSampleContourRing64.IResult {
   const name: string = typeof curve?.name === "string" ? curve.name : "";
   try {
-    const knots: C.Knot[] = C.tessellate(curve, toleranceMm);
-    const points: M.V[] = knots.map((knot: C.Knot): M.V => knot.p);
+    const knots: IAutoMovieContourLoftCurves64.Knot[] = C.tessellate(
+      curve,
+      toleranceMm,
+    );
+    const points: AutoMovieVector3Tuple[] = knots.map(
+      (knot: IAutoMovieContourLoftCurves64.Knot): AutoMovieVector3Tuple =>
+        knot.p,
+    );
     const period: number = curve.phaseIntervals.reduce(
       (sum: number, width: number): number => sum + width,
       0,
@@ -38,7 +44,7 @@ export function sampleAutoMovieContourRing64(
     try {
       if (
         !C.hasArea(points) ||
-        points.some((point: M.V, i: number): boolean =>
+        points.some((point: AutoMovieVector3Tuple, i: number): boolean =>
           point.every(
             (value: number, axis: number): boolean =>
               value === points[(i + 1) % points.length][axis],
@@ -70,7 +76,7 @@ export function sampleAutoMovieContourRing64(
         (axis: number): boolean =>
           Object.hasOwn(endpoint, axis) && Number.isFinite(endpoint[axis]),
       );
-    const knots: C.Knot[] =
+    const knots: IAutoMovieContourLoftCurves64.Knot[] =
       trusted && Array.isArray(endpoint)
         ? [{ p: [endpoint[0], endpoint[1], endpoint[2]], phase: 0 }]
         : [];

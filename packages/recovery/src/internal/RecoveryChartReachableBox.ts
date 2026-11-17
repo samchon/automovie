@@ -1,3 +1,5 @@
+import type { IAutoMovieAffineBoxBound } from "@automovie/interface";
+
 /**
  * Bound one declared affine row over a common independent-coefficient box.
  * Duplicate original IDs first combine in input order using binary64 addition.
@@ -21,52 +23,9 @@
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Duplicate terms combine once before all three coordinate bounds, and their exact dyadic weights are reused across coordinates. A single local DataView decodes every binary64 input; no cross-call cache exists.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources maxTerms caps both supplied work and retained unique IDs. Call-local maps, BigInts and the eight-byte decoding buffer expire on return or throw; returned tuples own their numbers and no handles or input arrays are retained.
  */
-export function RecoveryChartReachableBox(input: {
-  /** Constant part of the substituted position row, millimetres. */
-  constantMm: readonly [number, number, number];
-
-  /** Original independent IDs and dimensionless weights; repeated IDs combine in input order. */
-  terms: readonly { id: number; weight: number }[];
-
-  /** Common independent-control lower bounds, millimetres. */
-  lowerMm: readonly [number, number, number];
-
-  /** Common independent-control upper bounds, millimetres. */
-  upperMm: readonly [number, number, number];
-
-  /** One private positional observation, millimetres; it need not be inside the box. */
-  targetMm: readonly [number, number, number];
-
-  /** Positive millimetre tolerance; exact equality is not infeasible. */
-  toleranceMm: number;
-
-  /** Positive safe cap on supplied terms, including repeated and canceled addresses. */
-  maxTerms: number;
-}): {
-  /** Outward-rounded lower endpoints, millimetres. */
-  lowerMm: [number, number, number];
-
-  /** Outward-rounded upper endpoints, millimetres. */
-  upperMm: [number, number, number];
-
-  /** Approximate distance to the exact row image, millimetres. */
-  minimumDistanceMm: number;
-
-  /** Exact strict distance-squared comparison for the combined binary64 row. */
-  infeasibleAtTolerance: boolean;
-
-  /** Binary64 sum of combined weights, in first-address order. */
-  weightSum: number;
-
-  /** Binary64 sum of absolute combined weights, in first-address order. */
-  absoluteWeightSum: number;
-
-  /** Unique original addresses, including exact-zero cancellations. */
-  terms: number;
-
-  /** Predicate scope and diagnostic precision qualification. */
-  diagnostic: string;
-} {
+export function RecoveryChartReachableBox(
+  input: Parameters<IAutoMovieAffineBoxBound.Operation>[0],
+): ReturnType<IAutoMovieAffineBoxBound.Operation> {
   const finite: (p: readonly number[]) => boolean = (
     p: readonly number[],
   ): boolean => p.length === 3 && p.every(Number.isFinite);

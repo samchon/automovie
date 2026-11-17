@@ -5,6 +5,7 @@ export * from "./ArchetypeBand";
 export * from "./ArchetypeBody";
 export * from "./ArchetypeBuilder";
 export * from "./ArchetypeBuilderTypes";
+export * from "./ArchetypeConvexCell";
 export * from "./ArchetypeCourse";
 export * from "./ArchetypeDensity";
 export * from "./ArchetypeDraw";

@@ -1,7 +1,9 @@
-import type { preparePoseResolution } from "@automovie/engine";
-import type { IAutoMoviePose } from "@automovie/interface";
+import { preparePoseResolution } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 
@@ -22,13 +24,13 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The evaluation owns its record/raw operation key until return/throw; canonical body FK retains last successful dependency rows under that weak key. queries owns only body plus one lazy genuine ROM mapper until scan release, never prior keys/workspaces, seeds or time history. No plan/offset/result stores either preparation.
  */
 export function prepareHumanSegmentPose(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
 ): prepareHumanSegmentPose.IPrepared {
   return fresh(body, prepareHumanPostureProjection(body));
 }
 
 /** One independent FK workspace paired only with an owner-issued ROM mapper. */
-function fresh(body: IHumanBody, clamp: ReturnType<typeof prepareHumanPostureProjection>):
+function fresh(body: IAutoMovieMotionHumanBody, clamp: ReturnType<typeof prepareHumanPostureProjection>):
   prepareHumanSegmentPose.IPrepared {
   const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
   return {
@@ -54,7 +56,7 @@ export namespace prepareHumanSegmentPose {
    * Changed body/rig/ROM data require a new scan producer. Every actual joint
    * still projects normally, and release of the scan releases its mapper.
    */
-  export function queries(body: IHumanBody): () => IPrepared {
+  export function queries(body: IAutoMovieMotionHumanBody): () => IPrepared {
     let clamp: ReturnType<typeof prepareHumanPostureProjection> | undefined;
     return (): IPrepared => {
       if (clamp === undefined) clamp = prepareHumanPostureProjection(body);
@@ -71,7 +73,7 @@ export namespace prepareHumanSegmentPose {
    */
   export interface IPrepared {
     /** Same body identity required by every borrower. */
-    readonly body: IHumanBody;
+    readonly body: IAutoMovieMotionHumanBody;
 
     /** Project each actual pose through the unchanged rig's ordinary ROM. */
     clamp(pose: IAutoMoviePose): IAutoMoviePose;

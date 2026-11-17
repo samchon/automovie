@@ -1,16 +1,16 @@
 import { createLadder } from "@automovie/archetypes";
-import {
-  HumanObject,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanProp,
+} from "@automovie/interface";
+import { HumanObject } from "@automovie/motions";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
 const S: typeof motionHumanLawSweep = motionHumanLawSweep;
 
 /** The everyday captures' box to step over: 0.3 m high and 0.25 m deep, its near side 0.35 m ahead and facing the performer, with a kerb's `edge` and `top` (`createKerb`'s contacts, at a height no kerb's band reaches). */
-const box: IHumanProp = {
+const box: IAutoMovieMotionHumanProp = {
   subject: "box",
   frame: {
     position: { x: 0, y: 0, z: 0.6 },
@@ -65,12 +65,12 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
 > = {
   stand: (
     _pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(a, S.chain().act("stand", { seconds: 2 })),
   walk: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -81,7 +81,7 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
     ),
   run: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -92,7 +92,7 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
     ),
   jump: (
     _pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -102,8 +102,8 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
     ),
   approach: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.duo(a, b, 3, [
       S.chain().act("approach", {
@@ -115,7 +115,7 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
     ]),
   stepOver: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -127,7 +127,7 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
     ),
   climbStairs: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -139,7 +139,7 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
     ),
   climbLadder: (
     _pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(a, S.chain().act("climbLadder", { ladder: "ladder" }), [
       // A fixed ladder 0.35 m ahead, its rungs facing the climber.
@@ -151,12 +151,12 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
     ]),
   crawl: (
     _pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(a, S.chain().act("crawl", { cycles: 2 })),
   carry: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -169,7 +169,7 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
     ),
   pushPull: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const way: "push" | "pull" | "drag" = (pick("way") ?? "push") as
       | "push"
@@ -189,7 +189,10 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
 };
 
 /** A crate on the floor `ahead` metres along +Z, with two handles 0.5 m apart at the performer's elbow height (the shoulder's height less the upper arm). */
-function crate(a: IHumanBody, ahead: number): IHumanProp {
+function crate(
+  a: IAutoMovieMotionHumanBody,
+  ahead: number,
+): IAutoMovieMotionHumanProp {
   return {
     subject: "crate",
     frame: {

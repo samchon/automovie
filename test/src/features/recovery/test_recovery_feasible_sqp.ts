@@ -1,9 +1,11 @@
-import type { IAutoMovieSimplexAtom } from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryFeasibleModel,
+  IAutoMovieRecoverySqpArc,
+  IAutoMovieRecoverySqpOptions,
+  IAutoMovieRecoverySqpTightening,
+  IAutoMovieSimplexAtom,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryFeasibleModel,
-  type IAutoMovieRecoverySqpArc,
-  type IAutoMovieRecoverySqpOptions,
-  type IAutoMovieRecoverySqpTightening,
   chooseRecoverySqpTightening,
   createRecoveryFeasibleSqpArc,
   mixRecoveryFeasibleSqpStep,

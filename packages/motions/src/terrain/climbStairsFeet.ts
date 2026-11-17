@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanFoot,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import type { HumanFoot } from "../posture/HumanFoot";
 
@@ -19,29 +24,29 @@ import type { HumanFoot } from "../posture/HumanFoot";
  */
 export function climbStairsFeet(
   prints: Readonly<Record<"left" | "right", readonly {
-    print: { placement: HumanFoot.IPlacement };
+    print: { placement: IAutoMovieMotionHumanFoot.IPlacement };
     step: number;
   }[]>>,
-  clock: AutoMovieMotionClock.IClock,
+  clock: IAutoMovieMotionClock,
   swing: (
     side: "left" | "right",
-    from: HumanFoot.IPlacement,
-    to: HumanFoot.IPlacement,
-  ) => (share: number) => HumanFoot.IPlacement,
+    from: IAutoMovieMotionHumanFoot.IPlacement,
+    to: IAutoMovieMotionHumanFoot.IPlacement,
+  ) => (share: number) => IAutoMovieMotionHumanFoot.IPlacement,
 ): (side: "left" | "right", seconds: number) => {
-  placement: HumanFoot.IPlacement;
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
   planted: boolean;
 } {
   const intervals: Record<"left" | "right", {
     off: number;
     on: number;
-    from: HumanFoot.IPlacement;
+    from: IAutoMovieMotionHumanFoot.IPlacement;
     progress: (seconds: number) => number;
-    read: (share: number) => HumanFoot.IPlacement;
+    read: (share: number) => IAutoMovieMotionHumanFoot.IPlacement;
   }[]> = { left: [], right: [] };
   for (const side of ["left", "right"] as const)
     for (let i: number = 1; i < prints[side].length; i++) {
-      const from: HumanFoot.IPlacement = prints[side][i - 1]!.print.placement;
+      const from: IAutoMovieMotionHumanFoot.IPlacement = prints[side][i - 1]!.print.placement;
       const step: number = prints[side][i]!.step;
       intervals[side].push({
         off: clock.at(`toeOff${step}`),
@@ -52,7 +57,7 @@ export function climbStairsFeet(
       });
     }
   return (side: "left" | "right", seconds: number): {
-    placement: HumanFoot.IPlacement;
+    placement: IAutoMovieMotionHumanFoot.IPlacement;
     planted: boolean;
   } => {
     const own: (typeof intervals)["left"] = intervals[side];

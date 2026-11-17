@@ -1,4 +1,4 @@
-import type { IHumanPosture } from "./IHumanPosture";
+import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
 /**
  * Record the actual native objects created by authoritative raw translation.
@@ -13,7 +13,7 @@ import type { IHumanPosture } from "./IHumanPosture";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual construction proves original native objects/data flags and pure serialization before public escape. Later Object.is scalar/child plus exact own metadata checks establish current prerequisites; source solve/rig proof remains separate. No prior mutable-output verdict is retained and no replacement child is observed.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One weak candidate capability owns only its bounded original-node snapshot until that candidate is released. Replacement children are neither traversed nor retained, no public pose or reader is borrowed, and no timestamp/history/handle collection is added.
  */
-export function prepareIssuedHumanPosture(posture: IHumanPosture): (() => boolean) | undefined {
+export function prepareIssuedHumanPosture(posture: IAutoMovieMotionHumanPosture): (() => boolean) | undefined {
   try {
     if (!standardJson()) return undefined;
     const nodes: INode[] = [];

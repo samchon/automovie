@@ -1,16 +1,22 @@
 import { createDrinkware } from "@automovie/archetypes";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanDrinkingArm,
+  IAutoMovieMotionHumanHandToFaceRows,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanTouchUpright,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanBend,
   AutoMovieMotionHumanDrinkingArm,
   AutoMovieMotionHumanTouchDrink,
-  type AutoMovieMotionHumanTouchUpright,
   HumanChain,
   HumanObject,
-  type HumanSegment,
   HumanTrunk,
-  type IHumanBody,
-  type IHumanPosture,
   handToFace,
 } from "@automovie/motions";
 
@@ -63,8 +69,8 @@ export namespace motionHandToFaceDrink {
    */
   export function check(name: motionHumanBody.Name, least: boolean): void {
     const complaints: motionComplaints.IGatherer = motionComplaints();
-    const body: IHumanBody = motionHumanBody(name);
-    const stood: HumanObject.Placement = {
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const stood: IAutoMovieMotionHumanObject.Placement = {
       at: {
         x: -body.measure.shoulderHalfWidth,
         y: body.measure.waistHeight,
@@ -171,15 +177,18 @@ export namespace motionHandToFaceDrink {
       AutoMovieMotionHumanDrinkingArm.measured(M.bones(s, at), "right", s.yaw);
     // The arm's goal there, for the fit it came from: the elbow's hint and
     // the reference arm, and where the fitted elbow and the wrist lie.
-    const posture: IHumanPosture = s.film.performance.posture("a", at);
-    const segments: readonly HumanSegment.ISegment[] =
+    const posture: IAutoMovieMotionHumanPosture = s.film.performance.posture(
+      "a",
+      at,
+    );
+    const segments: readonly IAutoMovieMotionHumanSegment[] =
       s.film.performance.segments("a");
-    const entered: IHumanPosture = s.film.performance.posture(
+    const entered: IAutoMovieMotionHumanPosture = s.film.performance.posture(
       "a",
       segments[segments.length - 1]!.start,
     );
     const mouth: IAutoMovieVector3 = M.region(s, "a", s.body, "mouth", at);
-    const goal: IHumanPosture.IGoal | undefined = posture.limbs.rightArm;
+    const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs.rightArm;
     const v = (p: IAutoMovieVector3 | undefined): string =>
       p === undefined
         ? "none"
@@ -189,7 +198,7 @@ export namespace motionHandToFaceDrink {
     // On a miss, what the law's own drinking reader reads for this very
     // posture and goal, so a reader that admits what is not shown is told
     // apart from a goal or posture the plan did not foresee.
-    const reader: AutoMovieMotionHumanDrinkingArm.IArm | undefined =
+    const reader: IAutoMovieMotionHumanDrinkingArm.IArm | undefined =
       drinks || goal === undefined
         ? undefined
         : AutoMovieMotionHumanDrinkingArm.read(
@@ -216,7 +225,10 @@ export namespace motionHandToFaceDrink {
 
   /** The drink's least lean, read on the posture its search was given (the act's first second, the head not yet turned): the lean one step below must admit no arm. */
   function below(s: M.IStaged): string[] {
-    const posture: IHumanPosture = s.film.performance.posture("a", 0);
+    const posture: IAutoMovieMotionHumanPosture = s.film.performance.posture(
+      "a",
+      0,
+    );
     const place: ReturnType<typeof HumanTrunk.region> = HumanTrunk.region(
       s.body,
       posture,
@@ -227,9 +239,9 @@ export namespace motionHandToFaceDrink {
       posture,
       "right",
     );
-    const effector: handToFace.IRow["effector"] =
+    const effector: IAutoMovieMotionHumanHandToFaceRows.IRow["effector"] =
       handToFace.ROWS.drink.effector;
-    const found: AutoMovieMotionHumanTouchUpright.IFacing =
+    const found: IAutoMovieMotionHumanTouchUpright.IFacing =
       AutoMovieMotionHumanTouchDrink.drinking(
         s.body,
         posture,

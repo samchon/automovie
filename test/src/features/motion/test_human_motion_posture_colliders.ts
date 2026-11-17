@@ -1,13 +1,14 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanColliders,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -45,14 +46,19 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_posture_colliders(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   for (const name of motionHumanBody.EXTREMES) {
-    const body: IHumanBody = motionHumanBody(name);
-    const posture: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const posture: IAutoMovieMotionHumanPosture = stand.posture(
+      body,
+      { x: 0, y: 0, z: 0 },
+      0,
+    );
     const pose: IAutoMoviePose = resolveHumanPosture(body, posture);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       pose,
     );
-    const placed: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
+    const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanColliders.placed(body, bones);
     const toward = (
       from: IAutoMovieVector3,
       x: number,
@@ -76,7 +82,9 @@ export function test_human_motion_posture_colliders(): void {
       `${name}: a point a metre above the crown is ${HumanColliders.distance(body, bones, crown).distance.toFixed(3)} m off`,
       HumanColliders.distance(body, bones, crown).distance >= 0.9,
     );
-    const hips: HumanColliders.IPlaced = placed.find((s) => s.bone === "hips")!;
+    const hips: IAutoMovieMotionHumanColliders.IPlaced = placed.find(
+      (s) => s.bone === "hips",
+    )!;
     complaints.check(
       `${name}: the hips' frame lies inside`,
       HumanColliders.distance(body, bones, hips.pose.position).distance < 0,
@@ -133,26 +141,32 @@ export function test_human_motion_posture_colliders(): void {
           0.25,
       ) <= 1e-9,
     );
-    const up: HumanColliders.IPlaced[] = HumanColliders.placed(body, lifted);
-    const down: HumanColliders.IPlaced[] = HumanColliders.placed(body, flat);
+    const up: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
+      body,
+      lifted,
+    );
+    const down: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanColliders.placed(body, flat);
     complaints.check(
       `${name}: one placed segment per profile segment`,
       down.length === body.profile.segments.length && up.length === down.length,
     );
     complaints.check(
       `${name}: lifting the root lifts every placed segment and keeps its rotation`,
-      up.every((s: HumanColliders.IPlaced, i: number): boolean => {
-        const d: HumanColliders.IPlaced = down[i]!;
-        return (
-          Math.abs(s.pose.position.x - d.pose.position.x) <= 1e-9 &&
-          Math.abs(s.pose.position.y - d.pose.position.y - 0.25) <= 1e-9 &&
-          Math.abs(s.pose.position.z - d.pose.position.z) <= 1e-9 &&
-          Math.abs(s.pose.rotation.x - d.pose.rotation.x) <= 1e-9 &&
-          Math.abs(s.pose.rotation.y - d.pose.rotation.y) <= 1e-9 &&
-          Math.abs(s.pose.rotation.z - d.pose.rotation.z) <= 1e-9 &&
-          Math.abs(s.pose.rotation.w - d.pose.rotation.w) <= 1e-9
-        );
-      }),
+      up.every(
+        (s: IAutoMovieMotionHumanColliders.IPlaced, i: number): boolean => {
+          const d: IAutoMovieMotionHumanColliders.IPlaced = down[i]!;
+          return (
+            Math.abs(s.pose.position.x - d.pose.position.x) <= 1e-9 &&
+            Math.abs(s.pose.position.y - d.pose.position.y - 0.25) <= 1e-9 &&
+            Math.abs(s.pose.position.z - d.pose.position.z) <= 1e-9 &&
+            Math.abs(s.pose.rotation.x - d.pose.rotation.x) <= 1e-9 &&
+            Math.abs(s.pose.rotation.y - d.pose.rotation.y) <= 1e-9 &&
+            Math.abs(s.pose.rotation.z - d.pose.rotation.z) <= 1e-9 &&
+            Math.abs(s.pose.rotation.w - d.pose.rotation.w) <= 1e-9
+          );
+        },
+      ),
     );
   }
   complaints.assert("every collider is placed and read as documented");

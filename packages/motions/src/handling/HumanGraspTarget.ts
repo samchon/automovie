@@ -1,8 +1,22 @@
-import { Quaternion, Vector3, physicalShapeSpan, type curlChainUntilContact } from "@automovie/engine";
-import type { IAutoMovieAffordance, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  type curlChainUntilContact,
+  physicalShapeSpan,
+} from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieCurlChainUntilContact,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanProp,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
+  IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanProp } from "../perform/IHumanProp";
 import type { HumanGrasp } from "./HumanGrasp";
 
 /**
@@ -21,13 +35,13 @@ import type { HumanGrasp } from "./HumanGrasp";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller fixes the same prop, handle, affordances and shapes for its plan; every changed world frame computes its own actual target, with no target-result or time cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder borrows one unchanged affordance and shape list until its plan is released; each complete call returns fresh collider wrappers and no FK reader, prior frame or query result is retained.
  */
-export function HumanGraspTarget(prop: IHumanProp, id: string): {
+export function HumanGraspTarget(prop: IAutoMovieMotionHumanProp, id: string): {
   /** The current world handle point alone, without unused axes or width. */
-  point: (frame: IHumanProp.IFrame) => IAutoMovieVector3;
+  point: (frame: IAutoMovieRigidTransform) => IAutoMovieVector3;
   /** The original current point, axes and exact grasp width. */
-  frame: (frame: IHumanProp.IFrame) => HumanGrasp.IFrame;
+  frame: (frame: IAutoMovieRigidTransform) => HumanGrasp.IFrame;
   /** The original current frame with actual closure colliders and grip kind. */
-  at: (frame: IHumanProp.IFrame) => HumanGrasp.ITarget;
+  at: (frame: IAutoMovieRigidTransform) => IAutoMovieMotionHumanGrasp.ITarget;
 } {
   const subject: string = prop.subject;
   const affordance: IAutoMovieAffordance | undefined = prop.affordances?.find(
@@ -42,27 +56,27 @@ export function HumanGraspTarget(prop: IHumanProp, id: string): {
       reason: `Prop ${subject} has no affordance ${id}; it has ${(prop.affordances ?? []).map((value: IAutoMovieAffordance): string => value.id).join(", ") || "none"}`,
       fix: "name one of the prop's affordances, or declare this one on the prop",
     });
-  const shapes: readonly IAutoMoviePhysicalProfile.IShape[] = prop.shapes ?? [];
+  const shapes: readonly IAutoMoviePhysicalShape[] = prop.shapes ?? [];
   if (shapes.length === 0)
     throw new HumanRefusal({
       kind: "affordance", axis: "prop", value: subject,
       reason: `Prop ${subject} declares no colliders; a grasp closes the fingers on them`,
       fix: "give the prop the shapes the fingers close on",
     });
-  const pointAt: (frame: IHumanProp.IFrame) => IAutoMovieVector3 = (frame: IHumanProp.IFrame): IAutoMovieVector3 =>
+  const pointAt: (frame: IAutoMovieRigidTransform) => IAutoMovieVector3 = (frame: IAutoMovieRigidTransform): IAutoMovieVector3 =>
     Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, affordance.frame.translation));
-  const read: (frame: IHumanProp.IFrame) => HumanGrasp.IFrame = (frame: IHumanProp.IFrame): HumanGrasp.IFrame => {
+  const read: (frame: IAutoMovieRigidTransform) => HumanGrasp.IFrame = (frame: IAutoMovieRigidTransform): HumanGrasp.IFrame => {
     const turn: IAutoMovieQuaternion = Quaternion.multiply(frame.rotation, affordance.frame.rotation);
     const approach: IAutoMovieVector3 = Quaternion.rotateVector(turn, { x: 0, y: -1, z: 0 });
     const point: IAutoMovieVector3 = pointAt(frame);
     let width: number | undefined = affordance.aperture;
     if (width === undefined) {
-      const centre: (shape: IAutoMoviePhysicalProfile.IShape) => IAutoMovieVector3 = (shape: IAutoMoviePhysicalProfile.IShape): IAutoMovieVector3 =>
+      const centre: (shape: IAutoMoviePhysicalShape) => IAutoMovieVector3 = (shape: IAutoMoviePhysicalShape): IAutoMovieVector3 =>
         Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, shape.transform.position));
-      let nearest: IAutoMoviePhysicalProfile.IShape = shapes[0]!;
+      let nearest: IAutoMoviePhysicalShape = shapes[0]!;
       let nearestDistance: number | undefined;
       for (let index: number = 1; index < shapes.length; ++index) {
-        const shape: IAutoMoviePhysicalProfile.IShape = shapes[index]!;
+        const shape: IAutoMoviePhysicalShape = shapes[index]!;
         const candidate: number = Vector3.length(Vector3.subtract(centre(shape), point));
         nearestDistance ??= Vector3.length(Vector3.subtract(centre(nearest), point));
         if (candidate < nearestDistance) {
@@ -78,10 +92,10 @@ export function HumanGraspTarget(prop: IHumanProp, id: string): {
   return {
     point: pointAt,
     frame: read,
-    at: (frame: IHumanProp.IFrame): HumanGrasp.ITarget => ({
+    at: (frame: IAutoMovieRigidTransform): IAutoMovieMotionHumanGrasp.ITarget => ({
       ...read(frame),
       grip: affordance.grip ?? "power",
-      colliders: shapes.map((shape: IAutoMoviePhysicalProfile.IShape): curlChainUntilContact.ICollider => ({ shape, frame })),
+      colliders: shapes.map((shape: IAutoMoviePhysicalShape): IAutoMovieCurlChainUntilContact.ICollider => ({ shape, frame })),
     }),
   };
 }

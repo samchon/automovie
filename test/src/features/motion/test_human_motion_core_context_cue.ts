@@ -1,13 +1,16 @@
-import type { resolveAutoMovieSchedule } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanStand,
+  IAutoMovieScheduleCue,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanCue,
   HumanPerformance,
   HumanRefusal,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
   stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -40,21 +43,24 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, how the law reads and the 3 scenarios.
  */
 export function test_human_motion_core_context_cue(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const written: readonly resolveAutoMovieSchedule.ICue[] = [
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const written: readonly IAutoMovieScheduleCue[] = [
     { name: "doorSlam", seconds: 0.8 },
     { name: "thunder", seconds: 1.7 },
   ];
-  const read = (track: string): readonly resolveAutoMovieSchedule.ICue[] => {
-    let seen: readonly resolveAutoMovieSchedule.ICue[] = [];
-    const listen: IHumanActionLaw<stand.IParams> = {
-      ...stand,
-      name: "listen",
-      plan: (context: IHumanActionContext<stand.IParams>): IHumanActionPlan => {
-        seen = context.cue(track);
-        return stand.plan(context);
-      },
-    };
+  const read = (track: string): readonly IAutoMovieScheduleCue[] => {
+    let seen: readonly IAutoMovieScheduleCue[] = [];
+    const listen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
+      {
+        ...stand,
+        name: "listen",
+        plan: (
+          context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
+        ): IAutoMovieMotionHumanActionPlan => {
+          seen = context.cue(track);
+          return stand.plan(context);
+        },
+      };
     new HumanPerformance({
       seed: "cue",
       performers: [
@@ -77,10 +83,8 @@ export function test_human_motion_core_context_cue(): void {
     });
     return seen;
   };
-  const plain = (
-    cues: readonly resolveAutoMovieSchedule.ICue[],
-  ): [string, number][] =>
-    cues.map((cue: resolveAutoMovieSchedule.ICue): [string, number] => [
+  const plain = (cues: readonly IAutoMovieScheduleCue[]): [string, number][] =>
+    cues.map((cue: IAutoMovieScheduleCue): [string, number] => [
       cue.name,
       Number(cue.seconds.toFixed(9)),
     ]);

@@ -1,21 +1,21 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointPose,
   IAutoMoviePose,
+  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
-import type { preparePoseResolution } from "../kinematics/preparePoseResolution";
+import { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { getConstraint } from "../rom/getConstraint";
-import { IFitChainToTargetProps } from "./IFitChainToTargetProps";
-import { IPreparedChainPlant } from "./IPreparedChainPlant";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { resolveChainEffectorBaseRotation } from "./resolveChainEffectorBaseRotation";
 
@@ -32,19 +32,19 @@ import { resolveChainEffectorBaseRotation } from "./resolveChainEffectorBaseRota
  */
 export const prepareChainPlant: (
   props: Pick<
-    IFitChainToTargetProps,
+    IAutoMovieFitChainToTargetProps,
     "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames"
   >,
   resolution?: ReturnType<typeof preparePoseResolution>,
   poseResolution?: prepareSkeletonPoseResolution.IRig,
-) => IPreparedChainPlant | null = (
+) => IAutoMoviePreparedChainPlant | null = (
   props: Pick<
-    IFitChainToTargetProps,
+    IAutoMovieFitChainToTargetProps,
     "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames"
   >,
   resolution?: ReturnType<typeof preparePoseResolution>,
   poseResolution?: prepareSkeletonPoseResolution.IRig,
-): IPreparedChainPlant | null => {
+): IAutoMoviePreparedChainPlant | null => {
   const { chain }: typeof props = props;
   // The limb at rest under the current parent pose: zero its own articulation
   // so the recovered world rotations carry the torso pose but not the limb's.
@@ -56,11 +56,21 @@ export const prepareChainPlant: (
         j.bone !== chain.upper && j.bone !== chain.lower,
     ),
   };
-  const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseResolution === undefined
-    ? resolveBoneMap(props.skeleton, zeroed, props.topology, props.jointAxes,
-        props.restFrames, resolution)
-    : poseResolution.resolveMap(zeroed, resolution,
-        new Set([chain.upper, chain.lower, chain.effector]));
+  const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    poseResolution === undefined
+      ? resolveBoneMap(
+          props.skeleton,
+          zeroed,
+          props.topology,
+          props.jointAxes,
+          props.restFrames,
+          resolution,
+        )
+      : poseResolution.resolveMap(
+          zeroed,
+          resolution,
+          new Set([chain.upper, chain.lower, chain.effector]),
+        );
   const upper: IAutoMovieResolvedBone | undefined = map.get(chain.upper);
   const lower: IAutoMovieResolvedBone | undefined = map.get(chain.lower);
   const effector: IAutoMovieResolvedBone | undefined = map.get(chain.effector);

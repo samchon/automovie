@@ -1,16 +1,16 @@
-import type {
-  IAutoMovieResolvedBone,
-  preparePoseResolution,
-} from "@automovie/engine";
+import { preparePoseResolution } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
@@ -45,14 +45,14 @@ import { poseBones } from "./poseBones";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader owns one bone map, one placement, one fixed-source workspace and the subtree's names until its search releases it; it stores no candidate, reading or reader beyond that.
  */
 export function prepareHumanArmRoom(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
   side: "left" | "right",
-  others: readonly HumanColliders.IPlaced[] = [],
-  baseline: HumanArmClearance.IBaseline = { forearm: 0, segments: 0 },
+  others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
+  baseline: IAutoMovieMotionHumanArmClearance.IBaseline = { forearm: 0, segments: 0 },
   operation?: ReturnType<typeof preparePoseResolution>,
   read?: prepareHumanArmRoom.IRead,
-): (arm: HumanArmClearance.IArm) => number {
+): (arm: IAutoMovieMotionHumanArmClearance.IArm) => number {
   const upper: AutoMovieHumanoidBone = `${side}UpperArm`;
   const lower: AutoMovieHumanoidBone = `${side}LowerArm`;
   const hand: AutoMovieHumanoidBone = `${side}Hand`;
@@ -76,18 +76,18 @@ export function prepareHumanArmRoom(
   // The body as the pose puts it, read and placed once.
   const base: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     read?.bones ?? poseBones(body, pose, operation);
-  const placed: HumanColliders.IPlaced[] = read?.placed ?? HumanColliders.placed(body, base);
+  const placed: IAutoMovieMotionHumanColliders.IPlaced[] = read?.placed ?? HumanColliders.placed(body, base);
   const slots: number[] = [];
-  placed.forEach((segment: HumanColliders.IPlaced, index: number): void => {
+  placed.forEach((segment: IAutoMovieMotionHumanColliders.IPlaced, index: number): void => {
     if (moved.has(segment.bone)) slots.push(index);
   });
   const place: ReturnType<typeof HumanColliders.preparePlaced> = HumanColliders.preparePlaced(body, moved);
-  const fixed: ReturnType<IHumanBody["poseResolution"]["preparePose"]> =
+  const fixed: ReturnType<IAutoMovieMotionHumanBody["poseResolution"]["preparePose"]> =
     body.poseResolution.preparePose(pose, moved, operation);
   const other: readonly ("left" | "right")[] = [side === "left" ? "right" : "left"];
   const targets: NonNullable<Parameters<typeof AutoMovieMotionHumanAuditTangle.arm>[4]> = [];
 
-  return (arm: HumanArmClearance.IArm): number => {
+  return (arm: IAutoMovieMotionHumanArmClearance.IArm): number => {
     const edits: IAutoMovieJointPose[] = [];
     for (const [bone, angles] of [[upper, arm.upper], [lower, arm.lower], [hand, arm.hand]] as const)
       if (carried.has(bone))
@@ -99,8 +99,8 @@ export function prepareHumanArmRoom(
     for (const [bone, frame] of turned) if (bones.has(bone)) bones.set(bone, frame);
 
     // The whole body's placed segments in the profile's order, the subtree's replaced.
-    const again: HumanColliders.IPlaced[] = place(bones);
-    const current: HumanColliders.IPlaced[] = again.length === slots.length
+    const again: IAutoMovieMotionHumanColliders.IPlaced[] = place(bones);
+    const current: IAutoMovieMotionHumanColliders.IPlaced[] = again.length === slots.length
       ? placed.slice() : HumanColliders.placed(body, bones);
     let prepared: Parameters<typeof AutoMovieMotionHumanAuditTangle.arm>[4];
     if (again.length === slots.length) {
@@ -144,6 +144,6 @@ export namespace prepareHumanArmRoom {
     /** Each bone's frame. */
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     /** The placed segments, in the profile's order. */
-    placed: HumanColliders.IPlaced[];
+    placed: IAutoMovieMotionHumanColliders.IPlaced[];
   }
 }

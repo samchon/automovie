@@ -1,4 +1,4 @@
-import { IAutoMoviePlanarPoint } from "./IAutoMoviePlanarPoint";
+import type { IAutoMoviePlanarPoint } from "./IAutoMoviePlanarPoint";
 
 /**
  * A closed outline in the host boundary's own frame, straight edges or arcs.

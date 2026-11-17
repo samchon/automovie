@@ -1,13 +1,11 @@
-import {
-  type IAutoMovieCurve64 as C,
-  type IAutoMovieContourLoftEmission64,
-  type IAutoMovieContourLoft64 as L,
-  generateAutoMovieContourLoft64,
-} from "@automovie/engine";
-import {
-  type IAutoMovieRecoveryArraySource,
-  type IAutoMovieRecoveryContourFileMesh,
-} from "@automovie/recovery";
+import { generateAutoMovieContourLoft64 } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoft64,
+  IAutoMovieContourLoftEmission64,
+  IAutoMovieJsonArraySource,
+  IAutoMovieRecoveryContourFileMesh,
+} from "@automovie/interface";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -32,7 +30,7 @@ import { createRecoveryFileVectorTable } from "../internal/createRecoveryFileVec
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Scalar channel buffers retain at most 8192 numbers each. Every structured generating ring flushes immediately, so at most one indivisible ring's copied points/phases are pending; its size is bounded by the original retained ring, independently of emitted-mesh limits. Each table owns at most three 65520-byte pages, totaling 393120 bytes across both tables, plus bounded headers and per-face triples. Dirty victims flush before reuse and both tables finish before success. Fragment descriptors and kernel reports grow with actual admitted output. Every acquired descriptor closes independently without replacing a primary failure.
  */
 export function createAutoMovieRecoveryContourFileMesh(
-  input: L,
+  input: IAutoMovieContourLoft64,
   directory: string,
   limits: { maxVertices: number; maxTriangles: number },
 ): IAutoMovieRecoveryContourFileMesh {
@@ -56,7 +54,7 @@ export function createAutoMovieRecoveryContourFileMesh(
   const descriptors: number[] = [];
   const placeholders: unknown[][] = [[], [], [], []];
   const pending: unknown[][] = [[], [], [], []];
-  const sources: IAutoMovieRecoveryArraySource[][] = [[], [], [], []];
+  const sources: IAutoMovieJsonArraySource[][] = [[], [], [], []];
   const counts: number[] = [0, 0, 0, 0];
   const flush: (channel: number) => void = (channel: number): void => {
     if (!pending[channel]!.length) return;
@@ -116,7 +114,7 @@ export function createAutoMovieRecoveryContourFileMesh(
     const areaTable: ReturnType<typeof createRecoveryFileVectorTable> =
       table(area);
     emission = generateAutoMovieContourLoft64(input, {
-      vertex: (index: number, point: C.Vector): void => {
+      vertex: (index: number, point: Readonly<AutoMovieVector3Tuple>): void => {
         if (index !== vertices || vertices >= limits.maxVertices)
           throw new Error(
             "Contour vertex population exceeded its admitted output ceiling",
@@ -175,15 +173,16 @@ export function createAutoMovieRecoveryContourFileMesh(
       },
       construction: (
         id: string,
-        points: readonly C.Vector[],
-        phase: (point: C.Vector) => number,
+        points: readonly Readonly<AutoMovieVector3Tuple>[],
+        phase: (point: Readonly<AutoMovieVector3Tuple>) => number,
       ): void => {
         // One original ring is indivisible; no complete output collection is copied.
         append(3, {
           id,
           closed: true,
-          points: points.map((point: C.Vector): number[] =>
-            point.map((value: number): number => value * 0.001),
+          points: points.map(
+            (point: Readonly<AutoMovieVector3Tuple>): number[] =>
+              point.map((value: number): number => value * 0.001),
           ),
           phases: points.map(phase),
         });
@@ -246,7 +245,7 @@ export function createAutoMovieRecoveryContourFileMesh(
         (
           target: unknown[],
           channel: number,
-        ): [unknown[], IAutoMovieRecoveryArraySource[]] => [
+        ): [unknown[], IAutoMovieJsonArraySource[]] => [
           target,
           sources[channel]!,
         ],

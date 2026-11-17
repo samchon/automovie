@@ -1,8 +1,14 @@
-import { AutoMovieBernstein64 as B } from "./AutoMovieBernstein64";
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieCubicBezierControls3,
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoftCurves64,
+  IAutoMovieCubicBezierCurve64,
+} from "@automovie/interface";
+
 import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdivision64";
 import { AutoMovieContourSlit64 as Slit } from "./AutoMovieContourSlit64";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
-import { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 
 /** Local vector aliases preserve the engine's complete binary64 arithmetic. */
@@ -12,8 +18,10 @@ const add: typeof M.add = M.add,
 /** Three-dimensional projection helpers in one common physical chart. */
 /** Stable private binding preserves internal call ownership across the public facade. */
 const closestPoint: typeof Slit.closest = Slit.closest;
-const dist: (a: M.V, b: M.V) => number = (a: M.V, b: M.V): number =>
-  Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+const dist: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): number => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 
 /**
  * Curve sampling and oriented slit construction for a generic closed-section loft.
@@ -26,25 +34,6 @@ const dist: (a: M.V, b: M.V) => number = (a: M.V, b: M.V): number =>
  */
 export namespace AutoMovieContourLoftCurves64 {
   /**
-   * A closed polygon's physical arclength chart, in millimetres.
-   *
-   * @evidence contracts/development/design.md#principled-representation This record preserves the closed polygon arclength or evaluated parameter chart consumed by the helper namespace.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Fields separate physical points from their cumulative or normalized parameters.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts This type performs no fitting or geometry validity certification.
-   * @evidence contracts/development/common.md#meaningful-documentation States physical point units and parameter meaning.
-   */
-  export interface Curve {
-    /** Ordered closed polygon samples in millimetres; the caller keeps them stable during evaluation. */
-    points: M.V[];
-
-    /** Chord-length prefixes, including zero and the closing edge's final total. */
-    cumulative: number[];
-
-    /** Complete closed chord length in millimetres. */
-    length: number;
-  }
-
-  /**
    * Builds the cyclic arclength chart without rescaling any physical coordinate.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Cyclic chord accumulation preserves a closed polygon in its supplied millimetre frame.
@@ -55,7 +44,9 @@ export namespace AutoMovieContourLoftCurves64 {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
-  export function curve(points: M.V[]): Curve {
+  export function curve(
+    points: AutoMovieVector3Tuple[],
+  ): IAutoMovieContourLoftCurves64.Curve {
     const cumulative: number[] = [0];
     for (let i: number = 0; i < points.length; i++)
       cumulative.push(
@@ -75,7 +66,10 @@ export namespace AutoMovieContourLoftCurves64 {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
-  export function at(c: Curve, phase: number): M.V {
+  export function at(
+    c: IAutoMovieContourLoftCurves64.Curve,
+    phase: number,
+  ): AutoMovieVector3Tuple {
     const target: number = (((phase % 1) + 1) % 1) * c.length;
     let lo: number = 0,
       hi: number = c.points.length;
@@ -103,10 +97,15 @@ export namespace AutoMovieContourLoftCurves64 {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
-  export function sample(c: Curve, count: number, offset: number = 0): M.V[] {
+  export function sample(
+    c: IAutoMovieContourLoftCurves64.Curve,
+    count: number,
+    offset: number = 0,
+  ): AutoMovieVector3Tuple[] {
     return Array.from(
       { length: count },
-      (_: unknown, i: number): M.V => at(c, i / count + offset),
+      (_: unknown, i: number): AutoMovieVector3Tuple =>
+        at(c, i / count + offset),
     );
   }
 
@@ -121,9 +120,14 @@ export namespace AutoMovieContourLoftCurves64 {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
-  export function centroid(points: M.V[]): M.V {
-    const sum: M.V = points.reduce(
-      (a: M.V, p: M.V): M.V => add(a, p),
+  export function centroid(
+    points: AutoMovieVector3Tuple[],
+  ): AutoMovieVector3Tuple {
+    const sum: AutoMovieVector3Tuple = points.reduce(
+      (
+        a: AutoMovieVector3Tuple,
+        p: AutoMovieVector3Tuple,
+      ): AutoMovieVector3Tuple => add(a, p),
       [0, 0, 0],
     );
     return mul(sum, 1 / points.length);
@@ -131,48 +135,6 @@ export namespace AutoMovieContourLoftCurves64 {
 
   /** Original join operation owned by the continuous contour slit helper. */
   export const join: typeof Slit.join = Slit.join;
-
-  /**
-   * An evaluated curve point and its inherited source phase, distinct from a control.
-   *
-   * @evidence contracts/development/design.md#principled-representation This record preserves the closed polygon arclength or evaluated parameter chart consumed by the helper namespace.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Fields separate physical points from their cumulative or normalized parameters.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts This type performs no fitting or geometry validity certification.
-   * @evidence contracts/development/common.md#meaningful-documentation States physical point units and parameter meaning.
-   */
-  export interface Knot {
-    /** Evaluated point in millimetres, distinct from an authored control. */
-    p: M.V;
-
-    /** Inherited parameter in the primitive's declared phase chart. */
-    phase: number;
-
-    /** Retained outgoing positive-orientation source restriction; absent for an unsupported diagnostic knot. */
-    leaf?: Leaf;
-  }
-
-  /**
-   * An exact algebraic Bernstein restriction before binary64 rounding.
-   *
-   * @evidence contracts/development/design.md#principled-representation An immutable original span and recorded half path, or a materialized child net, preserve the generating restriction independently of its display chord.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One leaf is shared by initial sampling and interaction-driven refinement.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts This record is not a fitted control table or a source mesh witness.
-   * @evidence contracts/development/common.md#meaningful-documentation Fields state source orientation, inherited phase and arithmetic scope.
-   */
-  export interface Leaf {
-    /** Materialized positive source restriction; absent until needed for a compact half-path leaf. */
-    net?: M.V[];
-    /** Immutable original cubic authority for lazy materialization. */
-    original?: C.Span;
-    /** Binary left/right half path from the original span, with length depth. */
-    path?: number;
-    /** Inherited source phase of its first control. */
-    start: number;
-    /** Inherited source phase of its last control, before any constant-interval quotient. */
-    end: number;
-    /** Subdivision depth; a compact original half path has exactly this many bits. */
-    depth: number;
-  }
 
   /**
    * Materialize a compact source leaf through its original De Casteljau half path.
@@ -185,7 +147,9 @@ export namespace AutoMovieContourLoftCurves64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Contacted leaves cache their resolved net; ordinary leaves retain only the original span reference and half-path metadata.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only contacted leaf nets remain materialized in the invocation; immutable caller controls are never mutated.
    */
-  export function controls(leaf: Leaf): M.V[] {
+  export function controls(
+    leaf: IAutoMovieContourLoftCurves64.Leaf,
+  ): AutoMovieVector3Tuple[] {
     if (leaf.net !== undefined) return leaf.net;
     if (
       leaf.original === undefined ||
@@ -199,7 +163,9 @@ export namespace AutoMovieContourLoftCurves64 {
     )
       throw new Error("Source leaf lacks its generating restriction");
     const path: number = leaf.path;
-    let net: M.V[] = leaf.original.map((p: C.Vector): M.V => M.clone(p));
+    let net: AutoMovieVector3Tuple[] = leaf.original.map(
+      (p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => M.clone(p),
+    );
     for (let level: number = leaf.depth - 1; level >= 0; level--)
       net = S.split(net, 0.5)[Math.floor(path / 2 ** level) % 2];
     leaf.net = net;
@@ -220,7 +186,10 @@ export namespace AutoMovieContourLoftCurves64 {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each restriction is evaluated once by this recursive partition.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned child nets transfer to the caller; recursive scratch expires on return.
    */
-  export function partition(leaf: Leaf, toleranceMm: number): Leaf[] {
+  export function partition(
+    leaf: IAutoMovieContourLoftCurves64.Leaf,
+    toleranceMm: number,
+  ): IAutoMovieContourLoftCurves64.Leaf[] {
     if (
       !(toleranceMm > 0 && Number.isFinite(toleranceMm)) ||
       !(
@@ -243,14 +212,16 @@ export namespace AutoMovieContourLoftCurves64 {
         leaf.path >= 2 ** leaf.depth)
     )
       throw new Error("Source half-path metadata is unresolved");
-    const result: Leaf[] = [];
-    const visit: (current: Leaf) => void = (current: Leaf): void => {
-      const p: M.V[] = controls(current);
+    const result: IAutoMovieContourLoftCurves64.Leaf[] = [];
+    const visit: (current: IAutoMovieContourLoftCurves64.Leaf) => void = (
+      current: IAutoMovieContourLoftCurves64.Leaf,
+    ): void => {
+      const p: AutoMovieVector3Tuple[] = controls(current);
       const error: number = Math.max(
         closestPoint(p[1], p[0], p[3]).distance,
         closestPoint(p[2], p[0], p[3]).distance,
       );
-      const constant: boolean = p.every((q: M.V): boolean =>
+      const constant: boolean = p.every((q: AutoMovieVector3Tuple): boolean =>
         q.every((x: number, k: number): boolean => x === p[0][k]),
       );
       if (error <= toleranceMm && (dist(p[0], p[3]) > 0 || constant)) {
@@ -262,7 +233,10 @@ export namespace AutoMovieContourLoftCurves64 {
       const mid: number = (current.start + current.end) / 2;
       if (!(mid > current.start && mid < current.end))
         throw new Error("Cubic subdivision phase is unresolved");
-      const halves: [B.Poly, B.Poly] = S.split(p, 0.5);
+      const halves: [
+        AutoMovieBernsteinPolynomial64,
+        AutoMovieBernsteinPolynomial64,
+      ] = S.split(p, 0.5);
       visit({
         net: halves[0],
         start: current.start,
@@ -300,17 +274,18 @@ export namespace AutoMovieContourLoftCurves64 {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure per-boundary query retains no cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only a boolean escapes; vector scratch expires on return.
    */
-  export function hasArea(points: readonly M.V[]): boolean {
+  export function hasArea(points: readonly AutoMovieVector3Tuple[]): boolean {
     if (points.length < 3) return false;
-    const origin: M.V = points[0];
-    const endpoint: M.V | undefined = points.find((p: M.V): boolean =>
-      p.some((x: number, k: number): boolean => x !== origin[k]),
+    const origin: AutoMovieVector3Tuple = points[0];
+    const endpoint: AutoMovieVector3Tuple | undefined = points.find(
+      (p: AutoMovieVector3Tuple): boolean =>
+        p.some((x: number, k: number): boolean => x !== origin[k]),
     );
     if (endpoint === undefined) return false;
-    const axis: M.V = sub(endpoint, origin);
-    return points.some((p: M.V): boolean => {
-      const q: M.V = sub(p, origin);
-      const normal: M.V = [
+    const axis: AutoMovieVector3Tuple = sub(endpoint, origin);
+    return points.some((p: AutoMovieVector3Tuple): boolean => {
+      const q: AutoMovieVector3Tuple = sub(p, origin);
+      const normal: AutoMovieVector3Tuple = [
         axis[1] * q[2] - axis[2] * q[1],
         axis[2] * q[0] - axis[0] * q[2],
         axis[0] * q[1] - axis[1] * q[0],
@@ -332,70 +307,90 @@ export namespace AutoMovieContourLoftCurves64 {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
-  export function tessellate(primitive: C.Cubic, toleranceMm: number): Knot[] {
+  export function tessellate(
+    primitive: IAutoMovieCubicBezierCurve64,
+    toleranceMm: number,
+  ): IAutoMovieContourLoftCurves64.Knot[] {
     assertAutoMovieCurve64(primitive);
     if (!primitive.closed || !Number.isFinite(toleranceMm) || toleranceMm <= 0)
       throw new Error(
         "Closed cubic and positive physical chord tolerance required",
       );
     if (
-      primitive.spans.some((span: C.Span, i: number): boolean =>
-        span[3].some(
-          (x: number, k: number): boolean =>
-            x !== primitive.spans[(i + 1) % primitive.spans.length][0][k],
-        ),
+      primitive.spans.some(
+        (span: AutoMovieCubicBezierControls3, i: number): boolean =>
+          span[3].some(
+            (x: number, k: number): boolean =>
+              x !== primitive.spans[(i + 1) % primitive.spans.length][0][k],
+          ),
       )
     )
       throw new Error(
         "A closed contour requires exact C0-connected source spans",
       );
-    let leaves: Leaf[] = [];
+    let leaves: IAutoMovieContourLoftCurves64.Leaf[] = [];
     let phase: number = 0;
-    primitive.spans.forEach((span: C.Span, i: number): void => {
-      const width: number = primitive.phaseIntervals[i]!;
-      for (const leaf of partition(
-        {
-          net: span.map((p: C.Vector): M.V => M.clone(p)),
-          original: span,
-          path: 0,
-          start: phase,
-          end: phase + width,
-          depth: 0,
-        },
-        toleranceMm,
-      ))
-        leaves.push(leaf);
-      phase += width;
-    });
+    primitive.spans.forEach(
+      (span: AutoMovieCubicBezierControls3, i: number): void => {
+        const width: number = primitive.phaseIntervals[i]!;
+        for (const leaf of partition(
+          {
+            net: span.map(
+              (p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple =>
+                M.clone(p),
+            ),
+            original: span,
+            path: 0,
+            start: phase,
+            end: phase + width,
+            depth: 0,
+          },
+          toleranceMm,
+        ))
+          leaves.push(leaf);
+        phase += width;
+      },
+    );
     const moving: typeof leaves = leaves.filter(
-      (leaf: Leaf): boolean =>
-        !controls(leaf).every((p: M.V): boolean =>
+      (leaf: IAutoMovieContourLoftCurves64.Leaf): boolean =>
+        !controls(leaf).every((p: AutoMovieVector3Tuple): boolean =>
           p.every(
             (x: number, k: number): boolean => x === controls(leaf)[0][k],
           ),
         ),
     );
     leaves = moving.length ? moving : leaves.slice(0, 1);
-    while (!hasArea(leaves.map((leaf: Leaf): M.V => controls(leaf)[0]))) {
-      const origin: M.V = controls(leaves[0])[0];
-      const endpoint: M.V | undefined = leaves
-        .map((leaf: Leaf): M.V => controls(leaf)[0])
-        .find((p: M.V): boolean =>
+    while (
+      !hasArea(
+        leaves.map(
+          (leaf: IAutoMovieContourLoftCurves64.Leaf): AutoMovieVector3Tuple =>
+            controls(leaf)[0],
+        ),
+      )
+    ) {
+      const origin: AutoMovieVector3Tuple = controls(leaves[0])[0];
+      const endpoint: AutoMovieVector3Tuple | undefined = leaves
+        .map(
+          (leaf: IAutoMovieContourLoftCurves64.Leaf): AutoMovieVector3Tuple =>
+            controls(leaf)[0],
+        )
+        .find((p: AutoMovieVector3Tuple): boolean =>
           p.some((x: number, k: number): boolean => x !== origin[k]),
         );
-      const axis: M.V | undefined =
+      const axis: AutoMovieVector3Tuple | undefined =
         endpoint === undefined ? undefined : sub(endpoint, origin);
-      const at: number = leaves.findIndex((leaf: Leaf): boolean =>
-        controls(leaf).some((p: M.V): boolean => {
-          if (axis === undefined)
-            return p.some((x: number, k: number): boolean => x !== origin[k]);
-          const q: M.V = sub(p, origin);
-          return [
-            axis[1] * q[2] - axis[2] * q[1],
-            axis[2] * q[0] - axis[0] * q[2],
-            axis[0] * q[1] - axis[1] * q[0],
-          ].some((x: number): boolean => x !== 0);
-        }),
+      const at: number = leaves.findIndex(
+        (leaf: IAutoMovieContourLoftCurves64.Leaf): boolean =>
+          controls(leaf).some((p: AutoMovieVector3Tuple): boolean => {
+            if (axis === undefined)
+              return p.some((x: number, k: number): boolean => x !== origin[k]);
+            const q: AutoMovieVector3Tuple = sub(p, origin);
+            return [
+              axis[1] * q[2] - axis[2] * q[1],
+              axis[2] * q[0] - axis[0] * q[2],
+              axis[0] * q[1] - axis[1] * q[0],
+            ].some((x: number): boolean => x !== 0);
+          }),
       );
       if (at < 0) break; // The source control hull itself has no transverse extent.
       const leaf: (typeof leaves)[number] = leaves[at];
@@ -404,8 +399,11 @@ export namespace AutoMovieContourLoftCurves64 {
         throw new Error(
           "Closed boundary representation reached numeric subdivision limit",
         );
-      const halves: [B.Poly, B.Poly] = S.split(controls(leaf), 0.5);
-      const replacement: Leaf[] = [
+      const halves: [
+        AutoMovieBernsteinPolynomial64,
+        AutoMovieBernsteinPolynomial64,
+      ] = S.split(controls(leaf), 0.5);
+      const replacement: IAutoMovieContourLoftCurves64.Leaf[] = [
         ...partition(
           {
             net: halves[0],
@@ -438,7 +436,9 @@ export namespace AutoMovieContourLoftCurves64 {
       ];
     }
     return leaves.map(
-      (leaf: Leaf): Knot => ({
+      (
+        leaf: IAutoMovieContourLoftCurves64.Leaf,
+      ): IAutoMovieContourLoftCurves64.Knot => ({
         p: M.clone(controls(leaf)[0]),
         phase: leaf.start,
         leaf:
@@ -466,11 +466,13 @@ export namespace AutoMovieContourLoftCurves64 {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
-  export function exterior(points: M.V[]): M.V[] {
-    const centre: M.V = centroid(sample(curve(points), 64));
+  export function exterior(
+    points: AutoMovieVector3Tuple[],
+  ): AutoMovieVector3Tuple[] {
+    const centre: AutoMovieVector3Tuple = centroid(sample(curve(points), 64));
     let offset: number = 0,
       farthest: number = -Infinity;
-    points.forEach((p: M.V, i: number): void => {
+    points.forEach((p: AutoMovieVector3Tuple, i: number): void => {
       const d: number = dist(p, centre);
       if (d > farthest) {
         farthest = d;

@@ -1,7 +1,10 @@
 import { Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanHand } from "../posture/HumanHand";
 import { handshakeReach } from "./handshakeReach";
 
@@ -69,7 +72,10 @@ export namespace handshakeOffer {
    * @param side The arm.
    * @returns Metres.
    */
-  export function forearm(body: IHumanBody, side: HumanHand.Side): number {
+  export function forearm(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+  ): number {
     const socket: IAutoMovieVector3 = HumanHand.offset(
       body,
       side,
@@ -218,7 +224,7 @@ export namespace handshakeOffer {
   export function point(
     a: ISide,
     b: ISide,
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
     pump: number,
   ): IMeeting {
     const tried: IMeeting | handshakeReach.IMiss = attempt(a, b, side, pump);
@@ -239,7 +245,7 @@ export namespace handshakeOffer {
   export function attempt(
     a: ISide,
     b: ISide,
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
     pump: number,
   ): IMeeting | handshakeReach.IMiss {
     const span: IAutoMovieVector3 = Vector3.subtract(b.shoulder, a.shoulder);
@@ -462,7 +468,7 @@ export namespace handshakeOffer {
   /** One partner of a meeting. */
   export interface ISide {
     /** The body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The acting shoulder joint, world metres. */
     shoulder: IAutoMovieVector3;

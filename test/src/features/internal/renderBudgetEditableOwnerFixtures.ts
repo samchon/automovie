@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieRenderSubject,
   deriveAutoMovieSemanticMask,
   evaluateAutoMovieRenderBudget,
   measureAutoMovieRenderInventory,
@@ -11,6 +10,7 @@ import type {
   IAutoMovieRenderBudget,
   IAutoMovieRenderInventory,
   IAutoMovieRenderReport,
+  IAutoMovieRenderSubject,
   IAutoMovieRenderTarget,
   IAutoMovieScene,
   IAutoMovieTransform,

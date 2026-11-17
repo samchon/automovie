@@ -1,9 +1,7 @@
-import type {
-  IAutoMovieAuthoringDiagnostic,
-  IAutoMovieCompiledDefinedShot,
-} from "@automovie/engine";
 import {
+  type IAutoMovieAuthoringDiagnostic,
   IAutoMovieClip,
+  type IAutoMovieCompiledDefinedShot,
   IAutoMovieNode,
   IAutoMoviePropSpec,
 } from "@automovie/interface";

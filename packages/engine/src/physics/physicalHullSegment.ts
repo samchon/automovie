@@ -1,4 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalHullFaces,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { physicalHullFaces } from "./physicalHullFaces";
 
@@ -39,7 +42,7 @@ export function physicalHullSegment(
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
 ): number {
-  const hull: physicalHullFaces.IHull = physicalHullFaces(points);
+  const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
   if (!hull.faces.length) throw new Error("A hull must span a volume");
   const vertices: readonly IAutoMovieVector3[] = hull.vertices;
   const support = (d: IAutoMovieVector3): IVertex => {
@@ -296,16 +299,17 @@ const triangle = (p: IVertex, q: IVertex, r: IVertex): IWeighted[] => {
  * stays outside every face plane's reach, so it does not enter the hull.
  */
 const deepest = (
-  hull: physicalHullFaces.IHull,
+  hull: IAutoMoviePhysicalHullFaces.IHull,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
 ): number | null => {
   const e: IAutoMovieVector3 = minus(b, a);
   const level: number[] = hull.faces.map(
-    (f: physicalHullFaces.IFace): number => dot(f.normal, a) - f.offset,
+    (f: IAutoMoviePhysicalHullFaces.IFace): number =>
+      dot(f.normal, a) - f.offset,
   );
-  const slope: number[] = hull.faces.map((f: physicalHullFaces.IFace): number =>
-    dot(f.normal, e),
+  const slope: number[] = hull.faces.map(
+    (f: IAutoMoviePhysicalHullFaces.IFace): number => dot(f.normal, e),
   );
   // The plane greatest just after the start: the steepest among equals.
   let current: number = 0;

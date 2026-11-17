@@ -1,8 +1,11 @@
-import type { IAutoMovieIntent } from "@automovie/engine";
+import type {
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionMeeting,
+} from "@automovie/interface";
 
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 
 /**
  * An alignment trial's planning, kept for the placement that follows it.
@@ -33,10 +36,10 @@ export interface IHumanPerformanceTrial {
   entries: number;
 
   /** The context it was planned in, its start and tempo as the planning left them. */
-  context: IHumanActionContext<never>;
+  context: IAutoMovieMotionHumanActionContext<never>;
 
   /** The plan. */
-  plan: IHumanActionPlan;
+  plan: IAutoMovieMotionHumanActionPlan;
 
   /** The share of the plan the action is entered at. */
   share: number;
@@ -44,6 +47,6 @@ export interface IHumanPerformanceTrial {
   /** The meetings the planning recorded, which the alignment withdrew and the placement records again. */
   meetings: [
     string,
-    { subject: string; meeting: AutoMovieMotionMeeting.IMeeting },
+    { subject: string; meeting: IAutoMovieMotionMeeting },
   ][];
 }

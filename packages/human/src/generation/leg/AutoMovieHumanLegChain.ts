@@ -1,7 +1,24 @@
-import { AutoMovieLoftChain, AutoMovieLoftContract, AutoMovieSeamStation, type IAutoMovieLoftChain } from "@automovie/engine";
-import type { AutoMovieHumanLegConstruction } from "../AutoMovieHumanLegConstruction";
-import type { AutoMovieHumanSkeletonLaw } from "../AutoMovieHumanSkeletonLaw";
-import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
+import {
+  AutoMovieLoftChain,
+  AutoMovieLoftContract,
+  AutoMovieSeamStation,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanCalibrationBone,
+  IAutoMovieHumanLegAxis,
+  IAutoMovieHumanLegConstruction,
+  IAutoMovieHumanLegCrotchRoot,
+  IAutoMovieHumanLegMassPrior,
+  IAutoMovieHumanLegSection,
+  IAutoMovieHumanLegSectionLaw,
+  IAutoMovieHumanLegStations,
+  IAutoMovieHumanLimbRootStrip,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftContract,
+} from "@automovie/interface";
+
 import { AutoMovieHumanLimbRootStrip } from "../AutoMovieHumanLimbRootStrip";
 import { AutoMovieHumanLegAxis } from "./AutoMovieHumanLegAxis";
 import { AutoMovieHumanLegCentreLine } from "./AutoMovieHumanLegCentreLine";
@@ -14,7 +31,7 @@ import { AutoMovieHumanLegSectionLaw } from "./AutoMovieHumanLegSectionLaw";
 import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
 import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
 
-type Vec3 = AutoMovieHumanLegVector.Vec3;
+type Vec3 = AutoMovieVector3Tuple;
 const { lerp, norm, sub } = AutoMovieHumanLegVector;
 
 /**
@@ -31,13 +48,17 @@ const { lerp, norm, sub } = AutoMovieHumanLegVector;
 export namespace AutoMovieHumanLegChain {
   /** The hip, knee and ankle of a side, read in the canonical frame. */
   export function joints(
-    skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[],
+    skeleton: readonly IAutoMovieHumanCalibrationBone[],
     side: "left" | "right",
     sign: 1 | -1,
-  ): AutoMovieHumanLegAxis.IJoints {
+  ): IAutoMovieHumanLegAxis.IJoints {
     const at: (name: string) => Vec3 = (name: string): Vec3 => {
-      const bone: AutoMovieHumanSkeletonLaw.IBone | undefined = skeleton.find((b: AutoMovieHumanSkeletonLaw.IBone): boolean => b.bone === `${side}${name}`);
-      if (bone === undefined) throw new Error(`The skeleton lacks the ${side} ${name}`);
+      const bone: IAutoMovieHumanCalibrationBone | undefined = skeleton.find(
+        (b: IAutoMovieHumanCalibrationBone): boolean =>
+          b.bone === `${side}${name}`,
+      );
+      if (bone === undefined)
+        throw new Error(`The skeleton lacks the ${side} ${name}`);
       return [bone.position[0], bone.position[1], sign * bone.position[2]];
     };
     return { hip: at("UpperLeg"), knee: at("LowerLeg"), ankle: at("Foot") };
@@ -55,62 +76,143 @@ export namespace AutoMovieHumanLegChain {
   export function of(
     calibration: IAutoMovieHumanBodyCalibration,
     side: "left" | "right",
-    inputs: AutoMovieHumanLegConstruction.IInputs,
-    skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[],
-    diagnostics: AutoMovieLoftContract.IDiagnostic[] = [],
+    inputs: IAutoMovieHumanLegConstruction.IInputs,
+    skeleton: readonly IAutoMovieHumanCalibrationBone[],
+    diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [],
   ): IAutoMovieLoftChain {
     const sign: 1 | -1 = side === "left" ? 1 : -1;
-    const bones: AutoMovieHumanLegAxis.IJoints = joints(skeleton, side, sign);
-    const heights: AutoMovieHumanLegStations.IBones = { hip: bones.hip[1], knee: bones.knee[1], ankle: bones.ankle[1] };
-    const law: AutoMovieHumanLegSectionLaw.ILaw = AutoMovieHumanLegSectionLaw.of(calibration, side, sign, inputs, heights, diagnostics);
-    const root: AutoMovieHumanLegCrotchRoot.IRoot = law.root;
+    const bones: IAutoMovieHumanLegAxis.IJoints = joints(skeleton, side, sign);
+    const heights: IAutoMovieHumanLegStations.IBones = {
+      hip: bones.hip[1],
+      knee: bones.knee[1],
+      ankle: bones.ankle[1],
+    };
+    const law: IAutoMovieHumanLegSectionLaw.ILaw =
+      AutoMovieHumanLegSectionLaw.of(
+        calibration,
+        side,
+        sign,
+        inputs,
+        heights,
+        diagnostics,
+      );
+    const root: IAutoMovieHumanLegCrotchRoot.IRoot = law.root;
     const s0: number = law.bottom;
     const s1: number = law.top;
 
     // Skin depths at the joints: the distance from each joint to the skin
     // nearest it there. The centre line crosses the knee on its joint, so the
     // tube's chart origin there is the knee centre.
-    const kneeDepth: number = Math.min(...AutoMovieHumanLegSectionLaw.radii(law.tube(bones.knee[1])));
-    const ankleDepth: number = Math.min(...law.ankleWorld.map((p: Vec3): number => norm(sub(p, bones.ankle))));
+    const kneeDepth: number = Math.min(
+      ...AutoMovieHumanLegSectionLaw.radii(law.tube(bones.knee[1])),
+    );
+    const ankleDepth: number = Math.min(
+      ...law.ankleWorld.map((p: Vec3): number => norm(sub(p, bones.ankle))),
+    );
     const hipDepth: number = Math.min(
       ...root.arc.map((p: Vec3): number => norm(sub(p, bones.hip))),
-      ...[0, 0.25, 0.5, 0.75, 1].map((f: number): number => norm(sub(lerp(root.arc[root.arc.length - 1]!, root.arc[0]!, f), bones.hip))),
+      ...[0, 0.25, 0.5, 0.75, 1].map((f: number): number =>
+        norm(
+          sub(lerp(root.arc[root.arc.length - 1]!, root.arc[0]!, f), bones.hip),
+        ),
+      ),
     );
     const BEND: number = AutoMovieHumanLegStations.BEND;
-    const frames: AutoMovieHumanLegAxis.IFrames = AutoMovieHumanLegAxis.of(bones, s0, s1, BEND * kneeDepth, law.ankleReach, law.crotchReach);
+    const frames: IAutoMovieHumanLegAxis.IFrames = AutoMovieHumanLegAxis.of(
+      bones,
+      s0,
+      s1,
+      BEND * kneeDepth,
+      law.ankleReach,
+      law.crotchReach,
+    );
 
     // The sections' centres ahead of the bone by the limb's mass prior, at
     // its rows where the law's own sections stand (between the two rings'
     // reaches): the tube's reach ahead of and behind its centre at phases 0
     // and pi places the bone at the prior's front share of the depth.
     const half: number = AutoMovieHumanLegSampling.ORDER / 2;
-    const rows: (prior: readonly AutoMovieHumanLegMassPrior.IRow[], top: number, bottom: number) => { at: number; offset: number }[] = (
-      prior: readonly AutoMovieHumanLegMassPrior.IRow[],
+    const rows: (
+      prior: readonly IAutoMovieHumanLegMassPrior.IRow[],
+      top: number,
+      bottom: number,
+    ) => { at: number; offset: number }[] = (
+      prior: readonly IAutoMovieHumanLegMassPrior.IRow[],
       top: number,
       bottom: number,
     ): { at: number; offset: number }[] =>
       prior
-        .map((r: AutoMovieHumanLegMassPrior.IRow): { at: number; front: number } => ({ at: top - r.share * (top - bottom), front: r.front }))
-        .filter((r: { at: number; front: number }): boolean => r.at > s0 + law.ankleReach && r.at < s1 - law.crotchReach)
-        .map((r: { at: number; front: number }): { at: number; offset: number } => {
-          const radii: number[] = AutoMovieHumanLegSectionLaw.radii(law.tube(r.at));
-          return { at: r.at, offset: AutoMovieHumanLegMassPrior.offset(r.front, radii[0]!, radii[half]!) };
-        });
-    const centre: (s: number) => [number, number] = AutoMovieHumanLegCentreLine.of({
-      frames,
-      ankle: { at: s0, point: law.ankleCentre },
-      crotch: { at: s1, point: law.crotchCentre },
-      knee: bones.knee[1],
-      mass: [...rows(AutoMovieHumanLegMassPrior.THIGH, bones.hip[1], bones.knee[1]), ...rows(AutoMovieHumanLegMassPrior.SHANK, bones.knee[1], bones.ankle[1])],
-    });
-    const trunk: IAutoMovieLoftChain = calibration.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "trunk")!;
+        .map(
+          (
+            r: IAutoMovieHumanLegMassPrior.IRow,
+          ): { at: number; front: number } => ({
+            at: top - r.share * (top - bottom),
+            front: r.front,
+          }),
+        )
+        .filter(
+          (r: { at: number; front: number }): boolean =>
+            r.at > s0 + law.ankleReach && r.at < s1 - law.crotchReach,
+        )
+        .map(
+          (r: {
+            at: number;
+            front: number;
+          }): { at: number; offset: number } => {
+            const radii: number[] = AutoMovieHumanLegSectionLaw.radii(
+              law.tube(r.at),
+            );
+            return {
+              at: r.at,
+              offset: AutoMovieHumanLegMassPrior.offset(
+                r.front,
+                radii[0]!,
+                radii[half]!,
+              ),
+            };
+          },
+        );
+    const centre: (s: number) => [number, number] =
+      AutoMovieHumanLegCentreLine.of({
+        frames,
+        ankle: { at: s0, point: law.ankleCentre },
+        crotch: { at: s1, point: law.crotchCentre },
+        knee: bones.knee[1],
+        mass: [
+          ...rows(
+            AutoMovieHumanLegMassPrior.THIGH,
+            bones.hip[1],
+            bones.knee[1],
+          ),
+          ...rows(
+            AutoMovieHumanLegMassPrior.SHANK,
+            bones.knee[1],
+            bones.ankle[1],
+          ),
+        ],
+      });
+    const trunk: IAutoMovieLoftChain = calibration.chains.find(
+      (c: IAutoMovieLoftChain): boolean => c.name === "trunk",
+    )!;
     const placed: number[] = AutoMovieHumanLegStations.layers({
       bottom: s0,
       top: s1,
       bends: [
-        { at: bones.ankle[1], half: BEND * ankleDepth, range: AutoMovieHumanLegStations.range("ankle.dorsiflexion") },
-        { at: bones.knee[1], half: BEND * kneeDepth, range: AutoMovieHumanLegStations.range("knee.flexion") },
-        { at: bones.hip[1], half: BEND * hipDepth, range: AutoMovieHumanLegStations.range("hip.flexion") },
+        {
+          at: bones.ankle[1],
+          half: BEND * ankleDepth,
+          range: AutoMovieHumanLegStations.range("ankle.dorsiflexion"),
+        },
+        {
+          at: bones.knee[1],
+          half: BEND * kneeDepth,
+          range: AutoMovieHumanLegStations.range("knee.flexion"),
+        },
+        {
+          at: bones.hip[1],
+          half: BEND * hipDepth,
+          range: AutoMovieHumanLegStations.range("hip.flexion"),
+        },
       ],
       first: trunk.layers[1]!.y - trunk.layers[0]!.y,
       coarsest: AutoMovieHumanLegStations.COARSEST * inputs.scale,
@@ -130,97 +232,193 @@ export namespace AutoMovieHumanLegChain {
       let found: Vec3[] | undefined = own.get(run);
       if (found === undefined) {
         const s: number = law.top - run;
-        own.set(run, (found = AutoMovieHumanLegSectionLaw.points(law, s, AutoMovieHumanLegAxis.frameAt(frames, s), centre(s))));
+        own.set(
+          run,
+          (found = AutoMovieHumanLegSectionLaw.points(
+            law,
+            s,
+            AutoMovieHumanLegAxis.frameAt(frames, s),
+            centre(s),
+          )),
+        );
       }
       return found;
     };
-    const strip: AutoMovieHumanLimbRootStrip.IStrip = AutoMovieHumanLimbRootStrip.strip({
-      start: AutoMovieHumanLegCrotchRoot.start(root),
-      end: ownAt(reach).map(
-        (_: Vec3, m: number): AutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanLimbRootStrip.jet((run: number): Vec3 => ownAt(run)[m]!, reach, CURVE_STEP),
-      ),
-    });
+    const strip: IAutoMovieHumanLimbRootStrip.IStrip =
+      AutoMovieHumanLimbRootStrip.strip({
+        start: AutoMovieHumanLegCrotchRoot.start(root),
+        end: ownAt(reach).map(
+          (_: Vec3, m: number): IAutoMovieHumanLimbRootStrip.IJet =>
+            AutoMovieHumanLimbRootStrip.jet(
+              (run: number): Vec3 => ownAt(run)[m]!,
+              reach,
+              CURVE_STEP,
+            ),
+        ),
+      });
 
     // The root strip from the foot's ankle ring, which the foot owns, with the
     // foot's jet up across the ring (its chain read at the leg's phases a run
     // under its top layer), to the law's own section at the ankle reach.
-    const foot: IAutoMovieLoftChain = calibration.chains.find((c: IAutoMovieLoftChain): boolean => c.name === `foot.${side}`)!;
+    const foot: IAutoMovieLoftChain = calibration.chains.find(
+      (c: IAutoMovieLoftChain): boolean => c.name === `foot.${side}`,
+    )!;
     const footTop: number = foot.layers[foot.layers.length - 1]!.y;
     const footRows: Map<number, Vec3[]> = new Map<number, Vec3[]>();
     const footAt: (run: number) => Vec3[] = (run: number): Vec3[] => {
       let found: Vec3[] | undefined = footRows.get(run);
       if (found === undefined)
-        footRows.set(run, (found = AutoMovieLoftChain.ring(foot, footTop + run, AutoMovieHumanLegSampling.PHASES).map((p: Vec3): Vec3 => [p[0], p[1], sign * p[2]])));
+        footRows.set(
+          run,
+          (found = AutoMovieLoftChain.ring(
+            foot,
+            footTop + run,
+            AutoMovieHumanLegSampling.PHASES,
+          ).map((p: Vec3): Vec3 => [p[0], p[1], sign * p[2]])),
+        );
       return found;
     };
     const ankleReach: number = law.ankleReach;
-    const upAt: (run: number) => Vec3[] = (run: number): Vec3[] => ownAt(law.top - law.bottom - run);
-    const footJets: AutoMovieHumanLimbRootStrip.IJet[] = AutoMovieHumanLegSampling.PHASES.map(
-      (_: number, m: number): AutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanLimbRootStrip.edge((run: number): Vec3 => footAt(run)[m]!, 0, -ANKLE_STEP),
-    );
-    const ankleEnds: AutoMovieHumanLimbRootStrip.IJet[] = upAt(ankleReach).map(
-      (_: Vec3, m: number): AutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanLimbRootStrip.jet((run: number): Vec3 => upAt(run)[m]!, ankleReach, CURVE_STEP),
+    const upAt: (run: number) => Vec3[] = (run: number): Vec3[] =>
+      ownAt(law.top - law.bottom - run);
+    const footJets: IAutoMovieHumanLimbRootStrip.IJet[] =
+      AutoMovieHumanLegSampling.PHASES.map(
+        (_: number, m: number): IAutoMovieHumanLimbRootStrip.IJet =>
+          AutoMovieHumanLimbRootStrip.edge(
+            (run: number): Vec3 => footAt(run)[m]!,
+            0,
+            -ANKLE_STEP,
+          ),
+      );
+    const ankleEnds: IAutoMovieHumanLimbRootStrip.IJet[] = upAt(ankleReach).map(
+      (_: Vec3, m: number): IAutoMovieHumanLimbRootStrip.IJet =>
+        AutoMovieHumanLimbRootStrip.jet(
+          (run: number): Vec3 => upAt(run)[m]!,
+          ankleReach,
+          CURVE_STEP,
+        ),
     );
 
     // Each column starts where the ray from the ankle ring's centre through the
     // leg's own point crosses the ring: the foot's own phases need not run in
     // the leg's order.
-    const ankleCentre: Vec3 = [law.ankleCentre[0], law.bottom, law.ankleCentre[1]];
-    const ankle: AutoMovieHumanLimbRootStrip.IStrip = AutoMovieHumanLimbRootStrip.strip({
-      start: ankleEnds.map((e: AutoMovieHumanLimbRootStrip.IJet): AutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanLimbRootStrip.under(ankleCentre, footJets, e.point)),
-      end: ankleEnds,
-    });
-    const section: (s: number) => AutoMovieHumanLegSection.ISection = (s: number): AutoMovieHumanLegSection.ISection =>
-      AutoMovieHumanLegSection.of(law, frames, centre, strip.ring, ankle.ring, s);
+    const ankleCentre: Vec3 = [
+      law.ankleCentre[0],
+      law.bottom,
+      law.ankleCentre[1],
+    ];
+    const ankle: IAutoMovieHumanLimbRootStrip.IStrip =
+      AutoMovieHumanLimbRootStrip.strip({
+        start: ankleEnds.map(
+          (
+            e: IAutoMovieHumanLimbRootStrip.IJet,
+          ): IAutoMovieHumanLimbRootStrip.IJet =>
+            AutoMovieHumanLimbRootStrip.under(ankleCentre, footJets, e.point),
+        ),
+        end: ankleEnds,
+      });
+    const section: (s: number) => IAutoMovieHumanLegSection.ISection = (
+      s: number,
+    ): IAutoMovieHumanLegSection.ISection =>
+      AutoMovieHumanLegSection.of(
+        law,
+        frames,
+        centre,
+        strip.ring,
+        ankle.ring,
+        s,
+      );
     const last: number = stations.length - 1;
-    const built: (IAutoMovieLoftChain.ILayer | null)[] = stations.map((s: number, k: number): IAutoMovieLoftChain.ILayer | null => {
-      const here: AutoMovieHumanLegSection.ISection = section(s);
+    const built: (IAutoMovieLoftChain.ILayer | null)[] = stations.map(
+      (s: number, k: number): IAutoMovieLoftChain.ILayer | null => {
+        const here: IAutoMovieHumanLegSection.ISection = section(s);
 
-      // The station derivative of every point.
-      const rate: Vec3[] =
-        k === 0 || k === last
-          ? ((): Vec3[] => {
-              const d: number = k === 0 ? STEP : -STEP;
-              const a: AutoMovieHumanLegSection.ISection = section(s + d);
-              const b: AutoMovieHumanLegSection.ISection = section(s + 2 * d);
-              return here.local.map(
-                (p: Vec3, m: number): Vec3 =>
-                  [0, 1, 2].map((c: number): number => (-3 * p[c]! + 4 * a.local[m]![c]! - b.local[m]![c]!) / (2 * d)) as Vec3,
-              );
-            })()
-          : ((): Vec3[] => {
-              const a: AutoMovieHumanLegSection.ISection = section(s - STEP);
-              const b: AutoMovieHumanLegSection.ISection = section(s + STEP);
-              return here.local.map(
-                (_: Vec3, m: number): Vec3 => [0, 1, 2].map((c: number): number => (b.local[m]![c]! - a.local[m]![c]!) / (2 * STEP)) as Vec3,
-              );
-            })();
-      const values: { coefficients: number[]; lift: number[] } = AutoMovieHumanLegReflection.sided(here.local, sign);
-      const slopes: { coefficients: number[]; lift: number[] } = AutoMovieHumanLegReflection.sided(rate, sign);
+        // The station derivative of every point.
+        const rate: Vec3[] =
+          k === 0 || k === last
+            ? ((): Vec3[] => {
+                const d: number = k === 0 ? STEP : -STEP;
+                const a: IAutoMovieHumanLegSection.ISection = section(s + d);
+                const b: IAutoMovieHumanLegSection.ISection = section(
+                  s + 2 * d,
+                );
+                return here.local.map(
+                  (p: Vec3, m: number): Vec3 =>
+                    [0, 1, 2].map(
+                      (c: number): number =>
+                        (-3 * p[c]! + 4 * a.local[m]![c]! - b.local[m]![c]!) /
+                        (2 * d),
+                    ) as Vec3,
+                );
+              })()
+            : ((): Vec3[] => {
+                const a: IAutoMovieHumanLegSection.ISection = section(s - STEP);
+                const b: IAutoMovieHumanLegSection.ISection = section(s + STEP);
+                return here.local.map(
+                  (_: Vec3, m: number): Vec3 =>
+                    [0, 1, 2].map(
+                      (c: number): number =>
+                        (b.local[m]![c]! - a.local[m]![c]!) / (2 * STEP),
+                    ) as Vec3,
+                );
+              })();
+        const values: { coefficients: number[]; lift: number[] } =
+          AutoMovieHumanLegReflection.sided(here.local, sign);
+        const slopes: { coefficients: number[]; lift: number[] } =
+          AutoMovieHumanLegReflection.sided(rate, sign);
 
-      // Every value and slope of the layer is finite, so a defect in a piece
-      // is named at this layer and not where the skin is charted; a broken
-      // layer is recorded and takes its nearest valid neighbour's row.
-      const where: string = `leg.${side} layer ${k} at ${s.toFixed(2)} mm`;
-      try {
-        AutoMovieLoftContract.jet(`${where} coefficients`, values.coefficients, AutoMovieLoftContract.FINITE);
-        AutoMovieLoftContract.jet(`${where} lift`, values.lift, AutoMovieLoftContract.FINITE);
-        AutoMovieLoftContract.jet(`${where} slopes`, slopes.coefficients, AutoMovieLoftContract.FINITE);
-        AutoMovieLoftContract.jet(`${where} lift slopes`, slopes.lift, AutoMovieLoftContract.FINITE);
-      } catch (error) {
-        diagnostics.push({ producer: `leg.${side}`, level: 2, contract: "a leg layer's values and slopes are finite", detail: error instanceof Error ? error.message : String(error) });
-        return null;
-      }
-      return {
-        y: s,
-        frame: AutoMovieHumanLegReflection.placed(here.frame, sign),
-        frameSlopes: AutoMovieHumanLegReflection.placed(AutoMovieHumanLegAxis.frameRate(frames, s, k === 0 ? 1 : k === last ? -1 : 0), sign),
-        coefficients: values.coefficients,
-        slopes: slopes.coefficients,
-        lift: values.lift,
-        liftSlopes: slopes.lift,
-      };
-    });
+        // Every value and slope of the layer is finite, so a defect in a piece
+        // is named at this layer and not where the skin is charted; a broken
+        // layer is recorded and takes its nearest valid neighbour's row.
+        const where: string = `leg.${side} layer ${k} at ${s.toFixed(2)} mm`;
+        try {
+          AutoMovieLoftContract.jet(
+            `${where} coefficients`,
+            values.coefficients,
+            AutoMovieLoftContract.FINITE,
+          );
+          AutoMovieLoftContract.jet(
+            `${where} lift`,
+            values.lift,
+            AutoMovieLoftContract.FINITE,
+          );
+          AutoMovieLoftContract.jet(
+            `${where} slopes`,
+            slopes.coefficients,
+            AutoMovieLoftContract.FINITE,
+          );
+          AutoMovieLoftContract.jet(
+            `${where} lift slopes`,
+            slopes.lift,
+            AutoMovieLoftContract.FINITE,
+          );
+        } catch (error) {
+          diagnostics.push({
+            producer: `leg.${side}`,
+            level: 2,
+            contract: "a leg layer's values and slopes are finite",
+            detail: error instanceof Error ? error.message : String(error),
+          });
+          return null;
+        }
+        return {
+          y: s,
+          frame: AutoMovieHumanLegReflection.placed(here.frame, sign),
+          frameSlopes: AutoMovieHumanLegReflection.placed(
+            AutoMovieHumanLegAxis.frameRate(
+              frames,
+              s,
+              k === 0 ? 1 : k === last ? -1 : 0,
+            ),
+            sign,
+          ),
+          coefficients: values.coefficients,
+          slopes: slopes.coefficients,
+          lift: values.lift,
+          liftSlopes: slopes.lift,
+        };
+      },
+    );
     const layers: IAutoMovieLoftChain.ILayer[] = neighboured(built, stations);
 
     // The two rings' layers carry their own second derivatives, one-sided
@@ -231,10 +429,21 @@ export namespace AutoMovieHumanLegChain {
     const curvature: (k: 0 | 1) => number[] = (k: 0 | 1): number[] => {
       const s: number = stations[k === 0 ? 0 : last]!;
       const d: number = k === 0 ? CURVE_STEP : -CURVE_STEP;
-      const [p, a, b, c]: AutoMovieHumanLegSection.ISection[] = [0, 1, 2, 3].map((i: number): AutoMovieHumanLegSection.ISection => section(s + i * d));
+      const [p, a, b, c]: IAutoMovieHumanLegSection.ISection[] = [
+        0, 1, 2, 3,
+      ].map(
+        (i: number): IAutoMovieHumanLegSection.ISection => section(s + i * d),
+      );
       const second: Vec3[] = p!.local.map(
         (q: Vec3, m: number): Vec3 =>
-          [0, 1, 2].map((e: number): number => (2 * q[e]! - 5 * a!.local[m]![e]! + 4 * b!.local[m]![e]! - c!.local[m]![e]!) / (d * d)) as Vec3,
+          [0, 1, 2].map(
+            (e: number): number =>
+              (2 * q[e]! -
+                5 * a!.local[m]![e]! +
+                4 * b!.local[m]![e]! -
+                c!.local[m]![e]!) /
+              (d * d),
+          ) as Vec3,
       );
       return AutoMovieHumanLegReflection.sided(second, sign).coefficients;
     };
@@ -244,8 +453,16 @@ export namespace AutoMovieHumanLegChain {
       order: AutoMovieHumanLegSampling.ORDER,
       rule: "polar",
       samples: AutoMovieHumanLegSampling.SAMPLES,
-      layers: layers.map((l: IAutoMovieLoftChain.ILayer, k: number): IAutoMovieLoftChain.ILayer =>
-        k === 0 ? { ...l, curvatures: curvature(0) } : k === last ? { ...l, curvatures: curvature(1) } : l,
+      layers: layers.map(
+        (
+          l: IAutoMovieLoftChain.ILayer,
+          k: number,
+        ): IAutoMovieLoftChain.ILayer =>
+          k === 0
+            ? { ...l, curvatures: curvature(0) }
+            : k === last
+              ? { ...l, curvatures: curvature(1) }
+              : l,
       ),
     };
 
@@ -290,9 +507,17 @@ export namespace AutoMovieHumanLegChain {
    * @param stations The placed stations, mm.
    * @param diagnostics The list a broken contract is recorded in.
    */
-  export function kept(producer: string, stations: readonly number[], diagnostics: AutoMovieLoftContract.IDiagnostic[]): number[] {
+  export function kept(
+    producer: string,
+    stations: readonly number[],
+    diagnostics: IAutoMovieLoftContract.IDiagnostic[],
+  ): number[] {
     try {
-      AutoMovieLoftContract.stations(producer, stations, AutoMovieLoftContract.LEAST_LAYER_GAP);
+      AutoMovieLoftContract.stations(
+        producer,
+        stations,
+        AutoMovieLoftContract.LEAST_LAYER_GAP,
+      );
       return [...stations];
     } catch (error) {
       diagnostics.push({
@@ -307,7 +532,12 @@ export namespace AutoMovieHumanLegChain {
     const gap: number = AutoMovieLoftContract.LEAST_LAYER_GAP;
     const top: number = stations[stations.length - 1]!;
     const out: number[] = [];
-    for (const s of stations.slice(0, -1)) if (Number.isFinite(s) && (out.length === 0 || s - out[out.length - 1]! >= gap)) out.push(s);
+    for (const s of stations.slice(0, -1))
+      if (
+        Number.isFinite(s) &&
+        (out.length === 0 || s - out[out.length - 1]! >= gap)
+      )
+        out.push(s);
     while (out.length > 1 && !(top - out[out.length - 1]! >= gap)) out.pop();
     out.push(top);
     return out;
@@ -322,13 +552,26 @@ export namespace AutoMovieHumanLegChain {
    * @param stations Their stations, mm.
    * @throws When no layer is valid, since no neighbour can then stand in.
    */
-  export function neighboured(built: readonly (IAutoMovieLoftChain.ILayer | null)[], stations: readonly number[]): IAutoMovieLoftChain.ILayer[] {
-    const valid: number[] = built.flatMap((l: IAutoMovieLoftChain.ILayer | null, k: number): number[] => (l === null ? [] : [k]));
+  export function neighboured(
+    built: readonly (IAutoMovieLoftChain.ILayer | null)[],
+    stations: readonly number[],
+  ): IAutoMovieLoftChain.ILayer[] {
+    const valid: number[] = built.flatMap(
+      (l: IAutoMovieLoftChain.ILayer | null, k: number): number[] =>
+        l === null ? [] : [k],
+    );
     if (valid.length === 0) throw new Error("No leg layer keeps its contract");
-    return built.map((l: IAutoMovieLoftChain.ILayer | null, k: number): IAutoMovieLoftChain.ILayer => {
-      if (l !== null) return l;
-      const near: number = valid.reduce((a: number, b: number): number => (Math.abs(b - k) < Math.abs(a - k) ? b : a));
-      return { ...built[near]!, y: stations[k]! };
-    });
+    return built.map(
+      (
+        l: IAutoMovieLoftChain.ILayer | null,
+        k: number,
+      ): IAutoMovieLoftChain.ILayer => {
+        if (l !== null) return l;
+        const near: number = valid.reduce((a: number, b: number): number =>
+          Math.abs(b - k) < Math.abs(a - k) ? b : a,
+        );
+        return { ...built[near]!, y: stations[k]! };
+      },
+    );
   }
 }

@@ -1,9 +1,10 @@
-import type { IAutoMovieContourLoft64 } from "./IAutoMovieContourLoft64";
-import type { planAutoMovieContourSlabs64 } from "./planAutoMovieContourSlabs64";
+import type {
+  IAutoMovieContourLoft64,
+  IAutoMoviePlanContourSlabs64Props,
+} from "@automovie/interface";
 
-type Props = Parameters<typeof planAutoMovieContourSlabs64>[0];
-type Ring = Props["rings"][number][number];
-type Slice = Props["slices"][number];
+type Ring = IAutoMoviePlanContourSlabs64Props["rings"][number][number];
+type Slice = IAutoMoviePlanContourSlabs64Props["slices"][number];
 
 /**
  * Admit explicit adjacent intervals while retaining independent usable groups.
@@ -17,7 +18,7 @@ type Slice = Props["slices"][number];
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Maps, sets and returned interval records belong to one contour plan; no handles or cross-call state exist.
  */
 export function admitAutoMovieContourIntervals64(
-  props: Props,
+  props: IAutoMoviePlanContourSlabs64Props,
 ): Map<number, IAutoMovieContourLoft64.IInterval> | undefined {
   if (props.intervals === undefined) return undefined;
   if (!Array.isArray(props.intervals))

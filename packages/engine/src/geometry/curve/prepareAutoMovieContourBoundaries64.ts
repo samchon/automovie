@@ -1,19 +1,14 @@
-import { AutoMovieContourLoftCurves64 as C } from "./AutoMovieContourLoftCurves64";
-import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
-import type { IAutoMovieContourLoft64 as L } from "./IAutoMovieContourLoft64";
-import { refineAutoMovieContourInteractions64 } from "./refineAutoMovieContourInteractions64";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoft64,
+  IAutoMovieContourLoftCurves64,
+  IAutoMoviePrepareContourBoundaries64,
+  IAutoMoviePrepareContourBoundaries64Group,
+  IAutoMoviePrepareContourBoundaries64Ring,
+  IAutoMovieRefineContourInteractions64,
+} from "@automovie/interface";
 
-interface Ring {
-  id: string;
-  points: M.V[];
-  winding: number;
-  unsupported?: string;
-}
-interface Group {
-  a: number[];
-  b: number[];
-  unsupported?: string;
-}
+import { refineAutoMovieContourInteractions64 } from "./refineAutoMovieContourInteractions64";
 
 /**
  * Reach one shared-boundary refinement state before choosing and freezing any branch slit.
@@ -35,24 +30,25 @@ interface Group {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Group maps and per-pass observations transfer to the loft invocation and expire with its result; no cross-call state or background worker is retained.
  */
 export function prepareAutoMovieContourBoundaries64<
-  R extends Ring,
-  G extends Group,
+  R extends IAutoMoviePrepareContourBoundaries64Ring,
+  G extends IAutoMoviePrepareContourBoundaries64Group,
 >(
-  plans: { k: number; groups: G[] }[],
+  plans: IAutoMoviePrepareContourBoundaries64.IPlans<G>,
   rings: R[][],
   coordinates: readonly number[],
-  leaf: (point: M.V) => C.Leaf | undefined,
-  register: (ring: R, knot: C.Knot) => void,
+  leaf: (
+    point: AutoMovieVector3Tuple,
+  ) => IAutoMovieContourLoftCurves64.Leaf | undefined,
+  register: (ring: R, knot: IAutoMovieContourLoftCurves64.Knot) => void,
   prepareSlit: (rings: R[], selection: number[]) => void,
   toleranceMm: number,
   observeWork: boolean,
-): {
-  interactions: Map<G, { qualified: boolean; diagnostics: string[] }>;
-  observations: NonNullable<L.IResult["interactionObservations"]>;
-} {
+): IAutoMoviePrepareContourBoundaries64.IResult<G> {
   const interactions: Map<G, { qualified: boolean; diagnostics: string[] }> =
     new Map();
-  const observations: NonNullable<L.IResult["interactionObservations"]> = [];
+  const observations: NonNullable<
+    IAutoMovieContourLoft64.IResult["interactionObservations"]
+  > = [];
   for (const plan of plans)
     for (const group of plan.groups) {
       const invalid: R | undefined = [
@@ -72,26 +68,24 @@ export function prepareAutoMovieContourBoundaries64<
         for (const [groupIndex, group] of plan.groups.entries()) {
           if (group.unsupported !== undefined) continue;
           try {
-            const before: ReturnType<
-              typeof refineAutoMovieContourInteractions64<R>
-            > = refineAutoMovieContourInteractions64(
-              rings[plan.k - 1],
-              group.a,
-              leaf,
-              register,
-              toleranceMm,
-              observeWork,
-            );
-            const after: ReturnType<
-              typeof refineAutoMovieContourInteractions64<R>
-            > = refineAutoMovieContourInteractions64(
-              rings[plan.k],
-              group.b,
-              leaf,
-              register,
-              toleranceMm,
-              observeWork,
-            );
+            const before: IAutoMovieRefineContourInteractions64.IResult =
+              refineAutoMovieContourInteractions64(
+                rings[plan.k - 1],
+                group.a,
+                leaf,
+                register,
+                toleranceMm,
+                observeWork,
+              );
+            const after: IAutoMovieRefineContourInteractions64.IResult =
+              refineAutoMovieContourInteractions64(
+                rings[plan.k],
+                group.b,
+                leaf,
+                register,
+                toleranceMm,
+                observeWork,
+              );
             if (group.a.length > 1)
               observations.push({
                 beforeMm: coordinates[plan.k - 1],

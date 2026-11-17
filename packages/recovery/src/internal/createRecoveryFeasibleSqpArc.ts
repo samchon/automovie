@@ -1,12 +1,13 @@
-import {
-  type IAutoMovieSimplexAtom,
-  decomposeAutoMovieSingularMatrix,
-} from "@automovie/engine";
+import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryFeasibleModel,
+  IAutoMovieRecoveryFeasibleSqpStepMixingOperation,
+  IAutoMovieRecoverySqpArc,
+  IAutoMovieRecoverySqpOptions,
+  IAutoMovieRecoverySqpTightening,
+  IAutoMovieSimplexAtom,
+} from "@automovie/interface";
 
-import type { IAutoMovieRecoveryFeasibleModel } from "../structures/internal/IAutoMovieRecoveryFeasibleModel";
-import type { IAutoMovieRecoverySqpArc } from "../structures/internal/IAutoMovieRecoverySqpArc";
-import type { IAutoMovieRecoverySqpOptions } from "../structures/internal/IAutoMovieRecoverySqpOptions";
-import type { IAutoMovieRecoverySqpTightening } from "../structures/internal/IAutoMovieRecoverySqpTightening";
 import { chooseRecoverySqpTightening } from "./chooseRecoverySqpTightening";
 import { mixRecoveryFeasibleSqpStep } from "./mixRecoveryFeasibleSqpStep";
 
@@ -365,7 +366,7 @@ export function createRecoveryFeasibleSqpArc(
     return fail(
       weight === 1 ? "baseline-weight-one" : "zero-or-unresolved-sqp-norm",
     );
-  const mixture: ReturnType<typeof mixRecoveryFeasibleSqpStep> =
+  const mixture: ReturnType<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation> =
     mixRecoveryFeasibleSqpStep(model.physicalRows, physical, tilted, weight);
   Object.assign(result.report, {
     mixWeight: mixture.weight,

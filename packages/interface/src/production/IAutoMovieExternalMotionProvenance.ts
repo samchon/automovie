@@ -1,5 +1,5 @@
-import { IAutoMovieExternalMotionBasis } from "./IAutoMovieExternalMotionBasis";
-import { IAutoMovieExternalMotionTake } from "./IAutoMovieExternalMotionTake";
+import type { IAutoMovieExternalMotionBasis } from "./IAutoMovieExternalMotionBasis";
+import type { IAutoMovieExternalMotionTake } from "./IAutoMovieExternalMotionTake";
 
 /**
  * Byte-grounded motion facts recorded for an external animation asset.

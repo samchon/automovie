@@ -1,11 +1,14 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieBodyMomentum,
+  IAutoMovieCombinePhysicalMassProperties,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import type { combinePhysicalMassProperties } from "../physics/combinePhysicalMassProperties";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
+import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import type { resolveAutoMovieBoneRates } from "./resolveAutoMovieBoneRates";
 import type { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 import type { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
@@ -44,11 +47,11 @@ import type { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only this synchronous call owns its O(S) captured numeric rate records. They release on return or throw, and the fresh constant-size result retains no model, pose, rate map, callback, task or resource handle.
  */
 export function resolveAutoMovieMomentumRates(
-  model: resolveAutoMovieCenterOfMass.IModel,
+  model: IAutoMovieResolveCenterOfMass.IModel,
   posed: resolveAutoMovieMomentum.IPosed,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   rates: ReadonlyMap<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>,
-): resolveAutoMovieMomentum.IMomentum {
+): IAutoMovieBodyMomentum {
   if (!(Number.isFinite(model.mass) && model.mass > 0))
     throw new Error("Instantaneous momentum needs finite positive total mass");
   if (posed.parts.length !== model.segments.length)
@@ -62,8 +65,8 @@ export function resolveAutoMovieMomentumRates(
   let linearY: number = 0;
   let linearZ: number = 0;
   for (let i: number = 0; i < model.segments.length; i++) {
-    const segment: resolveAutoMovieCenterOfMass.ISegment = model.segments[i]!;
-    const part: combinePhysicalMassProperties.IPart = posed.parts[i]!;
+    const segment: IAutoMovieResolveCenterOfMass.ISegment = model.segments[i]!;
+    const part: IAutoMovieCombinePhysicalMassProperties.IPart = posed.parts[i]!;
     const bone: IAutoMovieResolvedBone | undefined = bones.get(segment.bone);
     const rate: resolveAutoMovieBoneRates.IRate | undefined = rates.get(segment.bone);
     if (bone === undefined || rate === undefined)
@@ -106,7 +109,7 @@ export function resolveAutoMovieMomentumRates(
   let angularY: number = 0;
   let angularZ: number = 0;
   for (let i: number = 0; i < posed.parts.length; i++) {
-    const part: combinePhysicalMassProperties.IPart = posed.parts[i]!;
+    const part: IAutoMovieCombinePhysicalMassProperties.IPart = posed.parts[i]!;
     const rate: IPartRate = partRates[i]!;
     const x: number = part.centerOfMass.x - posed.centre.x;
     const y: number = part.centerOfMass.y - posed.centre.y;

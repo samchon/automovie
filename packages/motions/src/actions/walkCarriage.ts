@@ -1,5 +1,8 @@
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type {
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+} from "@automovie/interface";
+
 import { HumanArmSwing } from "../posture/HumanArmSwing";
 
 /**
@@ -34,12 +37,12 @@ export namespace walkCarriage {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     events: readonly { name: string; seconds: number }[],
     duration: number,
-    posture: IHumanActionPlan["posture"],
-    resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-    projection?: Parameters<IHumanActionPlan["posture"]>[3],
+    posture: IAutoMovieMotionHumanActionPlan["posture"],
+    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
   ): Record<"left" | "right", number> {
     const left: number[] = events
       .filter((e: { name: string }): boolean => /^leftHeelStrike/.test(e.name))

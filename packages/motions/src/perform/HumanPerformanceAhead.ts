@@ -1,13 +1,16 @@
-import type { IAutoMovieIntent } from "@automovie/engine";
+import type {
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanPerformanceAim,
+  IAutoMovieMotionHumanPerformanceState,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceParams } from "./HumanPerformanceParams";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 
 /**
  * What a performer's next action on a prop demands of a grip an earlier
@@ -56,13 +59,15 @@ export namespace HumanPerformanceAhead {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The kept actions, one per prop asked, live as long as the context. A finally block releases candidate bones and the scalar frame on return or throw; an aim callback retained by a law reads both fresh after that invocation, so neither memo persists on the reader, grip or performance.
    */
   export function reader(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     context: Pick<
-      IHumanActionContext,
+      IAutoMovieMotionHumanActionContext,
       "subject" | "body" | "skill" | "prop" | "start"
     >,
     ordinal: number,
-  ): (grip: IHumanActionLaw.IGrip) => readonly IHumanActionLaw.IDemand[] {
+  ): (
+    grip: IAutoMovieMotionHumanActionLaw.IGrip,
+  ) => readonly IAutoMovieMotionHumanActionLaw.IDemand[] {
     const found: Map<string, INext | null> = new Map();
     const next: (prop: string) => INext | null = (
       prop: string,
@@ -72,8 +77,8 @@ export namespace HumanPerformanceAhead {
       return found.get(prop)!;
     };
     return (
-      grip: IHumanActionLaw.IGrip,
-    ): readonly IHumanActionLaw.IDemand[] => {
+      grip: IAutoMovieMotionHumanActionLaw.IGrip,
+    ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] => {
       const asked: INext | null = next(grip.prop);
       if (asked === null || asked.law.demands === undefined) return [];
 
@@ -81,7 +86,7 @@ export namespace HumanPerformanceAhead {
       // its bones lazily here, so another grip question starts independently.
       let querying: boolean = true;
       let bones: ReturnType<typeof poseBones> | undefined;
-      let frame: HumanPerformanceAim.IFrame | undefined;
+      let frame: IAutoMovieMotionHumanPerformanceAim.IFrame | undefined;
       const freshBones: () => ReturnType<typeof poseBones> = (): ReturnType<
         typeof poseBones
       > =>
@@ -89,7 +94,7 @@ export namespace HumanPerformanceAhead {
           context.body,
           resolveHumanPosture(context.body, grip.posture),
         );
-      const ownBones: HumanPerformanceAim.IFrame["bones"] = (): ReturnType<
+      const ownBones: IAutoMovieMotionHumanPerformanceAim.IFrame["bones"] = (): ReturnType<
         typeof poseBones
       > => (querying ? (bones ??= freshBones()) : freshBones());
       try {
@@ -100,10 +105,10 @@ export namespace HumanPerformanceAhead {
           skill: context.skill,
           prop: context.prop,
           aim: (
-            target: Parameters<IHumanActionContext["aim"]>[0],
+            target: Parameters<IAutoMovieMotionHumanActionContext["aim"]>[0],
             seconds: number,
-          ): ReturnType<IHumanActionContext["aim"]> => {
-            const current: HumanPerformanceAim.IFrame =
+          ): ReturnType<IAutoMovieMotionHumanActionContext["aim"]> => {
+            const current: IAutoMovieMotionHumanPerformanceAim.IFrame =
               querying && frame !== undefined
                 ? frame
                 : HumanPerformanceAim.frame(
@@ -131,7 +136,7 @@ export namespace HumanPerformanceAhead {
   /** An action asked for its demands: its law and its resolved parameters. */
   interface INext {
     /** Its law. */
-    law: IHumanActionLaw<never>;
+    law: IAutoMovieMotionHumanActionLaw<never>;
 
     /** Its parameters, as its law resolves them. */
     params: object;
@@ -139,7 +144,7 @@ export namespace HumanPerformanceAhead {
 
   /** The first of a performer's actions after `ordinal` that names a prop, or null. */
   function find(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     ordinal: number,
     prop: string,
@@ -147,9 +152,8 @@ export namespace HumanPerformanceAhead {
     for (const intent of (self.intended.get(subject) ?? []).slice(
       ordinal + 1,
     )) {
-      const law: IHumanActionLaw<never> | undefined = self.laws.get(
-        intent.capability,
-      );
+      const law: IAutoMovieMotionHumanActionLaw<never> | undefined =
+        self.laws.get(intent.capability);
       // An action the vocabulary lacks is refused where it is placed.
       if (law === undefined) return null;
       const given: object = params(intent);

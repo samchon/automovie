@@ -1,3 +1,4 @@
+import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -24,7 +25,7 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
 export function test_ingest_external_model_hierarchy_deep_motion(): void {
   const fixture: ReturnType<typeof createExternalModelHierarchyChain> =
     createExternalModelHierarchyChain(16_384);
-  const inspected: import("@automovie/ingest").IAutoMovieExternalModelInspection =
+  const inspected: IAutoMovieExternalModelInspection =
     inspectExternalModelHierarchyFixture(fixture, "gltf-motion-v1");
   TestValidator.predicate(
     "deep motion hierarchy inventory",

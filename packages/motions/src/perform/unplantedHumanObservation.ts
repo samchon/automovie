@@ -1,6 +1,7 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
-
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 /**
  * Keep an observational demand only when no later planted-goal refit will
@@ -20,7 +21,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state or handle and returns only the caller's borrowed set or undefined.
  */
 export function unplantedHumanObservation(
-  limbs: IHumanPosture["limbs"],
+  limbs: IAutoMovieMotionHumanPosture["limbs"],
   requested: ReadonlySet<AutoMovieHumanoidBone> | undefined,
 ): ReadonlySet<AutoMovieHumanoidBone> | undefined {
   if (requested === undefined) return undefined;

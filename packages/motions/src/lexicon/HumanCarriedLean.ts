@@ -1,11 +1,16 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanCarriedLean,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanLoad,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanLayer } from "../law/IHumanLayer";
 import { HumanLoad } from "../perform/HumanLoad";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { HumanCarried } from "./HumanCarried";
 
 /**
  * The carrier's lean against the load of a carried person (#3349): a load
@@ -46,7 +51,9 @@ import type { HumanCarried } from "./HumanCarried";
  */
 export namespace HumanCarriedLean {
   /** The carrier's whole-body pitch against each carry's load when no mass is known, degrees; positive leans forward. */
-  export const LEANS: Readonly<Record<HumanCarried.Carry, number>> = {
+  export const LEANS: Readonly<
+    Record<IAutoMovieMotionHumanCarried.Carry, number>
+  > = {
     piggyback: 20,
     cradle: -10,
     overShoulder: 10,
@@ -75,9 +82,9 @@ export namespace HumanCarriedLean {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer closes over one angle.
    */
   export function layer(
-    carry: HumanCarried.Carry,
-    load?: Parameters<typeof HumanLoad.lean>[0],
-  ): IHumanLayer {
+    carry: IAutoMovieMotionHumanCarried.Carry,
+    load?: IAutoMovieMotionHumanLoad.ILeanProps,
+  ): IAutoMovieMotionHumanLayer {
     // A known load leans the body by its moment (#3431); the table's
     // provisional angle stands only when no mass is known.
     const balanced: number | null =
@@ -86,8 +93,9 @@ export namespace HumanCarriedLean {
     return {
       name: "carryLean",
       channels: ["root", "trunk"],
-      apply: (posture: IHumanPosture): IHumanPosture =>
-        tipped(posture, lean, 0),
+      apply: (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieMotionHumanPosture => tipped(posture, lean, 0),
     };
   }
 
@@ -107,12 +115,15 @@ export namespace HumanCarriedLean {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `tipped`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer closes over two angles.
    */
-  export function coupled(tip: { pitch: number; roll: number }): IHumanLayer {
+  export function coupled(
+    tip: IAutoMovieMotionHumanCarriedLean.ICoupledTip,
+  ): IAutoMovieMotionHumanLayer {
     return {
       name: "carryLean",
       channels: ["root", "trunk"],
-      apply: (posture: IHumanPosture): IHumanPosture =>
-        tipped(posture, tip.pitch, tip.roll),
+      apply: (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieMotionHumanPosture => tipped(posture, tip.pitch, tip.roll),
     };
   }
 
@@ -136,14 +147,14 @@ export namespace HumanCarriedLean {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function tipped(
-    posture: IHumanPosture,
+    posture: IAutoMovieMotionHumanPosture,
     pitch: number,
     roll: number,
-  ): IHumanPosture {
-    const legs: IHumanPosture.IGoal[] = [
+  ): IAutoMovieMotionHumanPosture {
+    const legs: IAutoMovieHumanLimbGoal[] = [
       posture.limbs.leftLeg,
       posture.limbs.rightLeg,
-    ].filter((g): g is IHumanPosture.IGoal => g !== undefined);
+    ].filter((g): g is IAutoMovieHumanLimbGoal => g !== undefined);
     const pivot: IAutoMovieVector3 =
       legs.length === 0
         ? posture.root
@@ -151,7 +162,7 @@ export namespace HumanCarriedLean {
             legs.reduce(
               (
                 s: IAutoMovieVector3,
-                g: IHumanPosture.IGoal,
+                g: IAutoMovieHumanLimbGoal,
               ): IAutoMovieVector3 => Vector3.add(s, g.point),
               { x: 0, y: 0, z: 0 },
             ),
@@ -161,7 +172,7 @@ export namespace HumanCarriedLean {
       Quaternion.inverse(resolveHumanPosture.heading(posture)),
       Vector3.subtract(pivot, posture.root),
     );
-    const turned: IHumanPosture = {
+    const turned: IAutoMovieMotionHumanPosture = {
       ...posture,
       pitch: posture.pitch + pitch,
       roll: posture.roll + roll,

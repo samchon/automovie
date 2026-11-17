@@ -1,7 +1,5 @@
-import {
-  AutoMovieMotionHumanAuditDifference,
-  type IAutoMovieMotionHumanAuditMeasure,
-} from "@automovie/motions";
+import type { IAutoMovieMotionHumanAuditMeasure } from "@automovie/interface";
+import { AutoMovieMotionHumanAuditDifference } from "@automovie/motions";
 
 import LEDGER from "./MOTION_HUMAN_LEDGER.json";
 import { motionCoveringArray } from "./motionCoveringArray";

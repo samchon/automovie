@@ -1,5 +1,5 @@
-import { IAutoMovieDestructibleTrait } from "./IAutoMovieDestructibleTrait";
-import { IAutoMovieMountableTrait } from "./IAutoMovieMountableTrait";
+import type { IAutoMovieDestructibleTrait } from "./IAutoMovieDestructibleTrait";
+import type { IAutoMovieMountableTrait } from "./IAutoMovieMountableTrait";
 
 /**
  * Declarative profile capabilities; every variant is data, never code.

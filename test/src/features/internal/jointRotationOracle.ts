@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieRestFrame,
   Quaternion,
   clampJointRom,
   jointRomOvershoot,
@@ -13,6 +12,7 @@ import type {
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

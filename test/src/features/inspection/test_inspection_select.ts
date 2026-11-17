@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieMark,
-  markAutoMovieConstructionCurves,
-} from "@automovie/engine";
+import { markAutoMovieConstructionCurves } from "@automovie/engine";
+import type { IAutoMovieMark } from "@automovie/interface";
 import {
   type IAutoMovieInspectionHandle,
   applyAutoMovieInspection,

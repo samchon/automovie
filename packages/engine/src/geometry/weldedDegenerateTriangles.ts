@@ -1,4 +1,7 @@
-import { IAutoMovieMesh } from "@automovie/interface";
+import {
+  IAutoMovieMesh,
+  type IAutoMovieWeldMeshVertices,
+} from "@automovie/interface";
 
 import { weldMeshVertices } from "../math/weldMeshVertices";
 import { triangleIndicesOf } from "./triangleIndicesOf";
@@ -33,7 +36,7 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  */
 export function weldedDegenerateTriangles(mesh: IAutoMovieMesh): number[] {
   const indices: number[] = triangleIndicesOf(mesh, "mesh topology");
-  const { vertices }: ReturnType<typeof weldMeshVertices> = weldMeshVertices(
+  const { vertices }: IAutoMovieWeldMeshVertices.IResult = weldMeshVertices(
     mesh.positions,
   );
   const degenerate: number[] = [];

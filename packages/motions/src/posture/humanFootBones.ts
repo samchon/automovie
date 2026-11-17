@@ -1,6 +1,8 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "./HumanFoot";
 
 /**
@@ -19,7 +21,7 @@ import { HumanFoot } from "./HumanFoot";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns only a bounded set of canonical names, no body or pose references; its operation owns and releases that set/prepared demand on return or throw, without a global cache, query history or external handle.
  */
 export function humanFootBones(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   sides: readonly ("left" | "right")[] = ["left", "right"],
 ): ReadonlySet<AutoMovieHumanoidBone> {
   const bones: Set<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>();

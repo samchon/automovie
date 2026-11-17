@@ -1,9 +1,11 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type AutoMovieImpactKind,
+  type IAutoMovieImpact,
+  type IAutoMovieImpactBodyState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { AutoMovieImpactKind } from "./AutoMovieImpactKind";
-import { IAutoMovieImpact } from "./IAutoMovieImpact";
-import { IAutoMovieImpactBody } from "./IAutoMovieImpactBody";
 
 const EMBED_SPEED: number = 6 as const; // m/s above which a penetrable body is pierced, not bounced
 
@@ -66,8 +68,8 @@ const assertImpactCoefficient: (
 
 const assertImpactBody: (
   label: "a" | "b",
-  body: IAutoMovieImpactBody,
-) => void = (label: "a" | "b", body: IAutoMovieImpactBody): void => {
+  body: IAutoMovieImpactBodyState,
+) => void = (label: "a" | "b", body: IAutoMovieImpactBodyState): void => {
   assertImpactMass(label, body.mass);
   assertImpactVector(label, "velocity", body.velocity);
   assertImpactCoefficient(label, "restitution", body.restitution);
@@ -97,12 +99,12 @@ const assertImpactBody: (
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned response survives; no body history, iterative solver state or resource is held after the call.
  */
 export const resolveImpact: (
-  a: IAutoMovieImpactBody,
-  b: IAutoMovieImpactBody,
+  a: IAutoMovieImpactBodyState,
+  b: IAutoMovieImpactBodyState,
   normal: IAutoMovieVector3,
 ) => IAutoMovieImpact = (
-  a: IAutoMovieImpactBody,
-  b: IAutoMovieImpactBody,
+  a: IAutoMovieImpactBodyState,
+  b: IAutoMovieImpactBodyState,
   normal: IAutoMovieVector3,
 ): IAutoMovieImpact => {
   assertImpactBody("a", a);

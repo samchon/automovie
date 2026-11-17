@@ -1,4 +1,5 @@
 import { minimumJerk } from "@automovie/engine";
+import type { IAutoMovieMotionClock } from "@automovie/interface";
 
 import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 
@@ -45,7 +46,7 @@ export namespace AutoMovieMotionInterval {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned record retains two numeric seconds and reader closures until its owning action releases it; no clock, time history, pose or external handle is retained.
    */
   export function prepare(
-    clock: Pick<AutoMovieMotionClock.IClock, "at">,
+    clock: Pick<IAutoMovieMotionClock, "at">,
     from: string,
     to: string,
   ): IPrepared {

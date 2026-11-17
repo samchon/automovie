@@ -1,6 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionWeaponPath,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { StrikingWeapon } from "./StrikingWeapon";
 
 /**
@@ -28,7 +30,7 @@ export namespace StrikingWeaponSample {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the capsule producer establishes chain correspondence, rather than structural guesses from ids or matching outputs.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each weak weapon key owns its chain/index only while that weapon is reachable; no strong key list, sampled endpoint or history grows.
    */
-  export function bind(weapon: IHumanActionPlan.IWeapon, chain: StrikingWeapon.IChain, index: number): void {
+  export function bind(weapon: IAutoMovieMotionWeaponPath, chain: StrikingWeapon.IChain, index: number): void {
     CHAINS.set(weapon, { chain, index });
   }
 
@@ -47,7 +49,7 @@ export namespace StrikingWeaponSample {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Constructor provenance proves both ends share this exact chain/time/current context. Separate invocations still evaluate their own source.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation returns only a fresh endpoint pair and retains no sampled vectors, time or stop map; weak provenance has the weapon's lifetime.
    */
-  export function read(weapon: IHumanActionPlan.IWeapon, seconds: number): StrikingWeapon.IAxis {
+  export function read(weapon: IAutoMovieMotionWeaponPath, seconds: number): StrikingWeapon.IAxis {
     const binding: IBinding | undefined = CHAINS.get(weapon);
     if (binding === undefined) return [weapon.path(seconds), weapon.tail?.(seconds)];
     const ends: readonly IAutoMovieVector3[] = binding.chain.ends(seconds);
@@ -69,9 +71,9 @@ export namespace StrikingWeaponSample {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One explicit call fixes current context/time and constructor provenance fixes body/course ownership; the consumer consumes results before applying state-changing stops.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The chain map ends on return or throw; returned weapon-keyed axes are operation-owned actual endpoints, with no new body/plan cache, reader or history retained.
    */
-  export function sample(weapons: readonly IHumanActionPlan.IWeapon[], seconds: number): ReadonlyMap<IHumanActionPlan.IWeapon, StrikingWeapon.IAxis> {
+  export function sample(weapons: readonly IAutoMovieMotionWeaponPath[], seconds: number): ReadonlyMap<IAutoMovieMotionWeaponPath, StrikingWeapon.IAxis> {
     const chains: Map<StrikingWeapon.IChain, readonly IAutoMovieVector3[]> = new Map();
-    const axes: Map<IHumanActionPlan.IWeapon, StrikingWeapon.IAxis> = new Map();
+    const axes: Map<IAutoMovieMotionWeaponPath, StrikingWeapon.IAxis> = new Map();
     for (const weapon of weapons) {
       const binding: IBinding | undefined = CHAINS.get(weapon);
       if (binding === undefined) {
@@ -98,4 +100,4 @@ interface IBinding {
 }
 
 /** Weak ownership metadata only; no query/time answer survives an operation. */
-const CHAINS: WeakMap<IHumanActionPlan.IWeapon, IBinding> = new WeakMap();
+const CHAINS: WeakMap<IAutoMovieMotionWeaponPath, IBinding> = new WeakMap();

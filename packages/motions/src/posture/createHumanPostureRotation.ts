@@ -1,6 +1,8 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-import type { IHumanPosture } from "./IHumanPosture";
+import type {
+  IAutoMovieHumanPostureRotation,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Construct an owned numeric rigid turn from the solved flight's output.
@@ -15,8 +17,8 @@ import type { IHumanPosture } from "./IHumanPosture";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Only this actual constructed graph may lend provenance after exact current own-data checks; each time still reads the real solved trajectory and constructs a fresh independent rotation. Member facts: unchanged: Every actual consumption checks current fields; an earlier successful check is not cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak output key owns three bounded native-node snapshots until that output is released, with no body, trajectory, FK loan, returned pose or handle retained. Member facts: unchanged: Retains no input, result, callback or resource beyond the constructor's existing weak record.
  */
-export function createHumanPostureRotation(about: IAutoMovieVector3, turn: IAutoMovieQuaternion): IHumanPosture.IRotation {
-  const out: IHumanPosture.IRotation = {
+export function createHumanPostureRotation(about: IAutoMovieVector3, turn: IAutoMovieQuaternion): IAutoMovieHumanPostureRotation {
+  const out: IAutoMovieHumanPostureRotation = {
     about: { x: about.x, y: about.y, z: about.z },
     turn: { x: turn.x, y: turn.y, z: turn.z, w: turn.w },
   };
@@ -48,7 +50,7 @@ export namespace createHumanPostureRotation {
    * Every actual consumption checks current fields; an earlier successful check is not cached.
    * Retains no input, result, callback or resource beyond the constructor's existing weak record.
    */
-  export function unchanged(rotation: IHumanPosture.IRotation): boolean {
+  export function unchanged(rotation: IAutoMovieHumanPostureRotation): boolean {
     const nodes: readonly INode[] | undefined = SOURCES.get(rotation);
     if (nodes === undefined) return false;
     for (const node of nodes) {
@@ -76,4 +78,4 @@ interface INode {
 }
 
 /** Output lifetime alone owns its bounded constructor evidence. */
-const SOURCES: WeakMap<IHumanPosture.IRotation, readonly INode[]> = new WeakMap();
+const SOURCES: WeakMap<IAutoMovieHumanPostureRotation, readonly INode[]> = new WeakMap();

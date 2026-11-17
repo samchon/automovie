@@ -1,11 +1,14 @@
 import { createJavelin } from "@automovie/archetypes";
 import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanThrownWeapon,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,7 +39,7 @@ export function test_human_motion_throw_javelin(): void {
     kind: "men",
   });
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     // The flight's time to the floor point, at most sqrt(2 (d tan a + h) / g)
     // for a release no higher than the stature `h`: the range equation's own
     // time to the target. The thrower stands that long after the throw.
@@ -46,7 +49,7 @@ export function test_human_motion_throw_javelin(): void {
           body.measure.stature)) /
         AutoMovieGravity.STANDARD,
     );
-    let performance: HumanPerformance;
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "javelin",

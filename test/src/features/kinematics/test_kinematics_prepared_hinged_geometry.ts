@@ -1,5 +1,10 @@
 import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHingedArmSwivel,
+  IAutoMovieHingedChainGeometry,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -27,7 +32,7 @@ import { vclose } from "../internal/vclose";
  */
 export function test_kinematics_prepared_hinged_geometry(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-  const source: Omit<hingedArmSwivel.IChain, "target" | "range"> = {
+  const source: Omit<IAutoMovieHingedChainGeometry, "target" | "range"> = {
     upper: { worldPosition: { x: 2, y: 3, z: 4 },
       worldRotation: { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 } },
     midOffset: { x: 1, y: 0, z: 0 }, midRest: identity,
@@ -41,12 +46,12 @@ export function test_kinematics_prepared_hinged_geometry(): void {
   for (const [target, point, theta] of [
     [first, a, Math.PI / 2], [second, b, 2 * Math.PI / 3], [first, a, Math.PI / 2],
   ] as const) {
-    const branches: hingedArmSwivel.IStop[] | null = target.branches();
+    const branches: IAutoMovieHingedArmSwivel.IStop[] | null = target.branches();
     TestValidator.predicate("law-of-cosines branches retain independent target distance",
       branches !== null && branches.length === 2 &&
       nclose(branches[0]!.theta, theta, 1e-12) &&
       nclose(branches[1]!.theta, -theta, 1e-12) &&
-      branches.every((branch: hingedArmSwivel.IStop): boolean => nclose(branch.shortfall, 0, 1e-12)),
+      branches.every((branch: IAutoMovieHingedArmSwivel.IStop): boolean => nclose(branch.shortfall, 0, 1e-12)),
     );
     if (branches === null) continue;
     for (const branch of branches) {
@@ -59,9 +64,9 @@ export function test_kinematics_prepared_hinged_geometry(): void {
   }
 
   const stopped: hingedArmSwivel.IPreparedTarget = prepared.target(a, { min: Math.PI / 3, max: Math.PI / 3 });
-  const limits: hingedArmSwivel.IStop[] | null = stopped.branches();
+  const limits: IAutoMovieHingedArmSwivel.IStop[] | null = stopped.branches();
   TestValidator.predicate("fixed hinge reports the actual shell and its residual",
-    limits !== null && limits.length === 2 && limits.every((branch: hingedArmSwivel.IStop): boolean =>
+    limits !== null && limits.length === 2 && limits.every((branch: IAutoMovieHingedArmSwivel.IStop): boolean =>
       nclose(branch.theta, Math.PI / 3, 1e-12) &&
       nclose(branch.shortfall, Math.sqrt(3) - Math.SQRT2, 1e-12) &&
       vclose(endpoint(source, stopped.pose(branch.theta)(29)),
@@ -69,9 +74,9 @@ export function test_kinematics_prepared_hinged_geometry(): void {
   );
   const farPoint: IAutoMovieVector3 = { x: 5, y: 3, z: 4 };
   const far: hingedArmSwivel.IPreparedTarget = prepared.target(farPoint);
-  const extended: hingedArmSwivel.IStop[] | null = far.branches();
+  const extended: IAutoMovieHingedArmSwivel.IStop[] | null = far.branches();
   TestValidator.predicate("far demand stays original while pose lands on the shell",
-    extended !== null && extended.every((branch: hingedArmSwivel.IStop): boolean =>
+    extended !== null && extended.every((branch: IAutoMovieHingedArmSwivel.IStop): boolean =>
       nclose(branch.theta, 0, 1e-12) && nclose(branch.shortfall, 1, 1e-12) &&
       vclose(endpoint(source, far.pose(branch.theta)(-15)), { x: 4, y: 3, z: 4 }, 1e-12)) &&
       vclose(farPoint, { x: 5, y: 3, z: 4 }, 0),
@@ -85,7 +90,7 @@ export function test_kinematics_prepared_hinged_geometry(): void {
 }
 
 /** Reconstruct the actual two-link endpoint from returned local articulations. */
-function endpoint(source: Omit<hingedArmSwivel.IChain, "target" | "range">,
+function endpoint(source: Omit<IAutoMovieHingedChainGeometry, "target" | "range">,
   pose: { upper: IAutoMovieQuaternion; lower: IAutoMovieQuaternion }): IAutoMovieVector3 {
   const upper: IAutoMovieQuaternion = Quaternion.multiply(source.upper.worldRotation, pose.upper);
   const lower: IAutoMovieQuaternion = Quaternion.multiply(Quaternion.multiply(upper, source.midRest), pose.lower);

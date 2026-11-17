@@ -1,9 +1,9 @@
-import { IAutoMovieAimDriver } from "./IAutoMovieAimDriver";
-import { IAutoMovieCopyDriver } from "./IAutoMovieCopyDriver";
-import { IAutoMovieDrivenDriver } from "./IAutoMovieDrivenDriver";
-import { IAutoMovieIKDriver } from "./IAutoMovieIKDriver";
-import { IAutoMovieParentDriver } from "./IAutoMovieParentDriver";
-import { IAutoMovieSpringDriver } from "./IAutoMovieSpringDriver";
+import type { IAutoMovieAimDriver } from "./IAutoMovieAimDriver";
+import type { IAutoMovieCopyDriver } from "./IAutoMovieCopyDriver";
+import type { IAutoMovieDrivenDriver } from "./IAutoMovieDrivenDriver";
+import type { IAutoMovieIKDriver } from "./IAutoMovieIKDriver";
+import type { IAutoMovieParentDriver } from "./IAutoMovieParentDriver";
+import type { IAutoMovieSpringDriver } from "./IAutoMovieSpringDriver";
 
 /**
  * A relationship that computes channel values or world transforms from other scene inputs.

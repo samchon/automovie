@@ -1,0 +1,236 @@
+import type { IAutoMovieMotionHumanKickBall } from "../ballStrike/IAutoMovieMotionHumanKickBall";
+import type { IAutoMovieMotionHumanHandoverAction } from "../handling/IAutoMovieMotionHumanHandoverAction";
+import type { IAutoMovieMotionHumanHandshake } from "../handling/IAutoMovieMotionHumanHandshake";
+import type { IAutoMovieMotionHumanPickUp } from "../handling/IAutoMovieMotionHumanPickUp";
+import type { IAutoMovieMotionHumanPutDown } from "../handling/IAutoMovieMotionHumanPutDown";
+import type { IAutoMovieMotionHumanReceive } from "../handling/IAutoMovieMotionHumanReceive";
+import type { IAutoMovieMotionHumanCatchObject } from "../throwing/IAutoMovieMotionHumanCatchObject";
+import type { IAutoMovieMotionHumanRelease } from "../throwing/IAutoMovieMotionHumanRelease";
+import type { IAutoMovieMotionHumanThrowObjectParams } from "../throwing/IAutoMovieMotionHumanThrowObjectParams";
+import type { IAutoMovieMotionHumanHighFive } from "../touch/IAutoMovieMotionHumanHighFive";
+import type { IAutoMovieMotionHumanKiss } from "../touch/IAutoMovieMotionHumanKiss";
+import type { IAutoMovieMotionHumanChainStriking } from "./IAutoMovieMotionHumanChainStriking";
+
+/**
+ * The chain methods a person performs with a partner or on an object: the
+ * handshake, the high five and the kiss, a prop picked up, put down, handed
+ * over and received, and an object thrown, caught or kicked.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the family and documents each method.
+ * @evidence contracts/development/design.md#principled-representation One method per action of the family, each `act` under the action's name.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The partner and object actions only.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every method takes its law's own parameter type.
+ */
+export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanChainStriking {
+  /**
+   * Shake hands with a partner standing within reach; `HumanChain.pair`
+   * appends both partners' handshakes together.
+   *
+   * @param params The partner, the hand and the pump count.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.handshake: Shake hands with a partner standing within reach; `HumanChain.pair` appends both partners' handshakes together.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainMutual.handshake is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainMutual.handshake is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainMutual.handshake is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainMutual.handshake is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainMutual.handshake is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainMutual.handshake is used through packages/motions/src/chain/HumanChainMutual.ts.
+   */
+  handshake(
+    params: IAutoMovieMotionHumanHandshake.IParams,
+    anchor?: string,
+  ): this;
+
+  /**
+   * Meet a partner's hand at one shared point and instant.
+   *
+   * @param params The partner, the kind and the hand.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.highFive: Meet a partner's hand at one shared point and instant.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainMutual.highFive is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainMutual.highFive is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainMutual.highFive is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainMutual.highFive is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainMutual.highFive is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainMutual.highFive is used through packages/motions/src/chain/HumanChainMutual.ts.
+   */
+  highFive(
+    params: IAutoMovieMotionHumanHighFive.IParams,
+    anchor?: string,
+  ): this;
+
+  /**
+   * Bring the lips to a partner's region by a lean and a neck flexion; the
+   * arms stay free for a layer.
+   *
+   * @param params The partner, the region, the side and the hold.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.kiss: Bring the lips to a partner's region by a lean and a neck flexion; the arms stay free for a layer.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainMutual.kiss is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainMutual.kiss is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainMutual.kiss is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainMutual.kiss is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainMutual.kiss is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainMutual.kiss is used through packages/motions/src/chain/HumanChainMutual.ts.
+   */
+  kiss(params: IAutoMovieMotionHumanKiss.IParams, anchor?: string): this;
+
+  /**
+   * Reach for a prop's grip affordance, grasp it and lift it.
+   *
+   * @param params The prop, its grip, the hand and the lift.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.pickUp: Reach for a prop's grip affordance, grasp it and lift it.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainMutual.pickUp is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainMutual.pickUp is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainMutual.pickUp is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainMutual.pickUp is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainMutual.pickUp is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainMutual.pickUp is used through packages/motions/src/chain/HumanChainMutual.ts.
+   */
+  pickUp(params: IAutoMovieMotionHumanPickUp.IParams, anchor?: string): this;
+
+  /**
+   * Set a held prop down at a place and let go.
+   *
+   * @param params The prop, where it goes and the hand.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.putDown: Set a held prop down at a place and let go.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainMutual.putDown is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainMutual.putDown is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainMutual.putDown is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainMutual.putDown is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainMutual.putDown is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainMutual.putDown is used through packages/motions/src/chain/HumanChainMutual.ts.
+   */
+  putDown(params: IAutoMovieMotionHumanPutDown.IParams, anchor?: string): this;
+
+  /**
+   * Hand a held prop to a receiver, letting go only after the receiver's
+   * grip closes; `HumanChain.pair` appends both roles together.
+   *
+   * @param params The prop, the receiver, the grip and the hands.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.handOver: Hand a held prop to a receiver, letting go only after the receiver's grip closes; `HumanChain.pair` appends both roles together.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainMutual.handOver is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainMutual.handOver is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainMutual.handOver is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainMutual.handOver is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainMutual.handOver is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainMutual.handOver is used through packages/motions/src/chain/HumanChainMutual.ts.
+   */
+  handOver(
+    params: IAutoMovieMotionHumanHandoverAction.IParams,
+    anchor?: string,
+  ): this;
+
+  /**
+   * Take a prop a giver holds out; `HumanChain.pair` appends both roles
+   * together.
+   *
+   * @param params The prop, the giver, the grip and the hands.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.receive: Take a prop a giver holds out; `HumanChain.pair` appends both roles together.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainMutual.receive is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainMutual.receive is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainMutual.receive is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainMutual.receive is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainMutual.receive is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainMutual.receive is used through packages/motions/src/chain/HumanChainMutual.ts.
+   */
+  receive(params: IAutoMovieMotionHumanReceive.IParams, anchor?: string): this;
+
+  /**
+   * Throw a held object overarm, underarm or as a toss along a ballistic
+   * path to a target.
+   *
+   * @param params The target, the style and the hand.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.throwObject: Throw a held object overarm, underarm or as a toss along a ballistic path to a target.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainMutual.throwObject is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainMutual.throwObject is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainMutual.throwObject is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainMutual.throwObject is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainMutual.throwObject is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainMutual.throwObject is used through packages/motions/src/chain/HumanChainMutual.ts.
+   */
+  throwObject(
+    params: IAutoMovieMotionHumanThrowObjectParams,
+    anchor?: string,
+  ): this;
+
+  /**
+   * Catch a thrown object where its path enters the reach, give with it and
+   * hold it.
+   *
+   * @param params The throw answered, the hands and the object's radius.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.catchObject: Catch a thrown object where its path enters the reach, give with it and hold it.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainMutual.catchObject is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainMutual.catchObject is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainMutual.catchObject is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainMutual.catchObject is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainMutual.catchObject is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainMutual.catchObject is used through packages/motions/src/chain/HumanChainMutual.ts.
+   */
+  catchObject(
+    params: IAutoMovieMotionHumanCatchObject.IParams,
+    anchor?: string,
+  ): this;
+
+  /**
+   * Open a hand on what it holds: the prop leaves with the hand's velocity,
+   * or a prop on a launcher leaves at the launcher's speed.
+   *
+   * @param params The hand, the prop and a launcher's launch.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.release: Open a hand on what it holds: the prop leaves with the hand's velocity, or a prop on a launcher leaves at the launcher's speed.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainMutual.release is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainMutual.release is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainMutual.release is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainMutual.release is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainMutual.release is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainMutual.release is used through packages/motions/src/chain/HumanChainMutual.ts.
+   */
+  release(params?: IAutoMovieMotionHumanRelease.IParams, anchor?: string): this;
+
+  /**
+   * Kick a ball beside the support foot with the instep.
+   *
+   * @param params The ball, the foot and where it is sent.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainMutual.kickBall: Kick a ball beside the support foot with the instep.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainMutual.kickBall is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainMutual.kickBall is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainMutual.kickBall is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainMutual.kickBall is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainMutual.kickBall is used through packages/motions/src/chain/HumanChainMutual.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainMutual.kickBall is used through packages/motions/src/chain/HumanChainMutual.ts.
+   */
+  kickBall(
+    params: IAutoMovieMotionHumanKickBall.IParams,
+    anchor?: string,
+  ): this;
+}

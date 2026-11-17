@@ -1,18 +1,20 @@
-import {
-  type AutoMovieLoftContract,
-  type AutoMovieViewAxis,
-  AutoMovieViewParallelAxis,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import type { IAutoMovieConstructionParallelAxis } from "@automovie/interface";
+import { AutoMovieViewParallelAxis } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionParallelAxis,
+  IAutoMovieHumanDigitWalk,
+  IAutoMovieHumanSectionSite,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanSourceRealization,
+  IAutoMovieHumanToePart,
+  IAutoMovieLoftContract,
+  IAutoMovieViewAxis,
+  IAutoMovieViewParallelAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
-import type { AutoMovieHumanDigitWalk } from "../limb/AutoMovieHumanDigitWalk";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
-import type { AutoMovieHumanToeVertical } from "./AutoMovieHumanToeVertical";
-
-/** A generating point or foot-axis direction in calibration coordinates. */
-type Vec3 = [number, number, number];
 
 /**
  * Toe skin from foot-axis observations, with parallel source section planes.
@@ -32,61 +34,6 @@ type Vec3 = [number, number, number];
  */
 export namespace AutoMovieHumanToePart {
   /**
-   * The toe's original point course and foot-axis section laws, calibration mm.
-   *
-   * @evidence contracts/common.md#principled-implementation Keeps generating centres and apex separate from the fixed directions that own their measured across/depth chart.
-   * @evidence contracts/common.md#clear-and-simple-design Point course, one foot direction and site laws are the complete source input.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No point is labeled as an observed MTP/PIP/DIP or recovered from a loft.
-   * @evidence contracts/common.md#meaningful-documentation Members state units, station meaning and the distal apex's separate ownership.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The input type declares no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The source builder owns preparation and sharing.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The generating caller owns the points and laws during the synchronous build.
-   */
-  export interface IInput {
-    /** Anatomical source name, toe.left.1 through toe.right.5. */
-    name: string;
-
-    /** Named generating points on the plan-affine hidden-start-to-apex course and the declared height source; not measured joints. */
-    centres: Vec3[];
-
-    /** Declared generated skin apex; no further pulp reach is added. */
-    apex: Vec3;
-
-    /** Unit level foot-along direction owning the observation's longitudinal coordinate. */
-    along: Vec3;
-
-    /** Retained distal half-depth, calibration mm; constant axis height only when the explicit vertical source is absent. */
-    height: number;
-
-    /** Actual local-parent transfer and one same-clock origin/plantar source; absent only for constant-height analytic fixtures. */
-    vertical?: AutoMovieHumanToeVertical.ISource;
-
-    /** Original breadth/depth laws in the fixed foot chart, using the existing generating-site names. */
-    law: AutoMovieHumanDigitWalk.IInput["law"];
-
-    /** Optional closed scalar source bounds in that same up/across chart. */
-    ranges: AutoMovieHumanSiteViewPart.IInput["ranges"];
-
-    /** Section control count and ring phase count. */
-    order: number;
-
-    /** Maximum source layer spacing in foot-along millimetres. */
-    gap: number;
-  }
-
-  /** One exact millimetre origin and its canonical metre declaration, before any unit round trip or loft. */
-  export interface ISource extends AutoMovieHumanSiteViewPart.IInput {
-    /** Original coordinate curves; the same mm clock owns this origin and the signed radial curves. */
-    origin: AutoMovieViewParallelAxis.IOrigin;
-  }
-
-  /** Final source plus the exact millimetre coordinate owner used by its axis and horizontal metric readers. */
-  export interface IDefinition extends AutoMovieHumanSiteViewPart.IDefinition {
-    /** Present on success; absent on an input/axis failure. */
-    origin?: AutoMovieViewParallelAxis.IOrigin;
-  }
-
-  /**
    * Build the actual toe source and production AST in its observation frame.
    *
    * @evidence contracts/common.md#principled-implementation Projects each generating point onto the supplied foot direction for station, keeps up/across fixed, and gives the original coordinate curves and signed edge laws to SiteViewPart.
@@ -97,7 +44,9 @@ export namespace AutoMovieHumanToePart {
    * @evidence contracts/performance.md#reuse-equivalent-work The identical authored axis record is passed to source evaluation and retained on the returned production view.
    * @evidence contracts/performance.md#bound-retention-and-release-resources All arrays belong to the returned source result; no cross-person state or host surface is retained.
    */
-  export function create(input: IInput): AutoMovieHumanSiteViewPart.IResult {
+  export function create(
+    input: IAutoMovieHumanToePart.IInput,
+  ): IAutoMovieHumanSourceRealization {
     return AutoMovieHumanSiteViewPart.loft(define(input));
   }
 
@@ -112,14 +61,17 @@ export namespace AutoMovieHumanToePart {
    * @evidence contracts/performance.md#reuse-equivalent-work Returns the same final part/view for metric reads and one later loft.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The synchronous caller owns the finite preparation and borrows only its own toe's original vertical source.
    */
-  export function define(input: IInput): IDefinition {
-    const declaration: ISource | AutoMovieHumanSiteViewPart.IResult =
-      source(input);
+  export function define(
+    input: IAutoMovieHumanToePart.IInput,
+  ): IAutoMovieHumanToePart.IDefinition {
+    const declaration:
+      | IAutoMovieHumanToePart.ISource
+      | IAutoMovieHumanSourceRealization = source(input);
     if ("diagnostics" in declaration) return declaration;
-    const prepared: AutoMovieHumanSiteViewPart.IDefinition =
+    const prepared: IAutoMovieHumanSourceDefinition =
       AutoMovieHumanSiteViewPart.define(declaration);
     if (prepared.part === null) return prepared;
-    const axis: AutoMovieViewAxis.IAxis | string =
+    const axis: IAutoMovieViewAxis.IAxis | string =
       AutoMovieViewParallelAxis.create(
         declaration.origin,
         [0, 1, 0],
@@ -192,16 +144,17 @@ export namespace AutoMovieHumanToePart {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned input arrays or one failure without retaining geometry or a sampler.
    */
   export function source(
-    input: IInput,
-  ): ISource | AutoMovieHumanSiteViewPart.IResult {
-    const points: Vec3[] = [...input.centres, input.apex];
-    const first: Vec3 = points[0]!;
-    const projected: number[] = points.map((point: Vec3): number =>
-      point.reduce(
-        (sum: number, value: number, coordinate: number): number =>
-          sum + (value - first[coordinate]!) * input.along[coordinate]!,
-        0,
-      ),
+    input: IAutoMovieHumanToePart.IInput,
+  ): IAutoMovieHumanToePart.ISource | IAutoMovieHumanSourceRealization {
+    const points: AutoMovieVector3Tuple[] = [...input.centres, input.apex];
+    const first: AutoMovieVector3Tuple = points[0]!;
+    const projected: number[] = points.map(
+      (point: AutoMovieVector3Tuple): number =>
+        point.reduce(
+          (sum: number, value: number, coordinate: number): number =>
+            sum + (value - first[coordinate]!) * input.along[coordinate]!,
+          0,
+        ),
     );
     const stations: number[] =
       input.vertical === undefined
@@ -215,7 +168,7 @@ export namespace AutoMovieHumanToePart {
       stations[0] !== 0 ||
       !(input.height > 0) ||
       !points.every(
-        (point: Vec3): boolean =>
+        (point: AutoMovieVector3Tuple): boolean =>
           Number.isFinite(point[1]) &&
           (input.vertical === undefined
             ? point[1] === input.height
@@ -227,7 +180,7 @@ export namespace AutoMovieHumanToePart {
           (index === 0 || station > stations[index - 1]!),
       )
     ) {
-      const diagnostic: AutoMovieLoftContract.IDiagnostic = {
+      const diagnostic: IAutoMovieLoftContract.IDiagnostic = {
         producer: `view.${input.name}`,
         level: 2,
         contract: "toe source stations",
@@ -242,7 +195,9 @@ export namespace AutoMovieHumanToePart {
       Math.max(
         1,
         total,
-        ...points.flatMap((point: Vec3): number[] => point.map(Math.abs)),
+        ...points.flatMap((point: AutoMovieVector3Tuple): number[] =>
+          point.map(Math.abs),
+        ),
       );
     for (let index: number = 0; index < points.length; index++) {
       const mismatch: number = Math.hypot(
@@ -286,7 +241,7 @@ export namespace AutoMovieHumanToePart {
         { site: "apex", station: total, value: input.apex[axis] },
       ],
     });
-    const origin: AutoMovieViewParallelAxis.IOrigin = {
+    const origin: IAutoMovieViewParallelAxis.IOrigin = {
       x: coordinate(0),
       y: input.vertical?.height ?? coordinate(1),
       z: coordinate(2),
@@ -304,8 +259,8 @@ export namespace AutoMovieHumanToePart {
     const site = (
       name: string,
       station: number,
-    ): AutoMovieHumanSiteViewPart.ISite => {
-      const law: AutoMovieHumanDigitWalk.ISiteLaw = input.law(name);
+    ): IAutoMovieHumanSectionSite => {
+      const law: IAutoMovieHumanDigitWalk.ISiteLaw = input.law(name);
       const vertical: [number, number, number, number] | undefined =
         input.vertical?.at(station);
       return {
@@ -323,7 +278,7 @@ export namespace AutoMovieHumanToePart {
           : { jets: law.jets }),
       };
     };
-    const sites: AutoMovieHumanSiteViewPart.ISite[] = [];
+    const sites: IAutoMovieHumanSectionSite[] = [];
     for (let index: number = 0; index + 1 < input.centres.length; index++) {
       sites.push(
         site(`shaft ${index}`, (stations[index]! + stations[index + 1]!) / 2),

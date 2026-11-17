@@ -1,3 +1,5 @@
+import type { IAutoMovieSwivelArcs } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { distalEndSwivelReadings } from "./distalEndSwivelReadings";
@@ -65,7 +67,7 @@ export function distalEndSwivelMiss(
   const at = (swivel: number): number => {
     const cos: number = Math.cos(swivel * D);
     const sin: number = Math.sin(swivel * D);
-    const value = (f: swivelArcs.ISinusoid): number => f.a + f.b * cos + f.c * sin;
+    const value = (f: IAutoMovieSwivelArcs.ISinusoid): number => f.a + f.b * cos + f.c * sin;
     const length: number = Math.hypot(value(onFlexion), value(onAbduction), value(onTwist));
     if (!(length > 1e-9)) return 0;
     const x: number = value(onFlexion) / length;

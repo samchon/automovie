@@ -1,10 +1,13 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieAxisFrame,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import type { multiplyQuaternionInto } from "../math/multiplyQuaternionInto";
-import type { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
+import { multiplyQuaternionInto } from "../math/multiplyQuaternionInto";
 import { toRigAngle } from "../rom/toRigAngle";
-import type { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import type { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 
 /** Clinical coordinates owned by the inverse's resolved-angle representation. */

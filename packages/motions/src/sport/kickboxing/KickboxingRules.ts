@@ -1,10 +1,9 @@
 import type {
-  IAutoMovieSchedule,
-  checkAutoMovieLegality,
-} from "@automovie/engine";
-import type {
   AutoMovieHumanoidRegion,
-  AutoMovieMotionTarget,
+  IAutoMovieCheckLegality,
+  IAutoMovieMotionTarget,
+  IAutoMovieSchedule,
+  IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
 /**
@@ -84,7 +83,7 @@ export namespace KickboxingRules {
       capability !== "knee"
     )
       return null;
-    const p = params as { at?: AutoMovieMotionTarget; technique?: string };
+    const p = params as { at?: IAutoMovieMotionTarget; technique?: string };
     if (p.at?.kind !== "person") return null;
     if (FOUL_REGIONS.has(p.at.region))
       return `a strike at the ${p.at.region} is a foul`;
@@ -98,11 +97,11 @@ export namespace KickboxingRules {
   }
 
   /** The rules. */
-  export const rules: readonly checkAutoMovieLegality.IRule[] = Object.freeze([
+  export const rules: readonly IAutoMovieCheckLegality.IRule[] = Object.freeze([
     {
       id: "single-clinch-knee",
       check: (
-        entry: IAutoMovieSchedule.IEntry,
+        entry: IAutoMovieScheduleEntry,
         schedule: IAutoMovieSchedule,
       ): string | null => {
         if (entry.intent.capability !== "knee") return null;
@@ -110,7 +109,7 @@ export namespace KickboxingRules {
         // GLORY A.11: the clinch allows one immediate knee, then the athlete
         // disengages; another strike touching the knee keeps the clinch.
         const touching: boolean = schedule.entries.some(
-          (other: IAutoMovieSchedule.IEntry): boolean =>
+          (other: IAutoMovieScheduleEntry): boolean =>
             other !== entry &&
             other.subject === entry.subject &&
             (other.intent.capability === "knee" ||
@@ -126,7 +125,7 @@ export namespace KickboxingRules {
     },
     {
       id: "legal-target",
-      check: (entry: IAutoMovieSchedule.IEntry): string | null => {
+      check: (entry: IAutoMovieScheduleEntry): string | null => {
         const reason: string | null = foul(
           entry.intent.capability,
           params(entry),
@@ -137,7 +136,7 @@ export namespace KickboxingRules {
     {
       id: "no-attack-on-a-downed-opponent",
       check: (
-        entry: IAutoMovieSchedule.IEntry,
+        entry: IAutoMovieScheduleEntry,
         schedule: IAutoMovieSchedule,
       ): string | null => {
         if (
@@ -146,25 +145,26 @@ export namespace KickboxingRules {
           entry.intent.capability !== "knee"
         )
           return null;
-        const at = (params(entry) as { at?: AutoMovieMotionTarget }).at;
+        const at = (params(entry) as { at?: IAutoMovieMotionTarget }).at;
         if (at?.kind !== "person") return null;
-        const down: IAutoMovieSchedule.IEntry | undefined =
-          schedule.entries.find((other: IAutoMovieSchedule.IEntry): boolean => {
+        const down: IAutoMovieScheduleEntry | undefined = schedule.entries.find(
+          (other: IAutoMovieScheduleEntry): boolean => {
             if (
               other.subject !== at.subject ||
               other.intent.capability !== "knockdown" ||
               other.start > entry.start
             )
               return false;
-            const next: IAutoMovieSchedule.IEntry | undefined =
+            const next: IAutoMovieScheduleEntry | undefined =
               schedule.entries.find(
-                (later: IAutoMovieSchedule.IEntry): boolean =>
+                (later: IAutoMovieScheduleEntry): boolean =>
                   later.subject === at.subject &&
                   later.start > other.start &&
                   later.index !== other.index,
               );
             return next === undefined || entry.start < next.start;
-          });
+          },
+        );
         return down === undefined
           ? null
           : `entry ${entry.index} strikes ${at.subject}, who is down since ${down.start.toFixed(2)} s`;
@@ -173,7 +173,7 @@ export namespace KickboxingRules {
   ]);
 
   /** An entry's action parameters. */
-  function params(entry: IAutoMovieSchedule.IEntry): object {
+  function params(entry: IAutoMovieScheduleEntry): object {
     return (entry.intent.parameters?.params as object | undefined) ?? {};
   }
 }

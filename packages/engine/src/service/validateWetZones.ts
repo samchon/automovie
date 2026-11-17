@@ -1,13 +1,13 @@
 import {
   AutoMovieWetGrade,
   IAutoMovieBuiltBoundary,
-  IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
-  IAutoMovieServiceNetwork,
   IAutoMovieServiceNode,
   IAutoMovieServicePort,
   IAutoMovieServiceSystem,
+  type IAutoMovieValidateWetZones,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
   IAutoMovieWetZone,
 } from "@automovie/interface";
 
@@ -60,15 +60,13 @@ const WASTE_MEDIUM: string = "waste-water";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Boundary, node, system and first-grade lookups serve every zone check in one call; no previous build's mutable declaration results are cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Collector and lookup maps are call-local; returned validation owns its findings while source geometry and service records remain unchanged and unretained by this gate.
  */
-export const validateWetZones: (props: {
-  network: IAutoMovieServiceNetwork;
-  environment: IAutoMovieBuiltEnvironment;
-}) => IAutoMovieValidation = (props: {
-  network: IAutoMovieServiceNetwork;
-  environment: IAutoMovieBuiltEnvironment;
-}): IAutoMovieValidation => {
+export const validateWetZones: (
+  props: IAutoMovieValidateWetZones.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateWetZones.IProps,
+): IAutoMovieValidation => {
   const { network, environment }: typeof props = props;
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
   const spaceIds: Set<string> = new Set(
@@ -309,14 +307,14 @@ const citedBoundaries: (props: {
   boundaries: ReadonlyMap<string, IAutoMovieBuiltBoundary>;
   path: string;
   label: string;
-  out: ViolationCollector;
+  out: IAutoMovieViolationCollector;
 }) => Set<string> = (props: {
   cited: readonly string[];
   zoneSpace: string;
   boundaries: ReadonlyMap<string, IAutoMovieBuiltBoundary>;
   path: string;
   label: string;
-  out: ViolationCollector;
+  out: IAutoMovieViolationCollector;
 }): Set<string> => {
   const resolved: Set<string> = new Set<string>();
   props.cited.forEach((id: string, at: number): void => {

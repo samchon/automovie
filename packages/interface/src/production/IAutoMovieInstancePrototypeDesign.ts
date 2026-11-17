@@ -1,4 +1,4 @@
-import { IAutoMovieModelLod } from "./IAutoMovieModelLod";
+import type { IAutoMovieModelLod } from "./IAutoMovieModelLod";
 
 /**
  * One reusable weighted model prototype selectable by slots in a logical set.

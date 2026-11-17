@@ -1,23 +1,28 @@
 import type {
   IAutoMovieRecoveryCameraMapBudget,
   IAutoMovieRecoveryCameraMapPolicy,
+  IAutoMovieRecoveryCurvatureAdmission,
+  IAutoMovieRecoveryCurvatureReport,
+  IAutoMovieRecoveryFeasibleJointOptions,
+  IAutoMovieRecoveryFeasibleMapLinearizeOperation,
+  IAutoMovieRecoveryFeasibleMapReporting,
+  IAutoMovieRecoveryFeasibleModel,
+  IAutoMovieRecoveryFeasibleReportCapacity,
+  IAutoMovieRecoveryFeasibleStateRefinementOperation,
+  IAutoMovieRecoveryMapCurvatureBlocks,
+  IAutoMovieRecoveryMapCurvatureFit,
+  IAutoMovieRecoveryMapJointBlock,
+  IAutoMovieRecoveryMapJointResult,
+  IAutoMovieRecoveryMapLandmark,
+  IAutoMovieRecoveryMapMetricFactorizationOperation,
+  IAutoMovieRecoveryMapPointProjectionOperation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoveryMapState,
+  IAutoMovieRecoveryRegularizationReport,
+  IAutoMovieRecoveryScenePointEvaluationOperation,
+  IAutoMovieRecoveryUntiltedEstimate,
 } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryCurvatureReport } from "../structures/image/IAutoMovieRecoveryCurvatureReport";
-import type { IAutoMovieRecoveryMapLandmark } from "../structures/image/IAutoMovieRecoveryMapLandmark";
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
-import type { IAutoMovieRecoveryRegularizationReport } from "../structures/image/IAutoMovieRecoveryRegularizationReport";
-import type { IAutoMovieRecoveryCurvatureAdmission } from "../structures/internal/IAutoMovieRecoveryCurvatureAdmission";
-import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
-import type { IAutoMovieRecoveryFeasibleMapReporting } from "../structures/internal/IAutoMovieRecoveryFeasibleMapReporting";
-import type { IAutoMovieRecoveryFeasibleModel } from "../structures/internal/IAutoMovieRecoveryFeasibleModel";
-import type { IAutoMovieRecoveryFeasibleReportCapacity } from "../structures/internal/IAutoMovieRecoveryFeasibleReportCapacity";
-import type { IAutoMovieRecoveryMapCurvatureBlocks } from "../structures/internal/IAutoMovieRecoveryMapCurvatureBlocks";
-import type { IAutoMovieRecoveryMapCurvatureFit } from "../structures/internal/IAutoMovieRecoveryMapCurvatureFit";
-import type { IAutoMovieRecoveryMapJointBlock } from "../structures/internal/IAutoMovieRecoveryMapJointBlock";
-import type { IAutoMovieRecoveryMapJointResult } from "../structures/internal/IAutoMovieRecoveryMapJointResult";
-import type { IAutoMovieRecoveryMapState } from "../structures/internal/IAutoMovieRecoveryMapState";
-import type { IAutoMovieRecoveryUntiltedEstimate } from "../structures/internal/IAutoMovieRecoveryUntiltedEstimate";
 import { admitRecoveryMapCurvature } from "./admitRecoveryMapCurvature";
 import { assembleRecoveryMapCurvature } from "./assembleRecoveryMapCurvature";
 import { copyRecoveryUntiltedEstimate } from "./copyRecoveryUntiltedEstimate";
@@ -117,7 +122,7 @@ export function refineRecoveryCameraMapFeasible(
     poses: initialPoses.slice(),
     landmarks: initialLandmarks.slice(),
   });
-  const charts: Parameters<typeof evaluateRecoveryScenePoint>[3] =
+  const charts: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[3] =
     intrinsics.map((matrix: readonly number[]): (typeof charts)[number] => ({
       matrix: matrix.slice(),
     }));
@@ -143,7 +148,7 @@ export function refineRecoveryCameraMapFeasible(
     let total: number = 0;
     for (const landmark of state.landmarks)
       for (const observation of landmark.observations) {
-        const projected: ReturnType<typeof projectRecoveryMapPoint> =
+        const projected: ReturnType<IAutoMovieRecoveryMapPointProjectionOperation.Operation> =
           projectRecoveryMapPoint(
             state.poses[observation.viewIndex]!,
             landmark.point,
@@ -160,7 +165,7 @@ export function refineRecoveryCameraMapFeasible(
     return total;
   };
   const fit: ReturnType<
-    typeof refineRecoveryFeasibleState<IAutoMovieRecoveryMapState>
+    IAutoMovieRecoveryFeasibleStateRefinementOperation.Operation<IAutoMovieRecoveryMapState>
   > = refineRecoveryFeasibleState(
     {
       initial,
@@ -176,7 +181,7 @@ export function refineRecoveryCameraMapFeasible(
           square += norm * norm;
         };
         for (const landmark of state.landmarks) {
-          const qualification: ReturnType<typeof evaluateRecoveryScenePoint> =
+          const qualification: ReturnType<IAutoMovieRecoveryScenePointEvaluationOperation.Operation> =
             evaluateRecoveryScenePoint(
               landmark.point,
               landmark.observations,
@@ -207,9 +212,9 @@ export function refineRecoveryCameraMapFeasible(
           charge(32);
           curvature!.models++;
         }
-        const local: ReturnType<typeof linearizeRecoveryFeasibleMap> =
+        const local: ReturnType<IAutoMovieRecoveryFeasibleMapLinearizeOperation.Operation> =
           linearizeRecoveryFeasibleMap(state, intrinsics, policy);
-        const solution: ReturnType<typeof factorRecoveryMapMetric> =
+        const solution: ReturnType<IAutoMovieRecoveryMapMetricFactorizationOperation.Operation> =
           factorRecoveryMapMetric(
             local.blocks,
             policy.minimumDesignSingularRatio,
@@ -358,7 +363,7 @@ export function refineRecoveryCameraMapFeasible(
                 for (const observation of landmark.observations) {
                   row++;
                   if (selected[at] !== row) continue;
-                  const projected: ReturnType<typeof projectRecoveryMapPoint> =
+                  const projected: ReturnType<IAutoMovieRecoveryMapPointProjectionOperation.Operation> =
                     projectRecoveryMapPoint(
                       state.poses[observation.viewIndex]!,
                       landmark.point,

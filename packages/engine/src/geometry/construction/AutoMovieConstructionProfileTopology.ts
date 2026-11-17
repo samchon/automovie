@@ -1,7 +1,11 @@
-import type { IAutoMovieConstructionProfile } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionProfile,
+  IAutoMovieConstructionProfileLoop,
+  IAutoMovieConstructionProfilePiece,
+  IAutoMovieConstructionProfileSource,
+} from "@automovie/interface";
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import type { IAutoMovieConstructionProfileSource } from "./IAutoMovieConstructionProfileSource";
 
 /**
  * Admit explicit original end roles and exact periodic source-chart capability.
@@ -68,8 +72,8 @@ export namespace AutoMovieConstructionProfileTopology {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
    */
   export function period(
-    loop: IAutoMovieConstructionProfile.ILoop,
-    piece: IAutoMovieConstructionProfile.IPiece,
+    loop: IAutoMovieConstructionProfileLoop,
+    piece: IAutoMovieConstructionProfilePiece,
     curve: IAutoMovieConstructionProfileSource.ICurve,
   ): number | undefined {
     return loop.pieces.length === 1 &&

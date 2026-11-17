@@ -1,7 +1,7 @@
-import { AutoMovieQuantityBasis } from "./AutoMovieQuantityBasis";
-import { AutoMovieQuantitySubject } from "./AutoMovieQuantitySubject";
-import { AutoMovieQuantityUnit } from "./AutoMovieQuantityUnit";
-import { IAutoMovieQuantityContributor } from "./IAutoMovieQuantityContributor";
+import type { AutoMovieQuantityBasis } from "./AutoMovieQuantityBasis";
+import type { AutoMovieQuantitySubject } from "./AutoMovieQuantitySubject";
+import type { AutoMovieQuantityUnit } from "./AutoMovieQuantityUnit";
+import type { IAutoMovieQuantityContributor } from "./IAutoMovieQuantityContributor";
 
 /**
  * Everything the design says about one measured subject.

@@ -13,7 +13,8 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
-  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -38,14 +39,14 @@ import { archetypeCatalog } from "../internal/archetypeCatalog";
  */
 export function test_archetype_contract_grip(): void {
   const findings: string[] = [];
-  const origin: IAutoMoviePhysicalProfile.ITransform = {
+  const origin: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
   for (const row of archetypeCatalog())
     for (const seed of [undefined, 1, 2]) {
       const archetype: ReturnType<typeof row.create> = row.create(seed);
-      const shapes: IAutoMoviePhysicalProfile.IShape[] = archetype.shapes();
+      const shapes: IAutoMoviePhysicalShape[] = archetype.shapes();
       if (shapes.length !== archetype.parts.length)
         findings.push(
           `${row.name}: ${shapes.length} colliders for ${archetype.parts.length} parts`,
@@ -65,7 +66,7 @@ export function test_archetype_contract_grip(): void {
           );
         if (!gripped(affordance)) continue;
         // The part or parts at the grip point: the nearest collider, and any other as near (a closed book's two halves).
-        const away = (shape: IAutoMoviePhysicalProfile.IShape): number =>
+        const away = (shape: IAutoMoviePhysicalShape): number =>
           Vector3.length(
             Vector3.subtract(
               shape.transform.position,
@@ -108,10 +109,10 @@ export function test_archetype_contract_grip(): void {
     return archetype
       .shapes()
       .filter(
-        (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
+        (shape: IAutoMoviePhysicalShape): boolean =>
           physicalShapeSegmentDistance(origin, shape, at, at) <= 1e-9,
       )
-      .map((shape: IAutoMoviePhysicalProfile.IShape): string => shape.id);
+      .map((shape: IAutoMoviePhysicalShape): string => shape.id);
   };
   const chair: ReturnType<typeof createSeat> = createSeat(
     { kind: "dining" },

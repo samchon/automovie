@@ -1,4 +1,4 @@
-import { IAutoMovieDrawingFeature } from "./IAutoMovieDrawingFeature";
+import type { IAutoMovieDrawingFeature } from "./IAutoMovieDrawingFeature";
 
 /**
  * What a dimension measures, and between which two features.

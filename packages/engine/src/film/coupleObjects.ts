@@ -1,24 +1,24 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
+  IAutoMovieAttachJob,
   IAutoMovieBone,
   IAutoMovieClip,
-  IAutoMovieConstraintViolation,
+  IAutoMovieCoupleObjects,
   IAutoMovieInteractionEvent,
   IAutoMovieJointAxes,
   IAutoMovieMotion,
-  IAutoMovieScene,
+  IAutoMovieRestFrame,
   IAutoMovieSceneNode,
   IAutoMovieSkeleton,
+  IAutoMovieStagedSet,
   IAutoMovieTransform,
+  IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
-import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { IAttachJob } from "./IAttachJob";
-import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
 import { compileAttach } from "./compileAttach";
 import { handoffEvents } from "./handoffEvents";
@@ -83,45 +83,12 @@ function childrenOf(action: IAutoMovieActionCall): string[] {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Parent baked clips remain shared by riders. Existing skeleton/axis/frame lookups still run at their original per-job sites; an explicit producer snapshots those actual fixed values only for that synchronous bake, and no callback answer, pose, time sample or target result is cached across jobs or calls.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The graph, order, grouping maps and per-parent clip lists live for one call and are released on return or throw; the returned arrays hold one clip per coupling, the handoff events of each `attachTo`, and one violation per refusal.
  */
-export function coupleObjects(props: {
-  /** Validated `attachTo` jobs of this shot. */
-  attachments: readonly IAttachJob[];
-
-  /** Staged persistent mounts; an `attachTo` for the same child replaces one. */
-  mounts: readonly IAutoMovieStagedSet.IMount[];
-
-  /** The staged scene, whose nodes hold every parent's placement. */
-  scene: IAutoMovieScene;
-
-  /** Compiled pose motions by node id. */
-  motions: Record<string, IAutoMovieMotion>;
-
-  /** A node's rig, or null when it has none. */
-  skeleton: (node: string) => IAutoMovieSkeleton | null;
-
-  /** A node's clinical-axis remap; absent, `HUMANOID_JOINT_AXES` applies. */
-  jointAxes?: (
-    node: string,
-  ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined;
-
-  /** A node's clinical rest-frame remap, as the renderer poses it. */
-  restFrames?: (
-    node: string,
-  ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined;
-
-  /** Prepare unchanged parent rig inputs for demanded attachment FK; omitted, preserve the raw baker's full live admission. */
-  prepareRig?: typeof prepareSkeletonPoseResolution;
-
-  /** The shot's length in seconds. */
-  duration: number;
-}): {
-  clips: IAutoMovieClip[];
-  events: IAutoMovieInteractionEvent[];
-  violations: IAutoMovieConstraintViolation[];
-} {
-  const out: ViolationCollector = new ViolationCollector();
+export function coupleObjects(
+  props: coupleObjects.IProps,
+): IAutoMovieCoupleObjects.IResult {
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const claimed: Set<string> = new Set(
-    props.attachments.flatMap((job: IAttachJob): string[] =>
+    props.attachments.flatMap((job: IAutoMovieAttachJob): string[] =>
       childrenOf(job.action),
     ),
   );
@@ -213,10 +180,10 @@ export function coupleObjects(props: {
       clips.push(clip);
     },
   };
-  const jobsByChild: Map<string, IAttachJob[]> = new Map();
+  const jobsByChild: Map<string, IAutoMovieAttachJob[]> = new Map();
   for (const job of props.attachments)
     for (const child of childrenOf(job.action)) {
-      const list: IAttachJob[] = jobsByChild.get(child) ?? [];
+      const list: IAutoMovieAttachJob[] = jobsByChild.get(child) ?? [];
       list.push(job);
       jobsByChild.set(child, list);
     }
@@ -231,7 +198,7 @@ export function coupleObjects(props: {
   const events: IAutoMovieInteractionEvent[] = [];
   for (const child of order) {
     if (cyclic.has(child)) continue; // unresolvable; the violation stands
-    const jobs: IAttachJob[] | undefined = jobsByChild.get(child);
+    const jobs: IAutoMovieAttachJob[] | undefined = jobsByChild.get(child);
     if (jobs !== undefined) bakeAttachFollows(child, jobs, context, events);
     else bakeMountFollow(mountByChild.get(child)!, context, out);
   }
@@ -243,14 +210,15 @@ export function coupleObjects(props: {
  */
 function bakeAttachFollows(
   child: string,
-  jobs: readonly IAttachJob[],
+  jobs: readonly IAutoMovieAttachJob[],
   context: ICoupleContext,
   events: IAutoMovieInteractionEvent[],
 ): void {
-  const ordered: IAttachJob[] = [...jobs].sort(
-    (a: IAttachJob, b: IAttachJob): number => a.action.start - b.action.start,
+  const ordered: IAutoMovieAttachJob[] = [...jobs].sort(
+    (a: IAutoMovieAttachJob, b: IAutoMovieAttachJob): number =>
+      a.action.start - b.action.start,
   );
-  ordered.forEach((job: IAttachJob, occurrence: number): void => {
+  ordered.forEach((job: IAutoMovieAttachJob, occurrence: number): void => {
     const parent: string = job.action.parent;
     const end: number =
       job.action.duration === "auto"
@@ -288,7 +256,7 @@ function bakeAttachFollows(
 function bakeMountFollow(
   mount: IAutoMovieStagedSet.IMount,
   context: ICoupleContext,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void {
   const parent: string = mount.binding.parent;
   const parentRig: IAutoMovieSkeleton | null = context.skeleton(parent);
@@ -339,7 +307,25 @@ function compilePreparedAttach(
 ): IAutoMovieClip {
   if (context.prepareRig !== undefined)
     input.poseResolution = context.prepareRig(
-      input.parentSkeleton, input.jointAxes, input.restFrames,
+      input.parentSkeleton,
+      input.jointAxes,
+      input.restFrames,
     );
   return compileAttach(input);
+}
+
+/**
+ * Companion types of {@link coupleObjects}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents the one engine-owned extension of the interface coupling props and its absence rule.
+ * @evidence contracts/development/design.md#principled-representation The canonical coupling props stay in `IAutoMovieCoupleObjects.IProps`; this extension adds only the rig preparer, the engine function `prepareSkeletonPoseResolution`, so it cannot live in the dependency-free interface.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `performShot` passes the preparer so each attachment parent's FK prepares one demanded bone; every other caller keeps the interface props unchanged.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends the interface contract instead of copying it; the preparer is typed as the genuine engine function, never a structural stand-in.
+ */
+export namespace coupleObjects {
+  /** The coupling props with an optional parent-rig preparer. */
+  export interface IProps extends IAutoMovieCoupleObjects.IProps {
+    /** Prepare unchanged parent rig inputs for demanded attachment FK; omitted, preserve the raw baker's full live admission. */
+    prepareRig?: typeof prepareSkeletonPoseResolution;
+  }
 }

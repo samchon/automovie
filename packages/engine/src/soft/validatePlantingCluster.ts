@@ -1,6 +1,7 @@
 import {
-  IAutoMoviePlantingCluster,
+  type IAutoMovieValidatePlantingCluster,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
@@ -20,13 +21,13 @@ import { validateSoftVector as vector } from "./validateSoftVector";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One collector and scalar predicate owner serve all fields within the call; mutable cluster records are not retained behind an identity verdict cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only validation findings transfer; input fields are read without mutation and no placement grid or geometry is allocated.
  */
-export const validatePlantingCluster: (props: {
-  cluster: IAutoMoviePlantingCluster;
-}) => IAutoMovieValidation = (props: {
-  cluster: IAutoMoviePlantingCluster;
-}): IAutoMovieValidation => {
+export const validatePlantingCluster: (
+  props: IAutoMovieValidatePlantingCluster.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidatePlantingCluster.IProps,
+): IAutoMovieValidation => {
   const { cluster }: typeof props = props;
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
   if (cluster.id.trim().length === 0)

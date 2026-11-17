@@ -1,12 +1,15 @@
-import {
-  type IAutoMovieResolvedBone,
-  closestPointsBetweenSegments,
-} from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import { closestPointsBetweenSegments } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanVerdicts,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions";
@@ -36,14 +39,14 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership One portable discoverable unit borrows the unchanged canonical Human fixture and owns all raw goals/poses. It invokes only real public resolver/FK/distance APIs, starts no host/compiler and replaces no foreign operation or global.
  */
 export function test_motion_selected_goal_fallback(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const raw: IHumanPosture = { root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0, joints: {}, limbs: {} };
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const raw: IAutoMovieMotionHumanPosture = { root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0, joints: {}, limbs: {} };
   const rest: IAutoMoviePose = resolveHumanPosture(body, raw);
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = indexed(rest, body);
   const left: IAutoMovieVector3 = bones.get("leftHand")!.worldPosition;
   const right: IAutoMovieVector3 = bones.get("rightHand")!.worldPosition;
   const foot: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
-  const goals: IHumanPosture["limbs"] = {
+  const goals: IAutoMovieMotionHumanPosture["limbs"] = {
     leftArm: {
       point: { x: left.x, y: left.y + 0.04, z: left.z + 0.05 },
       bend: { ...bones.get("leftLowerArm")!.worldPosition },
@@ -60,7 +63,7 @@ export function test_motion_selected_goal_fallback(): void {
         z: bones.get("leftLowerLeg")!.worldPosition.z + 0.3 },
     },
   };
-  const posture: IHumanPosture = { ...raw, limbs: goals };
+  const posture: IAutoMovieMotionHumanPosture = { ...raw, limbs: goals };
   const full: IAutoMoviePose = resolveHumanPosture(body, posture);
   for (const name of ["leftFoot", "leftHand", "rightHand"] as const) {
     const actual: IAutoMoviePose = resolveHumanPosture.seeded(body, posture,
@@ -82,7 +85,7 @@ export function test_motion_selected_goal_fallback(): void {
       separation >= 2 * body.measure.forearmRadius - HumanVerdicts.SKIN,
     );
   }
-  const independent: IHumanPosture = { ...raw, limbs: { leftLeg: goals.leftLeg! } };
+  const independent: IAutoMovieMotionHumanPosture = { ...raw, limbs: { leftLeg: goals.leftLeg! } };
   const selected: IAutoMoviePose = resolveHumanPosture.seeded(body, independent,
     undefined, undefined, undefined, new Set(["leftFoot"])).pose;
   const current: IAutoMovieVector3 = indexed(selected, body).get("leftFoot")!.worldPosition;
@@ -94,7 +97,7 @@ export function test_motion_selected_goal_fallback(): void {
 }
 
 /** Observe ordinary canonical FK with no selected-output shortcut. */
-function indexed(pose: IAutoMoviePose, body: IHumanBody): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+function indexed(pose: IAutoMoviePose, body: IAutoMovieMotionHumanBody): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   return poseBones(body, pose);
 }
 

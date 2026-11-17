@@ -1,6 +1,10 @@
-import type { AutoMovieComposition } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { HumanChain, IHumanBody, IHumanProp } from "@automovie/motions";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import LEDGER from "./MOTION_HUMAN_LEDGER.json";
 import { MotionHumanSweepChain } from "./MotionHumanSweepChain";
@@ -57,7 +61,7 @@ export namespace motionHumanLawSweep {
     subject: string;
 
     /** Their body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** Their floor point. */
     at: IAutoMovieVector3;
@@ -79,10 +83,10 @@ export namespace motionHumanLawSweep {
     people: IPerson[];
 
     /** What they do. */
-    composition: AutoMovieComposition;
+    composition: IAutoMovieComposition;
 
     /** The props. */
-    props: IHumanProp[];
+    props: IAutoMovieMotionHumanProp[];
   }
 
   /**
@@ -103,7 +107,7 @@ export namespace motionHumanLawSweep {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Its three inputs are the facts all stage tables require.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No frame-producing callback or expected result enters the stage signature.
    */
-  export type Stage = (pick: Pick, a: IHumanBody, b: IHumanBody) => IScene;
+  export type Stage = (pick: Pick, a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody) => IScene;
 
   /**
    * One executed cell's identity, elapsed observation and complaints.
@@ -261,9 +265,9 @@ export namespace motionHumanLawSweep {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned scene retains its inputs; no scene is kept globally.
    */
   export function solo(
-    a: IHumanBody,
-    acts: HumanChain,
-    props: IHumanProp[] = [],
+    a: IAutoMovieMotionHumanBody,
+    acts: IAutoMovieMotionHumanChain,
+    props: IAutoMovieMotionHumanProp[] = [],
   ): IScene {
     return {
       people: [{ subject: "a", body: a, at: { x: 0, y: 0, z: 0 }, yaw: 0 }],
@@ -285,11 +289,12 @@ export namespace motionHumanLawSweep {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources References transfer with the returned scene; the helper keeps no cache.
    */
   export function duo(
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
     gap: number,
-    composition: AutoMovieComposition | [HumanChain, HumanChain],
-    props: IHumanProp[] = [],
+    composition:
+      | IAutoMovieComposition | [IAutoMovieMotionHumanChain, IAutoMovieMotionHumanChain],
+    props: IAutoMovieMotionHumanProp[] = [],
     facing: boolean = true,
   ): IScene {
     return {

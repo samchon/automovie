@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieInspectionKind,
-  listAutoMovieInspectionKinds,
-} from "@automovie/render";
+import type { IAutoMovieInspectionKind } from "@automovie/interface";
+import { listAutoMovieInspectionKinds } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { InspectionScene } from "../internal/InspectionScene";

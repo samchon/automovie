@@ -1,11 +1,13 @@
 import { Vector3, physicalHullFaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGestureStroke,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -50,8 +52,8 @@ export namespace gestureTouch {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side and kind fix the plan's genuine name-demand readers, point finger shape and profile padding. Only that immutable metadata and scalar reach are shared; every current posture, target and borrowed workspace reaches its actual query, and changing the source domain requires fresh preparation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns one weakly keyed body/side/kind state, fixed padding/reach scalars and at most one actual point/region name reader until release; no current posture, world frame, FK workspace, target, goal or history enters that state.
    */
-  export function prepare(body: IHumanBody, side: HumanHand.Side,
-    kind: gestureStroke.Kind): IPrepared | undefined {
+  export function prepare(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
+    kind: IAutoMovieMotionHumanGestureStroke.Kind): IPrepared | undefined {
     if (kind !== "point" && kind !== "touchFace" && kind !== "pushGlasses" && kind !== "scratchHead")
       return undefined;
     const current: IState = { body, side, kind };
@@ -93,8 +95,8 @@ export namespace gestureTouch {
    */
   export function point(
     input: gestureStroke.IInput,
-    side: HumanHand.Side,
-  ): gestureStroke.IHand {
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanGestureStroke.IHand {
     const { body } = input;
     if (input.target === undefined)
       throw new HumanRefusal({
@@ -173,10 +175,10 @@ export namespace gestureTouch {
   export function touch(
     kind: "touchFace" | "pushGlasses" | "scratchHead",
     input: gestureStroke.IInput,
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
     u: number,
     cycles: number,
-  ): gestureStroke.IHand {
+  ): IAutoMovieMotionHumanGestureStroke.IHand {
     const { body } = input;
     const region: AutoMovieHumanoidRegion =
       kind === "pushGlasses"
@@ -243,7 +245,7 @@ export namespace gestureTouch {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The gesture's fixed body/profile and hand establish equivalent padding across its frames; direct stroke callers may still request the same computation when they provide no prepared value.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains no body, profile, shape or frame.
    */
-  export function padding(body: IHumanBody, side: HumanHand.Side): number {
+  export function padding(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): number {
     const segment =
       body.profile.segments.find((s) => s.bone === `${side}IndexDistal`) ??
       body.profile.segments.find((s) => s.bone === `${side}Hand`);
@@ -257,7 +259,7 @@ export namespace gestureTouch {
 
   /** A shape's thinnest half extent, metres. */
   function thickness(
-    shape: IHumanBody["profile"]["segments"][number]["shapes"][number],
+    shape: IAutoMovieMotionHumanBody["profile"]["segments"][number]["shapes"][number],
   ): number {
     if (shape.kind === "sphere") return shape.radius;
     if (shape.kind === "capsule") return shape.radius;
@@ -274,21 +276,21 @@ export namespace gestureTouch {
 }
 
 /** A pointing hand reads its eye and shoulder, without evaluating other limbs. */
-const POINT_FRAMES: Readonly<Record<HumanHand.Side, ReadonlySet<AutoMovieHumanoidBone>>> = {
+const POINT_FRAMES: Readonly<Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>> = {
   left: new Set<AutoMovieHumanoidBone>(["leftEye", "leftUpperArm"]),
   right: new Set<AutoMovieHumanoidBone>(["rightEye", "rightUpperArm"]),
 };
 
 /** Original fixed point-shape fingertip extent and comfortable arm share. */
-function pointingReach(body: IHumanBody, side: HumanHand.Side): number {
+function pointingReach(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): number {
   const tip: number = Vector3.length(HumanHand.offset(body, side, "indexTip", "point").point);
   return 0.95 * (body.measure.upperArm + body.measure.forearm) + tip;
 }
 /** The source domain and genuine readers belong only to this issued preparation. */
 interface IState {
-  body: IHumanBody;
-  side: HumanHand.Side;
-  kind: gestureStroke.Kind;
+  body: IAutoMovieMotionHumanBody;
+  side: AutoMovieHumanSide;
+  kind: IAutoMovieMotionHumanGestureStroke.Kind;
   padding?: number;
   reach?: number;
   point?: ReturnType<typeof HumanTrunk.prepareResolve>;
@@ -302,8 +304,8 @@ const BRAND: unique symbol = Symbol("prepared gesture geometry");
 const STATES: WeakMap<gestureTouch.IPrepared, IState> = new WeakMap();
 
 /** Only an issued preparation for these exact source inputs may share geometry. */
-function preparation(prepared: gestureTouch.IPrepared | undefined, body: IHumanBody,
-  side: HumanHand.Side, kind: gestureStroke.Kind): IState | undefined {
+function preparation(prepared: gestureTouch.IPrepared | undefined, body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide, kind: IAutoMovieMotionHumanGestureStroke.Kind): IState | undefined {
   const current: IState | undefined = prepared === undefined ? undefined : STATES.get(prepared);
   return current !== undefined && current.body === body && current.side === side && current.kind === kind ? current : undefined;
 }

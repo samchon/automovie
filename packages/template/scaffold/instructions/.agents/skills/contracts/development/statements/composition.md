@@ -1,7 +1,5 @@
 # Composition statements
 
-Contract: [composition.md](../composition.md).
-
 ## Screenplay realization
 
 1. The scene composes its scene file's standing state and each cited beat's participants, intents, outcome, reactions and consequences, and every change of position, camera and sound, omitting, altering and adding none. Exception: a commissioned generated film's prompt carries the reactions the representation cannot show, such as a facial expression.
@@ -11,7 +9,7 @@ Contract: [composition.md](../composition.md).
 5. The scene's comment opens with its screenplay citation and a summary of what happens.
 6. A `Concretization:` paragraph names each decision the code had to make where the screenplay was vague. It never holds an exchange, an outcome or a reaction, which only the screenplay decides.
 7. The same change records each concretization in the screenplay, under [concretization](../../../story/correction/repair.md#concretization). Exception: a user's fixed screenplay, whose concretizations go to the instructions.
-8. A catalog case composition takes its case parameters and cites the research section or fact each case exhibits, and the catalog film lists every case the screenplay uses.
+8. A catalog case composition takes its case parameters and names in its answer's prose the record fact or study section it exhibits, with no evidence tag to it, and the catalog film lists every case the screenplay uses.
 
 ## Composition only
 
@@ -31,4 +29,4 @@ Contract: [composition.md](../composition.md).
 3. Each beat's spatial change moves its participants between the set's zones and landmarks.
 4. The camera reframes, follows and moves with motivated action. Exception: a fixed view the screenplay decided.
 5. Every secondary action is a layer the composition sets under [composing a performance](../../../motion/compose/composition.md#action-axes) or one the screenplay decided.
-6. The composed behaviors aim at the research's measurable targets for what a viewer sees and hears, which delivery review then measures on the picture.
+6. Where a study set measurable targets for what a viewer sees and hears, the composed behaviors aim at them, and delivery review then measures them on the picture.

@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   bracketedCrossing,
   bracketedMinimum,
@@ -7,11 +6,14 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanStandUpright,
   IAutoMoviePose,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
@@ -37,16 +39,6 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
  * with it (a provisional value inside Winter's few centimetres).
  */
 export namespace standUpright {
-  /** A body's alignment. */
-  export interface IAlignment {
-    /** Spine, chest, neck and head flexion, clinical degrees. */
-    joints: Partial<
-      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-    >;
-
-    /** Forward lean of the centre of mass ahead of the ankles, metres in the body frame. */
-    lean: number;
-  }
 
   /**
    * The alignment of a body, solved once and kept per body.
@@ -62,17 +54,17 @@ export namespace standUpright {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A cold search shares the engine's exact dependency reader across candidates. Its pure golden cost has unchanged body inputs, so identical candidate numbers can share their completed cost; the body cache retains only the final alignment.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The exact reader, four bounded name readers and golden search's four scalar slots end with cold search return or throw; one alignment remains weakly owned per live body.
    */
-  export function of(body: IHumanBody): IAlignment {
-    const known: IAlignment | undefined = CACHE.get(body);
+  export function of(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanStandUpright.IAlignment {
+    const known: IAutoMovieMotionHumanStandUpright.IAlignment | undefined = CACHE.get(body);
     if (known !== undefined) return known;
-    const solved: IAlignment = solve(body);
+    const solved: IAutoMovieMotionHumanStandUpright.IAlignment = solve(body);
     CACHE.set(body, solved);
     return solved;
   }
 
-  const CACHE: WeakMap<IHumanBody, IAlignment> = new WeakMap();
+  const CACHE: WeakMap<IAutoMovieMotionHumanBody, IAutoMovieMotionHumanStandUpright.IAlignment> = new WeakMap();
 
-  function solve(body: IHumanBody): IAlignment {
+  function solve(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanStandUpright.IAlignment {
     const prepared: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
     const readers: Map<
@@ -157,7 +149,7 @@ export namespace standUpright {
     const requested: Set<AutoMovieHumanoidBone> = new Set(
       model.segments.map(
         (
-          segment: resolveAutoMovieCenterOfMass.ISegment,
+          segment: IAutoMovieResolveCenterOfMass.ISegment,
         ): AutoMovieHumanoidBone => segment.bone,
       ),
     );

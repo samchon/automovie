@@ -1,7 +1,13 @@
-﻿import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
 import { AutoMovieStationHermite } from "@automovie/engine";
-import type { IAutoMovieHumanSeam } from "../lofting/IAutoMovieHumanSeam";
-import type { IAutoMovieHumanTrunkSection } from "./IAutoMovieHumanTrunkSection";
+import type {
+  AutoMovieScalarJet2,
+  IAutoMovieArcLengthJet,
+  IAutoMovieHumanSeam,
+  IAutoMovieHumanTrunkQuadrant,
+  IAutoMovieHumanTrunkSection,
+} from "@automovie/interface";
+
+import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
 
 /**
  * The shared mathematics of the trunk's section pieces: the quadrant rule the
@@ -21,12 +27,6 @@ import type { IAutoMovieHumanTrunkSection } from "./IAutoMovieHumanTrunkSection"
  * calibration millimetres.
  */
 export namespace AutoMovieHumanTrunkQuadrant {
-  /** One horizontal section's measures, canonical left half. */
-  export type ISection = IAutoMovieHumanTrunkSection;
-
-  /** A side of the section. */
-  export type Side = "front" | "back";
-
   /** Control points of the trunk's sections. */
   export const ORDER: number = 256;
 
@@ -38,7 +38,7 @@ export namespace AutoMovieHumanTrunkQuadrant {
    * @param n Squareness.
    * @returns `[xi, d xi / d zeta, d2 xi / d zeta2]`.
    */
-  export function quadrant(zeta: number, n: number): [number, number, number] {
+  export function quadrant(zeta: number, n: number): AutoMovieScalarJet2 {
     const z: number = Math.min(1 - 1e-9, Math.max(0, zeta));
     const u: number = 1 - z ** n;
     const xi: number = u ** (1 / n);
@@ -55,7 +55,10 @@ export namespace AutoMovieHumanTrunkQuadrant {
    * @param side The quadrant.
    * @returns The depth, mm.
    */
-  export function depth(s: ISection, side: Side): number {
+  export function depth(
+    s: IAutoMovieHumanTrunkSection,
+    side: IAutoMovieHumanTrunkQuadrant.Side,
+  ): number {
     return side === "front" ? s.front - s.middle : s.middle - s.back;
   }
 
@@ -66,7 +69,10 @@ export namespace AutoMovieHumanTrunkQuadrant {
    * @param side The quadrant.
    * @returns The exponent n.
    */
-  export function square(s: ISection, side: Side): number {
+  export function square(
+    s: IAutoMovieHumanTrunkSection,
+    side: IAutoMovieHumanTrunkQuadrant.Side,
+  ): number {
     return side === "front" ? s.squareFront : s.squareBack;
   }
 
@@ -78,7 +84,11 @@ export namespace AutoMovieHumanTrunkQuadrant {
    * @param zeta Lateral share of the half width.
    * @returns The point `[x, z]`, mm.
    */
-  export function base(s: ISection, side: Side, zeta: number): [number, number] {
+  export function base(
+    s: IAutoMovieHumanTrunkSection,
+    side: IAutoMovieHumanTrunkQuadrant.Side,
+    zeta: number,
+  ): IAutoMovieHumanTrunkQuadrant.BaseResult {
     const xi: number = quadrant(zeta, square(s, side))[0];
     const sign: number = side === "front" ? 1 : -1;
 
@@ -93,7 +103,11 @@ export namespace AutoMovieHumanTrunkQuadrant {
    * @param z Lateral place, mm.
    * @returns `[f, f_z, f_zz]`, mm.
    */
-  export function fold(s: ISection, side: Side, z: number): [number, number, number] {
+  export function fold(
+    s: IAutoMovieHumanTrunkSection,
+    side: IAutoMovieHumanTrunkQuadrant.Side,
+    z: number,
+  ): AutoMovieScalarJet2 {
     return side === "front" ? s.foldFront(z) : s.foldBack(z);
   }
 
@@ -109,16 +123,21 @@ export namespace AutoMovieHumanTrunkQuadrant {
    * @returns The jet `(point, tangent, curvature vector)`.
    */
   export function onQuadrant(
-    s: ISection,
-    side: Side,
+    s: IAutoMovieHumanTrunkSection,
+    side: IAutoMovieHumanTrunkQuadrant.Side,
     zeta: number,
     folded: boolean = true,
-  ): IAutoMovieHumanSeam.IArcJet {
-    const [xi, x1, x2]: [number, number, number] = quadrant(zeta, square(s, side));
+  ): IAutoMovieArcLengthJet {
+    const [xi, x1, x2]: [number, number, number] = quadrant(
+      zeta,
+      square(s, side),
+    );
     const d: number = depth(s, side);
     const sign: number = side === "front" ? 1 : -1;
     const z: number = s.width * zeta;
-    const [f0, f1, f2]: [number, number, number] = folded ? fold(s, side, z) : [0, 0, 0];
+    const [f0, f1, f2]: [number, number, number] = folded
+      ? fold(s, side, z)
+      : [0, 0, 0];
 
     // With x(z) = middle + sign (d xi(z / w) - fold(z)), its derivatives in z
     // follow by the chain rule; the front runs with z rising and the back
@@ -143,15 +162,17 @@ export namespace AutoMovieHumanTrunkQuadrant {
    * @returns The jet.
    */
   export function onMidline(
-    s: ISection,
-    side: Side,
+    s: IAutoMovieHumanTrunkSection,
+    side: IAutoMovieHumanTrunkQuadrant.Side,
     next: number,
     folded: boolean = true,
-  ): IAutoMovieHumanSeam.IArcJet {
+  ): IAutoMovieArcLengthJet {
     const d: number = depth(s, side);
     const xiNext: number = quadrant(next, square(s, side))[0];
     const sign: number = side === "front" ? 1 : -1;
-    const [f0, , f2]: [number, number, number] = folded ? fold(s, side, 0) : [0, 0, 0];
+    const [f0, , f2]: [number, number, number] = folded
+      ? fold(s, side, 0)
+      : [0, 0, 0];
 
     // Through the next guide the midline's own parabola is
     // x = middle + sign d (1 - c zeta^2 / 2) with c = 2 (1 - xi) / zeta^2,
@@ -176,8 +197,15 @@ export namespace AutoMovieHumanTrunkQuadrant {
    * @param after Lateral share of the guide behind it.
    * @returns The jet.
    */
-  export function onWidest(s: ISection, before: number, after: number): IAutoMovieHumanSeam.IArcJet {
-    const parabola = (side: Side, share: number): number => {
+  export function onWidest(
+    s: IAutoMovieHumanTrunkSection,
+    before: number,
+    after: number,
+  ): IAutoMovieArcLengthJet {
+    const parabola = (
+      side: IAutoMovieHumanTrunkQuadrant.Side,
+      share: number,
+    ): number => {
       const d: number = depth(s, side);
       const xi: number = quadrant(share, square(s, side))[0];
 
@@ -187,9 +215,14 @@ export namespace AutoMovieHumanTrunkQuadrant {
 
       return (s.width * c) / (d * d);
     };
-    const kappa: number = (parabola("front", before) + parabola("back", after)) / 2;
+    const kappa: number =
+      (parabola("front", before) + parabola("back", after)) / 2;
 
-    return { point: [s.middle, s.width], tangent: [-1, 0], curvature: [0, -kappa] };
+    return {
+      point: [s.middle, s.width],
+      tangent: [-1, 0],
+      curvature: [0, -kappa],
+    };
   }
 
   /**
@@ -203,7 +236,12 @@ export namespace AutoMovieHumanTrunkQuadrant {
    * @param to Lateral share at the other.
    * @returns The length, mm.
    */
-  export function arclength(s: ISection, side: Side, from: number, to: number): number {
+  export function arclength(
+    s: IAutoMovieHumanTrunkSection,
+    side: IAutoMovieHumanTrunkQuadrant.Side,
+    from: number,
+    to: number,
+  ): number {
     const lo: number = Math.min(from, to);
     const hi: number = Math.max(from, to);
     const count: number = 128;
@@ -212,7 +250,11 @@ export namespace AutoMovieHumanTrunkQuadrant {
 
     for (let i: number = 1; i <= count; i++) {
       const u: number = i / count;
-      const p: [number, number] = base(s, side, lo + (hi - lo) * (1 - (1 - u) ** 2));
+      const p: [number, number] = base(
+        s,
+        side,
+        lo + (hi - lo) * (1 - (1 - u) ** 2),
+      );
       sum += Math.hypot(p[0] - last[0], p[1] - last[1]);
       last = p;
     }
@@ -244,17 +286,19 @@ export namespace AutoMovieHumanTrunkQuadrant {
    * @returns `[point, first derivative, second derivative]` in `[x, z]`.
    */
   export function sector(
-    a: IAutoMovieHumanSeam.IArcJet,
-    b: IAutoMovieHumanSeam.IArcJet,
+    a: IAutoMovieArcLengthJet,
+    b: IAutoMovieArcLengthJet,
     t0: number,
     t1: number,
-    speeds: readonly [number, number],
+    speeds: IAutoMovieHumanTrunkQuadrant.SectorSpeeds,
     t: number,
-    shift: ((z: number) => [number, number, number]) | null,
-  ): [number[], number[], number[]] {
+    shift: IAutoMovieHumanTrunkQuadrant.SectorShift,
+  ): IAutoMovieHumanTrunkQuadrant.SectorResult {
     const H: number = t1 - t0;
-    const [pa, va, aa]: [number[], number[], number[]] = AutoMovieHumanSeam.adopt(a, speeds[0] * H);
-    const [pb, vb, ab]: [number[], number[], number[]] = AutoMovieHumanSeam.adopt(b, speeds[1] * H);
+    const [pa, va, aa]: [number[], number[], number[]] =
+      AutoMovieHumanSeam.adopt(a, speeds[0] * H);
+    const [pb, vb, ab]: [number[], number[], number[]] =
+      AutoMovieHumanSeam.adopt(b, speeds[1] * H);
     const u: number = (t - t0) / H;
 
     // The station rule's quintic weights over a unit interval, ordered
@@ -264,7 +308,12 @@ export namespace AutoMovieHumanTrunkQuadrant {
 
       return [0, 1].map(
         (k: number): number =>
-          w[0]! * pa[k]! + w[1]! * va[k]! + w[2]! * aa[k]! + w[3]! * ab[k]! + w[4]! * vb[k]! + w[5]! * pb[k]!,
+          w[0]! * pa[k]! +
+          w[1]! * va[k]! +
+          w[2]! * aa[k]! +
+          w[3]! * ab[k]! +
+          w[4]! * vb[k]! +
+          w[5]! * pb[k]!,
       );
     };
     const p: number[] = value(0);
@@ -297,14 +346,14 @@ export namespace AutoMovieHumanTrunkQuadrant {
    * @returns The sector's jet at a phase.
    */
   export function between(
-    s: ISection,
-    side: Side,
-    a: IAutoMovieHumanSeam.IArcJet,
-    b: IAutoMovieHumanSeam.IArcJet,
-    knots: readonly [number, number],
-    speeds: readonly [number, number],
+    s: IAutoMovieHumanTrunkSection,
+    side: IAutoMovieHumanTrunkQuadrant.Side,
+    a: IAutoMovieArcLengthJet,
+    b: IAutoMovieArcLengthJet,
+    knots: IAutoMovieHumanTrunkQuadrant.BetweenKnots,
+    speeds: IAutoMovieHumanTrunkQuadrant.BetweenSpeeds,
     folded: boolean,
-  ): (t: number) => [number[], number[], number[]] {
+  ): IAutoMovieHumanTrunkQuadrant.BetweenResult {
     // The front stands back and the back forward by the displacement.
     const sign: number = side === "front" ? -1 : 1;
     const shift: ((z: number) => [number, number, number]) | null = folded
@@ -326,19 +375,24 @@ export namespace AutoMovieHumanTrunkQuadrant {
    * @param jet A left guide's jet.
    * @returns The right guide's jet.
    */
-  export function reflect(jet: IAutoMovieHumanSeam.IArcJet): IAutoMovieHumanSeam.IArcJet {
-    const mirrored: IAutoMovieHumanSeam.ISurfaceJet = AutoMovieHumanSeam.reflect(
-      {
-        point: jet.point,
-        along: jet.tangent,
-        alongSecond: jet.curvature,
-        across: [0, 0],
-        acrossSecond: [0, 0],
-        twist: [0, 0],
-      },
-      1,
-    );
+  export function reflect(jet: IAutoMovieArcLengthJet): IAutoMovieArcLengthJet {
+    const mirrored: IAutoMovieHumanSeam.ISurfaceJet =
+      AutoMovieHumanSeam.reflect(
+        {
+          point: jet.point,
+          along: jet.tangent,
+          alongSecond: jet.curvature,
+          across: [0, 0],
+          acrossSecond: [0, 0],
+          twist: [0, 0],
+        },
+        1,
+      );
 
-    return { point: mirrored.point, tangent: mirrored.along, curvature: mirrored.alongSecond };
+    return {
+      point: mirrored.point,
+      tangent: mirrored.along,
+      curvature: mirrored.alongSecond,
+    };
   }
 }

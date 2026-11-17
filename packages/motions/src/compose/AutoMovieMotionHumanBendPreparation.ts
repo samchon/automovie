@@ -1,4 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
@@ -23,7 +27,7 @@ export namespace AutoMovieMotionHumanBendPreparation {
    * @evidence contracts/development/design.md#minimal-and-owned-surface solve reads every field, while strain retains its existing rule of ignoring fallback.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No goal is clamped, widened or changed; source geometry must stay unchanged for the operation's lifetime.
    */
-  export type IGoal = Pick<AutoMovieMotionHumanBend.ISolve, "point" | "rotation" | "fallback">;
+  export type IGoal = Pick<IAutoMovieMotionHumanBend.ISolve, "point" | "rotation" | "fallback">;
 
   /**
    * Two original numerical queries on one fixed body/trunk/side geometry.
@@ -73,7 +77,7 @@ export namespace AutoMovieMotionHumanBendPreparation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The selector or bounded authored support-state plan owns each chain/collider/neutral context until release. Body and original fallback geometry remain borrowed and unchanged; no operation FK reader, query wrist/result, pose sample history or external handle escapes.
    */
   export function of(
-    fixed: Pick<AutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
+    fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
     hang: Parameters<typeof AutoMovieMotionHumanBendSearch.prepare>[1],
     source?: AutoMovieMotionHumanBendChain.IPrepared,
   ): IPrepared {
@@ -114,13 +118,13 @@ export namespace AutoMovieMotionHumanBendPreparation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual crawl/load call sites fix this exact body/trunk frame while requesting left/right in original order. The genuine source owner validates those scalar dependencies, while changed goals/ranks remain actual and unsupported sources fall back normally.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous caller releases this reader, its token/optional FK loan and at-most-two contexts before returning the person evaluation. No plan, output goal or returned posture retains them, and no current target/result/time history or external handle is stored.
    */
-  export function both(fixed: Pick<AutoMovieMotionHumanBend.ISolve, "body" | "posture">,
+  export function both(fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture">,
     hang: Parameters<typeof AutoMovieMotionHumanBendSearch.prepare>[1],
     resolution?: Parameters<typeof AutoMovieMotionHumanBendChain.prepare>[2]):
-      (side: AutoMovieMotionHumanBend.Side) => IPrepared {
+      (side: AutoMovieHumanSide) => IPrepared {
     let source: AutoMovieMotionHumanBendChain.IPrepared | undefined;
-    const sides: Partial<Record<AutoMovieMotionHumanBend.Side, IPrepared>> = {};
-    return (side: AutoMovieMotionHumanBend.Side): IPrepared => {
+    const sides: Partial<Record<AutoMovieHumanSide, IPrepared>> = {};
+    return (side: AutoMovieHumanSide): IPrepared => {
       let current: IPrepared | undefined = sides[side];
       if (current === undefined) {
         source ??= AutoMovieMotionHumanBendChain.prepare(fixed.body, fixed.posture, resolution);

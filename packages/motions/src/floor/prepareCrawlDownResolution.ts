@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBalance } from "../everyday/HumanBalance";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -16,16 +16,16 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 /** Actual canonical observations used during one synchronous crawl-descent solve. */
 interface IReading {
   /** The current two shoulders' midpoint, world metres. */
-  shoulders(posture: IHumanPosture): IAutoMovieVector3;
+  shoulders(posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3;
 
   /** The current two knee frames after the original complete limb/digit solve. */
-  knees(posture: IHumanPosture): ReturnType<typeof poseBones>;
+  knees(posture: IAutoMovieMotionHumanPosture): ReturnType<typeof poseBones>;
 
   /** The current complete canonical pose, for the solved arms at hands-down. */
-  pose(posture: IHumanPosture): IAutoMoviePose;
+  pose(posture: IAutoMovieMotionHumanPosture): IAutoMoviePose;
 
   /** The current whole-body mass centre after every original goal fit, world metres. */
-  centre(posture: IHumanPosture): IAutoMovieVector3;
+  centre(posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3;
 }
 
 /**
@@ -44,7 +44,7 @@ interface IReading {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The body/rig/tables, shoulder/knee names and actual mass-profile demand stay unchanged for this synchronous search. Every new posture is resolved normally and the exact reader reuses only matching scalar prerequisites, without a candidate cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The solve owns one bounded projector/exact reader, two frame-name readers and at most one mass-name reader until return or throw. Only final angles/scalar state leave the caller; these readers, their closures and current maps never enter the returned time evaluator.
  */
-export function prepareCrawlDownResolution(body: IHumanBody): IReading {
+export function prepareCrawlDownResolution(body: IAutoMovieMotionHumanBody): IReading {
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
   const projection: ReturnType<typeof prepareHumanPostureProjection> =
@@ -60,8 +60,8 @@ export function prepareCrawlDownResolution(body: IHumanBody): IReading {
   let centre: ReturnType<typeof HumanBalance.prepareCentre> | undefined;
 
   /** Project and fit each actual candidate before reading its requested frames. */
-  const pose: (posture: IHumanPosture) => IAutoMoviePose = (
-    posture: IHumanPosture,
+  const pose: (posture: IAutoMovieMotionHumanPosture) => IAutoMoviePose = (
+    posture: IAutoMovieMotionHumanPosture,
   ): IAutoMoviePose =>
     resolveHumanPosture.seeded(
       body,
@@ -73,7 +73,7 @@ export function prepareCrawlDownResolution(body: IHumanBody): IReading {
       projection,
     ).pose;
   return {
-    shoulders: (posture: IHumanPosture): IAutoMovieVector3 => {
+    shoulders: (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => {
       const bones: ReturnType<typeof poseBones> = shoulders(
         pose(posture),
         resolution(),
@@ -84,10 +84,10 @@ export function prepareCrawlDownResolution(body: IHumanBody): IReading {
         0.5,
       );
     },
-    knees: (posture: IHumanPosture): ReturnType<typeof poseBones> =>
+    knees: (posture: IAutoMovieMotionHumanPosture): ReturnType<typeof poseBones> =>
       knees(pose(posture), resolution()),
     pose,
-    centre: (posture: IHumanPosture): IAutoMovieVector3 => {
+    centre: (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => {
       centre ??= HumanBalance.prepareCentre(body);
       return centre(posture, resolution, projection);
     },

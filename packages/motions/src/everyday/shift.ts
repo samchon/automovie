@@ -1,16 +1,19 @@
 import { minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanShift,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { seated } from "./seated";
 
 /**
@@ -44,24 +47,15 @@ import { seated } from "./seated";
  */
 export namespace shift {
   /** The action's name. */
-  export const name: HumanActionName = "shift";
+  export const name: AutoMovieMotionHumanActionName = "shift";
 
   /** Cancel table: after setting down a shift may continue sitting. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     rise: [
       { window: ["seatContact", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
     shift: [{ window: ["seatContact", 1], kind: "inertialize", entry: 0 }],
   };
-
-  /** Parameters. */
-  export interface IParams {
-    /** Distance along the seat, metres; positive toward the performer's left. */
-    by: number;
-
-    /** Seconds to stay seated after setting down; 0.5 when absent. */
-    seconds?: number;
-  }
 
   /**
    * Plan a shift.
@@ -79,9 +73,9 @@ export namespace shift {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its fixed entry/feet and scalar timing until release; current hand maps and borrowed FK/ROM sources end on return or throw and never enter its retained geometry.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanShift.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const limit: number = 0.35 * body.measure.thigh;
     if (!(Math.abs(context.params.by) <= limit))
       throw new HumanRefusal({
@@ -92,7 +86,7 @@ export namespace shift {
         reason: `a seated shift moves at most ${limit.toFixed(3)} m without stepping; shift several times`,
         fix: "shift several times, each within the limit",
       });
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const start: IAutoMovieVector3 = seated.socket(body, entry);
     const under: number = seated.floor(body, context.entry);
 
@@ -168,10 +162,10 @@ export namespace shift {
       ],
       posture: (
         seconds: number,
-        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
-        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IHumanActionPlan["posture"]>[3],
-      ): IHumanPosture => {
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number = minimumJerk.share(t / slide);
         const socket: IAutoMovieVector3 = {
@@ -180,7 +174,7 @@ export namespace shift {
           z: start.z + (goal.z - start.z) * s,
         };
         const root: IAutoMovieVector3 = seated.root(body, socket, entry);
-        const posture: IHumanPosture = {
+        const posture: IAutoMovieMotionHumanPosture = {
           ...entry,
           root,
           limbs: legged(root, feet),

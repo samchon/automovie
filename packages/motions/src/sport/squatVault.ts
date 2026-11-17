@@ -5,28 +5,29 @@ import {
   minimumJerk,
 } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  AutoMovieMotionHumanActionKey,
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSquatVault,
+  IAutoMovieMotionHumanSupport,
+  IAutoMovieMotionTarget,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
 import { stand } from "../actions/stand";
 import { support } from "../actions/support";
 import { supportKey } from "../actions/supportKey";
-import type { IHumanBody } from "../body/IHumanBody";
 import { WorkoutSupport } from "../exercise/WorkoutSupport";
 import { getUp } from "../floor/getUp";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanSupport } from "../law/HumanSupport";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * A squat vault over a box: the hands set on the near edge of the box's
@@ -60,28 +61,12 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  */
 export namespace squatVault {
   /** The action's name. */
-  export const name: HumanActionKey = "squatVault";
+  export const name: AutoMovieMotionHumanActionKey = "squatVault";
 
   /** Cancel table: a vault in the air cannot be cut; standing again once it has landed. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: [0.9, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
   };
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The box by its subject id and the landing's hold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A subject id, resolved through the prop's own affordance.
-   */
-  export interface IParams {
-    /** The box vaulted over, its subject id; its `surface` is the top the hands are set on. */
-    on: string;
-
-    /** How long the landing is held, seconds; 0.5 when absent. */
-    seconds?: number;
-  }
 
   /**
    * Plan a squat vault.
@@ -99,9 +84,9 @@ export namespace squatVault {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains support/landing geometry and bounded fixed-pair quaternion/chart preparations. Temporary fallback metadata and query outputs release normally; optional parent FK/projector loans stay synchronous and never enter retained plans, outputs or interpolation preparation.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSquatVault.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const g: number = AutoMovieGravity.STANDARD;
     const yaw: number = context.entry.posture.yaw;
     const heading: IAutoMovieVector3 = HumanFrame.forward(yaw);
@@ -133,7 +118,7 @@ export namespace squatVault {
       { origin: { x: 0, y: 0, z: 0 }, yaw },
       { x: 1, y: 0, z: 0 },
     );
-    const palm: (side: "left" | "right") => HumanSupport.IContact = (side: "left" | "right"): HumanSupport.IContact => ({
+    const palm: (side: "left" | "right") => IAutoMovieMotionHumanSupport.IContact = (side: "left" | "right"): IAutoMovieMotionHumanSupport.IContact => ({
       part: `${side}Hand`,
       kind: "bear",
       target: {
@@ -146,13 +131,13 @@ export namespace squatVault {
             (side === "left" ? 1 : -1) * body.measure.shoulderHalfWidth,
           ),
         ),
-      } as AutoMovieMotionTarget,
+      } as IAutoMovieMotionTarget,
     });
-    const feet: HumanSupport.IContact[] = [
+    const feet: IAutoMovieMotionHumanSupport.IContact[] = [
       { part: "leftFoot", kind: "bear" },
       { part: "rightFoot", kind: "bear" },
     ];
-    const held: IHumanActionPlan = support.plan({
+    const held: IAutoMovieMotionHumanActionPlan = support.plan({
       ...context,
       params: {
         stances: [
@@ -169,7 +154,7 @@ export namespace squatVault {
       },
     });
     const push: number = held.duration;
-    const tucked: IHumanPosture = held.posture(push);
+    const tucked: IAutoMovieMotionHumanPosture = held.posture(push);
 
     // The landing: the quiet stance with the heels a foot's length past the
     // far edge.
@@ -178,10 +163,10 @@ export namespace squatVault {
       { ...far, y: 0 },
       Vector3.scale(heading, heel + body.measure.footLength),
     );
-    const landing: IHumanPosture = stand.posture(body, ground, yaw);
+    const landing: IAutoMovieMotionHumanPosture = stand.posture(body, ground, yaw);
     // The landing by its joints alone, its legs' goals resolved, which the
     // flight's blend reaches (`getUp.quiet`).
-    const landed: IHumanPosture = {
+    const landed: IAutoMovieMotionHumanPosture = {
       ...landing,
       joints: { ...landing.joints, ...getUp.quiet(body).joints },
       limbs: {},
@@ -222,7 +207,7 @@ export namespace squatVault {
       base: { kind: "standing" },
       events: [
         ...held.events.map(
-          (e: { name: string; share: number }): { name: string; share: number } => ({
+          (e: { name: string; share: number; }): { name: string; share: number } => ({
             name: e.name,
             share: share(e.share),
           }),
@@ -231,14 +216,14 @@ export namespace squatVault {
       ],
       contacts: [
         ...held.contacts.map(
-          (w: IHumanContactWindow): IHumanContactWindow => ({
+          (w: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
             ...w,
             from: share(w.from),
             to: share(w.to),
           }),
         ),
         ...(["leftFoot", "rightFoot"] as const).map(
-          (part: "leftFoot" | "rightFoot"): IHumanContactWindow => ({
+          (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
             part,
             kind: "plant",
             from: touchdown / duration,
@@ -252,12 +237,12 @@ export namespace squatVault {
         to: touchdown / duration,
         momentum: { kind: "turns", somersault: 0, twist: 0 },
       },
-      posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+      posture: (seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         if (t <= push) return held.posture(t, channels, resolution, projection);
         if (t >= touchdown) return landing;
         const u: number = t - push;
-        const shaped: IHumanPosture = flyingShape(minimumJerk.share(u / flight));
+        const shaped: IAutoMovieMotionHumanPosture = flyingShape(minimumJerk.share(u / flight));
         return {
           ...shaped,
           root: {

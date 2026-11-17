@@ -1,10 +1,13 @@
-import type { IAutoMovieJointAxes, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieFitChainToTargetProps,
+  IAutoMovieJointAxes,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
-import type { prepareChainPlant } from "./prepareChainPlant";
+import { prepareChainPlant } from "./prepareChainPlant";
 
 /**
  * The mid joint's flexion range as rotation about its own hinge, radians:
@@ -29,7 +32,7 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh min/max record or null; temporary hinge/readings release on return or throw with no retained target, result history or handle.
  */
 export function readHingeRange(
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   prepared: NonNullable<ReturnType<typeof prepareChainPlant>>,
   axes: IAutoMovieJointAxes,
   basis: IAutoMovieJointAxes,

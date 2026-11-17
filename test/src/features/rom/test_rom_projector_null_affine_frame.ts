@@ -1,10 +1,16 @@
 import {
-  type IAutoMovieRestFrame,
   clampJointRom,
   normalizeJointAxes,
   prepareJointRotationProjection,
 } from "@automovie/engine";
-import type { IAutoMovieAngleRange, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieJointPose, IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieAngleRange,
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

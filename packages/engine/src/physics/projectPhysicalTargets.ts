@@ -1,4 +1,9 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieProjectPhysicalTargets,
+  IAutoMovieRigidTransform,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -21,53 +26,53 @@ import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 6 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function projectPhysicalTargets(
-  profile: P,
-  authored: Readonly<Record<string, P.ITransform>>,
-): {
-  targets: Record<string, P.ITransform>;
-  maximumTranslation: number;
-  maximumRotation: number;
-} {
-  const targets: Record<string, P.ITransform> = Object.create(null);
+  profile: IAutoMoviePhysicalProfile,
+  authored: Readonly<Record<string, IAutoMovieRigidTransform>>,
+): IAutoMovieProjectPhysicalTargets.IResult {
+  const targets: Record<string, IAutoMovieRigidTransform> = Object.create(null);
   const children: Set<string> = new Set(
-    profile.joints.map((joint: P.IJoint): string => joint.child),
+    profile.joints.map((joint: IAutoMoviePhysicalJoint): string => joint.child),
   );
   for (const segment of profile.segments)
     if (!children.has(segment.bone))
       targets[segment.bone] = structuredClone(authored[segment.bone]!);
-  const pending: Set<P.IJoint> = new Set(profile.joints);
+  const pending: Set<IAutoMoviePhysicalJoint> = new Set(profile.joints);
   let maximumTranslation: number = 0;
   let maximumRotation: number = 0;
   while (pending.size) {
     const before: number = pending.size;
     for (const joint of pending) {
-      const parent: P.ITransform | undefined = targets[joint.parent];
+      const parent: IAutoMovieRigidTransform | undefined =
+        targets[joint.parent];
       if (!parent) continue;
-      const originalParent: P.ITransform = authored[joint.parent]!;
-      const originalChild: P.ITransform = authored[joint.child]!;
+      const originalParent: IAutoMovieRigidTransform = authored[joint.parent]!;
+      const originalChild: IAutoMovieRigidTransform = authored[joint.child]!;
       if (!originalParent || !originalChild)
         throw new Error(`Missing physical target at ${joint.id}`);
-      const original: P.ITransform["rotation"] = Quaternion.multiply(
-        Quaternion.inverse(
-          Quaternion.multiply(
-            originalParent.rotation,
-            joint.parentFrame.rotation,
-          ),
-        ),
-        Quaternion.multiply(originalChild.rotation, joint.childFrame.rotation),
-      );
-      const relative: P.ITransform["rotation"] = projectPhysicalJointRotation(
-        joint,
-        original,
-      );
-      const rotation: P.ITransform["rotation"] = Quaternion.multiply(
+      const original: IAutoMovieRigidTransform["rotation"] =
         Quaternion.multiply(
-          Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
-          relative,
-        ),
-        Quaternion.inverse(joint.childFrame.rotation),
-      );
-      const position: P.ITransform["position"] = Vector3.subtract(
+          Quaternion.inverse(
+            Quaternion.multiply(
+              originalParent.rotation,
+              joint.parentFrame.rotation,
+            ),
+          ),
+          Quaternion.multiply(
+            originalChild.rotation,
+            joint.childFrame.rotation,
+          ),
+        );
+      const relative: IAutoMovieRigidTransform["rotation"] =
+        projectPhysicalJointRotation(joint, original);
+      const rotation: IAutoMovieRigidTransform["rotation"] =
+        Quaternion.multiply(
+          Quaternion.multiply(
+            Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
+            relative,
+          ),
+          Quaternion.inverse(joint.childFrame.rotation),
+        );
+      const position: IAutoMovieRigidTransform["position"] = Vector3.subtract(
         Vector3.add(
           parent.position,
           Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
@@ -79,7 +84,7 @@ export function projectPhysicalTargets(
         maximumTranslation,
         Vector3.length(Vector3.subtract(position, originalChild.position)),
       );
-      const delta: P.ITransform["rotation"] = Quaternion.multiply(
+      const delta: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
         Quaternion.inverse(originalChild.rotation),
         rotation,
       );

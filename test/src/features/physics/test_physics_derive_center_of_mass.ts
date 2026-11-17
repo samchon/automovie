@@ -1,6 +1,6 @@
 import { deriveCenterOfMass } from "@automovie/engine";
 import {
-  AutoMoviePrimitiveShape,
+  type IAutoMoviePrimitiveShape,
   IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -24,7 +24,7 @@ const at: (
   scale: { x: s, y: s, z: s },
 });
 
-const unit: AutoMoviePrimitiveShape = {
+const unit: IAutoMoviePrimitiveShape = {
   type: "box",
   width: 1,
   height: 1,

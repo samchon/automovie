@@ -1,19 +1,23 @@
 import { minimumJerk } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStepOver,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
-import type { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -87,10 +91,10 @@ import { stepOverPath } from "./stepOverPath";
  */
 export namespace stepOver {
   /** The action's name. */
-  export const name: HumanActionName = "stepOver";
+  export const name: AutoMovieMotionHumanActionName = "stepOver";
 
   /** Cancel table: a crossing completes before anything else. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: ["trailContact", 1], kind: "inertialize", entry: 0 }],
     walk: [
       {
@@ -101,18 +105,6 @@ export namespace stepOver {
       },
     ],
   };
-
-  /** Parameters. */
-  export interface IParams {
-    /** The obstacle's prop subject: a kerb or a hurdle, whose near edge, height and depth its contacts declare (`HumanObstacle`). */
-    obstacle: string;
-
-    /** The leading foot; `right` when absent. */
-    lead?: "left" | "right";
-
-    /** How it is performed: the manner's tempo scales the whole crossing's time, every phase keeping its share; neutral when absent. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
 
   /** How far the lead foot lifts its toes as they pass over the obstacle's near side, degrees toes-up (provisional): the toe clears the edge with the ankle lower than a level foot's would be. */
   export const TOE_UP: number = 35;
@@ -139,8 +131,8 @@ export namespace stepOver {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns fixed body/path/trunk readers until released; each query releases its FK workspace and current bone demand on return or throw, without retaining postures, solved poses or queried seconds.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStepOver.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
     const {
       body,
       lead,
@@ -201,7 +193,7 @@ export namespace stepOver {
     };
 
     const inclined: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(standUpright.of(body).joints, walk.LEAN);
-    const relaxed: IHumanPosture["joints"] = stand.relaxed(body);
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = stand.relaxed(body);
     const short: ReturnType<typeof resolveHumanPosture.prepareShort> = resolveHumanPosture.prepareShort(body, 5);
     const knees: Record<"left" | "right", ReturnType<typeof HumanFrame.preparePoint>> = {
       left: HumanFrame.preparePoint(yaw, { ...body.rest.get("leftLowerLeg")!, z: body.rest.get("leftLowerLeg")!.z + 1 }),
@@ -261,10 +253,10 @@ export namespace stepOver {
           ),
         },
       ],
-      posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], source?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+      posture: (seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const root: IAutoMovieVector3 = rootAt(t);
-        const limbs: IHumanPosture["limbs"] = {};
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
         const toes: Record<"left" | "right", number> = { left: 0, right: 0 };
         const footings: Record<"left" | "right", ReturnType<typeof footAt>> = { left: footAt("left", t), right: footAt("right", t) };
         for (const side of ["left", "right"] as const) {
@@ -284,7 +276,7 @@ export namespace stepOver {
         // The trunk carries a walk's forward inclination over the step, the
         // pelvis's share tipping the body about the hips.
         const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-        let posture: IHumanPosture = resolveHumanPosture.lower(
+        let posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
           body,
           AutoMovieMotionHumanLean.pivot(
             body,
@@ -349,7 +341,7 @@ export namespace stepOver {
           const bones: ReturnType<typeof poseBones> = observe === undefined
             ? poseBones(body, posed, resolution(), requested)
             : observe(posed, resolution());
-          const next: IHumanPosture["limbs"] = { ...posture.limbs };
+          const next: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
           let moved: boolean = false;
           for (const side of lifted) {
             let short: number = -Infinity;
@@ -358,7 +350,7 @@ export namespace stepOver {
             if (short <= 0.002) continue;
             const limb: "leftLeg" | "rightLeg" =
               side === "left" ? "leftLeg" : "rightLeg";
-            const goal: IHumanPosture.IGoal = next[limb]!;
+            const goal: IAutoMovieHumanLimbGoal = next[limb]!;
             const previous: { ankle: number; short: number } | undefined = last[side];
             const ratio: number =
               previous === undefined || previous.short - short < 1e-3

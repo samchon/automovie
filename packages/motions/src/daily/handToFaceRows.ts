@@ -1,7 +1,4 @@
-import type { AutoMovieHumanoidRegion } from "@automovie/interface";
-
-import type { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
-import type { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
+import type { IAutoMovieMotionHumanHandToFaceRows } from "@automovie/interface";
 
 /**
  * The hand-to-face tasks as rows of the touch generator: each task's region
@@ -15,67 +12,13 @@ import type { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHu
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Regions are the interface's; tool tips are shares of the hand's length.
  */
 export namespace handToFaceRows {
-  /** The tasks. */
-  export type Task =
-    | "drink"
-    | "sip"
-    | "eat"
-    | "bite"
-    | "phone"
-    | "read"
-    | "brushTeeth"
-    | "comb"
-    | "washFace"
-    | "wipeMouth";
-
-  /**
-   * One task's row.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The touch row's data plus the head's share of the approach.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The members `plan` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Regions are the interface's; the right hand's region is named and the left hand's mirrored.
-   */
-  export interface IRow {
-    /** The region the right hand works on; `null` for a held sheet before the eyes. */
-    region: AutoMovieHumanoidRegion | null;
-
-    /** The region the left hand works on at the same time; one hand when absent. */
-    other?: AutoMovieHumanoidRegion;
-
-    /** The effector. */
-    effector: AutoMovieMotionHumanTouchEffector.IEffector;
-
-    /** The movement at the face. */
-    kind: AutoMovieMotionHumanTouchForm.Kind;
-
-    /** Repetitions when the parameters give none. */
-    count: number;
-
-    /** Seconds at the face after the repetitions when the parameters give none. */
-    hold: number;
-
-    /** The travel's direction. */
-    tangent: AutoMovieMotionHumanTouchForm.Tangent;
-
-    /** `true` when the held tool stands on the world's up at the face, as a vessel does, instead of lying on the region. */
-    upright?: boolean;
-
-    /** `true` when the region's normal is read level, so an effector laid along `up` stands on the world's up instead of on the region's slope: a forefinger held upright across the lips, whose surface faces down as well as forward. The region's own normal when absent. */
-    level?: boolean;
-
-    /** The point of a held prop that meets the region when the task is performed with one (`handToFace.IParams.prop`): a vessel's `lip`, a phone's `screen`; the parameters name it when absent. */
-    point?: string;
-
-    /** The head's flexion at the face, degrees; negative extends it. */
-    head: number;
-
-    /** The event name at `ready`. */
-    at: string;
-  }
-
   /** The tasks' rows (tool lengths and head angles provisional, except the reading head flexion). */
-  export const ROWS: Readonly<Record<Task, IRow>> = {
+  export const ROWS: Readonly<
+    Record<
+      IAutoMovieMotionHumanHandToFaceRows.Task,
+      IAutoMovieMotionHumanHandToFaceRows.IRow
+    >
+  > = {
     drink: {
       region: "mouth",
       effector: {

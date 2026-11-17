@@ -1,11 +1,11 @@
 import type {
   IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalRecoveryState,
+  IAutoMoviePhysicalSimulationInput,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
-import type { advancePhysicalBalance as Balance } from "./advancePhysicalBalance";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
 
@@ -21,10 +21,10 @@ import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 5 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function physicalRecoverySupportGoals(
-  body: Simulation.IBody,
-  target: Simulation.ITarget,
+  body: IAutoMoviePhysicalSimulationInput.IBody,
+  target: IAutoMoviePhysicalSimulationInput.ITarget,
   pattern: IAutoMovieFootfallPattern,
-  state: Balance.IState | undefined,
+  state: IAutoMoviePhysicalRecoveryState | undefined,
   seconds: number,
 ): Record<string, IAutoMovieVector3> {
   return Object.fromEntries(

@@ -1,6 +1,6 @@
-import { IAutoMovieNode } from "../core/IAutoMovieNode";
-import { IAutoMovieProfile } from "../core/IAutoMovieProfile";
-import { IAutoMovieProfileBinding } from "../core/IAutoMovieProfileBinding";
+import type { IAutoMovieNode } from "../core/IAutoMovieNode";
+import type { IAutoMovieProfile } from "../core/IAutoMovieProfile";
+import type { IAutoMovieProfileBinding } from "../core/IAutoMovieProfileBinding";
 
 /**
  * The self-declared moving parts of a prop, a door's hinge or a drawer's

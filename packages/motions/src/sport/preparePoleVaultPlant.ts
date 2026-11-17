@@ -1,18 +1,19 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -36,9 +37,9 @@ import { GymnasticsFlight } from "./GymnasticsFlight";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Operation getter/projector, fixed grip demand, bounded current/previous scalars and actual trial pose/maps release on return/throw. Only final raw posture and fresh numeric vectors escape; no reader, projection loan, history or external handle enters the retained law.
  */
 export function preparePoleVaultPlant(props: {
-  body: IHumanBody;
+  body: IAutoMovieMotionHumanBody;
   model: GymnasticsFlight.Model;
-  side: HumanHand.Side;
+  side: AutoMovieHumanSide;
   end: IAutoMovieVector3;
   height: number;
   passes: number;
@@ -46,9 +47,9 @@ export function preparePoleVaultPlant(props: {
     height: number,
     resolution: ReturnType<typeof prepareHumanPoseResolution>,
     projection: ReturnType<typeof prepareHumanPostureProjection>,
-  ) => IHumanPosture;
+  ) => IAutoMovieMotionHumanPosture;
 }): {
-  posture: IHumanPosture;
+  posture: IAutoMovieMotionHumanPosture;
   tip: IAutoMovieVector3;
   grip: IAutoMovieVector3;
   centre: IAutoMovieVector3;
@@ -57,7 +58,7 @@ export function preparePoleVaultPlant(props: {
   const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(props.body);
   const readGrip: ReturnType<typeof poseBones.prepare> = poseBones.prepare(props.body, HumanHand.frameBones(props.body, props.side, "grip"));
   const trial: (height: number) => ITrial = (height: number): ITrial => {
-    const posture: IHumanPosture = GymnasticsFlight.frozen(
+    const posture: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(
       props.body, props.posture(height, read, projection), read, projection,
     );
     const pose: IAutoMoviePose = resolveHumanPosture.seeded(
@@ -95,7 +96,7 @@ export function preparePoleVaultPlant(props: {
 /** One actual frozen raw view, its independently admitted canonical pose and fresh grip frames. */
 interface ITrial {
   /** The original limb-goal-free clinical view. */
-  posture: IHumanPosture;
+  posture: IAutoMovieMotionHumanPosture;
   /** Actual canonical re-admission of that view, preserving the original plant pipeline. */
   pose: IAutoMoviePose;
   /** Only actual grip/hand frames; canonical ancestry is handled by the body producer. */

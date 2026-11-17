@@ -1,10 +1,15 @@
-import type { IAutoMovieSeededChainFit, IAutoMovieSwivelNear } from "@automovie/engine";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanLimb,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePose,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelNear,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanLimbView } from "./HumanLimbView";
-import type { IHumanPosture } from "./IHumanPosture";
-import type { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { solveHumanLimbFit } from "./solveHumanLimbFit";
 
 /**
@@ -23,8 +28,8 @@ import { solveHumanLimbFit } from "./solveHumanLimbFit";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each request is solved afresh.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export function applyHumanLimbFit(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb,
-  goal: IHumanPosture.IGoal, placed: readonly ("left" | "right")[], rival?: IAutoMovieVector3,
+export function applyHumanLimbFit(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limb: AutoMovieHumanLimb,
+  goal: IAutoMovieHumanLimbGoal, placed: readonly ("left" | "right")[], rival?: IAutoMovieVector3,
   near?: IAutoMovieSwivelNear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   admission?: HumanLimbView.IAdmission): IAutoMovieSeededChainFit {
   return solveHumanLimbFit(body, pose, limb, goal, placed, rival, near, resolution, "ordinary", admission);

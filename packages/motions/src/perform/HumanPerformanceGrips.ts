@@ -1,6 +1,11 @@
+import type {
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+} from "@automovie/interface";
+
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 import type { HumanSegment } from "./HumanSegment";
-import type { IHumanProp } from "./IHumanProp";
 
 /**
  * Assemble a prop's grip, worn and mounted spans in the existing film order.
@@ -28,21 +33,21 @@ export namespace HumanPerformanceGrips {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary segment arrays release with this call; existing span records and seated offsets remain in the resolved-state cache until that state is released. Cache population follows requested subject strings with no eviction here; ordinary consumers use declared props, but this signature imposes no cardinality bound. Cached arrays stay borrowed and a new array transfers to the same existing owner on publication.
    */
   export function of(
-    self: HumanPerformanceState,
+    self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-  ): HumanPerformanceState.IGrip[] {
-    const known: HumanPerformanceState.IGrip[] | undefined =
+  ): IAutoMovieMotionHumanPerformanceState.IGrip[] {
+    const known: IAutoMovieMotionHumanPerformanceState.IGrip[] | undefined =
       self.gripCache.get(subject);
     if (known !== undefined) return known;
-    const out: HumanPerformanceState.IGrip[] = [];
-    const worn: HumanPerformanceState.IGrip[] = [];
+    const out: IAutoMovieMotionHumanPerformanceState.IGrip[] = [];
+    const worn: IAutoMovieMotionHumanPerformanceState.IGrip[] = [];
 
     // A fixture bears the hands that grip it and is never carried by them.
     if (self.props.get(subject)?.fixed === true) {
       if (!self.resolving) self.gripCache.set(subject, out);
       return out;
     }
-    const declared: IHumanProp.IWorn | undefined = self.props.get(subject)?.worn;
+    const declared: IAutoMovieMotionHumanProp.IWorn | undefined = self.props.get(subject)?.worn;
     if (declared !== undefined)
       worn.push({
         subject: declared.subject,
@@ -53,7 +58,7 @@ export namespace HumanPerformanceGrips {
         offset: declared.offset,
       });
     for (const person of self.people.values()) {
-      const segments: readonly HumanSegment.ISegment[] = [
+      const segments: readonly IAutoMovieMotionHumanSegment[] = [
         ...person.segments,
         ...person.overlays,
       ];
@@ -128,8 +133,8 @@ export namespace HumanPerformanceGrips {
     }
     out.sort(
       (
-        a: HumanPerformanceState.IGrip,
-        b: HumanPerformanceState.IGrip,
+        a: IAutoMovieMotionHumanPerformanceState.IGrip,
+        b: IAutoMovieMotionHumanPerformanceState.IGrip,
       ): number => a.from - b.from,
     );
     if (!self.resolving) self.gripCache.set(subject, out);

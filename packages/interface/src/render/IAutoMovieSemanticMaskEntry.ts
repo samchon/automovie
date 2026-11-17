@@ -1,5 +1,5 @@
-import { AutoMovieSemanticKind } from "./AutoMovieSemanticKind";
-import { IAutoMovieSemanticMaskSlot } from "./IAutoMovieSemanticMaskSlot";
+import type { AutoMovieSemanticKind } from "./AutoMovieSemanticKind";
+import type { IAutoMovieSemanticMaskSlot } from "./IAutoMovieSemanticMaskSlot";
 
 /**
  * One stable semantic entity and its exact mask color, drawable join and hierarchy owner.

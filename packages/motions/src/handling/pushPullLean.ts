@@ -1,4 +1,7 @@
-import type { IHumanBody } from "../body/IHumanBody";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPushPullLean,
+} from "@automovie/interface";
 
 /**
  * How far the trunk leans when a load is pushed, pulled or dragged by its
@@ -29,15 +32,15 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every angle is read from the study; none is tuned.
  */
 export namespace pushPullLean {
-  /** A load's declared level: Lett and McGill's (2006) three weight-stack loads, 45.5, 222.5 and 400.5 N. */
-  export type Load = "light" | "moderate" | "heavy";
-
-  /** The ways the table is measured for: a push walking forward and a pull walking backward. */
-  export type Way = "push" | "pull";
-
   /** The peak torso angle, degrees, by way, load and handle height (Lett and McGill 2006, figure 9, the two groups' size-weighted mean). */
   export const ANGLES: Readonly<
-    Record<Way, Record<Load, Record<"waist" | "shoulder", number>>>
+    Record<
+      IAutoMovieMotionHumanPushPullLean.Way,
+      Record<
+        IAutoMovieMotionHumanPushPullLean.Load,
+        Record<"waist" | "shoulder", number>
+      >
+    >
   > = {
     push: {
       light: { waist: 7.2, shoulder: 7.0 },
@@ -69,9 +72,9 @@ export namespace pushPullLean {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
-    body: IHumanBody,
-    way: Way | "drag",
-    load: Load,
+    body: IAutoMovieMotionHumanBody,
+    way: IAutoMovieMotionHumanPushPullLean.Way | "drag",
+    load: IAutoMovieMotionHumanPushPullLean.Load,
     height: number,
   ): number {
     const table: Record<"waist" | "shoulder", number> =

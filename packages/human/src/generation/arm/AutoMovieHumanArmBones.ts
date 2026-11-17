@@ -1,3 +1,8 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmBones,
+} from "@automovie/interface";
+
 /**
  * The arm's bony landmarks and joint centres, placed from the glenohumeral
  * centre and the public lengths at their published definitions before any
@@ -28,41 +33,6 @@
  * stylion radiale-stylion past radiale along it.
  */
 export namespace AutoMovieHumanArmBones {
-  /** One side's arm landmarks, left frame. */
-  export interface IBones {
-    /** Glenohumeral centre. */
-    shoulder: Vec3;
-
-    /** Elbow centre. */
-    elbow: Vec3;
-
-    /** Radiale, the radial head's upper edge, on the forearm's axis. */
-    radiale: Vec3;
-
-    /** Stylion, the radial styloid's tip, on the forearm's axis. */
-    stylion: Vec3;
-
-    /** Wrist centre, {@link STYLION_WRIST} past stylion. */
-    wrist: Vec3;
-
-    /** Unit direction of the humerus, shoulder to elbow. */
-    upper: Vec3;
-
-    /** Unit direction of the forearm, elbow to wrist. */
-    lower: Vec3;
-
-    /** Shoulder to elbow centre, mm. */
-    humerus: number;
-
-    /** Elbow centre to wrist centre, mm. */
-    forearm: number;
-
-    /** Acromion-radiale length the bones were placed for, mm. */
-    acromionRadiale: number;
-    /** Actual acromion-to-GH downward measuring projection, calibration mm. */
-    acromionProjection: number;
-  }
-
   /**
    * The landmarks from the shoulder centre, the bind's bone directions and
    * the two lengths.
@@ -75,21 +45,42 @@ export namespace AutoMovieHumanArmBones {
    * @param acromionProjection Actual downward acromion-to-GH projection in the straight measuring convention, mm; independent of the bind humerus direction.
    */
   export function place(
-    shoulder: Vec3,
-    upper: Vec3,
-    lower: Vec3,
+    shoulder: AutoMovieVector3Tuple,
+    upper: AutoMovieVector3Tuple,
+    lower: AutoMovieVector3Tuple,
     acromionRadiale: number,
     radialeStylion: number,
     acromionProjection: number,
-  ): IBones {
-    if (![acromionRadiale, radialeStylion, acromionProjection].every(Number.isFinite) || !(acromionRadiale > 0) || !(radialeStylion > 0))
-      throw new Error("An arm needs positive acromion-radiale and radiale-stylion lengths");
-    const humerus: number = acromionRadiale - acromionProjection - RADIALE * acromionRadiale;
-    if (!(humerus > 0)) throw new Error("The actual GH projection leaves no positive humerus in the public AR caliper");
-    const elbow: Vec3 = plus(shoulder, scale(upper, humerus));
-    const radiale: Vec3 = plus(elbow, scale(lower, RADIALE * acromionRadiale));
-    const stylion: Vec3 = plus(radiale, scale(lower, radialeStylion));
-    const wrist: Vec3 = plus(stylion, scale(lower, STYLION_WRIST));
+  ): IAutoMovieHumanArmBones.IBones {
+    if (
+      ![acromionRadiale, radialeStylion, acromionProjection].every(
+        Number.isFinite,
+      ) ||
+      !(acromionRadiale > 0) ||
+      !(radialeStylion > 0)
+    )
+      throw new Error(
+        "An arm needs positive acromion-radiale and radiale-stylion lengths",
+      );
+    const humerus: number =
+      acromionRadiale - acromionProjection - RADIALE * acromionRadiale;
+    if (!(humerus > 0))
+      throw new Error(
+        "The actual GH projection leaves no positive humerus in the public AR caliper",
+      );
+    const elbow: AutoMovieVector3Tuple = plus(shoulder, scale(upper, humerus));
+    const radiale: AutoMovieVector3Tuple = plus(
+      elbow,
+      scale(lower, RADIALE * acromionRadiale),
+    );
+    const stylion: AutoMovieVector3Tuple = plus(
+      radiale,
+      scale(lower, radialeStylion),
+    );
+    const wrist: AutoMovieVector3Tuple = plus(
+      stylion,
+      scale(lower, STYLION_WRIST),
+    );
     return {
       shoulder,
       elbow,
@@ -119,13 +110,13 @@ export namespace AutoMovieHumanArmBones {
   export const STYLION_WRIST: number = 1.5;
 }
 
-/** A point or direction. */
-type Vec3 = [number, number, number];
-
-function plus(a: Vec3, b: Vec3): Vec3 {
+function plus(
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple {
   return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 }
 
-function scale(a: Vec3, s: number): Vec3 {
+function scale(a: AutoMovieVector3Tuple, s: number): AutoMovieVector3Tuple {
   return [a[0] * s, a[1] * s, a[2] * s];
 }

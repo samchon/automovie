@@ -1,6 +1,6 @@
-import type { IAutoMovieCollisionActor } from "@automovie/engine";
 import type {
   IAutoMovieBody,
+  IAutoMovieCollisionActor,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
   IAutoMovieTransform,

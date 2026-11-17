@@ -1,7 +1,5 @@
 # Settings population statements
 
-Contract: [obligations/settings.md](../../obligations/settings.md).
-
 ## World and scope
 
 Promise and scope:
@@ -19,8 +17,8 @@ Ownership and depth:
 8. Every world rule, power, institution, person, relationship, place and object a scene will rely on has one owner, at a depth that matches its consequence.
 9. Central and recurring agents have their situation, drives, values, fears, abilities and limits, knowledge and errors, observable behavior, recognizable appearance and, when heard, voice.
 10. Nonhuman forces have their inputs, operation and thresholds without invented psychology.
-11. Every presence a scene shows, such as an official, partner or crowd, has behavior for its whole presence.
-12. Consequential relationships are defined from both sides with their change conditions; treatments own the actual progression.
+11. Every presence a scene shows, such as an official or a crowd, has behavior for its whole presence.
+12. Consequential relationships are defined from both sides with their change conditions; treatments own the progression.
 13. Places and objects carry the identity, layout and use that scenes stage.
 14. The shared material, costume, visual and audible grammar distinguishes factions, regions, eras and classes where they matter.
 
@@ -42,4 +40,4 @@ Records:
 21. Records state facts in prose for readers and never describe code. Rendering and generation controls belong to the production's source.
 22. Records establish world facts, baseline states and change conditions, and leave chosen events, causal progression, choices, results, setups, payoffs and reveal order to treatments. Where a fixed historical result or time-specific status constrains treatments, no record prewrites how the film reaches or reveals it.
 23. A lasting state a later layer established, such as a wound or a revealed relationship, is recorded in settings and cites the unit that established it.
-24. The cinematography domain owns the film's look. Editing and audience access belong to production instructions or work contracts, and a character's voice remains a world property.
+24. The cinematography domain owns the film's look. Editing and audience access belong to production instructions or work contracts.

@@ -1,4 +1,4 @@
-import { IAutoMovieDrawingSchedulePlace } from "./IAutoMovieDrawingSchedulePlace";
+import type { IAutoMovieDrawingSchedulePlace } from "./IAutoMovieDrawingSchedulePlace";
 
 /**
  * One scheduled type and every occurrence of it.

@@ -3,7 +3,10 @@ import {
   createAutoMovieRandom,
   deriveAutoMovieSeed,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanSkill, StrikingQuality, StrikingSkill } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -43,7 +46,10 @@ export function test_motion_striking_variation(): void {
   const spread = (
     level: (typeof levels)[number],
   ): { along: number; lateral: number } => {
-    const skill: HumanSkill.ISkill = HumanSkill.resolve({ level }, "e3");
+    const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
+      { level },
+      "e3",
+    );
     const along: number[] = [];
     const lateral: number[] = [];
     for (let k: number = 0; k < 200; k++) {
@@ -71,7 +77,10 @@ export function test_motion_striking_variation(): void {
     return { along: sd(along), lateral: sd(lateral) };
   };
   for (const level of ["novice", "elite"] as const) {
-    const skill: HumanSkill.ISkill = HumanSkill.resolve({ level }, "e3");
+    const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
+      { level },
+      "e3",
+    );
     const sigma: number = HumanSkill.scatter(skill, distance, seconds);
     const share: number = HumanSkill.quantity(skill, "path", 1, 0.3);
     const s = spread(level);
@@ -90,7 +99,10 @@ export function test_motion_striking_variation(): void {
     all.every((v: number, i: number): boolean => i === 0 || v < all[i - 1]!),
   );
 
-  const exact: HumanSkill.ISkill = HumanSkill.resolve({ level: "elite" }, "e3");
+  const exact: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
+    { level: "elite" },
+    "e3",
+  );
   const still = {
     skill: exact,
     random: createAutoMovieRandom(deriveAutoMovieSeed("still")),

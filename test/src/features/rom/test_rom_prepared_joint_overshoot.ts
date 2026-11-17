@@ -3,6 +3,7 @@ import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  IAutoMovieJointRotationFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -75,7 +76,7 @@ export function test_rom_prepared_joint_overshoot(): void {
     abduction: { x: 0, y: 1, z: 0 },
     twist: { x: 0, y: 0, z: 1 },
   };
-  const rig: swingTwistRange.IJoint = {
+  const rig: IAutoMovieJointRotationFrame = {
     axes, frame: { twist: { sign: -1, neutral: 10 } },
   };
   const range: IAutoMovieJointConstraint = {

@@ -1,10 +1,21 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { tags } from "typia";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCrouch,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
@@ -12,20 +23,15 @@ import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanUnit } from "../law/HumanUnit";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
 import { braceOnThigh } from "./braceOnThigh";
 import { prepareCrouchInclination } from "./prepareCrouchInclination";
@@ -83,10 +89,10 @@ import { prepareCrouchInclination } from "./prepareCrouchInclination";
  */
 export namespace crouch {
   /** The action's name. */
-  export const name: HumanActionName = "crouch";
+  export const name: AutoMovieMotionHumanActionName = "crouch";
 
   /** Cancel table: a crouch stands up at any time, and kneels or handles a low thing from its lowest pose. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
     crouch: [{ window: ["ascend", 1], kind: "inertialize", entry: 0 }],
     kneel: [
@@ -115,36 +121,8 @@ export namespace crouch {
     ],
   };
 
-  /** How deep: a parallel squat or a deep squat. */
-  export type Depth = "partial" | "full";
-
-  /** Whether the heels stay on the floor or rise about the toes' joints. */
-  export type Heels = "flat" | "up";
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and its default.
-   * @evidence contracts/development/design.md#principled-representation Two closed names and a hold; the knee flexion and the heel lift come from tables.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four optional members, all read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No height or angle is typed by the author.
-   */
-  export interface IParams {
-    /** How deep; `partial` when absent. */
-    depth?: Depth;
-
-    /** The heels; `flat` for a partial and `up` for a full squat when absent. */
-    heels?: Heels;
-
-    /** Seconds held at the lowest pose; 1 when absent. */
-    hold?: number & tags.Minimum<0> & HumanUnit<"s">;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
-
   /** Knee flexion at the lowest pose by depth, degrees (Escamilla 2001; the range table's end for `full`). */
-  export const KNEE: Readonly<Record<Depth, number>> = {
+  export const KNEE: Readonly<Record<IAutoMovieMotionHumanCrouch.Depth, number>> = {
     partial: 100,
     full: 150,
   };
@@ -159,7 +137,7 @@ export namespace crouch {
   export const SHARES: number = 8;
 
   /** Descent seconds by depth for a 0.93 m hip height (provisional). */
-  export const DESCENT: Readonly<Record<Depth, number>> = {
+  export const DESCENT: Readonly<Record<IAutoMovieMotionHumanCrouch.Depth, number>> = {
     partial: 1.0,
     full: 1.3,
   };
@@ -180,16 +158,16 @@ export namespace crouch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains solved scalar angles/course and the fixed body/base builder; planning and current-query workspaces end with their own return or throw and never enter the table or plan.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrouch.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
-    const depth: Depth = context.params.depth ?? "partial";
-    const heels: Heels =
+    const depth: IAutoMovieMotionHumanCrouch.Depth = context.params.depth ?? "partial";
+    const heels: IAutoMovieMotionHumanCrouch.Heels =
       context.params.heels ?? (depth === "full" ? "up" : "flat");
     const hold: number = context.params.hold ?? 1;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
 
     // The leg's angles: the shank tilts by the crouching ankle plus the heel
@@ -215,7 +193,7 @@ export namespace crouch {
 
     // The clock: descent, hold, rise.
     const down: number = DESCENT[depth] * Math.sqrt(m.hipHeight / 0.93);
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence([
         { name: "descend", seconds: down },
         { name: "lowest", seconds: hold },
@@ -225,11 +203,11 @@ export namespace crouch {
       { holds: ["lowest"] },
     );
     const duration: number = clock.duration;
-    const base: IHumanActionPlan = stand.plan({
+    const base: IAutoMovieMotionHumanActionPlan = stand.plan({
       ...context,
       params: { seconds: duration },
     });
-    const standing: IHumanPosture = base.posture(0);
+    const standing: IAutoMovieMotionHumanPosture = base.posture(0);
     const yaw: number = standing.yaw;
     const share: (seconds: number) => number =
       AutoMovieMotionClock.prepareEnvelope(
@@ -248,17 +226,17 @@ export namespace crouch {
     // The feet at a share of the descent: each pivots about its toes' joint
     // by the heel's lift there.
     const placements: (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       s: number,
-    ) => Record<"left" | "right", HumanFoot.IPlacement> = (
-      posture: IHumanPosture,
+    ) => Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = (
+      posture: IAutoMovieMotionHumanPosture,
       s: number,
-    ): Record<"left" | "right", HumanFoot.IPlacement> => {
-      const foot: (side: "left" | "right") => HumanFoot.IPlacement = (
+    ): Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> => {
+      const foot: (side: "left" | "right") => IAutoMovieMotionHumanFoot.IPlacement = (
         side: "left" | "right",
-      ): HumanFoot.IPlacement => {
-        const goal: IHumanPosture.IGoal = posture.limbs[`${side}Leg`]!;
-        const flat: HumanFoot.IPlacement = {
+      ): IAutoMovieMotionHumanFoot.IPlacement => {
+        const goal: IAutoMovieHumanLimbGoal = posture.limbs[`${side}Leg`]!;
+        const flat: IAutoMovieMotionHumanFoot.IPlacement = {
           ankle: goal.point,
           rotation: goal.rotation ?? HumanFrame.turn(yaw),
         };
@@ -276,13 +254,13 @@ export namespace crouch {
       return { left: foot("left"), right: foot("right") };
     };
     const feet: (
-      posture: IHumanPosture,
-      placed: Record<"left" | "right", HumanFoot.IPlacement>,
-    ) => IHumanPosture["limbs"] = (
-      posture: IHumanPosture,
-      placed: Record<"left" | "right", HumanFoot.IPlacement>,
-    ): IHumanPosture["limbs"] => {
-      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+      posture: IAutoMovieMotionHumanPosture,
+      placed: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    ) => IAutoMovieMotionHumanPosture["limbs"] = (
+      posture: IAutoMovieMotionHumanPosture,
+      placed: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    ): IAutoMovieMotionHumanPosture["limbs"] => {
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       for (const side of ["left", "right"] as const)
         limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
           body,
@@ -307,7 +285,7 @@ export namespace crouch {
     const joints = hipJoints(body, standing.root, HumanFrame.turn(yaw));
     const over = (
       s: number,
-      placed: Record<"left" | "right", HumanFoot.IPlacement> = placements(
+      placed: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = placements(
         standing,
         s,
       ),
@@ -338,7 +316,7 @@ export namespace crouch {
     const start: IAutoMovieVector3 = over(0);
     const move = (
       s: number,
-      placed?: Record<"left" | "right", HumanFoot.IPlacement>,
+      placed?: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
     ): IAutoMovieVector3 =>
       Vector3.add(
         Vector3.subtract(over(s, placed), start),
@@ -347,19 +325,19 @@ export namespace crouch {
 
     /** Bind fixed raw geometry for one share; every inclination still tips the trunk and writes actual current-root knee goals. */
     function atShare(
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       s: number,
     ): (
       inclination: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    ) => IHumanPosture {
+    ) => IAutoMovieMotionHumanPosture {
       // Moving and tipping the root leave these raw leg goals unchanged.
       // Share only their current placements, rebuilding the actual knees below.
-      const placed: Record<"left" | "right", HumanFoot.IPlacement> = placements(
+      const placed: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = placements(
         posture,
         s,
       );
-      const moved: IHumanPosture = {
+      const moved: IAutoMovieMotionHumanPosture = {
         ...posture,
         root: Vector3.add(
           posture.root,
@@ -373,10 +351,10 @@ export namespace crouch {
       return (
         inclination: number,
         resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      ): IHumanPosture => {
+      ): IAutoMovieMotionHumanPosture => {
         const inclined: ReturnType<typeof HumanTrunk.incline> =
           HumanTrunk.incline(moved.joints, inclination, limit);
-        const tipped: IHumanPosture = AutoMovieMotionHumanLean.tip(
+        const tipped: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.tip(
           body,
           { ...moved, joints: inclined.joints },
           inclined.pitch,
@@ -437,12 +415,12 @@ export namespace crouch {
       from: 0,
       to: duration,
       write: (
-        posture: IHumanPosture,
+        posture: IAutoMovieMotionHumanPosture,
         seconds: number,
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
-        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IHumanActionPlan["posture"]>[3],
-      ): IHumanPosture => {
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const read: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(resolution);
         const s: number = share(seconds);

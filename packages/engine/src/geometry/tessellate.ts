@@ -1,6 +1,8 @@
-import { AutoMoviePrimitiveShape } from "@automovie/interface";
+import type {
+  IAutoMoviePrimitiveShape,
+  IAutoMovieTessellation,
+} from "@automovie/interface";
 
-import { ITessellation } from "./ITessellation";
 import { PRIMITIVE_RADIAL_SEGMENTS } from "./constants/PRIMITIVE_RADIAL_SEGMENTS";
 import { PRIMITIVE_SPHERE_RINGS } from "./constants/PRIMITIVE_SPHERE_RINGS";
 
@@ -32,9 +34,11 @@ import { PRIMITIVE_SPHERE_RINGS } from "./constants/PRIMITIVE_SPHERE_RINGS";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Callers receive mutable fresh buffers, so the tessellator shares no arrays across calls; consumers such as the drawing index own any model-part memoization.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builders retain no cache, handle or task; positions, normals and indices belong to the returned tessellation and temporary face tables are released on return.
  */
-export const tessellate: (shape: AutoMoviePrimitiveShape) => ITessellation = (
-  shape: AutoMoviePrimitiveShape,
-): ITessellation => {
+export const tessellate: (
+  shape: IAutoMoviePrimitiveShape,
+) => IAutoMovieTessellation = (
+  shape: IAutoMoviePrimitiveShape,
+): IAutoMovieTessellation => {
   switch (shape.type) {
     case "box":
       return box(shape.width, shape.height, shape.depth);
@@ -69,11 +73,11 @@ export const tessellate: (shape: AutoMoviePrimitiveShape) => ITessellation = (
   }
 };
 
-const box: (w: number, h: number, d: number) => ITessellation = (
+const box: (w: number, h: number, d: number) => IAutoMovieTessellation = (
   w: number,
   h: number,
   d: number,
-): ITessellation => {
+): IAutoMovieTessellation => {
   const x: number = w / 2;
   const y: number = h / 2;
   const z: number = d / 2;
@@ -122,12 +126,12 @@ const sphere: (
   segments: number,
   rings: number,
   bodyHeight?: number,
-) => ITessellation = (
+) => IAutoMovieTessellation = (
   radius: number,
   segments: number,
   rings: number,
   bodyHeight: number = 0,
-): ITessellation => {
+): IAutoMovieTessellation => {
   const positions: number[] = [];
   const normals: number[] = [];
   const indices: number[] = [];
@@ -164,12 +168,12 @@ const cylinder: (
   radiusBottom: number,
   height: number,
   segments: number,
-) => ITessellation = (
+) => IAutoMovieTessellation = (
   radiusTop: number,
   radiusBottom: number,
   height: number,
   segments: number,
-): ITessellation => {
+): IAutoMovieTessellation => {
   const positions: number[] = [];
   const normals: number[] = [];
   const indices: number[] = [];

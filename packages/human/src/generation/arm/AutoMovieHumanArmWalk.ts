@@ -1,12 +1,24 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmBones,
+  IAutoMovieHumanArmBreadth,
+  IAutoMovieHumanArmFrame,
+  IAutoMovieHumanArmHandControls,
+  IAutoMovieHumanArmJointWindows,
+  IAutoMovieHumanArmWalk,
+  IAutoMovieHumanSectionSite,
+  IAutoMovieHumanSectionSource,
+  IAutoMovieHumanSiteControls,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanSourceRealization,
+  IAutoMovieHumanWalkPart,
+} from "@automovie/interface";
+
 import { AutoMovieHumanSiteControls } from "../limb/AutoMovieHumanSiteControls";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
-import type { AutoMovieHumanWalkPart } from "../limb/AutoMovieHumanWalkPart";
-import type { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
 import { AutoMovieHumanArmBreadth } from "./AutoMovieHumanArmBreadth";
 import { AutoMovieHumanArmFrame } from "./AutoMovieHumanArmFrame";
 import { AutoMovieHumanArmHandControls } from "./AutoMovieHumanArmHandControls";
-
-type Vec3 = AutoMovieHumanArmBones.IBones["shoulder"];
 
 /**
  * One arm with its palm as one walk over the humerus, the forearm and the
@@ -39,62 +51,6 @@ type Vec3 = AutoMovieHumanArmBones.IBones["shoulder"];
  * normal plane; this is not a fixed angle or a new projection at every site.
  */
 export namespace AutoMovieHumanArmWalk {
-  /** One invocation shares direct frame and local hand controls across both original consumers. */
-  export interface IShared {
-    /** Bone-relative chart without section solves or part publication. */
-    frame: AutoMovieHumanArmFrame.IOutput;
-
-    /** Local forearm-to-palm owner, independent of upper-arm measurements. */
-    hand: AutoMovieHumanArmHandControls.IOutput;
-  }
-
-  /** Physical hand chart on the common distal scalar law, beginning at its named wrist tape. */
-  export interface IHandChart {
-    /** Actual wrist measurement station through the distal cap, calibration mm. */
-    domain: readonly [number, number];
-
-    /** Only original hand-chart bracketing stations; no proximal-arm coordinates are prepared. */
-    stations: readonly number[];
-  }
-
-  /** Common original controls and the declared hand region; no completed arm is retained. */
-  export interface IPrepared extends AutoMovieHumanSiteControls.IOutput {
-    /** Null controls preserve failure; a null hand chart means the caller supplied no named wrist. */
-    controls:
-      | (AutoMovieHumanSiteControls.IControls & {
-          /** Required physical chart for production hand contacts, without refitting any global scalar. */
-          hand: IHandChart | null;
-        })
-      | null;
-  }
-
-  /** Symmetric arms-down width and the independently placed GH, calibration mm. */
-  export interface IMeasuring {
-    /** Public maximum horizontal breadth in the deltoid region. */
-    breadth: number;
-    /** Absolute lateral GH coordinate in the neutral measuring convention. */
-    lateral: number;
-    /** Actual rigid GH-to-elbow length. */
-    humerus: number;
-  }
-  /** One site's law: its name, place, box and owner. */
-  export interface ISiteLaw {
-    /** The measurement site, named in diagnostics. */
-    site: string;
-
-    /** Bone: 1 the humerus, 2 the forearm, 3 the third metacarpal (0 is the run inside the girdle). */
-    bone: number;
-
-    /** Share of the bone from its proximal centre. */
-    share: number;
-
-    /** Signed edges [+u,+v,-u,-v] from the course axis, calibration mm. Base RMF carries forward +u through WJC; an explicitly supplied hand target adds the WJC-to-MCP3 material roll, making palm +u radial and +v its palmar/dorsal short direction. */
-    edges: [number, number, number, number];
-
-    /** A tape solved on the box, or a sourced shoulder. */
-    fullness: AutoMovieHumanSiteViewPart.ISite["fullness"];
-  }
-
   /** The sites, from the shoulder to the knuckles. */
   /** The published sites, from the shoulder to the knuckles; a caller may give fewer while a law is owed. */
   export const SITES: readonly string[] = [
@@ -127,18 +83,18 @@ export namespace AutoMovieHumanArmWalk {
    */
   export function prepare(
     name: string,
-    bones: Pick<AutoMovieHumanArmBones.IBones, "shoulder" | "elbow" | "wrist">,
-    knuckle: Vec3,
+    bones: Pick<IAutoMovieHumanArmBones.IBones, "shoulder" | "elbow" | "wrist">,
+    knuckle: AutoMovieVector3Tuple,
     reach: number,
-    sites: ISiteLaw[],
-    joints: { elbow: number; wrist: number },
+    sites: IAutoMovieHumanArmWalk.ISiteLaw[],
+    joints: IAutoMovieHumanArmJointWindows,
     gap: number,
-    crease?: Vec3,
-    radial?: Vec3,
-    measuring?: IMeasuring,
-    connection?: IShared,
-  ): IPrepared {
-    const arrangement: AutoMovieHumanArmFrame.IOutput | string =
+    crease?: AutoMovieVector3Tuple,
+    radial?: AutoMovieVector3Tuple,
+    measuring?: IAutoMovieHumanArmWalk.IMeasuring,
+    connection?: IAutoMovieHumanArmWalk.IShared,
+  ): IAutoMovieHumanArmWalk.IPrepared {
+    const arrangement: IAutoMovieHumanArmFrame.IOutput | string =
       connection?.frame ??
       AutoMovieHumanArmFrame.create({
         name,
@@ -152,9 +108,9 @@ export namespace AutoMovieHumanArmWalk {
         radial,
         order: ORDER,
       });
-    const fail: (detail: string) => IPrepared = (
+    const fail: (detail: string) => IAutoMovieHumanArmWalk.IPrepared = (
       detail: string,
-    ): IPrepared => ({
+    ): IAutoMovieHumanArmWalk.IPrepared => ({
       controls: null,
       diagnostics: [
         {
@@ -166,40 +122,38 @@ export namespace AutoMovieHumanArmWalk {
       ],
     });
     if (typeof arrangement === "string") return fail(arrangement);
-    const source: AutoMovieHumanWalkPart.ISource = arrangement.source;
+    const source: IAutoMovieHumanWalkPart.ISource = arrangement.source;
     const run: number = arrangement.run;
     const d: number = arrangement.humerus;
-    const handControls: AutoMovieHumanArmHandControls.IOutput | undefined =
+    const handControls: IAutoMovieHumanArmHandControls.IOutput | undefined =
       connection?.hand ??
       (source.input.sites.some(
-        (site: AutoMovieHumanSiteViewPart.ISite): boolean =>
-          site.site === "forearm",
+        (site: IAutoMovieHumanSectionSite): boolean => site.site === "forearm",
       ) &&
       source.input.sites.some(
-        (site: AutoMovieHumanSiteViewPart.ISite): boolean =>
-          site.site === "wrist",
+        (site: IAutoMovieHumanSectionSite): boolean => site.site === "wrist",
       )
         ? AutoMovieHumanArmHandControls.create(arrangement)
         : undefined);
     if (handControls?.hand.controls === null) return handControls.hand;
-    const connected: AutoMovieHumanSiteViewPart.IInput =
+    const connected: IAutoMovieHumanSectionSource =
       handControls?.connect(source.input) ?? source.input;
 
     /** Original callers lacking a hand chart retain their direct whole-source controls. */
-    const shared: (input: AutoMovieHumanSiteViewPart.IInput) => IPrepared = (
-      input: AutoMovieHumanSiteViewPart.IInput,
-    ): IPrepared => {
-      const prepared: AutoMovieHumanSiteControls.IOutput =
+    const shared: (
+      input: IAutoMovieHumanSectionSource,
+    ) => IAutoMovieHumanArmWalk.IPrepared = (
+      input: IAutoMovieHumanSectionSource,
+    ): IAutoMovieHumanArmWalk.IPrepared => {
+      const prepared: IAutoMovieHumanSiteControls.IOutput =
         AutoMovieHumanSiteControls.prepare(input);
       if (prepared.controls === null)
         return { controls: null, diagnostics: prepared.diagnostics };
-      const original: AutoMovieHumanSiteControls.IControls = prepared.controls;
-      const wrist: AutoMovieHumanSiteViewPart.ISite | undefined =
-        input.sites.find(
-          (site: AutoMovieHumanSiteViewPart.ISite): boolean =>
-            site.site === "wrist",
-        );
-      const hand: IHandChart | null =
+      const original: IAutoMovieHumanSiteControls.IControls = prepared.controls;
+      const wrist: IAutoMovieHumanSectionSite | undefined = input.sites.find(
+        (site: IAutoMovieHumanSectionSite): boolean => site.site === "wrist",
+      );
+      const hand: IAutoMovieHumanArmWalk.IHandChart | null =
         wrist === undefined
           ? null
           : {
@@ -217,8 +171,8 @@ export namespace AutoMovieHumanArmWalk {
       };
     };
     const prepareInput: (
-      input: AutoMovieHumanSiteViewPart.IInput,
-    ) => IPrepared = handControls?.prepare ?? shared;
+      input: IAutoMovieHumanSectionSource,
+    ) => IAutoMovieHumanArmWalk.IPrepared = handControls?.prepare ?? shared;
     if (measuring === undefined) return prepareInput(connected);
     const end: number = source.station(
       0,
@@ -228,7 +182,7 @@ export namespace AutoMovieHumanArmWalk {
       return fail(
         "The selected deltoid measuring domain enters the elbow turn",
       );
-    const normalized: AutoMovieHumanArmBreadth.IResult | string =
+    const normalized: IAutoMovieHumanArmBreadth.IResult | string =
       AutoMovieHumanArmBreadth.fit(
         connected,
         name.endsWith("left") ? "left" : "right",
@@ -243,24 +197,24 @@ export namespace AutoMovieHumanArmWalk {
 
   /** Publish this actual arm from its shared generating controls; callers needing the palm request prepare directly. */
   export function define(
-    ...args: Parameters<typeof prepare>
-  ): AutoMovieHumanSiteViewPart.IDefinition {
+    ...args: IAutoMovieHumanArmWalk.DefineArgs
+  ): IAutoMovieHumanSourceDefinition {
     return AutoMovieHumanSiteViewPart.fromControls(prepare(...args));
   }
 
   /** Loft the same normalized definition that attachment consumers can retain. */
   export function create(
     name: string,
-    bones: Pick<AutoMovieHumanArmBones.IBones, "shoulder" | "elbow" | "wrist">,
-    knuckle: Vec3,
+    bones: Pick<IAutoMovieHumanArmBones.IBones, "shoulder" | "elbow" | "wrist">,
+    knuckle: AutoMovieVector3Tuple,
     reach: number,
-    sites: ISiteLaw[],
-    joints: { elbow: number; wrist: number },
+    sites: IAutoMovieHumanArmWalk.ISiteLaw[],
+    joints: IAutoMovieHumanArmJointWindows,
     gap: number,
-    crease?: Vec3,
-    radial?: Vec3,
-    measuring?: IMeasuring,
-  ): AutoMovieHumanSiteViewPart.IResult {
+    crease?: AutoMovieVector3Tuple,
+    radial?: AutoMovieVector3Tuple,
+    measuring?: IAutoMovieHumanArmWalk.IMeasuring,
+  ): IAutoMovieHumanSourceRealization {
     return AutoMovieHumanSiteViewPart.loft(
       define(
         name,

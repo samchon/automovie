@@ -1,4 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { firstAutoMovieContactImpact } from "./firstAutoMovieContactImpact";
 import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
@@ -91,8 +94,8 @@ import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function resolveAutoMovieContactEvents(
-  input: resolveAutoMovieContactEvents.IInput,
-): resolveAutoMovieContactEvents.IEvent[] {
+  input: IAutoMovieResolveContactEvents.IInput,
+): IAutoMovieResolveContactEvents.IEvent[] {
   if (!(input.to > input.from))
     throw new Error("A contact span ends after it begins");
   if (!(input.step > 0)) throw new Error("A contact scan step is positive");
@@ -123,21 +126,21 @@ export function resolveAutoMovieContactEvents(
   // Groups whose part has stopped: their remaining weapons meet nothing more,
   // and they are not added to the stops, which name only weapons that met.
   const halted: Set<string> = new Set();
-  const events: resolveAutoMovieContactEvents.IEvent[] = [];
+  const events: IAutoMovieResolveContactEvents.IEvent[] = [];
   // In the order the weapons become live, so the earliest impact is found
   // early and bounds the scans after it; ties in time go to the lesser id.
-  const weapons: resolveAutoMovieContactEvents.IWeapon[] = [
+  const weapons: IAutoMovieResolveContactEvents.IWeapon[] = [
     ...input.weapons,
   ].sort(
     (
-      a: resolveAutoMovieContactEvents.IWeapon,
-      b: resolveAutoMovieContactEvents.IWeapon,
+      a: IAutoMovieResolveContactEvents.IWeapon,
+      b: IAutoMovieResolveContactEvents.IWeapon,
     ): number =>
       (a.from ?? -Infinity) - (b.from ?? -Infinity) ||
       (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
   );
   for (;;) {
-    let best: resolveAutoMovieContactEvents.IEvent | undefined;
+    let best: IAutoMovieResolveContactEvents.IEvent | undefined;
     const after: number = events.at(-1)?.seconds ?? input.from;
 
     // The moving weapons' scans of this search, read together a grid step at
@@ -149,12 +152,20 @@ export function resolveAutoMovieContactEvents(
     // found so far cannot be earlier, and is not read.
     const scans: IScanned[] = [];
     for (const weapon of weapons) {
-      if (stopped.has(weapon.id) || (weapon.group !== undefined && halted.has(weapon.group)))
+      if (
+        stopped.has(weapon.id) ||
+        (weapon.group !== undefined && halted.has(weapon.group))
+      )
         continue;
       if (best !== undefined && (weapon.from ?? -Infinity) > best.seconds)
         break;
       const scan: firstAutoMovieContactImpact.IScan =
-        firstAutoMovieContactImpact.scan(weapon, input, stopped, Math.max(input.from, after));
+        firstAutoMovieContactImpact.scan(
+          weapon,
+          input,
+          stopped,
+          Math.max(input.from, after),
+        );
       scans.push({ weapon, scan });
       best = earlier(best, weapon, scan.start());
     }
@@ -173,11 +184,11 @@ export function resolveAutoMovieContactEvents(
     // The contact is mutual: when the part met carries a weapon of its own
     // that is still moving, that weapon has met the striker in the same
     // touch and stops at the same second.
-    const striker: resolveAutoMovieContactEvents.IWeapon = weapons.find(
-      (w: resolveAutoMovieContactEvents.IWeapon): boolean =>
+    const striker: IAutoMovieResolveContactEvents.IWeapon = weapons.find(
+      (w: IAutoMovieResolveContactEvents.IWeapon): boolean =>
         w.id === best!.weapon,
     )!;
-    const frame: resolveAutoMovieContactEvents.IWeaponFrame | undefined =
+    const frame: IAutoMovieResolveContactEvents.IWeaponFrame | undefined =
       striker.sample === undefined
         ? undefined
         : sampleAutoMovieContactWeapon(striker, best.seconds, stopped);
@@ -187,7 +198,7 @@ export function resolveAutoMovieContactEvents(
         : frame.position;
     const own: string | undefined = input.bodies
       .find(
-        (b: resolveAutoMovieContactEvents.IBody): boolean =>
+        (b: IAutoMovieResolveContactEvents.IBody): boolean =>
           b.id === best!.against,
       )
       ?.carried?.(
@@ -203,13 +214,17 @@ export function resolveAutoMovieContactEvents(
     events.push(best);
     if (striker.group !== undefined) halted.add(striker.group);
     if (own === undefined) continue;
-    const carried: resolveAutoMovieContactEvents.IWeapon | undefined = weapons.find(
-      (w: resolveAutoMovieContactEvents.IWeapon): boolean =>
-        w.id === own && w.owner === best!.against,
-    );
+    const carried: IAutoMovieResolveContactEvents.IWeapon | undefined =
+      weapons.find(
+        (w: IAutoMovieResolveContactEvents.IWeapon): boolean =>
+          w.id === own && w.owner === best!.against,
+      );
     if (carried === undefined)
       throw new Error(`Body ${best.against} carries no contact weapon ${own}`);
-    if (stopped.has(own) || (carried.group !== undefined && halted.has(carried.group)))
+    if (
+      stopped.has(own) ||
+      (carried.group !== undefined && halted.has(carried.group))
+    )
       continue;
     stopped.set(own, best.seconds);
     events.push({ weapon: own, against: striker.owner, seconds: best.seconds });
@@ -220,7 +235,7 @@ export function resolveAutoMovieContactEvents(
 /** One moving weapon with its scan of the current search. */
 interface IScanned {
   /** The weapon. */
-  weapon: resolveAutoMovieContactEvents.IWeapon;
+  weapon: IAutoMovieResolveContactEvents.IWeapon;
 
   /** Its scan. */
   scan: firstAutoMovieContactImpact.IScan;
@@ -228,296 +243,14 @@ interface IScanned {
 
 /** The earlier of the contact found so far and a weapon's own, when it has one: the lesser second, then the lesser weapon id. */
 function earlier(
-  best: resolveAutoMovieContactEvents.IEvent | undefined,
-  weapon: resolveAutoMovieContactEvents.IWeapon,
+  best: IAutoMovieResolveContactEvents.IEvent | undefined,
+  weapon: IAutoMovieResolveContactEvents.IWeapon,
   hit: { against: string; seconds: number } | undefined,
-): resolveAutoMovieContactEvents.IEvent | undefined {
+): IAutoMovieResolveContactEvents.IEvent | undefined {
   return hit !== undefined &&
     (best === undefined ||
       hit.seconds < best.seconds ||
       (hit.seconds === best.seconds && weapon.id < best.weapon))
     ? { weapon: weapon.id, ...hit }
     : best;
-}
-
-/**
- * Companion types of {@link resolveAutoMovieContactEvents}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame and unit.
- * @evidence contracts/development/design.md#principled-representation Weapons are moving spheres or capsules (an optional axis end, and an optional radius there for a tapered one), bodies signed distances from a point and optionally from a segment, both functions of seconds and of the stops so far. A combined frame carries actual world-metre endpoints from one exact query; the endpoint reader validates agreement with the declared sphere/capsule kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Resolver-owned inputs, events and actual weapon frames serve the first-impact scan, departure witnesses, mutual-contact query and Motion's combined endpoint producers. The optional sampler replaces existing endpoint computations without exposing cache metadata. A search's grid and the speed bound on it let each side state its own certified bound per search.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector. The optional frame tail expresses the existing sphere/capsule alternatives, and a runtime kind check prevents a sampler from changing that declaration.
- */
-export namespace resolveAutoMovieContactEvents {
-  /** The stops so far: each stopped weapon's id with its contact second. */
-  export type IStops = ReadonlyMap<string, number>;
-
-  /** Actual geometry for one exact second and current stop context; never a retained time-cache entry. */
-  export interface IWeaponFrame {
-    /** Sphere centre or capsule axis's first end, world metres. */
-    position: IAutoMovieVector3;
-
-    /** Capsule axis's other end, world metres; absent exactly when the declared weapon has no tail. */
-    tail?: IAutoMovieVector3;
-  }
-
-  /** Actual initial pair state, with an ungated reader of its signed gap. */
-  export interface IInitialContact {
-    /** The sphere or capsule whose already-present contact is being classified. */
-    weapon: IWeapon;
-
-    /** Initial search second, in the weapon's clock. */
-    from: number;
-
-    /** Search end, clipped to the weapon's live end. */
-    to: number;
-
-    /** Current stops, unchanged during this first-impact search. */
-    stops: IStops;
-
-    /** Measured initial pair gap, metres; zero or negative. */
-    gap: number;
-
-    /** Actual pair gap at a second, before departure eligibility is applied. */
-    at(seconds: number): number;
-  }
-
-  /** Physical knowledge of this initial episode; absence keeps initial reporting. */
-  export type Departure =
-    | {
-        /** No new entry occurs before this genuinely separated instant. */
-        kind: "clearance";
-
-        /** Strictly later in-span second whose actual pair gap is positive. */
-        seconds: number;
-      }
-    | {
-        /** The physical model rules out a new entry over this search span. */
-        kind: "no-entry";
-      };
-
-  /**
-   * The seconds one search reads: `from + k * step` for k = 0, 1, 2, ...,
-   * the last of them clipped to `to`. A search after a contact starts its
-   * grid at that contact's second, so each search has its own.
-   */
-  export interface IGrid {
-    /** The search's first second. */
-    from: number;
-
-    /** The span's end, where the last step is clipped. */
-    to: number;
-
-    /** The step, seconds; positive. */
-    step: number;
-  }
-
-  /**
-   * A bound on a search's grid, metres a second, between two of its seconds
-   * `from` and `to`: for any two grid seconds a < b in [from, to], no point
-   * of the weapon's sphere or capsule, or of the body's surface, moves more
-   * than the bound times b - a from a to b. Finite and not negative, or
-   * undefined where none is certified. Only the grid's seconds are bound,
-   * because the scan reads no other second where it advances.
-   *
-   * @param from A grid second.
-   * @param to A later second.
-   * @returns The bound, or undefined.
-   */
-  export type Speed = (from: number, to: number) => number | undefined;
-
-  /** One moving weapon. */
-  export interface IWeapon {
-    /** Unique id. */
-    id: string;
-
-    /** The body carrying it, whose own distance it ignores. */
-    owner: string;
-
-    /** The sphere's radius, metres; a capsule's radius at `position`. */
-    radius: number;
-
-    /**
-     * A tapered capsule's radius at `tail`, metres: the capsule then narrows
-     * (or widens) linearly from `radius` at `position` to this, the round
-     * cone of a limb whose girth changes from one joint to the next. Absent
-     * for a sphere and for a capsule of one radius.
-     */
-    tailRadius?: number;
-
-    /**
-     * The weapon's speed bound on one search's grid (`Speed`), prepared once
-     * a search under that search's stops. With it, and a body's own, the gap
-     * between the two closes on the grid no faster than the two bounds
-     * together, so a clear gap rules out a contact at the grid seconds
-     * within that gap over that rate, and the scan reads none of them. The
-     * scan asks it from a grid second it read to the weapon's live end. A
-     * bound that a point exceeds lets a contact be missed, so only a
-     * certified one is stated; absent, every grid step is read.
-     *
-     * @param grid The search's grid.
-     * @param stops The stops of the search.
-     * @returns The bound's reader.
-     */
-    speed?(grid: IGrid, stops: IStops): Speed;
-
-    /** When the weapon starts to be live, seconds, finite; it meets nothing before, whatever its path says. The span's start when absent. */
-    from?: number;
-
-    /** When it stops being live, seconds, finite and not before `from`; it meets nothing after, whatever its path says. The span's end when absent. */
-    to?: number;
-
-    /**
-     * The rigid part this weapon is one capsule of, such as the three
-     * capsules of one striking arm: when any weapon of a group stops, the
-     * part stops as a whole, so the group's other weapons meet nothing after
-     * that second and produce no event of their own. Absent, the weapon stops
-     * alone.
-     */
-    group?: string;
-
-    /**
-     * The sphere's centre on its free path at a second, world metres.
-     *
-     * @param seconds Seconds.
-     * @param stops The stops so far.
-     * @returns The centre.
-     */
-    position(seconds: number, stops: IStops): IAutoMovieVector3;
-
-    /**
-     * The other end of a capsule weapon's axis on its free path at a second,
-     * world metres; absent for a sphere. The weapon is then every point of
-     * the segment from `position` to `tail` swept by `radius`.
-     *
-     * @param seconds Seconds.
-     * @param stops The stops so far.
-     * @returns The axis's other end.
-     */
-    tail?(seconds: number, stops: IStops): IAutoMovieVector3;
-
-    /**
-     * Produce the actual endpoints together for this exact second and current
-     * stops. When present, replaces position and tail calls for a geometry
-     * query; tail presence must agree with the weapon's declared kind. The
-     * resolver retains no sample across queries or changes to stops.
-     */
-    sample?(seconds: number, stops: IStops): IWeaponFrame;
-  }
-
-  /** One body the weapons may meet. */
-  export interface IBody {
-    /** Its id, matching the `owner` of the weapons it carries. */
-    id: string;
-
-    /**
-     * The body's speed bound on one search's grid (`Speed`), prepared once a
-     * search under that search's stops and read with a weapon's own
-     * (`IWeapon.speed`). The scan asks it only from a grid second it read to
-     * the farthest second the weapon's bound alone could certify, so a body
-     * that holds still only for a while is still bound there; absent, every
-     * grid step is read against this body.
-     *
-     * @param grid The search's grid.
-     * @param stops The stops of the search.
-     * @returns The bound's reader.
-     */
-    speed?(grid: IGrid, stops: IStops): Speed;
-
-    /**
-     * Certify departure of an already-present pair only when its physical
-     * model establishes that phase. A clearance must have no new entry before
-     * it; no-entry covers only this search span. Undefined or absent keeps
-     * the original initial overlap/touch report. Opaque distance samples alone
-     * do not justify a certificate. The resolver validates clearance against
-     * at(seconds), and every other body keeps its original eligibility.
-     */
-    departure?(contact: IInitialContact): Departure | undefined;
-
-    /**
-     * The signed distance from a point to the body's surface at a second,
-     * metres: positive outside.
-     *
-     * @param point World metres.
-     * @param seconds Seconds.
-     * @param stops The stops so far.
-     * @returns Metres.
-     */
-    distance(point: IAutoMovieVector3, seconds: number, stops: IStops): number;
-
-    /**
-     * The signed distance from a segment to the body's surface at a second,
-     * metres: the least signed distance over the segment's points, positive
-     * when the whole segment is outside. Required to meet capsule weapons.
-     * Given a taper, the segment is widened by a radius running linearly
-     * from its first end's to its other end's, and the distance is that
-     * tapered capsule's: the least over its points of the distance less the
-     * radius there.
-     *
-     * @param a The segment's first end, world metres.
-     * @param b Its other end, world metres.
-     * @param seconds Seconds.
-     * @param stops The stops so far.
-     * @param taper The radii at `a` and at `b`, metres, for a tapered capsule weapon.
-     * @returns Metres.
-     */
-    axis?(
-      a: IAutoMovieVector3,
-      b: IAutoMovieVector3,
-      seconds: number,
-      stops: IStops,
-      taper?: readonly [number, number],
-    ): number;
-
-    /**
-     * The body's own weapon carried by the part a striking weapon met, when
-     * that weapon is still on its free path at the second: the contact is
-     * mutual, so it stops with the striker. Absent, or undefined, when the
-     * part met carries none.
-     *
-     * @param a The striking weapon's centre, or its axis's first end, world metres.
-     * @param b The axis's other end; the centre again for a sphere.
-     * @param seconds The contact second.
-     * @param stops The stops before this contact.
-     * @param by The id of the body carrying the striking weapon.
-     * @returns The id of one of this body's weapons, or undefined.
-     */
-    carried?(
-      a: IAutoMovieVector3,
-      b: IAutoMovieVector3,
-      seconds: number,
-      stops: IStops,
-      by: string,
-    ): string | undefined;
-  }
-
-  /** The input. */
-  export interface IInput {
-    /** The weapons. */
-    weapons: readonly IWeapon[];
-
-    /** The bodies. */
-    bodies: readonly IBody[];
-
-    /** Span start, seconds. */
-    from: number;
-
-    /** Span end, seconds. */
-    to: number;
-
-    /** Scan step, seconds; positive. */
-    step: number;
-  }
-
-  /** One stop. */
-  export interface IEvent {
-    /** The weapon that stopped. */
-    weapon: string;
-
-    /** The body it met. */
-    against: string;
-
-    /** The contact second. */
-    seconds: number;
-  }
 }

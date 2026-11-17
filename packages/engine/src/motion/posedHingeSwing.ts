@@ -1,6 +1,8 @@
 import type {
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
+  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -10,8 +12,6 @@ import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
-import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 
 /**
  * Read the source hinge's swing as a model-space metre displacement. The end
@@ -38,10 +38,10 @@ import type { IPreparedChainPlant } from "./IPreparedChainPlant";
  */
 export function posedHingeSwing(
   props: Pick<
-    IFitChainToTargetProps,
+    IAutoMovieFitChainToTargetProps,
     "pose" | "chain" | "jointAxes" | "restFrames"
   >,
-  prepared: IPreparedChainPlant,
+  prepared: IAutoMoviePreparedChainPlant,
   axes: IAutoMovieJointAxes,
 ): IAutoMovieVector3 {
   const posed: (bone: IAutoMovieJointPose["bone"]) => IAutoMovieJointPose = (

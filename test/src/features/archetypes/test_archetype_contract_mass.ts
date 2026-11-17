@@ -6,7 +6,7 @@ import {
   ArchetypeUnits,
   createClub,
 } from "@automovie/archetypes";
-import type { AutoMoviePrimitiveShape } from "@automovie/interface";
+import type { IAutoMoviePrimitiveShape } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";
@@ -110,7 +110,7 @@ export function test_archetype_contract_mass(): void {
   let volume: number = 0;
   let moment: number = 0;
   for (const part of bat.parts) {
-    const shape: AutoMoviePrimitiveShape | null =
+    const shape: IAutoMoviePrimitiveShape | null =
       part.geometry.type === "primitive" ? part.geometry.shape : null;
     if (shape === null || shape.type !== "cylinder")
       throw new Error(`bat part ${part.id} is not a plain bar`);

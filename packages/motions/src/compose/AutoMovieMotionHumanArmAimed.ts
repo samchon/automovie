@@ -1,11 +1,15 @@
-import type { IAutoMovieSwivelSeed } from "@automovie/engine";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieSwivelSeed,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import type { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObservation";
+import type { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBendScope } from "./AutoMovieMotionHumanBendScope";
 
 /**
@@ -34,19 +38,19 @@ import { AutoMovieMotionHumanBendScope } from "./AutoMovieMotionHumanBendScope";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One goal and one seed per arm and instant read, released with the plan.
  */
 export function AutoMovieMotionHumanArmAimed(
-  body: IHumanBody,
-  carries: readonly AutoMovieMotionHumanArmPlanned.IPlanned[],
-  at: (t: number) => { posture: IHumanPosture },
+  body: IAutoMovieMotionHumanBody,
+  carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[],
+  at: (t: number) => { posture: IAutoMovieMotionHumanPosture },
   resolution: ReturnType<typeof prepareHumanPoseResolution>,
   projection: ReturnType<typeof prepareHumanPostureProjection>,
-): (a: number, t: number) => IHumanPosture.IGoal {
-  const goals: Map<number, IHumanPosture.IGoal>[] = carries.map(
-    (): Map<number, IHumanPosture.IGoal> => new Map(),
+): (a: number, t: number) => IAutoMovieHumanLimbGoal {
+  const goals: Map<number, IAutoMovieHumanLimbGoal>[] = carries.map(
+    (): Map<number, IAutoMovieHumanLimbGoal> => new Map(),
   );
   const elbows: { times: number[]; seeds: (IAutoMovieSwivelSeed | undefined)[] }[] =
     carries.map((): { times: number[]; seeds: (IAutoMovieSwivelSeed | undefined)[] } => ({ times: [], seeds: [] }));
-  return (a: number, t: number): IHumanPosture.IGoal => {
-    let found: IHumanPosture.IGoal | undefined = goals[a]!.get(t);
+  return (a: number, t: number): IAutoMovieHumanLimbGoal => {
+    let found: IAutoMovieHumanLimbGoal | undefined = goals[a]!.get(t);
     if (found !== undefined) return found;
     const table: { times: number[]; seeds: (IAutoMovieSwivelSeed | undefined)[] } = elbows[a]!;
     let index: number = 0;
@@ -60,8 +64,8 @@ export function AutoMovieMotionHumanArmAimed(
 
     // The posture is read outside the scope: only this goal's own elbow
     // search continues the arm's elbow.
-    const posture: IHumanPosture = at(t).posture;
-    found = AutoMovieMotionHumanBendScope.within(scope, (): IHumanPosture.IGoal =>
+    const posture: IAutoMovieMotionHumanPosture = at(t).posture;
+    found = AutoMovieMotionHumanBendScope.within(scope, (): IAutoMovieHumanLimbGoal =>
       AutoMovieMotionHumanArmObservation.aim(carries[a]!, posture, t, resolution, projection));
     table.times.splice(index, 0, t);
     table.seeds.splice(index, 0, scope.seed);

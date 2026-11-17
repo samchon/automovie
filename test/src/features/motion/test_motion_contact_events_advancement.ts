@@ -1,5 +1,8 @@
 import { resolveAutoMovieContactEvents } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -43,15 +46,15 @@ export function test_motion_contact_events_advancement(): void {
     reach: number;
     recede: number;
     weapon?: number;
-    body?: resolveAutoMovieContactEvents.Speed;
+    body?: IAutoMovieResolveContactEvents.Speed;
   }): {
-    events: resolveAutoMovieContactEvents.IEvent[];
+    events: IAutoMovieResolveContactEvents.IEvent[];
     calls: number;
-    grids: resolveAutoMovieContactEvents.IGrid[];
+    grids: IAutoMovieResolveContactEvents.IGrid[];
   } => {
     let calls: number = 0;
-    const grids: resolveAutoMovieContactEvents.IGrid[] = [];
-    const events: resolveAutoMovieContactEvents.IEvent[] =
+    const grids: IAutoMovieResolveContactEvents.IGrid[] = [];
+    const events: IAutoMovieResolveContactEvents.IEvent[] =
       resolveAutoMovieContactEvents({
         weapons: [
           {
@@ -61,7 +64,9 @@ export function test_motion_contact_events_advancement(): void {
             ...(props.weapon === undefined
               ? {}
               : {
-                  speed: (grid: resolveAutoMovieContactEvents.IGrid): resolveAutoMovieContactEvents.Speed => {
+                  speed: (
+                    grid: IAutoMovieResolveContactEvents.IGrid,
+                  ): IAutoMovieResolveContactEvents.Speed => {
                     grids.push(grid);
                     return (): number => props.weapon!;
                   },
@@ -79,7 +84,9 @@ export function test_motion_contact_events_advancement(): void {
             ...(props.body === undefined
               ? {}
               : {
-                  speed: (grid: resolveAutoMovieContactEvents.IGrid): resolveAutoMovieContactEvents.Speed => {
+                  speed: (
+                    grid: IAutoMovieResolveContactEvents.IGrid,
+                  ): IAutoMovieResolveContactEvents.Speed => {
                     grids.push(grid);
                     return props.body!;
                   },
@@ -96,7 +103,10 @@ export function test_motion_contact_events_advancement(): void {
       });
     return { events, calls, grids };
   };
-  const steady = (value: number): resolveAutoMovieContactEvents.Speed => (): number => value;
+  const steady =
+    (value: number): IAutoMovieResolveContactEvents.Speed =>
+    (): number =>
+      value;
 
   // 1 and 2. The same contact, from fewer measurements.
   for (const [label, recede, seconds] of [
@@ -117,7 +127,7 @@ export function test_motion_contact_events_advancement(): void {
       `${label}: each bound is prepared on the search's grid`,
       bounded.grids.length === 2 &&
         bounded.grids.every(
-          (grid: resolveAutoMovieContactEvents.IGrid): boolean =>
+          (grid: IAutoMovieResolveContactEvents.IGrid): boolean =>
             grid.from === 0 && grid.to === 2 && grid.step === 1 / 120,
         ),
     );
@@ -145,7 +155,8 @@ export function test_motion_contact_events_advancement(): void {
   TestValidator.predicate(
     "a sphere that stops 0.2 m short meets nothing, with the bounds as without",
     run({ reach: -0.2, recede: 0 }).events.length === 0 &&
-      run({ reach: -0.2, recede: 0, weapon: 2, body: steady(0) }).events.length === 0,
+      run({ reach: -0.2, recede: 0, weapon: 2, body: steady(0) }).events
+        .length === 0,
   );
 
   // 5. A body bound only for a while is asked no farther than the weapon reaches.

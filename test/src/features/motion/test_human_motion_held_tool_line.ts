@@ -1,7 +1,16 @@
 import { createClub, createSword, createTable } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanStand,
+  IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -10,12 +19,6 @@ import {
   HumanHand,
   HumanObject,
   HumanPerformance,
-  type HumanSegment,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
-  type IHumanProp,
   StrikingHeld,
   stand,
 } from "@automovie/motions";
@@ -50,7 +53,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 2 scenarios with their bounds.
  */
 export function test_human_motion_held_tool_line(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const placement: IAutoMovieTransform = {
@@ -74,7 +77,7 @@ export function test_human_motion_held_tool_line(): void {
   const cases: {
     label: string;
     prop: ReturnType<typeof createClub> | ReturnType<typeof createSword>;
-    points: StrikingHeld.IPoints;
+    points: IAutoMovieMotionHumanStrikingHeld.IPoints;
     working: IAutoMovieTransform;
   }[] = [
     {
@@ -92,24 +95,30 @@ export function test_human_motion_held_tool_line(): void {
   ];
   for (const one of cases) {
     // What the reading law read, and when.
-    const seen: { tool: StrikingHeld.ITool | null; at: number } = {
+    const seen: {
+      tool: IAutoMovieMotionHumanStrikingHeld.ITool | null;
+      at: number;
+    } = {
       tool: null,
       at: Number.NaN,
     };
-    const reading: IHumanActionLaw<stand.IParams> = {
-      name: "readHeld",
-      interrupts: stand.interrupts,
-      plan: (context: IHumanActionContext<stand.IParams>): IHumanActionPlan => {
-        seen.tool = StrikingHeld.of(context, "right", "tool", one.points);
-        seen.at = context.start;
-        return stand.plan(context);
-      },
-    };
-    let film: HumanPerformance;
+    const reading: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
+      {
+        name: "readHeld",
+        interrupts: stand.interrupts,
+        plan: (
+          context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
+        ): IAutoMovieMotionHumanActionPlan => {
+          seen.tool = StrikingHeld.of(context, "right", "tool", one.points);
+          seen.at = context.start;
+          return stand.plan(context);
+        },
+      };
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "line",
-        laws: [reading] as IHumanActionLaw<never>[],
+        laws: [reading] as IAutoMovieMotionHumanActionLaw<never>[],
         props: [
           HumanObject.prop("bench", createTable({ kind: "counter" }), {
             at: { x: -0.65, y: 0, z: 0 },
@@ -139,10 +148,12 @@ export function test_human_motion_held_tool_line(): void {
       );
       continue;
     }
-    const segment: HumanSegment.ISegment | undefined = film
+    const segment: IAutoMovieMotionHumanSegment | undefined = film
       .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.name === "readHeld");
-    const tool: StrikingHeld.ITool | null = seen.tool;
+      .find(
+        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "readHeld",
+      );
+    const tool: IAutoMovieMotionHumanStrikingHeld.ITool | null = seen.tool;
     const at: number = seen.at;
     if (segment === undefined || tool === null) {
       complaints.push(`${one.label}: the reading law never ran`);
@@ -156,7 +167,7 @@ export function test_human_motion_held_tool_line(): void {
       "right",
       "grip",
     ).point;
-    const frame: IHumanProp.IFrame = film.prop("tool", at);
+    const frame: IAutoMovieRigidTransform = film.prop("tool", at);
     const working: IAutoMovieTransform = one.working;
     const point: IAutoMovieVector3 = Vector3.add(
       frame.position,

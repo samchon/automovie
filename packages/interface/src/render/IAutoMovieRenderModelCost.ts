@@ -31,5 +31,11 @@ export interface IAutoMovieRenderModelCost {
   geometryBytes: number;
 
   /** Present for recipe geometry: processing completeness and retained realization findings, independently of drawable cost and quality. */
-  geometryRealization?: { complete: boolean; diagnostics: string[] };
+  geometryRealization?: {
+    /** Whether every requested recipe region finished realization within its budgets. */
+    complete: boolean;
+
+    /** Retained realization findings; empty when no finding was produced. */
+    diagnostics: string[];
+  };
 }

@@ -1,13 +1,14 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
 } from "@automovie/interface";
 
-import { IAutoMovieResolvedJointAngles } from "../kinematics/IAutoMovieResolvedJointAngles";
 import { SwingTwistFramePreparation } from "../kinematics/SwingTwistFramePreparation";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
@@ -49,12 +50,12 @@ export function clampJointRomValues(
   abduction: number | null,
   twist: number | null,
   constraint: IAutoMovieJointConstraint,
-  rig?: swingTwistRange.IJoint,
+  rig?: IAutoMovieJointRotationFrame,
 ): IAutoMovieJointPose {
   // A ball joint gated by swing and twist is brought into its range as a
   // rotation (`swingTwistRange.project`) and read back in the reading the
   // three-angle box prefers.
-  const range: swingTwistRange.IJoint | undefined =
+  const range: IAutoMovieJointRotationFrame | undefined =
     constraint.swingTwist === undefined || constraint.swingTwist === null
       ? undefined
       : (rig ?? swingTwistRange.of(bone));

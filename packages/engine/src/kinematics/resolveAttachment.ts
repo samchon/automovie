@@ -1,19 +1,19 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieAttachment,
   IAutoMovieJointAxes,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieRestFrame,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
-import { resolvePose } from "./resolvePose";
+import { preparePoseResolution } from "./preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
-import type { preparePoseResolution } from "./preparePoseResolution";
+import { resolvePose } from "./resolvePose";
 
 /**
  * The transform of a child model's root rigidly coupled to one bone of a posed
@@ -73,14 +73,17 @@ export const resolveAttachment: (
   prepared?: prepareSkeletonPoseResolution.IBoneDemand,
   resolution?: ReturnType<typeof preparePoseResolution>,
 ): IAutoMovieTransform => {
-  const frames: IAutoMovieResolvedBone[] = prepared === undefined ? resolvePose(
-    parentPose,
-    parentSkeleton,
-    jointAxes,
-    restFrames,
-    undefined,
-    resolution,
-  ) : prepared.resolve(parentPose, resolution);
+  const frames: IAutoMovieResolvedBone[] =
+    prepared === undefined
+      ? resolvePose(
+          parentPose,
+          parentSkeleton,
+          jointAxes,
+          restFrames,
+          undefined,
+          resolution,
+        )
+      : prepared.resolve(parentPose, resolution);
   let seat: IAutoMovieResolvedBone | undefined;
   const count: number = frames.length;
   for (let index: number = 0; index < count; ++index) {

@@ -1,4 +1,4 @@
-import { IAutoMovieTimingAnchor } from "../harness/IAutoMovieTimingAnchor";
+import type { IAutoMovieTimingAnchor } from "../harness/IAutoMovieTimingAnchor";
 
 /**
  * One staged scene node's prose intent and sparse ordered action-coverage times.

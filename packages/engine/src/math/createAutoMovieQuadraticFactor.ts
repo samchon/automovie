@@ -1,15 +1,8 @@
-/*
- * Copyright 2022 University of Oxford Control Group
- * SPDX-License-Identifier: Apache-2.0
- *
- * Modified for AutoMovie: TypeScript specialization for diagonal PSD QPs
- * with zero/nonnegative cones and engine-owned numerical workspaces.
- * Adapted from Clarabel.rs 0.11.1, revision
- * 25540f559592068d0c8a80e46ded1b21760212a1.
- * Original source: src/qdldl/qdldl.rs; src/solver/core/kktsolvers/direct/quasidef/directldlkktsolver.rs
- * License: ../../vendor/clarabel/licenses/clarabel-0.11.1/LICENSE.md
- */
-import { IAutoMovieQuadraticConicProgram } from "./IAutoMovieQuadraticConicProgram";
+import type {
+  IAutoMovieCreateQuadraticFactor,
+  IAutoMovieQuadraticConicProgram,
+} from "@automovie/interface";
+
 import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
 import { orderAutoMovieQuadraticMatrix } from "./orderAutoMovieQuadraticMatrix";
 
@@ -37,11 +30,7 @@ import { orderAutoMovieQuadraticMatrix } from "./orderAutoMovieQuadraticMatrix";
  */
 export function createAutoMovieQuadraticFactor(
   data: IAutoMovieQuadraticConicProgram,
-): {
-  update(h: Float64Array): boolean;
-  solve(rhs: Float64Array): Float64Array | undefined;
-  nonzeros: number;
-} {
+): IAutoMovieCreateQuadraticFactor.IResult {
   const size: number = data.n + data.m;
   const order: Int32Array = orderAutoMovieQuadraticMatrix(data);
   const inverse: Int32Array = new Int32Array(size);

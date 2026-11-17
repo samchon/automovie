@@ -1,6 +1,8 @@
+import type {
+  IAutoMovieRecoveryMapJointBlock,
+  IAutoMovieRecoveryMapLandmark,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryMapJointBlock,
-  type IAutoMovieRecoveryMapLandmark,
   RecoveryFeasibleCapacityError,
   createRecoveryCameraChart,
   predictRecoveryMapDecrease,

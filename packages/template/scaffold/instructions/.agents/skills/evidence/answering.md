@@ -6,4 +6,4 @@ State facts found in the declaration and the references it cites: its method, pr
 
 An item that does not apply needs its concrete reason through a permitted exclusion; a missing output or a failure is not inapplicability.
 
-When a check or review finds a defect, repair the code at its owner through [development](../development/SKILL.md) and correct its answers in the same change. An answer explains the work or a remaining limit; it cannot argue an absent implementation into existence.
+When a check or review finds a defect, repair the code at its owner through [development](../development/SKILL.md) and correct its answers in the same change, because an answer cannot stand in for an absent implementation.

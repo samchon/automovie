@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieCombinePhysicalMassProperties,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -32,7 +33,7 @@ import type { combinePhysicalMassProperties } from "./combinePhysicalMassPropert
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct calls retain no caller data and return fresh rows/vectors. A prepared reader owns at most one seven-scalar key plus nine intrinsic entries per current part for each of assembly and spin; either use truncates both populations when its part array shrinks. The mass-model/interval owner releases the closure with its operation, and no part, pose, query point or result history is held.
  */
 export function physicalInertiaTensor(
-  parts: readonly combinePhysicalMassProperties.IPart[],
+  parts: readonly IAutoMovieCombinePhysicalMassProperties.IPart[],
   about: IAutoMovieVector3,
 ): number[][] {
   const tensor: number[][] = [
@@ -64,12 +65,12 @@ export namespace physicalInertiaTensor {
    * No body identity, target, time grid or exposed mutable cached tensor enters the surface; every input remains with the physical owner.
    */
   export type IPrepared = ((
-    parts: readonly combinePhysicalMassProperties.IPart[],
+    parts: readonly IAutoMovieCombinePhysicalMassProperties.IPart[],
     about: IAutoMovieVector3,
   ) => number[][]) & {
     /** Intrinsic momentum of the actual part at index, in its velocity's frame. Current array length bounds retained slots; invalid indices throw. */
     spin(
-      parts: readonly combinePhysicalMassProperties.IPart[],
+      parts: readonly IAutoMovieCombinePhysicalMassProperties.IPart[],
       index: number,
       rotation: IAutoMovieQuaternion,
       velocity: IAutoMovieVector3,
@@ -97,10 +98,10 @@ export namespace physicalInertiaTensor {
     const spins: (IRotated | undefined)[] = [];
     let active: boolean = false;
     const tensorAt: (
-      parts: readonly combinePhysicalMassProperties.IPart[],
+      parts: readonly IAutoMovieCombinePhysicalMassProperties.IPart[],
       about: IAutoMovieVector3,
     ) => number[][] = (
-      parts: readonly combinePhysicalMassProperties.IPart[],
+      parts: readonly IAutoMovieCombinePhysicalMassProperties.IPart[],
       about: IAutoMovieVector3,
     ): number[][] => {
       if (active) return physicalInertiaTensor(parts, about);
@@ -110,7 +111,7 @@ export namespace physicalInertiaTensor {
         spins.length = Math.min(spins.length, parts.length);
         const tensor: number[][] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
         for (let i: number = 0; i < parts.length; i++) {
-          const part: combinePhysicalMassProperties.IPart = parts[i]!;
+          const part: IAutoMovieCombinePhysicalMassProperties.IPart = parts[i]!;
           const value: IRotated = readRotated(entries, i, part.inertia, part.inertiaRotation);
           preparedComponents(part, about, value.tensor, addTensor, tensor);
         }
@@ -121,7 +122,7 @@ export namespace physicalInertiaTensor {
     };
     return Object.assign(tensorAt, {
       spin: (
-        parts: readonly combinePhysicalMassProperties.IPart[],
+        parts: readonly IAutoMovieCombinePhysicalMassProperties.IPart[],
         index: number,
         rotation: IAutoMovieQuaternion,
         velocity: IAutoMovieVector3,
@@ -133,7 +134,7 @@ export namespace physicalInertiaTensor {
             spins.length = parts.length;
             entries.length = Math.min(entries.length, parts.length);
           }
-          const part: combinePhysicalMassProperties.IPart | undefined = parts[index];
+          const part: IAutoMovieCombinePhysicalMassProperties.IPart | undefined = parts[index];
           if (!Number.isInteger(index) || index < 0 || part === undefined)
             throw new Error("A prepared intrinsic tensor needs an existing integer part index");
           if (nested) return physicalInertiaTensor.spin(part, rotation, velocity);
@@ -159,7 +160,7 @@ export namespace physicalInertiaTensor {
    * The result retains neither the part nor the velocity.
    */
   export function spin(
-    part: combinePhysicalMassProperties.IPart,
+    part: IAutoMovieCombinePhysicalMassProperties.IPart,
     rotation: IAutoMovieQuaternion,
     velocity: IAutoMovieVector3,
   ): IAutoMovieVector3 {
@@ -231,7 +232,7 @@ function readRotated(
 
 /** Apply all current parallel-axis terms before the same tensor or spin consumer. */
 function preparedComponents<T, Context>(
-  part: combinePhysicalMassProperties.IPart,
+  part: IAutoMovieCombinePhysicalMassProperties.IPart,
   about: IAutoMovieVector3,
   tensor: readonly number[],
   consume: Consume<T, Context>,
@@ -361,7 +362,7 @@ const BASIS_Z: Readonly<IAutoMovieVector3> = { x: 0, y: 0, z: 1 };
  * The consumer runs once and retains no part or scratch owned by this call.
  */
 function components<T, Context>(
-  part: combinePhysicalMassProperties.IPart,
+  part: IAutoMovieCombinePhysicalMassProperties.IPart,
   about: IAutoMovieVector3,
   rotation: IAutoMovieQuaternion,
   consume: Consume<T, Context>,

@@ -1,5 +1,8 @@
 import { integrateMotionTrajectory } from "@automovie/engine";
-import type { IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -63,21 +66,21 @@ export function test_engine_motion_trajectory_ownership(): void {
     let calls: number = 0;
     const rates: {
       seconds: number;
-      value: integrateMotionTrajectory.IRate;
+      value: IAutoMovieIntegrateMotionTrajectory.IRate;
       owned: number[];
       original: readonly [number, number];
     }[] = [];
     const x0: number[] = [2, -3];
     const q0: IAutoMovieQuaternion = { x: 0, y: sine, z: 0, w: cosine };
-    const props: integrateMotionTrajectory.IProps = {
+    const props: IAutoMovieIntegrateMotionTrajectory.IProps = {
       f: (
         seconds: number,
         state: readonly number[],
-      ): integrateMotionTrajectory.IRate => {
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => {
         calls++;
         const elapsed: number = seconds - first;
         const owned: number[] = [state[1]!, 6 * elapsed];
-        const value: integrateMotionTrajectory.IRate = {
+        const value: IAutoMovieIntegrateMotionTrajectory.IRate = {
           dx: owned,
           w: { x: 0, y: 0, z: 0.4 },
         };
@@ -96,9 +99,9 @@ export function test_engine_motion_trajectory_ownership(): void {
       h: 0.2,
       ...(adaptive ? { tolerance: { relative: 1e-10, absolute: 1e-10 } } : {}),
     };
-    const path: integrateMotionTrajectory.ITrajectory =
+    const path: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
       integrateMotionTrajectory(props);
-    const other: integrateMotionTrajectory.ITrajectory =
+    const other: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
       integrateMotionTrajectory({
         ...props,
         x0: [5, 7],
@@ -107,12 +110,12 @@ export function test_engine_motion_trajectory_ownership(): void {
     const plannedCalls: number = calls;
     const check: (
       label: string,
-      state: integrateMotionTrajectory.IState,
+      state: IAutoMovieIntegrateMotionTrajectory.IState,
       seconds: number,
       second: boolean,
     ) => void = (
       label: string,
-      state: integrateMotionTrajectory.IState,
+      state: IAutoMovieIntegrateMotionTrajectory.IState,
       seconds: number,
       second: boolean,
     ): void => {
@@ -154,10 +157,10 @@ export function test_engine_motion_trajectory_ownership(): void {
     };
     const retained: {
       seconds: number;
-      state: integrateMotionTrajectory.IState;
+      state: IAutoMovieIntegrateMotionTrajectory.IState;
     }[] = [];
     for (const seconds of queries) {
-      const state: integrateMotionTrajectory.IState = path.at(seconds);
+      const state: IAutoMovieIntegrateMotionTrajectory.IState = path.at(seconds);
       check("planned", state, seconds, false);
       retained.push({ seconds, state });
       check("other planned", other.at(seconds), seconds, true);
@@ -172,7 +175,7 @@ export function test_engine_motion_trajectory_ownership(): void {
     for (const index of [6, 2, 5, 0, 4, 1, 3]) {
       const seconds: number = queries[index]!;
       check("after input mutation", path.at(seconds), seconds, false);
-      const state: integrateMotionTrajectory.IState = path.at(seconds);
+      const state: IAutoMovieIntegrateMotionTrajectory.IState = path.at(seconds);
       state.x[0] = 1000 + index;
       state.x[1] = -1000 - index;
       state.x.push(NaN);
@@ -193,7 +196,7 @@ export function test_engine_motion_trajectory_ownership(): void {
         check("retained result", previous.state, previous.seconds, false);
     }
     for (const produced of rates) {
-      const value: integrateMotionTrajectory.IRate = produced.value;
+      const value: IAutoMovieIntegrateMotionTrajectory.IRate = produced.value;
       if (
         !(
           value.dx.length === 2 &&

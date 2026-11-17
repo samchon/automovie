@@ -1,5 +1,5 @@
-import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
-import { IAutoMovieJointPose } from "./IAutoMovieJointPose";
+import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { IAutoMovieJointPose } from "./IAutoMovieJointPose";
 
 /**
  * A single static full-body pose: a snapshot of the skeleton's articulation at one instant.

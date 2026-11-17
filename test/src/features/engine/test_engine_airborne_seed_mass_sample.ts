@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   integrateAirborneRotation,
@@ -9,7 +8,12 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieBodyMomentum,
+  IAutoMovieIntegrateAirborneRotation,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieSolveAirborneTakeoff,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -96,10 +100,10 @@ export function test_engine_airborne_seed_mass_sample(): void {
     }
   }
 
-  const model: resolveAutoMovieCenterOfMass.IModel = {
+  const model: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 2,
     segments: (["hips", "head"] as const).map(
-      (bone: "hips" | "head"): resolveAutoMovieCenterOfMass.ISegment => ({
+      (bone: "hips" | "head"): IAutoMovieResolveCenterOfMass.ISegment => ({
         bone,
         mass: 1,
         point: zero,
@@ -116,7 +120,7 @@ export function test_engine_airborne_seed_mass_sample(): void {
     return new CountedBones(
       model.segments.map(
         (
-          part: resolveAutoMovieCenterOfMass.ISegment,
+          part: IAutoMovieResolveCenterOfMass.ISegment,
           i: number,
         ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
           part.bone,
@@ -139,7 +143,7 @@ export function test_engine_airborne_seed_mass_sample(): void {
     bones(0.75),
   );
   const endpointReads: number = reads;
-  const momentum: resolveAutoMovieMomentum.IMomentum =
+  const momentum: IAutoMovieBodyMomentum =
     resolveAutoMovieMomentum.between(model, before, after, 0.5);
   if (endpointReads !== 2 * model.segments.length || reads !== endpointReads)
     findings.push(
@@ -176,7 +180,7 @@ export function test_engine_airborne_seed_mass_sample(): void {
   reads = 0;
   const history: integrateAirborneRotation.ICachedHistory =
     integrateAirborneRotation.history(model, bones, { from: 0, to: 1 });
-  const instant: integrateAirborneRotation.IInstant = history(0.5);
+  const instant: IAutoMovieIntegrateAirborneRotation.IInstant = history(0.5);
   const interiorReads: number = reads;
   history(0.5);
   if (interiorReads !== 3 * model.segments.length || reads !== interiorReads)
@@ -201,8 +205,8 @@ export function test_engine_airborne_seed_mass_sample(): void {
 
   let shootingReads: number = 0;
   let directReads: number = 0;
-  const constant: () => integrateAirborneRotation.IInstant =
-    (): integrateAirborneRotation.IInstant => ({
+  const constant: () => IAutoMovieIntegrateAirborneRotation.IInstant =
+    (): IAutoMovieIntegrateAirborneRotation.IInstant => ({
       inertia: { moments: { x: 4, y: 4, z: 4 }, rotation: identity },
       relative: { x: 1, y: 0, z: 0 },
     });
@@ -210,8 +214,8 @@ export function test_engine_airborne_seed_mass_sample(): void {
     relative: 1e-10,
     absolute: 0,
   };
-  const solution: solveAirborneTakeoff.ISolution = solveAirborneTakeoff({
-    history: (): integrateAirborneRotation.IInstant => {
+  const solution: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff({
+    history: (): IAutoMovieIntegrateAirborneRotation.IInstant => {
       shootingReads++;
       return constant();
     },
@@ -222,8 +226,8 @@ export function test_engine_airborne_seed_mass_sample(): void {
     twist: 0,
     integration,
   });
-  const direct: integrateAirborneRotation.IFlight = integrateAirborneRotation({
-    history: (): integrateAirborneRotation.IInstant => {
+  const direct: IAutoMovieIntegrateAirborneRotation.IFlight = integrateAirborneRotation({
+    history: (): IAutoMovieIntegrateAirborneRotation.IInstant => {
       directReads++;
       return constant();
     },

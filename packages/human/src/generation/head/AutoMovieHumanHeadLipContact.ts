@@ -1,18 +1,17 @@
 import {
-  type AutoMovieLoftFrame,
   AutoMovieLoftSectionNative,
   AutoMovieLoftViewRead,
   AutoMovieLoftViewSource,
   AutoMovieLoftViewWorldJet,
-  type AutoMovieViewAxis,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
-
-/** World-mm vector, with derivatives in physical lateral millimetres. */
-type V3 = [number, number, number];
-
-/** The actual axis owner's nullable analytic frame2 result. */
-type FrameJet = ReturnType<NonNullable<AutoMovieViewAxis.IAxis["jet"]>>;
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHeadLipContact,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * Original mass contact and both lip borders in one declared level chart.
@@ -29,75 +28,39 @@ type FrameJet = ReturnType<NonNullable<AutoMovieViewAxis.IAxis["jet"]>>;
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned contact retains its original parent and admitted scalar source; query temporaries and vectors have call scope, with no global cache.
  */
 export namespace AutoMovieHumanHeadLipContact {
-  /** One original forward point and its optional physical lateral derivatives. */
-  export interface IReading {
-    /** Actual point in world mm. */
-    point: V3;
-    /** First and second forward derivatives per lateral mm; absent at a singular inverse. */
-    forwardJet: [number, number] | null;
-  }
-
   /** The same native field with optional implicit-coordinate total2. */
-  interface IField extends IReading {
+  interface IField extends IAutoMovieHumanHeadLipContact.IReading {
     /** Fy, Fz, Fyy, Fyz, Fzz for world X=F(world Y,world Z). */
     derivatives: [number, number, number, number, number] | null;
-  }
-
-  /** A section value is valid independently of availability of its frame2. */
-  export interface ISection {
-    /** Actual midpoint and oriented secant axes, with parallel lateral planes. */
-    frame: AutoMovieLoftFrame.IFrame;
-    /** Analytic derivatives in physical lateral mm, null at a singular border/corner. */
-    jet: FrameJet;
-    /** Same original parent resting point. */
-    resting: V3;
-    /** Same original parent border point, at its own height. */
-    border: V3;
-  }
-
-  /** One full native parent source, with explicit units and chart ownership. */
-  export interface IContact {
-    /** Identical original material parent. */
-    parent: IAutoMovieViewPart;
-    /** Complete original signed supports, effective fullness and cap laws. */
-    source: AutoMovieLoftViewSource.ISource;
-    /** Actual source plane at stomion. */
-    frame: AutoMovieLoftFrame.IFrame;
-    /** Forward resting point at world lateral mm. */
-    at(lateral: number): IReading;
-    /** Actual signed border at Euclidean height mm; heightJet uses physical lateral mm. */
-    section(
-      lateral: number,
-      height: number,
-      sign: number,
-      heightJet: readonly [number, number] | null,
-    ): ISection;
   }
 
   /**
    * Admit one original level field, retaining the actual source and axis.
    * Queries reject unsupported charts and domains instead of moving a point.
    */
-  export function create(parent: IAutoMovieViewPart, height: number): IContact {
-    const admitted: AutoMovieLoftViewSource.IResult | null =
+  export function create(
+    parent: IAutoMovieViewPart,
+    height: number,
+  ): IAutoMovieHumanHeadLipContact.IContact {
+    const admitted: IAutoMovieLoftViewSource.IResult | null =
       AutoMovieLoftViewSource.create(parent);
     if (admitted?.source === null || admitted === null)
       throw new Error(
         "Lip material parent has no admitted original direct field",
       );
-    const source: AutoMovieLoftViewSource.ISource = admitted.source;
-    const frame: AutoMovieLoftFrame.IFrame = parent.axis.at(height);
+    const source: IAutoMovieLoftViewSource.ISource = admitted.source;
+    const frame: IAutoMovieLoftSectionFrame = parent.axis.at(height);
 
     /** Read X=F(Y,Z) from the original forward branch, preserving its available total2. */
     const field: (y: number, z: number) => IField = (
       y: number,
       z: number,
     ): IField => {
-      const inputs: AutoMovieLoftViewRead.IValues | string =
+      const inputs: IAutoMovieLoftViewRead.IValues | string =
         AutoMovieLoftViewRead.values(source, y);
       if (typeof inputs === "string")
         throw new Error(`Lip parent field: ${inputs}`);
-      const plane: AutoMovieLoftFrame.IFrame = parent.axis.at(y);
+      const plane: IAutoMovieLoftSectionFrame = parent.axis.at(y);
       if (
         Math.hypot(
           plane.u[0] - 1,
@@ -176,13 +139,14 @@ export namespace AutoMovieHumanHeadLipContact {
       parent,
       source,
       frame,
-      at: (lateral: number): IReading => field(height, lateral),
+      at: (lateral: number): IAutoMovieHumanHeadLipContact.IReading =>
+        field(height, lateral),
       section: (
         z: number,
         h: number,
         sign: number,
         hjet: readonly [number, number] | null,
-      ): ISection => {
+      ): IAutoMovieHumanHeadLipContact.ISection => {
         if (!(Number.isFinite(h) && h >= 0 && (sign === 1 || sign === -1)))
           throw new Error(
             "Lip chord needs a finite nonnegative height and signed direction",
@@ -234,13 +198,17 @@ export namespace AutoMovieHumanHeadLipContact {
           if (i === 47)
             throw new Error("Lip native chord inverse did not converge");
         }
-        const delta: V3 = [
+        const delta: AutoMovieVector3Tuple = [
           border.point[0] - rest.point[0],
           border.point[1] - height,
           0,
         ];
-        const u: V3 = [(sign * delta[0]) / h, (sign * delta[1]) / h, 0];
-        const value: AutoMovieLoftFrame.IFrame = {
+        const u: AutoMovieVector3Tuple = [
+          (sign * delta[0]) / h,
+          (sign * delta[1]) / h,
+          0,
+        ];
+        const value: IAutoMovieLoftSectionFrame = {
           origin: [
             (rest.point[0] + border.point[0]) / 2,
             (height + border.point[1]) / 2,
@@ -263,12 +231,12 @@ export namespace AutoMovieHumanHeadLipContact {
   function differentiate(
     rest: IField,
     border: IField,
-    delta: V3,
-    value: AutoMovieLoftFrame.IFrame,
+    delta: AutoMovieVector3Tuple,
+    value: IAutoMovieLoftSectionFrame,
     h: number,
     sign: number,
     hjet: readonly [number, number] | null,
-  ): FrameJet {
+  ): IAutoMovieHumanHeadLipContact.FrameJet {
     if (
       rest.derivatives === null ||
       border.derivatives === null ||
@@ -289,10 +257,14 @@ export namespace AutoMovieHumanHeadLipContact {
     const ddy: number = -(gzz + 2 * gyz * dy + gyy * dy * dy) / gy;
     const dx: number = fy * dy + fz;
     const ddx: number = fyy * dy * dy + 2 * fyz * dy + fzz + fy * ddy;
-    const firstDelta: V3 = [dx - rest.derivatives[1], dy, 0];
-    const secondDelta: V3 = [ddx - rest.derivatives[4], ddy, 0];
-    const firstU: V3 = [0, 0, 0];
-    const secondU: V3 = [0, 0, 0];
+    const firstDelta: AutoMovieVector3Tuple = [dx - rest.derivatives[1], dy, 0];
+    const secondDelta: AutoMovieVector3Tuple = [
+      ddx - rest.derivatives[4],
+      ddy,
+      0,
+    ];
+    const firstU: AutoMovieVector3Tuple = [0, 0, 0];
+    const secondU: AutoMovieVector3Tuple = [0, 0, 0];
     for (let i: number = 0; i < 2; i++) {
       firstU[i] = sign * (firstDelta[i]! / h - (delta[i]! * hjet[0]) / h ** 2);
       secondU[i] =
@@ -302,12 +274,12 @@ export namespace AutoMovieHumanHeadLipContact {
           (delta[i]! * hjet[1]) / h ** 2 +
           (2 * delta[i]! * hjet[0] ** 2) / h ** 3);
     }
-    const first: AutoMovieLoftFrame.IFrame = {
+    const first: IAutoMovieLoftSectionFrame = {
       origin: [(dx + rest.derivatives[1]) / 2, dy / 2, 1],
       u: firstU,
       v: [firstU[1], -firstU[0], 0],
     };
-    const second: AutoMovieLoftFrame.IFrame = {
+    const second: IAutoMovieLoftSectionFrame = {
       origin: [(ddx + rest.derivatives[4]) / 2, ddy / 2, 0],
       u: secondU,
       v: [secondU[1], -secondU[0], 0],

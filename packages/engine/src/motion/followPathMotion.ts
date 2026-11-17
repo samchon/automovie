@@ -1,15 +1,15 @@
-import {
+import type {
+  AutoMoviePathGround,
+  IAutoMovieFollowPathMotion,
   IAutoMovieKeyframe,
-  IAutoMovieMotion,
+  IAutoMoviePathFrame,
+  IAutoMoviePathLocomotion,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { segmentIndex } from "../math/segmentIndex";
-import { AutoMoviePathGround } from "./AutoMoviePathGround";
-import { IAutoMoviePathFrame } from "./IAutoMoviePathFrame";
-import { IAutoMoviePathLocomotion } from "./IAutoMoviePathLocomotion";
 
 const IDENTITY_ROT: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
@@ -59,32 +59,11 @@ interface ISegment {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The frame's located segment serves position/yaw, fixed segments/corner windows serve the bake and one module-owned lazy reader shares only the private unchanged +Y axis scalars. Each source yaw and actual quaternion are computed anew after the original ground/profile reads. Gait values share without caching effectful ground samples or yaw results across requests.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned motion/sidecar arrays grow with baked frame population and belong to the caller; source nested joints/expression and authored nonnull scale may remain shared, but fallback identity scale is freshly owned per output frame. The module additionally retains at most one lazy fixed-axis reader with UP/direction-length metadata until module release; no path, ground callback, emitted frame or quaternion result is retained in it. No retained path cache or handles exist.
  */
-export const followPathMotion: (props: {
-  /** Output clip id. */ id: string;
-  /** The looping in-place gait cycle to carry along the path. */ gait: IAutoMovieMotion;
-  /** World-space waypoints, at least two; `y` is ignored (see `ground`). */ waypoints: readonly IAutoMovieVector3[];
-  /** Requested pace along the path, m/s. The engine snaps to whole cycles. */ speed: number;
-  /** Ground height: plane scalar or `(x, z) → y` callback. Defaults to `0`. */ ground?: AutoMoviePathGround;
-  /** Corner blend span, meters of arc on both sides combined. Default `0.5`. */ turnWindow?: number;
-}) => IAutoMoviePathLocomotion = (props: {
-  /** Output clip id. */
-  id: string;
-
-  /** The looping in-place gait cycle to carry along the path. */
-  gait: IAutoMovieMotion;
-
-  /** World-space waypoints, at least two; `y` is ignored (see `ground`). */
-  waypoints: readonly IAutoMovieVector3[];
-
-  /** Requested pace along the path, m/s. The engine snaps to whole cycles. */
-  speed: number;
-
-  /** Ground height: plane scalar or `(x, z) → y` callback. Defaults to `0`. */
-  ground?: AutoMoviePathGround;
-
-  /** Corner blend span, meters of arc on both sides combined. Default `0.5`. */
-  turnWindow?: number;
-}): IAutoMoviePathLocomotion => {
+export const followPathMotion: (
+  props: IAutoMovieFollowPathMotion.IProps,
+) => IAutoMoviePathLocomotion = (
+  props: IAutoMovieFollowPathMotion.IProps,
+): IAutoMoviePathLocomotion => {
   const turnWindow: number = props.turnWindow ?? DEFAULT_TURN_WINDOW;
   if (!Number.isFinite(props.speed) || props.speed <= 0)
     throw new Error("path speed must be finite and positive");
@@ -134,8 +113,8 @@ export const followPathMotion: (props: {
       const z: number = seg.z + seg.dirZ * (s - seg.from);
       const y: number = groundHeightAt(props.ground, x, z);
       const yawDeg: number = yawAt(segments, halfWindows, s, index);
-      const facing: IAutoMovieQuaternion =
-        (yawRotation ??= Quaternion.prepareAxisAngle(UP))(yawDeg);
+      const facing: IAutoMovieQuaternion = (yawRotation ??=
+        Quaternion.prepareAxisAngle(UP))(yawDeg);
       const baseRoot: IAutoMovieKeyframe["pose"]["root"] = k.pose.root;
       frames.push({
         time: globalT,

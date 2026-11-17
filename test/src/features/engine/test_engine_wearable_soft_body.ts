@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieWearableSoftFrame,
   simulateAutoMovieWearableSoftBody,
   simulateSoftBody,
   simulateSoftBodyWithBoundaries,
@@ -9,6 +8,7 @@ import type {
   IAutoMovieSoftAnchor,
   IAutoMovieSoftBodyDomain,
   IAutoMovieValidation,
+  IAutoMovieWearableSoftFrame,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

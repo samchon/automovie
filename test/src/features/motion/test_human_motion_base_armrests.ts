@@ -1,11 +1,16 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
-  type IHumanContactWindow,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -47,10 +52,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_base_armrests(): void {
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const height: number = seated.popliteal(body);
     const aside: number = body.measure.chestBreadth / 2 + 0.08;
-    const bare: seated.ISeat = {
+    const bare: IAutoMovieMotionHumanSeated.ISeat = {
       at: { x: 0, y: height, z: -0.1 },
       yaw: 0,
       depth: 0.45,
@@ -59,7 +64,9 @@ export function test_human_motion_base_armrests(): void {
       left: { x: aside, y: height + 0.22, z: -0.3 },
       right: { x: -aside, y: height + 0.22, z: -0.3 },
     };
-    const perform = (seat: seated.ISeat): HumanPerformance =>
+    const perform = (
+      seat: IAutoMovieMotionHumanSeated.ISeat,
+    ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "armrests",
         performers: [
@@ -77,27 +84,30 @@ export function test_human_motion_base_armrests(): void {
 
     // The hands a segment declares bearing over a span of its shares.
     const hands = (
-      segment: HumanSegment.ISegment,
+      segment: IAutoMovieMotionHumanSegment,
       from: number,
       to: number,
     ): string[] =>
       segment.plan.contacts
         .filter(
-          (c: IHumanContactWindow): boolean =>
+          (c: IAutoMovieMotionHumanContactWindow): boolean =>
             c.part.endsWith("Hand") &&
             c.kind === "plant" &&
             c.from <= from + 1e-9 &&
             c.to >= to - 1e-9,
         )
-        .map((c: IHumanContactWindow): string => c.part)
+        .map((c: IAutoMovieMotionHumanContactWindow): string => c.part)
         .sort((x: string, y: string): number => x.localeCompare(y));
-    const event = (segment: HumanSegment.ISegment, named: string): number =>
+    const event = (
+      segment: IAutoMovieMotionHumanSegment,
+      named: string,
+    ): number =>
       segment.plan.events.find(
         (e: { name: string }): boolean => e.name === named,
       )?.share ?? 1;
     try {
       // 4. No armrest, no hand support.
-      const plain: readonly HumanSegment.ISegment[] =
+      const plain: readonly IAutoMovieMotionHumanSegment[] =
         perform(bare).segments("a");
       for (const [what, segment] of [
         ["sitting down", plain[0]!],
@@ -111,8 +121,11 @@ export function test_human_motion_base_armrests(): void {
       }
 
       // 1 to 3. A hand on each armrest sitting down and pushing on it getting up.
-      const performance: HumanPerformance = perform({ ...bare, armrests });
-      const [down, up]: readonly HumanSegment.ISegment[] =
+      const performance: IAutoMovieMotionHumanPerformance = perform({
+        ...bare,
+        armrests,
+      });
+      const [down, up]: readonly IAutoMovieMotionHumanSegment[] =
         performance.segments("a");
       const off: number = event(up!, "seatOff");
       for (const [what, declared] of [
@@ -123,7 +136,7 @@ export function test_human_motion_base_armrests(): void {
           complaints.push(
             `${name}: ${what} declares ${declared.join(", ") || "no hand"} bearing, both hands expected`,
           );
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
         body,

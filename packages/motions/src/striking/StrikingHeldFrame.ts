@@ -1,14 +1,15 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanHand } from "../posture/HumanHand";
-import type { StrikingHeld } from "./StrikingHeld";
 
 /**
  * The working points and axes read from a held prop's rigid frame. A two-point
@@ -40,11 +41,14 @@ export namespace StrikingHeldFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function read(
-    held: AutoMovieMotionHumanHeld.IHeld,
-    points: StrikingHeld.IPoints = { tip: "point", edge: "edge" },
-  ): StrikingHeld.ITool {
+    held: IAutoMovieMotionHumanHeld.IHeld,
+    points: IAutoMovieMotionHumanStrikingHeld.IPoints = {
+      tip: "point",
+      edge: "edge",
+    },
+  ): IAutoMovieMotionHumanStrikingHeld.ITool {
     const prop: string = held.prop;
-    const side: HumanHand.Side = held.side;
+    const side: AutoMovieHumanSide = held.side;
     const tip: { point: IAutoMovieVector3; direction: IAutoMovieVector3 } =
       AutoMovieMotionHumanHeld.point(held, points.tip);
     // An explicit origin defines the working line separately from the

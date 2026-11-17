@@ -1,4 +1,4 @@
-import { AutoMovieDrawingRole } from "./AutoMovieDrawingRole";
+import type { AutoMovieDrawingRole } from "./AutoMovieDrawingRole";
 
 /**
  * Stroke width in page millimetres, per line role.

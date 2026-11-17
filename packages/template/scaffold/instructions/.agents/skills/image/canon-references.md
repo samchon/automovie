@@ -1,12 +1,12 @@
 # Canon references
 
-Canon references are a subject's frozen images, the source of its look for every later image and video request. Make them once for each subject, have the user accept them and freeze them under [every image](SKILL.md#every-image).
+Canon references are a subject's frozen images, the source of its look for every later image and video request. Make them once for each subject, have the user accept them and freeze them as every accepted image is frozen.
 
 ## Views
 
 For a generated film, choose the [video model](../video/SKILL.md) first; its guide determines reference views and limits. Budget the request's inputs across its subjects, making only the views the shots need.
 
-Where the guide sets none, give each character separate images, one person in each, sharp, with the face unobstructed, on a plain background with flat light and the canonical wardrobe:
+Where the guide sets none, give each character these views, one person in each, sharp, with the face unobstructed, on a plain background with flat light and the canonical wardrobe:
 
 - a front full-body view, standing with the arms relaxed at the sides;
 - a face close-up with a neutral expression;
@@ -18,7 +18,7 @@ Where the chosen model's terms reject references with real human faces or minors
 
 ## Prompts
 
-Use the subject's record wording and the film's medium or rendering style, shared with the video prompts' [description](../video/diffusion/prompts.md#shared-description). Name each garment and its color alongside the references. [Prompting](diffusion/prompting.md) owns the rest of the request.
+Use the subject's record wording and the film's medium or rendering style, shared with the video prompts' [description](../video/diffusion/prompts.md#shared-description). Repeat its defining details beside the references, as [words](diffusion/consistency.md#words) sets, and write the rest of the request under [prompting](diffusion/prompting.md).
 
 A canon reference or plate needs no render beside its prompt, except where [control images](diffusion/conditioning.md#control-images) set one.
 

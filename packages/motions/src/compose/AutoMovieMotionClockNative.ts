@@ -1,5 +1,9 @@
 import { minimumJerk } from "@automovie/engine";
-import type { IAutoMovieMotionEvent } from "@automovie/interface";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionClockInstant,
+  IAutoMovieMotionEvent,
+} from "@automovie/interface";
 
 import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
@@ -137,10 +141,10 @@ export namespace AutoMovieMotionClockNative {
 }
 
 /** Public record shape remains owned by the Clock facade's original interface. */
-type IClock = AutoMovieMotionClock.IClock;
+type IClock = IAutoMovieMotionClock;
 
 /** Constructor instant data retains the original named seconds representation. */
-type IInstant = AutoMovieMotionClock.IInstant;
+type IInstant = IAutoMovieMotionClockInstant;
 
 /** Only actual constructor closures prove fixed native query semantics. */
 type NativeClock = Pick<IClock, "at" | "linear" | "progress" | "envelope">;

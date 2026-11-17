@@ -9,8 +9,13 @@ import {
 import type {
   IAutoMovieJointConstraint,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieScanJointRom,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -19,8 +24,6 @@ import {
   HumanPerformance,
   HumanRefusal,
   type HumanSegment,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions";
@@ -76,12 +79,12 @@ import { qunit } from "../internal/qunit";
 export function test_human_motion_staged_flight(): void {
   const findings: string[] = [];
   const bodyStarted: number = performance.now();
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const bodyMs: number = performance.now() - bodyStarted;
   const observation: ReturnType<typeof integrateAirborneRotation.observe> = integrateAirborneRotation.observe();
   const yaw: number = 37;
   const heading: number = yaw * Math.PI / 180;
-  const input: HumanPerformance.IInput = {
+  const input: IAutoMovieMotionHumanPerformance.IInput = {
     seed: "staged-flight-contract",
     performers: [{ subject: "a", body, at: { x: 3, y: 0, z: -2 }, yaw,
       proficiency: { level: "trained" } }],
@@ -91,9 +94,9 @@ export function test_human_motion_staged_flight(): void {
   };
   let flightReads: number = 0;
   Object.defineProperty(input, "flight", { enumerable: true,
-    get: (): HumanPerformance.IInput["flight"] => ++flightReads === 1 ? undefined : "physical" });
+    get: (): IAutoMovieMotionHumanPerformance.IInput["flight"] => ++flightReads === 1 ? undefined : "physical" });
   const planningStarted: number = performance.now();
-  let film: HumanPerformance;
+  let film: IAutoMovieMotionHumanPerformance;
   try {
     film = new HumanPerformance(input, observation);
   } catch (error) {
@@ -104,7 +107,7 @@ export function test_human_motion_staged_flight(): void {
   }
   const planningMs: number = performance.now() - planningStarted;
   if (flightReads !== 1) findings.push(`the observed staged constructor read its effective mode ${flightReads} times, expected once`);
-  const segment: HumanSegment.ISegment = film.segments("a")[1]!;
+  const segment: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
   const event: (name: string) => number = (name: string): number => {
     const declared: IAutoMovieMotionEvent | undefined = segment.plan.events.find(
       (value: IAutoMovieMotionEvent): boolean => value.name === name,
@@ -144,11 +147,11 @@ export function test_human_motion_staged_flight(): void {
       )) findings.push(`staged flight at ${seconds}: ${joint.bone} has a nonfinite clinical coordinate`);
       const constraint: IAutoMovieJointConstraint | undefined = DEFAULT_HUMANOID_ROM[joint.bone];
       if (constraint !== undefined)
-        scanJointRom(joint, constraint, (part: scanJointRom.Part): void => {
+        scanJointRom(joint, constraint, (part: IAutoMovieScanJointRom.Part): void => {
           findings.push(`staged flight at${seconds}: ${joint.bone} ${part} exceeds anatomical ROM`);
         });
     }
-    const raw: IHumanPosture = { ...segment.plan.posture(seconds - segment.start) };
+    const raw: IAutoMovieMotionHumanPosture = { ...segment.plan.posture(seconds - segment.start) };
     delete raw.rotation;
     const unturned: IAutoMoviePose = resolveHumanPosture(body, raw);
     if (pose.root === null || unturned.root === null || !qunit(pose.root.rotation) || !qunit(unturned.root.rotation)) {
@@ -211,18 +214,18 @@ export function test_human_motion_staged_flight(): void {
 }
 
 /** Public memo identities test policy keys without another turned or physical flight. */
-function modeIdentity(body: IHumanBody): string[] {
+function modeIdentity(body: IAutoMovieMotionHumanBody): string[] {
   const findings: string[] = [];
-  const input: HumanPerformance.IInput = {
+  const input: IAutoMovieMotionHumanPerformance.IInput = {
     seed: "staged-flight-mode-key",
     performers: [{ subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0,
       proficiency: { level: "trained" } }],
     composition: HumanChain.subject("a").stand({ seconds: 0.1, sway: 0 }).node,
   };
-  const implicit: HumanPerformance = new HumanPerformance(input);
-  const undefinedMode: HumanPerformance = new HumanPerformance({ ...input, flight: undefined });
-  const explicit: HumanPerformance = new HumanPerformance({ ...input, flight: "staged" });
-  const physical: HumanPerformance = new HumanPerformance({ ...input, flight: "physical" });
+  const implicit: IAutoMovieMotionHumanPerformance = new HumanPerformance(input);
+  const undefinedMode: IAutoMovieMotionHumanPerformance = new HumanPerformance({ ...input, flight: undefined });
+  const explicit: IAutoMovieMotionHumanPerformance = new HumanPerformance({ ...input, flight: "staged" });
+  const physical: IAutoMovieMotionHumanPerformance = new HumanPerformance({ ...input, flight: "physical" });
   const cyclic: { self?: unknown } = {};
   cyclic.self = cyclic;
   if (!(implicit.segments("a").length === 1 &&
@@ -231,7 +234,7 @@ function modeIdentity(body: IHumanBody): string[] {
     implicit.segments("a") !== physical.segments("a")))
     findings.push("omitted, undefined and staged policy must share one resolution while physical owns another");
   for (const storage of ["enumerable", "non-enumerable", "inherited"] as const) {
-    const selected: HumanPerformance = new HumanPerformance(policy(input, "physical", storage));
+    const selected: IAutoMovieMotionHumanPerformance = new HumanPerformance(policy(input, "physical", storage));
     if (selected.segments("a") !== physical.segments("a"))
       findings.push(`${storage} physical mode selected a different resolved policy`);
     for (const invalid of [null, "unknown", cyclic]) {
@@ -248,13 +251,13 @@ function modeIdentity(body: IHumanBody): string[] {
   for (const storage of ["enumerable", "non-enumerable", "inherited"] as const) {
     let reads: number = 0;
     const seed: string = `staged-flight-cold-${storage}`;
-    const supplied: HumanPerformance.IInput = { ...input, seed };
+    const supplied: IAutoMovieMotionHumanPerformance.IInput = { ...input, seed };
     const target: object = storage === "inherited" ? {} : supplied;
     if (storage === "inherited") Object.setPrototypeOf(supplied, target);
     Object.defineProperty(target, "flight", { enumerable: storage === "enumerable",
       get: (): "physical" | "staged" => ++reads === 1 ? "physical" : "staged" });
-    const first: HumanPerformance = new HumanPerformance(supplied);
-    const expected: HumanPerformance = new HumanPerformance({ ...input, seed, flight: "physical" });
+    const first: IAutoMovieMotionHumanPerformance = new HumanPerformance(supplied);
+    const expected: IAutoMovieMotionHumanPerformance = new HumanPerformance({ ...input, seed, flight: "physical" });
     if (reads !== 1 || first.segments("a") !== expected.segments("a"))
       findings.push(`${storage} mode getter was read ${reads} times or its first physical value did not govern resolution`);
   }
@@ -262,9 +265,9 @@ function modeIdentity(body: IHumanBody): string[] {
 }
 
 /** Put only an owned test input's effective property in the requested storage form. */
-function policy(input: HumanPerformance.IInput, value: unknown,
-  storage: "enumerable" | "non-enumerable" | "inherited"): HumanPerformance.IInput {
-  const supplied: HumanPerformance.IInput = { ...input };
+function policy(input: IAutoMovieMotionHumanPerformance.IInput, value: unknown,
+  storage: "enumerable" | "non-enumerable" | "inherited"): IAutoMovieMotionHumanPerformance.IInput {
+  const supplied: IAutoMovieMotionHumanPerformance.IInput = { ...input };
   if (storage === "inherited") Object.setPrototypeOf(supplied, { flight: value });
   else Object.defineProperty(supplied, "flight", { value, enumerable: storage === "enumerable" });
   return supplied;

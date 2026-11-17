@@ -1,26 +1,33 @@
-import type { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBodyMomentum,
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
+import type { resolveAutoMovieBoneRates } from "../kinematics/resolveAutoMovieBoneRates";
 import type { resolveAutoMovieCenterOfMass } from "../kinematics/resolveAutoMovieCenterOfMass";
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { resolveAutoMovieMomentumRates } from "../kinematics/resolveAutoMovieMomentumRates";
-import type { resolveAutoMovieBoneRates } from "../kinematics/resolveAutoMovieBoneRates";
-import { Vector3 } from "../math/Vector3";
 import { Quaternion } from "../math/Quaternion";
+import { Vector3 } from "../math/Vector3";
 import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
+import { AirborneConstantShapeHistory } from "./AirborneConstantShapeHistory";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeReduction } from "./AirborneShapeReduction";
-import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
-import { AirborneConstantShapeHistory } from "./AirborneConstantShapeHistory";
+import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
 import type { integrateAirborneRotation } from "./integrateAirborneRotation";
 
 /** The numeric sufficient statistics that survive a shape query. */
-type IInstant = integrateAirborneRotation.IInstant;
+type IInstant = IAutoMovieIntegrateAirborneRotation.IInstant;
 
 /** The public query signature, shared without a second state model. */
-type IHistory = integrateAirborneRotation.IHistory;
+type IHistory = IAutoMovieIntegrateAirborneRotation.IHistory;
 
 /** The memo's explicit owner can clear it after planning. */
 type ICachedHistory = integrateAirborneRotation.ICachedHistory;
@@ -41,7 +48,7 @@ interface INode extends resolveAutoMovieMomentum.IPosed {
 const PRINCIPAL: WeakMap<IInstant, IPrincipalOwner | IPrincipalInverse> = new WeakMap();
 
 /** Only native readers issued by this pure-history owner may opt into stage reuse. */
-const HISTORIES: WeakSet<IHistory> = new WeakSet();
+const HISTORIES: WeakSet<IAutoMovieIntegrateAirborneRotation.IHistory> = new WeakSet();
 
 /** One shape epoch can share an unchanged adjacent principal rotation. */
 interface IPrincipalOwner {
@@ -93,7 +100,7 @@ interface IPrincipalInverse {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources History owns O(N*S) numeric mass nodes, optional O(N) fixed-size rated tensor/momentum packets, O(N) instants with optional factor/principal/inverse data, two boundary moments and O(S) last-vector references. Clear empties every map/list, including rated packets, unregisters instants and explicitly releases their factor/accessor/statistics references. The reusable history retains its optional cumulative numeric counters across clears; old externally held instants retain numeric public materialization data only. Weak history membership retains no reader; callers separately release the O(S) mass model.
  */
 export function AirborneShapeHistory(
-  model: resolveAutoMovieCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
+  model: IAutoMovieResolveCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
   shape: (seconds: number) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   difference: number,
   span?: { from: number; to: number },
@@ -129,7 +136,7 @@ export function AirborneShapeHistory(
     AirborneShapeReduction(model);
   const required: ReadonlySet<AutoMovieHumanoidBone> | undefined = analytic === undefined
     ? undefined : "segments" in model
-      ? new Set(model.segments.map((segment: resolveAutoMovieCenterOfMass.ISegment): AutoMovieHumanoidBone => segment.bone))
+      ? new Set(model.segments.map((segment: IAutoMovieResolveCenterOfMass.ISegment): AutoMovieHumanoidBone => segment.bone))
       : prepareAutoMovieMassModel.bones(model);
 
   // Only the two boundary stencils recur at different query times.
@@ -180,7 +187,7 @@ export function AirborneShapeHistory(
       if (rates !== undefined && required !== undefined)
         for (const bone of required)
           if (!rates.has(bone)) { complete = false; break; }
-      const instantaneous: resolveAutoMovieMomentum.IMomentum | undefined = rates === undefined || !complete
+      const instantaneous: IAutoMovieBodyMomentum | undefined = rates === undefined || !complete
         ? undefined : "segments" in model
           ? resolveAutoMovieMomentumRates(model, posed, bones, rates)
           : prepareAutoMovieMassModel.rates(model, posed, bones, rates);
@@ -239,7 +246,7 @@ export function AirborneShapeHistory(
       statistics,
     );
   };
-  const query: IHistory = (seconds: number): IInstant => {
+  const query: IAutoMovieIntegrateAirborneRotation.IHistory = (seconds: number): IInstant => {
     if (statistics !== undefined) statistics.queries++;
     const known: IInstant | undefined = instants.get(seconds);
     if (known !== undefined) {
@@ -298,13 +305,13 @@ export namespace AirborneShapeHistory {
    * stage sharing. It proves construction, not smoothness or constant shape.
    *
    */
-  export function owned(history: IHistory): boolean {
+  export function owned(history: IAutoMovieIntegrateAirborneRotation.IHistory): boolean {
     return HISTORIES.has(history) || AirborneConstantShapeHistory.owned(history) ||
       AirborneTabulatedShapeHistory.owned(history);
   }
 
   /** Constructor-owned fixed tensor with zero relative momentum over the whole requested live span; ordinary sampled histories return undefined. */
-  export function constant(history: IHistory, from: number, to: number): physicalInertiaFactor.IPrepared | undefined {
+  export function constant(history: IAutoMovieIntegrateAirborneRotation.IHistory, from: number, to: number): physicalInertiaFactor.IPrepared | undefined {
     return AirborneConstantShapeHistory.constant(history, from, to);
   }
 

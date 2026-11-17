@@ -1,4 +1,4 @@
-import { IAutoMovieDesignAnalysisOutcome } from "./IAutoMovieDesignAnalysisOutcome";
+import type { IAutoMovieDesignAnalysisOutcome } from "./IAutoMovieDesignAnalysisOutcome";
 
 /**
  * One attempted reading of one frame.

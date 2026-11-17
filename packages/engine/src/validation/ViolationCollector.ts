@@ -127,19 +127,19 @@ export class ViolationCollector {
   }
 
   /**
-   * Checks a direction that need not be unit length: one `range` violation at `<path>.<axis>` per non-finite component, or, when every component is finite, one at `path` if the length is `1e-12` or shorter.
+   * Checks a direction that need not be unit length: one `range` violation at `<path>.<axis>` per non-finite component, or, when every component is finite, one at `path` if the measured length is nonfinite or `1e-12` or shorter.
    *
    * @param path Violation path of the checked vector.
    * @param value Direction to check; a finite measured length above 1e-12 passes.
    * @param label Name of the direction in the messages.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Checks each component with Number.isFinite, then uses Vector3.length and refuses a finite length at or below 1e-12. A nonfinite measured length is skipped; finite components can still overflow the representable norm, so this is not a finite-normalized-output certificate.
+   * @evidence contracts/development/implementation.md#principled-implementation Checks each component with Number.isFinite, then requires Vector3.length to be finite and above 1e-12; finite components whose norm overflows cannot bypass downstream normalized-direction rules.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The direction rule lives on the collector so the environment-context and solid-plane validators share one wording and one floor instead of each keeping a private copy.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The `1e-12` floor is a named constant for every caller, and no axis or label is special-cased.
-   * @evidence contracts/development/common.md#meaningful-documentation The documentation states the violation kind, the per-axis paths, the length floor and when it is skipped, and each parameter states its role.
+   * @evidence contracts/development/common.md#meaningful-documentation States the violation paths, finite measured norm, length floor and component-versus-norm reporting.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three finiteness tests and one vector length, with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A check of one vector per call, coordinating no work across requests.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Appends at most three violations per call to items, either non-finite axes or one short length, held for the collector's lifetime; nothing else is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Appends at most three violations per call to items, either non-finite axes or one invalid norm, held for the collector's lifetime; nothing else is retained.
    */
   public direction(
     path: string,
@@ -148,8 +148,16 @@ export class ViolationCollector {
   ): void {
     this.finiteVector(path, value, label);
     const length: number = Vector3.length(value);
-    if (Number.isFinite(length) && length <= DIRECTION_EPSILON)
-      this.push("range", path, `${label} must be a non-zero direction`, value);
+    if (
+      [value.x, value.y, value.z].every(Number.isFinite) &&
+      (!Number.isFinite(length) || length <= DIRECTION_EPSILON)
+    )
+      this.push(
+        "range",
+        path,
+        `${label} must have a finite length greater than ${DIRECTION_EPSILON}`,
+        value,
+      );
   }
 
   /**

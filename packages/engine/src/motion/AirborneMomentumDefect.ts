@@ -1,4 +1,6 @@
 import type {
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieIntegrateMotionTrajectory,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -11,7 +13,7 @@ import type { integrateAirborneRotation } from "./integrateAirborneRotation";
 import type { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
 /** Relative angular-momentum share and absolute kg m²/s budget. */
-type MomentumTolerance = Pick<integrateMotionTrajectory.ITolerance, "relative" | "absolute">;
+type MomentumTolerance = Pick<IAutoMovieIntegrateMotionTrajectory.ITolerance, "relative" | "absolute">;
 
 /**
  * Measure a dense flight's angular-momentum defect in the actual mass model.
@@ -37,7 +39,7 @@ type MomentumTolerance = Pick<integrateMotionTrajectory.ITolerance, "relative" |
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned integration-scoped callback holds its history, copied target and one scalar budget until the integrator releases it. Each query's vectors are temporary and no query population, body identity cache or external resource is owned here.
  */
 export function AirborneMomentumDefect(
-  history: integrateAirborneRotation.IHistory,
+  history: IAutoMovieIntegrateAirborneRotation.IHistory,
   momentum: IAutoMovieVector3,
   tolerance: MomentumTolerance,
 ): (
@@ -74,7 +76,7 @@ export function AirborneMomentumDefect(
     orientation: IAutoMovieQuaternion,
     angularVelocity: IAutoMovieVector3,
   ): number => {
-    const instant: integrateAirborneRotation.IInstant = history(seconds);
+    const instant: IAutoMovieIntegrateAirborneRotation.IInstant = history(seconds);
     const factor: physicalInertiaFactor.IPrepared | undefined = AirborneShapeHistory.factor(instant);
     if (
       !(
@@ -209,7 +211,7 @@ export namespace AirborneMomentumDefect {
    */
   export function failure(
     error: MotionTrajectoryFailure,
-    history: integrateAirborneRotation.IHistory,
+    history: IAutoMovieIntegrateAirborneRotation.IHistory,
     momentum: IAutoMovieVector3,
     tolerance: MomentumTolerance | undefined,
   ): MotionTrajectoryFailure & IFailureContext {
@@ -247,7 +249,7 @@ export namespace AirborneMomentumDefect {
       historyError: null,
     };
     try {
-      const start: integrateAirborneRotation.IInstant = history(error.time);
+      const start: IAutoMovieIntegrateAirborneRotation.IInstant = history(error.time);
       const { moments, rotation }: typeof start.inertia = start.inertia;
       context.startPrincipalMoments = [moments.x, moments.y, moments.z];
       context.startPrincipalRotation = [rotation.x, rotation.y, rotation.z, rotation.w];
@@ -257,7 +259,7 @@ export namespace AirborneMomentumDefect {
     }
     if (trialEnd !== null) {
       try {
-        const end: integrateAirborneRotation.IInstant = history(trialEnd);
+        const end: IAutoMovieIntegrateAirborneRotation.IInstant = history(trialEnd);
         const { moments, rotation }: typeof end.inertia = end.inertia;
         context.endPrincipalMoments = [moments.x, moments.y, moments.z];
         context.endPrincipalRotation = [rotation.x, rotation.y, rotation.z, rotation.w];
@@ -268,7 +270,7 @@ export namespace AirborneMomentumDefect {
     }
     if (probe !== undefined) {
       try {
-        const instant: integrateAirborneRotation.IInstant = history(probe.time);
+        const instant: IAutoMovieIntegrateAirborneRotation.IInstant = history(probe.time);
         const { moments, rotation }: typeof instant.inertia = instant.inertia;
         context.principalMoments = [moments.x, moments.y, moments.z];
         context.principalRotation = [rotation.x, rotation.y, rotation.z, rotation.w];

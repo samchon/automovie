@@ -1,6 +1,4 @@
 import {
-  type IAutoMovieRenderSubject,
-  type IAutoMovieRenderTextureSource,
   deriveAutoMovieSemanticMask,
   evaluateAutoMovieRenderBudget,
   measureAutoMovieRenderInventory,
@@ -10,6 +8,8 @@ import type {
   IAutoMovieModel,
   IAutoMovieRenderAnalysisGap,
   IAutoMovieRenderFinding,
+  IAutoMovieRenderSubject,
+  IAutoMovieRenderTextureSource,
   IAutoMovieScene,
 } from "@automovie/interface";
 import {

@@ -1,4 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanArmGeometryTypes as G } from "./HumanArmGeometryTypes";
 
@@ -26,8 +29,8 @@ import type { HumanArmGeometryTypes as G } from "./HumanArmGeometryTypes";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A hull's box is kept with its points, which do not change once the shape is built.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The boxes are held weakly by their hulls' point arrays and released with them; nothing of a query is kept.
  */
-export function HumanArmShapeBox(shape: G.IShape, p: IAutoMovieVector3): number {
-  const solid: G.IShape["shape"] = shape.shape;
+export function HumanArmShapeBox(shape: IAutoMovieMotionHumanArmGeometry.IShape, p: IAutoMovieVector3): number {
+  const solid: IAutoMovieMotionHumanArmGeometry.IShape["shape"] = shape.shape;
   if (solid.kind !== "hull") return 0;
   let box: Float64Array | undefined = BOXES.get(solid.points);
   if (box === undefined) {
@@ -44,7 +47,7 @@ export function HumanArmShapeBox(shape: G.IShape, p: IAutoMovieVector3): number 
   }
   // The point in the segment's frame, then in the shape's.
   const segment: IAutoMovieVector3 = unturn(shape.pose.rotation, p.x - shape.pose.position.x, p.y - shape.pose.position.y, p.z - shape.pose.position.z);
-  const t: G.IShape["shape"]["transform"] = solid.transform;
+  const t: IAutoMovieMotionHumanArmGeometry.IShape["shape"]["transform"] = solid.transform;
   const local: IAutoMovieVector3 = unturn(t.rotation, segment.x - t.position.x, segment.y - t.position.y, segment.z - t.position.z);
   const dx: number = Math.max(0, box[0]! - local.x, local.x - box[3]!);
   const dy: number = Math.max(0, box[1]! - local.y, local.y - box[4]!);

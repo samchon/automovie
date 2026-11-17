@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
 import { HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -22,12 +23,12 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/testing.md#execution-ownership One synchronous unit owns all callbacks and exception data; no methods, globals, bodies or motion producers are replaced.
  */
 export function test_human_motion_refusal_observation(): void {
-  const expected: { kind: HumanRefusal.Kind; axis: string; act: string } = {
+  const expected: { kind: IAutoMovieMotionHumanRefusal.Kind; axis: string; act: string } = {
     kind: "parameter",
     axis: "turns",
     act: "jump",
   };
-  const facts: HumanRefusal.IProps = {
+  const facts: IAutoMovieMotionHumanRefusal.IProps = {
     ...expected,
     performer: "a",
     instance: 2,
@@ -36,8 +37,8 @@ export function test_human_motion_refusal_observation(): void {
     reason: "twenty turns exceed the available angular momentum",
     fix: "request one turn",
   };
-  const throws: (props: HumanRefusal.IProps) => () => never =
-    (props: HumanRefusal.IProps): (() => never) =>
+  const throws: (props: IAutoMovieMotionHumanRefusal.IProps) => () => never =
+    (props: IAutoMovieMotionHumanRefusal.IProps): (() => never) =>
     (): never => {
       throw new HumanRefusal(props);
     };
@@ -77,7 +78,7 @@ export function test_human_motion_refusal_observation(): void {
     motionHumanRefusal(throws(facts), expected),
     true,
   );
-  const wrong: readonly Partial<HumanRefusal.IProps>[] = [
+  const wrong: readonly Partial<IAutoMovieMotionHumanRefusal.IProps>[] = [
     { kind: "reach" },
     { axis: "target" },
     { act: "walk" },

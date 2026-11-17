@@ -1,4 +1,4 @@
-import type { IAutoMovieSpatialQueryEntry } from "./IAutoMovieSpatialQueryEntry";
+import type { IAutoMovieSpatialQueryEntry } from "@automovie/interface";
 
 /**
  * Internal squared point-to-box lower bound for admitted nearest-query data.

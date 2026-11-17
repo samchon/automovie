@@ -1,12 +1,11 @@
 import {
-  IAutoMovieDeliveryCrop,
+  type IAutoMovieIntersectsPerspectiveFrustumSegment,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
 import { deliveryCropNdc } from "./deliveryCropNdc";
 import { localSegmentMeetsPerspectiveFrustum } from "./localSegmentMeetsPerspectiveFrustum";
 
@@ -33,16 +32,9 @@ import { localSegmentMeetsPerspectiveFrustum } from "./localSegmentMeetsPerspect
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure predicate over one segment and one camera that coordinates no work across calls; the box test reuses the clipping core directly rather than calling this per edge.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The two camera-local endpoints and the NDC crop live only for the call; nothing outlives it.
  */
-export function intersectsPerspectiveFrustumSegment(props: {
-  camera: IAutoMovieResolvedCamera;
-  from: IAutoMovieVector3;
-  to: IAutoMovieVector3;
-  near: number;
-  far: number;
-  halfY: number;
-  aspect: number;
-  crop?: IAutoMovieDeliveryCrop;
-}): boolean {
+export function intersectsPerspectiveFrustumSegment(
+  props: IAutoMovieIntersectsPerspectiveFrustumSegment.IProps,
+): boolean {
   const inverse: IAutoMovieQuaternion = Quaternion.inverse(
     props.camera.rotation,
   );

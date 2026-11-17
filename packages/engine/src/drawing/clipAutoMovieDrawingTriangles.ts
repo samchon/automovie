@@ -1,10 +1,10 @@
 import {
   IAutoMovieDrawingFrame,
+  type IAutoMovieDrawingTriangle,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
 import { autoMovieDrawingPlaneDistance } from "./autoMovieDrawingPlaneDistance";
 import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON";
 

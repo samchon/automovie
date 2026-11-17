@@ -1,6 +1,10 @@
+import type {
+  IAutoMovieLoftViewRead,
+  IAutoMovieNativeCoordinate,
+} from "@automovie/interface";
+
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
-import type { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 
 /**
  * Locate an original native coordinate on one declared monotone half profile.
@@ -19,25 +23,6 @@ import type { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
  */
 export namespace AutoMovieNativeCoordinate {
   /**
-   * Exact original point and observed finite numerical inverse residual.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Exact original point and observed finite numerical inverse residual.
-   * @evidence contracts/development/design.md#principled-representation Represents Exact original point and observed finite numerical inverse residual: interface of 4 members (`phase`, `point`, `residual`, `iterations`); units and frames named in its text: radians, local. It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IResult` in packages/engine/src/geometry/construction/AutoMovieNativeCoordinate.ts; its surface is the 4 members listed and the text shows 176 other files naming it, mostly packages/human (64), test (54), movies (27), so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-   */
-  export interface IResult {
-    /** Original polar phase, radians, in the selected half's declared interval. */
-    phase: number;
-    /** Identical native local point, kernel millimetres, never adjusted to the target. */
-    point: [number, number];
-    /** Actual signed coordinate minus requested target, kernel millimetres. */
-    residual: number;
-    /** Bisection point query count, excluding the two explicit endpoints. */
-    iterations: number;
-  }
-
-  /**
    * Solve local x (component0) or z (component1) on a positive/negative other-coordinate half.
    * A residual within32eps*max(1,input extents,target) is the numeric acceptance
    * criterion, not an enclosure proof for every floating-point implementation.
@@ -51,11 +36,11 @@ export namespace AutoMovieNativeCoordinate {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 3 allocation sites become the returned value or die with the call, so nothing grows.
    */
   export function locate(
-    inputs: AutoMovieLoftViewRead.IValues,
+    inputs: IAutoMovieLoftViewRead.IValues,
     component: 0 | 1,
     half: 1 | -1,
     target: number,
-  ): IResult {
+  ): IAutoMovieNativeCoordinate.IResult {
     if (
       (component !== 0 && component !== 1) ||
       (half !== 1 && half !== -1) ||
@@ -87,7 +72,7 @@ export namespace AutoMovieNativeCoordinate {
     const rising: boolean = last[component] > first[component];
     if (first[component] === last[component])
       fail("Native coordinate half has no monotone nonzero reach.");
-    let best: IResult =
+    let best: IAutoMovieNativeCoordinate.IResult =
       Math.abs(first[component] - target) <= Math.abs(last[component] - target)
         ? {
             phase: lo,

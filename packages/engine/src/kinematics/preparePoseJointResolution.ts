@@ -1,10 +1,12 @@
 import type {
-  AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMovieJointPose,
+  AutoMovieHumanoidBone,
+  IAutoMovieAxisFrame,
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import type { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toRigAngle } from "../rom/toRigAngle";
 import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";

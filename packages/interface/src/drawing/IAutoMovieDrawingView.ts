@@ -1,8 +1,8 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { AutoMovieDrawingProjection } from "./AutoMovieDrawingProjection";
-import { IAutoMovieDrawingAnnotationSpec } from "./IAutoMovieDrawingAnnotationSpec";
-import { IAutoMovieDrawingDimensionSpec } from "./IAutoMovieDrawingDimensionSpec";
-import { IAutoMovieDrawingStyle } from "./IAutoMovieDrawingStyle";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieDrawingProjection } from "./AutoMovieDrawingProjection";
+import type { IAutoMovieDrawingAnnotationSpec } from "./IAutoMovieDrawingAnnotationSpec";
+import type { IAutoMovieDrawingDimensionSpec } from "./IAutoMovieDrawingDimensionSpec";
+import type { IAutoMovieDrawingStyle } from "./IAutoMovieDrawingStyle";
 
 /**
  * How one drawing is taken from one design.

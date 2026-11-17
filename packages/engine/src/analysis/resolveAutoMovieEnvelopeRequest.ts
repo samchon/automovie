@@ -1,10 +1,10 @@
 import {
   IAutoMovieConstraintViolation,
+  type IAutoMovieEnvelopeRequest,
   IAutoMovieEnvironmentInstant,
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { IAutoMovieEnvelopeRequest } from "./IAutoMovieEnvelopeRequest";
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieEnvironmentInstant } from "./autoMovieEnvironmentInstant";
 import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";

@@ -64,7 +64,7 @@ interface IRecordingLocator {
  *
  * The browser draws on the GPU backend, since playback is judged in real time; the recording is Playwright's own video of the page at a 1280 by 900 viewport, which `npx playwright-core install ffmpeg` provides. The page's Play button is found by its role and name, and the readout as the `output` showing `<second> / <duration> s`, both as the inspector renders them. The readout is read at most every half second for `seconds` of wall time after the click, and the page's script errors are collected. The video begins at navigation, so it includes the page's preparation; a reading's elapsed seconds count from the click.
  *
- * It rejects when the page shows no Play button or readout within ten minutes and when the browser produced no video. The browser is closed on every outcome.
+ * An uncaught page error before the controls are ready rejects immediately with that error as its cause; every page error also prints its stack, so a failed preparation leaves a usable diagnostic. It rejects when the page shows no Play button or readout within ten minutes and when the browser produced no video. Errors during playback remain in the returned report. The browser is closed on every outcome.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is recorded and how, which backend and why, how the controls are found, the reading cadence, the clocks of the video and the readings, the refusals and the release.
  * @evidence contracts/development/implementation.md#principled-implementation Playback is observed on the page a person uses, through its own controls, so the recording shows the real loop's pacing instead of seeks turned into a supposed playback; Playwright closes the context to finish writing the video.
@@ -125,12 +125,17 @@ export async function recordAutoMoviePlayback(props: {
     });
     const page: IRecordingPage = await context.newPage();
     const errors: string[] = [];
-    page.on("pageerror", (error: Error): void => {
-      errors.push(error.message);
-    });
-    await page.goto(props.url, {
-      waitUntil: "domcontentloaded",
-      timeout: PREPARE,
+    const failed: Promise<never> = new Promise((_resolve, reject): void => {
+      page.on("pageerror", (error: Error): void => {
+        errors.push(error.message);
+        console.error("Inspector page error:", error.stack ?? error.message);
+        reject(
+          new Error(
+            `The inspector page at ${props.url} failed during initialization`,
+            { cause: error },
+          ),
+        );
+      });
     });
     const play: IRecordingLocator = page
       .getByRole("button", { name: "Play", exact: true })
@@ -138,8 +143,17 @@ export async function recordAutoMoviePlayback(props: {
     const readout: IRecordingLocator = page
       .locator("output", { hasText: READOUT })
       .first();
-    await play.waitFor({ timeout: PREPARE });
-    await readout.waitFor({ timeout: PREPARE });
+    await Promise.race([
+      (async (): Promise<void> => {
+        await page.goto(props.url, {
+          waitUntil: "domcontentloaded",
+          timeout: PREPARE,
+        });
+        await play.waitFor({ timeout: PREPARE });
+        await readout.waitFor({ timeout: PREPARE });
+      })(),
+      failed,
+    ]);
 
     // Press Play and read the readout for the observed seconds.
     await play.click();

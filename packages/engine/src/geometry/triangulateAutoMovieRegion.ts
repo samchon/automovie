@@ -1,5 +1,8 @@
-import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
-import { IAutoMovieRegionTriangulation } from "./IAutoMovieRegionTriangulation";
+import type {
+  IAutoMovieRegionTriangulation,
+  IAutoMovieTriangulateRegion,
+} from "@automovie/interface";
+
 import { triangulateRegion } from "./triangulateRegion";
 
 /**
@@ -43,11 +46,9 @@ import { triangulateRegion } from "./triangulateRegion";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the rings passed in; each caller triangulates one region per call.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned record owns copies of every point and arrays linear in the point count.
  */
-export const triangulateAutoMovieRegion: (props: {
-  outer: readonly IAutoMovieProfilePoint[];
-  holes?: readonly (readonly IAutoMovieProfilePoint[])[] | undefined;
-}) => IAutoMovieRegionTriangulation = (props: {
-  outer: readonly IAutoMovieProfilePoint[];
-  holes?: ReadonlyArray<readonly IAutoMovieProfilePoint[]>;
-}): IAutoMovieRegionTriangulation =>
+export const triangulateAutoMovieRegion: (
+  props: IAutoMovieTriangulateRegion.IProps,
+) => IAutoMovieRegionTriangulation = (
+  props: IAutoMovieTriangulateRegion.IProps,
+): IAutoMovieRegionTriangulation =>
   triangulateRegion(props.outer, props.holes ?? [], "polygon");

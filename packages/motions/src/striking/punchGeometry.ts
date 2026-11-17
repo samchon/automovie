@@ -2,33 +2,39 @@ import {
   Quaternion,
   Vector3,
   minimumJerk,
-  resolveAutoMovieHumanoidSurfaces,
   superposeMinimumJerk,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanLimbReference,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPunch,
+  IAutoMovieMotionHumanStrikingAim,
+  IAutoMovieMotionHumanStrikingReach,
+  IAutoMovieMotionHumanStrikingRecord,
+  IAutoMovieMotionHumanStrikingSkill,
+  IAutoMovieMotionHumanStrikingStroke,
   IAutoMovieQuaternion,
+  IAutoMovieSuperposeMinimumJerk,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { StrikingAim } from "./StrikingAim";
-import { StrikingReach } from "./StrikingReach";
-import type { StrikingRecord } from "./StrikingRecord";
 import { StrikingRoom } from "./StrikingRoom";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingStroke } from "./StrikingStroke";
 import type { punch } from "./punch";
 import { punchContact } from "./punchContact";
-import type { punchLaunch } from "./punchLaunch";
 import { punchFootwork } from "./punchFootwork";
+import type { punchLaunch } from "./punchLaunch";
 import type { punchReach } from "./punchReach";
 
 /**
@@ -45,7 +51,7 @@ import type { punchReach } from "./punchReach";
  * straight return to the guard cuts through a covering glove.
  *
  * The arm travels between two named configurations
- * (`IHumanPosture.IGoal.reference`): the one it launches in, read off the
+ * (`HumanPosture.IGoal.reference`): the one it launches in, read off the
  * entry pose, and the one it has at the contact, that instant's own solution
  * read once. Every goal of the stroke is anchored at full weight on their
  * mix by the fist's share of the way out, and back by its share of the
@@ -87,7 +93,7 @@ export namespace punchGeometry {
     recoil: number;
 
     /** The guard drop. */
-    drop: StrikingSkill.IGuardDrop;
+    drop: IAutoMovieMotionHumanStrikingSkill.IGuardDrop;
 
     /** The whole punch, seconds. */
     duration: number;
@@ -113,13 +119,13 @@ export namespace punchGeometry {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual law/weapon callers lend metadata for this exact body and unchanged ROM table; another sample gets its own current scope.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned postures contain only original authored data; no borrowed workspace, mapper, getter or query history enters the plan or result.
      */
-    posture(seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IHumanPosture;
+    posture(seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IAutoMovieMotionHumanPosture;
 
     /** The feet's contact windows. */
-    contacts: IHumanContactWindow[];
+    contacts: IAutoMovieMotionHumanContactWindow[];
 
     /** What the punch decided. */
-    record: StrikingRecord.IRecord;
+    record: IAutoMovieMotionHumanStrikingRecord.IRecord;
   }
 
   /**
@@ -141,13 +147,13 @@ export namespace punchGeometry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds contact, footwork, stroke and per-reach reference values until geometry release. Borrowed exact FK suppliers belong only to one posture invocation and never enter the retained references or plan.
    */
   export function build(
-    context: IHumanActionContext<punch.IParams>,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>,
     timing: ITiming,
     fixed: number | null | undefined,
-    tangent: resolveAutoMovieHumanoidSurfaces.ITangent | undefined,
+    tangent: IAutoMovieHumanoidSurfaces.ITangent | undefined,
     entered: punchLaunch.ILaunch,
   ): IGeometry {
-    const p: punch.IParams = context.params;
+    const p: IAutoMovieMotionHumanPunch.IParams = context.params;
     const { side, lead, shown, recoil, drop, duration } = timing;
     const guardAt: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(context.body, { lead });
     const body = context.body;
@@ -176,7 +182,7 @@ export namespace punchGeometry {
       superposeMinimumJerk.position(
         origin,
         corrections(t).map(
-          (c: punchReach.ICorrection): superposeMinimumJerk.IUnit => ({
+          (c: punchReach.ICorrection): IAutoMovieSuperposeMinimumJerk.IUnit => ({
             displacement: of(c),
             start: c.start,
             duration: c.duration,
@@ -230,8 +236,8 @@ export namespace punchGeometry {
     // the contact back to it, stopping on the struck body's first surface.
     // Read when the hand returns, at the contact or the stop: by then every
     // correction that moves the feet has arrived.
-    let ended: IHumanPosture.IGoal | undefined;
-    const guardEnd = (): IHumanPosture.IGoal =>
+    let ended: IAutoMovieHumanLimbGoal | undefined;
+    const guardEnd = (): IAutoMovieHumanLimbGoal =>
       (ended ??= guardAt(footwork.base(duration))[arm]!);
     const rotationAt = (t: number): IAutoMovieQuaternion =>
       Quaternion.slerp(
@@ -261,11 +267,11 @@ export namespace punchGeometry {
     // The delivery aims where the arm lands on the launch plan, and each
     // correction carries the wrist to where its own solution lands.
     const reached: IAutoMovieVector3 = landed;
-    const corrected: StrikingAim.ITracker = {
+    const corrected: IAutoMovieMotionHumanStrikingAim.ITracker = {
       planned: tracker.planned,
-      units: (seconds: number): superposeMinimumJerk.IUnit[] =>
+      units: (seconds: number): IAutoMovieSuperposeMinimumJerk.IUnit[] =>
         contact.corrected(seconds).map(
-          (c: punchReach.ICorrection): superposeMinimumJerk.IUnit => ({
+          (c: punchReach.ICorrection): IAutoMovieSuperposeMinimumJerk.IUnit => ({
             displacement: c.end,
             start: c.start,
             duration: c.duration,
@@ -300,7 +306,7 @@ export namespace punchGeometry {
     });
     // The stop is the performance's joint resolution of the arm's capsules
     // (`fixed`); the stroke scans nothing itself.
-    const stroke: StrikingStroke.IStroke = StrikingStroke.create({
+    const stroke: IAutoMovieMotionHumanStrikingStroke.IStroke = StrikingStroke.create({
       origin,
       units,
       ...(p.feint === undefined ? { tracker: corrected } : {}),
@@ -317,13 +323,13 @@ export namespace punchGeometry {
     // the contact. Each solution's anchor is the arm resolved on it at the
     // contact, its own step under it; the anchor carried at a second
     // follows the corrections arrived by then.
-    const launch: IHumanPosture.IReference = resolveHumanPosture.reference(
+    const launch: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
       context.entry.pose,
       arm,
     );
-    const anchors: Map<punchReach.IReach, IHumanPosture.IReference> = new Map();
-    const anchor = (reach: punchReach.IReach): IHumanPosture.IReference => {
-      let found: IHumanPosture.IReference | undefined = anchors.get(reach);
+    const anchors: Map<punchReach.IReach, IAutoMovieHumanLimbReference> = new Map();
+    const anchor = (reach: punchReach.IReach): IAutoMovieHumanLimbReference => {
+      let found: IAutoMovieHumanLimbReference | undefined = anchors.get(reach);
       if (found === undefined) {
         const fixedStep: punchFootwork.IFootwork = walk(
           (): number => reach.advance,
@@ -342,12 +348,12 @@ export namespace punchGeometry {
       }
       return found;
     };
-    const anchored = (clock: number): IHumanPosture.IReference => {
-      let at: IHumanPosture.IReference = anchor(contact.launched);
+    const anchored = (clock: number): IAutoMovieHumanLimbReference => {
+      let at: IAutoMovieHumanLimbReference = anchor(contact.launched);
       for (const c of corrections(clock)) {
         if (!c.moved) continue;
         const s: number = minimumJerk.share((t0 + clock - c.start) / c.duration);
-        const next: IHumanPosture.IReference = anchor(c.reach);
+        const next: IAutoMovieHumanLimbReference = anchor(c.reach);
         at = {
           upper: blendHumanJoint(
             body,
@@ -377,12 +383,12 @@ export namespace punchGeometry {
       },
       source?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IHumanPosture => {
-      const reference: IHumanPosture.IReference | undefined =
+    ): IAutoMovieMotionHumanPosture => {
+      const reference: IAutoMovieHumanLimbReference | undefined =
         bare === undefined ? anchored(clock) : undefined;
       const held: number = Math.max(0, Math.min(1, out(clock) - back(clock)));
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-      const posture: IHumanPosture = (bare?.base ?? footwork.base)(t, clock, resolution);
+      const posture: IAutoMovieMotionHumanPosture = (bare?.base ?? footwork.base)(t, clock, resolution);
       const guard: ReturnType<typeof StrikingStance.guard> = guardAt(posture, resolution, projection);
       const elbow: IAutoMovieVector3 = Vector3.lerp(
         Vector3.lerp(
@@ -450,12 +456,12 @@ export namespace punchGeometry {
         get reached(): IAutoMovieVector3 {
           return Vector3.add(landing().solved.end, socket);
         },
-        get status(): StrikingReach.ISolution["status"] {
+        get status(): IAutoMovieMotionHumanStrikingReach.ISolution["status"] {
           return landing().solved.status;
         },
         stop: stroke.stop,
       },
-      posture: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IHumanPosture => {
+      posture: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IAutoMovieMotionHumanPosture => {
         const at: number | undefined = stroke.stop(t0 + t);
         if (at === undefined || t <= at - t0)
           return compose(t, stroke.end(t0 + t), t, undefined, resolution, projection);

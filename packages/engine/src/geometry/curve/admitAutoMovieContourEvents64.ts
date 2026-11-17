@@ -1,4 +1,7 @@
-import type { IAutoMovieContourLoft64 as L } from "./IAutoMovieContourLoft64";
+import type {
+  IAutoMovieAdmitContourEvents64,
+  IAutoMovieContourLoft64,
+} from "@automovie/interface";
 
 /**
  * Admit saved event addresses and quarantine defective incident declarations.
@@ -15,28 +18,35 @@ import type { IAutoMovieContourLoft64 as L } from "./IAutoMovieContourLoft64";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Sanitized declarations and aligned reasons feed the planner and tessellator without repeated raw-field validation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh event records and incidence arrays belong to this loft invocation; input declarations remain immutable and no cache or external handle survives.
  */
-export function admitAutoMovieContourEvents64(input: L): {
-  events: L.IEvent[];
-  unsupported: (string | undefined)[];
-} {
+export function admitAutoMovieContourEvents64(
+  input: IAutoMovieContourLoft64,
+): IAutoMovieAdmitContourEvents64.IResult {
   if (!Array.isArray(input.events))
     throw new Error("A saved contour event array is required");
-  const sections: Map<number, L.ISection> = new Map(
-    input.sections.map((section: L.ISection): [number, L.ISection] => [
-      section.coordinateMm,
-      section,
-    ]),
+  const sections: Map<number, IAutoMovieContourLoft64.ISection> = new Map(
+    input.sections.map(
+      (
+        section: IAutoMovieContourLoft64.ISection,
+      ): [number, IAutoMovieContourLoft64.ISection] => [
+        section.coordinateMm,
+        section,
+      ],
+    ),
   );
   const names: Map<string, number> = new Map();
   for (const event of input.events)
     if (typeof event?.name === "string")
       names.set(event.name, (names.get(event.name) ?? 0) + 1);
   const unsupported: (string | undefined)[] = [];
-  const events: L.IEvent[] = Array.from(
+  const events: IAutoMovieContourLoft64.IEvent[] = Array.from(
     input.events,
-    (event: L.IEvent): L.IEvent => {
-      const before: L.ISection | undefined = sections.get(event?.beforeMm),
-        after: L.ISection | undefined = sections.get(event?.afterMm);
+    (event: IAutoMovieContourLoft64.IEvent): IAutoMovieContourLoft64.IEvent => {
+      const before: IAutoMovieContourLoft64.ISection | undefined = sections.get(
+          event?.beforeMm,
+        ),
+        after: IAutoMovieContourLoft64.ISection | undefined = sections.get(
+          event?.afterMm,
+        );
       if (!before || !after || !(event.beforeMm < event.afterMm))
         throw new Error("Event brackets must address ordered saved sections");
       const reasons: string[] = [];

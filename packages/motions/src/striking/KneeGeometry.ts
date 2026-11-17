@@ -1,10 +1,15 @@
 import { Vector3, wrapDegrees } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanKnee,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { KickCarriage } from "./KickCarriage";
@@ -92,16 +97,16 @@ export namespace KneeGeometry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local workspace, genuine ROM mapper and temporary posture/maps end on return or throw. Only the original key's numeric points/directions/status escape to the law, which clears it on settle and retains no reader or new time history.
    */
   export function solve(
-    context: IHumanActionContext<knee.IParams>,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKnee.IParams>,
     side: "left" | "right",
-    feet: Record<"left" | "right", HumanFoot.IPlacement>,
-    carriage: (thrust: IAutoMovieVector3, turn: number, whole: number, drive: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IHumanPosture,
+    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    carriage: (thrust: IAutoMovieVector3, turn: number, whole: number, drive: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture,
     before?: IGeometry,
   ): IGeometry {
-    const body: IHumanBody = context.body;
-    const m: IHumanBody["measure"] = body.measure;
-    const entry: IHumanPosture = context.entry.posture;
-    const p: knee.IParams = context.params;
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const p: IAutoMovieMotionHumanKnee.IParams = context.params;
     const t0: number = context.start;
     const target: IAutoMovieVector3 = StrikingTarget.aim(
       context,

@@ -1,20 +1,20 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMoviePlantChain,
-  type IAutoMovieSwivelNear,
-  type IFitChainToTargetProps,
   fitSeededChainToTarget,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieFitChainToTargetProps,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePlantChain,
   IAutoMoviePose,
+  IAutoMovieSwivelNear,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { IHumanPosture } from "./IHumanPosture";
 import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
 
 /**
@@ -37,11 +37,11 @@ import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each returned workspace borrows body/source data and owns its goal-local reference/strain/callback scope until synchronous release. Any shared fixed source belongs to the prepared-base operation's bounded source owner, not a global pool or goal-history cache; ordinary call-local preparation retains its prior lifetime and no handle is acquired.
  */
 export function prepareHumanLimbFit(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
   chain: IAutoMoviePlantChain,
-  goal: IHumanPosture.IGoal,
-  obstruction?: IFitChainToTargetProps["obstruction"],
+  goal: IAutoMovieHumanLimbGoal,
+  obstruction?: IAutoMovieFitChainToTargetProps["obstruction"],
   near?: IAutoMovieSwivelNear,
   readAuthored?: Parameters<typeof fitSeededChainToTarget.prepare>[1],
   resolution?: Parameters<typeof fitSeededChainToTarget.prepare>[2],
@@ -59,7 +59,7 @@ export function prepareHumanLimbFit(
           rotation: goal.rotation,
         })
       : null;
-  const source: Omit<IFitChainToTargetProps, "target"> = {
+  const source: Omit<IAutoMovieFitChainToTargetProps, "target"> = {
     skeleton: body.skeleton,
     pose,
     chain,

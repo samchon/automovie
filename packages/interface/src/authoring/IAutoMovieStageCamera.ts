@@ -1,8 +1,8 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMovieNodeTarget } from "../harness/IAutoMovieNodeTarget";
-import { IAutoMoviePointTarget } from "../harness/IAutoMoviePointTarget";
-import { IAutoMovieCameraClearanceEnvelope } from "../scene/IAutoMovieCameraClearanceEnvelope";
-import { IAutoMovieCameraDepthPrecisionConstraint } from "../scene/IAutoMovieCameraDepthPrecisionConstraint";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieNodeTarget } from "../harness/IAutoMovieNodeTarget";
+import type { IAutoMoviePointTarget } from "../harness/IAutoMoviePointTarget";
+import type { IAutoMovieCameraClearanceEnvelope } from "../scene/IAutoMovieCameraClearanceEnvelope";
+import type { IAutoMovieCameraDepthPrecisionConstraint } from "../scene/IAutoMovieCameraDepthPrecisionConstraint";
 
 /**
  * One camera available to the registered shot.

@@ -1,7 +1,11 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanClimbStairs,
+  IAutoMovieMotionHumanClimbStairsFlight,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanFrame } from "../../posture/HumanFrame";
 import { climbStairs } from "../../terrain/climbStairs";
@@ -43,23 +47,21 @@ export function stairsCases(
   for (const id of bodies) {
     const who: FamilyCaseKit.IBody = FamilyCaseKit.body(id);
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
-    const flights: [string, climbStairs.IParams][] = [
+    const flights: [string, IAutoMovieMotionHumanClimbStairs.IParams][] = [
       ["up", { count: 4, direction: "up" }],
       ["down", { count: 4, direction: "down" }],
       ["up-step-by-step", { count: 4, direction: "up", pattern: "stepByStep" }],
     ];
     for (const [label, params] of flights) {
-      const performance: HumanPerformance = FamilyCaseKit.perform(
-        "stairs",
-        [{ subject: "a", body: who.body }],
-        HumanChain.subject("a").act("climbStairs", params),
-      );
+      const performance: IAutoMovieMotionHumanPerformance =
+        FamilyCaseKit.perform(
+          "stairs",
+          [{ subject: "a", body: who.body }],
+          HumanChain.subject("a").act("climbStairs", params),
+        );
       const segment = performance.segments("a")[0]!;
-      const flight: climbStairs.IFlight = climbStairs.flight(
-        who.body,
-        segment.plan.posture(0),
-        params,
-      );
+      const flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight =
+        climbStairs.flight(who.body, segment.plan.posture(0), params);
       const planted = (side: "left" | "right", t: number): boolean =>
         segment.plan.contacts.some(
           (c) =>
@@ -165,7 +167,7 @@ export function stairsCases(
 
 /** The flight's treads, its top landing and, going down, the floor behind it. */
 function boxes(
-  flight: climbStairs.IFlight,
+  flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight,
 ): NonNullable<IMotionCaptureCase["boxes"]> {
   const out: NonNullable<IMotionCaptureCase["boxes"]> = [];
   const sign: number = flight.direction === "up" ? 1 : -1;

@@ -1,17 +1,20 @@
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootPrior,
+  IAutoMovieHumanFootToeBreadth,
+  IAutoMovieHumanFootToeSpan,
+  IAutoMovieHumanNailPlate,
+} from "@automovie/interface";
+
 import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
 import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
-import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
-import type { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
-import { AutoMovieHumanFootToeBreadth } from "./AutoMovieHumanFootToeBreadth";
-import { AutoMovieHumanFootToeCap } from "./AutoMovieHumanFootToeCap";
-import type { AutoMovieHumanFootToeLines } from "./AutoMovieHumanFootToeLines";
 import { AutoMovieHumanHandWindow } from "../hand/AutoMovieHumanHandWindow";
 import { AutoMovieHumanNailPlate } from "../hand/AutoMovieHumanNailPlate";
+import { AutoMovieHumanFootToeBreadth } from "./AutoMovieHumanFootToeBreadth";
+import { AutoMovieHumanFootToeCap } from "./AutoMovieHumanFootToeCap";
 import { AutoMovieHumanFootToeRoot } from "./AutoMovieHumanFootToeRoot";
 import { AutoMovieHumanFootToeShaft } from "./AutoMovieHumanFootToeShaft";
 import { AutoMovieHumanFootToeTaper } from "./AutoMovieHumanFootToeTaper";
-
-type Vec3 = G.Vec3;
 
 /**
  * A toe laid on its line from its metatarsal head to its apex: its breadth
@@ -21,59 +24,15 @@ type Vec3 = G.Vec3;
  * is built from.
  */
 export namespace AutoMovieHumanFootToeSpan {
-  /** What a toe's span reads. */
-  export interface IInput {
-    /** The foot's frame. */
-    frame: AutoMovieHumanFootFrame.IFrame;
-
-    /** Every toe's line, hallux first. */
-    lines: readonly AutoMovieHumanFootToeLines.ILine[];
-
-    /** Which toe, 0 for the hallux. */
-    index: number;
-  }
-
-  /** A toe on its line, left frame. */
-  export interface IToe {
-    /** Chain name; `{side}` stands for the side. */
-    name: string;
-
-    /** Control points of a section. */
-    order: number;
-
-    /** Sections of the toe's chain (`AutoMovieHumanFootToeStations`). */
-    sections: number;
-
-    /** Metatarsal head centre, the line's start. */
-    head: Vec3;
-
-    /** Unit direction of the line toward the tip. */
-    tangent: Vec3;
-
-    /** Half breadth, dorsal and plantar half depths at a length along the line. */
-    size: (s: number) => [number, number, number];
-
-    /** Length along the line of the first own section. */
-    first: number;
-
-    /** Length along the line where the tip starts to close. */
-    cap: number;
-
-    /** The apex. */
-    pole: Vec3;
-
-    /** The foot's lateral direction. */
-    lateral: Vec3;
-
-    /** Its nail plate along the line: root and free edge lengths, and width, mm. */
-    nail: { root: number; edge: number; width: number };
-  }
-
   /** A toe's span. */
-  export function of(input: IInput): IToe {
-    const prior: AutoMovieHumanFootPrior.IPrior = AutoMovieHumanFootPrior.PRIOR;
-    const t: AutoMovieHumanFootPrior.IToe = prior.toes[input.index]!;
-    const breadth: AutoMovieHumanFootToeBreadth.IBreadth = AutoMovieHumanFootToeBreadth.of(input);
+  export function of(
+    input: IAutoMovieHumanFootToeSpan.IInput,
+  ): IAutoMovieHumanFootToeSpan.IToe {
+    const prior: IAutoMovieHumanFootPrior.IPrior =
+      AutoMovieHumanFootPrior.PRIOR;
+    const t: IAutoMovieHumanFootPrior.IToe = prior.toes[input.index]!;
+    const breadth: IAutoMovieHumanFootToeBreadth.IBreadth =
+      AutoMovieHumanFootToeBreadth.of(input);
     const cap: number = AutoMovieHumanFootToeCap.of(breadth, input.index);
 
     // The toe's depths follow its own half breadth before its taper, each
@@ -81,29 +40,52 @@ export namespace AutoMovieHumanFootToeSpan {
     // pulp's fullness on the plantar side, its middle halfway from the last
     // joint to the apex. Past the cap the section stays the cap's: the dome
     // closes on it.
-    const shaft: number = AutoMovieHumanFootToeShaft.half(input.frame, input.index);
+    const shaft: number = AutoMovieHumanFootToeShaft.half(
+      input.frame,
+      input.index,
+    );
     const joint: number = t.joints[t.joints.length - 1]! * breadth.length;
     const middle: number = (joint + breadth.length) / 2;
     const size = (s: number): [number, number, number] => {
       const at: number = Math.min(s, cap);
-      const taper: [number, number, number] = AutoMovieHumanFootToeTaper.at(input.index, breadth.length, shaft, at);
+      const taper: [number, number, number] = AutoMovieHumanFootToeTaper.at(
+        input.index,
+        breadth.length,
+        shaft,
+        at,
+      );
       const depth: number = (2 * breadth.shape(at) * t.depth) / taper[0];
       const plantar: number = depth * (1 - prior.toeDorsal) * taper[1];
       const pad: number = AutoMovieHumanHandWindow.mass(
         AutoMovieHumanHandWindow.PULP,
-        { length: breadth.length - joint, width: breadth.half(middle), depth: plantar },
+        {
+          length: breadth.length - joint,
+          width: breadth.half(middle),
+          depth: plantar,
+        },
         at - middle,
         0,
       );
 
-      return [breadth.half(at), depth * prior.toeDorsal * taper[2], AutoMovieHumanSeamUnion.bump(plantar, pad)];
+      return [
+        breadth.half(at),
+        depth * prior.toeDorsal * taper[2],
+        AutoMovieHumanSeamUnion.bump(plantar, pad),
+      ];
     };
 
     // The first own section from the toe's own clefts (the neighbours' gaps
     // on either side of it) and its own size, read at the toe's head height.
-    const clefts: Vec3[] = [input.index - 1, input.index]
+    const clefts: AutoMovieVector3Tuple[] = [input.index - 1, input.index]
       .filter((c: number): boolean => c >= 0 && c < prior.clefts.length)
-      .map((c: number): Vec3 => input.frame.at(prior.clefts[c]![0], prior.clefts[c]![1], breadth.head[1]));
+      .map(
+        (c: number): AutoMovieVector3Tuple =>
+          input.frame.at(
+            prior.clefts[c]![0],
+            prior.clefts[c]![1],
+            breadth.head[1],
+          ),
+      );
     const first: number = AutoMovieHumanFootToeRoot.of(
       breadth,
       clefts,
@@ -117,12 +99,16 @@ export namespace AutoMovieHumanFootToeSpan {
 
     // The nail plate on the distal phalanx, from the joint to the apex: the
     // fingers' plate law (`AutoMovieHumanNailPlate`), its free edge at the cap.
-    const plate: AutoMovieHumanNailPlate.ISize = AutoMovieHumanNailPlate.size({
+    const plate: IAutoMovieHumanNailPlate.ISize = AutoMovieHumanNailPlate.size({
       origin: [0, 0, 0],
       along: [1, 0, 0],
       normal: [0, 0, 1],
       phalanx: breadth.length - joint,
-      width: 2 * size(cap - AutoMovieHumanNailPlate.LENGTH_SHARE * (breadth.length - joint))[0],
+      width:
+        2 *
+        size(
+          cap - AutoMovieHumanNailPlate.LENGTH_SHARE * (breadth.length - joint),
+        )[0],
     });
 
     return {

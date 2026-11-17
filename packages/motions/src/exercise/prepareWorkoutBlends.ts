@@ -1,12 +1,14 @@
+import type { IAutoMovieMotionHumanExerciseKey } from "@automovie/interface";
+
 import { ExerciseKey } from "./ExerciseKey";
 
 /** One existing workout interval's immutable authored endpoint keys. */
 interface IPair {
   /** The interval's starting key. */
-  a: ExerciseKey.IKey;
+  a: IAutoMovieMotionHumanExerciseKey.IKey;
 
   /** The interval's destination key. */
-  b: ExerciseKey.IKey;
+  b: IAutoMovieMotionHumanExerciseKey.IKey;
 }
 
 /**
@@ -29,13 +31,13 @@ export function prepareWorkoutBlends(
   spans: readonly IPair[],
 ): ReturnType<typeof ExerciseKey.prepareBlend>[] {
   const pairs: Map<
-    ExerciseKey.IKey,
-    Map<ExerciseKey.IKey, ReturnType<typeof ExerciseKey.prepareBlend>>
+    IAutoMovieMotionHumanExerciseKey.IKey,
+    Map<IAutoMovieMotionHumanExerciseKey.IKey, ReturnType<typeof ExerciseKey.prepareBlend>>
   > = new Map();
   return spans.map(
     (span: IPair): ReturnType<typeof ExerciseKey.prepareBlend> => {
       let destinations:
-        | Map<ExerciseKey.IKey, ReturnType<typeof ExerciseKey.prepareBlend>>
+        | Map<IAutoMovieMotionHumanExerciseKey.IKey, ReturnType<typeof ExerciseKey.prepareBlend>>
         | undefined = pairs.get(span.a);
       if (destinations === undefined) {
         destinations = new Map();

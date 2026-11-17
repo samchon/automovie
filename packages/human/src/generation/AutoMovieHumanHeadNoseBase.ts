@@ -1,5 +1,7 @@
-import type { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
-import type { IAutoMovieHumanHeadLayout } from "./IAutoMovieHumanHeadLayout";
+import type {
+  IAutoMovieHumanHeadNoseBase,
+  IAutoMovieHumanHeadPrior,
+} from "@automovie/interface";
 
 /**
  * The nose's base: the surface the nose stands on, rising forward from the lip
@@ -15,12 +17,6 @@ import type { IAutoMovieHumanHeadLayout } from "./IAutoMovieHumanHeadLayout";
  * it.
  */
 export namespace AutoMovieHumanHeadNoseBase {
-  /** What the base reads. */
-  export type IInput = Pick<
-    IAutoMovieHumanHeadLayout,
-    "subnasale" | "nasion" | "tip" | "noseWidth" | "columella" | "round"
-  >;
-
   /**
    * Height where the nose's base meets the face, at a distance from the
    * midline, and its slope across: the subnasale at the columella, a little
@@ -34,10 +30,13 @@ export namespace AutoMovieHumanHeadNoseBase {
    * @returns `[height, slope across]`.
    */
   export function line(
-    plan: Pick<IInput, "subnasale" | "nasion" | "tip" | "noseWidth">,
-    face: Pick<AutoMovieHumanHeadPrior.IFace, "underside">,
+    plan: Pick<
+      IAutoMovieHumanHeadNoseBase.IInput,
+      "subnasale" | "nasion" | "tip" | "noseWidth"
+    >,
+    face: Pick<IAutoMovieHumanHeadPrior.IFace, "underside">,
     a: number,
-  ): [number, number] {
+  ): IAutoMovieHumanHeadNoseBase.LineResult {
     const u: number = Math.min(1, a / plan.noseWidth);
     const rise: number = (plan.nasion - plan.tip) * face.underside[0]!;
     return [
@@ -57,13 +56,17 @@ export namespace AutoMovieHumanHeadNoseBase {
    * @returns Height in millimetres, zero under the base.
    */
   export function floor(
-    plan: IInput,
-    face: Pick<AutoMovieHumanHeadPrior.IFace, "underside">,
+    plan: IAutoMovieHumanHeadNoseBase.IInput,
+    face: Pick<IAutoMovieHumanHeadPrior.IFace, "underside">,
     y: number,
     a: number,
   ): number {
     const [base, fall] = line(plan, face, a);
-    return filleted((y - base) / Math.hypot(1, fall), plan.columella, plan.round);
+    return filleted(
+      (y - base) / Math.hypot(1, fall),
+      plan.columella,
+      plan.round,
+    );
   }
 
   /**
@@ -77,7 +80,11 @@ export namespace AutoMovieHumanHeadNoseBase {
    * @param radius The circle's radius, millimetres.
    * @returns Height in millimetres.
    */
-  export function filleted(above: number, angle: number, radius: number): number {
+  export function filleted(
+    above: number,
+    angle: number,
+    radius: number,
+  ): number {
     const reach: number = radius / Math.tan(Math.PI / 4 + angle / 2);
     if (above <= -reach) return 0;
     if (above >= reach * Math.sin(angle)) return above / Math.tan(angle);

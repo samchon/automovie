@@ -1,6 +1,14 @@
+import { AutoMovieMeshExtract as M } from "@automovie/engine";
+import type {
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieMeshSectionChain,
+  IAutoMovieMeshSectionCut,
+  IAutoMovieMeshSectionFrame,
+  IAutoMovieMillimeterMesh,
+} from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { AutoMovieMeshExtract as M, type AutoMovieLoftFrame } from "@automovie/engine";
+
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 
 /**
@@ -17,13 +25,13 @@ export namespace FamilyConicSource {
   /** The loaded reference. */
   export interface ISource {
     /** Native body skin, exact positional aliases merged so cuts chain into loops. */
-    body: M.IMesh;
+    body: IAutoMovieMillimeterMesh;
 
     /** Native head skin, likewise. */
-    head: M.IMesh;
+    head: IAutoMovieMillimeterMesh;
 
     /** Body and head skins as one mesh, positions shared where the two meet, so a cut through the neck seam still closes. */
-    all: M.IMesh;
+    all: IAutoMovieMillimeterMesh;
 
     /** Native bind joint centres by name, mm. */
     joints: Map<string, V>;
@@ -43,23 +51,45 @@ export namespace FamilyConicSource {
 
   /** Load the reference from the repository root. */
   export async function load(root: string): Promise<ISource> {
-    const read = async <T>(relative: string): Promise<T> => JSON.parse(await fs.readFile(path.join(root, relative), "utf8")) as T;
-    const observations: { skeleton: { joints: { name: string; bindNativeTranslation: V }[] } } = await read("test/.shots/f1/body-observations.json");
+    const read = async <T>(relative: string): Promise<T> =>
+      JSON.parse(await fs.readFile(path.join(root, relative), "utf8")) as T;
+    const observations: {
+      skeleton: { joints: { name: string; bindNativeTranslation: V }[] };
+    } = await read("test/.shots/f1/body-observations.json");
 
     // Native joints are centimetres in the native chart; the reference frame is (10 z, 10 y, -10 x) of it, as the earlier part study established against the saved limb planes.
-    const joints: Map<string, V> = new Map(observations.skeleton.joints.map((joint): [string, V] => [joint.name, [10 * joint.bindNativeTranslation[2], 10 * joint.bindNativeTranslation[1], -10 * joint.bindNativeTranslation[0]]]));
-    const model: { parts: { id: string; geometry: { mesh: { positions: number[]; indices: number[] } } }[] } = await read("test/.shots/f1/reference-model.json");
-    const mesh = (keys: string[]): M.IMesh => {
+    const joints: Map<string, V> = new Map(
+      observations.skeleton.joints.map((joint): [string, V] => [
+        joint.name,
+        [
+          10 * joint.bindNativeTranslation[2],
+          10 * joint.bindNativeTranslation[1],
+          -10 * joint.bindNativeTranslation[0],
+        ],
+      ]),
+    );
+    const model: {
+      parts: {
+        id: string;
+        geometry: { mesh: { positions: number[]; indices: number[] } };
+      }[];
+    } = await read("test/.shots/f1/reference-model.json");
+    const mesh = (keys: string[]): IAutoMovieMillimeterMesh => {
       const positions: number[] = [];
       const indices: number[] = [];
       const alias: Map<string, number> = new Map();
       for (const key of keys) {
         const part = model.parts.find((p): boolean => p.id.includes(key));
-        if (part === undefined) throw new Error("The reference model has no " + key + " part.");
+        if (part === undefined)
+          throw new Error("The reference model has no " + key + " part.");
         const remap: number[] = [];
         const source: number[] = part.geometry.mesh.positions;
         for (let i: number = 0; i < source.length; i += 3) {
-          const p: V = [source[i]! * 1000, source[i + 1]! * 1000, source[i + 2]! * 1000];
+          const p: V = [
+            source[i]! * 1000,
+            source[i + 1]! * 1000,
+            source[i + 2]! * 1000,
+          ];
           const id: string = p.join(",");
           let index: number | undefined = alias.get(id);
           if (index === undefined) {
@@ -73,7 +103,12 @@ export namespace FamilyConicSource {
       }
       return { positions, indices };
     };
-    return { body: mesh(["body"]), head: mesh(["head"]), all: mesh(["body", "head"]), joints };
+    return {
+      body: mesh(["body"]),
+      head: mesh(["head"]),
+      all: mesh(["body", "head"]),
+      joints,
+    };
   }
 
   /**
@@ -81,25 +116,78 @@ export namespace FamilyConicSource {
    *
    * @param bridge Longest gap between open chains' ends the outer boundary closes where no closed loop winds round the origin, mm.
    */
-  export function cut(mesh: M.IMesh, frame: AutoMovieLoftFrame.IFrame, bridge: number = 3): ICut {
-    const n: V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
-    const place: M.IFrame = { origin: [...frame.origin] as V, axes: [n, [...frame.u] as V, [...frame.v] as V] };
-    const section: M.ISection = M.outline(mesh, place, [0], 0, 0.5, 0)[0]!;
-    const closed = (loops: readonly M.ILoop[]): C.P[][] => loops.filter((loop: M.ILoop): boolean => loop.closed && winds(loop.points)).map((loop: M.ILoop): C.P[] => (area(loop.points) < 0 ? [...loop.points].reverse() : [...loop.points]));
+  export function cut(
+    mesh: IAutoMovieMillimeterMesh,
+    frame: IAutoMovieLoftSectionFrame,
+    bridge: number = 3,
+  ): ICut {
+    const n: V = [
+      frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1],
+      frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2],
+      frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0],
+    ];
+    const place: IAutoMovieMeshSectionFrame = {
+      origin: [...frame.origin] as V,
+      axes: [n, [...frame.u] as V, [...frame.v] as V],
+    };
+    const section: IAutoMovieMeshSectionCut = M.outline(
+      mesh,
+      place,
+      [0],
+      0,
+      0.5,
+      0,
+    )[0]!;
+    const closed = (loops: readonly IAutoMovieMeshSectionChain[]): C.P[][] =>
+      loops
+        .filter(
+          (loop: IAutoMovieMeshSectionChain): boolean =>
+            loop.closed && winds(loop.points),
+        )
+        .map((loop: IAutoMovieMeshSectionChain): C.P[] =>
+          area(loop.points) < 0 ? [...loop.points].reverse() : [...loop.points],
+        );
     let round: C.P[][] = closed(section.loops);
 
     // Where the body and head skins meet their rims do not share vertices, so a cut through the seam chains into open pieces; the extractor's own bridging joins ends up to 3 mm apart into the outer boundary.
-    if (round.length === 0) round = closed(M.outline(mesh, place, [0], 0, 0.5, bridge)[0]!.outer);
+    if (round.length === 0)
+      round = closed(M.outline(mesh, place, [0], 0, 0.5, bridge)[0]!.outer);
     // Several loops round the origin are nested shells (the head mesh carries its mouth and throat lining): the skin is the outermost, the one of largest area.
-    const outer: C.P[] | null = round.length === 0 ? null : round.reduce((a: C.P[], b: C.P[]): C.P[] => (area(b) > area(a) ? b : a));
+    const outer: C.P[] | null =
+      round.length === 0
+        ? null
+        : round.reduce((a: C.P[], b: C.P[]): C.P[] =>
+            area(b) > area(a) ? b : a,
+          );
     return { loop: outer, around: round.length, pieces: section.loops.length };
   }
 
   /** Every closed loop of a mesh's cut by a frame's plane, counter-clockwise in the frame's chart, whether or not it winds round the origin. */
-  export function loops(mesh: M.IMesh, frame: AutoMovieLoftFrame.IFrame): C.P[][] {
-    const n: V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
-    const section: M.ISection = M.outline(mesh, { origin: [...frame.origin] as V, axes: [n, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!;
-    return section.loops.filter((loop: M.ILoop): boolean => loop.closed).map((loop: M.ILoop): C.P[] => (area(loop.points) < 0 ? [...loop.points].reverse() : [...loop.points]));
+  export function loops(
+    mesh: IAutoMovieMillimeterMesh,
+    frame: IAutoMovieLoftSectionFrame,
+  ): C.P[][] {
+    const n: V = [
+      frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1],
+      frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2],
+      frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0],
+    ];
+    const section: IAutoMovieMeshSectionCut = M.outline(
+      mesh,
+      {
+        origin: [...frame.origin] as V,
+        axes: [n, [...frame.u] as V, [...frame.v] as V],
+      },
+      [0],
+      0,
+      0.5,
+      0,
+    )[0]!;
+    return section.loops
+      .filter((loop: IAutoMovieMeshSectionChain): boolean => loop.closed)
+      .map((loop: IAutoMovieMeshSectionChain): C.P[] =>
+        area(loop.points) < 0 ? [...loop.points].reverse() : [...loop.points],
+      );
   }
 
   /**
@@ -108,12 +196,19 @@ export namespace FamilyConicSource {
    * fitted to it is the part's tape wall, and what lies inside it is relief.
    */
   export function hull(points: readonly C.P[]): C.P[] {
-    const sorted: C.P[] = [...points].sort((a: C.P, b: C.P): number => a[0] - b[0] || a[1] - b[1]);
-    const turn = (o: C.P, a: C.P, b: C.P): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const sorted: C.P[] = [...points].sort(
+      (a: C.P, b: C.P): number => a[0] - b[0] || a[1] - b[1],
+    );
+    const turn = (o: C.P, a: C.P, b: C.P): number =>
+      (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
     const half = (source: C.P[]): C.P[] => {
       const out: C.P[] = [];
       for (const p of source) {
-        while (out.length >= 2 && turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0) out.pop();
+        while (
+          out.length >= 2 &&
+          turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
+        )
+          out.pop();
         out.push(p);
       }
       out.pop();
@@ -139,7 +234,11 @@ export namespace FamilyConicSource {
     for (let i: number = 0; i < points.length; ++i) {
       const a: C.P = points[i]!;
       const b: C.P = points[(i + 1) % points.length]!;
-      if (a[1] > 0 !== b[1] > 0 && a[0] + ((b[0] - a[0]) * -a[1]) / (b[1] - a[1]) > 0) inside = !inside;
+      if (
+        a[1] > 0 !== b[1] > 0 &&
+        a[0] + ((b[0] - a[0]) * -a[1]) / (b[1] - a[1]) > 0
+      )
+        inside = !inside;
     }
     return inside;
   }

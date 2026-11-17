@@ -1,12 +1,12 @@
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { standingLegs } from "./standingLegs";
 
 /**
@@ -28,13 +28,13 @@ import { standingLegs } from "./standingLegs";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One plan owns two fixed foot records until release; returned rotation/contact vectors are fresh copies and no time-query output or solver reader is retained.
  */
 export function prepareStandingLegs(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   yaw: number,
   toeOut: number,
 ): (
   root: IAutoMovieVector3,
   feet: Record<"left" | "right", IAutoMovieVector3>,
-) => IHumanPosture["limbs"] {
+) => IAutoMovieMotionHumanPosture["limbs"] {
   /** Fixed heading rotation and body-local contact of one side. */
   function foot(side: "left" | "right"): {
     yaw: number;
@@ -61,6 +61,6 @@ export function prepareStandingLegs(
   return (
     root: IAutoMovieVector3,
     feet: Record<"left" | "right", IAutoMovieVector3>,
-  ): IHumanPosture["limbs"] =>
+  ): IAutoMovieMotionHumanPosture["limbs"] =>
     standingLegs(body, root, yaw, feet, toeOut, fixed);
 }

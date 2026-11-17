@@ -1,4 +1,4 @@
-import { AutoMovieAnalysisDomain } from "./AutoMovieAnalysisDomain";
+import type { AutoMovieAnalysisDomain } from "./AutoMovieAnalysisDomain";
 
 /**
  * One place a required answer is missing, at whatever granularity it is missing

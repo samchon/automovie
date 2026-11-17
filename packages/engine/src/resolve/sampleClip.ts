@@ -1,6 +1,8 @@
 import {
   IAutoMovieClip,
+  type IAutoMovieClipShapeFault,
   IAutoMovieQuaternion,
+  type IAutoMovieSampledChannel,
   IAutoMovieTrack,
 } from "@automovie/interface";
 
@@ -10,8 +12,6 @@ import { segmentIndex } from "../math/segmentIndex";
 import { clipDurationFault } from "../validation/clipDurationFault";
 import { clipLoopFault } from "../validation/clipLoopFault";
 import { clipTrackShapeFaults } from "../validation/clipTrackShapeFaults";
-import type { IAutoMovieClipShapeFault } from "./../validation/IAutoMovieClipShapeFault";
-import { IAutoMovieSampledChannel } from "./IAutoMovieSampledChannel";
 import { channelIsRotation } from "./channelIsRotation";
 import { channelKey } from "./channelKey";
 

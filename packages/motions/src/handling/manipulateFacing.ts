@@ -1,11 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanManipulateFacing,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * The rotation one hand keeps through a keyed contact sequence
@@ -28,14 +30,14 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function manipulateFacing(
-  hold: IHumanPosture,
-  presses: readonly manipulateFacing.ISite[],
-  side: HumanHand.Side,
+  hold: IAutoMovieMotionHumanPosture,
+  presses: readonly IAutoMovieMotionHumanManipulateFacing.ISite[],
+  side: AutoMovieHumanSide,
 ): IAutoMovieQuaternion {
-  const mine: manipulateFacing.ISite | undefined = presses.find(
-    (p: manipulateFacing.ISite): boolean => p.side === side,
+  const mine: IAutoMovieMotionHumanManipulateFacing.ISite | undefined = presses.find(
+    (p: IAutoMovieMotionHumanManipulateFacing.ISite): boolean => p.side === side,
   );
-  const first: manipulateFacing.ISite = mine === undefined ? presses[0]! : mine;
+  const first: IAutoMovieMotionHumanManipulateFacing.ISite = mine === undefined ? presses[0]! : mine;
   const toward: IAutoMovieVector3 = Vector3.subtract(first.site, hold.root);
   const along: IAutoMovieVector3 = Vector3.subtract(
     toward,
@@ -45,26 +47,4 @@ export function manipulateFacing(
     fingers: Vector3.length(along) > 0 ? along : { x: 0, y: 0, z: 1 },
     palm: Vector3.scale(first.normal, -1),
   });
-}
-
-/**
- * Companion of {@link manipulateFacing}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member.
- * @evidence contracts/development/design.md#principled-representation A site, its normal and its hand.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The three facts the rotation reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts World vectors, no frame of its own.
- */
-export namespace manipulateFacing {
-  /** A site a hand presses, as the rotation reads it. */
-  export interface ISite {
-    /** The site, world metres. */
-    site: IAutoMovieVector3;
-
-    /** Its outward normal, world. */
-    normal: IAutoMovieVector3;
-
-    /** The pressing hand. */
-    side: HumanHand.Side;
-  }
 }

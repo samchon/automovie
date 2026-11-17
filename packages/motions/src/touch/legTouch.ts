@@ -1,22 +1,24 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanLegTouch,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionKey } from "../HumanActionKey";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -55,15 +57,12 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  */
 export namespace legTouch {
   /** The action's name. */
-  export const name: HumanActionKey = "legTouch";
+  export const name: AutoMovieMotionHumanActionKey = "legTouch";
 
   /** Cancel table: the leg is left once it starts back. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
   };
-
-  /** The part of the leg that touches. */
-  export type With = "toes" | "heel" | "knee";
 
   /** How far the knee's joint centre lies under its front skin, metres (provisional). */
   export const KNEE: number = 0.05;
@@ -73,28 +72,6 @@ export namespace legTouch {
 
   /** The farthest the root is shifted along the level line to put the knee a thigh from the hip, metres (provisional). */
   export const SHIFT: number = 0.25;
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation The place as the shared target union, the part as a closed union, the hold in seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target union.
-   */
-  export interface IParams {
-    /** The place touched. */
-    target: AutoMovieMotionTarget;
-
-    /** The part of the leg; the toes when absent. */
-    with?: With;
-
-    /** The leg; `right` when absent. */
-    side?: "left" | "right";
-
-    /** Seconds the leg stays on the place; 0.5 when absent. */
-    hold?: number;
-  }
 
   /**
    * Plan a touch with the leg.
@@ -112,18 +89,18 @@ export namespace legTouch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The planning-only FK reader and initial/current hip vectors end with synchronous search or refusal. The plan retains its original base, solved goal and physical shift only, forwarding any runtime self query loan to the complete base evaluation; no reader, pose map or search history enters its evaluator.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const p: IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLegTouch.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const p: IAutoMovieMotionHumanLegTouch.IParams = context.params;
     const body = context.body;
-    const part: With = p.with ?? "toes";
+    const part: IAutoMovieMotionHumanLegTouch.With = p.with ?? "toes";
     const side: "left" | "right" = p.side ?? "right";
     const standing: "left" | "right" = side === "right" ? "left" : "right";
     const hold: number = p.hold ?? 0.5;
     HumanBound.least("hold", hold, 0, "s");
-    const entry: IHumanPosture = context.entry.posture;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const foot = context.entry.feet[side];
-    const place: AutoMovieMotionHumanTarget.IPlace =
+    const place: IAutoMovieMotionHumanTarget.IPlace =
       AutoMovieMotionHumanTarget.resolve(
         context,
         p.target,
@@ -139,10 +116,10 @@ export namespace legTouch {
 
     // The root over the standing ankle, with the moving leg's goal `at`.
     const moved = (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       shift: IAutoMovieVector3,
-      goal?: IHumanPosture.IGoal,
-    ): IHumanPosture => ({
+      goal?: IAutoMovieHumanLimbGoal,
+    ): IAutoMovieMotionHumanPosture => ({
       ...posture,
       root: Vector3.add(posture.root, shift),
       ...(goal === undefined
@@ -186,7 +163,7 @@ export namespace legTouch {
           projection ??= prepareHumanPostureProjection(body)).pose,
         resolution()).get(`${side}UpperLeg`)!.worldPosition;
     let shift: IAutoMovieVector3 = over;
-    let goal: IHumanPosture.IGoal;
+    let goal: IAutoMovieHumanLimbGoal;
     if (part === "knee") {
       const knee: IAutoMovieVector3 = Vector3.add(
         place.point,
@@ -267,7 +244,7 @@ export namespace legTouch {
       );
     const relax: number = reach + hold;
     const duration: number = relax + reach;
-    const base: IHumanActionPlan = AutoMovieMotionHumanBase.under(
+    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
       context,
       duration,
     );
@@ -281,14 +258,14 @@ export namespace legTouch {
         { name: "relax", share: relax / duration },
       ],
       contacts: base.contacts.filter(
-        (c: IHumanContactWindow): boolean => c.part !== `${side}Foot`,
+        (c: IAutoMovieMotionHumanContactWindow): boolean => c.part !== `${side}Foot`,
       ),
       posture: (
         seconds: number,
-        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
-        source?: Parameters<IHumanActionPlan["posture"]>[2],
-        nativeProjection?: Parameters<IHumanActionPlan["posture"]>[3],
-      ): IHumanPosture => {
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        nativeProjection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number =
           t < reach

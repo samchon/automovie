@@ -1,4 +1,8 @@
-import { type combinePhysicalMassProperties, physicalInertiaTensor } from "@automovie/engine";
+import {
+  type combinePhysicalMassProperties,
+  physicalInertiaTensor,
+} from "@automovie/engine";
+import type { IAutoMovieCombinePhysicalMassProperties } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -27,13 +31,13 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable in-memory numerical unit owns every part, vector and returned row. It replaces no library operation or global, changes no physical acceptance bound and starts no host or compiler.
  */
 export function test_physics_prepared_inertia_tensor(): void {
-  const part: combinePhysicalMassProperties.IPart = {
+  const part: IAutoMovieCombinePhysicalMassProperties.IPart = {
     mass: 2,
     centerOfMass: { x: 1, y: 2, z: 3 },
     inertia: { x: 1, y: 2, z: 4 },
     inertiaRotation: { x: 0, y: 0, z: 0, w: 1 },
   };
-  const parts: combinePhysicalMassProperties.IPart[] = [part];
+  const parts: IAutoMovieCombinePhysicalMassProperties.IPart[] = [part];
   const read: ReturnType<typeof physicalInertiaTensor.prepare> = physicalInertiaTensor.prepare();
   const origin: { x: number; y: number; z: number } = { x: 0, y: 0, z: 0 };
   const first: number[][] = read(parts, origin);
@@ -88,7 +92,7 @@ export function test_physics_prepared_inertia_tensor(): void {
     [[2, 0, 0], [0, 7, 0], [0, 0, 8]],
   );
   let moment: number = 2;
-  const capturedPart: combinePhysicalMassProperties.IPart = {
+  const capturedPart: IAutoMovieCombinePhysicalMassProperties.IPart = {
     mass: 1, centerOfMass: { x: 0, y: 0, z: 0 }, inertiaRotation: { x: 0, y: 0, z: 0, w: 1 },
     inertia: { get x(): number { const value: number = moment; moment = 100; return value; }, y: 3, z: 4 },
   };

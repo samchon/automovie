@@ -1,9 +1,12 @@
-import type { IAutoMovieJointPose } from "@automovie/interface";
+import type {
+  IAutoMovieFitChainToTargetProps,
+  IAutoMovieHingedArmSwivel,
+  IAutoMovieJointPose,
+  IAutoMovieSeededChainFit,
+} from "@automovie/interface";
 
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
-import type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { orientChainEffector } from "./orientChainEffector";
 import { prepareHingedChainAt } from "./prepareHingedChainAt";
 
@@ -37,14 +40,14 @@ import { prepareHingedChainAt } from "./prepareHingedChainAt";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the preparation ends with the call.
  */
 export function fitHingedChainAt(
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   swivel: number,
   branch: number,
 ): (IAutoMovieSeededChainFit & { shortfall: number }) | null {
   const at: prepareHingedChainAt.IPrepared | null = prepareHingedChainAt(props);
   if (at === null) return null;
   const index: number = Math.min(Math.max(0, Math.round(branch)), at.branches.length - 1);
-  const stop: hingedArmSwivel.IStop = at.branches[index]!;
+  const stop: IAutoMovieHingedArmSwivel.IStop = at.branches[index]!;
   const posed: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> = hingedArmSwivel.pose(at.chain, stop.theta)(swivel);
   const upper: IAutoMovieJointPose = at.workspace.clamp({
     bone: props.chain.upper,

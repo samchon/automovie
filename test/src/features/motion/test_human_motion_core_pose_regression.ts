@@ -6,10 +6,11 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { IHumanBody } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import CORPUS from "../internal/MOTION_HUMAN_POSE_CORPUS.json";
@@ -61,7 +62,7 @@ export function test_human_motion_core_pose_regression(): void {
   recorded.forEach((was: motionHumanPoseCorpus.IPose, i: number): void => {
     const now: motionHumanPoseCorpus.IPose | undefined = read[i];
     if (now === undefined) return;
-    const body: IHumanBody = motionHumanBody(
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(
       was.name.split(" ")[2]!.split("+")[0]! as motionHumanBody.Name,
     );
     const bones: string[] = [
@@ -98,7 +99,7 @@ export function test_human_motion_core_pose_regression(): void {
  * A joint's tolerance, degrees: a curled digit's at its lever to the tip
  * (`curlChainUntilContact.resolution`), every other joint's `ROM_TOLERANCE`.
  */
-function tolerance(body: IHumanBody, bone: string): number {
+function tolerance(body: IAutoMovieMotionHumanBody, bone: string): number {
   const digit: RegExpExecArray | null = DIGIT.exec(bone);
   if (digit === null) return ROM_TOLERANCE;
   const side: string = digit[1]!;
@@ -116,14 +117,11 @@ function tolerance(body: IHumanBody, bone: string): number {
       ? ["Metacarpal", "Proximal", "Distal"]
       : ["Proximal", "Intermediate", "Distal"]
   ).map((part: string): string => `${side}${digit[2]}${part}`);
-  const capsule: IAutoMoviePhysicalProfile.IShape | undefined =
-    body.profile.segments
-      .find(
-        (s: IAutoMoviePhysicalProfile.ISegment): boolean => s.bone === chain[2],
-      )
-      ?.shapes.find(
-        (s: IAutoMoviePhysicalProfile.IShape): boolean => s.kind === "capsule",
-      );
+  const capsule: IAutoMoviePhysicalShape | undefined = body.profile.segments
+    .find((s: IAutoMoviePhysicalSegment): boolean => s.bone === chain[2])
+    ?.shapes.find(
+      (s: IAutoMoviePhysicalShape): boolean => s.kind === "capsule",
+    );
 
   // The distal phalanx reaches its tip at its capsule's far end.
   const tip: number =

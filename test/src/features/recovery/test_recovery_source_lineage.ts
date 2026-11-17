@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieRecoverySourceLineage,
-  observeAutoMovieRecovery,
-} from "@automovie/recovery";
+import type { IAutoMovieRecoverySourceLineage } from "@automovie/interface";
+import { observeAutoMovieRecovery } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -190,7 +188,7 @@ export function test_recovery_source_lineage(): void {
   const during: AbortController = new AbortController();
   const cancelled: ReturnType<typeof observeAutoMovieRecovery> =
     observeAutoMovieRecovery(input, {
-      signal: during.signal,
+      cancelled: (): boolean => during.signal.aborted,
       onSourceLineage: (): void => {
         delivered++;
         during.abort();
@@ -208,7 +206,7 @@ export function test_recovery_source_lineage(): void {
   );
   const preaborted: ReturnType<typeof observeAutoMovieRecovery> =
     observeAutoMovieRecovery(input, {
-      signal: during.signal,
+      cancelled: (): boolean => during.signal.aborted,
       onSourceLineage: (): void => {
         delivered++;
       },

@@ -1,11 +1,14 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanKickGeometry,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingReach,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import type { IKickGeometry } from "./IKickGeometry";
 import { KickCarriage } from "./KickCarriage";
 import { KickChain } from "./KickChain";
 import { KickForm } from "./KickForm";
@@ -41,10 +44,10 @@ export namespace KickContact {
   /** A carriage with the leg fitted under it. */
   export interface IContact {
     /** The carriage. */
-    carriage: IKickGeometry.ICarriage;
+    carriage: IAutoMovieMotionHumanKickGeometry.ICarriage;
 
     /** The body's posture at the contact under the carriage. */
-    base: IHumanPosture;
+    base: IAutoMovieMotionHumanPosture;
 
     /** The fitted leg. */
     fit: KickChain.IFit;
@@ -71,7 +74,7 @@ export namespace KickContact {
   export function choose(
     props: KickCarriage.IProps,
     chain: KickChain.IProps,
-    set: Pick<IKickGeometry.ICarriage, "turn" | "pitch"> & { drive?: number },
+    set: Pick<IAutoMovieMotionHumanKickGeometry.ICarriage, "turn" | "pitch"> & { drive?: number },
     step: number | undefined,
     prefer?: number,
   ): IContact {
@@ -90,12 +93,12 @@ export namespace KickContact {
         if (lean !== prefer) leans.push(lean);
       }
     else if (prefer !== 0) leans.push(0);
-    const m: IHumanBody["measure"] = props.body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = props.body.measure;
     const limit: number =
       KickForm.STEP_SHARE * StrikingStance.length(props.body);
     const back: number = KickForm.STEP_BACK_SHARE * m.stature;
-    const under: (carriage: IKickGeometry.ICarriage, source?: ISource) => ITrial = (carriage: IKickGeometry.ICarriage, source?: ISource): ITrial => {
-      const base: IHumanPosture = source?.base ?? KickCarriage.posture(
+    const under: (carriage: IAutoMovieMotionHumanKickGeometry.ICarriage, source?: ISource) => ITrial = (carriage: IAutoMovieMotionHumanKickGeometry.ICarriage, source?: ISource): ITrial => {
+      const base: IAutoMovieMotionHumanPosture = source?.base ?? KickCarriage.posture(
         props,
         carriage,
         props.timing.impact,
@@ -120,7 +123,7 @@ export namespace KickContact {
     let least: number = Number.POSITIVE_INFINITY;
     let landed: boolean = false;
     for (const lean of leans) {
-      let carriage: IKickGeometry.ICarriage = {
+      let carriage: IAutoMovieMotionHumanKickGeometry.ICarriage = {
         turn: set.turn,
         pitch: set.pitch,
         lean,
@@ -130,7 +133,7 @@ export namespace KickContact {
       let forward: number = limit;
       let source: ISource | undefined;
       if (step === undefined) {
-        const base: IHumanPosture = KickCarriage.posture(
+        const base: IAutoMovieMotionHumanPosture = KickCarriage.posture(
           props,
           carriage,
           props.timing.impact,
@@ -142,7 +145,7 @@ export namespace KickContact {
           props.side,
           resolution, rom(),
         );
-        const solved: StrikingReach.ISolution = KickChain.solve(chain, base, hip);
+        const solved: IAutoMovieMotionHumanStrikingReach.ISolution = KickChain.solve(chain, base, hip);
         source = { base, hip, solved };
         const reach: IAutoMovieVector3 = Vector3.subtract(solved.point, hip);
         const span: number = Vector3.length(reach);
@@ -265,12 +268,12 @@ export namespace KickContact {
   /** The already-computed zero-step source, used only if that first trial keeps exactly positive zero step. */
   interface ISource {
     /** The exact same carriage's posture before the leg is fitted. */
-    base: IHumanPosture;
+    base: IAutoMovieMotionHumanPosture;
 
     /** Its kicking hip, world metres. */
     hip: IAutoMovieVector3;
 
     /** The actual reach solve already made on that base. */
-    solved: StrikingReach.ISolution;
+    solved: IAutoMovieMotionHumanStrikingReach.ISolution;
   }
 }

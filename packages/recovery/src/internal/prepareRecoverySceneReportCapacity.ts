@@ -1,6 +1,9 @@
-import type { IAutoMovieRecoverySceneWork } from "../structures/image/IAutoMovieRecoverySceneWork";
-import type { IAutoMovieRecoveryFeasibleReportCapacity } from "../structures/internal/IAutoMovieRecoveryFeasibleReportCapacity";
-import type { IAutoMovieRecoverySceneFeasibleRouting } from "../structures/internal/IAutoMovieRecoverySceneFeasibleRouting";
+import type {
+  IAutoMovieRecoveryFeasibleReportCapacity,
+  IAutoMovieRecoverySceneFeasibleRouting,
+  IAutoMovieRecoverySceneWork,
+} from "@automovie/interface";
+
 import { prepareRecoveryFeasibleReportCapacity } from "./prepareRecoveryFeasibleReportCapacity";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 

@@ -1,11 +1,16 @@
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftFrameSource,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieStationHermite,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+} from "@automovie/interface";
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
-import type { AutoMovieViewAxis } from "./AutoMovieViewAxis";
-import type { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /**
  * Explicit actual-axis ownership of a loft's frame, with the original Hermite fallback.
@@ -16,28 +21,6 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftFrameSource {
-  /**
-   * An actual source and independent numeric snapshot of its published layer jet.
-   *
-   * @evidence contracts/development/design.md#principled-representation The callable source determines intermediate frames; station/value/derivatives verify that a copied layer still represents that source datum.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Axis identity and one station jet make geometry ownership visible in the layer record.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A stripped or mutated source is invalid, not an instruction to respline; source absence alone selects ordinary layer interpolation.
-   * @evidence contracts/development/common.md#meaningful-documentation Same numeric layer copies preserve meaning while sharing the actual immutable axis; JSON cannot serialize that callable and must reconstruct it from the authored tree.
-   */
-  export interface ISource {
-    /** Immutable actual source; its analytic jet callback must remain callable. */
-    axis: AutoMovieViewAxis.IAxis;
-
-    /** Source station of this layer, mm. */
-    station: number;
-
-    /** Independently copied finite source value, including at a singular station. */
-    frame: AutoMovieLoftFrame.IFrame;
-
-    /** Independently copied station jet; null preserves a finite value whose station derivatives are singular or nonfinite. */
-    jet: AutoMovieViewAxisJet.IJet | null;
-  }
-
   /**
    * Retain an analytic axis on every final loft layer, replacing resplined frame jets.
    *
@@ -51,19 +34,19 @@ export namespace AutoMovieLoftFrameSource {
    */
   export function retain(
     chain: IAutoMovieLoftChain,
-    axis: AutoMovieViewAxis.IAxis,
+    axis: IAutoMovieViewAxis.IAxis,
   ): IAutoMovieLoftChain | string {
     if (axis.jet === undefined) return chain;
-    const layers: Layer[] = [];
+    const layers: IAutoMovieLoftChain.ILayer[] = [];
     for (const layer of chain.layers) {
-      const jet: AutoMovieViewAxisJet.IJet | null = axis.jet(layer.y);
-      const frame: AutoMovieLoftFrame.IFrame = jet?.value ?? axis.at(layer.y);
+      const jet: IAutoMovieViewAxisJet.IJet | null = axis.jet(layer.y);
+      const frame: IAutoMovieLoftSectionFrame = jet?.value ?? axis.at(layer.y);
       if (
         !finite(frame) ||
         (jet !== null && ![jet.value, jet.first, jet.second].every(finite))
       )
         return `axis has nonfinite frame data at station ${layer.y} mm`;
-      const retained: Layer = {
+      const retained: IAutoMovieLoftChain.ILayer = {
         ...layer,
         frame,
         frameSource: {
@@ -103,8 +86,9 @@ export namespace AutoMovieLoftFrameSource {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure validation creates no reusable preparation.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no layer, source or output after returning or throwing.
    */
-  export function validate(layer: Layer): void {
-    const source: ISource | undefined = layer.frameSource;
+  export function validate(layer: IAutoMovieLoftChain.ILayer): void {
+    const source: IAutoMovieLoftFrameSource.ISource | undefined =
+      layer.frameSource;
     if (source === undefined) return;
     const derivatives: boolean =
       source.jet === null
@@ -134,14 +118,17 @@ export namespace AutoMovieLoftFrameSource {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh source jet or null and owns no cache or retained endpoint references.
    */
   export function actual(
-    a: Layer,
-    b: Layer,
+    a: IAutoMovieLoftChain.ILayer,
+    b: IAutoMovieLoftChain.ILayer,
     station: number,
-    parameter?: AutoMovieConstructionOutlineParameter,
-  ): AutoMovieViewAxisJet.IJet | null {
-    const axis: AutoMovieViewAxis.IAxis | null = owner(a, b);
+    parameter?: IAutoMovieConstructionOutlineParameter,
+  ): IAutoMovieViewAxisJet.IJet | null {
+    const axis: IAutoMovieViewAxis.IAxis | null = owner(a, b);
     if (axis === null) return null;
-    const jet: AutoMovieViewAxisJet.IJet | null = axis.jet!(station, parameter);
+    const jet: IAutoMovieViewAxisJet.IJet | null = axis.jet!(
+      station,
+      parameter,
+    );
     if (jet === null || ![jet.value, jet.first, jet.second].every(finite))
       throw new AutoMovieLoftAdmissionError(
         `Retained axis has no finite analytic frame jet at station ${station} mm`,
@@ -165,13 +152,13 @@ export namespace AutoMovieLoftFrameSource {
     s: number,
     lo: number,
     hi: number,
-  ): AutoMovieLoftFrame.IFrame {
-    const layers: readonly Layer[] = chain.layers;
-    const a: Layer = layers[lo]!;
-    const b: Layer = layers[hi]!;
-    const axis: AutoMovieViewAxis.IAxis | null = owner(a, b);
+  ): IAutoMovieLoftSectionFrame {
+    const layers: readonly IAutoMovieLoftChain.ILayer[] = chain.layers;
+    const a: IAutoMovieLoftChain.ILayer = layers[lo]!;
+    const b: IAutoMovieLoftChain.ILayer = layers[hi]!;
+    const axis: IAutoMovieViewAxis.IAxis | null = owner(a, b);
     if (axis !== null) {
-      const value: AutoMovieLoftFrame.IFrame = axis.at(s);
+      const value: IAutoMovieLoftSectionFrame = axis.at(s);
       if (!finite(value))
         throw new Error(
           `Retained axis has no finite frame value at station ${s} mm`,
@@ -182,9 +169,9 @@ export namespace AutoMovieLoftFrameSource {
       AutoMovieStationHermite.framed(a) &&
       AutoMovieStationHermite.framed(b)
     ) {
-      const ea: AutoMovieStationHermite.IEnd =
+      const ea: IAutoMovieStationHermite.IEnd =
         AutoMovieStationHermite.frameEnd(a);
-      const eb: AutoMovieStationHermite.IEnd =
+      const eb: IAutoMovieStationHermite.IEnd =
         AutoMovieStationHermite.frameEnd(b);
       const quintic: boolean =
         ea.curvature !== undefined && eb.curvature !== undefined;
@@ -205,9 +192,9 @@ export namespace AutoMovieLoftFrameSource {
       layers[hi + 1]?.frame === undefined
     )
       return AutoMovieLoftFrame.horizontal(s);
-    const frameOf: (k: number) => AutoMovieLoftFrame.IFrame = (
+    const frameOf: (k: number) => IAutoMovieLoftSectionFrame = (
       k: number,
-    ): AutoMovieLoftFrame.IFrame =>
+    ): IAutoMovieLoftSectionFrame =>
       layers[k]!.frame ?? AutoMovieLoftFrame.horizontal(layers[k]!.y);
     const H: number = b.y - a.y;
 
@@ -266,7 +253,10 @@ export namespace AutoMovieLoftFrameSource {
   }
 
   /** Validate both explicit records and distinguish a common source from an ordinary mixed-source boundary. */
-  function owner(a: Layer, b: Layer): AutoMovieViewAxis.IAxis | null {
+  function owner(
+    a: IAutoMovieLoftChain.ILayer,
+    b: IAutoMovieLoftChain.ILayer,
+  ): IAutoMovieViewAxis.IAxis | null {
     validate(a);
     validate(b);
     return a.frameSource !== undefined &&
@@ -277,21 +267,18 @@ export namespace AutoMovieLoftFrameSource {
   }
 }
 
-/** The explicit runtime principal-layer source datum. */
-type Layer = IAutoMovieLoftChain.ILayer;
-
 /** Frame component triple. */
 type Vec3 = [number, number, number];
 
 /** Independent numeric copy permits value-preserving layer copies without reference-identity semantics. */
-function copy(frame: AutoMovieLoftFrame.IFrame): AutoMovieLoftFrame.IFrame {
+function copy(frame: IAutoMovieLoftSectionFrame): IAutoMovieLoftSectionFrame {
   return { origin: [...frame.origin], u: [...frame.u], v: [...frame.v] };
 }
 
 /** Exact component equality of copied layer data, with absence distinct from a supplied source jet. */
 function same(
-  frame: AutoMovieLoftFrame.IFrame | undefined,
-  snapshot: AutoMovieLoftFrame.IFrame,
+  frame: IAutoMovieLoftSectionFrame | undefined,
+  snapshot: IAutoMovieLoftSectionFrame,
 ): boolean {
   return (
     frame !== undefined &&
@@ -308,7 +295,7 @@ function same(
 }
 
 /** Finite actual frame components are required before publishing an analytic jet. */
-function finite(frame: AutoMovieLoftFrame.IFrame): boolean {
+function finite(frame: IAutoMovieLoftSectionFrame): boolean {
   return (
     frame.origin.every(Number.isFinite) &&
     frame.u.every(Number.isFinite) &&

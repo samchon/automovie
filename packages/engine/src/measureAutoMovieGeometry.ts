@@ -1,9 +1,9 @@
 import {
-  AutoMovieGeometryQuery,
+  type IAutoMovieGeometryMeasurementInput,
+  type IAutoMovieGeometryQuery,
   IAutoMovieGeometryResult,
 } from "@automovie/interface";
 
-import { IAutoMovieGeometryMeasurementInput } from "./IAutoMovieGeometryMeasurementInput";
 import { measureAutoMovieGeometryCamera } from "./measureAutoMovieGeometryCamera";
 import { measureAutoMovieGeometryDistance } from "./measureAutoMovieGeometryDistance";
 import { measureAutoMovieGeometryEffect } from "./measureAutoMovieGeometryEffect";
@@ -27,7 +27,7 @@ import { measureAutoMovieGeometryReach } from "./measureAutoMovieGeometryReach";
 export function measureAutoMovieGeometry(
   props: IAutoMovieGeometryMeasurementInput,
 ): IAutoMovieGeometryResult {
-  const request: AutoMovieGeometryQuery = props.request;
+  const request: IAutoMovieGeometryQuery = props.request;
   switch (request.query) {
     case "distance":
       return measureAutoMovieGeometryDistance(props, request);

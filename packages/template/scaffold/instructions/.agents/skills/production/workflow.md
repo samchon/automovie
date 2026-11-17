@@ -1,8 +1,10 @@
 # Production workflow
 
-Start with the requested output in `PROJECT.md`, under [project context](project-context.md). For a finished film, the tasks connect like this:
+The order of a production's tasks, and what each hands to the next.
 
-## At a glance
+## Handoffs
+
+For a finished film, the tasks connect like this:
 
 ```mermaid
 flowchart LR
@@ -15,32 +17,54 @@ flowchart LR
     assembly --> delivery[Delivery review]
 ```
 
-| Task | Receives | Produces |
+| Task | Receives | Hands on |
 | --- | --- | --- |
-| [Story](../story/SKILL.md) | The request and adopted facts | The screenplay: what the audience sees and hears, including events, lines, cuts and sound |
-| [Motion](../motion/SKILL.md) | The screenplay and [simple 3D subjects](../development/entities.md#coarse-first) | The motion hint: the performed action, staging, camera and timing |
-| [Image](../image/SKILL.md) | Subject facts and the adopted look | Reusable appearance references; where needed, a shot frame made from a hint frame and those references |
-| [Video](../video/SKILL.md) | The screenplay, reviewed performance and required images and [audio](../audio/SKILL.md) | Final picture: directly rendered scenes or accepted generated clips, called takes |
-| [Assembly](assembly.md) | Programmed scenes or finished takes, with commissioned sound and captions | The complete video for [delivery review](../review/delivery-review.md) |
+| [Story](../story/SKILL.md) | The request and adopted facts | The screenplay |
+| [Motion](../motion/SKILL.md) | The screenplay and simple 3D subjects | The motion hint |
+| [Image](../image/SKILL.md) | Subject facts and the adopted look | Appearance references and shot frames |
+| [Video](../video/SKILL.md) | The screenplay, the reviewed hint, images and audio | The final picture |
+| [Assembly](assembly.md) | Programmed scenes or finished takes, sound and captions | The complete video |
 
-Motion supplies how things move; image supplies how they look. They can develop alongside each other, but a shot frame needs its motion-hint frame first.
+The screenplay states what the audience sees and hears: events, lines, cuts and sound. The motion hint is the performed action, staging, camera and timing, on [simple 3D subjects](../development/entities.md#coarse-first).
 
-Accept the performance on polygon people and coarse objects. Video then finishes the picture: direct rendering selects commissioned [entity detail options](../development/entities.md#detail); generation uses images and prompts to give the hint its look.
+Accept the performance on polygon people and coarse objects. Video then finishes the picture, by direct rendering that selects commissioned [entity detail options](../development/entities.md#detail) or by generation that uses images and prompts to give the hint its look. The final picture is directly rendered scenes or accepted generated clips, called takes.
 
-## Work order
+Image can develop alongside motion, but a shot frame needs its motion-hint frame first.
 
-For a generated film, choose the video model with the user under [video diffusion](../video/diffusion/SKILL.md) before preparing its images or rendering its inputs. Its accepted inputs determine what to make.
+Commissioned sound comes from [audio](../audio/SKILL.md).
 
-The [story route](../story/workflow/SKILL.md) sets how the screenplay is written. A short runs [brief](../story/layers/brief.md#what-it-holds) (shared subject facts) → screenplay. Long work develops settings → treatments → scripts → screenplay: world facts, events, performed scenes, then the final audiovisual plan.
+## Order by output
 
-The short route includes a programmed film draft before narrative review when a film is commissioned. Generate takes only after the [generation prerequisites](../video/generated-film.md#prerequisites) are met.
+The commissioned output selects the steps and where they end.
 
-## Delivery paths
+### Screenplay
 
-The [commissioned output](SKILL.md#commissioned-outputs) selects where the path ends:
+1. Record the commission in [project context](project-context.md).
+2. Write the screenplay along its [story route](../story/workflow/SKILL.md).
+3. Pass [delivery review](../review/delivery-review.md).
 
-- Screenplay only: finish at the text along its chosen story route.
-- Whole motion hint: assemble and review the complete programmed film.
-- Direct 3D film: finish the programmed film under [direct rendering](../video/direct-film.md), then assemble and review it.
-- Generated film: generate and finish takes, then assemble and review the complete film.
-- Standalone asset: follow its task and [asset review](../review/delivery-review.md#assets), without a story or film.
+A short runs [brief](../story/layers/brief.md#what-it-holds) (shared subject facts) → screenplay. Long work develops settings → treatments → scripts → screenplay: world facts, events, performed scenes, then the final audiovisual plan.
+
+### Whole motion hint
+
+1. Record the commission in [project context](project-context.md).
+2. Write the screenplay along its [story route](../story/workflow/SKILL.md).
+3. Program the film in the [order](../motion/SKILL.md#order) motion sets.
+4. Assemble the whole timeline under [assembly](assembly.md).
+5. Pass [delivery review](../review/delivery-review.md).
+
+On the short route, step 3 runs inside the route as a programmed film draft, before its narrative review.
+
+### Direct 3D film
+
+The whole motion hint's steps, with the film finished under [direct rendering](../video/direct-film.md) before assembly.
+
+### Generated film
+
+Run the whole motion hint's steps through step 3, then the [generated film](../video/generated-film.md) steps once its [prerequisites](../video/generated-film.md#prerequisites) are met. Assembly and delivery review follow on the finished takes.
+
+Choose the video model with the user under [video diffusion](../video/diffusion/SKILL.md) before preparing any image or rendering any input for it, because the inputs it accepts determine what to make.
+
+### Standalone asset
+
+An asset has no story or film. It runs its own task and ends at [asset review](../review/delivery-review.md#assets).

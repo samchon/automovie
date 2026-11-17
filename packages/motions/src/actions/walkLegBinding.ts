@@ -1,15 +1,16 @@
 import {
-  physicalHullFaces,
-  physicalShapeSegmentDistance,
   Quaternion,
   Vector3,
+  physicalHullFaces,
+  physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePhysicalHullFaces,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanColliders } from "../posture/HumanColliders";
 import { walkLegCapsules } from "./walkLegCapsules";
 
 /**
@@ -45,7 +46,7 @@ export namespace walkLegBinding {
     shape: number;
 
     /** The face plane the probe lies least inside, in the hull's frame; none for a shape that is not a hull. */
-    face: physicalHullFaces.IFace | undefined;
+    face: IAutoMoviePhysicalHullFaces.IFace | undefined;
 
     /** The probe's reference depth there, metres. */
     reference: number;
@@ -64,8 +65,8 @@ export namespace walkLegBinding {
    */
   export function relative(
     probe: IAutoMovieVector3,
-    a: HumanColliders.IPlaced,
-    b: HumanColliders.IPlaced,
+    a: IAutoMovieMotionHumanColliders.IPlaced,
+    b: IAutoMovieMotionHumanColliders.IPlaced,
   ): IAutoMovieVector3 {
     return prepareRelative(a, b)(probe);
   }
@@ -86,8 +87,8 @@ export namespace walkLegBinding {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The pair-local closure holds one private translation and rotation until that synchronous loop finishes or throws; it retains no query history or external resource.
    */
   export function prepareRelative(
-    a: HumanColliders.IPlaced,
-    b: HumanColliders.IPlaced,
+    a: IAutoMovieMotionHumanColliders.IPlaced,
+    b: IAutoMovieMotionHumanColliders.IPlaced,
   ): (probe: IAutoMovieVector3) => IAutoMovieVector3 {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(b.pose.rotation);
     const offset: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -116,10 +117,10 @@ export namespace walkLegBinding {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The one-query reader releases on return or throw and returns only depth/face data, with no retained point or history.
    */
   export function inside(
-    shape: HumanColliders.IPlaced["shapes"][number],
+    shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
     local: IAutoMovieVector3,
     floor: number,
-  ): { depth: number; face: physicalHullFaces.IFace | undefined } {
+  ): { depth: number; face: IAutoMoviePhysicalHullFaces.IFace | undefined } {
     return prepareInside(shape)(local, floor);
   }
 
@@ -138,8 +139,8 @@ export namespace walkLegBinding {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One operation-local reader per actually visited shape holds fixed shape/hull data and releases with reading; no point, depth, prior pose or global cache is retained.
    */
   export function prepareInside(
-    shape: HumanColliders.IPlaced["shapes"][number],
-  ): (local: IAutoMovieVector3, floor: number) => { depth: number; face: physicalHullFaces.IFace | undefined } {
+    shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
+  ): (local: IAutoMovieVector3, floor: number) => { depth: number; face: IAutoMoviePhysicalHullFaces.IFace | undefined } {
     if (shape.kind !== "hull")
       return (local: IAutoMovieVector3): { depth: number; face: undefined } => ({
         depth: Math.max(
@@ -149,8 +150,8 @@ export namespace walkLegBinding {
         face: undefined,
       });
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(shape.transform.rotation);
-    const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
-    return (local: IAutoMovieVector3, floor: number): { depth: number; face: physicalHullFaces.IFace | undefined } => {
+    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(shape.points);
+    return (local: IAutoMovieVector3, floor: number): { depth: number; face: IAutoMoviePhysicalHullFaces.IFace | undefined } => {
       const point: IAutoMovieVector3 = Quaternion.rotateVector(
         inverse,
         Vector3.subtract(local, shape.transform.position),
@@ -160,7 +161,7 @@ export namespace walkLegBinding {
       if (Vector3.length(Vector3.subtract(point, hull.centre)) >= hull.radius)
         return { depth: 0, face: undefined };
       let depth: number = Infinity;
-      let face: physicalHullFaces.IFace | undefined;
+      let face: IAutoMoviePhysicalHullFaces.IFace | undefined;
       for (const f of hull.faces) {
         const d: number = f.offset - Vector3.dot(f.normal, point);
         if (d < depth) {
@@ -185,9 +186,9 @@ export namespace walkLegBinding {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The short-lived reader releases on return or throw and only its scalar result escapes.
    */
   export function planar(
-    shape: HumanColliders.IPlaced["shapes"][number],
+    shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
     local: IAutoMovieVector3,
-    face: physicalHullFaces.IFace,
+    face: IAutoMoviePhysicalHullFaces.IFace,
   ): number {
     return preparePlanar(shape, face)(local);
   }
@@ -208,8 +209,8 @@ export namespace walkLegBinding {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The binding closure owns one inverse/shape/face reader until released and keeps no moved point, depth, prior leg or external handle.
    */
   export function preparePlanar(
-    shape: HumanColliders.IPlaced["shapes"][number],
-    face: physicalHullFaces.IFace,
+    shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
+    face: IAutoMoviePhysicalHullFaces.IFace,
   ): (local: IAutoMovieVector3) => number {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(shape.transform.rotation);
     return (local: IAutoMovieVector3): number => {

@@ -1,17 +1,17 @@
 ---
 name: audio-diffusion
-description: Chooses audio generators, writes speech and sound prompts, clones voices and converts performances. Use when choosing an audio model, writing a generation request or cloning a reference voice.
+description: Chooses audio models, writes sound prompts and clones voices.
 ---
 
 # Audio generation
 
-Generate audio for the sound work [audio](../SKILL.md) admits. This route includes diffusion, flow and autoregressive models; choose by the conditioning the task needs. Rights and accepted takes belong to [acquisition](../acquisition.md).
+Generate audio for the sound work the audio skill admits. This route includes diffusion, flow and autoregressive models; choose by the conditioning the task needs. Rights and accepted takes belong to [acquisition](../acquisition.md).
 
-| Task | Read |
+| Read | To |
 | --- | --- |
-| Choose a speech, conversion or sound model | [Models](models.md) |
-| Write speech, effects or music prompts | [Prompts](prompts.md) |
-| Clone a voice or convert an existing performance | [Cloning](cloning.md) |
+| [Models](models.md) | Choose a speech, conversion or sound model |
+| [Prompts](prompts.md) | Write speech, effects or music prompts |
+| [Cloning](cloning.md) | Clone a voice or convert an existing performance |
 
 ## Model documentation
 

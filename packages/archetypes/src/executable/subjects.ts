@@ -1,5 +1,4 @@
-import type { IAutoMovieMark } from "@automovie/engine";
-import type { IAutoMovieTransform } from "@automovie/interface";
+import type { IAutoMovieMark, IAutoMovieTransform } from "@automovie/interface";
 import {
   type AutoMovieDrawSubjects,
   type IAutoMovieDrawScene,
@@ -9,8 +8,9 @@ import {
 } from "@automovie/render";
 import * as THREE from "three";
 
-import { type Archetype, ArchetypeMarks } from "../core";
+import { ArchetypeMarks } from "../core";
 import { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
+import { archetypeQuadrupedMarks } from "./archetypeQuadrupedMarks";
 
 /** Width and height of every picture drawn, pixels: square, because an archetype is read from all sides. */
 const RASTER: number = 960;
@@ -29,15 +29,23 @@ const FPS: number = 30;
  *
  * Each subject holds one or several archetypes, each built by `render`'s `buildModel` with its parts named by their ids under an object named after the member inside the group `set`, several set along a diagonal so that a front and a side view each show every member apart, on a light background under an ambient light and one key light, over a floor grid named `ground` with lines every 0.25 m. Its affordances are marks of the kinds `affordance/<kind>` from `ArchetypeMarks`, so `--marks affordance/*` draws every contact frame and extent over the model. A still archetype lasts one frame; a ridden one lasts its ride, and seeking rebuilds the model at that second under its root's placement. The delivery camera stands three-quarters to the front; the instrument's named views, fitted to what is drawn, are how it is read. The props are not read.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what each subject holds, how objects and marks are named, what seeking does and the delivery camera.
- * @evidence contracts/development/implementation.md#principled-implementation Models are built by `render`'s own `buildModel` and marks by `ArchetypeMarks`, so the stills show the model a production would draw; the floor and the camera are measured from the built objects over the subject's whole clock.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Lay the members out, build them at a second, measure the floor, add the grid and the camera.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is drawn that the catalog's archetypes do not declare; the grid is the only dressing.
- * @evidence contracts/development/implementation.md#efficient-algorithms A seek rebuilds each member, a few tens of primitives; a moving subject's floor is measured at 24 evenly spaced samples of its clock.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Member offsets and arrow lengths are measured once per subject.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each seek releases the geometry and materials of the models it replaces, and `dispose` releases the last ones and the grid.
+ * Quadrupeds with an actual neutral reference also expose native `rig/*` marks:
+ * actual bar axes and joints, independently carried parent attachments, lowest
+ * primitive-height rulers and actual sole supports. Rest consumers additionally
+ * supply their same-sample terminal goals and actual goal-error segments.
+ * `surface=false` draws these marks alone; `xray=true` explicitly shows them
+ * through surfaces. These are model-space observations anchored to the same
+ * current member object that drawing uses, including its ride/layout transform.
  *
- * ```bash
+ * @evidence contracts/development/common.md#meaningful-documentation States actual draw/mark ownership, native rig families and same-sample rest goals, model-space anchoring, surface/xray inspection, scene layout, seeking and the delivery camera.
+ * @evidence contracts/development/implementation.md#principled-implementation Models use render's real buildModel; affordances use ArchetypeMarks and quadruped diagnostics independently observe those same sampled parts against actual neutral sources or explicit producer goals. Anchored marks inherit the exact rendered member transform. Floor and camera extents cover the subject's whole clock.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Lay the members out, build them at a second, measure the floor, add the grid and the camera.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No substituted geometry or second pose sample supplies marks; only explicit producer goals receive effector-error marks. The grid is dressing and diagnostics are labelled construction observations, not anatomical or dynamic proof.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A seek rebuilds each actual member and observes its parts/bones linearly; a moving subject's floor is measured at 24 evenly spaced samples of its clock.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Member offsets, arrow lengths and neutral diagnostic hierarchy are prepared once; one actual sampled model supplies geometry, contacts and all diagnostics per placed frame.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each seek releases replaced geometry/materials, and any failed seek releases all partial current builds before rethrowing. Dispose releases the last models and grid; plain diagnostic records retain no rendering handles.
+ *
+ * ```powershell
  * pnpm capture --subject seats --views "three-quarter@focus=set/seat-office;right@ortho@focus=set/seat-office" --marks "affordance/*"
  * ```
  */
@@ -98,52 +106,72 @@ function build(entry: archetypeCaptureCatalog.ISubject): IAutoMovieDrawScene {
   }
 
   // The models at a second: rebuilt on every seek, because articulation moves parts and a ride moves the root.
+  const diagnostics: ReturnType<typeof archetypeQuadrupedMarks>[] =
+    entry.members.map(
+      (
+        member: archetypeCaptureCatalog.IMember,
+      ): ReturnType<typeof archetypeQuadrupedMarks> =>
+        archetypeQuadrupedMarks(member.reference),
+    );
   let current: IAutoMovieModelObject[] = [];
   let marks: IAutoMovieMark[] = [];
   const place = (seconds: number): THREE.Object3D[] => {
     for (const built of current) release(built);
     current = [];
     marks = [];
-    entry.members.forEach(
-      (member: archetypeCaptureCatalog.IMember, index: number): void => {
-        const posed: { archetype: Archetype; placement?: IAutoMovieTransform } =
-          member.at(seconds);
-        const placement: IAutoMovieTransform = {
-          translation: {
-            x: (posed.placement?.translation.x ?? 0) + offsets[index]!.x,
-            y: posed.placement?.translation.y ?? 0,
-            z: (posed.placement?.translation.z ?? 0) + offsets[index]!.z,
-          },
-          rotation: posed.placement?.rotation ?? { x: 0, y: 0, z: 0, w: 1 },
-          scale: { x: 1, y: 1, z: 1 },
-        };
-        const built: IAutoMovieModelObject = buildModel(posed.archetype);
-        built.object.name = member.name;
-        built.object.position.set(
-          placement.translation.x,
-          placement.translation.y,
-          placement.translation.z,
-        );
-        built.object.quaternion.set(
-          placement.rotation.x,
-          placement.rotation.y,
-          placement.rotation.z,
-          placement.rotation.w,
-        );
-        built.object.updateMatrixWorld(true);
-        set.add(built.object);
-        set.updateMatrixWorld(true);
-        current.push(built);
-        marks.push(
-          ...ArchetypeMarks.of(
-            `set/${member.name}`,
-            posed.archetype.affordances,
-            placement,
-            arrows[index]!,
-          ),
-        );
-      },
-    );
+    try {
+      entry.members.forEach(
+        (member: archetypeCaptureCatalog.IMember, index: number): void => {
+          const posed: ReturnType<archetypeCaptureCatalog.IMember["at"]> =
+            member.at(seconds);
+          const placement: IAutoMovieTransform = {
+            translation: {
+              x: (posed.placement?.translation.x ?? 0) + offsets[index]!.x,
+              y: posed.placement?.translation.y ?? 0,
+              z: (posed.placement?.translation.z ?? 0) + offsets[index]!.z,
+            },
+            rotation: posed.placement?.rotation ?? { x: 0, y: 0, z: 0, w: 1 },
+            scale: { x: 1, y: 1, z: 1 },
+          };
+          const observed: readonly IAutoMovieMark[] = [
+            ...diagnostics[index]!(
+              posed.archetype,
+              `set/${member.name}`,
+              posed.goals,
+            ),
+            ...ArchetypeMarks.of(
+              `set/${member.name}`,
+              posed.archetype.affordances,
+              placement,
+              arrows[index]!,
+            ),
+          ];
+          const built: IAutoMovieModelObject = buildModel(posed.archetype);
+          built.object.name = member.name;
+          built.object.position.set(
+            placement.translation.x,
+            placement.translation.y,
+            placement.translation.z,
+          );
+          built.object.quaternion.set(
+            placement.rotation.x,
+            placement.rotation.y,
+            placement.rotation.z,
+            placement.rotation.w,
+          );
+          built.object.updateMatrixWorld(true);
+          set.add(built.object);
+          set.updateMatrixWorld(true);
+          current.push(built);
+          marks.push(...observed);
+        },
+      );
+    } catch (error) {
+      for (const built of current) release(built);
+      current = [];
+      marks = [];
+      throw error;
+    }
     return current.map(
       (built: IAutoMovieModelObject): THREE.Object3D => built.object,
     );

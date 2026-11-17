@@ -1,7 +1,9 @@
 import { Vector3, physicalHullFaces } from "@automovie/engine";
 import type {
-  IAutoMoviePhysicalProfile as P,
+  IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalShape,
   IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 /**
@@ -21,7 +23,7 @@ import type {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh ball record with a fresh primitive origin or borrowed immutable hull centre; this owner retains no shape, query, result history or new cache, and existing hull retention stays with its engine owner.
  * @evidence contracts/development/common.md#meaningful-documentation Defines every containing formula, local frame/metre units, admitted-geometry premise, conservative use, failure and fresh-versus-borrowed ownership.
  */
-export function HumanColliderBound(shape: P.IShape): {
+export function HumanColliderBound(shape: IAutoMoviePhysicalShape): {
   /** Shape-local sphere centre, metres; borrowed for a hull and otherwise fresh. */
   centre: IAutoMovieVector3;
   /** Containing radius, metres. */
@@ -34,7 +36,7 @@ export function HumanColliderBound(shape: P.IShape): {
   if (shape.kind === "box")
     return { centre: origin, radius: Vector3.length(shape.halfExtents) };
   if (shape.kind === "hull") {
-    const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
+    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(shape.points);
     return { centre: hull.centre, radius: hull.radius };
   }
   shape satisfies never;

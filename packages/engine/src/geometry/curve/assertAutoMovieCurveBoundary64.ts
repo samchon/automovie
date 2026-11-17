@@ -1,4 +1,8 @@
-import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurveBoundary64,
+} from "@automovie/interface";
+
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 
 /**
@@ -15,7 +19,9 @@ import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No admission result is cached because caller-owned boundary arrays can change between calls.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The assertion mutates and retains no boundary or coefficient array.
  */
-export function assertAutoMovieCurveBoundary64(boundary: C.Boundary): void {
+export function assertAutoMovieCurveBoundary64(
+  boundary: IAutoMovieCurveBoundary64,
+): void {
   if (
     !boundary ||
     typeof boundary.id !== "string" ||
@@ -40,7 +46,9 @@ export function assertAutoMovieCurveBoundary64(boundary: C.Boundary): void {
     boundary.fullJ.length !== boundary.section.spans.length
   )
     throw new Error("Complete physical derivative spans required");
-  const vector: (v: C.Vector) => void = (v: C.Vector): void => {
+  const vector: (v: Readonly<AutoMovieVector3Tuple>) => void = (
+    v: Readonly<AutoMovieVector3Tuple>,
+  ): void => {
     if (!Array.isArray(v) || v.length !== 3)
       throw new Error("Three-dimensional full derivative required");
     for (let i: number = 0; i < 3; i++)

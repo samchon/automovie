@@ -1,3 +1,4 @@
+import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
 import type * as THREE from "three";
 
 import type { AutoMovieHumanCartoon } from "./AutoMovieHumanCartoon.js";
@@ -32,7 +33,7 @@ import { buildHumanPolygon } from "./buildHumanPolygon.js";
 export function createAutoMovieHumanPolygonFigure(input: {
   /** Evaluate a pose to rest bones and placements; called once with the neutral pose. */ evaluate: (
     pose: Readonly<Record<string, never>>,
-  ) => AutoMovieHumanPolygon.IInput;
+  ) => Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">;
   /** RGB overrides by emitted bone. */ partColors?: Readonly<
     Record<string, number>
   >;
@@ -49,7 +50,10 @@ export function createAutoMovieHumanPolygonFigure(input: {
     drawing,
     unsupported: [],
     place: (
-      output: Pick<AutoMovieHumanPolygon.IInput, "posed">,
+      output: Pick<
+        Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">,
+        "posed"
+      >,
       head?: AutoMovieHumanCartoon.IHeadPose,
       expression?: AutoMovieHumanCartoon.IExpression,
     ): void => {
@@ -109,7 +113,10 @@ export namespace createAutoMovieHumanPolygonFigure {
      * @param expression Optional facial expression.
      */
     place(
-      output: Pick<AutoMovieHumanPolygon.IInput, "posed">,
+      output: Pick<
+        Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">,
+        "posed"
+      >,
       head?: AutoMovieHumanCartoon.IHeadPose,
       expression?: AutoMovieHumanCartoon.IExpression,
     ): void;

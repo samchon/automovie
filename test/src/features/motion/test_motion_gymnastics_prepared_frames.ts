@@ -1,14 +1,21 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   physicalShapeBounds,
   resolveAutoMovieCenterOfMass,
   resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanGymnasticsWheel,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -20,9 +27,6 @@ import {
   HumanGymnastics,
   HumanPerformance,
   type HumanSegment,
-  type IHumanBody,
-  type IHumanContactWindow,
-  type IHumanPosture,
   resolveHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -58,19 +62,19 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable in-memory unit borrows unchanged canonical Human fixtures and owns all source/query/result records. It uses existing public package exports, starts no host or process, replaces no method/global, and adds no test-only product export.
  */
 export function test_motion_gymnastics_prepared_frames(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const model: resolveAutoMovieCenterOfMass.IModel = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
-  const build: (yaw: number, at: IAutoMovieVector3) => HumanPerformance =
-    (yaw: number, at: IAutoMovieVector3): HumanPerformance => new HumanPerformance({
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const model: IAutoMovieResolveCenterOfMass.IModel = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+  const build: (yaw: number, at: IAutoMovieVector3) => IAutoMovieMotionHumanPerformance =
+    (yaw: number, at: IAutoMovieVector3): IAutoMovieMotionHumanPerformance => new HumanPerformance({
       seed: "gymnastics-prepared-frames",
       laws: [HumanGymnastics.frontHandspring],
       performers: [{ subject: "a", body, at, yaw, proficiency: { level: "trained" } }],
       composition: HumanChain.subject("a").stand({ seconds: 0.3 }).registered("frontHandspring").node,
     });
-  const ordinary: HumanPerformance = build(0, { x: 0, y: 0, z: 0 });
-  const moved: HumanPerformance = build(37, { x: 1, y: 0, z: -2 });
-  const original: HumanSegment.ISegment = ordinary.segments("a")[1]!;
-  const placed: HumanSegment.ISegment = moved.segments("a")[1]!;
+  const ordinary: IAutoMovieMotionHumanPerformance = build(0, { x: 0, y: 0, z: 0 });
+  const moved: IAutoMovieMotionHumanPerformance = build(37, { x: 1, y: 0, z: -2 });
+  const original: IAutoMovieMotionHumanSegment = ordinary.segments("a")[1]!;
+  const placed: IAutoMovieMotionHumanSegment = moved.segments("a")[1]!;
   const release: number = event(original, "release");
   const touchdown: number = event(original, "touchdown");
   const delta: number = (touchdown - release) / 4;
@@ -110,7 +114,7 @@ export function test_motion_gymnastics_prepared_frames(): void {
 }
 
 /** Observe complete ordinary FK, then independent full-profile mass and exact collider bounds. */
-function reading(body: IHumanBody, model: resolveAutoMovieCenterOfMass.IModel, pose: IAutoMoviePose): IReading {
+function reading(body: IAutoMovieMotionHumanBody, model: IAutoMovieResolveCenterOfMass.IModel, pose: IAutoMoviePose): IReading {
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
   for (const bone of resolvePose(pose, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME))
     bones.set(bone.bone, bone);
@@ -122,9 +126,9 @@ function reading(body: IHumanBody, model: resolveAutoMovieCenterOfMass.IModel, p
 }
 
 /** The declared event fixes the actual film clock; missing declarations fail rather than defaulting. */
-function event(segment: HumanSegment.ISegment, name: string): number {
+function event(segment: IAutoMovieMotionHumanSegment, name: string): number {
   const share: number | undefined = segment.plan.events.find(
-    (value: HumanSegment.ISegment["plan"]["events"][number]): boolean => value.name === name,
+    (value: IAutoMovieMotionHumanSegment["plan"]["events"][number]): boolean => value.name === name,
   )?.share;
   if (share === undefined) throw new Error(`Missing handspring event ${name}`);
   return segment.start + share * segment.plan.duration;
@@ -132,10 +136,10 @@ function event(segment: HumanSegment.ISegment, name: string): number {
 
 /** Pin changing mat articulation to the authored floor and independent rational COM displacement. */
 function mat(name: motionHumanBody.Name): void {
-  const body: IHumanBody = motionHumanBody(name);
-  const model: resolveAutoMovieCenterOfMass.IModel = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+  const model: IAutoMovieResolveCenterOfMass.IModel = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
   const height: number = 0.45;
-  const from: IHumanPosture = {
+  const from: IAutoMovieMotionHumanPosture = {
     root: { x: 1.2, y: 0, z: -0.7 }, yaw: 17, pitch: -60, roll: 0,
     joints: {
       head: [5, 0, 0], leftUpperArm: [70, 10, 0], rightUpperArm: [55, 10, 0],
@@ -160,10 +164,10 @@ function mat(name: motionHumanBody.Name): void {
     { seconds: duration / 3, carry: 16 * duration / 81 },
     { seconds: 0, carry: 0 },
   ];
-  let earlier: IHumanPosture | undefined;
+  let earlier: IAutoMovieMotionHumanPosture | undefined;
   for (let index: number = 0; index < samples.length; index++) {
     const sample: (typeof samples)[number] = samples[index]!;
-    const raw: IHumanPosture = lie(sample.seconds);
+    const raw: IAutoMovieMotionHumanPosture = lie(sample.seconds);
     const actual: IReading = reading(body, model, resolveHumanPosture(body, raw));
     TestValidator.predicate(`${name} changing mat shape keeps its actual lowest collider on the authored height`,
       nclose(actual.lowest, height, 1e-7),
@@ -189,29 +193,29 @@ function mat(name: motionHumanBody.Name): void {
 
 /** Literal geometric support runs fix contact endpoints independently of time-conversion strategy. */
 function contacts(): void {
-  const ground: IHumanContactWindow.Support = { kind: "ground" };
-  const spokes: GymnasticsWheel.ISpoke[] = [
+  const ground: IAutoMovieMotionHumanContactWindow.Support = { kind: "ground" };
+  const spokes: IAutoMovieMotionHumanGymnasticsWheel.ISpoke[] = [
     { bones: ["leftFoot", "rightFoot"], height: 0, support: ground },
     { bones: ["leftFoot"], height: 0, support: ground },
     { bones: ["leftHand", "rightHand"], height: 0, support: ground },
     { bones: ["rightFoot"], height: 0, support: ground },
   ];
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const rows: GymnasticsWheel.IRow[] = [
+  const rows: IAutoMovieMotionHumanGymnasticsWheel.IRow[] = [
     { angle: 0, root: origin, bears: 0 }, { angle: 90, root: origin, bears: 1 },
     { angle: 180, root: origin, bears: 2 }, { angle: 270, root: origin, bears: 3 },
     { angle: 360, root: origin, bears: 0 },
   ];
-  const wheel: GymnasticsWheel.IWheel = { rows, root: (): IAutoMovieVector3 => ({ ...origin }) };
-  const actual: IHumanContactWindow[] = GymnasticsWheel.contacts(wheel, spokes, (angle: number): number => angle / 360);
-  const expected: readonly [IHumanContactWindow["part"], number, number][] = [
+  const wheel: IAutoMovieMotionHumanGymnasticsWheel.IWheel = { rows, root: (): IAutoMovieVector3 => ({ ...origin }) };
+  const actual: IAutoMovieMotionHumanContactWindow[] = GymnasticsWheel.contacts(wheel, spokes, (angle: number): number => angle / 360);
+  const expected: readonly [IAutoMovieMotionHumanContactWindow["part"], number, number][] = [
     ["leftFoot", 0, 1 / 4], ["rightFoot", 0, 0], ["leftHand", 1 / 2, 1 / 2],
     ["rightHand", 1 / 2, 1 / 2], ["rightFoot", 3 / 4, 1], ["leftFoot", 1, 1],
   ];
   TestValidator.equals("all contiguous wheel support runs remain present", actual.length, expected.length);
   for (let index: number = 0; index < expected.length; index++) {
-    const window: IHumanContactWindow = actual[index]!;
-    const target: readonly [IHumanContactWindow["part"], number, number] = expected[index]!;
+    const window: IAutoMovieMotionHumanContactWindow = actual[index]!;
+    const target: readonly [IAutoMovieMotionHumanContactWindow["part"], number, number] = expected[index]!;
     TestValidator.predicate("wheel contact starts and ends at its literal bearing rows",
       window.part === target[0] && window.kind === "plant" && window.support.kind === "ground" &&
       nclose(window.from, target[1], 0) && nclose(window.to, target[2], 0),
@@ -220,14 +224,14 @@ function contacts(): void {
   TestValidator.equals("an empty wheel emits no contact",
     GymnasticsWheel.contacts({ ...wheel, rows: [] }, spokes, (angle: number): number => angle / 360).length, 0,
   );
-  const singleton: IHumanContactWindow[] = GymnasticsWheel.contacts(
+  const singleton: IAutoMovieMotionHumanContactWindow[] = GymnasticsWheel.contacts(
     { ...wheel, rows: [rows[2]!] }, spokes, (angle: number): number => angle / 360,
   );
   TestValidator.predicate("a singleton hand support retains both zero-length contacts",
-    singleton.length === 2 && singleton.every((window: IHumanContactWindow): boolean =>
+    singleton.length === 2 && singleton.every((window: IAutoMovieMotionHumanContactWindow): boolean =>
       window.part.endsWith("Hand") && nclose(window.from, 1 / 2, 0) && nclose(window.to, 1 / 2, 0)),
   );
-  const zeroWindows: IHumanContactWindow[] = GymnasticsWheel.contacts(
+  const zeroWindows: IAutoMovieMotionHumanContactWindow[] = GymnasticsWheel.contacts(
     { ...wheel, rows: [
       { angle: -0, root: origin, bears: 0 },
       { angle: 0, root: origin, bears: 2 },

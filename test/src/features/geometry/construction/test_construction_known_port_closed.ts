@@ -1,9 +1,13 @@
 import {
   AutoMovieConstructionKnownPort,
   AutoMovieSolidMesh,
-  type IAutoMovieConstructionKnownPortSource,
-  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
+import type {
+  IAutoMovieConstructionKnownPortSource,
+  IAutoMoviePreparedConstructionKnownPort,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionKnownPortCircular as Made } from "../../internal/construction/ConstructionKnownPortCircular";
@@ -48,7 +52,7 @@ export function test_construction_known_port_closed(): void {
       const source: IAutoMovieConstructionKnownPortSource = inverse
         ? Made.inverse(original)
         : original;
-      const band: AutoMovieConstructionKnownPort.IPrepared =
+      const band: IAutoMoviePreparedConstructionKnownPort.IPrepared =
         AutoMovieConstructionKnownPort(source);
       const period: number = source.definition.period!;
       const start: number = source.definition.domain[0];
@@ -111,10 +115,10 @@ function admission(
   source: IAutoMovieConstructionKnownPortSource,
   failures: string[],
 ): void {
-  const band: AutoMovieConstructionKnownPort.IPrepared =
+  const band: IAutoMoviePreparedConstructionKnownPort.IPrepared =
     AutoMovieConstructionKnownPort(source);
   const angles: number[] = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
-  const seam: AutoMovieSolidMesh.ISeam = {
+  const seam: IAutoMovieSolidMesh.ISeam = {
     host: band.rails.parent.field,
     part: band.rails.child.field,
     blend: band,
@@ -132,7 +136,7 @@ function admission(
       chart: angles.map((t: number): [number, number] => [0, t]),
     },
   };
-  const cases: AutoMovieSolidMesh.ISeam[] = [
+  const cases: IAutoMovieSolidMesh.ISeam[] = [
     { ...seam, blend: { ...band, period: undefined } },
     { ...seam, blend: { ...band, orientation: undefined as unknown as 1 } },
     { ...seam, phases: [] },
@@ -151,7 +155,7 @@ function admission(
     },
   ];
   for (const input of cases) {
-    const output: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+    const output: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
     let caught: unknown;
     try {
       AutoMovieSolidMesh.seam(output, input);
@@ -169,7 +173,7 @@ function admission(
         "A failed closed seam wrote a partial mesh or accepted an unsupported premise.",
       );
   }
-  const output: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const output: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
   const owner: number = AutoMovieSolidMesh.owner(output, seam.host);
   AutoMovieSolidMesh.vertex(output, [3, 0, 3], owner, 3, 3);
   const positions: number[] = output.positions.slice();
@@ -210,11 +214,11 @@ function admission(
 
 /** Read the actual seam, parent cut and child start through existing mesh consumers. */
 function mesh(
-  band: AutoMovieConstructionKnownPort.IPrepared,
+  band: IAutoMoviePreparedConstructionKnownPort.IPrepared,
   inverse: boolean,
   failures: string[],
 ): void {
-  const output: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const output: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
   const phases: number[] = Array.from(
     { length: 24 },
     (_: unknown, k: number): number => (2 * Math.PI * k) / 24,
@@ -233,7 +237,7 @@ function mesh(
   const cylinderChart: [number, number][] = phases.map(
     (t: number): [number, number] => [0, t],
   );
-  const joined: AutoMovieSolidMesh.IJoined = AutoMovieSolidMesh.seam(output, {
+  const joined: IAutoMovieSolidMesh.IJoined = AutoMovieSolidMesh.seam(output, {
     host: band.rails.parent.field,
     part: band.rails.child.field,
     blend: band,
@@ -291,13 +295,13 @@ function mesh(
         "The actual band triangle opposes its independent source outward normal.",
       );
   }
-  const planeRail: AutoMovieSolidMesh.ILoop = inverse
+  const planeRail: IAutoMovieSolidMesh.ILoop = inverse
     ? joined.part
     : joined.host;
-  const cylinderRail: AutoMovieSolidMesh.ILoop = inverse
+  const cylinderRail: IAutoMovieSolidMesh.ILoop = inverse
     ? joined.host
     : joined.part;
-  const planeOpen: AutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(
+  const planeOpen: IAutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(
     output,
     {
       surface: parent,
@@ -310,7 +314,7 @@ function mesh(
     },
   );
   const parentEnd: number = output.indices.length;
-  const cylinderOpen: AutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(
+  const cylinderOpen: IAutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(
     output,
     {
       surface: child,
@@ -348,7 +352,7 @@ function mesh(
     failures,
   );
   for (let k: number = 0; k < output.positions.length / 3; k++) {
-    const owner: AutoMovieSolidMesh.IOwner =
+    const owner: IAutoMovieSolidMesh.IOwner =
       output.owners[output.coordinates[3 * k]!]!;
     const p: number[] = point(output, k);
     vector(
@@ -378,7 +382,7 @@ function cross(a: readonly number[], b: readonly number[]): number[] {
 
 /** Separate each face's actual adjacent strip from the band's triangle population. */
 function strip(
-  output: AutoMovieSolidMesh.IMesh,
+  output: IAutoMovieSolidMesh.IMesh,
   rail: number[],
   a0: number,
   a1: number,
@@ -426,7 +430,7 @@ function strip(
 
 /** Observe one exact edge in the selected actual triangle population. */
 function edges(
-  mesh: AutoMovieSolidMesh.IMesh,
+  mesh: IAutoMovieSolidMesh.IMesh,
   a: number,
   b: number,
   from: number,
@@ -447,7 +451,7 @@ function edges(
 }
 
 /** Existing indexed positions, observed without changing the geometry. */
-function point(mesh: AutoMovieSolidMesh.IMesh, index: number): number[] {
+function point(mesh: IAutoMovieSolidMesh.IMesh, index: number): number[] {
   return mesh.positions.slice(3 * index, 3 * index + 3);
 }
 

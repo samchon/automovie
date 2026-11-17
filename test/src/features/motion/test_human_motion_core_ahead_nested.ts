@@ -1,17 +1,17 @@
 import { createDrinkware } from "@automovie/archetypes";
 import type {
-  AutoMovieMotionTarget,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
-  type IHumanPosture,
   StrikingHeld,
   stand,
 } from "@automovie/motions";
@@ -49,17 +49,17 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership One deferred performance uses actual polygon Human and glass, owned registered callbacks/getters and public consumers; no private implementation, fake body, global replacement or additional process is used.
  */
 export function test_human_motion_core_ahead_nested(): void {
-  type Aim = IHumanActionContext["aim"];
+  type Aim = IAutoMovieMotionHumanActionContext["aim"];
   type Goal = ReturnType<Aim>;
-  type Question = { grip: IHumanActionLaw.IGrip; read: Aim; goal: Goal };
+  type Question = { grip: IAutoMovieMotionHumanActionLaw.IGrip; read: Aim; goal: Goal };
   const findings: string[] = [];
   const branches: Set<string> = new Set();
-  const body: IHumanBody = { ...motionHumanBody("f-small") };
-  const target: AutoMovieMotionTarget = { kind: "self", region: "mouth" };
+  const body: IAutoMovieMotionHumanBody = { ...motionHumanBody("f-small") };
+  const target: IAutoMovieMotionTarget = { kind: "self", region: "mouth" };
   const shift: IAutoMovieVector3 = { x: 0.7, y: 0, z: -0.4 };
   const sentinel: Error = new Error("owned nested demand failure");
   const state: {
-    invoke: NonNullable<IHumanActionContext["demands"]> | undefined;
+    invoke: NonNullable<IAutoMovieMotionHumanActionContext["demands"]> | undefined;
     depth: number;
     single: boolean;
     fails: boolean;
@@ -76,13 +76,13 @@ export function test_human_motion_core_ahead_nested(): void {
     inner: undefined,
   };
   let jointReads: number = 0;
-  const posture: (at: IAutoMovieVector3) => IHumanPosture = (
+  const posture: (at: IAutoMovieVector3) => IAutoMovieMotionHumanPosture = (
     at: IAutoMovieVector3,
-  ): IHumanPosture => {
-    const actual: IHumanPosture = stand.posture(body, at, 0);
+  ): IAutoMovieMotionHumanPosture => {
+    const actual: IAutoMovieMotionHumanPosture = stand.posture(body, at, 0);
     return {
       ...actual,
-      get joints(): IHumanPosture["joints"] {
+      get joints(): IAutoMovieMotionHumanPosture["joints"] {
         jointReads++;
         return actual.joints;
       },
@@ -122,17 +122,17 @@ export function test_human_motion_core_ahead_nested(): void {
     outer: state.outer,
     inner: state.inner,
   });
-  const inspect: IHumanActionLaw = {
+  const inspect: IAutoMovieMotionHumanActionLaw = {
     name: "inspectNestedDemands",
     interrupts: stand.interrupts,
     demands: (
-      ahead: IHumanActionLaw.IAhead,
-    ): readonly IHumanActionLaw.IDemand[] => {
+      ahead: IAutoMovieMotionHumanActionLaw.IAhead,
+    ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] => {
       const first: Goal = ahead.aim(target, ahead.start);
       if (state.single) return [];
       if (state.depth === 0) {
         state.outer = { grip: ahead.grip, read: ahead.aim, goal: first };
-        const inner: IHumanActionLaw.IGrip = {
+        const inner: IAutoMovieMotionHumanActionLaw.IGrip = {
           ...ahead.grip,
           posture: posture(shift),
         };
@@ -170,25 +170,25 @@ export function test_human_motion_core_ahead_nested(): void {
       }
       return [];
     },
-    plan: (context: IHumanActionContext): IHumanActionPlan =>
+    plan: (context: IAutoMovieMotionHumanActionContext): IAutoMovieMotionHumanActionPlan =>
       stand.plan({ ...context, params: { seconds: 0.1 } }),
   };
-  const ask: IHumanActionLaw = {
+  const ask: IAutoMovieMotionHumanActionLaw = {
     name: "askNestedGrips",
     interrupts: stand.interrupts,
-    plan: (context: IHumanActionContext): IHumanActionPlan => {
+    plan: (context: IAutoMovieMotionHumanActionContext): IAutoMovieMotionHumanActionPlan => {
       state.invoke = context.demands;
       if (state.invoke === undefined)
         throw new Error(
           "the actual grip consumer lacks its public demands reader",
         );
-      const grip: IHumanActionLaw.IGrip = {
+      const grip: IAutoMovieMotionHumanActionLaw.IGrip = {
         prop: "glass",
         side: "right",
         posture: posture({ x: 0, y: 0, z: 0 }),
         tool: (
-          points: Parameters<IHumanActionLaw.IGrip["tool"]>[0],
-        ): ReturnType<IHumanActionLaw.IGrip["tool"]> =>
+          points: Parameters<IAutoMovieMotionHumanActionLaw.IGrip["tool"]>[0],
+        ): ReturnType<IAutoMovieMotionHumanActionLaw.IGrip["tool"]> =>
           StrikingHeld.of(context, "right", "glass", points),
       };
       state.single = true;

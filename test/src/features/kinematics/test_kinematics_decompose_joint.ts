@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedJointAngles,
   Quaternion,
   decomposeJointRotation,
   jointToQuaternion,
@@ -7,6 +6,7 @@ import {
 import {
   type IAutoMovieJointAxes,
   type IAutoMovieQuaternion,
+  type IAutoMovieResolvedJointAngles,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

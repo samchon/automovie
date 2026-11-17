@@ -1,5 +1,5 @@
+import type { IAutoMovieRecoveryMapPose } from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryMapPose,
   createRecoveryCameraChart,
   fitRecoveryResectionConsensus,
   fitRecoveryResectionDesign,

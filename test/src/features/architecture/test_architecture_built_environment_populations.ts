@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieSubjectContribution,
   builtEnvironmentSpaceContentBounds,
   builtEnvironmentSpaceFidelity,
   builtEnvironmentSpaceNodes,
@@ -15,6 +14,7 @@ import type {
   IAutoMovieInstanceSetDesign,
   IAutoMovieModel,
   IAutoMovieSubjectBox,
+  IAutoMovieSubjectContribution,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";

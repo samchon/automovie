@@ -1,7 +1,12 @@
 import { DEFAULT_HUMANOID_ROM, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -10,10 +15,6 @@ import { walkReach } from "../actions/walkReach";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bendLower } from "../everyday/bendLower";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { pickUpPosture } from "./pickUpPosture";
 
@@ -66,8 +67,8 @@ export namespace pickUpAdjust {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned stance owns its original source/turn and static name metadata only. The planning FK getter is explicitly cleared before return, so no dynamic workspace, probe pose or distance history enters runtime state.
    */
   export function turned(
-    context: IHumanActionContext<object>,
-    side: HumanHand.Side,
+    context: IAutoMovieMotionHumanActionContext<object>,
+    side: AutoMovieHumanSide,
     grip: IAutoMovieVector3,
     stance: pickUpPosture.IStance,
   ): pickUpPosture.IStance {
@@ -97,7 +98,7 @@ export namespace pickUpAdjust {
           (range(bone).min - held(bone)) / share[bone],
       ),
     );
-    const twist: (posture: IHumanPosture, degrees: number) => IHumanPosture = (posture: IHumanPosture, degrees: number): IHumanPosture => {
+    const twist: (posture: IAutoMovieMotionHumanPosture, degrees: number) => IAutoMovieMotionHumanPosture = (posture: IAutoMovieMotionHumanPosture, degrees: number): IAutoMovieMotionHumanPosture => {
       if (degrees === 0) return posture;
       const add: (bone: "chest" | "spine") => [number, number, number] = (bone: "chest" | "spine"): [number, number, number] => {
         const at: readonly [number, number, number] = posture.joints[bone] ?? [
@@ -137,9 +138,9 @@ export namespace pickUpAdjust {
     prepared = undefined;
     return {
       posture: twist(stance.posture, turn),
-      at: (s: number, resolution?: IFK, projection?: IROM): IHumanPosture =>
+      at: (s: number, resolution?: IFK, projection?: IROM): IAutoMovieMotionHumanPosture =>
         twist(stance.at(s, resolution, projection), turn * s),
-      lower: (posture: IHumanPosture, s: number, resolution?: IFK, projection?: IROM): IHumanPosture =>
+      lower: (posture: IAutoMovieMotionHumanPosture, s: number, resolution?: IFK, projection?: IROM): IAutoMovieMotionHumanPosture =>
         twist(stance.lower(posture, s, resolution, projection), turn * s),
     };
   }
@@ -174,8 +175,8 @@ export namespace pickUpAdjust {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Static body/name metadata and original stance/step geometry may live with returned callbacks. The planning getter is cleared before return; dynamic FK, candidate root/maps and distance results do not enter the returned stance or a history.
    */
   export function stepped(
-    context: IHumanActionContext<object>,
-    side: HumanHand.Side,
+    context: IAutoMovieMotionHumanActionContext<object>,
+    side: AutoMovieHumanSide,
     wrist: IAutoMovieVector3,
     stance: pickUpPosture.IStance,
     lifted?: IAutoMovieVector3,
@@ -247,14 +248,14 @@ export namespace pickUpAdjust {
       if (stance.posture.limbs[leg] === undefined) return null;
 
       // The body with its foot moved `length` along the floor, a share of it.
-      const step: (posture: IHumanPosture, length: number, share: number, resolution?: IFK) => IHumanPosture = (
-        posture: IHumanPosture,
+      const step: (posture: IAutoMovieMotionHumanPosture, length: number, share: number, resolution?: IFK) => IAutoMovieMotionHumanPosture = (
+        posture: IAutoMovieMotionHumanPosture,
         length: number,
         share: number,
         resolution?: IFK,
-      ): IHumanPosture => {
+      ): IAutoMovieMotionHumanPosture => {
         if (length <= 0 || share <= 0) return posture;
-        const goal: IHumanPosture.IGoal | undefined = posture.limbs[leg];
+        const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[leg];
         if (goal === undefined) return posture;
 
         // The foot's own progress, by the reach's time at this share of the
@@ -281,7 +282,7 @@ export namespace pickUpAdjust {
         const drop: number = Math.max(
           0,
           ...(["left", "right"] as const).map((s: "left" | "right"): number => {
-            const ankle: IHumanPosture.IGoal | undefined =
+            const ankle: IAutoMovieHumanLimbGoal | undefined =
               posture.limbs[s === "left" ? "leftLeg" : "rightLeg"];
             return ankle === undefined || s === foot
               ? 0
@@ -345,9 +346,9 @@ export namespace pickUpAdjust {
         length,
         stance: {
           posture: step(stance.posture, length, 1, prepared),
-          at: (s: number, resolution?: IFK, projection?: IROM): IHumanPosture =>
+          at: (s: number, resolution?: IFK, projection?: IROM): IAutoMovieMotionHumanPosture =>
             step(stance.at(s, resolution, projection), length, s, resolution),
-          lower: (posture: IHumanPosture, s: number, resolution?: IFK, projection?: IROM): IHumanPosture =>
+          lower: (posture: IAutoMovieMotionHumanPosture, s: number, resolution?: IFK, projection?: IROM): IAutoMovieMotionHumanPosture =>
             step(stance.lower(posture, s, resolution, projection), length, s, resolution),
           step: { side: foot, off: STEPPING[0], on: STEPPING[1] },
         },
@@ -383,7 +384,7 @@ export namespace pickUpAdjust {
     end: number,
     up: number,
     share: number,
-  ): IHumanContactWindow[] {
+  ): IAutoMovieMotionHumanContactWindow[] {
     const duration: number = end + up;
     // A time share of the reach, and the second of the return at which the
     // way back, from `share` down to none, passes the share of the way it
@@ -392,10 +393,10 @@ export namespace pickUpAdjust {
     const back: (time: number) => number = (time: number): number =>
       (end + up * timed(1 - minimumJerk.share(time) / share)) / duration;
     return (["left", "right"] as const).flatMap(
-      (foot: "left" | "right"): IHumanContactWindow[] => {
+      (foot: "left" | "right"): IAutoMovieMotionHumanContactWindow[] => {
         const part: "leftFoot" | "rightFoot" =
           foot === "left" ? "leftFoot" : "rightFoot";
-        const ground: IHumanContactWindow["support"] = { kind: "ground" };
+        const ground: IAutoMovieMotionHumanContactWindow["support"] = { kind: "ground" };
         const step: pickUpPosture.IStance["step"] = stance?.step;
         if (step === undefined || step.side !== foot)
           return [{ part, kind: "plant", from: 0, to: 1, support: ground }];
@@ -450,10 +451,10 @@ export namespace pickUpAdjust {
   };
 
   /** Actual holding shoulder through its same-body fixed-name reader, world metres. */
-  const shoulder: (side: HumanHand.Side, posture: IHumanPosture,
+  const shoulder: (side: AutoMovieHumanSide, posture: IAutoMovieMotionHumanPosture,
     read: ReturnType<typeof HumanTrunk.prepareResolve>, resolution?: IFK) => IAutoMovieVector3 = (
-    side: HumanHand.Side,
-    posture: IHumanPosture,
+    side: AutoMovieHumanSide,
+    posture: IAutoMovieMotionHumanPosture,
     read: ReturnType<typeof HumanTrunk.prepareResolve>,
     resolution?: IFK,
   ): IAutoMovieVector3 =>

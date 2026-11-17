@@ -1,7 +1,9 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
 
 /**
@@ -20,7 +22,7 @@ import { HumanFrame } from "../posture/HumanFrame";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One caller-owned closure retains fixed lengths and private axes until its stance/search releases it, with no hip, ankle, angle or time history; a reader borrows its two points for the call and keeps neither.
  */
 export function prepareWalkLegLean(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   heading: number,
 ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3) => number {
   const fixed: IGeometry = geometry(body, heading);
@@ -44,7 +46,7 @@ export namespace prepareWalkLegLean {
    * fixed geometry with the synchronous stance/search, without query history.
    */
   export function bounded(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     heading: number,
   ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3) => number | undefined {
     const fixed: IGeometry = geometry(body, heading);
@@ -86,7 +88,7 @@ const ORDINARY_MIN: number = 2 ** -1000;
 const ORDINARY_MAX: number = 2 ** 1000;
 
 /** Prepare fixed terms only; actual joint vectors/distances remain call-local. */
-function geometry(body: IHumanBody, heading: number): IGeometry {
+function geometry(body: IAutoMovieMotionHumanBody, heading: number): IGeometry {
   const a: number = body.measure.thigh;
   const b: number = body.measure.shank;
   const aa: number = a * a;

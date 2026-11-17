@@ -1,11 +1,14 @@
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieMotionSampleSide,
   IAutoMoviePose,
+  IAutoMoviePoseJointCodec,
+  IAutoMoviePoseRig,
+  IAutoMoviePoseState,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMoviePoseRig } from "../kinematics/IAutoMoviePoseRig";
 import { poseJointCodec } from "../kinematics/poseJointCodec";
 import { Quaternion } from "../math/Quaternion";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
@@ -66,11 +69,11 @@ export function samplePoseVelocity(
   sample: (seconds: number) => IAutoMoviePose,
   seconds: number,
   step: number = 1e-3,
-  side: samplePoseVelocity.Side = "both",
+  side: AutoMovieMotionSampleSide = "both",
   rig?: IAutoMoviePoseRig,
   continued?: (seconds: number) => IAutoMoviePose,
-  prepared?: poseJointCodec.ICodec | (() => poseJointCodec.ICodec),
-): samplePoseVelocity.IState {
+  prepared?: IAutoMoviePoseJointCodec.ICodec | (() => IAutoMoviePoseJointCodec.ICodec),
+): IAutoMoviePoseState {
   if (!(step > 0)) throw new Error("A velocity step is positive");
   const pose: IAutoMoviePose = sample(seconds);
 
@@ -116,7 +119,7 @@ export function samplePoseVelocity(
 
   // Joint spins: the rotation vectors of each articulation at the two samples
   // beside the instant, from the same origin sample as the root's below.
-  const codec: poseJointCodec.ICodec =
+  const codec: IAutoMoviePoseJointCodec.ICodec =
     prepared === undefined
       ? poseJointCodec(rig)
       : typeof prepared === "function"
@@ -197,40 +200,6 @@ function spinFrom(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface pose.
  */
 export namespace samplePoseVelocity {
-  /**
-   * The side of an instant a motion is read from: `before` for a motion that
-   * ends there, `after` for one that begins there, `both` for one that runs
-   * through it.
-   */
-  export type Side = "both" | "before" | "after";
-
-  /** A pose's velocity. */
-  export interface IVelocity {
-    /** Flexion, abduction and twist rates per bone, degrees per second. */
-    joints: Map<AutoMovieHumanoidBone, [number, number, number]>;
-
-    /**
-     * Each joint's angular velocity, radians per second, in the frame its
-     * articulation is applied in (after the bone's rest rotation).
-     */
-    spins: Map<AutoMovieHumanoidBone, IAutoMovieVector3>;
-
-    /** Root translation rate, metres per second, the pose's parent frame. */
-    linear: IAutoMovieVector3;
-
-    /** Root angular velocity, radians per second, the pose's parent frame. */
-    angular: IAutoMovieVector3;
-  }
-
-  /** A pose with its velocity. */
-  export interface IState {
-    /** The pose. */
-    pose: IAutoMoviePose;
-
-    /** Its velocity. */
-    velocity: IVelocity;
-  }
-
   /**
    * The swivel tolerance, degrees, a continued fit is refined to for the
    * `continued` samples of a velocity read at `step` that an inertialization of

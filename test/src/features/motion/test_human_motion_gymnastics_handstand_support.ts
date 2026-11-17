@@ -1,11 +1,14 @@
 import { physicalShapeBounds } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanColliders,
   HumanPerformance,
-  type HumanSegment,
   HumanVerdicts,
-  type IHumanBody,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -39,8 +42,8 @@ export function test_human_motion_gymnastics_handstand_support(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
   for (const name of ["f-small", "m-large"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    let performance: HumanPerformance;
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "handstand",
@@ -64,7 +67,7 @@ export function test_human_motion_gymnastics_handstand_support(): void {
       );
       continue;
     }
-    const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
+    const placed: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
 
     // The lowest collider point of the hands and of the feet, metres.
     const lowest = (seconds: number): { hands: number; feet: number } => {

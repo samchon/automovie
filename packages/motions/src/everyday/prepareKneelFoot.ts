@@ -1,6 +1,9 @@
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { kneelKeys } from "./kneelKeys";
@@ -26,28 +29,28 @@ import type { kneelKeys } from "./kneelKeys";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains two keys and, for a moving foot, two rigid placements until its owning kneel plan is released.
  */
 export function prepareKneelFoot(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   side: "left" | "right",
   from: kneelKeys.IFoot,
   to: kneelKeys.IFoot,
   clearance: number,
 ): (share: number) => {
-  placement: HumanFoot.IPlacement;
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
   planted: boolean;
   toes: number;
 } {
   const moves: boolean =
     Vector3.length(Vector3.subtract(from.at, to.at)) > 1e-4;
-  const place: (share: number) => HumanFoot.IPlacement = ((): ((
+  const place: (share: number) => IAutoMovieMotionHumanFoot.IPlacement = ((): ((
     share: number,
-  ) => HumanFoot.IPlacement) => {
+  ) => IAutoMovieMotionHumanFoot.IPlacement) => {
     if (!moves) {
       const pivot: ReturnType<typeof HumanFoot.preparePivot> =
         HumanFoot.preparePivot(body, side, "mtp", from.at, from.heading);
-      return (share: number): HumanFoot.IPlacement =>
+      return (share: number): IAutoMovieMotionHumanFoot.IPlacement =>
         pivot(from.pitch + (to.pitch - from.pitch) * share);
     }
-    const start: HumanFoot.IPlacement = HumanFoot.pivot(
+    const start: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
       body,
       side,
       "mtp",
@@ -55,7 +58,7 @@ export function prepareKneelFoot(
       from.heading,
       from.pitch,
     );
-    const end: HumanFoot.IPlacement = HumanFoot.pivot(
+    const end: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
       body,
       side,
       "mtp",
@@ -67,7 +70,7 @@ export function prepareKneelFoot(
   })();
   return (
     share: number,
-  ): { placement: HumanFoot.IPlacement; planted: boolean; toes: number } => ({
+  ): { placement: IAutoMovieMotionHumanFoot.IPlacement; planted: boolean; toes: number } => ({
     placement: place(share),
     planted: !moves || share <= 0 || share >= 1,
     toes: from.toes + (to.toes - from.toes) * share,

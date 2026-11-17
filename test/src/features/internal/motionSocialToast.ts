@@ -1,18 +1,20 @@
 import { createDrinkware } from "@automovie/archetypes";
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
-  type HumanSegment,
   HumanSocial,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -63,15 +65,17 @@ export namespace motionSocialToast {
     const mm = (metres: number): string => (metres * 1000).toFixed(1);
     const apart: number = 0.8;
     {
-      const bodies: Record<"a" | "b", IHumanBody> = {
+      const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
         a: motionHumanBody(first),
         b: motionHumanBody(second),
       };
       const label: string = `${first} with ${second}`;
 
       // Before a performer's right shoulder; b faces a, so b's right is +X.
-      const before = (who: "a" | "b"): HumanObject.Placement => {
-        const m: IHumanBody["measure"] = bodies[who].measure;
+      const before = (
+        who: "a" | "b",
+      ): IAutoMovieMotionHumanObject.Placement => {
+        const m: IAutoMovieMotionHumanBody["measure"] = bodies[who].measure;
         const ahead: number = 0.6 * (m.upperArm + m.forearm);
         return {
           at: {
@@ -83,9 +87,11 @@ export namespace motionSocialToast {
         };
       };
       const perform = (
-        props: IHumanProp[],
-        composition: { node: HumanPerformance.IInput["composition"] },
-      ): HumanPerformance =>
+        props: IAutoMovieMotionHumanProp[],
+        composition: {
+          node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+        },
+      ): IAutoMovieMotionHumanPerformance =>
         new HumanPerformance({
           seed: "social",
           laws: [HumanSocial.fistBump],
@@ -99,13 +105,16 @@ export namespace motionSocialToast {
           })),
           composition: composition.node,
         });
-      const instant = (segment: HumanSegment.ISegment, event: string): number =>
+      const instant = (
+        segment: IAutoMovieMotionHumanSegment,
+        event: string,
+      ): number =>
         segment.start +
         (segment.plan.events.find((e): boolean => e.name === event)?.share ??
           NaN) *
           segment.plan.duration;
       const axis = (
-        performance: HumanPerformance,
+        performance: IAutoMovieMotionHumanPerformance,
         prop: string,
         seconds: number,
       ): IAutoMovieVector3 =>
@@ -117,7 +126,7 @@ export namespace motionSocialToast {
 
       // How far a prop moves in a right hand's frame between two seconds.
       const drift = (
-        performance: HumanPerformance,
+        performance: IAutoMovieMotionHumanPerformance,
         who: string,
         prop: string,
         from: number,
@@ -150,7 +159,7 @@ export namespace motionSocialToast {
 
       // The glasses meet rim to rim.
       try {
-        const toast: HumanPerformance = perform(
+        const toast: IAutoMovieMotionHumanPerformance = perform(
           [
             HumanObject.prop("glassA", glass, before("a")),
             HumanObject.prop("glassB", glass, before("b")),
@@ -184,7 +193,7 @@ export namespace motionSocialToast {
           glass.affordance("lip").frame.translation;
         const radius: number = Math.hypot(lip.x, lip.z);
         const centre = (prop: string): IAutoMovieVector3 => {
-          const frame: IHumanProp.IFrame = toast.prop(prop, meet);
+          const frame: IAutoMovieRigidTransform = toast.prop(prop, meet);
           return Vector3.add(
             frame.position,
             Quaternion.rotateVector(frame.rotation, { x: 0, y: lip.y, z: 0 }),

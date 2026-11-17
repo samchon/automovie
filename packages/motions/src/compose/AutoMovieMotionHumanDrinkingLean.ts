@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanDrinkingArm } from "@automovie/interface";
+
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 
 /**
@@ -69,7 +71,7 @@ export namespace AutoMovieMotionHumanDrinkingLean {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; `misses`, which implements it, carries this claim.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; `misses`, which implements it, carries this claim.
      */
-    see: (arm: AutoMovieMotionHumanDrinkingArm.IArm) => void;
+    see: (arm: IAutoMovieMotionHumanDrinkingArm.IArm) => void;
 
     /**
      * The least miss of the vessel's axis among the arms shown since the start that drink, degrees; none when none drinks.
@@ -104,7 +106,7 @@ export namespace AutoMovieMotionHumanDrinkingLean {
       begin: (): void => {
         miss = undefined;
       },
-      see: (arm: AutoMovieMotionHumanDrinkingArm.IArm): void => {
+      see: (arm: IAutoMovieMotionHumanDrinkingArm.IArm): void => {
         if (
           AutoMovieMotionHumanDrinkingArm.drinks(arm) &&
           (miss === undefined || arm.tilt < miss)

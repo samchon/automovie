@@ -1,8 +1,10 @@
+import type {
+  IAutoMovieRecoveryFeasibleFit,
+  IAutoMovieRecoveryFeasibleModel,
+  IAutoMovieRecoveryFeasibleProblem,
+  IAutoMovieRecoveryRegularizationUpdate,
+} from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryFeasibleFit,
-  type IAutoMovieRecoveryFeasibleModel,
-  type IAutoMovieRecoveryFeasibleProblem,
-  type IAutoMovieRecoveryRegularizationUpdate,
   refineRecoveryFeasibleState,
   updateRecoveryRegularization,
 } from "@automovie/recovery";

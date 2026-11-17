@@ -1,3 +1,5 @@
+import type { AutoMovieExternalModelResourceResolver } from "@automovie/interface";
+
 import { decodeDataUri } from "./decodeDataUri";
 import { object } from "./object";
 
@@ -20,14 +22,14 @@ export const validatePayloadClosure: (props: {
   buffers: unknown[];
   bufferViews: unknown[];
   images: unknown[];
-  resolveResource?: (uri: string) => Uint8Array | null;
+  resolveResource?: AutoMovieExternalModelResourceResolver;
 }) => Uint8Array[] = (props: {
   format: "gltf" | "glb" | "vrm";
   bin: Uint8Array | null;
   buffers: unknown[];
   bufferViews: unknown[];
   images: unknown[];
-  resolveResource?: (uri: string) => Uint8Array | null;
+  resolveResource?: AutoMovieExternalModelResourceResolver;
 }): Uint8Array[] => {
   const payloads: Uint8Array[] = props.buffers.map(
     (value: unknown, index: number): Uint8Array => {

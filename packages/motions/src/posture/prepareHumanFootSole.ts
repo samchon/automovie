@@ -1,7 +1,15 @@
-import { Quaternion, Vector3, type resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  type resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "./HumanFoot";
 
 /**
@@ -20,26 +28,26 @@ import { HumanFoot } from "./HumanFoot";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak body map owns at most two side readers and their local-point lists per live body; action-owned borrowed readers release with their actions, and no angle, pose or queried-placement history grows the cache.
  */
 export function prepareHumanFootSole(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   side: "left" | "right",
-): (foot: HumanFoot.IPlacement) => IAutoMovieVector3[] {
-  let sides: Partial<Record<"left" | "right", (foot: HumanFoot.IPlacement) => IAutoMovieVector3[]>> | undefined = CACHE.get(body);
+): (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[] {
+  let sides: Partial<Record<"left" | "right", (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[]>> | undefined = CACHE.get(body);
   if (sides === undefined) {
     sides = {};
     CACHE.set(body, sides);
   }
-  const known: ((foot: HumanFoot.IPlacement) => IAutoMovieVector3[]) | undefined = sides[side];
+  const known: ((foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[]) | undefined = sides[side];
   if (known !== undefined) return known;
   const ankle: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
   const local: IAutoMovieVector3[] = [
-    ...HumanFoot.SOCKETS.map((socket: HumanFoot.Socket): IAutoMovieVector3 => HumanFoot.offset(body, side, socket)),
+    ...HumanFoot.SOCKETS.map((socket: IAutoMovieMotionHumanFoot.Socket): IAutoMovieVector3 => HumanFoot.offset(body, side, socket)),
     ...HumanFoot.outline(body, side).map(
-      (frame: resolveAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 => frame.bone === `${side}Foot`
+      (frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 => frame.bone === `${side}Foot`
         ? frame.point
         : Vector3.add(Vector3.subtract(body.rest.get(frame.bone)!, ankle), frame.point),
     ),
   ];
-  const read: (foot: HumanFoot.IPlacement) => IAutoMovieVector3[] = (foot: HumanFoot.IPlacement): IAutoMovieVector3[] =>
+  const read: (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[] = (foot: IAutoMovieMotionHumanFoot.IPlacement): IAutoMovieVector3[] =>
     local.map((point: IAutoMovieVector3): IAutoMovieVector3 =>
       Vector3.add(foot.ankle, Quaternion.rotateVector(foot.rotation, point)));
   sides[side] = read;
@@ -47,4 +55,4 @@ export function prepareHumanFootSole(
 }
 
 /** Intrinsic ankle-local geometry only, at most one reader for each side of a weak body. */
-const CACHE: WeakMap<IHumanBody, Partial<Record<"left" | "right", (foot: HumanFoot.IPlacement) => IAutoMovieVector3[]>>> = new WeakMap();
+const CACHE: WeakMap<IAutoMovieMotionHumanBody, Partial<Record<"left" | "right", (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[]>>> = new WeakMap();

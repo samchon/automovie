@@ -1,10 +1,10 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanPostureRotation,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { createHumanPostureRotation } from "../posture/createHumanPostureRotation";
 
 /**
@@ -27,9 +27,9 @@ export function HumanPerformanceFlightRotation(props: {
   times: readonly number[];
   table: readonly { about: IAutoMovieVector3; root: IAutoMovieQuaternion }[];
   orientation: (seconds: number, root: IAutoMovieQuaternion) => IAutoMovieQuaternion;
-}): (seconds: number) => IHumanPosture.IRotation {
+}): (seconds: number) => IAutoMovieHumanPostureRotation {
   const roots: (IRootInterpolation | undefined)[] = [];
-  return (seconds: number): IHumanPosture.IRotation => {
+  return (seconds: number): IAutoMovieHumanPostureRotation => {
     const t: number = Math.max(
       props.t0,
       Math.min(props.t1, props.start + seconds),

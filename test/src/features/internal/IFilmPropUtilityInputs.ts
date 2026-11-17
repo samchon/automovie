@@ -1,7 +1,7 @@
-import type { IAutoMoviePropSupportFace } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMoviePropBox,
+  IAutoMoviePropSupportFace,
   IAutoMovieStageSetPiece,
 } from "@automovie/interface";
 

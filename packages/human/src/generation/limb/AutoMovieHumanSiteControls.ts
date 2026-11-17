@@ -1,50 +1,22 @@
 import {
   AutoMovieConstructionViews,
-  type AutoMovieLoftContract,
   AutoMovieLoftViewSource,
-  type AutoMovieViewAxis,
   AutoMovieViewSection,
-  type IAutoMovieViewPart,
 } from "@automovie/engine";
-
-import type { AutoMovieHumanSiteConstraints } from "./AutoMovieHumanSiteConstraints";
-import type { AutoMovieHumanSiteViewPart as Site } from "./AutoMovieHumanSiteViewPart";
+import type {
+  IAutoMovieHumanSectionSite,
+  IAutoMovieHumanSectionSource,
+  IAutoMovieHumanSiteConstraints,
+  IAutoMovieHumanSiteControls,
+  IAutoMovieLoftContract,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 /** Common generating scalar controls and local native field, before either adjoining original is published. */
 export namespace AutoMovieHumanSiteControls {
-  /** Explicitly shared frame preparation of the identical canonical axis declaration. */
-  export interface IFrame {
-    /** Original immutable metre axis record, checked before reuse. */
-    definition: Site.IInput["axis"];
-
-    /** Its actual calibration-mm engine frame, including available axis jets. */
-    value: AutoMovieViewAxis.IAxis;
-  }
-
-  /** Original mathematical inputs and scalar declarations, before a part, tree view or loft is made. */
-  export interface IControls {
-    /** The unchanged generating inputs and canonical axis declaration. */
-    readonly input: Site.IInput;
-
-    /** Actual engine frame mapping, separate from scalar chart coordinates. */
-    readonly axis: AutoMovieViewAxis.IAxis;
-
-    /** Full scalar knots/parameters needed by the existing global interpolation; no complete neighbour is acquired. */
-    readonly scalars: AutoMovieLoftViewSource.IInput;
-
-    /** Explicit native scalar preparation, shared by contact consumers; its physical2 refusal stays observable. */
-    field(): AutoMovieLoftViewSource.ISource;
-  }
-
-  /** Actual control admission, retaining failed input/tape diagnostics without an alternative source. */
-  export interface IOutput {
-    /** Null after the original source-control admission failed. */
-    controls: IControls | null;
-
-    /** Original source/tape premises in their original order. */
-    diagnostics: AutoMovieLoftContract.IDiagnostic[];
-  }
-
   /**
    * Resolve original scalar controls directly from anatomical/site input.
    * Global natural interpolation requires its whole original knot set; that
@@ -53,16 +25,19 @@ export namespace AutoMovieHumanSiteControls {
    * call-owned declaration, physical parameter and available source jets.
    */
   export function prepare(
-    input: Site.IInput,
-    constraints?: AutoMovieHumanSiteConstraints.IOwner,
-    sharedFrame?: IFrame,
-  ): IOutput {
-    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
+    input: IAutoMovieHumanSectionSource,
+    constraints?: IAutoMovieHumanSiteConstraints.IOwner,
+    sharedFrame?: IAutoMovieHumanSiteControls.IFrame,
+  ): IAutoMovieHumanSiteControls.IOutput {
+    const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     const producer: string = `view.${input.name}`;
-    const fail: (contract: string, detail: string) => IOutput = (
+    const fail: (
       contract: string,
       detail: string,
-    ): IOutput => {
+    ) => IAutoMovieHumanSiteControls.IOutput = (
+      contract: string,
+      detail: string,
+    ): IAutoMovieHumanSiteControls.IOutput => {
       diagnostics.push({ producer, level: 2, contract, detail });
       return { controls: null, diagnostics };
     };
@@ -71,14 +46,14 @@ export namespace AutoMovieHumanSiteControls {
         "axis",
         "Shared frame belongs to another canonical axis declaration",
       );
-    const frame: AutoMovieViewAxis.IAxis | string =
+    const frame: IAutoMovieViewAxis.IAxis | string =
       sharedFrame?.value ?? AutoMovieConstructionViews.frame(input.axis);
     if (typeof frame === "string") return fail("axis", frame);
-    const sites: Site.ISite[] = input.sites;
+    const sites: IAutoMovieHumanSectionSite[] = input.sites;
     if (sites.length < 2)
       return fail("sites", `${sites.length} sites; a part needs at least two`);
     for (let k: number = 0; k < sites.length; k++) {
-      const s: Site.ISite = sites[k]!;
+      const s: IAutoMovieHumanSectionSite = sites[k]!;
       if (k > 0 && !(s.station > sites[k - 1]!.station))
         return fail(
           "sites",
@@ -92,7 +67,7 @@ export namespace AutoMovieHumanSiteControls {
           `site ${s.site}: edges [${s.edges.join(", ")}] mm do not hold the axis inside the box`,
         );
     }
-    const pole: Site.IInput["pole"] = input.pole;
+    const pole: IAutoMovieHumanSectionSource["pole"] = input.pole;
     const bottom: number | null =
       pole === undefined || pole.end === "top"
         ? null
@@ -131,15 +106,15 @@ export namespace AutoMovieHumanSiteControls {
         shoulders.push(site.fullness.shoulder);
         continue;
       }
-      const solve: AutoMovieHumanSiteConstraints.IOwner["solve"] =
+      const solve: IAutoMovieHumanSiteConstraints.IOwner["solve"] =
         constraints?.solve ??
         ((
           name: string,
           extents: [number, number, number, number],
           girth: number,
-        ): AutoMovieViewSection.ISolved =>
+        ): IAutoMovieViewSection.ISolved =>
           AutoMovieViewSection.solve(name, { extents }, girth));
-      const solved: AutoMovieViewSection.ISolved = solve(
+      const solved: IAutoMovieViewSection.ISolved = solve(
         `${producer} ${site.site}`,
         [site.edges[0], site.edges[1], -site.edges[2], -site.edges[3]],
         site.fullness.girth,
@@ -153,7 +128,10 @@ export namespace AutoMovieHumanSiteControls {
       shoulders.push(solved.section.shoulders[0]);
     }
     const shoulderKnots: IAutoMovieViewPart.IKnot[] = sites.map(
-      (site: Site.ISite, k: number): IAutoMovieViewPart.IKnot => ({
+      (
+        site: IAutoMovieHumanSectionSite,
+        k: number,
+      ): IAutoMovieViewPart.IKnot => ({
         site: site.site,
         station: site.station,
         value: shoulders[k]!,
@@ -179,11 +157,11 @@ export namespace AutoMovieHumanSiteControls {
           : { jet: input.fullnessPoleJets.top }),
       });
     const stations: number[] = sites.map(
-      (site: Site.ISite): number => site.station,
+      (site: IAutoMovieHumanSectionSite): number => site.station,
     );
     if (bottom !== null) stations.unshift(bottom);
     if (top !== null) stations.push(top);
-    const scalars: AutoMovieLoftViewSource.IInput = {
+    const scalars: IAutoMovieLoftViewSource.IInput = {
       stations: subdivide(stations, input.gap),
       front: { positive: outline(input, 0), negative: outline(input, 2) },
       side: { positive: outline(input, 1), negative: outline(input, 3) },
@@ -219,12 +197,12 @@ export namespace AutoMovieHumanSiteControls {
    */
   export function native(
     name: string,
-    scalars: AutoMovieLoftViewSource.IInput,
-  ): IControls["field"] {
-    let retained: AutoMovieLoftViewSource.ISource | undefined;
-    return (): AutoMovieLoftViewSource.ISource => {
+    scalars: IAutoMovieLoftViewSource.IInput,
+  ): IAutoMovieHumanSiteControls.IControls["field"] {
+    let retained: IAutoMovieLoftViewSource.ISource | undefined;
+    return (): IAutoMovieLoftViewSource.ISource => {
       if (retained !== undefined) return retained;
-      const admitted: AutoMovieLoftViewSource.IResult | null =
+      const admitted: IAutoMovieLoftViewSource.IResult | null =
         AutoMovieLoftViewSource.create(scalars);
       if (admitted === null || admitted.source === null)
         throw new Error(
@@ -238,13 +216,13 @@ export namespace AutoMovieHumanSiteControls {
   /** Copy a signed original scalar, including its authored normalized jets, bounds and zero closing knots. */
   export function outline(
     input: Pick<
-      Site.IInput,
+      IAutoMovieHumanSectionSource,
       "sites" | "pole" | "poleJets" | "ranges" | "parameter"
     >,
     quarter: 0 | 1 | 2 | 3,
   ): IAutoMovieViewPart.IOutline {
     const knots: IAutoMovieViewPart.IKnot[] = input.sites.map(
-      (site: Site.ISite): IAutoMovieViewPart.IKnot => ({
+      (site: IAutoMovieHumanSectionSite): IAutoMovieViewPart.IKnot => ({
         site: site.site,
         station: site.station,
         value: site.edges[quarter],
@@ -253,7 +231,7 @@ export namespace AutoMovieHumanSiteControls {
           : { jet: site.jets[quarter] }),
       }),
     );
-    const pole: Site.IInput["pole"] = input.pole;
+    const pole: IAutoMovieHumanSectionSource["pole"] = input.pole;
     if (pole !== undefined && pole.end !== "top")
       knots.unshift({
         site: "bottom pole",

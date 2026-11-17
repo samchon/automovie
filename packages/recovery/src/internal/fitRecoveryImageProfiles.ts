@@ -1,4 +1,8 @@
-import type { IAutoMovieEllipticLoft } from "@automovie/interface";
+import type {
+  IAutoMovieEllipticLoft,
+  IAutoMovieRecoveryImageProfilesFittingOperation,
+  IAutoMovieRecoveryScalarProfilesFittingOperation,
+} from "@automovie/interface";
 
 import { fitRecoveryScalarProfiles } from "./fitRecoveryScalarProfiles";
 
@@ -16,11 +20,11 @@ import { fitRecoveryScalarProfiles } from "./fitRecoveryScalarProfiles";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Scalar fit scratch dies with the call and mapped coefficient records transfer without handles or global retention.
  */
 export function fitRecoveryImageProfiles(
-  samples: readonly { yMm: number; values: [number, number, number, number] }[],
-  spans: number,
-  minimumRankRatio: number,
-): { loft: IAutoMovieEllipticLoft; rankRatio: number } {
-  const fitted: ReturnType<typeof fitRecoveryScalarProfiles> =
+  samples: Parameters<IAutoMovieRecoveryImageProfilesFittingOperation.Operation>[0],
+  spans: Parameters<IAutoMovieRecoveryImageProfilesFittingOperation.Operation>[1],
+  minimumRankRatio: Parameters<IAutoMovieRecoveryImageProfilesFittingOperation.Operation>[2],
+): ReturnType<IAutoMovieRecoveryImageProfilesFittingOperation.Operation> {
+  const fitted: ReturnType<IAutoMovieRecoveryScalarProfilesFittingOperation.Operation> =
     fitRecoveryScalarProfiles(samples, spans, minimumRankRatio);
   const result: IAutoMovieEllipticLoft = {
     spans: fitted.spans.map(

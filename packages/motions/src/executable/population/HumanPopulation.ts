@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanParameters } from "@automovie/human";
+import type { IAutoMovieHumanParameters } from "@automovie/interface";
 
 import { HumanPopulationAudit } from "./HumanPopulationAudit";
 import { HumanPopulationBuild } from "./HumanPopulationBuild";

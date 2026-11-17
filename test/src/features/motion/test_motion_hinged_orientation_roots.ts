@@ -1,8 +1,5 @@
 import {
   DEFAULT_JOINT_AXES,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSeededChainFit,
-  type IFitChainToTargetProps,
   Quaternion,
   ROM_TOLERANCE,
   Vector3,
@@ -14,10 +11,13 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSeededChainFit,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -113,7 +113,7 @@ export function test_motion_hinged_orientation_roots(): void {
 /** Independent dimensions, declared bounds and exact current goal of one leg. */
 interface IFixture {
   /** Owned source whose three chain joints are an independently authored legal pose. */
-  source: Omit<IFitChainToTargetProps, "target">;
+  source: Omit<IAutoMovieFitChainToTargetProps, "target">;
   /** Analytic model-metre ankle point, never a fitted endpoint. */
   target: IAutoMovieVector3;
   /** Analytic knee point of the isolated root. */

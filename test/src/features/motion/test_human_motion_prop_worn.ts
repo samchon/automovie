@@ -1,18 +1,15 @@
 import { createDrinkware } from "@automovie/archetypes";
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  type HumanSegment,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -44,19 +41,19 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 3 scenarios with their bounds.
  */
 export function test_human_motion_prop_worn(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
   });
-  const offset: IHumanProp.IFrame = {
+  const offset: IAutoMovieRigidTransform = {
     position: { x: -0.22, y: 0, z: 0.08 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
-  let performance: HumanPerformance;
+  let performance: IAutoMovieMotionHumanPerformance;
   try {
-    const placed: IHumanProp = HumanObject.prop("flask", glass, {
+    const placed: IAutoMovieMotionHumanProp = HumanObject.prop("flask", glass, {
       at: { x: 0, y: 0, z: 0 },
       yaw: 0,
     });
@@ -86,7 +83,8 @@ export function test_human_motion_prop_worn(): void {
     );
     return;
   }
-  const segments: readonly HumanSegment.ISegment[] = performance.segments("a");
+  const segments: readonly IAutoMovieMotionHumanSegment[] =
+    performance.segments("a");
   const instant = (index: number, event: string): number =>
     segments[index]!.start +
     (segments[index]!.plan.events.find((e): boolean => e.name === event)
@@ -97,11 +95,11 @@ export function test_human_motion_prop_worn(): void {
   const seat = (
     bone: "hips" | "rightHand",
     seconds: number,
-  ): IHumanProp.IFrame => {
+  ): IAutoMovieRigidTransform => {
     const frame: IAutoMovieResolvedBone = performance
       .bones("a", seconds)
       .get(bone)!;
-    const prop: IHumanProp.IFrame = performance.prop("flask", seconds);
+    const prop: IAutoMovieRigidTransform = performance.prop("flask", seconds);
     const inverse = Quaternion.inverse(frame.worldRotation);
     return {
       position: Quaternion.rotateVector(

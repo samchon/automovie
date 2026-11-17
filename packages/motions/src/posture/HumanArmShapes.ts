@@ -6,12 +6,13 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanColliders,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
-import type { HumanColliders } from "./HumanColliders";
 import { HumanShapeFraming } from "./HumanShapeFraming";
 
 /**
@@ -44,7 +45,7 @@ export namespace HumanArmShapes {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function segment(
-    at: G.IFrame,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
     probe: number,
   ): "upperArm" | "lowerArm" | "hand" {
     if (probe >= G.SURFACE) {
@@ -80,8 +81,8 @@ export namespace HumanArmShapes {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh index list and retains no scratch. The caller owns the optional gap buffer, reads only this call's returned indices, and releases it with its candidate evaluation; untouched slots are unspecified.
    */
   export function nearby(
-    at: G.IFrame,
-    placed: G.IPlaced,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
+    placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     probe: number,
     reach: number,
     screened?: IScreen,
@@ -92,7 +93,7 @@ export namespace HumanArmShapes {
     const owner: "upper" | "lower" | "hand" = at.owners[probe - G.SURFACE]!;
     return (screened ?? screen(at, placed, reach))[owner].filter(
       (i: number): boolean => {
-        const shape: G.IShape = at.shapes[i]!;
+        const shape: IAutoMovieMotionHumanArmGeometry.IShape = at.shapes[i]!;
         const gap: number = Vector3.distance(p, shape.centre) - shape.radius;
         if (gaps !== undefined) gaps[i] = gap;
         return gap < r + reach;
@@ -131,8 +132,8 @@ export namespace HumanArmShapes {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function screen(
-    at: G.IFrame,
-    placed: G.IPlaced,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
+    placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     reach: number,
     among?: readonly number[],
   ): IScreen {
@@ -175,8 +176,8 @@ export namespace HumanArmShapes {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each shape's sphere is `bounded`'s.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function colliders(at: G.IFrame, placed: G.IPlaced): G.IShape[] {
-    const out: G.IShape[] = [];
+  export function colliders(at: IAutoMovieMotionHumanArmGeometry.IFrame, placed: IAutoMovieMotionHumanArmGeometry.IPlaced): IAutoMovieMotionHumanArmGeometry.IShape[] {
+    const out: IAutoMovieMotionHumanArmGeometry.IShape[] = [];
     for (const c of at.colliders) {
       const o: IAutoMovieVector3 =
         c.owner === "upper"
@@ -190,7 +191,7 @@ export namespace HumanArmShapes {
           : c.owner === "lower"
             ? placed.lower
             : placed.hand;
-      const pose: HumanColliders.IPlaced["pose"] = {
+      const pose: IAutoMovieMotionHumanColliders.IPlaced["pose"] = {
         ...c.pose,
         position: Vector3.add(o, Quaternion.rotateVector(w, c.pose.position)),
         rotation: Quaternion.multiply(w, c.pose.rotation),
@@ -221,9 +222,9 @@ export namespace HumanArmShapes {
   export function bounded(
     bone: AutoMovieHumanoidBone,
     part: number,
-    pose: HumanColliders.IPlaced["pose"],
-    shape: HumanColliders.IPlaced["shapes"][number],
-  ): G.IShape {
+    pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
+    shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
+  ): IAutoMovieMotionHumanArmGeometry.IShape {
     // Its bounding sphere is the clearance reading's own (`HumanShapeFraming.sphere`).
     return {
       bone,
@@ -253,15 +254,15 @@ export namespace HumanArmShapes {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list; an optional gap buffer remains caller-owned and is never retained, nor are source placements or computed point pairs.
    */
   export function near(
-    at: G.IFrame,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
     p: IAutoMovieVector3,
     reach: number,
     gaps?: number[],
     among?: readonly number[],
   ): number[] {
     const out: number[] = [];
-    const read: (shape: G.IShape, i: number) => void = (
-      shape: G.IShape,
+    const read: (shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number) => void = (
+      shape: IAutoMovieMotionHumanArmGeometry.IShape,
       i: number,
     ): void => {
       const gap: number = Vector3.distance(p, shape.centre) - shape.radius;
@@ -302,8 +303,8 @@ export namespace HumanArmShapes {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list and retains nothing.
    */
   export function reachable(
-    at: G.IFrame,
-    placed: G.IPlaced,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
+    placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     reach: number,
   ): number[] {
     const upper: number = Vector3.distance(placed.elbow, placed.shoulder);
@@ -342,7 +343,7 @@ export namespace HumanArmShapes {
           at.bounds[owner].radius,
       );
     const out: number[] = [];
-    at.shapes.forEach((shape: G.IShape, i: number): void => {
+    at.shapes.forEach((shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number): void => {
       if (
         Vector3.distance(shape.centre, placed.shoulder) - shape.radius <
         far + reach + ROUNDING
@@ -370,11 +371,11 @@ export namespace HumanArmShapes {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function normal(
-    at: G.IFrame,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
     shape: number,
     p: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    const s: G.IShape = at.shapes[shape]!;
+    const s: IAutoMovieMotionHumanArmGeometry.IShape = at.shapes[shape]!;
     return physicalShapeNormal(
       s.pose,
       s.shape,
@@ -401,12 +402,12 @@ export namespace HumanArmShapes {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function gap(
-    at: G.IFrame,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
     shape: number,
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): number {
-    const s: G.IShape = at.shapes[shape]!;
+    const s: IAutoMovieMotionHumanArmGeometry.IShape = at.shapes[shape]!;
     return physicalShapeSegmentDistance(s.pose, s.shape, a, b);
   }
 
@@ -428,10 +429,10 @@ export namespace HumanArmShapes {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller releases this opaque reader with the synchronous candidate. Only borrowed fixed pose/shape and private geometry are retained; no probe, distance result or global history is kept.
    */
   export function prepareGap(
-    at: G.IFrame,
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
     shape: number,
   ): ReturnType<typeof physicalShapeSegmentDistance.prepare> {
-    const s: G.IShape = at.shapes[shape]!;
+    const s: IAutoMovieMotionHumanArmGeometry.IShape = at.shapes[shape]!;
     return physicalShapeSegmentDistance.prepare(s.pose, s.shape);
   }
 
@@ -454,8 +455,8 @@ export namespace HumanArmShapes {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh point/turn records and retains no source placements.
    */
   export function relative(
-    now: G.IShape,
-    next: G.IShape,
+    now: IAutoMovieMotionHumanArmGeometry.IShape,
+    next: IAutoMovieMotionHumanArmGeometry.IShape,
     point: IAutoMovieVector3,
   ): { point: IAutoMovieVector3; turn: IAutoMovieQuaternion } {
     const turn: IAutoMovieQuaternion = Quaternion.multiply(

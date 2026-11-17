@@ -1,11 +1,11 @@
 import { createHandgun, createTable } from "@automovie/archetypes";
+import type { IAutoMovieMotionHumanActionLaw } from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type IHumanActionLaw,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -41,7 +41,8 @@ export namespace motionHumanReloadHeld {
    * @returns What went wrong, empty when the scene planned or was refused by a `HumanRefusal`.
    */
   export function read(name: motionHumanBody.Name): string[] {
-    const laws: IHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
+    const laws: IAutoMovieMotionHumanActionLaw<never>[] =
+      Object.values(HUMAN_LEXICON).flat();
     try {
       new HumanPerformance({
         seed: "range-counter",

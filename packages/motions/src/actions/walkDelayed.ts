@@ -1,8 +1,9 @@
-import type { IAutoMovieMotionEvent } from "@automovie/interface";
-
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 /**
  * A stepping plan begun after a wait in its own first posture, as a
@@ -26,9 +27,9 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the plan for as long as the returned plan is held.
  */
 export function walkDelayed(
-  plan: IHumanActionPlan,
+  plan: IAutoMovieMotionHumanActionPlan,
   wait: number,
-): IHumanActionPlan {
+): IAutoMovieMotionHumanActionPlan {
   const duration: number = wait + plan.duration;
   const share: (was: number) => number = (was: number): number =>
     was <= 1e-12 ? 0 : (wait + was * plan.duration) / duration;
@@ -45,14 +46,14 @@ export function walkDelayed(
       ),
     ],
     contacts: plan.contacts.map(
-      (c: IHumanContactWindow): IHumanContactWindow => ({
+      (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
         ...c,
         from: share(c.from),
         to: share(c.to),
       }),
     ),
     ...(plan.contact === undefined ? {} : { contact: wait + plan.contact }),
-    posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture =>
+    posture: (seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture =>
       plan.posture(Math.max(0, seconds - wait), channels, resolution, projection),
   };
 }

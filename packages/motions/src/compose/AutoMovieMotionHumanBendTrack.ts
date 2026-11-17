@@ -1,17 +1,18 @@
-import {
-  type IAutoMovieSwivelSeed,
-} from "@automovie/engine";
+import { hingedArmSwivel } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
   IAutoMovieQuaternion,
+  IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendWalk } from "./AutoMovieMotionHumanBendWalk";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * The elbow of least strain of an arm a primitive writes over its span
@@ -62,10 +63,10 @@ export namespace AutoMovieMotionHumanBendTrack {
    */
   export interface IProps {
     /** The body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The arm. */
-    side: AutoMovieMotionHumanBend.Side;
+    side: AutoMovieHumanSide;
 
     /** Seconds since the action's start from which the primitive writes. */
     from: number;
@@ -84,10 +85,10 @@ export namespace AutoMovieMotionHumanBendTrack {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; the primitive that makes the track, which implements it, carries this claim.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; the primitive that makes the track, which implements it, carries this claim.
      */
-    goal: (posture: IHumanPosture, seconds: number) => IGoal;
+    goal: (posture: IAutoMovieMotionHumanPosture, seconds: number) => IGoal;
 
     /** The preset `solve` returns where no elbow place is allowed. */
-    fallback: AutoMovieMotionHumanBend.Arm | AutoMovieMotionHumanBend.IShares;
+    fallback: IAutoMovieMotionHumanBend.Arm | IAutoMovieMotionHumanBend.IShares;
   }
 
   /**
@@ -123,7 +124,7 @@ export namespace AutoMovieMotionHumanBendTrack {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; `of`, which implements it, carries this claim.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; `of`, which implements it, carries this claim.
      */
-    elbow: (posture: IHumanPosture, seconds: number, asked: IGoal) => IAutoMovieVector3;
+    elbow: (posture: IAutoMovieMotionHumanPosture, seconds: number, asked: IGoal) => IAutoMovieVector3;
   }
 
   /**
@@ -160,14 +161,14 @@ export namespace AutoMovieMotionHumanBendTrack {
     times.push(props.to);
     let knots: (IAutoMovieSwivelSeed | null)[] | undefined;
     const hang: Parameters<typeof AutoMovieMotionHumanBendSearch.continued>[1] = (
-      body: IHumanBody,
-      side: AutoMovieMotionHumanBend.Side,
+      body: IAutoMovieMotionHumanBody,
+      side: AutoMovieHumanSide,
     ): IAutoMovieVector3 =>
       AutoMovieMotionHumanBend.hang(body, { root: { x: 0, y: 0, z: 0 }, yaw: 0 }, side);
-    const request: (posture: IHumanPosture, seconds: number) => AutoMovieMotionHumanBend.ISolve = (
-      posture: IHumanPosture,
+    const request: (posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanBend.ISolve = (
+      posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): AutoMovieMotionHumanBend.ISolve => ({
+    ): IAutoMovieMotionHumanBend.ISolve => ({
       body: props.body,
       posture,
       side: props.side,
@@ -177,11 +178,11 @@ export namespace AutoMovieMotionHumanBendTrack {
 
     // One allowed solve continued from a seed, and a knot's seed from the
     // knot before it, are the sequence's own steps (`AutoMovieMotionHumanBendWalk`).
-    const continued: (solve: AutoMovieMotionHumanBend.ISolve, seed: IAutoMovieSwivelSeed) => ISolved | null = (
-      solve: AutoMovieMotionHumanBend.ISolve, seed: IAutoMovieSwivelSeed): ISolved | null =>
+    const continued: (solve: IAutoMovieMotionHumanBend.ISolve, seed: IAutoMovieSwivelSeed) => ISolved | null = (
+      solve: IAutoMovieMotionHumanBend.ISolve, seed: IAutoMovieSwivelSeed): ISolved | null =>
       AutoMovieMotionHumanBendWalk.walk(solve, hang, seed);
-    const knot: (solve: AutoMovieMotionHumanBend.ISolve, last: IAutoMovieSwivelSeed | null) => IAutoMovieSwivelSeed | null = (
-      solve: AutoMovieMotionHumanBend.ISolve, last: IAutoMovieSwivelSeed | null): IAutoMovieSwivelSeed | null =>
+    const knot: (solve: IAutoMovieMotionHumanBend.ISolve, last: IAutoMovieSwivelSeed | null) => IAutoMovieSwivelSeed | null = (
+      solve: IAutoMovieMotionHumanBend.ISolve, last: IAutoMovieSwivelSeed | null): IAutoMovieSwivelSeed | null =>
       AutoMovieMotionHumanBendWalk.next(solve, hang, last)?.seed ?? null;
     return {
       prepare: (before: IAutoMovieMotionHumanPrimitive.Reader): void => {
@@ -190,8 +191,8 @@ export namespace AutoMovieMotionHumanBendTrack {
           solved.push(knot(request(before(t), t), solved[solved.length - 1] ?? null));
         knots = solved;
       },
-      elbow: (posture: IHumanPosture, seconds: number, asked: IGoal): IAutoMovieVector3 => {
-        const solve: AutoMovieMotionHumanBend.ISolve = {
+      elbow: (posture: IAutoMovieMotionHumanPosture, seconds: number, asked: IGoal): IAutoMovieVector3 => {
+        const solve: IAutoMovieMotionHumanBend.ISolve = {
           body: props.body,
           posture,
           side: props.side,

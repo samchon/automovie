@@ -1,12 +1,14 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHoldMesh,
+  IAutoMovieMotionHumanInteractionMesh,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanInteractionMesh } from "../posture/HumanInteractionMesh";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * A two-person hold's key pose adapted to any pair of bodies (#3438): the
@@ -32,36 +34,6 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No hold has a table of its own: any key pose of two bodies adapts the same way.
  */
 export namespace HumanHoldMesh {
-  /** One body of the key pose. */
-  export interface IKey {
-    /** The reference body. */
-    body: IHumanBody;
-
-    /** Its resolved bones at the key pose. */
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  }
-
-  /** A contact of the hold: a joint of the first body on a joint of the second. */
-  export interface IContact {
-    /** The first body's joint. */
-    a: AutoMovieHumanoidBone;
-
-    /** The second body's joint. */
-    b: AutoMovieHumanoidBone;
-  }
-
-  /** One body's adapted pose. */
-  export interface IAdapted {
-    /** Its adapted joints, world metres. */
-    joints: Map<AutoMovieHumanoidBone, IAutoMovieVector3>;
-
-    /** How far its hips moved from the key pose, world metres. */
-    shift: IAutoMovieVector3;
-
-    /** Its limb goals: each wrist and ankle on its joint, bent toward its elbow or knee. */
-    limbs: IHumanPosture["limbs"];
-  }
-
   /**
    * Adapt a hold's key pose to a pair of bodies.
    *
@@ -80,13 +52,19 @@ export namespace HumanHoldMesh {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; the maps it returns are the caller's.
    */
   export function adapt(
-    key: readonly [IKey, IKey],
-    to: readonly [IHumanBody, IHumanBody],
-    contacts: readonly IContact[],
-  ): [IAdapted, IAdapted] {
+    key: readonly [
+      IAutoMovieMotionHumanHoldMesh.IKey,
+      IAutoMovieMotionHumanHoldMesh.IKey,
+    ],
+    to: readonly [IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBody],
+    contacts: readonly IAutoMovieMotionHumanHoldMesh.IContact[],
+  ): [
+    IAutoMovieMotionHumanHoldMesh.IAdapted,
+    IAutoMovieMotionHumanHoldMesh.IAdapted,
+  ] {
     const points: IAutoMovieVector3[] = [];
     const index: Map<string, number> = new Map();
-    key.forEach((k: IKey, side: number): void => {
+    key.forEach((k: IAutoMovieMotionHumanHoldMesh.IKey, side: number): void => {
       for (const [bone, resolved] of k.bones) {
         index.set(`${side}:${bone}`, points.length);
         points.push(resolved.worldPosition);
@@ -98,8 +76,8 @@ export namespace HumanHoldMesh {
         throw new Error(`The key pose's body ${side} has no joint ${bone}`);
       return i;
     };
-    const bones: HumanInteractionMesh.IBone[] = [];
-    to.forEach((body: IHumanBody, side: number): void => {
+    const bones: IAutoMovieMotionHumanInteractionMesh.IBone[] = [];
+    to.forEach((body: IAutoMovieMotionHumanBody, side: number): void => {
       for (const bone of body.skeleton.bones)
         if (
           bone.parent !== null &&
@@ -117,23 +95,25 @@ export namespace HumanHoldMesh {
             ),
           });
     });
-    const result: HumanInteractionMesh.IResult =
+    const result: IAutoMovieMotionHumanInteractionMesh.IResult =
       HumanInteractionMesh.adapt({
         reference: points,
         bones,
         contacts: contacts.map(
-          (c: IContact): HumanInteractionMesh.IContact => ({
+          (
+            c: IAutoMovieMotionHumanHoldMesh.IContact,
+          ): IAutoMovieMotionHumanInteractionMesh.IContact => ({
             a: at(0, c.a),
             b: at(1, c.b),
             offset: Vector3.subtract(points[at(0, c.a)]!, points[at(1, c.b)]!),
           }),
         ),
       });
-    const adapted = (side: 0 | 1): IAdapted => {
+    const adapted = (side: 0 | 1): IAutoMovieMotionHumanHoldMesh.IAdapted => {
       const joints: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
       for (const bone of key[side].bones.keys())
         joints.set(bone, result.points[at(side, bone)]!);
-      const limbs: IHumanPosture["limbs"] = {};
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
       for (const [limb, end, middle] of [
         ["leftArm", "leftHand", "leftLowerArm"],
         ["rightArm", "rightHand", "rightLowerArm"],

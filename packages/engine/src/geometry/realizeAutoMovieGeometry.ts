@@ -1,4 +1,8 @@
-import type { IAutoMovieGeometry, IAutoMovieMesh } from "@automovie/interface";
+import type {
+  IAutoMovieGeometry,
+  IAutoMovieRealizeBicubicAtlas64,
+  IAutoMovieRealizeGeometry,
+} from "@automovie/interface";
 
 import { realizeAutoMovieBicubicAtlas64 } from "./realizeAutoMovieBicubicAtlas64";
 import { tessellateToMesh } from "./tessellateToMesh";
@@ -22,7 +26,7 @@ import { tessellateToMesh } from "./tessellateToMesh";
 export function realizeAutoMovieGeometry(
   geometry: IAutoMovieGeometry,
   requirement: "complete" | "display" = "display",
-): { mesh: IAutoMovieMesh; complete: boolean; diagnostics: string[] } {
+): IAutoMovieRealizeGeometry.IResult {
   switch (geometry.type) {
     case "primitive":
       return {
@@ -33,7 +37,7 @@ export function realizeAutoMovieGeometry(
     case "mesh":
       return { mesh: geometry.mesh, complete: true, diagnostics: [] };
     case "bicubic-atlas": {
-      const realized: ReturnType<typeof realizeAutoMovieBicubicAtlas64> =
+      const realized: IAutoMovieRealizeBicubicAtlas64.IResult =
         realizeAutoMovieBicubicAtlas64(geometry);
       if (requirement === "complete" && !realized.complete)
         throw new Error(

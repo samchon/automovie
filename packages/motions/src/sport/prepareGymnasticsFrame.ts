@@ -1,12 +1,15 @@
-import {
-  type IAutoMovieResolvedBone,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanDigitGoal,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -32,9 +35,9 @@ import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan reader retains body/model, fixed demand and unchanged neutral minimum binding. Each frame owns actual bones/fresh raw posture; its floor closure captures only the static minimum reader/map, never FK/projector loans. Four floor-staging arrays end with each actual call, and loans stay with the synchronous parent without history or handles.
  */
 export function prepareGymnasticsFrame(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   model: GymnasticsFlight.Model,
-): (raw: IHumanPosture, centre: IAutoMovieVector3, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]) => IPreparedGymnasticsFrame {
+): (raw: IAutoMovieMotionHumanPosture, centre: IAutoMovieVector3, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]) => IPreparedGymnasticsFrame {
   let requested: ReadonlySet<AutoMovieHumanoidBone> = HumanColliders.bones(body);
   if (model !== body.massModel) {
     const combined: Set<AutoMovieHumanoidBone> = new Set(requested);
@@ -43,15 +46,15 @@ export function prepareGymnasticsFrame(
   }
   const readBones: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
   const minimum: ReturnType<typeof HumanColliders.prepareMinima> = HumanColliders.prepareMinima(body);
-  return (raw: IHumanPosture, centre: IAutoMovieVector3, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IPreparedGymnasticsFrame => {
+  return (raw: IAutoMovieMotionHumanPosture, centre: IAutoMovieVector3, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IPreparedGymnasticsFrame => {
     if (
-      Object.values(raw.limbs).some((goal: IHumanPosture.IGoal | undefined): boolean => goal !== undefined) ||
-      Object.values(raw.digits ?? {}).some((goal: IHumanPosture.IDigitGoal | undefined): boolean => goal !== undefined) ||
+      Object.values(raw.limbs).some((goal: IAutoMovieHumanLimbGoal | undefined): boolean => goal !== undefined) ||
+      Object.values(raw.digits ?? {}).some((goal: IAutoMovieHumanDigitGoal | undefined): boolean => goal !== undefined) ||
       raw.rotation !== undefined
     )
       throw new Error("Gymnastic frame preparation requires joint-only articulation");
 
-    const source: IHumanPosture = { ...raw, root: { ...raw.root, y: 0 } };
+    const source: IAutoMovieMotionHumanPosture = { ...raw, root: { ...raw.root, y: 0 } };
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       readBones(resolveHumanPosture.seeded(body, source, undefined, undefined, read, undefined, projection).pose, read());

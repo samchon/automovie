@@ -1,5 +1,5 @@
-import { AutoMovieWaterFeatureKind } from "./AutoMovieWaterFeatureKind";
-import { AutoMovieWaterFeatureMode } from "./AutoMovieWaterFeatureMode";
+import type { AutoMovieWaterFeatureKind } from "./AutoMovieWaterFeatureKind";
+import type { AutoMovieWaterFeatureMode } from "./AutoMovieWaterFeatureMode";
 
 /**
  * The binding that makes an independent fluid domain a building's water

@@ -1,5 +1,10 @@
 import { physicalGravityTorques } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
@@ -21,24 +26,24 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 export async function test_physical_gravity_feedforward(): Promise<void> {
   await RAPIER.init();
   const profile: P = PhysicalFixtures.sphere();
-  const root: P.ISegment = profile.segments[0]!;
+  const root: IAutoMoviePhysicalSegment = profile.segments[0]!;
   root.neutral.position = { x: 0, y: 0, z: 0 };
-  const link: P.ISegment = structuredClone(root);
+  const link: IAutoMoviePhysicalSegment = structuredClone(root);
   link.bone = "link";
   link.neutral.rotation = { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 };
   link.centerOfMass = { x: 0.5, y: 0, z: 0 };
-  const payload: P.ISegment = structuredClone(root);
+  const payload: IAutoMoviePhysicalSegment = structuredClone(root);
   payload.bone = "payload";
   payload.mass = 2;
   payload.neutral.position.z = -1;
   profile.segments.push(link, payload);
   profile.mass = 4;
   profile.centerOfMass = { x: 0, y: 0, z: -0.625 };
-  const identity: P.ITransform = {
+  const identity: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
-  const hinge: P.IJoint = {
+  const hinge: IAutoMoviePhysicalJoint = {
     id: "hinge",
     parent: "root",
     child: "link",
@@ -46,7 +51,7 @@ export async function test_physical_gravity_feedforward(): Promise<void> {
     childFrame: identity,
     axes: [],
   };
-  const attachment: P.IJoint = {
+  const attachment: IAutoMoviePhysicalJoint = {
     id: "attachment",
     parent: "link",
     child: "payload",

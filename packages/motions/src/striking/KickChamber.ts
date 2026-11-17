@@ -1,13 +1,13 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { poseBones } from "../posture/poseBones";
 
 /**
@@ -60,7 +60,7 @@ export namespace KickChamber {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each temporary pose/map ends on return or throw; only actual endpoint vectors and foot rotation escape, while two constant requested-name sets live with the module.
    */
   export function fold(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     pose: IAutoMoviePose,
     flexion: number,

@@ -1,4 +1,4 @@
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
+import type { IAutoMoviePlanInspectionTrailTimesProps } from "@automovie/interface";
 
 /**
  * The seconds a trail is sampled at for one drawn second: a grid of `ticks` per second through the drawn second, reaching `reach` seconds before and after it, clipped to the subject's running time.
@@ -20,16 +20,9 @@ import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list and keeps nothing.
  */
-export function planAutoMovieInspectionTrailTimes(props: {
-  /** The request's trail window. */
-  request: Pick<IAutoMovieInspectionRequest, "reach" | "ticks">;
-
-  /** The drawn film second. */
-  seconds: number;
-
-  /** The subject's running time, seconds. */
-  durationSeconds: number;
-}): number[] {
+export function planAutoMovieInspectionTrailTimes(
+  props: IAutoMoviePlanInspectionTrailTimesProps,
+): number[] {
   const reach: number = props.request.reach;
   const ticks: number = props.request.ticks;
   if (!(Number.isFinite(props.durationSeconds) && props.durationSeconds > 0))

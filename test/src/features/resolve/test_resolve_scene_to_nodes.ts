@@ -1,6 +1,4 @@
 import {
-  type IAutoMovieMotionClipBridge,
-  type IAutoMovieResolvedBone,
   Matrix4,
   composeScene,
   motionToClip,
@@ -11,8 +9,10 @@ import {
 import {
   IAutoMovieModel,
   type IAutoMovieMotion,
+  type IAutoMovieMotionClipBridge,
   type IAutoMovieNode,
   type IAutoMoviePose,
+  type IAutoMovieResolvedBone,
   IAutoMovieScene,
   type IAutoMovieSkeleton,
   IAutoMovieTransform,

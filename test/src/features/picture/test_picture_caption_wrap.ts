@@ -1,7 +1,5 @@
-import {
-  AutoMovieRasterSheet,
-  type IAutoMovieRasterImage,
-} from "@automovie/render";
+import type { IAutoMovieRasterImage } from "@automovie/interface";
+import { AutoMovieRasterSheet } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**

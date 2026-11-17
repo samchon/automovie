@@ -1,10 +1,15 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+  IAutoMovieMotionHumanSupport,
+} from "@automovie/interface";
+
 import { support } from "../actions/support";
 import { getUp } from "../floor/getUp";
 import { HumanActionRow } from "../law/HumanActionRow";
-import type { HumanSupport } from "../law/HumanSupport";
 
 /** The feet, bearing anywhere on the floor the stance's solve lays them. */
-const FEET: readonly HumanSupport.IContact[] = [
+const FEET: readonly IAutoMovieMotionHumanSupport.IContact[] = [
   { part: "leftFoot", kind: "bear" },
   { part: "rightFoot", kind: "bear" },
 ];
@@ -15,9 +20,9 @@ const FEET: readonly HumanSupport.IContact[] = [
  * (`HumanSupport.IContact.inset`).
  */
 const on = (
-  part: HumanSupport.Part,
+  part: IAutoMovieMotionHumanSupport.Part,
   inset: number = 0,
-): HumanSupport.IContact => ({
+): IAutoMovieMotionHumanSupport.IContact => ({
   part,
   kind: "bear",
   target: "on",
@@ -30,7 +35,7 @@ const on = (
  * body's relaxed arms, which the support planner lays under every stated
  * posture.
  */
-const SEATED: HumanSupport.IStance["prefer"] = {
+const SEATED: IAutoMovieMotionHumanSupport.IStance["prefer"] = {
   pitch: 0,
   roll: 0,
   joints: {
@@ -69,7 +74,9 @@ const SEATED: HumanSupport.IStance["prefer"] = {
  */
 export namespace HumanSupportRows {
   /** Scramble up onto a ledge: the palms on its top, a knee up onto its edge, the other foot up, standing on it. */
-  export const scramble = HumanActionRow.of("scramble", support, {
+  export const scramble: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["support"]["scramble"]
+  > = HumanActionRow.of("scramble", support, {
     stances: [
       { contacts: [...FEET, on("leftHand", 0.5), on("rightHand", 0.5)] },
       {
@@ -96,7 +103,9 @@ export namespace HumanSupportRows {
   });
 
   /** Slide off a table's edge: seated upright on it with the hands beside the seat, the feet down to the floor, standing. */
-  export const slideOff = HumanActionRow.of("slideOff", support, {
+  export const slideOff: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["support"]["slideOff"]
+  > = HumanActionRow.of("slideOff", support, {
     stances: [
       {
         contacts: [

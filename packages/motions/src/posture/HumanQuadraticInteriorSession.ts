@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import type { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
@@ -249,8 +251,8 @@ export namespace HumanQuadraticInteriorSession {
     x: Float64Array,
     value: Float64Array,
     lambda: Float64Array,
-  ): Q.IState {
-    const out: Q.IState = {
+  ): IAutoMovieMotionHumanQuadraticProgram.IState {
+    const out: IAutoMovieMotionHumanQuadraticProgram.IState = {
       x: new Float64Array(s.n),
       z: new Float64Array(s.m),
       y: new Float64Array(s.m),

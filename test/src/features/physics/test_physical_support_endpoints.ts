@@ -6,6 +6,9 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
@@ -24,12 +27,11 @@ import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
  */
 export function test_physical_support_endpoints(): void {
   const profile: P = PhysicalModelFixtures.stickman().profile;
-  const targets: Record<string, P.ITransform> = Object.fromEntries(
+  const targets: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
     profile.segments.map(
-      (segment: (typeof profile.segments)[number]): [string, P.ITransform] => [
-        segment.bone,
-        segment.neutral,
-      ],
+      (
+        segment: (typeof profile.segments)[number],
+      ): [string, IAutoMovieRigidTransform] => [segment.bone, segment.neutral],
     ),
   );
   const pattern: IAutoMovieFootfallPattern = {
@@ -48,11 +50,11 @@ export function test_physical_support_endpoints(): void {
         offset: { forward: number; left: number };
         stride: { speed: number; length: number }[];
       } => {
-        const segment: P.ISegment = profile.segments.find(
+        const segment: IAutoMoviePhysicalSegment = profile.segments.find(
           (candidate: (typeof profile.segments)[number]): boolean =>
             candidate.bone === `${side}LowerLeg`,
         )!;
-        const shape: P.IShape = segment.shapes[0]!;
+        const shape: IAutoMoviePhysicalShape = segment.shapes[0]!;
         if (shape.kind !== "capsule")
           throw new Error(
             "Existing stickman shin must retain its actual capsule",

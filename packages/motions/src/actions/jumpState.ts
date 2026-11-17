@@ -1,14 +1,14 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanSegmentPlant } from "../perform/HumanSegmentPlant";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -43,7 +43,7 @@ export namespace jumpState {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanSegmentPlant policy remains shared and one map supplies both feet/knees. Its fresh nested outputs transfer directly from the discarded private map, avoiding six redundant copies without aliasing the input pose or another bone/query. The fixed four-name reader binds only the actual immutable FK owner and rebinds if that owner changes. Explicit synchronous FK/projector loans share equal prerequisites/ROM metadata through actual solves, full clamp, refit and observations; every current joint remains admitted.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned pose/joints/leg records belong to the plan. One bounded static name reader is weakly owned per body and replaces itself on FK-owner change without history. Query maps/getter/projector end on return/throw or with their synchronous lender; no loan or external handle enters the state.
  */
-export function of(body: IHumanBody, posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): jumpState.IState {
+export function of(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): jumpState.IState {
   if (posture.rotation !== undefined)
     throw new Error("Jump endpoint preparation precedes whole-body flight rotation");
   const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
@@ -52,7 +52,7 @@ export function of(body: IHumanBody, posture: IHumanPosture, resolution?: Parame
   const clamped: IAutoMoviePose = prepareHumanPostureProjection.project(body, resolved, project);
   const pose: IAutoMoviePose = HumanSegmentPlant.fit(body, clamped, posture.limbs, undefined, read).pose;
   if (pose.root === null) throw new Error("A jump endpoint requires its physical root");
-  const joints: IHumanPosture["joints"] = {};
+  const joints: IAutoMovieMotionHumanPosture["joints"] = {};
   for (const joint of pose.joints)
     joints[joint.bone] = [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = legReader(body)({ ...pose, root: null }, read());
@@ -80,13 +80,13 @@ const LEG_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
 ]);
 
 /** Static four-name demand only; dynamic endpoint poses and operation workspaces never enter this weak owner. */
-const LEG_READERS: WeakMap<IHumanBody, {
-  rig: IHumanBody["poseResolution"];
+const LEG_READERS: WeakMap<IAutoMovieMotionHumanBody, {
+  rig: IAutoMovieMotionHumanBody["poseResolution"];
   read: ReturnType<typeof poseBones.prepare>;
 }> = new WeakMap();
 
 /** Bind the actual FK owner and fixed knee/ankle demand, replacing only metadata after an owner change. */
-function legReader(body: IHumanBody): ReturnType<typeof poseBones.prepare> {
+function legReader(body: IAutoMovieMotionHumanBody): ReturnType<typeof poseBones.prepare> {
   let known: ReturnType<typeof LEG_READERS.get> = LEG_READERS.get(body);
   if (known === undefined || known.rig !== body.poseResolution) {
     known = { rig: body.poseResolution, read: poseBones.prepare(body, LEG_BONES) };
@@ -126,7 +126,7 @@ function legReader(body: IHumanBody): ReturnType<typeof poseBones.prepare> {
     /** World root translation, metres. */
     root: IAutoMovieVector3;
     /** Achieved clinical angles, degrees; neutral nulls read as zero. */
-    joints: IHumanPosture["joints"];
+    joints: IAutoMovieMotionHumanPosture["joints"];
     /** Achieved geometry of both legs in the canonical root frame. */
     legs: Record<"left" | "right", ILeg>;
   }

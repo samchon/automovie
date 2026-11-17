@@ -1,4 +1,4 @@
-import { IAutoMovieMeshTarget } from "./IAutoMovieMeshTarget";
+import type { IAutoMovieMeshTarget } from "@automovie/interface";
 
 /**
  * Create four new, empty attribute buffers for a flat-shaded procedural

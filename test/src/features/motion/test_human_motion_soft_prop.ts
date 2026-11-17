@@ -1,18 +1,13 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieResolvedBone,
   IAutoMovieSoftBodyDomain,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  type IHumanBody,
-  type IHumanProp,
-} from "@automovie/motions";
+import { HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -34,7 +29,7 @@ const LINKS: number = 20;
  * of a performer's right hand, laid out straight below the hand's rest place.
  */
 const cord = (
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   links: number,
   length: number,
   seconds: number,
@@ -109,15 +104,15 @@ const cord = (
  * @evidence contracts/development/common.md#meaningful-documentation States the cast and the four scenarios with their bounds.
  */
 export function test_human_motion_soft_prop(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const domain: IAutoMovieSoftBodyDomain = cord(body, LINKS, LENGTH, 4);
-  const lanyard: IHumanProp = {
+  const lanyard: IAutoMovieMotionHumanProp = {
     subject: "lanyard",
     frame: { position: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },
     points: {},
     soft: domain,
   };
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "soft",
     props: [lanyard],
     performers: [

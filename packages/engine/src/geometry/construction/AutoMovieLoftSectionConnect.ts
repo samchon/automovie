@@ -1,25 +1,25 @@
+import type {
+  IAutoMovieFamily,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSectionBoundary,
+  IAutoMovieLoftSectionConnect,
+  IAutoMovieLoftSectionLegacy,
+  IAutoMovieLoftSectionSource,
+  IAutoMovieLoftViewRead,
+} from "@automovie/interface";
+
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftSectionBoundary } from "./AutoMovieLoftSectionBoundary";
 import { AutoMovieLoftSectionLegacy } from "./AutoMovieLoftSectionLegacy";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
-import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-
-/** A whole actual endpoint phase function, never a fitted Cartesian snapshot. */
-type Family = AutoMovieLoftSectionSource.IEndpoint["field"];
 
 /** Complete actual basis functions for one regular endpoint. */
-type Basis = Extract<Family, { kind: "basis" }>;
-
-/** The structural provider precedes the shared public interface connection. */
-type Chain = IAutoMovieLoftChain & {
-  nativeSource?: AutoMovieLoftSectionSource.ISource;
-  sectionSpans?: AutoMovieLoftSectionConnect.ISpan[];
-};
+type Basis = Extract<IAutoMovieFamily, { kind: "basis" }>;
 
 /** A kept/transformed layer may retain an explicit endpoint family. */
 type Layer = IAutoMovieLoftChain.ILayer & {
-  sectionSource?: AutoMovieLoftSectionSource.IEndpoint;
+  sectionSource?: IAutoMovieLoftSectionSource.IEndpoint;
 };
 
 /**
@@ -32,26 +32,6 @@ type Layer = IAutoMovieLoftChain.ILayer & {
  */
 export namespace AutoMovieLoftSectionConnect {
   /**
-   * Explicit native, mixed or basis law on a changed regular station span.
-   *
-   * @evidence contracts/development/design.md#principled-representation Each variant defines a full phase function over its station interval; mixed uses one positive native scalar extension and one complete coefficient extension with a C2-flat station weight.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The discriminant states exactly which actual generators the reader evaluates.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Native endpoints are not Cartesian Taylor jets; basis endpoints are complete functions with all phase derivatives.
-   * @evidence contracts/development/common.md#meaningful-documentation Native end selects weight one at that end, and all station coordinates use mm.
-   */
-  export type ISpan =
-    | { kind: "native"; law: AutoMovieLoftSectionBoundary.IBridge }
-    | { kind: "basis"; from: number; to: number }
-    | {
-        kind: "mixed";
-        from: number;
-        to: number;
-        native: AutoMovieLoftSectionBoundary.IBridge;
-        nativeEnd: "bottom" | "top";
-        basis: AutoMovieLoftSectionSource.IEndpoint;
-      };
-
-  /**
    * Capture the actual complete family at a regular station, oriented once.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Reads original scalar2, an explicit generated native family or complete actual basis2, with first-station and chart/phase signs applied together.
@@ -63,28 +43,31 @@ export namespace AutoMovieLoftSectionConnect {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent family data or a string and retains no host or callable source.
    */
   export function capture(
-    chain: Chain,
+    chain: IAutoMovieLoftChain,
     station: number,
     sign: 1 | -1 = 1,
-  ): Family | string {
+  ): IAutoMovieFamily | string {
     try {
       const [lo, hi]: [number, number] = AutoMovieLoftChain.bracket(
         chain,
         station,
       );
-      const source: AutoMovieLoftSectionSource.ISource | null =
+      const source: IAutoMovieLoftSectionSource.ISource | null =
         AutoMovieLoftSectionSource.validate(chain, lo, hi);
       const layer: Layer | undefined = chain.layers.find(
         (value: IAutoMovieLoftChain.ILayer): boolean => value.y === station,
       );
-      const endpoint: AutoMovieLoftSectionSource.IEndpoint | null =
+      const endpoint: IAutoMovieLoftSectionSource.IEndpoint | null =
         layer === undefined ? null : AutoMovieLoftSectionSource.endpoint(layer);
-      let field: Family;
+      let field: IAutoMovieFamily;
       if (endpoint !== null) field = endpoint.field;
       else {
-        const span: ISpan | null = active(chain, station);
+        const span: IAutoMovieLoftSectionConnect.ISpan | null = active(
+          chain,
+          station,
+        );
         if (span?.kind === "native") {
-          const inputs: AutoMovieLoftViewRead.IJets | string =
+          const inputs: IAutoMovieLoftViewRead.IJets | string =
             AutoMovieLoftSectionBoundary.read(span.law, station);
           if (typeof inputs === "string") return inputs;
           field = { kind: "native", inputs };
@@ -94,7 +77,7 @@ export namespace AutoMovieLoftSectionConnect {
           const native: boolean =
             station === (span.nativeEnd === "bottom" ? span.from : span.to);
           if (native) {
-            const inputs: AutoMovieLoftViewRead.IJets | string =
+            const inputs: IAutoMovieLoftViewRead.IJets | string =
               AutoMovieLoftSectionBoundary.read(span.native, station);
             if (typeof inputs === "string") return inputs;
             field = { kind: "native", inputs };
@@ -102,7 +85,7 @@ export namespace AutoMovieLoftSectionConnect {
         } else if (span?.kind === "basis" || source === null)
           field = basis(chain, station);
         else {
-          const inputs: AutoMovieLoftViewRead.IJets | string =
+          const inputs: IAutoMovieLoftViewRead.IJets | string =
             AutoMovieLoftViewRead.jets(source.data, station);
           if (typeof inputs === "string") return inputs;
           field = { kind: "native", inputs };
@@ -125,29 +108,37 @@ export namespace AutoMovieLoftSectionConnect {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Immutable published laws are reused across every station/phase query of that span.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a shallow chain copy and explicit changed-span records; no global cache or historical registration selects geometry.
    */
-  export function finish(chain: Chain): Chain {
-    let spans: ISpan[] = chain.sectionSpans?.slice() ?? [];
+  export function finish(chain: IAutoMovieLoftChain): IAutoMovieLoftChain {
+    let spans: IAutoMovieLoftSectionConnect.ISpan[] =
+      chain.sectionSpans?.slice() ?? [];
     let changed: boolean = false;
     for (let index: number = 0; index + 1 < chain.layers.length; index++) {
       const a: Layer = chain.layers[index]!;
       const b: Layer = chain.layers[index + 1]!;
       if (a.sectionSource === undefined && b.sectionSource === undefined)
         continue;
-      const first: Family | string = capture(chain, a.y);
-      const last: Family | string = capture(chain, b.y);
+      const first: IAutoMovieFamily | string = capture(chain, a.y);
+      const last: IAutoMovieFamily | string = capture(chain, b.y);
       if (typeof first === "string" || typeof last === "string")
         throw new Error(typeof first === "string" ? first : (last as string));
-      const law: ISpan | string = create(first, a, last, b);
+      const law: IAutoMovieLoftSectionConnect.ISpan | string = create(
+        first,
+        a,
+        last,
+        b,
+      );
       if (typeof law === "string") throw new Error(law);
-      spans = spans.filter((old: ISpan): boolean => {
-        const [low, high]: readonly [number, number] = bounds(old);
-        if (low === a.y && high === b.y) return false;
-        if (low < b.y && high > a.y)
-          throw new Error(
-            "A changed native boundary overlaps an existing composed span without re-expression.",
-          );
-        return true;
-      });
+      spans = spans.filter(
+        (old: IAutoMovieLoftSectionConnect.ISpan): boolean => {
+          const [low, high]: readonly [number, number] = bounds(old);
+          if (low === a.y && high === b.y) return false;
+          if (low < b.y && high > a.y)
+            throw new Error(
+              "A changed native boundary overlaps an existing composed span without re-expression.",
+            );
+          return true;
+        },
+      );
       spans.push(law);
       changed = true;
     }
@@ -165,7 +156,10 @@ export namespace AutoMovieLoftSectionConnect {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The pure lookup owns no cross-call result.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a borrowed immutable law and retains nothing.
    */
-  export function active(chain: Chain, station: number): ISpan | null {
+  export function active(
+    chain: IAutoMovieLoftChain,
+    station: number,
+  ): IAutoMovieLoftSectionConnect.ISpan | null {
     if (chain.sectionSpans === undefined) return null;
     if (!Array.isArray(chain.sectionSpans))
       throw new Error("The present native span list is malformed.");
@@ -215,7 +209,9 @@ export namespace AutoMovieLoftSectionConnect {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure layout accessor coordinates no work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or result.
    */
-  export function bounds(span: ISpan): readonly [number, number] {
+  export function bounds(
+    span: IAutoMovieLoftSectionConnect.ISpan,
+  ): readonly [number, number] {
     if (span?.kind === "native")
       return [span.law.ends[0].station, span.law.ends[1].station];
     if (span?.kind === "basis" || span?.kind === "mixed")
@@ -225,8 +221,8 @@ export namespace AutoMovieLoftSectionConnect {
 }
 
 /** Capture a complete actual basis endpoint rather than a finite collection of phase samples. */
-function basis(chain: Chain, station: number): Basis {
-  const prepared: AutoMovieLoftSectionLegacy.IPrepared =
+function basis(chain: IAutoMovieLoftChain, station: number): Basis {
+  const prepared: IAutoMovieLoftSectionLegacy.IPrepared =
     AutoMovieLoftSectionLegacy.prepare(chain, station, 2);
   if (prepared.kind !== "jet")
     throw new Error("The endpoint has no actual complete physical basis2.");
@@ -234,7 +230,7 @@ function basis(chain: Chain, station: number): Basis {
 }
 
 /** Reflect a whole function once, including actual station derivative signs. */
-function orient(field: Family, sign: 1 | -1): Family {
+function orient(field: IAutoMovieFamily, sign: 1 | -1): IAutoMovieFamily {
   if (sign !== 1 && sign !== -1)
     throw new Error("A boundary direction must be 1 or -1.");
   if (field.kind === "native")
@@ -261,11 +257,11 @@ function orient(field: Family, sign: 1 | -1): Family {
 
 /** Actual native endpoint2 defines a positive extension whose free far end is explicitly constant. */
 function create(
-  first: Family,
+  first: IAutoMovieFamily,
   lower: IAutoMovieLoftChain.ILayer,
-  last: Family,
+  last: IAutoMovieFamily,
   upper: IAutoMovieLoftChain.ILayer,
-): AutoMovieLoftSectionConnect.ISpan | string {
+): IAutoMovieLoftSectionConnect.ISpan | string {
   const from: number = lower.y;
   const to: number = upper.y;
   if (
@@ -281,15 +277,15 @@ function create(
     return { kind: "basis", from, to };
   const nativeEnd: "bottom" | "top" =
     first.kind === "native" ? "bottom" : "top";
-  const native: Extract<Family, { kind: "native" }> =
+  const native: Extract<IAutoMovieFamily, { kind: "native" }> =
     first.kind === "native"
       ? first
-      : (last as Extract<Family, { kind: "native" }>);
-  const start: AutoMovieLoftViewRead.IJets =
+      : (last as Extract<IAutoMovieFamily, { kind: "native" }>);
+  const start: IAutoMovieLoftViewRead.IJets =
     first.kind === "native" ? first.inputs : constant(native.inputs);
-  const end: AutoMovieLoftViewRead.IJets =
+  const end: IAutoMovieLoftViewRead.IJets =
     last.kind === "native" ? last.inputs : constant(native.inputs);
-  const law: AutoMovieLoftSectionBoundary.IBridge | string =
+  const law: IAutoMovieLoftSectionBoundary.IBridge | string =
     AutoMovieLoftSectionBoundary.create(
       { station: from, inputs: start },
       { station: to, inputs: end },
@@ -313,8 +309,8 @@ function create(
 
 /** These zero derivatives define the free constant extension, never an unavailable actual source. */
 function constant(
-  inputs: AutoMovieLoftViewRead.IJets,
-): AutoMovieLoftViewRead.IJets {
+  inputs: IAutoMovieLoftViewRead.IJets,
+): IAutoMovieLoftViewRead.IJets {
   return {
     extents: inputs.extents.map(
       (jet: readonly number[]): [number, number, number] => [jet[0]!, 0, 0],

@@ -1,13 +1,13 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   resolvePose,
 } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMoviePose,
+  type IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

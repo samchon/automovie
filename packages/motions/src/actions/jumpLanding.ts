@@ -1,6 +1,9 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { stand } from "./stand";
@@ -28,7 +31,7 @@ export namespace jumpLanding {
    */
   export interface ILanding {
     /** Each foot flat on its footprint, world metres. */
-    feet: Record<"left" | "right", HumanFoot.IPlacement>;
+    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
 
     /** The root at touchdown, world metres. */
     touched: IAutoMovieVector3;
@@ -59,16 +62,16 @@ export namespace jumpLanding {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local frame and footprint reader release on synchronous return/throw; only fresh footprint and root vectors escape, without source frames, callbacks or history.
    */
   export function of(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     to: IAutoMovieVector3,
     heading: number,
     rise: number,
     lean: number,
   ): ILanding {
-    const m: IHumanBody["measure"] = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const l: number = m.hipHeight;
     const frame: HumanFrame.IPrepared = HumanFrame.prepare({ origin: { ...to, y: 0 }, yaw: heading });
-    const footprint: (s: "left" | "right") => HumanFoot.IPlacement = (s: "left" | "right"): HumanFoot.IPlacement => ({
+    const footprint: (s: "left" | "right") => IAutoMovieMotionHumanFoot.IPlacement = (s: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle: frame.point({
         x: (s === "left" ? 1 : -1) * Math.abs(body.rest.get(`${s}Foot`)!.x),
         y: m.ankleHeight + rise,

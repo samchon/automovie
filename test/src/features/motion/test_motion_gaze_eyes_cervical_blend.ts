@@ -1,6 +1,16 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, type IAutoMovieResolvedBone, preparePoseResolution, resolvePose } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanGaze, type IHumanBody, type IHumanPosture, resolveHumanPosture } from "@automovie/motions";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  preparePoseResolution,
+  resolvePose,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { HumanGaze, resolveHumanPosture } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -28,8 +38,8 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable motion unit borrows an immutable canonical Human and owns all raw joints/targets/output edits. It uses public aiming/resolution plus full raw FK, patches no foreign method/global or shared ROM and starts no host, compiler or renderer.
  */
 export function test_motion_gaze_eyes_cervical_blend(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const posture: IHumanPosture = { root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0,
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const posture: IAutoMovieMotionHumanPosture = { root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0,
     joints: { neck: [6, 10, 4], head: [8, -6, -3] }, limbs: {} };
   const unchanged: string = JSON.stringify(posture);
   const neutral: IAutoMovieResolvedBone[] = displayed(body, { ...posture, joints: {} });
@@ -37,11 +47,11 @@ export function test_motion_gaze_eyes_cervical_blend(): void {
   const right: IAutoMovieVector3 = neutral.find((bone: IAutoMovieResolvedBone): boolean => bone.bone === "rightEye")!.worldPosition;
   const origin: IAutoMovieVector3 = { x: (left.x + right.x) / 2, y: (left.y + right.y) / 2, z: (left.z + right.z) / 2 };
   const operation: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
-  let previous: IHumanPosture | undefined;
+  let previous: IAutoMovieMotionHumanPosture | undefined;
   for (const borrowed of [false, true])
     for (const [weight, offset] of [[0.5, 0.4], [0, -0.3], [1, 0], [0.5, 0.4]] as const) {
       const target: IAutoMovieVector3 = { x: origin.x + offset, y: origin.y, z: origin.z + 3 };
-      const actual: IHumanPosture = HumanGaze.aim(body, posture, target, "eyes", { eyes: 1, head: weight, trunk: 0 },
+      const actual: IAutoMovieMotionHumanPosture = HumanGaze.aim(body, posture, target, "eyes", { eyes: 1, head: weight, trunk: 0 },
         borrowed ? operation : undefined);
       TestValidator.predicate(`eyes-only cervical blend preserves literal abduction at headweight${weight}, loan=${borrowed}`,
         nclose(actual.joints.neck![1], 10 * (1 - weight), 1e-12) && nclose(actual.joints.head![1], -6 * (1 - weight), 1e-12));
@@ -64,6 +74,6 @@ export function test_motion_gaze_eyes_cervical_blend(): void {
 }
 
 /** Resolve the actual displayed full hierarchy independently of the demanded trunk adapter. */
-function displayed(body: IHumanBody, posture: IHumanPosture): IAutoMovieResolvedBone[] {
+function displayed(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): IAutoMovieResolvedBone[] {
   return resolvePose(resolveHumanPosture(body, posture), body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME);
 }

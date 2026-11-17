@@ -1,17 +1,18 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../../body/IHumanBody";
-import type { HumanPerformance } from "../../perform/HumanPerformance";
-import type { HumanSegment } from "../../perform/HumanSegment";
 import { HumanColliders } from "../../posture/HumanColliders";
 import { StrikingRecord } from "../../striking/StrikingRecord";
 import { StrikingWeapon } from "../../striking/StrikingWeapon";
@@ -94,9 +95,9 @@ export namespace StrikingLimb {
    * @returns The end joint.
    */
   export function end(
-    performance: HumanPerformance,
+    performance: IAutoMovieMotionHumanPerformance,
     subject: string,
-    segment: HumanSegment.ISegment,
+    segment: IAutoMovieMotionHumanSegment,
     until: number,
   ): End {
     const declared: End | undefined = StrikingRecord.of(segment.plan)?.limb;
@@ -172,8 +173,12 @@ export namespace StrikingLimb {
    * @param knee Whether the strike is a knee, which ends at the kneecap.
    * @returns The length.
    */
-  export function length(body: IHumanBody, limb: End, knee: boolean): number {
-    const m: IHumanBody["measure"] = body.measure;
+  export function length(
+    body: IAutoMovieMotionHumanBody,
+    limb: End,
+    knee: boolean,
+  ): number {
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     if (knee) return m.thigh + m.thighRadius;
     return leg(limb)
       ? m.thigh + m.shank + m.footLength
@@ -197,7 +202,7 @@ export namespace StrikingLimb {
    * @returns The capsules, from the root outward.
    */
   export function capsules(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: Bones,
     limb: End,
   ): ICapsule[] {
@@ -323,21 +328,19 @@ export namespace StrikingLimb {
    * @returns The gap, the other body's nearest bone and the limb's nearest capsule.
    */
   export function gap(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: Bones,
     limb: End,
-    other: IHumanBody,
+    other: IAutoMovieMotionHumanBody,
     others: Bones,
   ): IGap {
     let best: IGap = { distance: Infinity, bone: undefined, part: "nothing" };
     for (const c of capsules(body, bones, limb)) {
-      const near: HumanColliders.IDistance = HumanColliders.distanceToSegment(
-        other,
-        others,
-        c.a,
-        c.b,
-        [c.radius, c.tail],
-      );
+      const near: IAutoMovieMotionHumanColliders.IDistance =
+        HumanColliders.distanceToSegment(other, others, c.a, c.b, [
+          c.radius,
+          c.tail,
+        ]);
       if (near.distance < best.distance)
         best = {
           distance: near.distance,

@@ -1,6 +1,8 @@
-import { IAutoMoviePlanarPoint } from "@automovie/interface";
+import {
+  IAutoMoviePlanarPoint,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { BUILT_PLANAR_EPSILON } from "./constants/BUILT_PLANAR_EPSILON";
 import { polygonDoubleArea } from "./polygonDoubleArea";
 import { polygonIsSimple } from "./polygonIsSimple";
@@ -27,12 +29,12 @@ export const appendBuiltRegionDefects: (
   region: readonly IAutoMoviePlanarPoint[],
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => void = (
   region: readonly IAutoMoviePlanarPoint[],
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): void => {
   const area: number = polygonDoubleArea(region);
   if (!Number.isFinite(area) || Math.abs(area) <= BUILT_PLANAR_EPSILON)

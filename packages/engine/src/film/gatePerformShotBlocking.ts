@@ -1,12 +1,12 @@
 import {
   IAutoMovieActionCall,
   IAutoMovieBlocking,
+  type IAutoMovieEnginePerformShotGateContext,
+  type IAutoMoviePerformShotFrameJob,
   IAutoMoviePerformance,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
-import { IPerformShotFrameJob } from "./IPerformShotFrameJob";
-import { IPerformShotGateContext } from "./IPerformShotGateContext";
 import { performShotActionSpan } from "./performShotActionSpan";
 import { performShotActors } from "./performShotActors";
 
@@ -29,12 +29,12 @@ import { performShotActors } from "./performShotActors";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pushes violations into the shared collector and retains nothing.
  */
 export function gatePerformShotBlocking(
-  context: IPerformShotGateContext,
+  context: IAutoMovieEnginePerformShotGateContext,
   blocking: IAutoMovieBlocking,
   stageActions: readonly IAutoMovieActionCall[],
-  frames: readonly IPerformShotFrameJob[],
+  frames: readonly IAutoMoviePerformShotFrameJob[],
 ): void {
-  const out: ViolationCollector = context.out;
+  const out: IAutoMovieViolationCollector = context.out;
   const performance: IAutoMoviePerformance = context.performance;
   const base: string = context.base;
   if (blocking.beat !== performance.beat)
@@ -71,7 +71,7 @@ export function gatePerformShotBlocking(
           anchor.t,
         );
     }
-  const lead: IPerformShotFrameJob | undefined = frames[0];
+  const lead: IAutoMoviePerformShotFrameJob | undefined = frames[0];
   if (lead === undefined) {
     if (blocking.camera.move !== "static")
       out.push(

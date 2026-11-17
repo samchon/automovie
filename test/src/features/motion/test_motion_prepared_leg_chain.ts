@@ -1,9 +1,17 @@
-import { type IAutoMovieResolvedBone, type IAutoMovieSwivelNear, Quaternion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLegChain,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSwivelNear,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanLegChain,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions";
@@ -36,8 +44,8 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable numerical unit borrows immutable canonical geometry through a fresh body owner and owns all source/target/near records; no internal helper import, test-only export, foreign replacement, host or compiler is introduced.
  */
 export function test_motion_prepared_leg_chain(): void {
-  const body: IHumanBody = { ...motionHumanBody("m-average") };
-  const raw: IHumanPosture = {
+  const body: IAutoMovieMotionHumanBody = { ...motionHumanBody("m-average") };
+  const raw: IAutoMovieMotionHumanPosture = {
     root: { x: 2, y: 0.5, z: -3 }, yaw: 37, pitch: 0, roll: 0, joints: {}, limbs: {},
   };
   const neutral: IAutoMoviePose = resolveHumanPosture(body, raw);
@@ -59,14 +67,14 @@ export function test_motion_prepared_leg_chain(): void {
     const bend: IAutoMovieVector3 = placed(hip,
       { x: side === "left" ? 0.15 : -0.15, y: -upper, z: 0.45 }, 37);
     let initial: ReturnType<typeof HumanLegChain.seeded> | undefined;
-    let earlier: HumanLegChain.IPosed | undefined;
+    let earlier: IAutoMovieMotionHumanLegChain.IPosed | undefined;
     let originalKnee: IAutoMovieVector3 | undefined;
     for (const [index, width] of [[0, 0], [1, 0.01], [0, 0], [1, 0.001], [0, 0]] as const) {
       const near: IAutoMovieSwivelNear | undefined = width === 0 || initial === undefined || initial.seed === null
         ? undefined : { ...initial.seed, tolerance: width };
       const target: IAutoMovieVector3 = targets[index]!;
       const fitted: ReturnType<typeof HumanLegChain.seeded> = reader(target, bend, rotation, near);
-      const shown: HumanLegChain.IPosed | null = pose(target, fitted.swivel);
+      const shown: IAutoMovieMotionHumanLegChain.IPosed | null = pose(target, fitted.swivel);
       TestValidator.predicate("reachable prepared Human leg has an actual hinged pose and continuation seed",
         shown !== null && fitted.seed !== null,
       );
@@ -103,7 +111,7 @@ export function test_motion_prepared_leg_chain(): void {
     }
 
     const first: ReturnType<typeof HumanLegChain.seeded> = reader(targets[0]!, bend, rotation);
-    const original: HumanLegChain.IPosed = pose(targets[0]!, first.swivel)!;
+    const original: IAutoMovieMotionHumanLegChain.IPosed = pose(targets[0]!, first.swivel)!;
     const otherHip: IAutoMovieVector3 = { x: hip.x + 1, y: hip.y + 0.25, z: hip.z - 2 };
     const otherPelvis: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -61), pelvis,
@@ -112,7 +120,7 @@ export function test_motion_prepared_leg_chain(): void {
     const otherTarget: IAutoMovieVector3 = placed(otherHip, {
       x: targets[0]!.x - hip.x, y: targets[0]!.y - hip.y, z: targets[0]!.z - hip.z,
     }, -61);
-    const moved: HumanLegChain.IPosed = other(otherTarget, first.swivel)!;
+    const moved: IAutoMovieMotionHumanLegChain.IPosed = other(otherTarget, first.swivel)!;
     const expected: IAutoMovieVector3 = placed(otherHip, {
       x: original.knee.x - hip.x, y: original.knee.y - hip.y, z: original.knee.z - hip.z,
     }, -61);

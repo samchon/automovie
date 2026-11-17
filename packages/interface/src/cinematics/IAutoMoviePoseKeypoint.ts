@@ -1,4 +1,4 @@
-import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
  * One named humanoid joint numerically projected into the delivered frame, with a top-left origin after any crop. Inside the frame, `x` and `y` lie in `[0, 1]`; a host scales them to its raster. These values use the engine's default joint axes and rest frames, so correspondence with a renderer requires matching conventions and is not observed pixel evidence.

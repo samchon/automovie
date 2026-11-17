@@ -1,4 +1,12 @@
-import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
+import type {
+  AutoMovieCubicBezierControls3,
+  AutoMovieVector3Tuple,
+  IAutoMovieBernsteinCurvePiece64,
+  IAutoMovieCurvePrimitive64,
+  IAutoMovieEvaluateBernstein64,
+  IAutoMovieEvaluateCurve64,
+} from "@automovie/interface";
+
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 import { evaluateAutoMovieBernstein64 } from "./evaluateAutoMovieBernstein64";
 
@@ -18,15 +26,9 @@ import { evaluateAutoMovieBernstein64 } from "./evaluateAutoMovieBernstein64";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local partition/descriptors and output vectors are per-call; the evaluator retains no primitive or external resources.
  */
 export function evaluateAutoMovieCurve64(
-  curve: C.Primitive,
+  curve: IAutoMovieCurvePrimitive64,
   parameter: number,
-): {
-  /** Position in the primitive's millimetre chart. */
-  point: C.Vector;
-
-  /** Millimetres per declared phase unit; no unit normalization is applied. */
-  tangentPerParameter: C.Vector;
-} {
+): IAutoMovieEvaluateCurve64.IResult {
   assertAutoMovieCurve64(curve);
   if (!Number.isFinite(parameter) || parameter < 0)
     throw new Error("A nonnegative finite curve parameter is required");
@@ -44,7 +46,8 @@ export function evaluateAutoMovieCurve64(
       throw new Error("An analytic oval uses one turn");
     if (
       ![curve.center, curve.u, curve.v].every(
-        (v: C.Vector): boolean => v.length === 3 && v.every(Number.isFinite),
+        (v: Readonly<AutoMovieVector3Tuple>): boolean =>
+          v.length === 3 && v.every(Number.isFinite),
       ) ||
       ![curve.radiusU, curve.radiusV].every(Number.isFinite) ||
       curve.radiusU <= 0 ||
@@ -52,9 +55,12 @@ export function evaluateAutoMovieCurve64(
       curve.closed !== true
     )
       throw new Error("Invalid analytic oval");
-    const dot: (a: C.Vector, b: C.Vector) => number = (
-      a: C.Vector,
-      b: C.Vector,
+    const dot: (
+      a: Readonly<AutoMovieVector3Tuple>,
+      b: Readonly<AutoMovieVector3Tuple>,
+    ) => number = (
+      a: Readonly<AutoMovieVector3Tuple>,
+      b: Readonly<AutoMovieVector3Tuple>,
     ): number =>
       a.reduce((s: number, x: number, k: number): number => s + x * b[k]!, 0);
     if (
@@ -78,12 +84,16 @@ export function evaluateAutoMovieCurve64(
   } else {
     if (curve.type !== "cubicBezier" && curve.type !== "bernstein")
       throw new Error("Unknown actual primitive");
-    const pieces: readonly C.Piece[] =
+    const pieces: readonly IAutoMovieBernsteinCurvePiece64[] =
       curve.type === "cubicBezier"
-        ? curve.spans.map((s: C.Span): C.Piece => {
-            if (s.length !== 4) throw new Error("Cubic degree mismatch");
-            return { primitive: "polynomialBezier", degree: 3, controls: s };
-          })
+        ? curve.spans.map(
+            (
+              s: AutoMovieCubicBezierControls3,
+            ): IAutoMovieBernsteinCurvePiece64 => {
+              if (s.length !== 4) throw new Error("Cubic degree mismatch");
+              return { primitive: "polynomialBezier", degree: 3, controls: s };
+            },
+          )
         : curve.pieces;
     const cumulative: number[] = [0];
     for (const width of curve.phaseIntervals)
@@ -112,7 +122,7 @@ export function evaluateAutoMovieCurve64(
     const width: number = curve.phaseIntervals[index]!;
     const t: number =
       parameter === total ? 1 : (parameter - cumulative[index]!) / width;
-    const evaluated: ReturnType<typeof evaluateAutoMovieBernstein64> =
+    const evaluated: IAutoMovieEvaluateBernstein64.IResult =
       evaluateAutoMovieBernstein64(pieces[index]!, t);
     for (let k: number = 0; k < 3; k++) {
       point[k] = evaluated.point[k]!;
@@ -124,7 +134,7 @@ export function evaluateAutoMovieCurve64(
   if (![...point, ...tangent].every(Number.isFinite))
     throw new Error("Unresolved curve evaluation");
   return {
-    point: point as unknown as C.Vector,
-    tangentPerParameter: tangent as unknown as C.Vector,
+    point: point as unknown as Readonly<AutoMovieVector3Tuple>,
+    tangentPerParameter: tangent as unknown as Readonly<AutoMovieVector3Tuple>,
   };
 }

@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
 
@@ -27,10 +29,10 @@ import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
 export function HumanQuadraticEntries(
   s: B.IScaled,
   r: number,
-): Pick<Q.IRow, "index" | "coef"> {
-  const known: Pick<Q.IRow, "index" | "coef"> | undefined = s.restored?.get(r);
+): Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef"> {
+  const known: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef"> | undefined = s.restored?.get(r);
   if (known !== undefined) return known;
-  const original: Pick<Q.IRow, "index" | "coef"> | undefined = s.raw[r];
+  const original: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef"> | undefined = s.raw[r];
   if (original === undefined) {
     const first: number = s.start[r]!;
     const length: number = s.start[r + 1]! - first;
@@ -40,7 +42,7 @@ export function HumanQuadraticEntries(
       index[a] = s.cols[first + a]!;
       coef[a] = s.vals[first + a]!;
     }
-    const out: Pick<Q.IRow, "index" | "coef"> = { index, coef };
+    const out: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef"> = { index, coef };
     (s.restored ??= new Map()).set(r, out);
     return out;
   }
@@ -50,7 +52,7 @@ export function HumanQuadraticEntries(
     const value: number = original.coef[a]!;
     coef[a] = value === 0 ? value : s.vals[at++]!;
   }
-  const out: Pick<Q.IRow, "index" | "coef"> = { index: original.index, coef };
+  const out: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef"> = { index: original.index, coef };
   (s.restored ??= new Map()).set(r, out);
   return out;
 }

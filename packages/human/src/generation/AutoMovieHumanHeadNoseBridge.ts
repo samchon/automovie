@@ -1,8 +1,11 @@
 import { AutoMovieNaturalSpline } from "@automovie/engine";
+import type {
+  IAutoMovieHumanHeadCompiled,
+  IAutoMovieHumanHeadNoseFrame,
+  IAutoMovieHumanHeadPrior,
+} from "@automovie/interface";
+
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
-import type { AutoMovieHumanHeadNoseFrame } from "./AutoMovieHumanHeadNoseFrame";
-import type { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
-import type { IAutoMovieHumanHeadCompiled } from "./IAutoMovieHumanHeadCompiled";
 
 /**
  * The nasal root and dorsum as a relief window in the nose's frame: the
@@ -29,9 +32,9 @@ export namespace AutoMovieHumanHeadNoseBridge {
    * @returns Height in millimetres, zero off the dorsum.
    */
   export function ridge(
-    frame: AutoMovieHumanHeadNoseFrame.IFrame,
+    frame: IAutoMovieHumanHeadNoseFrame.IFrame,
     compiled: Pick<IAutoMovieHumanHeadCompiled, "profile" | "dorsum">,
-    knots: AutoMovieHumanHeadPrior.IFace["profileKnots"],
+    knots: IAutoMovieHumanHeadPrior.IFace["profileKnots"],
     a: number,
   ): number {
     const v: number = frame.v;
@@ -40,7 +43,9 @@ export namespace AutoMovieHumanHeadNoseBridge {
           AutoMovieHumanHeadMath.smooth((1 - v) / ROOT) *
           frame.lead *
           AutoMovieHumanHeadMath.bell(
-            a / (frame.width * AutoMovieNaturalSpline.evaluate(compiled.dorsum, v)),
+            a /
+              (frame.width *
+                AutoMovieNaturalSpline.evaluate(compiled.dorsum, v)),
           )
       : 0;
   }

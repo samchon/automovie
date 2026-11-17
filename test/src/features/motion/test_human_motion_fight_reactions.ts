@@ -1,15 +1,17 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
   HumanStageFight,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -51,7 +53,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_fight_reactions(): void {
   const FRAME: number = 1 / 24;
-  const attacker: IHumanBody = motionHumanBody("m-average");
+  const attacker: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   const on = (region: string): object => ({
     target: { kind: "person", subject: "b", region },
@@ -69,9 +71,9 @@ export function test_human_motion_fight_reactions(): void {
   ];
 
   for (const name of ["f-small", "m-large"] as const) {
-    const receiver: IHumanBody = motionHumanBody(name);
+    const receiver: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const [act, params, response, gap, source] of cases) {
-      const film: HumanPerformance = new HumanPerformance({
+      const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "stage-fight",
         laws: Object.values(HumanStageFight),
         performers: [
@@ -102,15 +104,17 @@ export function test_human_motion_fight_reactions(): void {
               .sync({ of: "attack" }),
           ).node,
       });
-      const struck: HumanSegment.ISegment = film
+      const struck: IAutoMovieMotionHumanSegment = film
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === act)!;
-      const answer: HumanSegment.ISegment = film
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === act)!;
+      const answer: IAutoMovieMotionHumanSegment = film
         .segments("b")
-        .find((s: HumanSegment.ISegment): boolean => s.name === response)!;
+        .find(
+          (s: IAutoMovieMotionHumanSegment): boolean => s.name === response,
+        )!;
       const contact: number =
         struck.start + (struck.plan.contact ?? Number.NaN);
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         film,
         "b",
         receiver,

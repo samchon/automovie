@@ -1,12 +1,17 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
+  IAutoMovieJointRotationDomain,
+  IAutoMovieJointRotationFrame,
+  IAutoMoviePrepareChainRigConstants,
+  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import type { IAutoMovieJointRotationDomain } from "../kinematics/IAutoMovieJointRotationDomain";
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { hingedArmSpan } from "../kinematics/hingedArmSpan";
@@ -16,12 +21,9 @@ import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { Quaternion } from "../math/Quaternion";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
 import { scanJointRom } from "../rom/scanJointRom";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
-import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 import type { prepareChainFit } from "./prepareChainFit";
 import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 import { solveDistalTwist } from "./solveDistalTwist";
@@ -54,7 +56,7 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owner keeps one record of bounded size: maps of at most the chain's three bones, one projector, a few fixed records and one span holder. It borrows the skeleton and tables and is released with its owner; no pose, target, result or handle is retained.
  */
 export function prepareChainRigConstants(
-  props: Pick<IFitChainToTargetProps, "skeleton" | "chain" | "jointAxes" | "restFrames">,
+  props: Pick<IAutoMovieFitChainToTargetProps, "skeleton" | "chain" | "jointAxes" | "restFrames">,
   fixed: prepareChainRigConstants.IFixed | null,
 ): prepareChainRigConstants.IRig {
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone | undefined> =
@@ -162,7 +164,7 @@ export function prepareChainRigConstants(
         clamp = clampJointToSkeleton.resolved(
           bone,
           rig.bone(bone),
-          (): swingTwistRange.IJoint | undefined => {
+          (): IAutoMovieJointRotationFrame | undefined => {
             const constraint: IAutoMovieJointRotationDomain["constraint"] =
               rig.domain(bone).constraint;
             if (
@@ -254,28 +256,10 @@ export function prepareChainRigConstants(
 export namespace prepareChainRigConstants {
   /** The pose-independent records of a chain that the readers read: its two joints' domains and its fixed lower-to-effector rotation. */
   export type IFixed = Pick<
-    IPreparedChainPlant,
+    IAutoMoviePreparedChainPlant,
     "upperDomain" | "lowerDomain" | "effectorBaseRotation"
   >;
 
-  /** The rig-only readers of `prepareChainFit.IRig` and the hinge span holder. */
-  export interface IRig
-    extends Pick<
-      prepareChainFit.IRig,
-      | "bone"
-      | "domain"
-      | "basis"
-      | "jointBasis"
-      | "composer"
-      | "clamp"
-      | "overshoot"
-      | "rotatedOvershoot"
-      | "effectorProjection"
-      | "effectorRestInverse"
-      | "distalTwist"
-      | "hingeRange"
-    > {
-    /** The hinge's span coefficients, read at the first branch query and shared by every source of this chain's rest records (`hingedArmSwivel.prepare`). */
-    span: hingedArmSpan.ISpan;
-  }
+  /** The interface contract (`IAutoMoviePrepareChainRigConstants.IRig`). */
+  export type IRig = IAutoMoviePrepareChainRigConstants.IRig;
 }

@@ -1,6 +1,8 @@
-import { IAutoMoviePlanarPoint } from "@automovie/interface";
+import {
+  IAutoMoviePlanarPoint,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
-import { ViolationCollector } from "../validation/ViolationCollector";
 import { BUILT_PLANAR_EPSILON } from "./constants/BUILT_PLANAR_EPSILON";
 import { polygonShortestEdge } from "./polygonShortestEdge";
 
@@ -37,13 +39,13 @@ export const builtOutlineIsClosed: (
   least: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ) => boolean = (
   outline: readonly IAutoMoviePlanarPoint[],
   least: number,
   path: string,
   label: string,
-  collector: ViolationCollector,
+  collector: IAutoMovieViolationCollector,
 ): boolean => {
   if (outline.length < least) {
     collector.push(

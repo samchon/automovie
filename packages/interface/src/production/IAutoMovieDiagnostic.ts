@@ -1,4 +1,4 @@
-import { AutoMovieDiagnosticCode } from "./AutoMovieDiagnosticCode";
+import type { AutoMovieDiagnosticCode } from "./AutoMovieDiagnosticCode";
 
 /**
  * Stable production finding with a machine identity and an owned correction.

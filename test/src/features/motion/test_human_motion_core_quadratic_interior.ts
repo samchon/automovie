@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 import { HumanQuadraticProgram } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -47,8 +48,8 @@ export function test_human_motion_core_quadratic_interior(): void {
     diagonal: (i: number) => number,
     off: (i: number, j: number) => number,
     q: readonly number[],
-    rows: HumanQuadraticProgram.IRow[],
-  ): HumanQuadraticProgram.IProblem => ({
+    rows: IAutoMovieMotionHumanQuadraticProgram.IRow[],
+  ): IAutoMovieMotionHumanQuadraticProgram.IProblem => ({
     n,
     band,
     p: Array.from({ length: n }, (_: unknown, i: number): Float64Array => {
@@ -65,8 +66,8 @@ export function test_human_motion_core_quadratic_interior(): void {
   // The optimality conditions of a returned state, read on the problem.
   const optimal = (
     label: string,
-    p: HumanQuadraticProgram.IProblem,
-    state: HumanQuadraticProgram.IState,
+    p: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+    state: IAutoMovieMotionHumanQuadraticProgram.IState,
   ): void => {
     const gradient: number[] = Array.from(p.q);
     for (let i: number = 0; i < p.n; ++i)
@@ -75,7 +76,7 @@ export function test_human_motion_core_quadratic_interior(): void {
         gradient[i] = gradient[i]! + entry * state.x[i + j]!;
         if (j > 0) gradient[i + j] = gradient[i + j]! + entry * state.x[i]!;
       }
-    p.rows.forEach((row: HumanQuadraticProgram.IRow, r: number): void => {
+    p.rows.forEach((row: IAutoMovieMotionHumanQuadraticProgram.IRow, r: number): void => {
       const y: number = state.y[r]!;
       let value: number = 0;
       row.index.forEach((i: number, a: number): void => {
@@ -114,11 +115,11 @@ export function test_human_motion_core_quadratic_interior(): void {
   };
   const solved = (
     label: string,
-    p: HumanQuadraticProgram.IProblem,
+    p: IAutoMovieMotionHumanQuadraticProgram.IProblem,
     x: readonly number[],
     y: readonly number[],
   ): void => {
-    const state: HumanQuadraticProgram.IState | undefined =
+    const state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined =
       HumanQuadraticProgram.interior(p);
     if (state === undefined) {
       complaints.push(`${label}: no answer`);
@@ -206,7 +207,7 @@ export function test_human_motion_core_quadratic_interior(): void {
     );
 
   // 5. Rows no point meets.
-  const none: HumanQuadraticProgram.IState | undefined =
+  const none: IAutoMovieMotionHumanQuadraticProgram.IState | undefined =
     HumanQuadraticProgram.interior(
       problem(
         1,

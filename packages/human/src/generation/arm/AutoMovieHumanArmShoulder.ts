@@ -1,5 +1,12 @@
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
-import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
+import { AutoMovieLoftChain } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBranchEvent,
+  IAutoMovieHumanBranchSplit,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
+
 import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
 
 /**
@@ -27,7 +34,7 @@ export namespace AutoMovieHumanArmShoulder {
     calibration: IAutoMovieHumanBodyCalibration,
     side: "left" | "right",
     acromionRadiale: number,
-  ): Vec3 {
+  ): AutoMovieVector3Tuple {
     const upper: IAutoMovieLoftChain = calibration.chains.find(
       (c: IAutoMovieLoftChain): boolean => c.name === "upper",
     )!;
@@ -36,13 +43,25 @@ export namespace AutoMovieHumanArmShoulder {
     const hi: number = upper.layers[upper.layers.length - 1]!.y;
     const radius: number = rootRadius(upper, calibration, side);
     const below: number = AutoMovieHumanArmBones.ACROMION * acromionRadiale;
-    const deltoid = (y: number): Vec3 => {
-      const cap: Vec3[] = AutoMovieLoftChain.ring(upper, Math.min(hi, Math.max(lo, y)), PHASES).filter(
-        (p: Vec3): boolean => s * p[2] > 0,
+    const deltoid = (y: number): AutoMovieVector3Tuple => {
+      const cap: AutoMovieVector3Tuple[] = AutoMovieLoftChain.ring(
+        upper,
+        Math.min(hi, Math.max(lo, y)),
+        PHASES,
+      ).filter((p: AutoMovieVector3Tuple): boolean => s * p[2] > 0);
+      const lateral: number = Math.max(
+        ...cap.map((p: AutoMovieVector3Tuple): number => s * p[2]),
       );
-      const lateral: number = Math.max(...cap.map((p: Vec3): number => s * p[2]));
-      const xs: number[] = cap.filter((p: Vec3): boolean => s * p[2] > lateral - radius).map((p: Vec3): number => p[0]);
-      return [xs.reduce((a: number, b: number): number => a + b, 0) / xs.length, y, s * (lateral - radius)];
+      const xs: number[] = cap
+        .filter(
+          (p: AutoMovieVector3Tuple): boolean => s * p[2] > lateral - radius,
+        )
+        .map((p: AutoMovieVector3Tuple): number => p[0]);
+      return [
+        xs.reduce((a: number, b: number): number => a + b, 0) / xs.length,
+        y,
+        s * (lateral - radius),
+      ];
     };
 
     // The point the vertical through the centre leaves the shoulders' skin:
@@ -63,18 +82,18 @@ export namespace AutoMovieHumanArmShoulder {
     // each moves the other by a share of its own change.
     let y: number = (lo + hi) / 2;
     for (let pass: number = 0; pass < PASSES; pass++) {
-      const p: Vec3 = deltoid(y);
+      const p: AutoMovieVector3Tuple = deltoid(y);
       y = top(p[0], p[2], lo) - below;
     }
     return deltoid(y);
   }
 }
 
-/** A point. */
-type Vec3 = [number, number, number];
-
 /** Phases sampling a section. */
-const PHASES: number[] = Array.from({ length: 192 }, (_: unknown, i: number): number => (2 * Math.PI * i) / 192);
+const PHASES: number[] = Array.from(
+  { length: 192 },
+  (_: unknown, i: number): number => (2 * Math.PI * i) / 192,
+);
 
 /** Bisections of a height. */
 const STEPS: number = 30;
@@ -86,12 +105,24 @@ const PASSES: number = 6;
 const RING: number = 512;
 
 /** Whether `(x, z)` lies inside a section's outline in the level plane. */
-function inside(ring: readonly Vec3[], x: number, z: number): boolean {
+function inside(
+  ring: readonly AutoMovieVector3Tuple[],
+  x: number,
+  z: number,
+): boolean {
   let odd: boolean = false;
-  for (let i: number = 0, j: number = ring.length - 1; i < ring.length; j = i++) {
-    const a: Vec3 = ring[i]!;
-    const b: Vec3 = ring[j]!;
-    if (a[2] > z !== b[2] > z && x < ((b[0] - a[0]) * (z - a[2])) / (b[2] - a[2]) + a[0]) odd = !odd;
+  for (
+    let i: number = 0, j: number = ring.length - 1;
+    i < ring.length;
+    j = i++
+  ) {
+    const a: AutoMovieVector3Tuple = ring[i]!;
+    const b: AutoMovieVector3Tuple = ring[j]!;
+    if (
+      a[2] > z !== b[2] > z &&
+      x < ((b[0] - a[0]) * (z - a[2])) / (b[2] - a[2]) + a[0]
+    )
+      odd = !odd;
   }
   return odd;
 }
@@ -102,22 +133,28 @@ function rootRadius(
   calibration: IAutoMovieHumanBodyCalibration,
   side: "left" | "right",
 ): number {
-  const event: IAutoMovieHumanBodyCalibration.IEvent = calibration.events.find(
-    (e: IAutoMovieHumanBodyCalibration.IEvent): boolean => e.parent === "upper" && e.direction === "down",
+  const event: IAutoMovieHumanBranchEvent = calibration.events.find(
+    (e: IAutoMovieHumanBranchEvent): boolean =>
+      e.parent === "upper" && e.direction === "down",
   )!;
-  const ring: Vec3[] = event.splits
-    .find((sp: IAutoMovieHumanBodyCalibration.ISplit): boolean => sp.child === `arm.${side}`)!
-    .arcs.flatMap(([from, to]: [number, number]): Vec3[] => {
+  const ring: AutoMovieVector3Tuple[] = event.splits
+    .find(
+      (sp: IAutoMovieHumanBranchSplit): boolean => sp.child === `arm.${side}`,
+    )!
+    .arcs.flatMap(([from, to]: [number, number]): AutoMovieVector3Tuple[] => {
       const span: number = to >= from ? to - from : to + 2 * Math.PI - from;
       return AutoMovieLoftChain.ring(
         upper,
         upper.layers[0]!.y,
-        Array.from({ length: RING }, (_: unknown, i: number): number => from + (span * i) / RING),
+        Array.from(
+          { length: RING },
+          (_: unknown, i: number): number => from + (span * i) / RING,
+        ),
       );
     });
   let perimeter: number = 0;
-  ring.forEach((p: Vec3, i: number): void => {
-    const q: Vec3 = ring[(i + 1) % ring.length]!;
+  ring.forEach((p: AutoMovieVector3Tuple, i: number): void => {
+    const q: AutoMovieVector3Tuple = ring[(i + 1) % ring.length]!;
     perimeter += Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]);
   });
   return perimeter / (2 * Math.PI);

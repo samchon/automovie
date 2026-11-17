@@ -1,12 +1,11 @@
 import type {
-  AutoMovieMotionTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanTarget,
-  type IHumanBody,
-  type IHumanPosture,
-} from "@automovie/motions";
+import { AutoMovieMotionHumanTarget } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";
@@ -40,7 +39,7 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation States both stubs and lists the 5 scenarios with their numbers.
  */
 export function test_motion_compose_target(): void {
-  const body: IHumanBody = {
+  const body: IAutoMovieMotionHumanBody = {
     measure: {
       stature: 1.7,
       upperArm: 0.3,
@@ -48,8 +47,8 @@ export function test_motion_compose_target(): void {
       shoulderHalfWidth: 0.2,
     },
     surfaces: { regions: { palmLeft: { bone: "leftHand" } } },
-  } as unknown as IHumanBody;
-  const posture: IHumanPosture = {
+  } as unknown as IAutoMovieMotionHumanBody;
+  const posture: IAutoMovieMotionHumanPosture = {
     root: { x: 1, y: 0.9, z: 2 },
     yaw: 90,
     pitch: 0,
@@ -107,8 +106,8 @@ export function test_motion_compose_target(): void {
     },
   };
   const resolve = (
-    target: AutoMovieMotionTarget | undefined,
-  ): AutoMovieMotionHumanTarget.IPlace =>
+    target: IAutoMovieMotionTarget | undefined,
+  ): IAutoMovieMotionHumanTarget.IPlace =>
     AutoMovieMotionHumanTarget.resolve(
       context,
       target,

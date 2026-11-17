@@ -1,7 +1,9 @@
 import { Quaternion, Vector3, physicalShapeNormal } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryJacobians as J } from "./HumanArmTrajectoryJacobians";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -151,8 +153,8 @@ export namespace HumanArmTrajectoryClear {
     const all: J.IJacobian[][] = [];
     all[arm] = [];
     all[arm]![waypoint] = jac;
-    const frame: G.IFrame = c.frames[arm]![waypoint]!;
-    const placed: G.IPlaced = at.placed[arm]![waypoint]!;
+    const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[arm]![waypoint]!;
+    const placed: IAutoMovieMotionHumanArmGeometry.IPlaced = at.placed[arm]![waypoint]!;
     const pairs: NonNullable<M.IEvaluation["pairs"][number][number]> = at.pairs[arm]![waypoint]!;
     const rows: { coef: number[]; gain: number }[] = [];
 
@@ -160,7 +162,7 @@ export namespace HumanArmTrajectoryClear {
     // swept sphere, in that waypoint's frame, on the end's own Jacobian.
     if (swept !== undefined) {
       const { sweep, later } = swept;
-      const start: G.IFrame = c.frames[arm]![later ? waypoint - 1 : waypoint]!;
+      const start: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[arm]![later ? waypoint - 1 : waypoint]!;
       const end: IAutoMovieVector3 = later ? sweep.to : at.placed[arm]![waypoint]!.probes[sweep.probe]![0];
       const normal: IAutoMovieVector3 = S.normal(start, sweep.shape, end);
       const g: IAutoMovieVector3 = later

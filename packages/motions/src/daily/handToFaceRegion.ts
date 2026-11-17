@@ -1,13 +1,15 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
-  AutoMovieMotionTarget,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
 import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { handToFaceRows } from "./handToFaceRows";
@@ -42,30 +44,30 @@ import { handToFaceSheet } from "./handToFaceSheet";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The readers close over the context, the row and the entry bones and retain nothing else.
  */
 export function handToFaceRegion(
-  context: IHumanActionContext,
+  context: IAutoMovieMotionHumanActionContext,
   row: handToFaceRows.IRow,
   bones: ReturnType<typeof poseBones>,
 ): (
-  side: HumanHand.Side,
+  side: AutoMovieHumanSide,
   name: AutoMovieHumanoidRegion | null,
 ) => (
-  posture: IHumanPosture,
+  posture: IAutoMovieMotionHumanPosture,
   seconds: number,
-) => Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
-  const body: IHumanActionContext["body"] = context.body;
+) => Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
+  const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
   return (
-      side: HumanHand.Side,
+      side: AutoMovieHumanSide,
       name: AutoMovieHumanoidRegion | null,
     ) =>
     (
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal"> => {
+    ): Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> => {
       if (name === null) return handToFaceSheet.of(context, posture, side);
-      const place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal"> =
+      const place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> =
         AutoMovieMotionHumanTouch.region(
           context,
-          { kind: "self", region: name } satisfies AutoMovieMotionTarget,
+          { kind: "self", region: name } satisfies IAutoMovieMotionTarget,
           context.start + seconds,
           posture,
           context.carrier === undefined

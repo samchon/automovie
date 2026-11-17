@@ -1,14 +1,20 @@
 import { clampPose } from "@automovie/engine";
-import type { IAutoMovieBone, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
+import type {
+  IAutoMovieBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import {
   type AutoMovieMotionHumanChannel,
   HumanChain,
   HumanPerformance,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
-  type IHumanBody,
-  type IHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,17 +44,17 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable unit uses a canonical Human fixture and public registered laws/over composition. Test-owned skeleton clones supply genuine clamp factories, not fake capability flags; it patches no foreign method/global and runs no host, compiler or renderer.
  */
 export function test_motion_carrier_projection_loans(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const five: ReturnType<typeof clampPose.prepare> = limited(body, 5);
   const ten: ReturnType<typeof clampPose.prepare> = limited(body, 10);
   let observed: boolean = false;
-  const carrier: IHumanActionLaw = {
+  const carrier: IAutoMovieMotionHumanActionLaw = {
     name: "projectionLoanCarrier", interrupts: {}, yields: ["head"],
-    plan: (context: IHumanActionContext): IHumanActionPlan => ({
+    plan: (context: IAutoMovieMotionHumanActionContext): IAutoMovieMotionHumanActionPlan => ({
       duration: 1, contacts: [], events: [],
       posture: (seconds: number, _channels?: readonly AutoMovieMotionHumanChannel[],
-        _resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+        _resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const source: IAutoMoviePose = { skeleton: context.body.skeleton.id, root: null,
           joints: [{ bone: "head", flexion: 15, abduction: 0, twist: 0 }] };
         const projected: IAutoMoviePose = projection === undefined ? source : projection(source);
@@ -58,16 +64,16 @@ export function test_motion_carrier_projection_loans(): void {
       },
     }),
   };
-  const overlay: IHumanActionLaw = {
+  const overlay: IAutoMovieMotionHumanActionLaw = {
     name: "observeCarrierProjection", interrupts: {}, overlay: true,
-    plan: (context: IHumanActionContext): IHumanActionPlan => {
+    plan: (context: IAutoMovieMotionHumanActionContext): IAutoMovieMotionHumanActionPlan => {
       TestValidator.predicate("the actual overlay receives its registered carrier", context.carrier?.name === carrier.name);
-      const read: IHumanActionContext.ICarrier = context.carrier!;
+      const read: IAutoMovieMotionHumanActionContext.ICarrier = context.carrier!;
       for (const seconds of [0.731234, 0.243567, 0.731234])
         for (const [projection, expected, channels] of [
           [five, 5, ["head"]], [ten, 10, undefined], [undefined, 15, ["head"]], [five, 5, undefined],
         ] as const) {
-          const actual: IHumanPosture = read.posture(seconds, channels, undefined, projection);
+          const actual: IAutoMovieMotionHumanPosture = read.posture(seconds, channels, undefined, projection);
           TestValidator.predicate(`same-time carrier read uses this actual loan at${seconds}: expected${expected}, got${actual.joints.head?.[0]}`,
             nclose(actual.joints.head![0], expected, 1e-12));
           if (channels === undefined)
@@ -76,17 +82,17 @@ export function test_motion_carrier_projection_loans(): void {
           observed = true;
         }
       return { duration: 1, contacts: [], events: [], channels: ["head"],
-        posture: (): IHumanPosture => ({ ...context.entry.posture,
+        posture: (): IAutoMovieMotionHumanPosture => ({ ...context.entry.posture,
           joints: { ...context.entry.posture.joints, head: [0, 0, 0] }, limbs: {} }) };
     },
   };
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "carrier-projector-loans",
     performers: [{ subject: "A", body: { ...body }, at: { x: 0, y: 0, z: 0 }, yaw: 0,
       proficiency: { level: "trained" } }],
     laws: [carrier, overlay],
     composition: HumanChain.subject("A").registered("projectionLoanCarrier").over(
-      (upper: HumanChain): HumanChain => upper.registered("observeCarrierProjection"),
+      (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => upper.registered("observeCarrierProjection"),
     ).node,
   });
   TestValidator.predicate("actual planning observes carrier loans and publishes a valid overlay",
@@ -94,7 +100,7 @@ export function test_motion_carrier_projection_loans(): void {
 }
 
 /** Prepare genuine direct clinical projection on an owned clone of the canonical rig. */
-function limited(body: IHumanBody, maximum: number): ReturnType<typeof clampPose.prepare> {
+function limited(body: IAutoMovieMotionHumanBody, maximum: number): ReturnType<typeof clampPose.prepare> {
   const skeleton: IAutoMovieSkeleton = structuredClone(body.skeleton);
   const head: IAutoMovieBone = skeleton.bones.find((bone: IAutoMovieBone): boolean => bone.bone === "head")!;
   head.constraint = { flexion: { min: 0, max: maximum }, abduction: null, twist: null };

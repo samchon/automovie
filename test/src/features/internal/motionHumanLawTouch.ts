@@ -1,24 +1,28 @@
 import {
   AutoMovieChain,
-  type IAutoMovieResolvedBone,
   Quaternion,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
-  AutoMovieMotionTarget,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchForm,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAuditMotion,
   AutoMovieMotionHumanTouchEffector,
   AutoMovieMotionHumanTouchForm,
   HumanChain,
   HumanColliders,
-  type IAutoMovieMotionHumanAuditMeasure,
-  IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
   touch,
 } from "@automovie/motions";
 
@@ -93,17 +97,17 @@ import { motionHumanLawTouchMirror } from "./motionHumanLawTouchMirror";
  */
 export function motionHumanLawTouch(
   label: string,
-  params: touch.IParams,
+  params: IAutoMovieMotionHumanTouch.IParams,
   partner?: { facing: boolean; gap: number },
   name: motionHumanBody.Name = "m-average",
 ): string[] {
-  const body: IHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   // The partner stands still for a mirror (8), with its own sway otherwise.
   const perform = (
-    row: touch.IParams,
+    row: IAutoMovieMotionHumanTouch.IParams,
     still: boolean,
   ): motionHumanLaw.IFilm => {
-    const a: HumanChain = HumanChain.subject("a").act("touch", row);
+    const a: IAutoMovieMotionHumanChain = HumanChain.subject("a").act("touch", row);
     return partner === undefined
       ? motionHumanLaw.perform(label, [{ subject: "a", body }], a)
       : motionHumanLaw.perform(
@@ -170,15 +174,15 @@ function minus(a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 {
  */
 function expectations(
   label: string,
-  params: touch.IParams,
-  body: IHumanBody,
+  params: IAutoMovieMotionHumanTouch.IParams,
+  body: IAutoMovieMotionHumanBody,
   film: motionHumanLaw.IFilm,
 ): string[] {
-  const kind: AutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
-  const form: AutoMovieMotionHumanTouchForm.IForm =
+  const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
+  const form: IAutoMovieMotionHumanTouchForm.IForm =
     AutoMovieMotionHumanTouchForm.FORMS[kind];
   // The effector as the law reads it: curled as the kind curls the fingers.
-  const effector: AutoMovieMotionHumanTouchEffector.IEffector =
+  const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
     AutoMovieMotionHumanTouchForm.curled(
       touch.EFFECTORS[params.with ?? "palm"],
       kind,
@@ -188,10 +192,10 @@ function expectations(
     params.count ?? (["tap", "pat", "rub", "scratch"].includes(kind) ? 3 : 1);
   const wrist = (side: "left" | "right", t: number): IAutoMovieVector3 =>
     film.bones("a", t).get(`${side}Hand`)!.worldPosition;
-  const owner = (target: AutoMovieMotionTarget): string =>
+  const owner = (target: IAutoMovieMotionTarget): string =>
     target.kind === "person" ? target.subject : "a";
   const region = (
-    target: AutoMovieMotionTarget,
+    target: IAutoMovieMotionTarget,
     t: number,
   ): IAutoMovieVector3 => {
     const frame =
@@ -217,7 +221,7 @@ function expectations(
     );
   const gap = (
     side: "left" | "right",
-    target: AutoMovieMotionTarget,
+    target: IAutoMovieMotionTarget,
     t: number,
   ): number =>
     Math.abs(
@@ -226,7 +230,7 @@ function expectations(
     );
   const offset = (
     side: "left" | "right",
-    target: AutoMovieMotionTarget,
+    target: IAutoMovieMotionTarget,
     t: number,
   ): IAutoMovieVector3 =>
     minus(
@@ -241,7 +245,7 @@ function expectations(
   const ready: number = motionHumanLaw.event(film, "ready");
   const strokeStart: number = motionHumanLaw.event(film, "strokeStart");
   const relax: number = motionHumanLaw.event(film, "relax");
-  const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
+  const times: number[] = AutoMovieMotionHumanAuditMotion.grid(
     0,
     film.duration,
     24,
@@ -281,11 +285,11 @@ function expectations(
     );
   }
 
-  const hands: ["left" | "right", AutoMovieMotionTarget][] = [
+  const hands: ["left" | "right", IAutoMovieMotionTarget][] = [
     ["right", params.target],
     ...(params.other === undefined
       ? []
-      : [["left", params.other] as ["left", AutoMovieMotionTarget]]),
+      : [["left", params.other] as ["left", IAutoMovieMotionTarget]]),
   ];
   for (const [side, target] of hands) {
     for (const [event, t] of [

@@ -3,8 +3,12 @@ import {
   AutoMovieSolidCycle,
   AutoMovieSolidMesh,
   AutoMovieSolidMeshLoop,
-  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
+import type {
+  IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { HumanSolidShapes } from "../../internal/HumanSolidShapes";
 import { nclose } from "../../internal/nclose";
@@ -32,11 +36,11 @@ export function test_construction_mesh_transaction(): void {
   const failures: string[] = [];
   const bad: IAutoMovieSolidSurface = { ...plane("bad-period"), period: 0 };
   for (const mode of ["omitted", "undefined", "record", "throw"]) {
-    const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+    const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
     const before: string = JSON.stringify(mesh);
     const sentinel: Error = new Error("owned diagnostic callback");
     const details: string[] = [];
-    const input: AutoMovieSolidMesh.IFace = {
+    const input: IAutoMovieSolidMesh.IFace = {
       surface: bad,
       stations: [0, 1],
       phases: [0, 1],
@@ -52,7 +56,7 @@ export function test_construction_mesh_transaction(): void {
         throw sentinel;
       };
     let thrown: unknown;
-    let result: AutoMovieSolidMesh.IOpen[] | undefined;
+    let result: IAutoMovieSolidMesh.IOpen[] | undefined;
     try {
       result = AutoMovieSolidMesh.face(mesh, input);
     } catch (error) {
@@ -78,9 +82,10 @@ export function test_construction_mesh_transaction(): void {
   }
 
   // Body must not turn an absent callback into an always-present no-op wrapper.
-  const body: AutoMovieSolidBody.IBody = AutoMovieSolidBody.create("bad-body", [
-    { surface: bad, stations: [0, 1], phases: [0, 1] },
-  ]);
+  const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
+    "bad-body",
+    [{ surface: bad, stations: [0, 1], phases: [0, 1] }],
+  );
   let bodyError: unknown;
   try {
     AutoMovieSolidBody.draw(body);
@@ -94,7 +99,7 @@ export function test_construction_mesh_transaction(): void {
   )
     failures.push("Body.draw swallowed its callback-free named refusal");
 
-  const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
   const calls: [number, number][] = [];
   const sourceError: Error = new Error("owned source sentinel");
   let diagnoses: number = 0;
@@ -170,7 +175,7 @@ function windingEffects(failures: string[]): void {
       throw next;
     },
   });
-  const loop: AutoMovieSolidMesh.ILoop = {
+  const loop: IAutoMovieSolidMesh.ILoop = {
     kind: "start",
     vertices: [0, 1, 2],
     chart: [a, b, [0, 4]],
@@ -244,7 +249,7 @@ function windingEffects(failures: string[]): void {
 
 /** Two original-ID triangles sharing only their origin have one literal oriented publication. */
 function canonicalIndices(failures: string[]): void {
-  const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
   const source: IAutoMovieSolidSurface = plane("canonical-index-source");
   const owner: number = AutoMovieSolidMesh.owner(mesh, source);
   const points: [number, number][] = [
@@ -314,7 +319,7 @@ function canonicalIndices(failures: string[]): void {
 
 /** A square hole's source identities belong to a different evaluating chart. */
 function inspectForeign(failures: string[]): void {
-  const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
   const foreign: IAutoMovieSolidSurface = {
     name: "foreign",
     orientation: 1,
@@ -337,7 +342,7 @@ function inspectForeign(failures: string[]): void {
     AutoMovieSolidMesh.vertex(mesh, [u, v, 0], owner, u + 100, v + 200),
   );
   const before: string = JSON.stringify(mesh.coordinates);
-  let open: AutoMovieSolidMesh.IOpen[] = [];
+  let open: IAutoMovieSolidMesh.IOpen[] = [];
   try {
     open = AutoMovieSolidMesh.face(mesh, {
       surface: plane("native"),
@@ -414,7 +419,7 @@ function inspectAliased(failures: string[]): void {
       return reused;
     },
   };
-  const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
   try {
     AutoMovieSolidMesh.face(mesh, {
       surface: source,
@@ -464,7 +469,7 @@ function inspectAuthority(failures: string[]): void {
   const period: number = 2 * Math.PI;
   for (const turns of [0, 1])
     for (const noise of [0, 4 * Number.EPSILON]) {
-      const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+      const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
       const owner: number = AutoMovieSolidMesh.owner(mesh, source);
       const first: [number, number][] = [
         [1, 0.5],

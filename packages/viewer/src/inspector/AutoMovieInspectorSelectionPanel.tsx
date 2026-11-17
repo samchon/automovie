@@ -1,7 +1,9 @@
 import type {
   IAutoMovieCapturePlanRequest,
+  IAutoMovieInspectionColorAssignment,
   IAutoMovieInspectionRequest,
-} from "@automovie/render";
+} from "@automovie/interface";
+
 import {
   type ChangeEvent,
   type Dispatch,
@@ -14,6 +16,7 @@ import {
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 import type { IAutoMovieInspectorPathNode } from "./IAutoMovieInspectorPathNode.js";
 import { buildAutoMovieInspectorPathTree } from "./buildAutoMovieInspectorPathTree.js";
+
 
 /** The width of each of the three checkbox columns and the colour column, pixels. */
 const COLUMN: number = 22;
@@ -144,11 +147,11 @@ function Row(props: {
   const [open, setOpen]: [boolean, Dispatch<SetStateAction<boolean>>] =
     useState<boolean>(false);
   const pattern: string | null = node.pattern;
-  const color: IAutoMovieInspectionRequest.IColor | undefined =
+  const color: IAutoMovieInspectionColorAssignment | undefined =
     pattern === null
       ? undefined
       : inspection.color.find(
-          (entry: IAutoMovieInspectionRequest.IColor): boolean =>
+          (entry: IAutoMovieInspectionColorAssignment): boolean =>
             entry.pattern === pattern,
         );
   const label: string = node.name === "" ? "(unnamed)" : node.name;

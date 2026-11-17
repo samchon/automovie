@@ -1,4 +1,4 @@
-import type { IHumanBody } from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -26,8 +26,8 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
 > = {
   touch: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const side: string | undefined = pick("side");
     const tangent: string | undefined = pick("tangent");
@@ -46,7 +46,7 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
   },
   handToFace: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
@@ -57,8 +57,8 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
     ),
   kiss: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.duo(a, b, 0.45, [
       S.chain().act("kiss", {
@@ -76,8 +76,8 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
     ]),
   highFive: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
-    b: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene => {
     const params: object = S.set(pick, "kind", "side");
     return S.duo(a, b, 0.7, [
@@ -87,7 +87,7 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
   },
   selfAction: (
     pick: motionHumanLawSweep.Pick,
-    a: IHumanBody,
+    a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,

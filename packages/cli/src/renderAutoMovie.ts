@@ -1,3 +1,4 @@
+import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
@@ -42,7 +43,7 @@ export async function renderAutoMovie(props: {
     );
 
   // The request names the subject; a render draws its whole clock through its own camera, so no other key applies.
-  const request: Render.IAutoMovieCapturePlanRequest =
+  const request: IAutoMovieCapturePlanRequest =
     render.parseAutoMovieCapturePlanRequest(options.request);
   for (const key of options.request.keys())
     if (key !== "subject")

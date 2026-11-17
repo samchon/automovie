@@ -1,10 +1,9 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-  type IHumanBody,
-} from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
 
@@ -37,12 +36,12 @@ export function motionHandshakeReach(
   one: motionHumanBody.Name,
   other: motionHumanBody.Name,
 ): string[] {
-  const a: IHumanBody = motionHumanBody(one);
-  const b: IHumanBody = motionHumanBody(other);
+  const a: IAutoMovieMotionHumanBody = motionHumanBody(one);
+  const b: IAutoMovieMotionHumanBody = motionHumanBody(other);
   const label: string = `${one} shaking hands with ${other}`;
 
   // Each right shoulder as its body stands, from its own root.
-  const standing: HumanPerformance = new HumanPerformance({
+  const standing: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "shake",
     performers: [
       {
@@ -68,7 +67,7 @@ export function motionHandshakeReach(
     standing.bones(subject, 0).get("rightUpperArm")!.worldPosition;
   const sa: IAutoMovieVector3 = shoulder("a");
   const sb: IAutoMovieVector3 = shoulder("b");
-  const apart = (film: HumanPerformance): number => {
+  const apart = (film: IAutoMovieMotionHumanPerformance): number => {
     const p: IAutoMovieVector3 = film
       .bones("a", 0)
       .get("rightUpperArm")!.worldPosition;
@@ -79,7 +78,7 @@ export function motionHandshakeReach(
   };
   // The second partner faces back, so its right shoulder lies at the
   // opposite of its standing offset from its root.
-  const shake = (gap: number): HumanPerformance =>
+  const shake = (gap: number): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "shake",
       performers: [
@@ -107,7 +106,7 @@ export function motionHandshakeReach(
 
   // 1. The pair the website found refused plans.
   try {
-    const film: HumanPerformance = shake(0.729);
+    const film: IAutoMovieMotionHumanPerformance = shake(0.729);
     if (!(Math.abs(apart(film) - 0.729) <= 0.001))
       out.push(
         `${label}: the shoulders stand ${apart(film).toFixed(4)} m apart at the handshake's start, 0.729 m within 1 mm expected`,

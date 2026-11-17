@@ -2,18 +2,22 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   AutoMovieHumanoidSocket,
+  IAutoMovieHumanoidSurfaceRays,
+  IAutoMovieHumanoidSurfaceRegions,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieHumanoidDigitSurfaces } from "./AutoMovieHumanoidDigitSurfaces";
 import type { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
 import { AutoMovieHumanoidSurfaceExtents } from "./AutoMovieHumanoidSurfaceExtents";
+import { AutoMovieHumanoidSurfacePlacement } from "./AutoMovieHumanoidSurfacePlacement";
 import { AutoMovieHumanoidSurfaceRays } from "./AutoMovieHumanoidSurfaceRays";
 import { AutoMovieHumanoidSurfaceRegions } from "./AutoMovieHumanoidSurfaceRegions";
-import { AutoMovieHumanoidSurfacePlacement } from "./AutoMovieHumanoidSurfacePlacement";
 
 /**
  * Resolve every anatomical region and contact socket of a canonical humanoid
@@ -76,24 +80,24 @@ import { AutoMovieHumanoidSurfacePlacement } from "./AutoMovieHumanoidSurfacePla
  */
 export function resolveAutoMovieHumanoidSurfaces(
   skeleton: IAutoMovieSkeleton,
-  profile: P,
+  profile: IAutoMoviePhysicalProfile,
   neutral?: AutoMovieHumanoidNeutralBounds.IPrepared,
-): resolveAutoMovieHumanoidSurfaces.ISurfaces {
+): IAutoMovieHumanoidSurfaces.ISurfaces {
   const { at, bounds, local, station, exit, surface } =
     AutoMovieHumanoidSurfaceRays.tools(skeleton, profile, neutral);
 
   const regions = {} as Record<
     AutoMovieHumanoidRegion,
-    resolveAutoMovieHumanoidSurfaces.IFrame
+    IAutoMovieHumanoidSurfaces.IFrame
   >;
   for (const [name, def] of Object.entries(
     AutoMovieHumanoidSurfaceRegions.TABLE,
   ) as [
     AutoMovieHumanoidRegion,
-    AutoMovieHumanoidSurfaceRegions.IDefinition,
+    IAutoMovieHumanoidSurfaceRegions.IDefinition,
   ][]) {
     const origin: IAutoMovieVector3 = station(def.station);
-    const hit: AutoMovieHumanoidSurfaceRays.ISurfacePoint = surface(
+    const hit: IAutoMovieHumanoidSurfaceRays.ISurfacePoint = surface(
       def.station.bone,
       origin,
       def.direction,
@@ -103,7 +107,7 @@ export function resolveAutoMovieHumanoidSurfaces(
 
   const sockets = {} as Record<
     AutoMovieHumanoidSocket,
-    resolveAutoMovieHumanoidSurfaces.IFrame
+    IAutoMovieHumanoidSurfaces.IFrame
   >;
   const down: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
   const forward: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
@@ -149,7 +153,7 @@ export function resolveAutoMovieHumanoidSurfaces(
     const ankle: IAutoMovieVector3 = at(bone("Foot")).worldPosition;
     const toes: IAutoMovieVector3 = at(bone("Toes")).worldPosition;
     const jointed: boolean = profile.segments.some(
-      (x: P.ISegment): boolean => x.bone === bone("Toes"),
+      (x: IAutoMoviePhysicalSegment): boolean => x.bone === bone("Toes"),
     );
     const front = jointed ? bounds(bone("Toes")) : foot;
     const sole = (z: number): IAutoMovieVector3 => ({
@@ -256,32 +260,6 @@ export function resolveAutoMovieHumanoidSurfaces(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Keys are the interface's closed unions, not strings.
  */
 export namespace resolveAutoMovieHumanoidSurfaces {
-  /** A bone-local surface frame. */
-  export interface IFrame {
-    /** The bone it rides. */
-    bone: AutoMovieHumanoidBone;
-
-    /** Point relative to the bone's joint, in its rest frame, metres. */
-    point: IAutoMovieVector3;
-
-    /** Outward unit normal in the bone's rest frame. */
-    normal: IAutoMovieVector3;
-
-    /** A socket's forward unit direction in the bone's rest frame. */
-    forward?: IAutoMovieVector3;
-
-    /** A region's extent, metres: the radius about its point that is still the region (`AutoMovieHumanoidSurfaceExtents`); absent for a socket and for a point beside a region (`offset`). */
-    radius?: number;
-  }
-
-  /** Every region and socket of one body. */
-  export interface ISurfaces {
-    /** Regions by name. */
-    regions: Record<AutoMovieHumanoidRegion, IFrame>;
-
-    /** Sockets by name. */
-    sockets: Record<AutoMovieHumanoidSocket, IFrame>;
-  }
 
   /**
    * Fresh world point, metres, without normal/forward reads or rotations.
@@ -303,19 +281,10 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * @returns World point (metres) and unit normal.
    */
   export function place(
-    frame: IFrame,
+    frame: IAutoMovieHumanoidSurfaces.IFrame,
     bone: Parameters<typeof AutoMovieHumanoidSurfacePlacement>[1],
   ): ReturnType<typeof AutoMovieHumanoidSurfacePlacement> {
     return AutoMovieHumanoidSurfacePlacement(frame, bone);
-  }
-
-  /** A point of a region's tangent plane, measured from the region's own point. */
-  export interface ITangent {
-    /** Toward the head, metres: the rest frame's +Y made perpendicular to the region's direction, or +Z when that direction is within 26 degrees of vertical. */
-    up: number;
-
-    /** Across `up` and the region's direction, metres: toward the body's left for a region that faces forward. */
-    out: number;
   }
 
   /**
@@ -347,11 +316,11 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    */
   export function offset(
     skeleton: IAutoMovieSkeleton,
-    profile: P,
+    profile: IAutoMoviePhysicalProfile,
     region: AutoMovieHumanoidRegion,
-    tangent: ITangent,
-  ): IFrame {
-    const def: AutoMovieHumanoidSurfaceRegions.IDefinition | undefined =
+    tangent: IAutoMovieHumanoidSurfaces.ITangent,
+  ): IAutoMovieHumanoidSurfaces.IFrame {
+    const def: IAutoMovieHumanoidSurfaceRegions.IDefinition | undefined =
       AutoMovieHumanoidSurfaceRegions.TABLE[region];
     if (def === undefined)
       throw new Error(`The region ${region} is not placed by a ray`);
@@ -383,7 +352,7 @@ export namespace resolveAutoMovieHumanoidSurfaces {
       origin,
     );
     const toward: IAutoMovieVector3 = Vector3.length(ray) > BOUNDARY ? ray : d;
-    const hit: AutoMovieHumanoidSurfaceRays.ISurfacePoint = surface(
+    const hit: IAutoMovieHumanoidSurfaceRays.ISurfacePoint = surface(
       def.station.bone,
       origin,
       toward,
@@ -431,7 +400,7 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * @param frame The frame.
    * @returns The frame, its own mirror image.
    */
-  export function centred(frame: IFrame): IFrame {
+  export function centred(frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieHumanoidSurfaces.IFrame {
     const plane = (v: IAutoMovieVector3): IAutoMovieVector3 => ({
       x: 0,
       y: v.y,
@@ -455,7 +424,7 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * @param frame The frame.
    * @returns Its mirror image.
    */
-  export function mirrored(frame: IFrame): IFrame {
+  export function mirrored(frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieHumanoidSurfaces.IFrame {
     const flip = (v: IAutoMovieVector3): IAutoMovieVector3 => ({
       x: -v.x,
       y: v.y,

@@ -1,8 +1,14 @@
-import { AutoMovieGuidePass, IAutoMovieRenderSpec } from "@automovie/interface";
+import type {
+  AutoMovieGuidePass,
+  IAutoMoviePlanChunkedSequenceRenderProps,
+  IAutoMovieRenderChunk,
+  IAutoMovieRenderChunkPlan,
+  IAutoMovieRenderPassManifest,
+  IAutoMovieRenderSpec,
+  IAutoMovieSequenceRenderFrame,
+  IAutoMovieSequenceRenderPlan,
+} from "@automovie/interface";
 
-import type { IAutoMovieRenderChunk } from "./IAutoMovieRenderChunk.js";
-import type { IAutoMovieRenderChunkPlan } from "./IAutoMovieRenderChunkPlan.js";
-import type { IAutoMovieRenderPassManifest } from "./IAutoMovieRenderPassManifest.js";
 import { ffmpegArgs } from "./ffmpegArgs.js";
 import { frameName } from "./frameName.js";
 import { framePattern } from "./framePattern.js";
@@ -11,10 +17,6 @@ import {
   normalizeGuidePasses,
   planGuidePassOutputs,
 } from "./guidePasses.js";
-import {
-  IAutoMovieSequenceRenderFrame,
-  IAutoMovieSequenceRenderPlan,
-} from "./sequenceRenderPlan.js";
 
 /**
  * Split a `planSequenceRender` manifest into `chunkFrames`-sized, independently renderable chunks and the plan to concatenate them.
@@ -33,24 +35,11 @@ import {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The planner builds one chunk plan from one whole plan per call and coordinates no phases or consumers whose results it could share.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller-owned plan holds F relabelled frame records plus O(C * (P + 1)) pass/chunk path records and strings, whose byte lengths depend on supplied paths. Frame spreads share original non-path fields; per-chunk slice arrays become collectable after mapping, and this planner opens no handle or task.
  */
-export const planChunkedSequenceRender: (props: {
-  plan: IAutoMovieSequenceRenderPlan;
-  spec: IAutoMovieRenderSpec;
-  chunkFrames: number;
-  passes?: readonly string[];
-}) => IAutoMovieRenderChunkPlan = (props: {
-  /** The whole-sequence render manifest to split. */
-  plan: IAutoMovieSequenceRenderPlan;
-
-  /** Render spec for each chunk's encoder arguments; its target matches the plan. */
-  spec: IAutoMovieRenderSpec;
-
-  /** Output frames per chunk, a positive integer. */
-  chunkFrames: number;
-
-  /** Guide passes to plan per chunk; omit for a beauty-only render. */
-  passes?: readonly string[];
-}): IAutoMovieRenderChunkPlan => {
+export const planChunkedSequenceRender: (
+  props: IAutoMoviePlanChunkedSequenceRenderProps,
+) => IAutoMovieRenderChunkPlan = (
+  props: IAutoMoviePlanChunkedSequenceRenderProps,
+): IAutoMovieRenderChunkPlan => {
   const plan: IAutoMovieSequenceRenderPlan = props.plan;
   const spec: IAutoMovieRenderSpec = props.spec;
   const chunkFrames: number = props.chunkFrames;

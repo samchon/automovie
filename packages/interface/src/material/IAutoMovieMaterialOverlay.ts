@@ -1,4 +1,4 @@
-import { AutoMovieTextureBinding } from "./AutoMovieTextureBinding";
+import type { AutoMovieTextureBinding } from "./AutoMovieTextureBinding";
 
 /**
  * An ordered colour and optional relief layer over a material, with independently authored image sampling.
@@ -24,7 +24,16 @@ export interface IAutoMovieMaterialOverlay {
   /**
    * Linear RGB factors on the colour image's colour, each finite and nonnegative, so one image serves surfaces of different colouring; omitted, one.
    */
-  colorFactor?: { r: number; g: number; b: number };
+  colorFactor?: {
+    /** Unitless nonnegative factor on the decoded linear red channel. */
+    r: number;
+
+    /** Unitless nonnegative factor on the decoded linear green channel. */
+    g: number;
+
+    /** Unitless nonnegative factor on the decoded linear blue channel. */
+    b: number;
+  };
 
   /** Roughness where the layer covers, `[0, 1]`; omitted, the material's. */
   roughness?: number;

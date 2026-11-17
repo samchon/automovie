@@ -1,11 +1,9 @@
-import {
-  type AutoMovieConstructionRealization,
-  type IAutoMovieSolidSurface,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
 import type {
-  AutoMovieConstructionNode,
+  IAutoMovieConstructionNode,
   IAutoMovieConstructionPort,
+  IAutoMovieConstructionRealization,
+  IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
@@ -46,13 +44,13 @@ export function test_construction_port(): void {
   const n: number = 32;
   const clock: (k: number) => number = (k: number): number =>
     (2 * Math.PI * k) / n;
-  const host: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+  const host: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
     "trunk",
     ConstructionShapes.DOWN,
     0.02,
     0.1,
   );
-  const arm: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+  const arm: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
     "arm",
     {
       origin: { x: 0.012, y: 0, z: -0.05 },
@@ -80,10 +78,10 @@ export function test_construction_port(): void {
     rows: 4,
   });
   const realize: (
-    root: AutoMovieConstructionNode,
-  ) => AutoMovieConstructionRealization.IRealization = (
-    root: AutoMovieConstructionNode,
-  ): AutoMovieConstructionRealization.IRealization =>
+    root: IAutoMovieConstructionNode,
+  ) => IAutoMovieConstructionRealization.IRealization = (
+    root: IAutoMovieConstructionNode,
+  ): IAutoMovieConstructionRealization.IRealization =>
     realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
   const sub: (a: readonly number[], b: readonly number[]) => V3 = (
     a: readonly number[],
@@ -102,7 +100,7 @@ export function test_construction_port(): void {
   ): number => len(sub(scaled(a, 1 / len(a)), scaled(b, 1 / len(b))));
 
   // 1. The positive tree.
-  const real: AutoMovieConstructionRealization.IRealization = realize(
+  const real: IAutoMovieConstructionRealization.IRealization = realize(
     port(0.02),
   );
   if (real.diagnostics.length !== 0)
@@ -244,7 +242,7 @@ export function test_construction_port(): void {
     );
 
   // 6. Refusal.
-  const deep: AutoMovieConstructionRealization.IRealization = realize(
+  const deep: IAutoMovieConstructionRealization.IRealization = realize(
     port(0.5),
   );
   const kept: string = deep.body.faces
@@ -270,7 +268,7 @@ export function test_construction_port(): void {
   // 8. A shaped loop: each column's share of the ellipse's distance from the centre.
   const share: (k: number) => number = (k: number): number =>
     1 + 0.2 * Math.cos(2 * clock(k));
-  const shaped: AutoMovieConstructionRealization.IRealization = realize({
+  const shaped: IAutoMovieConstructionRealization.IRealization = realize({
     ...port(0.02),
     loop: {
       ...port(0.02).loop,
@@ -343,7 +341,7 @@ export function test_construction_port(): void {
       ((m1 - m0) * t * t * t) / (6 * h)
     );
   };
-  const curved: AutoMovieConstructionRealization.IRealization = realize({
+  const curved: IAutoMovieConstructionRealization.IRealization = realize({
     ...port(0.02),
     rails: [0.02, 0.03, 0.02, 0.03],
   });
@@ -388,7 +386,9 @@ export function test_construction_port(): void {
         ?.cycles.find((cy: { kind: string }): boolean => cy.kind === kind)
         ?.points ?? [];
     if (!same(shared("band.port", "end"), shared("arm", "start")))
-      failures.push("curved rail: the band's end cycle is not the part's rail cycle");
+      failures.push(
+        "curved rail: the band's end cycle is not the part's rail cycle",
+      );
     const edges: Map<string, number> = new Map();
     const cx: number[] = curved.mesh.indices;
     for (let t: number = 0; t + 2 < cx.length; t += 3)
@@ -401,12 +401,24 @@ export function test_construction_port(): void {
     const loose = (v: number): boolean => {
       const x: number = curved.mesh.positions[3 * v]!;
       const z: number = curved.mesh.positions[3 * v + 2]!;
-      return Math.abs(z) < 1e-7 || Math.abs(z + 0.1) < 1e-7 || Math.abs(x - 0.072) < 1e-7;
+      return (
+        Math.abs(z) < 1e-7 ||
+        Math.abs(z + 0.1) < 1e-7 ||
+        Math.abs(x - 0.072) < 1e-7
+      );
     };
     let gaps: number = 0;
     for (const [key, count] of edges)
-      if (count > 2 || (count === 1 && !key.split(",").every((v: string): boolean => loose(Number(v))))) ++gaps;
-    if (gaps !== 0) failures.push(`curved rail: ${gaps} edges not shared by exactly two triangles`);
+      if (
+        count > 2 ||
+        (count === 1 &&
+          !key.split(",").every((v: string): boolean => loose(Number(v))))
+      )
+        ++gaps;
+    if (gaps !== 0)
+      failures.push(
+        `curved rail: ${gaps} edges not shared by exactly two triangles`,
+      );
   }
 
   // 11. A curved rail of 2 distances is refused.
@@ -422,18 +434,26 @@ export function test_construction_port(): void {
   // degrees, with the knot at pi / 2 put 12 mm farther in, which runs the ring back along its own tilt in the ring's plane. Matched by
   // angle the port is refused; matched by length it realizes, every band column ends on the part at the rail curve's station, and its
   // share of the ring's length from column 0 is the column's share of the port curve's.
-  const knots: number[] = [40, 38.9, 35.6, 30.7, 37, 19.3, 14.4, 11.1, 10, 11.1, 14.4, 19.3, 25, 30.7, 35.6, 38.9];
+  const knots: number[] = [
+    40, 38.9, 35.6, 30.7, 37, 19.3, 14.4, 11.1, 10, 11.1, 14.4, 19.3, 25, 30.7,
+    35.6, 38.9,
+  ];
   // The periodic cubic through the knots, its curvatures from M[j-1] + 4 M[j] + M[j+1] = 6 (y[j+1] - 2 y[j] + y[j-1]) / h^2, solved densely.
   const m: number = knots.length;
   const step: number = (2 * Math.PI) / m;
-  const system: number[][] = Array.from({ length: m }, (_: unknown, j: number): number[] => {
-    const row: number[] = new Array<number>(m + 1).fill(0);
-    row[(j - 1 + m) % m] = 1;
-    row[j] = 4;
-    row[(j + 1) % m] = 1;
-    row[m] = (6 * (knots[(j + 1) % m]! - 2 * knots[j]! + knots[(j - 1 + m) % m]!)) / (step * step);
-    return row;
-  });
+  const system: number[][] = Array.from(
+    { length: m },
+    (_: unknown, j: number): number[] => {
+      const row: number[] = new Array<number>(m + 1).fill(0);
+      row[(j - 1 + m) % m] = 1;
+      row[j] = 4;
+      row[(j + 1) % m] = 1;
+      row[m] =
+        (6 * (knots[(j + 1) % m]! - 2 * knots[j]! + knots[(j - 1 + m) % m]!)) /
+        (step * step);
+      return row;
+    },
+  );
   for (let i: number = 0; i < m; ++i)
     for (let r: number = i + 1; r < m; ++r) {
       const f: number = system[r]![i]! / system[i]![i]!;
@@ -449,48 +469,105 @@ export function test_construction_port(): void {
     const x: number = ((psi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
     const j: number = Math.min(m - 1, Math.floor(x / step));
     const t: number = x - j * step;
-    const [y0, y1, m0, m1]: number[] = [knots[j]!, knots[(j + 1) % m]!, M[j]!, M[(j + 1) % m]!];
-    return y0 + t * ((y1! - y0!) / step - (step * (2 * m0! + m1!)) / 6) + (m0! * t * t) / 2 + ((m1! - m0!) * t * t * t) / (6 * step);
+    const [y0, y1, m0, m1]: number[] = [
+      knots[j]!,
+      knots[(j + 1) % m]!,
+      M[j]!,
+      M[(j + 1) % m]!,
+    ];
+    return (
+      y0 +
+      t * ((y1! - y0!) / step - (step * (2 * m0! + m1!)) / 6) +
+      (m0! * t * t) / 2 +
+      ((m1! - m0!) * t * t * t) / (6 * step)
+    );
   };
-  const tilted = (correspondence: "angle" | "length"): AutoMovieConstructionRealization.IRealization =>
-    realize({ ...port(0.02), rails: knots.map((x: number): number => x / 1000), correspondence });
-  const byAngle: AutoMovieConstructionRealization.IRealization = tilted("angle");
-  if (!byAngle.diagnostics.some((d: { node: string }): boolean => d.node === "port.arm") || !ConstructionRead.diagnostics(byAngle).includes("not monotone"))
-    failures.push(`star: the tilted ring matched by angle was not refused as not monotone: ${ConstructionRead.diagnostics(byAngle)}`);
-  const byLength: AutoMovieConstructionRealization.IRealization = tilted("length");
-  if (byLength.diagnostics.length !== 0) failures.push(`star: matched by length: ${ConstructionRead.diagnostics(byLength)}`);
+  const tilted = (
+    correspondence: "angle" | "length",
+  ): IAutoMovieConstructionRealization.IRealization =>
+    realize({
+      ...port(0.02),
+      rails: knots.map((x: number): number => x / 1000),
+      correspondence,
+    });
+  const byAngle: IAutoMovieConstructionRealization.IRealization =
+    tilted("angle");
+  if (
+    !byAngle.diagnostics.some(
+      (d: { node: string }): boolean => d.node === "port.arm",
+    ) ||
+    !ConstructionRead.diagnostics(byAngle).includes("not monotone")
+  )
+    failures.push(
+      `star: the tilted ring matched by angle was not refused as not monotone: ${ConstructionRead.diagnostics(byAngle)}`,
+    );
+  const byLength: IAutoMovieConstructionRealization.IRealization =
+    tilted("length");
+  if (byLength.diagnostics.length !== 0)
+    failures.push(
+      `star: matched by length: ${ConstructionRead.diagnostics(byLength)}`,
+    );
   else {
-    const strip: IAutoMovieSolidSurface = ConstructionRead.surface(byLength, "band.port");
-    const span: number = byLength.chains.find((c: { name: string }): boolean => c.name === "band.port")?.layers[1]?.y ?? NaN;
+    const strip: IAutoMovieSolidSurface = ConstructionRead.surface(
+      byLength,
+      "band.port",
+    );
+    const span: number =
+      byLength.chains.find(
+        (c: { name: string }): boolean => c.name === "band.port",
+      )?.layers[1]?.y ?? NaN;
     // Arclength round a closed curve, densely sampled, from phase 0 to `to`.
     const lengthTo = (point: (t: number) => V3, to: number): number => {
       const parts: number = 4000;
       let sum: number = 0;
-      for (let i: number = 0; i < parts; ++i) sum += len(sub(point((to * (i + 1)) / parts), point((to * i) / parts)));
+      for (let i: number = 0; i < parts; ++i)
+        sum += len(sub(point((to * (i + 1)) / parts), point((to * i) / parts)));
       return sum;
     };
-    const ringPoint = (psi: number): V3 => [12 + railMm(psi), 7 * Math.sin(psi), -50 + 7 * Math.cos(psi)];
+    const ringPoint = (psi: number): V3 => [
+      12 + railMm(psi),
+      7 * Math.sin(psi),
+      -50 + 7 * Math.cos(psi),
+    ];
     const loopPoint = (c: number): V3 => {
       const phi: number = 0.45 * Math.sin(c);
       return [20 * Math.cos(phi), 20 * Math.sin(phi), -(50 + 10 * Math.cos(c))];
     };
     const ringTotal: number = lengthTo(ringPoint, 2 * Math.PI);
     const loopTotal: number = lengthTo(loopPoint, 2 * Math.PI);
-    const phase = (p: readonly number[]): number => ((Math.atan2(p[1]!, p[2]! + 50) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    const phase = (p: readonly number[]): number =>
+      ((Math.atan2(p[1]!, p[2]! + 50) % (2 * Math.PI)) + 2 * Math.PI) %
+      (2 * Math.PI);
     const psi0: number = phase(strip.jet(span, 0).p);
     let worstGap: number = 0;
     let worstShare: number = 0;
     for (let k: number = 0; k < n; ++k) {
       const p: readonly number[] = strip.jet(span, clock(k)).p;
       const psi: number = phase(p);
-      worstGap = Math.max(worstGap, Math.abs(Math.hypot(p[1]!, p[2]! + 50) - 7), Math.abs(p[0]! - 12 - railMm(psi)));
+      worstGap = Math.max(
+        worstGap,
+        Math.abs(Math.hypot(p[1]!, p[2]! + 50) - 7),
+        Math.abs(p[0]! - 12 - railMm(psi)),
+      );
       // The ring runs the loop's way or against it; the share from column 0 is read in whichever way it runs.
-      const ahead: number = (lengthTo(ringPoint, psi) - lengthTo(ringPoint, psi0) + ringTotal) % ringTotal / ringTotal;
+      const ahead: number =
+        ((lengthTo(ringPoint, psi) - lengthTo(ringPoint, psi0) + ringTotal) %
+          ringTotal) /
+        ringTotal;
       const own: number = lengthTo(loopPoint, clock(k)) / loopTotal;
-      worstShare = Math.max(worstShare, Math.min(Math.abs(ahead - own), Math.abs(((1 - ahead) % 1) - own)));
+      worstShare = Math.max(
+        worstShare,
+        Math.min(Math.abs(ahead - own), Math.abs(((1 - ahead) % 1) - own)),
+      );
     }
-    if (!(worstGap <= 1e-6)) failures.push(`star: a band column ends ${worstGap} mm off the part at the rail curve's station`);
-    if (!(worstShare <= 2e-3)) failures.push(`star: a column's share of the ring's length stands ${worstShare} off its share of the port curve's`);
+    if (!(worstGap <= 1e-6))
+      failures.push(
+        `star: a band column ends ${worstGap} mm off the part at the rail curve's station`,
+      );
+    if (!(worstShare <= 2e-3))
+      failures.push(
+        `star: a column's share of the ring's length stands ${worstShare} off its share of the port curve's`,
+      );
   }
 
   // 13. A correspondence that is neither angle nor length is refused.
@@ -505,18 +582,39 @@ export function test_construction_port(): void {
   // 14. Ribbons per column. With the part 4 mm off the loop's centre (its axis at z = -54 mm), the columns at clock 0 must hug their
   // chords: the host's direction into the loop there points away from the part's ring. A column's scale is its cross derivative at the
   // loop times the band's span over its own chord, the factor applied to the chord law.
-  const offset: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+  const offset: IAutoMovieConstructionNode = ConstructionShapes.cylinder(
     "arm",
-    { origin: { x: 0.012, y: 0, z: -0.054 }, u: { x: 0, y: 0, z: 1 }, v: { x: 0, y: 1, z: 0 } },
+    {
+      origin: { x: 0.012, y: 0, z: -0.054 },
+      u: { x: 0, y: 0, z: 1 },
+      v: { x: 0, y: 1, z: 0 },
+    },
     0.007,
     0.06,
     7,
   );
-  const scales = (ribbons: "common" | "column"): { factors: number[]; real: AutoMovieConstructionRealization.IRealization } | string => {
-    const made: AutoMovieConstructionRealization.IRealization = realize({ ...port(0.02), part: offset, ribbons });
-    if (made.diagnostics.length !== 0) return ConstructionRead.diagnostics(made);
-    const strip: IAutoMovieSolidSurface = ConstructionRead.surface(made, "band.port");
-    const span: number = made.chains.find((c: { name: string }): boolean => c.name === "band.port")?.layers[1]?.y ?? NaN;
+  const scales = (
+    ribbons: "common" | "column",
+  ):
+    | {
+        factors: number[];
+        real: IAutoMovieConstructionRealization.IRealization;
+      }
+    | string => {
+    const made: IAutoMovieConstructionRealization.IRealization = realize({
+      ...port(0.02),
+      part: offset,
+      ribbons,
+    });
+    if (made.diagnostics.length !== 0)
+      return ConstructionRead.diagnostics(made);
+    const strip: IAutoMovieSolidSurface = ConstructionRead.surface(
+      made,
+      "band.port",
+    );
+    const span: number =
+      made.chains.find((c: { name: string }): boolean => c.name === "band.port")
+        ?.layers[1]?.y ?? NaN;
     return {
       real: made,
       factors: Array.from({ length: n }, (_: unknown, k: number): number => {
@@ -527,39 +625,89 @@ export function test_construction_port(): void {
   };
   const common = scales("common");
   const column = scales("column");
-  if (typeof common === "string" || typeof column === "string") failures.push(`ribbons: ${String(common)} ${String(column)}`);
+  if (typeof common === "string" || typeof column === "string")
+    failures.push(`ribbons: ${String(common)} ${String(column)}`);
   else {
     // Red: one common scale holds the column opposite the hard ones at theirs.
-    if (!(common.factors[n / 2]! < 0.2)) failures.push(`ribbons: the common scale holds the opposite column at ${common.factors[n / 2]}, not under 0.2`);
+    if (!(common.factors[n / 2]! < 0.2))
+      failures.push(
+        `ribbons: the common scale holds the opposite column at ${common.factors[n / 2]}, not under 0.2`,
+      );
     // Green: per column, the opposite column takes the whole chord law, and the hard ones keep a scale as small as the common one.
-    if (!(column.factors[n / 2]! >= 0.95)) failures.push(`ribbons: per column, the opposite column holds only ${column.factors[n / 2]}`);
-    if (!(Math.min(...column.factors) <= Math.min(...common.factors) * 1.5)) failures.push(`ribbons: per column, the hard columns take ${Math.min(...column.factors)} against the common ${Math.min(...common.factors)}`);
+    if (!(column.factors[n / 2]! >= 0.95))
+      failures.push(
+        `ribbons: per column, the opposite column holds only ${column.factors[n / 2]}`,
+      );
+    if (!(Math.min(...column.factors) <= Math.min(...common.factors) * 1.5))
+      failures.push(
+        `ribbons: per column, the hard columns take ${Math.min(...column.factors)} against the common ${Math.min(...common.factors)}`,
+      );
     // No column turns back along its own chord by more than 0.01 mm (a column whose ribbon points back against its chord turns back by
     // a few thousandths at any scale), and the loop keeps the host's cross direction and curvature.
-    const strip: IAutoMovieSolidSurface = ConstructionRead.surface(column.real, "band.port");
-    const span: number = column.real.chains.find((c: { name: string }): boolean => c.name === "band.port")?.layers[1]?.y ?? NaN;
+    const strip: IAutoMovieSolidSurface = ConstructionRead.surface(
+      column.real,
+      "band.port",
+    );
+    const span: number =
+      column.real.chains.find(
+        (c: { name: string }): boolean => c.name === "band.port",
+      )?.layers[1]?.y ?? NaN;
     let deepest: number = 0;
     for (let k: number = 0; k < n; ++k) {
       const a: readonly number[] = strip.jet(0, clock(k)).p;
       const chord: V3 = sub(strip.jet(span, clock(k)).p, a);
-      const along: number[] = Array.from({ length: 41 }, (_: unknown, i: number): number => [0, 1, 2].reduce((sum: number, c: number): number => sum + (strip.jet((span * i) / 40, clock(k)).p[c]! - a[c]!) * chord[c]!, 0) / len(chord));
+      const along: number[] = Array.from(
+        { length: 41 },
+        (_: unknown, i: number): number =>
+          [0, 1, 2].reduce(
+            (sum: number, c: number): number =>
+              sum +
+              (strip.jet((span * i) / 40, clock(k)).p[c]! - a[c]!) * chord[c]!,
+            0,
+          ) / len(chord),
+      );
       let most: number = -Infinity;
       for (const x of along) {
         deepest = Math.max(deepest, most - x);
         most = Math.max(most, x);
       }
     }
-    if (!(deepest <= 0.01)) failures.push(`ribbons: per column, a column turns back ${deepest} mm along its chord`);
+    if (!(deepest <= 0.01))
+      failures.push(
+        `ribbons: per column, a column turns back ${deepest} mm along its chord`,
+      );
     for (let k: number = 0; k < n; ++k) {
       const c: number = clock(k);
-      const h: IAutoMovieSolidSurface.IJet = ConstructionRead.surface(column.real, "trunk").jet(50 + 10 * Math.cos(c), 0.45 * Math.sin(c));
-      const [du, dv]: [number, number] = [-10 * Math.cos(c), -0.45 * Math.sin(c)];
-      const first: V3 = [0, 1, 2].map((i: number): number => h.u[i]! * du + h.v[i]! * dv) as V3;
-      const second: V3 = [0, 1, 2].map((i: number): number => h.uu[i]! * du * du + 2 * h.uv[i]! * du * dv + h.vv[i]! * dv * dv) as V3;
+      const h: IAutoMovieSolidSurface.IJet = ConstructionRead.surface(
+        column.real,
+        "trunk",
+      ).jet(50 + 10 * Math.cos(c), 0.45 * Math.sin(c));
+      const [du, dv]: [number, number] = [
+        -10 * Math.cos(c),
+        -0.45 * Math.sin(c),
+      ];
+      const first: V3 = [0, 1, 2].map(
+        (i: number): number => h.u[i]! * du + h.v[i]! * dv,
+      ) as V3;
+      const second: V3 = [0, 1, 2].map(
+        (i: number): number =>
+          h.uu[i]! * du * du + 2 * h.uv[i]! * du * dv + h.vv[i]! * dv * dv,
+      ) as V3;
       const b: IAutoMovieSolidSurface.IJet = strip.jet(0, c);
-      if (!(angle(b.u, first) <= 1e-9)) failures.push(`ribbons: per column, column ${k}'s cross direction stands ${angle(b.u, first)} off the host's`);
-      const bend: number = len(sub(scaled(b.uu, 1 / (len(b.u) * len(b.u))), scaled(second, 1 / (len(first) * len(first)))));
-      if (!(bend <= 1e-9)) failures.push(`ribbons: per column, column ${k}'s cross curvature stands ${bend} mm^-1 off the host's`);
+      if (!(angle(b.u, first) <= 1e-9))
+        failures.push(
+          `ribbons: per column, column ${k}'s cross direction stands ${angle(b.u, first)} off the host's`,
+        );
+      const bend: number = len(
+        sub(
+          scaled(b.uu, 1 / (len(b.u) * len(b.u))),
+          scaled(second, 1 / (len(first) * len(first))),
+        ),
+      );
+      if (!(bend <= 1e-9))
+        failures.push(
+          `ribbons: per column, column ${k}'s cross curvature stands ${bend} mm^-1 off the host's`,
+        );
     }
   }
 

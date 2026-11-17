@@ -1,4 +1,7 @@
-import type { AutoMovieMotionTarget } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionTarget,
+} from "@automovie/interface";
 
 import type { HumanHand } from "../posture/HumanHand";
 import type { touchHold } from "./touchHold";
@@ -21,13 +24,13 @@ import type { touchHold } from "./touchHold";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan builder owns at most two layout records and releases the reader after its synchronous timing/primitive setup; returned primitives retain scalar decisions rather than this reader or entry-sweep results.
  */
 export function touchLayouts(
-  hands: readonly (readonly [HumanHand.Side, AutoMovieMotionTarget])[],
+  hands: readonly (readonly [AutoMovieHumanSide, IAutoMovieMotionTarget])[],
   read: touchHold.Lay,
 ): touchHold.Lay {
   const completed: (touchHold.ILaid | undefined)[] = [];
-  return (side: HumanHand.Side, target: AutoMovieMotionTarget): touchHold.ILaid => {
+  return (side: AutoMovieHumanSide, target: IAutoMovieMotionTarget): touchHold.ILaid => {
     const index: number = hands.findIndex(
-      ([hand, at]: readonly [HumanHand.Side, AutoMovieMotionTarget]): boolean =>
+      ([hand, at]: readonly [AutoMovieHumanSide, IAutoMovieMotionTarget]): boolean =>
         hand === side && at === target,
     );
     if (index < 0) return read(side, target);

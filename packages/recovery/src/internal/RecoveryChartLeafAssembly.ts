@@ -1,11 +1,9 @@
-import {
-  type IAutoMovieCurve64 as C,
-  AutoMovieBernstein64 as S,
-} from "@automovie/engine";
-import type { IAutoMovieBicubicAtlasGeometry as G } from "@automovie/interface";
-
-import type { RecoveryChartBoundary } from "./RecoveryChartBoundary";
-import type { RecoveryChartLeafFit } from "./RecoveryChartLeafFit";
+import { AutoMovieBernstein64 as S } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieBicubicAtlasGeometry,
+  IAutoMovieRecoveryChartLeafAssembly,
+} from "@automovie/interface";
 
 /**
  * Publish source-free canonical intervals for a fitted rectangular leaf atlas.
@@ -23,32 +21,19 @@ import type { RecoveryChartLeafFit } from "./RecoveryChartLeafFit";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Invocation-local maps expire on return. Public coefficients, authority intervals and scalar diagnostics transfer without retaining private observations or topology.
  */
 export function RecoveryChartLeafAssembly(
-  charts: readonly {
-    name: string;
-    controlsMm: readonly C.Vector[];
-    patches: readonly { id: string; controlIds: readonly number[] }[];
-    boundaries: readonly ReturnType<
-      ReturnType<typeof RecoveryChartBoundary>["get"]
-    >[];
-    leafLayout: ReturnType<typeof RecoveryChartLeafFit>["leafLayout"];
-  }[],
-): {
-  controlsMm: C.Vector[];
-  patches: G["patches"];
-  boundaryAuthorities: NonNullable<G["boundaryAuthorities"]>;
-  boundaryBindings: NonNullable<G["boundaryBindings"]>;
-  diagnostics: string[];
-  maximumCanonicalRestrictionDifferenceMm: number;
-  sharedBoundarySpans: number;
-  unmatchedBoundarySpans: number;
-} {
-  const controlsMm: C.Vector[] = [],
-    patches: G["patches"] = [],
-    boundaryAuthorities: NonNullable<G["boundaryAuthorities"]> = [],
-    boundaryBindings: NonNullable<G["boundaryBindings"]> = [];
+  charts: Parameters<IAutoMovieRecoveryChartLeafAssembly.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartLeafAssembly.Operation> {
+  const controlsMm: Readonly<AutoMovieVector3Tuple>[] = [],
+    patches: IAutoMovieBicubicAtlasGeometry["patches"] = [],
+    boundaryAuthorities: NonNullable<
+      IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]
+    > = [],
+    boundaryBindings: NonNullable<
+      IAutoMovieBicubicAtlasGeometry["boundaryBindings"]
+    > = [];
   const authorities: Map<
       string,
-      NonNullable<G["boundaryAuthorities"]>[number]
+      NonNullable<IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]>[number]
     > = new Map(),
     uses: Map<string, number> = new Map();
   let maximumCanonicalRestrictionDifferenceMm: number = 0;
@@ -133,12 +118,14 @@ export function RecoveryChartLeafAssembly(
         start = (a - lo) / (hi - lo);
         end = (b - lo) / (hi - lo);
         const existing:
-          | NonNullable<G["boundaryAuthorities"]>[number]
+          | NonNullable<
+              IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]
+            >[number]
           | undefined = authorities.get(authority);
         if (existing) ids = existing.controlIds;
         else {
           ids = boundary.canonicalCurve.spans[span]!.map(
-            (point: C.Vector): number => {
+            (point: Readonly<AutoMovieVector3Tuple>): number => {
               const id: number = controlsMm.length;
               controlsMm.push(point);
               return id;
@@ -147,7 +134,9 @@ export function RecoveryChartLeafAssembly(
         }
       }
       if (!authorities.has(authority)) {
-        const record: NonNullable<G["boundaryAuthorities"]>[number] = {
+        const record: NonNullable<
+          IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]
+        >[number] = {
           id: authority,
           controlIds: ids,
         };
@@ -192,7 +181,9 @@ export function RecoveryChartLeafAssembly(
         throw new Error(
           "A positive leaf binding collapses in its public canonical chart",
         );
-      const record: NonNullable<G["boundaryBindings"]>[number] = {
+      const record: NonNullable<
+        IAutoMovieBicubicAtlasGeometry["boundaryBindings"]
+      >[number] = {
         patch: binding.patch,
         side: binding.side,
         authority: master.authority,
@@ -214,7 +205,7 @@ export function RecoveryChartLeafAssembly(
       if (start > end) net.reverse();
       const patch: (typeof chart.patches)[number] = byPatch.get(binding.patch)!;
       for (let k: number = 0; k < 4; k++) {
-        const point: C.Vector =
+        const point: Readonly<AutoMovieVector3Tuple> =
           chart.controlsMm[patch.controlIds[sideSlots[binding.side]![k]!]!]!;
         maximumCanonicalRestrictionDifferenceMm = Math.max(
           maximumCanonicalRestrictionDifferenceMm,

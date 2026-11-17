@@ -6,6 +6,7 @@ import {
   physicalPrincipalAxes,
 } from "@automovie/engine";
 import type {
+  IAutoMovieCombinePhysicalMassProperties,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -61,7 +62,7 @@ export function test_engine_mass_tensor_spin(): void {
     w: 2 / norm,
   };
   const about: IAutoMovieVector3 = { x: 4, y: 5, z: -6 };
-  const part: combinePhysicalMassProperties.IPart = {
+  const part: IAutoMovieCombinePhysicalMassProperties.IPart = {
     mass: 2,
     centerOfMass: { x: 5, y: 3, z: -3 },
     inertia: { x: 2, y: 3, z: 4 },
@@ -99,7 +100,7 @@ export function test_engine_mass_tensor_spin(): void {
   checkTensor("dense shifted box", first);
   if (first[0] === first[1] || first[1] === first[2] || first[0] === first[2])
     findings.push("tensor rows share mutable storage");
-  const shifted: combinePhysicalMassProperties.IPart = {
+  const shifted: IAutoMovieCombinePhysicalMassProperties.IPart = {
     ...part,
     centerOfMass: { x: 12, y: -8, z: 2 },
   };
@@ -222,7 +223,7 @@ export function test_engine_mass_tensor_spin(): void {
       ]);
     }),
   );
-  const invalid: combinePhysicalMassProperties.IPart = {
+  const invalid: IAutoMovieCombinePhysicalMassProperties.IPart = {
     ...part,
     centerOfMass: { x: Infinity, y: 0, z: 0 },
   };

@@ -1,13 +1,14 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanReach,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanLean,
   AutoMovieMotionHumanReach,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -77,10 +78,10 @@ export function motionComposeReachFit(name: motionHumanBody.Name): void {
   const POLICIES = ["refuse", "lean", "clamp"] as const;
 
   {
-    const body: IHumanBody = motionHumanBody(name);
-    const bones = (posture: IHumanPosture): Bones =>
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const bones = (posture: IAutoMovieMotionHumanPosture): Bones =>
       poseBones(body, resolveHumanPosture(body, posture));
-    const standing: IHumanPosture = stand.posture(
+    const standing: IAutoMovieMotionHumanPosture = stand.posture(
       body,
       { x: 0, y: 0, z: 0 },
       0,
@@ -119,7 +120,7 @@ export function motionComposeReachFit(name: motionHumanBody.Name): void {
             { x: 0.6, y: -0.48, z: 0.64 },
             share * length(limb),
           );
-          const got: AutoMovieMotionHumanReach.ICheck =
+          const got: IAutoMovieMotionHumanReach.ICheck =
             AutoMovieMotionHumanReach.check(body, posture, limb, point);
           all.check(
             `${name}: the ${limb} of the ${label} body toward ${share} of its length measures from its root joint, off by ${mm(gap(got.root, root))} mm, a length of ${mm(got.length)} mm against the bones' ${mm(length(limb))} mm`,
@@ -141,9 +142,11 @@ export function motionComposeReachFit(name: motionHumanBody.Name): void {
         limb,
         { x: 0, y: 0, z: 0 },
       ).length;
-      const shoulder = (posture: IHumanPosture): IAutoMovieVector3 =>
+      const shoulder = (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieVector3 =>
         bones({ ...posture, limbs: {} }).get(CHAINS[limb][0])!.worldPosition;
-      const tipped = (pitch: number): IHumanPosture =>
+      const tipped = (pitch: number): IAutoMovieMotionHumanPosture =>
         AutoMovieMotionHumanLean.tip(body, standing, pitch, 0);
       // The unit line the shoulder moves along between two nearby pitches.
       const line = (pitch: number): IAutoMovieVector3 => {
@@ -221,7 +224,7 @@ export function motionComposeReachFit(name: motionHumanBody.Name): void {
           { posture: standing, point: within },
         );
       const far: IAutoMovieVector3 = placed(25);
-      const clamped: AutoMovieMotionHumanReach.IFit =
+      const clamped: IAutoMovieMotionHumanReach.IFit =
         AutoMovieMotionHumanReach.fit(body, standing, limb, far, "clamp");
       const root: IAutoMovieVector3 = shoulder(standing);
       const distance: number = gap(root, far);
@@ -242,7 +245,7 @@ export function motionComposeReachFit(name: motionHumanBody.Name): void {
           distance > reach &&
           JSON.stringify(clamped.posture) === JSON.stringify(standing),
       );
-      const leaned: AutoMovieMotionHumanReach.IFit =
+      const leaned: IAutoMovieMotionHumanReach.IFit =
         AutoMovieMotionHumanReach.fit(body, standing, limb, far, "lean");
       all.check(
         `${name}: the ${limb}'s lean policy tips the body ${leaned.posture.pitch.toFixed(3)} degrees for a point placed at 25, keeps the point and the hips`,
@@ -300,7 +303,7 @@ export function motionComposeReachFit(name: motionHumanBody.Name): void {
           AutoMovieMotionHumanReach.fit(body, standing, limb, far, "refuse");
         },
       );
-      const clamped: AutoMovieMotionHumanReach.IFit =
+      const clamped: IAutoMovieMotionHumanReach.IFit =
         AutoMovieMotionHumanReach.fit(body, standing, limb, far, "clamp");
       all.check(
         `${name}: the ${limb}'s clamp moves the point onto the reach along its line from the hip`,

@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanLegSectionProportion } from "@automovie/interface";
+
 /**
  * The leg section's breadth over depth and its fullness in its box along the
  * leg, from the ankle (share 0) to the crotch (share 1): the width-to-depth
@@ -19,20 +21,8 @@
  * section normal to the near-vertical leg; the replacement stays open.
  */
 export namespace AutoMovieHumanLegSectionProportion {
-  /** One share's breadth over depth and fullness, means over the eight legs. */
-  export interface IRow {
-    /** Share of the ankle-to-crotch span. */
-    share: number;
-
-    /** Breadth (lateral) over depth (front to back). */
-    ratio: number;
-
-    /** The girth's place in its box range, 0 the rhombus, 1 the box. */
-    fullness: number;
-  }
-
   /** The rows, ankle to crotch. */
-  export const ROWS: readonly IRow[] = [
+  export const ROWS: readonly IAutoMovieHumanLegSectionProportion.IRow[] = [
     { share: 0.05, ratio: 0.812, fullness: 0.266 },
     { share: 0.1, ratio: 0.914, fullness: 0.256 },
     { share: 0.15, ratio: 0.956, fullness: 0.256 },
@@ -60,17 +50,20 @@ export namespace AutoMovieHumanLegSectionProportion {
    *
    * @param share Share of the ankle-to-crotch span, 0 to 1.
    */
-  export function at(share: number): { ratio: number; fullness: number } {
-    const first: IRow = ROWS[0]!;
-    const last: IRow = ROWS[ROWS.length - 1]!;
+  export function at(
+    share: number,
+  ): IAutoMovieHumanLegSectionProportion.IAtResult {
+    const first: IAutoMovieHumanLegSectionProportion.IRow = ROWS[0]!;
+    const last: IAutoMovieHumanLegSectionProportion.IRow =
+      ROWS[ROWS.length - 1]!;
     if (share <= first.share)
       return { ratio: first.ratio, fullness: first.fullness };
     if (share >= last.share)
       return { ratio: last.ratio, fullness: last.fullness };
     let i: number = 0;
     while (ROWS[i + 1]!.share < share) i++;
-    const a: IRow = ROWS[i]!;
-    const b: IRow = ROWS[i + 1]!;
+    const a: IAutoMovieHumanLegSectionProportion.IRow = ROWS[i]!;
+    const b: IAutoMovieHumanLegSectionProportion.IRow = ROWS[i + 1]!;
     const t: number = (share - a.share) / (b.share - a.share);
     return {
       ratio: a.ratio + t * (b.ratio - a.ratio),
@@ -88,7 +81,7 @@ export namespace AutoMovieHumanLegSectionProportion {
   export function box(
     girth: number,
     share: number,
-  ): { breadth: number; depth: number } {
+  ): IAutoMovieHumanLegSectionProportion.IBoxResult {
     const { ratio, fullness } = at(share);
     const diagonal: number = Math.sqrt(ratio * ratio + 1);
     const depth: number =

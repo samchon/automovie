@@ -1,5 +1,4 @@
 import {
-  IAutoMovieMeshTopology,
   buildAutoMoviePolyhedron,
   buildAutoMovieWall,
   extrudeAutoMovieProfile,
@@ -7,7 +6,11 @@ import {
   mergeAutoMovieMeshParts,
   transformAutoMovieMesh,
 } from "@automovie/engine";
-import { IAutoMovieMesh, type IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieMesh,
+  type IAutoMovieMeshTopology,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";

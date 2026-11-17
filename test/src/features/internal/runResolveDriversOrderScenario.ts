@@ -1,11 +1,9 @@
-import {
-  type IAutoMovieSampledChannel,
-  resolveDrivers,
-} from "@automovie/engine";
-import {
-  type IAutoMovieAimDriver,
-  type IAutoMovieDrivenDriver,
-  type IAutoMovieDriver,
+import { resolveDrivers } from "@automovie/engine";
+import type {
+  IAutoMovieAimDriver,
+  IAutoMovieDrivenDriver,
+  IAutoMovieDriver,
+  IAutoMovieSampledChannel,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

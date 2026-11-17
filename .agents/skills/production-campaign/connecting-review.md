@@ -1,6 +1,6 @@
 # Connecting review
 
-The production's [review](../../../packages/template/scaffold/instructions/.agents/skills/review/SKILL.md) owns verdicts, repair and current acceptance, including its [independent reading](../../../packages/template/scaffold/instructions/.agents/skills/review/independent-reading.md), [narrative rounds](../../../packages/template/scaffold/instructions/.agents/skills/review/narrative-rounds.md) and [delivery review](../../../packages/template/scaffold/instructions/.agents/skills/review/delivery-review.md). The campaign connects a fixed submission to an independent reviewer and keeps the verdict verbatim.
+The production's [review](../../../packages/template/scaffold/instructions/.agents/skills/review/SKILL.md) owns verdicts, repair and current acceptance, and its [independent reading](../../../packages/template/scaffold/instructions/.agents/skills/review/independent-reading.md) sets the reviewer's model and reading order. The campaign connects a fixed submission to an independent reviewer and keeps the verdict verbatim.
 
 ## Submit
 
@@ -10,11 +10,13 @@ Check that the tree the reviewer reads matches the submitted bytes. Other change
 
 ## Launch the reviewer
 
-Start the review as a new CLI process with a new session, launched as [launching workers](launching-workers.md#launch-workers-as-processes) describes, on the model the production's independent reading sets unless the user names another. Have it read the whole submission, and for motion and film work read the actual frames, and the film as dense consecutive frames, receiving parents, contracts, author records and earlier verdicts only in the order that reading sets, so they cannot steer its own judgment.
+Start the review as a new CLI process with a new session, launched as [launching workers](launching-workers.md#launch-workers-as-processes) describes, on the independent reading's model unless the user names another.
+
+Have it read the whole submission, and for motion and film work the frames themselves, with the film as dense consecutive frames. It receives parents, contracts, author records and earlier verdicts only in the independent reading's order, so they cannot steer its judgment.
 
 ## Relay and re-review
 
-Relay the reviewer's verdict verbatim to the writer, ask for its decision on each finding rather than telling it to repair them all, and link each finding to that decision, its repair and any later round its route sets. Repairing every finding wholesale kept a short's screenplay open for seven rounds.
+Relay the reviewer's verdict verbatim to the writer and ask for its decision on each finding rather than telling it to repair them all, because repairing every finding wholesale kept a short's screenplay open for seven rounds. Link each finding to that decision, its repair and any later round its route sets.
 
 For a finding the writer declines, resume that round's reviewer session for its rebuttal or withdrawal and pass that back to the writer's session for a final decision. A narrative pass then runs the rounds its route sets, the [short](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/short.md#steps) or [long](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/long.md#each-layers-pass) route, and each later round goes to a fresh reviewer process.
 
@@ -22,4 +24,4 @@ Before a narrative pass goes to review, start its evidence answerer as its own p
 
 Check the submission, scope, frames read and required records. A partial review or another edition's verdict is not current acceptance, and a repeated handled finding or a missing reply is not a new verdict.
 
-Resumption and liveness follow [observing runs](observing-runs.md). Record the submissions, verdicts and author decisions, and confirm completion by the review and repair the production requires.
+Record the submissions, verdicts and author decisions as the run record's [handoff](run-records.md#handoff) sets; resumption and liveness follow the observing-runs page. Confirm completion by the review and repair the production requires.

@@ -1,34 +1,33 @@
-import {
-  type IAutoMoviePlantChain,
-  type IAutoMovieResolvedBone,
-  type IAutoMovieSeededChainFit,
-  type IAutoMovieSwivelNear,
-  Quaternion,
-  Vector3,
-  placeChainPlant,
-} from "@automovie/engine";
+import { Quaternion, Vector3, placeChainPlant } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePlantChain,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelNear,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "./HumanArmClearance";
-import { HumanArmOvershoot } from "./HumanArmOvershoot";
+import { HumanArmMirror } from "./HumanArmMirror";
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
+import { HumanArmOvershoot } from "./HumanArmOvershoot";
+import { HumanFoot } from "./HumanFoot";
 import { HumanLimbAt } from "./HumanLimbAt";
-import type { HumanColliders } from "./HumanColliders";
-import { fitHumanLimbContact } from "./fitHumanLimbContact";
-import { solveHumanLimbFit } from "./solveHumanLimbFit";
 import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
-import { HumanLimbRootProvenance } from "./HumanLimbRootProvenance";
 import { HumanLimbMirror } from "./HumanLimbMirror";
+import { HumanLimbRootProvenance } from "./HumanLimbRootProvenance";
 import type { HumanLimbView } from "./HumanLimbView";
-import type { IHumanPosture } from "./IHumanPosture";
+import { fitHumanLimbContact } from "./fitHumanLimbContact";
 import { poseBones } from "./poseBones";
 import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { solveHumanLimbFit } from "./solveHumanLimbFit";
 
 /**
  * The fit of one limb onto its goal, which `resolveHumanPosture` runs for
@@ -68,7 +67,7 @@ export namespace HumanLimbFit {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function chain(limb: IHumanPosture.Limb): IChain {
+  export function chain(limb: AutoMovieHumanLimb): IChain {
     const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
     return limb.endsWith("Arm")
       ? {
@@ -127,15 +126,15 @@ export namespace HumanLimbFit {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function world(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-    goal: IHumanPosture.IGoal,
+    limb: AutoMovieHumanLimb,
+    goal: IAutoMovieHumanLimbGoal,
     readAuthored?: () => ReadonlyMap<
       AutoMovieHumanoidBone,
       IAutoMovieResolvedBone
     >,
-  ): IHumanPosture.IGoal {
+  ): IAutoMovieHumanLimbGoal {
     const on: AutoMovieHumanoidBone | undefined = goal.on;
     if (on === undefined) return goal;
     const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
@@ -160,7 +159,7 @@ export namespace HumanLimbFit {
         frame.worldPosition,
         Quaternion.rotateVector(frame.worldRotation, p),
       );
-    const { on: _attached, ...rest }: IHumanPosture.IGoal = goal;
+    const { on: _attached, ...rest }: IAutoMovieHumanLimbGoal = goal;
     return {
       ...rest,
       point: place(goal.point),
@@ -190,7 +189,7 @@ export namespace HumanLimbFit {
    * it too; two arms with goals that ride neither are fitted as one coupled
    * problem (`HumanLimbPair`), each first on its own with the other only a
    * coming wrist (`rival`). An arm keeps clear of the
-   * other bodies its goal names (`IHumanPosture.IGoal.clear`) and of the ones it lays the hand on (`rests`).
+   * other bodies its goal names (`HumanPosture.IGoal.clear`) and of the ones it lays the hand on (`rests`).
    * A left limb is fitted as the right limb in the mirror image of its world
    * (the pose, the goal, the colliders it keeps clear of and the other arm)
    * and mirrored back, so a mirrored posture's fit is the mirror of the
@@ -221,7 +220,7 @@ export namespace HumanLimbFit {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One authored reader, limb workspace and prepared obstruction serve the fixed body/source pose, placed colliders, goal bend/rotation/reference and cold/near mode; only fit targets and candidate points vary. No callback value, distance or fitted answer is shared across distinct candidates.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns one source-FK map, fit workspace and at most one opaque distance reader per queried fixed shape through synchronous return or failure. Its lazy reader is local or borrowed; only pose/seed/value escape, and no returned plan or body-memory entry captures readers or callbacks.
    */
-  export function fit(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb, attached: IHumanPosture.IGoal,
+  export function fit(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limb: AutoMovieHumanLimb, attached: IAutoMovieHumanLimbGoal,
     placed: readonly ("left" | "right")[], rival?: IAutoMovieVector3, near?: IAutoMovieSwivelNear,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieSeededChainFit {
     return solveHumanLimbFit.world(body, pose, limb, attached, placed, rival, near, resolution, "ordinary");
@@ -268,7 +267,7 @@ export namespace HumanLimbFit {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One authored reader, limb workspace and prepared obstruction serve every target of the contact re-aim; the body lends the limb's rig-only readers.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns its source reading and workspace until return or throw; only the pose, seed and value escape.
    */
-  export function direct(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb, attached: IHumanPosture.IGoal,
+  export function direct(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limb: AutoMovieHumanLimb, attached: IAutoMovieHumanLimbGoal,
     placed: readonly ("left" | "right")[], rival: IAutoMovieVector3 | undefined, near: IAutoMovieSwivelNear | undefined,
     resolution: Parameters<typeof prepareHumanPoseResolution>[0], policy: "ordinary" | "continuous",
     admit?: () => void): IAutoMovieSeededChainFit {
@@ -277,7 +276,7 @@ export namespace HumanLimbFit {
   }
 
   /** The chain's own solve in the pose given: the world goal, the obstruction, the prepared fit and the contact re-aim. */
-  function solved(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb, attached: IHumanPosture.IGoal,
+  function solved(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limb: AutoMovieHumanLimb, attached: IAutoMovieHumanLimbGoal,
     placed: readonly ("left" | "right")[], rival: IAutoMovieVector3 | undefined, near: IAutoMovieSwivelNear | undefined,
     resolution: Parameters<typeof prepareHumanPoseResolution>[0], read: typeof ordinary,
     admit?: () => void): IAutoMovieSeededChainFit {
@@ -291,7 +290,7 @@ export namespace HumanLimbFit {
     // The chain as the rig alone fixes it: placed under this pose from the
     // frame of its root's parent, which the source's one read gives, in
     // place of a second read of the whole pose with the chain left out.
-    const constants: IHumanBody["chains"][IHumanPosture.Limb] = body.chains[limb];
+    const constants: IAutoMovieMotionHumanBody["chains"][AutoMovieHumanLimb] = body.chains[limb];
 
     // These consumers all read the unchanged source pose. Keep the reader
     // lazy so attachment refusals and degenerate leg fits keep their original
@@ -305,7 +304,7 @@ export namespace HumanLimbFit {
         // goal on no bone, or on one the demand already holds; another
         // attachment reads its own set.
         const arm: boolean = limb.endsWith("Arm");
-        const kept: IHumanBody["reads"][IHumanPosture.Limb][number] =
+        const kept: IAutoMovieMotionHumanBody["reads"][AutoMovieHumanLimb][number] =
           body.reads[limb][arm && placed.some((other: "left" | "right"): boolean => other !== side) ? 1 : 0];
         if (attached.on === undefined || kept.requested.has(attached.on)) {
           admit?.();
@@ -322,7 +321,7 @@ export namespace HumanLimbFit {
       }
       return authoredBones;
     };
-    const goal: IHumanPosture.IGoal = world(
+    const goal: IAutoMovieHumanLimbGoal = world(
       body,
       pose,
       limb,
@@ -332,7 +331,7 @@ export namespace HumanLimbFit {
     // An arm's forearm stays clear of the trunk, the thighs and an arm fitted
     // before it as the pose being fitted places them (`HumanArmClearance`),
     // whatever the hint or the hand's turn prefer.
-    const trunk: HumanColliders.IPlaced[] | null = limb.endsWith("Arm")
+    const trunk: IAutoMovieMotionHumanColliders.IPlaced[] | null = limb.endsWith("Arm")
       ? HumanArmClearance.obstacles(
           body,
           readAuthored(),
@@ -409,7 +408,7 @@ export namespace HumanLimbFit {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each request is solved afresh.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function remembered(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb, goal: IHumanPosture.IGoal,
+  export function remembered(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limb: AutoMovieHumanLimb, goal: IAutoMovieHumanLimbGoal,
     placed: readonly ("left" | "right")[], rival?: IAutoMovieVector3, near?: IAutoMovieSwivelNear,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     admission?: HumanLimbView.IAdmission): IAutoMovieSeededChainFit {
@@ -462,19 +461,19 @@ export namespace HumanLimbFit {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses common goal/shape reflection and HumanArmMirror's mirrored hull points while source point arrays remain unchanged, without a new goal cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned goal and mirrored records; unchanged fields are borrowed and shared hull points follow their source-array weak cache. This wrapper owns no retained state, handles or tasks.
    */
-  export function reflected(goal: IHumanPosture.IGoal): IHumanPosture.IGoal {
+  export function reflected(goal: IAutoMovieHumanLimbGoal): IAutoMovieHumanLimbGoal {
     return HumanLimbMirror.goal(goal);
   }
 
   /** Public near/cold fitting retains its original workspace entry and order; a re-aim pass continues its previous pass. */
   function ordinary(workspace: ReturnType<typeof prepareHumanLimbFit>, point: IAutoMovieVector3,
-    _near: IAutoMovieSwivelNear | undefined, _body: IHumanBody, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit {
+    _near: IAutoMovieSwivelNear | undefined, _body: IAutoMovieMotionHumanBody, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit {
     return workspace.fit(point, continued);
   }
 
   /** Only the actual continuous-curve constructor selects current hinged correction. */
   function correcting(workspace: ReturnType<typeof prepareHumanLimbFit>, point: IAutoMovieVector3,
-    given: IAutoMovieSwivelNear | undefined, body: IHumanBody, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit {
+    given: IAutoMovieSwivelNear | undefined, body: IAutoMovieMotionHumanBody, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit {
     const near: IAutoMovieSwivelNear | undefined = continued ?? given;
     if (near === undefined) return workspace.fit(point);
     const fitted: IAutoMovieSeededChainFit = workspace.continued(point, near,

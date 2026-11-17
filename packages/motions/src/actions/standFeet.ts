@@ -1,21 +1,20 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSupportCarry,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { HumanSupportCarry } from "../carrier/HumanSupportCarry";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { stand } from "./stand";
 
@@ -45,10 +44,10 @@ export namespace standFeet {
     offset(share: number): IAutoMovieVector3;
     /** Write the feet and toes at a share, optionally carried by their support. */
     write(
-      posture: IHumanPosture,
+      posture: IAutoMovieMotionHumanPosture,
       share: number,
-      carry?: HumanSupportCarry.ICarry,
-    ): IHumanPosture;
+      carry?: IAutoMovieMotionHumanSupportCarry.ICarry,
+    ): IAutoMovieMotionHumanPosture;
   }
 
   /**
@@ -65,9 +64,9 @@ export namespace standFeet {
 
     /** Write the already read feet, optionally moved by the current support. */
     write(
-      posture: IHumanPosture,
-      carry?: HumanSupportCarry.ICarry,
-    ): IHumanPosture;
+      posture: IAutoMovieMotionHumanPosture,
+      carry?: IAutoMovieMotionHumanSupportCarry.ICarry,
+    ): IAutoMovieMotionHumanPosture;
   }
 
   /**
@@ -81,7 +80,7 @@ export namespace standFeet {
     /** The foot. */
     side: "left" | "right";
     /** The ankle and rotation at a share. */
-    at(share: number): HumanFoot.IPlacement;
+    at(share: number): IAutoMovieMotionHumanFoot.IPlacement;
     /** Toe flexion, degrees, at a share. */
     toes(share: number): number;
     /** The bearing offset in the foot's frame. */
@@ -91,7 +90,7 @@ export namespace standFeet {
   /** Fixed share-one geometry used by both flat targets and completed rockers. */
   interface ISettled {
     /** The final ankle and foot rotation in the world. */
-    placement: HumanFoot.IPlacement;
+    placement: IAutoMovieMotionHumanFoot.IPlacement;
 
     /** The final bearing offset in the foot's local frame, metres. */
     contact: IAutoMovieVector3;
@@ -113,8 +112,8 @@ export namespace standFeet {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The course retains the body, two entry contacts and two fixed endpoint placements/offsets for its plan; outward endpoint vectors are fresh copies, and each sample's two current placements end with that reading.
    */
   export function of(
-    body: IHumanBody,
-    entry: IHumanEntryState,
+    body: IAutoMovieMotionHumanBody,
+    entry: IAutoMovieMotionHumanEntryState,
     yaw: number,
   ): ICourse {
     const sides: readonly ["left", "right"] = ["left", "right"];
@@ -137,7 +136,7 @@ export namespace standFeet {
       (side: "left" | "right"): boolean => entry.feet[side].planted,
     );
     const socketsBySide: Partial<
-      Record<"left" | "right", HumanFoot.ISocket[]>
+      Record<"left" | "right", IAutoMovieMotionHumanFoot.ISocket[]>
     > = {};
     for (const side of planted)
       socketsBySide[side] = HumanFoot.sockets(body, bones, side);
@@ -147,7 +146,7 @@ export namespace standFeet {
         : Math.min(
             ...planted.flatMap((side: "left" | "right"): number[] =>
               socketsBySide[side]!.map(
-                (s: HumanFoot.ISocket): number => s.point.y,
+                (s: IAutoMovieMotionHumanFoot.ISocket): number => s.point.y,
               ),
             ),
           );
@@ -155,7 +154,7 @@ export namespace standFeet {
       const heading: number =
         yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT);
       const rest: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
-      const fallback: HumanFoot.IPlacement = {
+      const fallback: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle: HumanFrame.point(
           { origin: { ...entry.posture.root, y: floor }, yaw },
           rest,
@@ -165,15 +164,15 @@ export namespace standFeet {
       if (!entry.feet[side].planted)
         return {
           side,
-          at: (_: number): HumanFoot.IPlacement => fallback,
+          at: (_: number): IAutoMovieMotionHumanFoot.IPlacement => fallback,
           toes: (_: number): number => 0,
           contact: (_: number): IAutoMovieVector3 =>
             HumanFoot.offset(body, side, "mtp"),
         };
-      const sockets: HumanFoot.ISocket[] = socketsBySide[side]!;
-      const pivot: HumanFoot.ISocket = sockets.reduce(
-        (a: HumanFoot.ISocket, b: HumanFoot.ISocket): HumanFoot.ISocket =>
-          b.point.y < a.point.y ? b : a,
+      const sockets: IAutoMovieMotionHumanFoot.ISocket[] = socketsBySide[side]!;
+      const pivot: IAutoMovieMotionHumanFoot.ISocket = sockets.reduce(
+        (a: IAutoMovieMotionHumanFoot.ISocket, b: IAutoMovieMotionHumanFoot.ISocket): IAutoMovieMotionHumanFoot.ISocket => (
+          b.point.y < a.point.y ? b : a),
       );
       const rotation: IAutoMovieQuaternion = entry.feet[side].rotation;
       const from: number = HumanFoot.heading(rotation);
@@ -189,8 +188,8 @@ export namespace standFeet {
         flexion * (1 - share);
       return {
         side,
-        at: (share: number): HumanFoot.IPlacement => {
-          const placement: HumanFoot.IPlacement = HumanFoot.pivot(
+        at: (share: number): IAutoMovieMotionHumanFoot.IPlacement => {
+          const placement: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
             body,
             side,
             pivot.socket,
@@ -224,8 +223,8 @@ export namespace standFeet {
       yaw,
     );
     const sample: ICourse["sample"] = (share: number): ISample => {
-      const placed: HumanFoot.IPlacement[] = plans.map(
-        (p: IPlan, i: number): HumanFoot.IPlacement =>
+      const placed: IAutoMovieMotionHumanFoot.IPlacement[] = plans.map(
+        (p: IPlan, i: number): IAutoMovieMotionHumanFoot.IPlacement =>
           share === 1
             ? {
                 ankle: { ...settled[i]!.placement.ankle },
@@ -246,9 +245,9 @@ export namespace standFeet {
           0.5,
         ),
         write: (
-          posture: IHumanPosture,
-          carry?: HumanSupportCarry.ICarry,
-        ): IHumanPosture => {
+          posture: IAutoMovieMotionHumanPosture,
+          carry?: IAutoMovieMotionHumanSupportCarry.ICarry,
+        ): IAutoMovieMotionHumanPosture => {
           const feet: ICourse["flat"] = Object.fromEntries(
             plans.map(
               (p: IPlan, i: number): [IPlan["side"], IAutoMovieVector3] => [
@@ -257,14 +256,14 @@ export namespace standFeet {
               ],
             ),
           ) as ICourse["flat"];
-          const limbs: IHumanPosture["limbs"] =
+          const limbs: IAutoMovieMotionHumanPosture["limbs"] =
             posture.yaw === yaw
               ? legged(posture.root, feet)
               : stand.legs(body, posture.root, posture.yaw, feet);
-          const joints: IHumanPosture["joints"] = { ...posture.joints };
+          const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
           for (let i: number = 0; i < plans.length; i++) {
             const p: IPlan = plans[i]!;
-            const goal: IHumanPosture.IGoal = limbs[`${p.side}Leg`]!;
+            const goal: IAutoMovieHumanLimbGoal = limbs[`${p.side}Leg`]!;
             limbs[`${p.side}Leg`] = {
               ...goal,
               rotation:
@@ -285,10 +284,10 @@ export namespace standFeet {
       sample,
       offset: (share: number): IAutoMovieVector3 => sample(share).offset,
       write: (
-        posture: IHumanPosture,
+        posture: IAutoMovieMotionHumanPosture,
         share: number,
-        carry?: HumanSupportCarry.ICarry,
-      ): IHumanPosture => sample(share).write(posture, carry),
+        carry?: IAutoMovieMotionHumanSupportCarry.ICarry,
+      ): IAutoMovieMotionHumanPosture => sample(share).write(posture, carry),
     };
   }
 }

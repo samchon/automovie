@@ -1,8 +1,9 @@
-import type { IAutoMovieMotionEvent } from "@automovie/interface";
-
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 /**
  * A stepping plan with its steps taken a little unevenly in time, as a
@@ -34,10 +35,10 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the plan and the step table for as long as the returned plan is held.
  */
 export function walkTempo(
-  plan: IHumanActionPlan,
+  plan: IAutoMovieMotionHumanActionPlan,
   stretch: (index: number) => number,
   limp?: { side: "left" | "right"; share: number },
-): IHumanActionPlan {
+): IAutoMovieMotionHumanActionPlan {
   const struck: walkTempo.IStrike[] = walkTempo.strikes(plan);
   const strikes: number[] = struck.map(
     (s: { seconds: number }): number => s.seconds,
@@ -128,14 +129,14 @@ export function walkTempo(
       }),
     ),
     contacts: plan.contacts.map(
-      (c: IHumanContactWindow): IHumanContactWindow => ({
+      (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
         ...c,
         from: share(c.from),
         to: share(c.to),
       }),
     ),
     ...(plan.contact === undefined ? {} : { contact: toFilm(plan.contact) }),
-    posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture =>
+    posture: (seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture =>
       plan.posture(toPlan(Math.min(duration, Math.max(0, seconds))), channels, resolution, projection),
   };
 }
@@ -160,7 +161,7 @@ export namespace walkTempo {
    * @param plan The stepping plan.
    * @returns Its strikes.
    */
-  export function strikes(plan: IHumanActionPlan): IStrike[] {
+  export function strikes(plan: IAutoMovieMotionHumanActionPlan): IStrike[] {
     return plan.events
       .filter((e: IAutoMovieMotionEvent): boolean =>
         /HeelStrike\d+$/.test(e.name),
@@ -187,9 +188,9 @@ export namespace walkTempo {
    * @returns The plan on the entrained clock.
    */
   export function entrained(
-    plan: IHumanActionPlan,
+    plan: IAutoMovieMotionHumanActionPlan,
     seconds: readonly number[],
-  ): IHumanActionPlan {
+  ): IAutoMovieMotionHumanActionPlan {
     const planned: IStrike[] = strikes(plan);
     return walkTempo(plan, (index: number): number => {
       const span: number =

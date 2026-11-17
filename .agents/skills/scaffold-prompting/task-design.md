@@ -24,6 +24,14 @@ No change may break the path from coded performance through camera staging and t
 
 Audiovisual expression is judged as a plan at screenplay time and as the captured and encoded result at delivery, where the user hears its sound; neither observation establishes the other.
 
+## The default path
+
+A production's default is to compose what its installed packages provide: the polygon man, the archetypes and the motion vocabulary, as its [principles](../../../packages/template/scaffold/instructions/AGENTS.md#principles) set. Every task page states that path first, as prompting's [default route](../prompting/SKILL.md#default-route) requires.
+
+A route that leaves it, such as a commissioned detail option, a registered law or a simulated response, sits behind the condition that opens it. A page that describes such a route in more detail than the default sends every author down it.
+
+A source folder, command or stage the default path does not need is named as conditional, because an author treats a listed folder as one to fill.
+
 ## Revising a page
 
-Revise a page as a whole. Read it top to bottom as its reader, then rewrite it so each section makes one point in the order the task needs, instead of inserting a sentence per finding, because sentences added one at a time repeat each other, break the flow and leave the next reviewer more to find. Remove what no task uses, and move a rule that another page owns back to that owner. After detailed repairs, read the complete result to check that the goal and the achievements worth protecting survive together; the existing authors and reviewers make that judgment, and a new approval layer would only duplicate them.
+Revise a page as [Writing](../documentation/writing.md#revising) sets. After detailed repairs, read the complete result to check that the goal and the achievements worth protecting survive together. The existing authors and reviewers make that judgment, and a new approval layer would only duplicate them.

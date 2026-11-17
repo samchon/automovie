@@ -1,11 +1,14 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPunch,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanFoot } from "../posture/HumanFoot";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingArrest } from "./StrikingArrest";
 import { StrikingStance } from "./StrikingStance";
@@ -53,7 +56,7 @@ export namespace punchFootwork {
    */
   export interface IProps {
     /** The punch's context. */
-    context: IHumanActionContext<punch.IParams>;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>;
 
     /** The punch's timing. */
     timing: punchGeometry.ITiming;
@@ -111,10 +114,10 @@ export namespace punchFootwork {
      * @param clock The trunk turn's clock; the feet's own when absent.
      * @param resolution Optional exact FK supplier borrowed only during this synchronous base/lowering evaluation.
      */
-    base(seconds: number, clock?: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture;
+    base(seconds: number, clock?: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanPosture;
 
     /** The feet's contact windows, as shares of the punch. */
-    contacts: IHumanContactWindow[];
+    contacts: IAutoMovieMotionHumanContactWindow[];
   }
 
   /**
@@ -176,13 +179,13 @@ export namespace punchFootwork {
     const { lead, which, shown, recoil, duration } = timing;
     const body = context.body;
     const t0: number = context.start;
-    const entry: IHumanPosture = context.entry.posture;
-    const joints: IHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints(entry.joints) };
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints(entry.joints) };
     const dragFrom: number = 0.5 * shown;
     const dragTo: number = shown + 0.5 * recoil;
     const dragged = (t: number): number => drag(timing, t);
 
-    const feet: Record<"left" | "right", HumanFoot.IPlacement> =
+    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
     const rear: "left" | "right" = StrikingStance.rear({ lead });
     // A step in or, before a target too close, a step back along the line,
@@ -258,7 +261,7 @@ export namespace punchFootwork {
               );
             };
     }
-    const base = (t: number, clock: number = t, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture => {
+    const base = (t: number, clock: number = t, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanPosture => {
       const turning: number = out(clock) - turnBack(clock);
       const moved: number = travel(t);
       const followed: number = follow(t);
@@ -266,19 +269,19 @@ export namespace punchFootwork {
       const dragging: number = stepping ? dragged(t) : 0;
       const firstLift: number = stepping ? lift * 4 * opening * (1 - opening) : 0;
       const nextLift: number = stepping ? lift * 4 * dragging * (1 - dragging) : 0;
-      const leadFoot: HumanFoot.IPlacement = StrikingTarget.slide(
+      const leadFoot: IAutoMovieMotionHumanFoot.IPlacement = StrikingTarget.slide(
         feet[lead],
         line,
         backing ? followed : moved,
         backing ? nextLift : firstLift,
       );
-      const slid: HumanFoot.IPlacement = StrikingTarget.slide(
+      const slid: IAutoMovieMotionHumanFoot.IPlacement = StrikingTarget.slide(
         feet[rear],
         line,
         backing ? moved : followed,
         backing ? firstLift : nextLift,
       );
-      const rearFoot: HumanFoot.IPlacement =
+      const rearFoot: IAutoMovieMotionHumanFoot.IPlacement =
         which === "rear"
           ? StrikingTarget.pivot(
               body,
@@ -288,7 +291,7 @@ export namespace punchFootwork {
               HEEL_RAISE * turning,
             )
           : slid;
-      const placed: Record<"left" | "right", HumanFoot.IPlacement> =
+      const placed: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
         lead === "left"
           ? { left: leadFoot, right: rearFoot }
           : { left: rearFoot, right: leadFoot };
@@ -327,7 +330,7 @@ export namespace punchFootwork {
     };
 
     // The feet's contact windows, as shares of the punch.
-    const contacts: IHumanContactWindow[] = [];
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
     const window = (
       part: "leftFoot" | "rightFoot",
       kind: "plant" | "pivot",

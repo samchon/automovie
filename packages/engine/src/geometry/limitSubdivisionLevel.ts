@@ -1,6 +1,10 @@
-import { ISubdivisionLevel } from "./ISubdivisionLevel";
-import { ISubdivisionRing } from "./ISubdivisionRing";
-import { ISubdivisionTopology } from "./ISubdivisionTopology";
+import type {
+  IAutoMovieLimitSubdivisionLevel,
+  IAutoMovieSubdivisionLevel,
+  IAutoMovieSubdivisionRing,
+  IAutoMovieSubdivisionTopology,
+} from "@automovie/interface";
+
 import { decaySubdivisionSharpness } from "./decaySubdivisionSharpness";
 import { limitSubdivisionRing } from "./limitSubdivisionRing";
 import { refineSubdivisionPoints } from "./refineSubdivisionPoints";
@@ -35,9 +39,9 @@ import { stepSubdivisionRing } from "./stepSubdivisionRing";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The refined points, about four times the level's positions, are released on return; the result holds three numbers per vertex, three per normal and one per corner.
  */
 export const limitSubdivisionLevel = (
-  level: ISubdivisionLevel,
-): { positions: number[]; normals: number[]; cornerNormals: number[] } => {
-  const topology: ISubdivisionTopology = level.topology;
+  level: IAutoMovieSubdivisionLevel,
+): IAutoMovieLimitSubdivisionLevel.IResult => {
+  const topology: IAutoMovieSubdivisionTopology = level.topology;
   const vertexCount: number = topology.vertexCount;
   const faceBase: number = vertexCount + topology.edgeSharpness.length;
   const points: number[] = refineSubdivisionPoints(
@@ -60,7 +64,7 @@ export const limitSubdivisionLevel = (
       topology.fanCornerOffsets[v],
       topology.fanCornerOffsets[v + 1],
     );
-    let ring: ISubdivisionRing = {
+    let ring: IAutoMovieSubdivisionRing = {
       centre: point(v),
       edges: edges.flatMap((e: number): number[] => point(vertexCount + e)),
       diagonals: corners.flatMap((c: number): number[] =>

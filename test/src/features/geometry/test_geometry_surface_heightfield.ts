@@ -1,9 +1,8 @@
+import { surfaceHeightAt, tessellateSurface } from "@automovie/engine";
 import {
-  type ITessellation,
-  surfaceHeightAt,
-  tessellateSurface,
-} from "@automovie/engine";
-import { IAutoMovieSurface } from "@automovie/interface";
+  IAutoMovieSurface,
+  type IAutoMovieTessellation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
@@ -79,7 +78,7 @@ const vertices: (positions: number[]) => Array<[number, number, number]> = (
  */
 export function test_geometry_surface_heightfield(): void {
   const peak: IAutoMovieSurface = relief([0, 0, 0, 0, 2, 0, 0, 0, 0]);
-  const mesh: ITessellation = tessellateSurface(peak)!;
+  const mesh: IAutoMovieTessellation = tessellateSurface(peak)!;
   TestValidator.equals(
     "every heightfield vertex height is the engine's own query at that point",
     namedFacts([
@@ -105,7 +104,7 @@ export function test_geometry_surface_heightfield(): void {
   );
 
   const terraced: IAutoMovieSurface = relief([1, 1, 1, 1, 1, 1, 0, 0, 4]);
-  const terracedMesh: ITessellation = tessellateSurface(terraced)!;
+  const terracedMesh: IAutoMovieTessellation = tessellateSurface(terraced)!;
   TestValidator.equals(
     "a terrace and a bank reproduce their own bilinear heights",
     namedFacts([
@@ -130,7 +129,7 @@ export function test_geometry_surface_heightfield(): void {
     { terrace: true, bank: true, agrees: true },
   );
 
-  const level: ITessellation = tessellateSurface(
+  const level: IAutoMovieTessellation = tessellateSurface(
     relief([0, 0, 0, 0, 0, 0, 0, 0, 0]),
   )!;
   TestValidator.equals(
@@ -178,7 +177,7 @@ export function test_geometry_surface_heightfield(): void {
       ),
     },
   };
-  const cornerMesh: ITessellation = tessellateSurface(corner)!;
+  const cornerMesh: IAutoMovieTessellation = tessellateSurface(corner)!;
   TestValidator.equals(
     "lattice cells lying entirely outside the footprint are dropped",
     namedFacts([
@@ -206,7 +205,7 @@ export function test_geometry_surface_heightfield(): void {
     ...peak,
     height: { kind: "plane", originHeight: 0.5, slopeX: 0.25, slopeZ: -0.5 },
   };
-  const rampMesh: ITessellation = tessellateSurface(ramp)!;
+  const rampMesh: IAutoMovieTessellation = tessellateSurface(ramp)!;
   TestValidator.equals(
     "a constant patch stays one fan and a ramp reproduces its plane exactly",
     namedFacts([
@@ -231,7 +230,7 @@ export function test_geometry_surface_heightfield(): void {
     { fan: true, rampFan: true, plane: true },
   );
 
-  const anchored: ITessellation = tessellateSurface({
+  const anchored: IAutoMovieTessellation = tessellateSurface({
     id: "anchored",
     kind: "floor",
     polygon: peak.polygon,

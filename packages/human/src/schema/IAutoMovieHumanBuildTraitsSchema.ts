@@ -1,0 +1,21 @@
+import type { IAutoMovieHumanBuildTraits } from "@automovie/interface";
+import type { tags } from "typia";
+
+/** Typia admission/schema metadata for IAutoMovieHumanBuildTraits. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+export type IAutoMovieHumanBuildTraitsSchema = IAutoMovieHumanBuildTraits & {
+  /** Body fat: positive is fatter, negative leaner. */
+  adiposity: number & tags.Minimum<-1> & tags.Maximum<1>;
+
+  /** Lean mass: positive is more muscular, negative less. */
+  muscularity: number & tags.Minimum<-1> & tags.Maximum<1>;
+
+  /**
+   * Skeletal frame: positive is a narrower frame with longer limbs for the stature, negative a broader, shorter-limbed frame.
+   */
+  slimness: number & tags.Minimum<-1> & tags.Maximum<1>;
+
+  /**
+   * Facial neoteny: positive moves the face toward child-like proportions (a vault large relative to the face, larger eyes relative to the face, a shorter nose, a smaller mouth), negative toward a more mature face.
+   */
+  cuteness: number & tags.Minimum<-1> & tags.Maximum<1>;
+};

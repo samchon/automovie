@@ -1,11 +1,19 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanKnockdown,
+  IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -13,13 +21,8 @@ import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoint
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { StrikingTarget } from "../striking/StrikingTarget";
@@ -59,31 +62,15 @@ import { ReactionSource } from "./ReactionSource";
  */
 export namespace knockdown {
   /** The action's name. */
-  export const name: HumanActionName = "knockdown";
+  export const name: AutoMovieMotionHumanActionName = "knockdown";
 
   /** Cancel table: none; a knocked-down performer stays down for the count. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {};
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
   /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
-  export const accepts: IHumanActionLaw["accepts"] = {
+  export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the blow's target and the lying time's unit and default.
-   * @evidence contracts/development/design.md#principled-representation The blow is the interface's motion-target union and the lying time seconds, checked non-negative when planning.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
-   */
-  export interface IParams {
-    /** Where the blow came from; a place ahead of the performer when absent. */
-    from?: AutoMovieMotionTarget;
-
-    /** How long the body lies after landing, seconds; 1 when absent. */
-    seconds?: number;
-  }
 
   /** Seat contact, seconds. */
   export const SEATED: number = 0.45;
@@ -110,8 +97,8 @@ export namespace knockdown {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains neither geometry nor optional FK/projector loans, which stay with their synchronous planning caller through return or throw.
    */
   export function rest(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): number {
@@ -132,7 +119,7 @@ export namespace knockdown {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged body/rig/profile establish only static selection equivalence. Each actual posture and current-call FK/ROM source reaches the native owner normally, with original dependency/provenance checks and no fitted result reuse.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the native reader and its bounded body/profile metadata until its plan or interval releases it. Invocation FK/ROM loans, posed maps and scalar heights are never retained in that reader or returned data.
    */
-  export function prepareRest(body: IHumanBody): ReturnType<typeof KnockdownFloor.prepareRest> {
+  export function prepareRest(body: IAutoMovieMotionHumanBody): ReturnType<typeof KnockdownFloor.prepareRest> {
     return KnockdownFloor.prepareRest(body);
   }
 
@@ -152,13 +139,13 @@ export namespace knockdown {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds fitted angles, two numeric measures, fixed phase preparation and one heading cleared on settle. Fit/IIFE loans end before plan return. Runtime loans belong only to the current root-writer call and never enter its raw posture, measures or callbacks; no sampled-pose history is retained.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKnockdown.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
     const lie: number = context.params.seconds ?? 1;
     if (!(lie >= 0)) throw new Error("A knockdown lies a non-negative time");
-    const entry: IHumanPosture = context.entry.posture;
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       DOWN + lie,
       [
         { name: "rolling", seconds: ROLLING * SEATED },
@@ -182,12 +169,12 @@ export namespace knockdown {
     const fitted: KnockdownFloor.IFit = KnockdownFloor.fit(body, back(SEATED));
     const at: (
       seconds: number,
-      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-      projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
     ) => KnockdownFloor.IMeasure = (
       seconds: number,
-      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-      projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
     ): KnockdownFloor.IMeasure => KnockdownFloor.measure(
       body,
       KnockdownFloor.fold(fitted, sit(seconds), back(seconds)),
@@ -270,12 +257,12 @@ export namespace knockdown {
           from: 0,
           to: duration,
           write: (
-            posture: IHumanPosture,
+            posture: IAutoMovieMotionHumanPosture,
             seconds: number,
             _before?: IAutoMovieMotionHumanPrimitive.Reader,
-            resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-            projection?: Parameters<IHumanActionPlan["posture"]>[3],
-          ): IHumanPosture => {
+            resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+            projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+          ): IAutoMovieMotionHumanPosture => {
             const turn: number = angle(heading() - entry.yaw);
             const now: KnockdownFloor.IMeasure = at(seconds, resolution, projection);
             const landed: boolean = seconds >= SEATED;
@@ -304,7 +291,7 @@ export namespace knockdown {
         AutoMovieMotionHumanLean.tilt({
           from: 0,
           to: duration,
-          angles: (seconds: number): AutoMovieMotionHumanLean.IAngles => ({
+          angles: (seconds: number): IAutoMovieMotionHumanLean.IAngles => ({
             pitch: KnockdownFloor.fold(fitted, sit(seconds), back(seconds)).pitch,
             roll: 0,
           }),
@@ -313,7 +300,7 @@ export namespace knockdown {
           channels: ["head", "leftLeg", "rightLeg", "leftArm", "rightArm"],
           from: 0,
           to: duration,
-          delta: (seconds: number): AutoMovieMotionHumanJoints.Angles =>
+          delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles =>
             KnockdownFloor.fold(fitted, sit(seconds), back(seconds)).joints,
         }),
       ],

@@ -1,8 +1,9 @@
-import type { RecoveryChartFit } from "./RecoveryChartFit";
-import type { RecoveryChartFitPrepare } from "./RecoveryChartFitPrepare";
-import { RecoveryChartFitRows as O } from "./RecoveryChartFitRows";
+import type {
+  IAutoMovieRecoveryChartFitPrepare,
+  IAutoMovieRecoveryChartFitSystem,
+} from "@automovie/interface";
 
-type Input = RecoveryChartFit.Input;
+import { RecoveryChartFitRows as O } from "./RecoveryChartFitRows";
 
 /**
  * Assemble the same sparse weighted system and its bounded rank diagnostics.
@@ -16,23 +17,9 @@ type Input = RecoveryChartFit.Input;
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sparse maps and bounded dense diagnostic scratch remain local to one fit; retained system arrays transfer to the solver phase.
  */
 export function RecoveryChartFitSystem(
-  input: Input,
-  prepared: ReturnType<typeof RecoveryChartFitPrepare>,
-): {
-  diagonal: Float64Array;
-  hessian: Map<number, number>[];
-  rhs: Float64Array;
-  maximumRowTerms: number;
-  physicalJetRows: number;
-  leastSquaresConstant: number;
-  diagnostics: string[];
-  unseen: number;
-  dataRowRank: number | null;
-  dataQrDiagonalRatio: number | null;
-  rankTolerance: number;
-  observationRank: number | null;
-  gramPivotRatio: number | null;
-} {
+  input: Parameters<IAutoMovieRecoveryChartFitSystem.Operation>[0],
+  prepared: Parameters<IAutoMovieRecoveryChartFitSystem.Operation>[1],
+): ReturnType<IAutoMovieRecoveryChartFitSystem.Operation> {
   const {
     finite,
     lower,
@@ -45,7 +32,7 @@ export function RecoveryChartFitSystem(
     unknowns,
     normalizedConstants,
     totalWeight,
-  }: ReturnType<typeof RecoveryChartFitPrepare> = prepared;
+  }: ReturnType<IAutoMovieRecoveryChartFitPrepare.Operation> = prepared;
   const diagonal: Float64Array = new Float64Array(unknowns);
   const hessian: Map<number, number>[] = Array.from(
     { length: unknowns },

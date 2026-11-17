@@ -1,12 +1,14 @@
-import { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieSolidMeshConstraints,
+} from "@automovie/interface";
 
-/** One native station/phase point. */
-type Point = readonly [number, number];
+import { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
 
 /** Original identity and its temporary ordered domain-cover occurrence. */
 interface Node {
   /** Existing source or newly reserved grid ID. */ id: number;
-  /** Lifted coordinate used only to order one domain side. */ point: Point;
+  /** Lifted coordinate used only to order one domain side. */ point: Readonly<AutoMovieVector2Tuple>;
 }
 
 /** One fixed coordinate of a finite rectangular domain side. */
@@ -33,13 +35,13 @@ interface Side {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Side arrays and returned segments are linear in boundary points, with no global cache; the local catalogue and new callback-created points remain caller-owned.
  */
 export function domainAutoMovieSolidMesh(
-  vertices: ReadonlyMap<number, Point>,
-  trim: readonly AutoMovieSolidMeshConstraints.ISegment[],
+  vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+  trim: readonly IAutoMovieSolidMeshConstraints.ISegment[],
   stations: readonly number[],
   phases: readonly number[],
   at: (i: number, j: number) => number,
   period?: number,
-): AutoMovieSolidMeshConstraints.ISegment[] | string {
+): IAutoMovieSolidMeshConstraints.ISegment[] | string {
   if (period !== undefined && !(Number.isFinite(period) && period > 0))
     return "domain period must be finite and positive";
   if (
@@ -60,9 +62,9 @@ export function domainAutoMovieSolidMesh(
   ];
   if (period === undefined)
     sides.push({ axis: 1, index: 0 }, { axis: 1, index: phases.length - 1 });
-  const result: AutoMovieSolidMeshConstraints.ISegment[] = [];
+  const result: IAutoMovieSolidMeshConstraints.ISegment[] = [];
   for (const side of sides) {
-    const made: AutoMovieSolidMeshConstraints.ISegment[] | string = row(
+    const made: IAutoMovieSolidMeshConstraints.ISegment[] | string = row(
       vertices,
       trim,
       stations,
@@ -80,15 +82,15 @@ export function domainAutoMovieSolidMesh(
 
 /** Order one finite side; its stored point values are never normalized or overwritten. */
 function row(
-  vertices: ReadonlyMap<number, Point>,
-  trim: readonly AutoMovieSolidMeshConstraints.ISegment[],
+  vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
+  trim: readonly IAutoMovieSolidMeshConstraints.ISegment[],
   stations: readonly number[],
   phases: readonly number[],
   at: (i: number, j: number) => number,
   axis: 0 | 1,
   index: number,
   period: number | undefined,
-): AutoMovieSolidMeshConstraints.ISegment[] | string {
+): IAutoMovieSolidMeshConstraints.ISegment[] | string {
   const variable: 0 | 1 = axis === 0 ? 1 : 0;
   const fixed: number = axis === 0 ? stations[index]! : phases[index]!;
   const first: number = axis === 0 ? phases[0]! : stations[0]!;
@@ -100,7 +102,7 @@ function row(
       : stations[stations.length - 1]!;
   const nodes: Node[] = [];
   for (const entry of vertices) {
-    const [id, point]: [number, Point] = entry;
+    const [id, point]: [number, Readonly<AutoMovieVector2Tuple>] = entry;
     if (!point.every(Number.isFinite))
       return "domain needs finite source coordinates";
     if (point[axis] !== fixed) continue;
@@ -117,7 +119,7 @@ function row(
   }
   const count: number = axis === 0 ? phases.length : stations.length;
   for (let k: number = 0; k < count; k++) {
-    const point: Point =
+    const point: Readonly<AutoMovieVector2Tuple> =
       axis === 0 ? [fixed, phases[k]!] : [stations[k]!, fixed];
     if (
       nodes.some(
@@ -148,13 +150,13 @@ function row(
         return "domain has coincident authoritative identities";
       nodes.splice(k--, 1);
     }
-  const edges: AutoMovieSolidMeshConstraints.ISegment[] = [];
+  const edges: IAutoMovieSolidMeshConstraints.ISegment[] = [];
   const end: number = period === undefined ? nodes.length - 1 : nodes.length;
   for (let k: number = 0; k < end; k++) {
     const a: Node = nodes[k]!;
     const b: Node = nodes[(k + 1) % nodes.length]!;
-    const storedA: Point = vertices.get(a.id)!;
-    const storedB: Point = vertices.get(b.id)!;
+    const storedA: Readonly<AutoMovieVector2Tuple> = vertices.get(a.id)!;
+    const storedB: Readonly<AutoMovieVector2Tuple> = vertices.get(b.id)!;
     const liftA: number =
       period === undefined ? 0 : Math.round((a.point[1] - storedA[1]) / period);
     const liftB: number =

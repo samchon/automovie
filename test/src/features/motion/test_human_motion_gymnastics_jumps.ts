@@ -6,6 +6,11 @@ import {
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -15,9 +20,7 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type HumanSegment,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -90,16 +93,17 @@ export function test_human_motion_gymnastics_jumps(): void {
     createHighJump({ height: Math.min(bar + 0.015, 2.45), diameter: 0.03 });
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
-    const performer: HumanPerformance.IInput["performers"][number] = {
-      subject: "a",
-      body,
-      at: { x: 0, y: 0, z: 0 },
-      yaw: 0,
-      proficiency: { level: "trained" },
-    };
-    const flop = (bar: number): HumanPerformance =>
+    const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] =
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      };
+    const flop = (bar: number): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "flop",
         laws: [HumanGymnastics.fosburyFlop],
@@ -129,8 +133,8 @@ export function test_human_motion_gymnastics_jumps(): void {
             bar: "bar",
           }).node,
       });
-    const vault = (run: boolean): HumanPerformance => {
-      const taken: HumanChain = HumanChain.subject("a")
+    const vault = (run: boolean): IAutoMovieMotionHumanPerformance => {
+      const taken: IAutoMovieMotionHumanChain = HumanChain.subject("a")
         .stand({ seconds: 0.3 })
         .pickUp({ prop: "pole", handle: "shaft", hand: "right", lift: 0.05 })
         .stand({ seconds: 0.3 });
@@ -154,7 +158,7 @@ export function test_human_motion_gymnastics_jumps(): void {
     };
     const refused = (
       label: string,
-      build: () => HumanPerformance,
+      build: () => IAutoMovieMotionHumanPerformance,
       kind: string,
       axis: string,
     ): void => {
@@ -178,10 +182,10 @@ export function test_human_motion_gymnastics_jumps(): void {
 
     // Read a film's segment by its row.
     const reading = (
-      film: HumanPerformance,
+      film: IAutoMovieMotionHumanPerformance,
       row: string,
     ): {
-      reader: HumanSignature.IReader;
+      reader: IAutoMovieMotionHumanSignature.IReader;
       at: (event: string) => number;
       joint: (
         seconds: number,
@@ -190,15 +194,15 @@ export function test_human_motion_gymnastics_jumps(): void {
       hips: (seconds: number) => IAutoMovieVector3;
       fall: (seconds: number) => number;
     } => {
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         film,
         "a",
         body,
         0,
       );
-      const segment: HumanSegment.ISegment = film
+      const segment: IAutoMovieMotionHumanSegment = film
         .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === row)!;
+        .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
       const joint = (
         seconds: number,
         bone: AutoMovieHumanoidBone,
@@ -297,14 +301,14 @@ export function test_human_motion_gymnastics_jumps(): void {
     // 2. A bar out of reach.
     refused(
       "flop over 3 m",
-      (): HumanPerformance => flop(3),
+      (): IAutoMovieMotionHumanPerformance => flop(3),
       "parameter",
       "bar",
     );
 
     // 3. The pole vault.
     try {
-      const film: HumanPerformance = vault(true);
+      const film: IAutoMovieMotionHumanPerformance = vault(true);
       const read: ReturnType<typeof reading> = reading(film, "vaultOnPole");
       const off: number = read.at("takeoff");
       const release: number = read.at("release");
@@ -345,7 +349,7 @@ export function test_human_motion_gymnastics_jumps(): void {
     // 4. A vault from standing.
     refused(
       "pole vault from standing",
-      (): HumanPerformance => vault(false),
+      (): IAutoMovieMotionHumanPerformance => vault(false),
       "base",
       "run",
     );

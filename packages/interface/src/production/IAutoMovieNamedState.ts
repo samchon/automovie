@@ -1,4 +1,4 @@
-import { IAutoMovieShotPredicate } from "./IAutoMovieShotPredicate";
+import type { IAutoMovieShotPredicate } from "./IAutoMovieShotPredicate";
 
 /**
  * A named opening or closing state required by a shot.

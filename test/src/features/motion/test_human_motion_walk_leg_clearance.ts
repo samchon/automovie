@@ -1,9 +1,12 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanWalkLegClearance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditTangle,
-  type IHumanBody,
-  type IHumanPosture,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -36,15 +39,21 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the scenario and its bounds.
  */
 export function test_human_motion_walk_leg_clearance(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
-  const quiet: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const quiet: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const right: IAutoMovieVector3 = poseBones(
     body,
     resolveHumanPosture(body, quiet),
   ).get("rightFoot")!.worldPosition;
-  const legs = (posture: IHumanPosture) => {
+  const legs = (posture: IAutoMovieMotionHumanPosture) => {
     const bones = poseBones(body, resolveHumanPosture(body, posture));
-    const leg = (side: "left" | "right"): walkLegClearance.ILeg => ({
+    const leg = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanWalkLegClearance.ILeg => ({
       side,
       hip: bones.get(`${side}UpperLeg`)!.worldPosition,
       knee: bones.get(`${side}LowerLeg`)!.worldPosition,
@@ -76,7 +85,7 @@ export function test_human_motion_walk_leg_clearance(): void {
       y: right.y,
       z: right.z + ahead,
     };
-    const crossed: IHumanPosture = {
+    const crossed: IAutoMovieMotionHumanPosture = {
       ...quiet,
       limbs: {
         ...quiet.limbs,
@@ -88,11 +97,8 @@ export function test_human_motion_walk_leg_clearance(): void {
       },
     };
     const read = legs(crossed);
-    const reading: walkLegClearance.IReading = walkLegClearance.reading(
-      body,
-      read.left,
-      read.right,
-    );
+    const reading: IAutoMovieMotionHumanWalkLegClearance.IReading =
+      walkLegClearance.reading(body, read.left, read.right);
     TestValidator.predicate(
       `the clearance is the audit's reading ${ahead} m ahead`,
       Math.abs(reading.excess - read.audited) <= 1e-9,
@@ -104,7 +110,7 @@ export function test_human_motion_walk_leg_clearance(): void {
       ...p,
       z: p.z + step,
     });
-    const moved: walkLegClearance.ILeg = {
+    const moved: IAutoMovieMotionHumanWalkLegClearance.ILeg = {
       ...read.left,
       hip: nudged(read.left.hip),
       knee: nudged(read.left.knee),

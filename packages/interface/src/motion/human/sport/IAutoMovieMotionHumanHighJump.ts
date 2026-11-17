@@ -1,0 +1,72 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+
+/**
+ * A high jump in the Fosbury flop (#3377): a one-foot take-off, a half turn
+ * that puts the back to the bar, a backward lay-out over it with the back
+ * arched, the legs lifted after the hips pass, and a landing on the back.
+ *
+ * The take-off is the jump's push-off (`GymnasticsTakeoff`), aimed so the
+ * centre of mass peaks at the bar's height and comes down at the landing
+ * place at the height it has lying on its back there. The flight is
+ * ballistic in the centre of mass (`GymnasticsFlight`), and its rotation runs
+ * through the whole flight from the take-off, as the angular momentum a flop
+ * builds during the take-off (Dapena 1980, "Mechanics of rotation in the
+ * Fosbury-flop", Med Sci Sports Exerc 12:45-53: most of the somersault's
+ * angular momentum is made on the ground) is kept in the air: the half turn
+ * about the vertical eased over the whole rise, so the back is to the bar at
+ * the apex, and the backward somersault about the body's left axis eased in
+ * over the first half of the rise and then at a constant rate, level at the
+ * apex and kept to the touchdown. The two overlap from the take-off on; turning them one after
+ * the other, each in a fraction of the rise, spun the body upright to
+ * inverted in a frame or two.
+ * The arch is keyed: the joints go from the take-off's to `arched` at the
+ * apex and to `piked`, the legs lifted, after it. The body comes down when
+ * the lowest of its shapes reaches the landing surface, and lies on its
+ * back there (`GymnasticsMat`).
+ *
+ * The bar is the scene's high jump, a prop whose `bar` affordance is the
+ * crossbar (`createHighJump`'s): the centre of mass peaks at its axis's
+ * height, read where the prop stands at the action's start. A prop without
+ * a `bar` is refused, and so is a bar no higher than the take-off's centre,
+ * or one that needs a vertical take-off speed past `RISE`. The horizontal
+ * take-off speed is not stated: it follows from the landing place the
+ * author gives, which world-class finalists reach leaving the floor at
+ * 4.14 ± 0.37 m/s (the same table of Nicholson et al. 2022).
+ *
+ * First pass: no curved run-up and no lean into the take-off; the arms do
+ * not lead; the angular momentum appears at the take-off instead of being
+ * built over the push; the apex falls where the landing place puts it, the
+ * crossbar's place along the run unchecked. The push-off's own flight, which
+ * aims the take-off, leaves 20 to 24 mm from its take-off pose, so the flight
+ * starts from that pose's centre with the vertical speed that peaks it at the
+ * bar, and the body does not step at the take-off.
+ *
+ * Events: `takeoff`, `apex` (the bar), `touchdown`, `settled`, `relax`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation to: Where the body comes down on its back, world metres: its height is the landing surface's, the floor's 0 or a mat's top. on: The prop landed on, its subject id; the floor when absent.
+ * @evidence contracts/development/design.md#principled-representation to: Where the body comes down on its back, world metres: its height is the landing surface's, the floor's 0 or a mat's top. on: The prop landed on, its subject id; the floor when absent.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: sport/highJump.ts (highJump.plan, context); sport/highJump.ts (highJump.plan).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ */
+export namespace IAutoMovieMotionHumanHighJump {
+  /**
+   * Parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
+   * @evidence contracts/development/design.md#principled-representation The landing place, its support and the high jump whose crossbar is cleared.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The surface is a prop's subject id, as the jump's.
+   *
+   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
+   */
+  export interface IParams {
+    /** Where the body comes down on its back, world metres: its height is the landing surface's, the floor's 0 or a mat's top. */
+    to: IAutoMovieVector3;
+
+    /** The prop landed on, its subject id; the floor when absent. */
+    on?: string;
+
+    /** The high jump's prop subject; its `bar` affordance is the crossbar, whose axis's height the centre of mass peaks at. */
+    bar: string;
+  }
+}

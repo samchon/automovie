@@ -1,4 +1,6 @@
 import type {
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieIntegrateMotionTrajectory,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,9 +21,9 @@ import type { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned closures own only the numeric trajectory and tangent count; their lexical scope has no history or right-hand side.
  */
 export function AirborneRotationFlight(
-  trajectory: integrateMotionTrajectory.ITrajectory,
+  trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory,
   count: number,
-): integrateAirborneRotation.IFlight {
+): IAutoMovieIntegrateAirborneRotation.IFlight {
   return {
     t0: trajectory.t0,
     t1: trajectory.t1,

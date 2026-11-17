@@ -1,4 +1,4 @@
-import { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
+import type { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
 
 /**
  * The deterministic answer to one authored building-support claim.

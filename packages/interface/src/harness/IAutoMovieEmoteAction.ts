@@ -1,5 +1,5 @@
-import { AutoMovieExpressionPreset } from "../expression/AutoMovieExpressionPreset";
-import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
+import type { AutoMovieExpressionPreset } from "../expression/AutoMovieExpressionPreset";
+import type { IAutoMovieActionBase } from "./IAutoMovieActionBase";
 
 /**
  * Play a facial expression preset on the actor's `face` region. Expression

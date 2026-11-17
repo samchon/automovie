@@ -1,4 +1,4 @@
-import { IAutoMoviePanelValue } from "./IAutoMoviePanelValue";
+import type { IAutoMoviePanelValue } from "./IAutoMoviePanelValue";
 
 /**
  * One named operating state and the travel it gives each panel.

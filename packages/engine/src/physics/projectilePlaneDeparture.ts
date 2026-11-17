@@ -1,11 +1,13 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieProjectile,
+  IAutoMovieProjectileFirstContact,
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { resolveAutoMovieContactEvents } from "../composition/resolveAutoMovieContactEvents";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieProjectile } from "./IAutoMovieProjectile";
 import { projectileAt } from "./projectileAt";
 import { projectileDragDeparture } from "./projectileDragDeparture";
-import type { projectileFirstContact } from "./projectileFirstContact";
 
 /**
  * Establish departure from one already resolved fixed-plane contact.
@@ -40,9 +42,9 @@ export function projectilePlaneDeparture(
   id: string,
   normal: IAutoMovieVector3,
   projectile: IAutoMovieProjectile,
-  options: projectileFirstContact.IOptions,
-  contact: resolveAutoMovieContactEvents.IInitialContact,
-): resolveAutoMovieContactEvents.Departure | undefined {
+  options: IAutoMovieProjectileFirstContact.IOptions,
+  contact: IAutoMovieResolveContactEvents.IInitialContact,
+): IAutoMovieResolveContactEvents.Departure | undefined {
   if (options.departing !== id || !(contact.to > contact.from))
     return undefined;
   if (options.tail !== undefined && projectile.attitude?.kind !== "fixed")

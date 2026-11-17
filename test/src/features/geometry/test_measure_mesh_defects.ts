@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieMeshDefect,
-  measureAutoMovieMeshDefects,
-} from "@automovie/engine";
+import { measureAutoMovieMeshDefects } from "@automovie/engine";
+import type { IAutoMovieMeshDefect } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

@@ -1,15 +1,23 @@
+import type {
+  IAutoMovieMeshPlaneCut,
+  IAutoMoviePlaneFrameConstruction,
+  IAutoMovieRecoveryMeshIncidencePreparationOperation,
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryResult,
+  IAutoMovieRecoverySavedSection,
+  IAutoMovieRecoverySavedSectionCutsBindingOperation,
+  IAutoMovieRecoveryScalarIndex,
+  IAutoMovieRecoverySlabObservation,
+  IAutoMovieRecoverySlabs,
+  IAutoMovieRecoverySlabsInput,
+} from "@automovie/interface";
+
 import { RecoveryScalarIndex } from "../internal/RecoveryScalarIndex";
 import { bindRecoverySavedSectionCuts } from "../internal/bindRecoverySavedSectionCuts";
 import { cutExact } from "../internal/mesh-observations/cutExact";
 import { planeFrame } from "../internal/mesh-observations/planeFrame";
 import { observeRecoverySourceSlabs } from "../internal/observeRecoverySourceSlabs";
 import { prepareRecoveryMeshIncidence } from "../internal/prepareRecoveryMeshIncidence";
-import type { IAutoMovieRecoverySavedSection } from "../structures/mesh/IAutoMovieRecoverySavedSection";
-import type { IAutoMovieRecoverySlabs } from "../structures/mesh/IAutoMovieRecoverySlabs";
-import type { IAutoMovieRecoverySlabsInput } from "../structures/mesh/IAutoMovieRecoverySlabsInput";
-import type { IAutoMovieRecoverySlabObservation } from "../structures/observation/IAutoMovieRecoverySlabObservation";
-import type { IAutoMovieRecoveryOptions } from "../structures/operation/IAutoMovieRecoveryOptions";
-import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
 
 /** Observe exact source slabs without reading, converting or fitting coefficients.
  * One prepared source/scalar chart recuts every saved endpoint plane and binds
@@ -23,7 +31,7 @@ import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResu
  * Source arrays and saved records must remain unchanged during this synchronous
  * call. Progress and slab observers are cooperative checkpoints; throwing fails
  * the operation without a value. Slab callbacks receive independent copies,
- * provisional until success; callback abort stops later work/delivery. No timer,
+ * provisional until success; callback-requested cancellation stops later work/delivery. No timer,
  * listener, filesystem, host, source normal or coefficient payload is involved.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Existing frame normalization, exact-zero cutter, canonical source incidence, indexed source-cell topology and PL critical/bracket observers share one binary64 scalar authority. Every source contour is checked against its saved ordinal, incidence sets and supported closure before any slab is delivered; binary64 predicates are not certified exact arithmetic.
@@ -38,36 +46,55 @@ export function observeAutoMovieRecoverySlabs(
   input: IAutoMovieRecoverySlabsInput,
   options: Pick<
     IAutoMovieRecoveryOptions,
-    "signal" | "onProgress" | "onSourceSlab"
+    "cancelled" | "onProgress" | "onSourceSlab"
   > = {},
 ): IAutoMovieRecoveryResult<IAutoMovieRecoverySlabs> {
   const operator: IAutoMovieRecoveryResult<never>["operator"] =
     "source-slabs-v1";
-  if (options?.signal?.aborted)
-    return {
-      operator,
-      status: "cancelled",
-      diagnostics: ["Cancelled before source slab observation"],
-    };
-  if (
-    !valid(input) ||
-    !options ||
-    (options.onProgress !== undefined &&
-      typeof options.onProgress !== "function") ||
-    (options.onSourceSlab !== undefined &&
-      typeof options.onSourceSlab !== "function")
-  )
-    return {
-      operator,
-      status: "refused",
-      diagnostics: [
-        "Registered triangles, caller source/selection identities, complete saved endpoint publications, finite slab pairs and valid observers are required",
-      ],
-    };
+  let cancellationRequested: boolean = false;
+  let probe: (() => boolean) | undefined;
+  const cancelled: () => boolean = (): boolean => {
+    const requested: boolean | undefined = probe?.();
+    if (probe !== undefined && typeof requested !== "boolean")
+      throw new Error(
+        "Cancellation callback must return a boolean synchronously",
+      );
+    cancellationRequested = requested === true;
+    return cancellationRequested;
+  };
   try {
+    probe = options?.cancelled;
+    if (probe !== undefined && typeof probe !== "function")
+      return {
+        operator,
+        status: "refused",
+        diagnostics: ["Cancellation callback must be a function"],
+      };
+
+    if (cancelled())
+      return {
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before source slab observation"],
+      };
+    if (
+      !valid(input) ||
+      !options ||
+      (options.onProgress !== undefined &&
+        typeof options.onProgress !== "function") ||
+      (options.onSourceSlab !== undefined &&
+        typeof options.onSourceSlab !== "function")
+    )
+      return {
+        operator,
+        status: "refused",
+        diagnostics: [
+          "Registered triangles, caller source/selection identities, complete saved endpoint publications, finite slab pairs and valid observers are required",
+        ],
+      };
+
     const checkpoint: () => void = (): void => {
-      if (options.signal?.aborted)
-        throw new Error("Source slab observation cancelled");
+      if (cancelled()) throw new Error("Source slab observation cancelled");
     };
     const progress: (phase: string, done: number, total: number) => void = (
       phase: string,
@@ -78,11 +105,8 @@ export function observeAutoMovieRecoverySlabs(
       options.onProgress?.(phase, done, total);
       checkpoint();
     };
-    const frame: ReturnType<typeof planeFrame> = planeFrame(
-      [0, 0, 0],
-      input.axis,
-      input.reference,
-    );
+    const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> =
+      planeFrame([0, 0, 0], input.axis, input.reference);
     if (
       ![frame.n, frame.u, frame.v].every(
         (axis: [number, number, number]): boolean =>
@@ -115,15 +139,15 @@ export function observeAutoMovieRecoverySlabs(
           ],
         };
     progress("source-slab-cuts", 0, input.savedSections.length);
-    const prepared: ReturnType<typeof prepareRecoveryMeshIncidence> =
+    const prepared: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation> =
       prepareRecoveryMeshIncidence(input, input.verticesMm);
     const heights: number[] = input.verticesMm.map(
       (point: [number, number, number]): number =>
         point[0] * frame.n[0] + point[1] * frame.n[1] + point[2] * frame.n[2],
     );
-    const index: ReturnType<typeof RecoveryScalarIndex.create> =
+    const index: ReturnType<IAutoMovieRecoveryScalarIndex.Create> =
       RecoveryScalarIndex.create(input.triangles, heights);
-    const cut: ReturnType<typeof cutExact.prepare> = cutExact.prepare(
+    const cut: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = cutExact.prepare(
       prepared.mesh,
       heights,
       true,
@@ -143,7 +167,7 @@ export function observeAutoMovieRecoverySlabs(
         saved.coordinateMm,
         index.cut(saved.coordinateMm),
       );
-      const bound: ReturnType<typeof bindRecoverySavedSectionCuts> =
+      const bound: ReturnType<IAutoMovieRecoverySavedSectionCutsBindingOperation.Operation> =
         bindRecoverySavedSectionCuts({ saved, contours, prepared, checkpoint });
       if (bound.status === "refused")
         return { operator, status: "refused", diagnostics: [bound.diagnostic] };
@@ -229,7 +253,7 @@ export function observeAutoMovieRecoverySlabs(
   } catch (failure: unknown) {
     return {
       operator,
-      status: options.signal?.aborted ? "cancelled" : "failed",
+      status: cancellationRequested ? "cancelled" : "failed",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
       ],

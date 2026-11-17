@@ -1,4 +1,4 @@
-import type { resolveAutoMovieContactEvents } from "./resolveAutoMovieContactEvents";
+import type { IAutoMovieResolveContactEvents } from "@automovie/interface";
 
 /**
  * Read one weapon's actual geometry for one exact time and stop context.
@@ -20,16 +20,16 @@ import type { resolveAutoMovieContactEvents } from "./resolveAutoMovieContactEve
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Stores no state or handle; the returned actual frame retains no new stop map, callback or query history.
  */
 export function sampleAutoMovieContactWeapon(
-  weapon: resolveAutoMovieContactEvents.IWeapon,
+  weapon: IAutoMovieResolveContactEvents.IWeapon,
   seconds: number,
-  stops: resolveAutoMovieContactEvents.IStops,
-): resolveAutoMovieContactEvents.IWeaponFrame {
+  stops: IAutoMovieResolveContactEvents.IStops,
+): IAutoMovieResolveContactEvents.IWeaponFrame {
   if (weapon.sample === undefined)
     return {
       position: weapon.position(seconds, stops),
       tail: weapon.tail?.(seconds, stops),
     };
-  const frame: resolveAutoMovieContactEvents.IWeaponFrame = weapon.sample(
+  const frame: IAutoMovieResolveContactEvents.IWeaponFrame = weapon.sample(
     seconds,
     stops,
   );

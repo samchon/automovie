@@ -1,11 +1,14 @@
-import type { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 
 /** Explicit SI fixtures shared by independent physical behavior cases. */
 export namespace PhysicalFixtures {
   /** One one-kilogram sphere with analytic solid-sphere inertia. */
   export function sphere(radius: number = 0.1, compliance: number = 0): P {
-    const neutral: P.ITransform = {
+    const neutral: IAutoMovieRigidTransform = {
       position: { x: 0, y: 1, z: 0 },
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     };
@@ -58,21 +61,21 @@ export namespace PhysicalFixtures {
     id: string,
     profile: P,
     duration: number,
-    pose?: P.ITransform,
-  ): Simulation.IBody {
+    pose?: IAutoMovieRigidTransform,
+  ): IAutoMoviePhysicalSimulationInput.IBody {
     return {
       id,
       profile,
       mode: { kind: "simulated" },
       targets: Array.from(
         { length: Math.round(duration * 120) + 1 },
-        (): Simulation.ITarget => ({
+        (): IAutoMoviePhysicalSimulationInput.ITarget => ({
           strength: 0,
           segments: Object.fromEntries(
             profile.segments.map(
               (
                 segment: (typeof profile.segments)[number],
-              ): [string, P.ITransform] => [
+              ): [string, IAutoMovieRigidTransform] => [
                 segment.bone,
                 structuredClone(pose ?? segment.neutral),
               ],
@@ -89,9 +92,9 @@ export namespace PhysicalFixtures {
   }
   /** Fixed 120 Hz native simulation with bounded work and no gravitational drift. */
   export function input(
-    bodies: Simulation.IBody[],
+    bodies: IAutoMoviePhysicalSimulationInput.IBody[],
     duration: number,
-  ): Simulation.IInput {
+  ): IAutoMoviePhysicalSimulationInput.IInput {
     return {
       bodies,
       duration,

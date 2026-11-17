@@ -1,4 +1,4 @@
-import type { IAutoMovieMeshDefect } from "@automovie/engine";
+import type { IAutoMovieMeshDefect } from "@automovie/interface";
 
 /**
  * Colours the inspection itself owns, as sRGB hex: the flag every anomaly takes, the kinds it measures on meshes, defects and edges, and the surface colours of its two shades.

@@ -2,6 +2,8 @@ import { createDoor, createTable } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionObstacleAperture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanObstacle } from "@automovie/motions";
@@ -48,18 +50,17 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_human_motion_core_obstacle_objects(): void {
   const at = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
-  const body: HumanObstacle.INeed = { breadth: 0.45, height: 1.75 };
+  const body: IAutoMovieMotionHumanObstacle.INeed = {
+    breadth: 0.45,
+    height: 1.75,
+  };
   const read = (
-    scene: HumanObstacle.IObstacle,
+    scene: IAutoMovieMotionHumanObstacle,
     x: number,
-    need: HumanObstacle.INeed = body,
+    need: IAutoMovieMotionHumanObstacle.INeed = body,
   ): unknown => {
-    const block: HumanObstacle.IBlock | null = HumanObstacle.blocking(
-      [scene],
-      at(x, 0),
-      at(x, 4),
-      need,
-    );
+    const block: IAutoMovieMotionHumanObstacle.IBlock | null =
+      HumanObstacle.blocking([scene], at(x, 0), at(x, 4), need);
     return block === null
       ? "free"
       : [
@@ -86,20 +87,26 @@ export function test_human_motion_core_obstacle_objects(): void {
   const opening: IAutoMovieAffordance = door.affordance("aperture");
   const clear: number = opening.width!;
   const middle: number = opening.frame.translation.x;
-  const doorway: HumanObstacle.IObstacle = HumanObstacle.object("door", door, {
-    at: at(0, 2),
-    yaw: 0,
-  });
+  const doorway: IAutoMovieMotionHumanObstacle = HumanObstacle.object(
+    "door",
+    door,
+    {
+      at: at(0, 2),
+      yaw: 0,
+    },
+  );
 
   // 1. Its opening and its heights.
   TestValidator.equals(
     "a door is an obstacle with its own opening",
     [
-      (doorway.apertures ?? []).map((a: HumanObstacle.IAperture): unknown[] => [
-        a.id,
-        round(a.width),
-        round(a.height),
-      ]),
+      (doorway.apertures ?? []).map(
+        (a: IAutoMovieMotionObstacleAperture): unknown[] => [
+          a.id,
+          round(a.width),
+          round(a.height),
+        ],
+      ),
       round(doorway.bottom),
       round(doorway.top),
     ],
@@ -126,12 +133,8 @@ export function test_human_motion_core_obstacle_objects(): void {
   );
   // 5. Through a jamb.
   const jamb: number = part("jamb-left").transform!.translation.x;
-  const struck: HumanObstacle.IBlock | null = HumanObstacle.blocking(
-    [doorway],
-    at(jamb, 0),
-    at(jamb, 4),
-    body,
-  );
+  const struck: IAutoMovieMotionHumanObstacle.IBlock | null =
+    HumanObstacle.blocking([doorway], at(jamb, 0), at(jamb, 4), body);
   TestValidator.equals(
     "a door's jamb is a solid before the door's plane",
     struck === null
@@ -145,10 +148,14 @@ export function test_human_motion_core_obstacle_objects(): void {
   const height: number = table.dimensions.height!;
   const length: number = table.dimensions.length!;
   const depth: number = table.dimensions.depth!;
-  const desk: HumanObstacle.IObstacle = HumanObstacle.object("table", table, {
-    at: at(0, 2),
-    yaw: 90,
-  });
+  const desk: IAutoMovieMotionHumanObstacle = HumanObstacle.object(
+    "table",
+    table,
+    {
+      at: at(0, 2),
+      yaw: 90,
+    },
+  );
   const xs: number[] = desk.footprint.map(
     (p: IAutoMovieVector3): number => p.x,
   );
@@ -179,12 +186,8 @@ export function test_human_motion_core_obstacle_objects(): void {
     ],
   );
   // 7, 8. Across it and beside it.
-  const across: HumanObstacle.IBlock | null = HumanObstacle.blocking(
-    [desk],
-    at(0, 0),
-    at(0, 4),
-    body,
-  );
+  const across: IAutoMovieMotionHumanObstacle.IBlock | null =
+    HumanObstacle.blocking([desk], at(0, 0), at(0, 4), body);
   TestValidator.equals(
     "a table blocks a path across it at its near edge and not one beside it",
     [

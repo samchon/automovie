@@ -1,13 +1,26 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanDress,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionManner,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
@@ -16,20 +29,15 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanGrip } from "../handling/HumanGrip";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFrame } from "../posture/HumanFrame";
+import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
+import { poseBones } from "../posture/poseBones";
 import { HumanWorn } from "./HumanWorn";
 import { dressTurn } from "./dressTurn";
 
@@ -70,10 +78,10 @@ import { dressTurn } from "./dressTurn";
  */
 export namespace dress {
   /** The action's name. */
-  export const name: HumanActionName = "dress";
+  export const name: AutoMovieMotionHumanActionName = "dress";
 
   /** Cancel table: the hands come down and the body stands or walks. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       { window: ["relax", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
@@ -82,39 +90,6 @@ export namespace dress {
 
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
   export const overlay: boolean = true;
-
-  /**
-   * An item put on with its original receiving region and support-hand law.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the two existing wear-placement alternatives, hat and glasses.
-   * @evidence contracts/development/design.md#principled-representation A closed item union selects the original crown/brim or nose/temple interaction; the actual wearable and body geometry remain action inputs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface IParams, WORN and place consume both existing alternatives; no additional garment or motion is represented.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains the original explicit law scope without fixing a body, prop instance, dimension or solved pose.
-   */
-  export type Item = "hat" | "glasses";
-
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its default.
-   * @evidence contracts/development/design.md#principled-representation A closed item, the held wearable, its hand and a manner.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place is typed.
-   */
-  export interface IParams {
-    /** The item: where it is worn and how the free hand steadies it. */
-    item: Item;
-
-    /** The wearable's prop subject, held since a pick-up: its `wear` socket is put on the head (`createWearable`'s contacts). */
-    prop: string;
-
-    /** The hand that holds it; the one the entry holds it in when absent, `right` if neither. */
-    hand?: HumanHand.Side;
-
-    /** How it is performed. */
-    manner?: AutoMovieMotionManner.IManner;
-  }
-
   /**
    * The hat's brim held at the head's front quarters: the direction out and
    * ahead from the crown's axis, and how far down from the crown in head
@@ -150,17 +125,12 @@ export namespace dress {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Current frame/trunk readers and optional FK loan release on return or throw; returned numeric place fields retain no reader, body pose history or handle.
    */
   export function place(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    item: Item,
-    side: HumanHand.Side,
-    resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-  ): {
-    point: IAutoMovieVector3;
-    normal: IAutoMovieVector3;
-    surface: HumanHand.Surface;
-    forward: IAutoMovieVector3;
-  } {
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    item: IAutoMovieMotionHumanDress.Item,
+    side: AutoMovieHumanSide,
+    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+  ): IAutoMovieMotionHumanDress.IPlaceResult {
     const frame: ReturnType<typeof HumanFrame.prepare> = HumanFrame.prepare(
       { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw });
     const outward: IAutoMovieVector3 = frame.point(
@@ -209,7 +179,7 @@ export namespace dress {
   export const TURN: number = 45;
 
   /** The head region each item is worn on. */
-  export const WORN: Readonly<Record<Item, AutoMovieHumanoidRegion>> = {
+  export const WORN: Readonly<Record<IAutoMovieMotionHumanDress.Item, AutoMovieHumanoidRegion>> = {
     hat: "crown",
     glasses: "noseBridge",
   };
@@ -230,28 +200,28 @@ export namespace dress {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The turn search releases score/FK/base geometry before returning its scalar choice. The plan owns original held geometry, clock and fingers until release; current metadata loans and head readings release per call, without a new pose/time history or retained solver reader.
    */
   export function plan(
-    context: IHumanActionContext<IParams>,
-  ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
-    const item: Item = context.params.item;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDress.IParams>,
+  ): IAutoMovieMotionHumanActionPlan {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const item: IAutoMovieMotionHumanDress.Item = context.params.item;
     const subject: string = context.params.prop;
-    const holder: HumanHand.Side =
+    const holder: AutoMovieHumanSide =
       context.params.hand ??
       (context.entry.holds.left === subject &&
       context.entry.holds.right !== subject
         ? "left"
         : "right");
-    const held: AutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
       context,
       holder,
       subject,
     );
-    const wearable: IHumanProp = context.prop(subject).prop;
+    const wearable: IAutoMovieMotionHumanProp = context.prop(subject).prop;
     // The item's frame in the hand's, for the hand that carries it.
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       held.frame.rotation,
     );
-    const modifiers: AutoMovieMotionManner.IModifiers =
+    const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const yaw: number = context.entry.posture.yaw;
     const forward: IAutoMovieVector3 = HumanFrame.point(
@@ -260,7 +230,7 @@ export namespace dress {
     );
     const lead: number = 0.25 * body.measure.forearm;
     const observed: Set<AutoMovieHumanoidBone> = new Set(HumanHand.frameBones(body, holder, "grip"));
-    const other: HumanHand.Side = holder === "left" ? "right" : "left";
+    const other: AutoMovieHumanSide = holder === "left" ? "right" : "left";
     for (const bone of HumanHand.frameBones(body, other, item === "hat" ? "palm" : "indexTip"))
       observed.add(bone);
     const bones: ReturnType<typeof poseBones> = poseBones(body, context.entry.pose, undefined, observed);
@@ -268,7 +238,7 @@ export namespace dress {
       0.6 * (body.measure.upperArm + body.measure.forearm),
       0.03,
     );
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: reach,
         attack: AutoMovieMotionHumanTiming.PAUSES.beat,
@@ -280,11 +250,11 @@ export namespace dress {
     // Where the carrying hand's grip socket is, and how the hand is turned,
     // when the item, rigid in it, sits on the head at a turn.
     const wornAt: ReturnType<typeof HumanWorn.prepareMoving> = HumanWorn.prepareMoving(body, wearable, WORN[item]);
-    const carried: (posture: IHumanPosture, degrees: number,
-      resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => ReturnType<typeof dressTurn.carried> = (
-      posture: IHumanPosture,
+    const carried: (posture: IAutoMovieMotionHumanPosture, degrees: number,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => ReturnType<typeof dressTurn.carried> = (
+      posture: IAutoMovieMotionHumanPosture,
       degrees: number,
-      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => {
       return dressTurn.carried(wornAt(posture, degrees, resolution), inverse, held.frame.position);
     };
@@ -320,8 +290,8 @@ export namespace dress {
           holder,
           "grip",
         ),
-        path: (posture: IHumanPosture, _: number, progress: number,
-          resolution?: Parameters<IHumanActionPlan["posture"]>[2]): AutoMovieMotionHumanArm.ITarget => {
+        path: (posture: IAutoMovieMotionHumanPosture, _: number, progress: number,
+          resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): IAutoMovieMotionHumanArmTarget.ITarget => {
           const { grip: on, rotation }: ReturnType<typeof carried> = carried(posture, turn, resolution);
           const grip: IAutoMovieVector3 = Vector3.add(
             on,
@@ -342,8 +312,8 @@ export namespace dress {
         },
       });
     };
-    const arm: (side: HumanHand.Side) => IAutoMovieMotionHumanPrimitive = (side: HumanHand.Side): IAutoMovieMotionHumanPrimitive => {
-      const surface: HumanHand.Surface = item === "hat" ? "palm" : "indexTip";
+    const arm: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanPrimitive = (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive => {
+      const surface: IAutoMovieMotionHumanHand.Surface = item === "hat" ? "palm" : "indexTip";
       const prepared: ReturnType<typeof HumanHandTarget.prepareMoving> = HumanHandTarget.prepareMoving(
         body, side, { surface, shape: item === "hat" ? "relaxed" : "point" });
       return AutoMovieMotionHumanArm.stroke({
@@ -357,8 +327,8 @@ export namespace dress {
           side,
           surface,
         ),
-        path: (posture: IHumanPosture, _: number, progress: number,
-          resolution?: Parameters<IHumanActionPlan["posture"]>[2]): AutoMovieMotionHumanArm.ITarget => {
+        path: (posture: IAutoMovieMotionHumanPosture, _: number, progress: number,
+          resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): IAutoMovieMotionHumanArmTarget.ITarget => {
           const at: ReturnType<typeof place> = place(body, posture, item, side, resolution);
           return prepared.target(
             posture,
@@ -374,7 +344,7 @@ export namespace dress {
         },
       });
     };
-    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       contact: "stroke",
@@ -386,7 +356,7 @@ export namespace dress {
     // The holding hand keeps the item until it is on, closed as the grip
     // left it; from then the head wears it.
     const on: number = clock.at("stroke") / clock.duration;
-    const fingers: IHumanPosture["joints"] = HumanGrip.fingers(
+    const fingers: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.fingers(
       context.entry.pose,
       holder,
     );
@@ -397,10 +367,10 @@ export namespace dress {
         { ...AutoMovieMotionHumanHeld.grip(held), to: on },
       ],
       wears: [{ prop: subject, bone: "head", from: on }],
-      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
-        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
-        const posture: IHumanPosture = composed.posture(seconds, undefined, resolution, projection);
+      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
+        const posture: IAutoMovieMotionHumanPosture = composed.posture(seconds, undefined, resolution, projection);
         return seconds / clock.duration < on
           ? { ...posture, joints: { ...posture.joints, ...fingers } }
           : posture;

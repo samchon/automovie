@@ -1,5 +1,11 @@
 import { derivePhysicalActuators } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieRigidTransform,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -20,29 +26,31 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  */
 export function test_physical_actuator_load(): void {
   const profile: P = PhysicalFixtures.sphere();
-  const carrier: P.ISegment = structuredClone(profile.segments[0]!);
+  const carrier: IAutoMoviePhysicalSegment = structuredClone(
+    profile.segments[0]!,
+  );
   carrier.bone = "carrier";
   carrier.neutral.position = { x: 0, y: 0, z: 0 };
   carrier.mass = 0.01;
   carrier.centerOfMass = { x: 0, y: 0, z: 0 };
   carrier.inertia = { x: 0.001, y: 0.001, z: 0.001 };
-  const payload: P.ISegment = structuredClone(carrier);
+  const payload: IAutoMoviePhysicalSegment = structuredClone(carrier);
   payload.bone = "payload";
   payload.mass = 2;
   payload.neutral.position = { x: 1, y: 0, z: 0 };
   payload.inertia = { x: 0.2, y: 0.2, z: 0.2 };
-  const identity: P.ITransform = {
+  const identity: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
-  const hinge: P.IJoint = {
+  const hinge: IAutoMoviePhysicalJoint = {
     id: "hinge",
     parent: "root",
     child: "carrier",
     parentFrame: identity,
     childFrame: identity,
     axes: (["x", "z"] as const).map(
-      (axis: "x" | "z"): P.IAxis => ({
+      (axis: "x" | "z"): IAutoMoviePhysicalJointAxis => ({
         axis,
         minimum: -1,
         maximum: 1,
@@ -53,7 +61,7 @@ export function test_physical_actuator_load(): void {
       }),
     ),
   };
-  const fixed: P.IJoint = {
+  const fixed: IAutoMoviePhysicalJoint = {
     id: "attachment",
     parent: "carrier",
     child: "payload",
@@ -61,7 +69,7 @@ export function test_physical_actuator_load(): void {
     childFrame: identity,
     axes: [],
   };
-  const joints: P.IJoint[] = derivePhysicalActuators(
+  const joints: IAutoMoviePhysicalJoint[] = derivePhysicalActuators(
     [...profile.segments, carrier, payload],
     [hinge, fixed],
     { frequency: 10, dampingRatio: 1, torquePerKg: 3, passiveRate: 5 },

@@ -1,7 +1,9 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * Straighten each hand's digits as it travels to its resting surface in a
@@ -22,10 +24,10 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function retaining no resources.
  */
 export function sitHands(
-  posture: IHumanPosture,
+  posture: IAutoMovieMotionHumanPosture,
   progress: (side: "left" | "right") => number,
-): IHumanPosture {
-  const joints: IHumanPosture["joints"] = { ...posture.joints };
+): IAutoMovieMotionHumanPosture {
+  const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
   for (const side of ["left", "right"] as const) {
     const s: number = progress(side);
     for (const [bone, flat] of FLAT[side]) {

@@ -1,6 +1,6 @@
 # Evidence configuration
 
-Make `evidence.config.ts` select the work the commission actually has. The installed evidence package's README and types own its options, their spelling, its selectors and its annotations; this page says only what to select and when.
+Make `evidence.config.ts` select the work the commission has. The installed evidence package's README and types own its options, their spelling, its selectors and its annotations.
 
 ## Engineering
 

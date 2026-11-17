@@ -1,4 +1,4 @@
-import { IAutoMovieFluidSprayParticle } from "./IAutoMovieFluidSprayParticle";
+import type { IAutoMovieFluidSprayParticle } from "./IAutoMovieFluidSprayParticle";
 
 /**
  * One bounded decorative spray sample returned by sampleFluidSpray.

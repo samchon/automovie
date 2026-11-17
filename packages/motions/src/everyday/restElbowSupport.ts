@@ -1,15 +1,18 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRest,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handGoals } from "./handGoals";
-import type { rest } from "./rest";
 
 /**
  * The supporting hand's rest goal: its palm under the other arm's elbow (the
@@ -32,14 +35,14 @@ import type { rest } from "./rest";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local exact FK getter and temporary solved frames end at return or throw; only the fresh hand goal and its actual point/rotation escape, retaining no workspace or time history.
  */
 export function restElbowSupport(
-  body: IHumanBody,
-  posture: IHumanPosture,
-  side: HumanHand.Side,
-  chin: rest.IGoal,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  side: AutoMovieHumanSide,
+  chin: IAutoMovieMotionHumanRest.IGoal,
   elbow: IAutoMovieVector3,
-): rest.IGoal {
-  const other: HumanHand.Side = side === "left" ? "right" : "left";
-  const solved: IHumanPosture = handGoals(
+): IAutoMovieMotionHumanRest.IGoal {
+  const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
+  const solved: IAutoMovieMotionHumanPosture = handGoals(
     body,
     {
       ...posture,

@@ -1,12 +1,17 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieQuaternion,
+  IAutoMovieSolveAirborneTakeoff,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
+import { AirborneTakeoffAngles } from "./AirborneTakeoffAngles";
 import { AirborneTakeoffJacobian } from "./AirborneTakeoffJacobian";
 import { MotionTrajectoryPartition } from "./MotionTrajectoryPartition";
 import { integrateAirborneRotation } from "./integrateAirborneRotation";
 import type { solveAirborneTakeoff } from "./solveAirborneTakeoff";
-import { AirborneTakeoffAngles } from "./AirborneTakeoffAngles";
 
 /**
  * Evaluate shooting points with optional momentum sensitivities. Rejected
@@ -29,7 +34,7 @@ import { AirborneTakeoffAngles } from "./AirborneTakeoffAngles";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns at most its current and last rejected evaluations and releases the operation mesh in finally. No point map or cross-call cache exists; completed flight playback retains only numeric trajectory data.
  */
 export function AirborneTakeoffTrial(
-  props: solveAirborneTakeoff.IProps,
+  props: IAutoMovieSolveAirborneTakeoff.IProps,
   axes: IAutoMovieQuaternion,
   frame: IAutoMovieQuaternion,
 ): AirborneTakeoffTrial.IOperation {
@@ -64,13 +69,13 @@ export function AirborneTakeoffTrial(
           && local.every((v: number, i: number): boolean => Object.is(v, point.local[i])),
       );
       if (known !== undefined) return retarget(known, target);
-      const flight: integrateAirborneRotation.IFlight = integrateAirborneRotation({
+      const flight: IAutoMovieIntegrateAirborneRotation.IFlight = integrateAirborneRotation({
         history: props.history, t0: props.t0, t1: props.t1, q0: props.q0,
         momentum: Quaternion.rotateVector(frame, { x: local[0]!, y: local[1]!, z: local[2]! }),
         h: props.h, tolerance: props.integration, momentumTolerance: props.momentumTolerance,
         errorScope: props.errorScope, variations: sensitive ? directions : undefined, partition,
       });
-      const end: solveAirborneTakeoff.IAngles = AirborneTakeoffAngles.unwrapped({
+      const end: IAutoMovieSolveAirborneTakeoff.IAngles = AirborneTakeoffAngles.unwrapped({
         ...flight,
         orientation: (seconds: number): IAutoMovieQuaternion =>
           Quaternion.multiply(flight.orientation(seconds), axes),
@@ -104,13 +109,13 @@ export namespace AirborneTakeoffTrial {
     /** Fresh local momentum coordinates. */
     local: number[];
     /** Actual unwrapped endpoint in radians. */
-    end: solveAirborneTakeoff.IAngles;
+    end: IAutoMovieSolveAirborneTakeoff.IAngles;
     /** Endpoint minus the current full stage target, radians. */
     r: number[];
     /** Actual integrated angle derivatives, absent on a residual-only trial. */
     jacobian: number[][] | undefined;
     /** The actual numeric flight whose endpoint and residual were observed. */
-    flight: integrateAirborneRotation.IFlight;
+    flight: IAutoMovieIntegrateAirborneRotation.IFlight;
   }
 
   /**

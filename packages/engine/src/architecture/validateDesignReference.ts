@@ -6,7 +6,9 @@ import {
   IAutoMovieDesignSourceFrame,
   IAutoMovieObservedCandidate,
   IAutoMovieObservedPrimitive,
+  type IAutoMovieValidateDesignReference,
   IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
@@ -66,14 +68,13 @@ const PRIMITIVE_POINTS: ReadonlyMap<string, { min: number; max: number }> =
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A validation of one reference per call that coordinates no shared work; `promoteDesignObservations` calls it once per promotion.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The id sets, frame and candidate indexes and the producing-analysis map are local and released on return, each bounded by its record count; the returned validation holds the findings.
  */
-export const validateDesignReference: (props: {
-  /** Observed design reference to validate. */ reference: IAutoMovieDesignReference;
-}) => IAutoMovieValidation = (props: {
-  /** Observed design reference to validate. */
-  reference: IAutoMovieDesignReference;
-}): IAutoMovieValidation => {
+export const validateDesignReference: (
+  props: IAutoMovieValidateDesignReference.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateDesignReference.IProps,
+): IAutoMovieValidation => {
   const reference: IAutoMovieDesignReference = props.reference;
-  const out: ViolationCollector = new ViolationCollector();
+  const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
   out.nonEmpty(`${root}.id`, reference.id, "design reference id");
@@ -357,12 +358,12 @@ const validatePrimitive: (
   primitive: IAutoMovieObservedPrimitive,
   owner: IAutoMovieDesignSourceFrame | undefined,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   primitive: IAutoMovieObservedPrimitive,
   owner: IAutoMovieDesignSourceFrame | undefined,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   if (owner === undefined)
     out.push(
@@ -443,13 +444,13 @@ const validateIssue: (
   primitiveIds: ReadonlySet<string>,
   candidateIds: ReadonlySet<string>,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ) => void = (
   issue: IAutoMovieDesignIssue,
   primitiveIds: ReadonlySet<string>,
   candidateIds: ReadonlySet<string>,
   path: string,
-  out: ViolationCollector,
+  out: IAutoMovieViolationCollector,
 ): void => {
   if (
     !(AUTO_MOVIE_DESIGN_ISSUE_KINDS as readonly string[]).includes(issue.kind)

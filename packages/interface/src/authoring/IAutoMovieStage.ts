@@ -1,11 +1,11 @@
-import { IAutoMovieNamedId } from "../core/IAutoMovieNamedId";
-import { IAutoMovieFog } from "../scene/IAutoMovieFog";
-import { IAutoMovieSceneEnvironment } from "../scene/IAutoMovieSceneEnvironment";
-import { IAutoMovieSpace } from "../scene/IAutoMovieSpace";
-import { IAutoMovieStageActor } from "./IAutoMovieStageActor";
-import { IAutoMovieStageCamera } from "./IAutoMovieStageCamera";
-import { IAutoMovieStageLight } from "./IAutoMovieStageLight";
-import { IAutoMovieStageSetPiece } from "./IAutoMovieStageSetPiece";
+import type { IAutoMovieNamedId } from "../core/IAutoMovieNamedId";
+import type { IAutoMovieFog } from "../scene/IAutoMovieFog";
+import type { IAutoMovieSceneEnvironment } from "../scene/IAutoMovieSceneEnvironment";
+import type { IAutoMovieSpace } from "../scene/IAutoMovieSpace";
+import type { IAutoMovieStageActor } from "./IAutoMovieStageActor";
+import type { IAutoMovieStageCamera } from "./IAutoMovieStageCamera";
+import type { IAutoMovieStageLight } from "./IAutoMovieStageLight";
+import type { IAutoMovieStageSetPiece } from "./IAutoMovieStageSetPiece";
 
 /**
  * The coding-agent-owned set before a shot is performed.

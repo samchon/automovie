@@ -3,9 +3,15 @@ import {
   Vector3,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionCoupling,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCoupled,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
-  AutoMovieMotionMeeting,
   HumanCarried,
   HumanCarriedCoupling,
   HumanChain,
@@ -15,7 +21,6 @@ import {
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  type IHumanBody,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -82,11 +87,11 @@ export function test_human_motion_coupled_signature(): void {
       "overheadLift",
     ] as const) {
       const cell: string = `carry ${carry}, ${names[0]} bearing ${names[1]}`;
-      const bodies: Record<"a" | "b", IHumanBody> = {
+      const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
         a: motionHumanBody(names[0]),
         b: motionHumanBody(names[1]),
       };
-      let film: HumanPerformance;
+      let film: IAutoMovieMotionHumanPerformance;
       try {
         film = new HumanPerformance({
           seed: "coupled-signature",
@@ -128,17 +133,17 @@ export function test_human_motion_coupled_signature(): void {
         );
         continue;
       }
-      const coupling: AutoMovieMotionMeeting.ICoupling =
-        HumanCarriedCoupling.couple(
-          bodies.a,
-          bodies.b,
-          HumanCarried.CARRIES[carry],
-          carry,
-        );
-      const readers: Record<"a" | "b", HumanSignature.IReader> = {
-        a: HumanSignature.of(film, "a", bodies.a, 0),
-        b: HumanSignature.of(film, "b", bodies.b, 0),
-      };
+      const coupling: IAutoMovieMotionCoupling = HumanCarriedCoupling.couple(
+        bodies.a,
+        bodies.b,
+        HumanCarried.CARRIES[carry],
+        carry,
+      );
+      const readers: Record<"a" | "b", IAutoMovieMotionHumanSignature.IReader> =
+        {
+          a: HumanSignature.of(film, "a", bodies.a, 0),
+          b: HumanSignature.of(film, "b", bodies.b, 0),
+        };
       const masses: Record<"a" | "b", number> = {
         a: resolveAutoMovieCenterOfMass(bodies.a.skeleton, bodies.a.profile)
           .mass,
@@ -151,8 +156,7 @@ export function test_human_motion_coupled_signature(): void {
         20,
       )) {
         for (const contact of coupling.contacts.filter(
-          (c: AutoMovieMotionMeeting.ICoupledContact): boolean =>
-            c.kind === "bear",
+          (c: IAutoMovieMotionCoupling.IContact): boolean => c.kind === "bear",
         )) {
           const held: IAutoMovieVector3 = HumanSignature.region(
             readers.b,
@@ -194,13 +198,13 @@ export function test_human_motion_coupled_signature(): void {
 
         // The bearer balances its own weight and the borne weight its
         // contacts carry, each share acting where it bears.
-        const carried: AutoMovieMotionMeeting.ICoupledContact[] =
+        const carried: IAutoMovieMotionCoupling.IContact[] =
           coupling.contacts.filter(
-            (c: AutoMovieMotionMeeting.ICoupledContact): boolean =>
+            (c: IAutoMovieMotionCoupling.IContact): boolean =>
               c.kind === "bear" && c.on.role === coupling.bearer,
           );
         const borne: number = carried.reduce(
-          (s: number, c: AutoMovieMotionMeeting.ICoupledContact): number =>
+          (s: number, c: IAutoMovieMotionCoupling.IContact): number =>
             s + c.load * masses.b,
           0,
         );
@@ -208,7 +212,7 @@ export function test_human_motion_coupled_signature(): void {
           carried.reduce(
             (
               s: IAutoMovieVector3,
-              c: AutoMovieMotionMeeting.ICoupledContact,
+              c: IAutoMovieMotionCoupling.IContact,
             ): IAutoMovieVector3 =>
               Vector3.add(
                 s,
@@ -234,7 +238,7 @@ export function test_human_motion_coupled_signature(): void {
 
   // 2. The throws, a pairwise covering: kind i mod 4, pair i mod 3,
   // outcome floor(i / 4) meet every pair of their values over twelve cells.
-  const KINDS: readonly HumanCoupled.Throw[] = [
+  const KINDS: readonly IAutoMovieMotionHumanCoupled.Throw[] = [
     "seoiNage",
     "oGoshi",
     "oSotoGari",
@@ -246,12 +250,12 @@ export function test_human_motion_coupled_signature(): void {
     "yield",
   ];
   for (let i: number = 0; i < KINDS.length * PAIRS.length; i++) {
-    const kind: HumanCoupled.Throw = KINDS[i % KINDS.length]!;
+    const kind: IAutoMovieMotionHumanCoupled.Throw = KINDS[i % KINDS.length]!;
     const names: readonly [Name, Name] = PAIRS[i % PAIRS.length]!;
     const outcome: "thrown" | "resist" | "yield" =
       OUTCOMES[Math.floor(i / KINDS.length)]!;
     const cell: string = `throw ${kind} ${outcome}, ${names[0]} throwing ${names[1]}`;
-    const bodies: Record<"a" | "b", IHumanBody> = {
+    const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
       a: motionHumanBody(names[0]),
       b: motionHumanBody(names[1]),
     };
@@ -261,7 +265,7 @@ export function test_human_motion_coupled_signature(): void {
     // Half the pull its base resists, read on the standing body.
     const force: number =
       outcome === "resist" ? resistible(bodies.b) / 2 : weight;
-    let film: HumanPerformance;
+    let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
         seed: "coupled-signature",
@@ -309,7 +313,7 @@ export function test_human_motion_coupled_signature(): void {
         ? null
         : response.start + e.share * response.plan.duration;
     };
-    const reader: HumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       film,
       "b",
       bodies.b,
@@ -359,8 +363,8 @@ export function test_human_motion_coupled_signature(): void {
  * displayed base: its weight times the base's extent behind its centre over
  * the collar-and-sleeve grips' height, `M g e / h` (`HumanForceExchange`).
  */
-function resistible(body: IHumanBody): number {
-  const film: HumanPerformance = new HumanPerformance({
+function resistible(body: IAutoMovieMotionHumanBody): number {
+  const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "resistible",
     performers: [
       {
@@ -373,7 +377,12 @@ function resistible(body: IHumanBody): number {
     ],
     composition: HumanChain.subject("b").stand({ seconds: 0.3 }).node,
   });
-  const reader: HumanSignature.IReader = HumanSignature.of(film, "b", body, 0);
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    film,
+    "b",
+    body,
+    0,
+  );
   const centre: IAutoMovieVector3 = HumanSignature.centre(reader, 0.3);
   const behind: number = HumanForceExchange.edge(
     centre,

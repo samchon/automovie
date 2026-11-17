@@ -1,7 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "./HumanFoot";
 
 /**
@@ -25,19 +29,19 @@ import { HumanFoot } from "./HumanFoot";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains one private rotation and offset until its owning contact solve releases it, without a contact history or external handle.
  */
 export function prepareHumanFootAt(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   side: "left" | "right",
   pivot: "heel" | "ball" | "toe" | "sole" | "mtp",
   heading: number,
   pitch: number,
   toes: number = 0,
   roll: number = 0,
-): (at: IAutoMovieVector3) => HumanFoot.IPlacement {
+): (at: IAutoMovieVector3) => IAutoMovieMotionHumanFoot.IPlacement {
   const rotation: IAutoMovieQuaternion = HumanFoot.rotation(heading, pitch, roll);
   const offset: IAutoMovieVector3 = Quaternion.rotateVector(
     rotation, HumanFoot.offset(body, side, pivot, toes),
   );
-  return (at: IAutoMovieVector3): HumanFoot.IPlacement => ({
+  return (at: IAutoMovieVector3): IAutoMovieMotionHumanFoot.IPlacement => ({
     ankle: Vector3.subtract(at, offset),
     rotation: { ...rotation },
   });

@@ -1,17 +1,22 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmCarry,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanArmTrajectory,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
   IAutoMoviePose,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmClearing } from "../posture/HumanArmClearing";
-import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
-import type { HumanColliders } from "../posture/HumanColliders";
-import { HumanHand } from "../posture/HumanHand";
 import { HumanHandAttitude } from "../posture/HumanHandAttitude";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -21,8 +26,6 @@ import { AutoMovieMotionHumanArmChain } from "./AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionHumanArmFollow } from "./AutoMovieMotionHumanArmFollow";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
-import type { IAutoMovieMotionHumanArmCarry } from "./IAutoMovieMotionHumanArmCarry";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * An arm carried toward a goal: the joint-space carry between held angles
@@ -56,7 +59,7 @@ export namespace AutoMovieMotionHumanArmCarry {
    * may return either; the elbow and the wrist, which lack a freedom, angle
    * by angle so they stay on their axes. The blended forearm is then kept
    * clear of the trunk, the thighs, the other arm and the bodies its goal
-   * names (`IHumanPosture.IGoal.clear`) by the shoulder's abduction and the
+   * names (`HumanPosture.IGoal.clear`) by the shoulder's abduction and the
    * elbow's flexion (`HumanArmClearance.cleared`), each end keeping its room.
    *
    * @param body The body.
@@ -77,19 +80,19 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous carry owns or borrows lazy FK/ROM metadata, existing per-key arm/pose maps and local course callbacks only until return/throw. No returned posture or goal retains the readers, projector, maps or callbacks.
    */
   export function carry(
-    body: IHumanBody,
-    posture: IHumanPosture,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
     from: Partial<
-      Record<HumanHand.Side, AutoMovieMotionHumanArmAngles.IAngles>
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
     >,
     share: number,
-    planned?: IHumanPosture,
+    planned?: IAutoMovieMotionHumanPosture,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-  ): IHumanPosture {
+  ): IAutoMovieMotionHumanPosture {
     const s: number = Math.min(1, Math.max(0, share));
-    const sides: HumanHand.Side[] = (["left", "right"] as const).filter(
-      (side: HumanHand.Side): boolean => from[side] !== undefined,
+    const sides: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
+      (side: AutoMovieHumanSide): boolean => from[side] !== undefined,
     );
     if (s >= 1 || sides.length === 0) return posture;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
@@ -121,25 +124,25 @@ export namespace AutoMovieMotionHumanArmCarry {
             undefined,
             projection,
           ).pose;
-    const joints: IHumanPosture["joints"] = { ...posture.joints };
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     // Each carried arm at a share of the carry: the plain blend of its two
     // ends, and its course, the blend kept clear. An arm's course at a share
     // is solved in the pose every other carried arm has at that same share
     // (an earlier arm on its course, a later one on its plain blend), so two
     // arms that travel together keep clear of each other as they are shown,
     // and a course does not depend on the instant it is read at.
-    type Arm = (share: number) => HumanArmClearance.IArm;
-    const plains: Partial<Record<HumanHand.Side, Arm>> = {};
-    const courses: Partial<Record<HumanHand.Side, Arm>> = {};
+    type Arm = (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
+    const plains: Partial<Record<AutoMovieHumanSide, Arm>> = {};
+    const courses: Partial<Record<AutoMovieHumanSide, Arm>> = {};
     for (const side of sides) {
-      const held: AutoMovieMotionHumanArmAngles.IAngles = from[side]!;
-      const goal: AutoMovieMotionHumanArmAngles.IAngles =
+      const held: IAutoMovieMotionHumanArmAngles.IAngles = from[side]!;
+      const goal: IAutoMovieMotionHumanArmAngles.IAngles =
         solved === null
           ? held
           : AutoMovieMotionHumanArmAngles.angles(solved, side);
-      const blended: (to: AutoMovieMotionHumanArmAngles.IAngles) => Arm = (
-        to: AutoMovieMotionHumanArmAngles.IAngles,
+      const blended: (to: IAutoMovieMotionHumanArmAngles.IAngles) => Arm = (
+        to: IAutoMovieMotionHumanArmAngles.IAngles,
       ): Arm => {
         const upper: ReturnType<typeof blendHumanJoint.between> =
           blendHumanJoint.between(
@@ -157,7 +160,7 @@ export namespace AutoMovieMotionHumanArmCarry {
           );
         const hand: ReturnType<typeof blendHumanJoint.between> =
           blendHumanJoint.between(body, `${side}Hand`, held.hand, to.hand);
-        return (share: number): HumanArmClearance.IArm => ({
+        return (share: number): IAutoMovieMotionHumanArmClearance.IArm => ({
           upper: upper(share),
           lower: lower(share),
           hand: hand(share),
@@ -165,7 +168,7 @@ export namespace AutoMovieMotionHumanArmCarry {
       };
       const plain: Arm = blended(goal);
       plains[side] = plain;
-      const aimed: AutoMovieMotionHumanArmAngles.IAngles =
+      const aimed: IAutoMovieMotionHumanArmAngles.IAngles =
         planning === solved
           ? goal
           : planning === null
@@ -176,7 +179,7 @@ export namespace AutoMovieMotionHumanArmCarry {
         courses[side] = plain;
         continue;
       }
-      const others: readonly HumanColliders.IPlaced[] =
+      const others: readonly IAutoMovieMotionHumanColliders.IPlaced[] =
         posture.limbs[`${side}Arm`]?.clear ?? [];
       const posed: Map<number, IAutoMoviePose> = new Map();
       const pose = (share: number): IAutoMoviePose => {
@@ -203,10 +206,10 @@ export namespace AutoMovieMotionHumanArmCarry {
       // two ends: the depth an end's upper arm lies in the chest is not
       // room for the forearm on the way.
       const reading = (
-        of: HumanArmClearance.IArm,
+        of: IAutoMovieMotionHumanArmClearance.IArm,
         share: number,
-        fingers?: AutoMovieMotionHumanArmAngles.IAngles["fingers"],
-      ): HumanArmClearance.IBaseline =>
+        fingers?: IAutoMovieMotionHumanArmAngles.IAngles["fingers"],
+      ): IAutoMovieMotionHumanArmClearance.IBaseline =>
         HumanArmClearance.baseline(
           body,
           fingers === undefined
@@ -218,25 +221,25 @@ export namespace AutoMovieMotionHumanArmCarry {
           resolution(),
         );
       let ends:
-        | readonly [HumanArmClearance.IBaseline, HumanArmClearance.IBaseline]
+        | readonly [IAutoMovieMotionHumanArmClearance.IBaseline, IAutoMovieMotionHumanArmClearance.IBaseline]
         | undefined;
-      const known: Map<number, HumanArmClearance.IArm> = new Map();
+      const known: Map<number, IAutoMovieMotionHumanArmClearance.IArm> = new Map();
       // Between two arms that clear the body the blended one may not, so its
       // elbow is let out by as much as the forearm lacks; each end keeps the
       // room it holds, so the carry leaves and joins them without a step.
       // The turn is one course over the carry (`HumanArmClearing.course`),
       // so two neighbouring instants read neighbouring arms.
-      courses[side] = (share: number): HumanArmClearance.IArm => {
-        let arm: HumanArmClearance.IArm | undefined = known.get(share);
+      courses[side] = (share: number): IAutoMovieMotionHumanArmClearance.IArm => {
+        let arm: IAutoMovieMotionHumanArmClearance.IArm | undefined = known.get(share);
         if (arm === undefined) {
           arm = HumanArmClearing.course({
             plain,
             planned: plan,
             share,
             clear: (
-              of: HumanArmClearance.IArm,
+              of: IAutoMovieMotionHumanArmClearance.IArm,
               key: number,
-            ): HumanArmClearance.IArm => {
+            ): IAutoMovieMotionHumanArmClearance.IArm => {
               ends ??= [reading(held, 0, held.fingers), reading(aimed, 1)];
               return HumanArmClearance.cleared(
                 body,
@@ -260,7 +263,7 @@ export namespace AutoMovieMotionHumanArmCarry {
       };
     }
     for (const side of sides) {
-      const arm: HumanArmClearance.IArm = courses[side]!(s);
+      const arm: IAutoMovieMotionHumanArmClearance.IArm = courses[side]!(s);
       joints[`${side}UpperArm`] = arm.upper;
       joints[`${side}LowerArm`] = arm.lower;
       joints[`${side}Hand`] = arm.hand;
@@ -270,14 +273,6 @@ export namespace AutoMovieMotionHumanArmCarry {
   }
 
   /**
-   * The carry's task, owned with its dependency-free authoring record.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the inherited carry record owner and preserves the original exported interface's declaration-merging surface.
-   * @evidence contracts/development/design.md#principled-representation Reuses the authoring record without changing its local seconds, clinical angles or world-frame goals.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The original public carry interface extends the sole record owner, preserving module/namespace augmentation without a duplicate member list.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts This remains the original interface shape, with no type-alias replacement, cast or widened member.
-   */
-  export interface ICarry extends IAutoMovieMotionHumanArmCarry {}
   /**
    * An arm carried toward a goal by a weight: the arm's whole action planned
    * once as one trajectory with the other arms of its group
@@ -303,13 +298,13 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates planning/carry/attitude to their owners. A synchronous write borrows its host FK/ROM loans for actual fallback carry and hand observations/held solve; standalone writes own lazy metadata. Only exact prerequisites share, while distinct posture/goal requests remain actual solves.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains props, its group's trajectory and existing follower. A standalone fixed-posture reader is built outside the write environment, so a retained follower cannot capture that write's metadata through its fallback callback. Hand demand and FK/ROM loans end on return/throw; no output or plan stores them or new time/result history.
    */
-  export function carried(props: ICarry): IAutoMovieMotionHumanPrimitive {
+  export function carried(props: IAutoMovieMotionHumanArmCarry.ICarry): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
-    const span: AutoMovieMotionHumanArmPlanned.ISpan | undefined = props.span;
+    const span: IAutoMovieMotionHumanArmPlanned.ISpan | undefined = props.span;
 
     // The arm's whole action, solved once over its span, with the other
     // arms of its group.
-    const group: AutoMovieMotionHumanArmPlanned.ITogether =
+    const group: IAutoMovieMotionHumanArmPlanned.ITogether =
       props.beside ??
       props.together ??
       AutoMovieMotionHumanArmPlanned.together();
@@ -321,8 +316,8 @@ export namespace AutoMovieMotionHumanArmCarry {
     // several times as much (measured on a six-second stretch: 95 s of a
     // 146 s spec in the joint problem's optimiser).
     const solve = (
-      before: (seconds: number) => IHumanPosture,
-    ): Map<HumanHand.Side, HumanArmTrajectory.Trajectory> =>
+      before: (seconds: number) => IAutoMovieMotionHumanPosture,
+    ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory> =>
       props.beside === undefined
         ? AutoMovieMotionHumanArmPlanned.planned(
             props.body,
@@ -334,8 +329,8 @@ export namespace AutoMovieMotionHumanArmCarry {
         : new Map(
             group.carries.flatMap(
               (
-                member: ICarry,
-              ): [HumanHand.Side, HumanArmTrajectory.Trajectory][] => [
+                member: IAutoMovieMotionHumanArmCarry.ICarry,
+              ): [AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory][] => [
                 ...AutoMovieMotionHumanArmPlanned.planned(
                   member.body,
                   member.span === undefined ? span! : member.span,
@@ -347,8 +342,8 @@ export namespace AutoMovieMotionHumanArmCarry {
             ),
           );
     const planned = (
-      before: (seconds: number) => IHumanPosture,
-    ): HumanArmTrajectory.Trajectory => {
+      before: (seconds: number) => IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanArmTrajectory.Trajectory => {
       if (group.solved === undefined) {
         if (group.solving === true)
           throw new Error(
@@ -389,25 +384,25 @@ export namespace AutoMovieMotionHumanArmCarry {
       ...(span === undefined
         ? {}
         : {
-            prepare: (before: (seconds: number) => IHumanPosture): void =>
+            prepare: (before: (seconds: number) => IAutoMovieMotionHumanPosture): void =>
               void planned(before),
           }),
       write: (
-        posture: IHumanPosture,
+        posture: IAutoMovieMotionHumanPosture,
         seconds: number,
-        before?: (seconds: number) => IHumanPosture,
+        before?: (seconds: number) => IAutoMovieMotionHumanPosture,
         source?: Parameters<typeof prepareHumanPoseResolution>[0],
         projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-      ): IHumanPosture => {
+      ): IAutoMovieMotionHumanPosture => {
         const weight: number = props.weight(seconds);
-        let out: IHumanPosture;
+        let out: IAutoMovieMotionHumanPosture;
         // The plan holds over its span, and on past its end where the hand
         // stays on its site to the end (`ISpan.relax` at `end`), as nothing
         // returns it. An arm that follows a person is the plan with a bounded
         // correction toward the goal read at each second of the hold.
-        const so: (seconds: number) => IHumanPosture =
+        const so: (seconds: number) => IAutoMovieMotionHumanPosture =
           before ?? fixedPosture(posture);
-        const arm = (at: number): HumanArmClearance.IArm =>
+        const arm = (at: number): IAutoMovieMotionHumanArmClearance.IArm =>
           props.tracked === true
             ? (follow ??= AutoMovieMotionHumanArmFollow.follower(
                 props.body,
@@ -417,9 +412,9 @@ export namespace AutoMovieMotionHumanArmCarry {
                 so,
               ))(at, source, projection)
             : planned(so)(at);
-        const placed = (on: HumanArmClearance.IArm): IHumanPosture => {
-          const joints: IHumanPosture["joints"] = { ...posture.joints };
-          const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+        const placed = (on: IAutoMovieMotionHumanArmClearance.IArm): IAutoMovieMotionHumanPosture => {
+          const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+          const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
           joints[`${props.side}UpperArm`] = on.upper;
           joints[`${props.side}LowerArm`] = on.lower;
           joints[`${props.side}Hand`] = on.hand;
@@ -431,11 +426,11 @@ export namespace AutoMovieMotionHumanArmCarry {
           seconds > span.start &&
           (seconds < span.end || span.relax >= span.end);
         const goaled = (
-          at: IHumanPosture,
+          at: IAutoMovieMotionHumanPosture,
           t: number,
           resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
           projector?: Parameters<typeof resolveHumanPosture.seeded>[6],
-        ): IHumanPosture => ({
+        ): IAutoMovieMotionHumanPosture => ({
           ...at,
           limbs: {
             ...at.limbs,
@@ -450,7 +445,7 @@ export namespace AutoMovieMotionHumanArmCarry {
               ? (chain ??= AutoMovieMotionHumanArmChain.continued(
                   props.body,
                   props.to,
-                  (t: number): IHumanPosture => goaled(before(t), t),
+                  (t: number): IAutoMovieMotionHumanPosture => goaled(before(t), t),
                   [props.side],
                 ))(seconds, goaled(posture, seconds, source, projection))
               : goaled(posture, seconds, source, projection),
@@ -471,8 +466,8 @@ export namespace AutoMovieMotionHumanArmCarry {
           new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]);
         const resolution: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(source);
-        const hand: (at: IHumanPosture) => IAutoMovieQuaternion = (
-          at: IHumanPosture,
+        const hand: (at: IAutoMovieMotionHumanPosture) => IAutoMovieQuaternion = (
+          at: IAutoMovieMotionHumanPosture,
         ): IAutoMovieQuaternion =>
           poseBones(
             props.body,
@@ -488,7 +483,7 @@ export namespace AutoMovieMotionHumanArmCarry {
             resolution(),
             requested,
           ).get(`${props.side}Hand`)!.worldRotation;
-        const ended: IHumanPosture = onPlan
+        const ended: IAutoMovieMotionHumanPosture = onPlan
           ? placed(arm(seconds <= span!.ready ? span!.ready : span!.relax))
           : {
               ...posture,
@@ -529,7 +524,7 @@ export namespace AutoMovieMotionHumanArmCarry {
 
 /** A retained standalone follower needs only the original fixed posture. */
 function fixedPosture(
-  posture: IHumanPosture,
-): (seconds: number) => IHumanPosture {
-  return (): IHumanPosture => posture;
+  posture: IAutoMovieMotionHumanPosture,
+): (seconds: number) => IAutoMovieMotionHumanPosture {
+  return (): IAutoMovieMotionHumanPosture => posture;
 }

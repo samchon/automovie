@@ -1,8 +1,4 @@
 import {
-  type IAutoMovieRenderSubject,
-  type IAutoMovieRenderTextureResidency,
-  type IAutoMovieRenderTextureResident,
-  type IAutoMovieRenderTextureSource,
   autoMovieRenderTextureDigest,
   deriveAutoMovieSemanticMask,
   measureAutoMovieRenderInventory,
@@ -11,6 +7,10 @@ import {
 import type {
   IAutoMovieRenderAnalysisGap,
   IAutoMovieRenderOwnerCost,
+  IAutoMovieRenderSubject,
+  IAutoMovieRenderTextureResidency,
+  IAutoMovieRenderTextureResident,
+  IAutoMovieRenderTextureSource,
 } from "@automovie/interface";
 import {
   assessAutoMovieRenderBudget,

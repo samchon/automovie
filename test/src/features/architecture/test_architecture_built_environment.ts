@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieSubjectContribution,
   builtEnvironmentAdjacentSpaces,
   builtEnvironmentBuildingOfSpace,
   builtEnvironmentContainsPoint,
@@ -17,6 +16,7 @@ import type {
   IAutoMovieModel,
   IAutoMovieSpace,
   IAutoMovieStageSetPiece,
+  IAutoMovieSubjectContribution,
   IAutoMovieSurface,
   IAutoMovieVector3,
 } from "@automovie/interface";

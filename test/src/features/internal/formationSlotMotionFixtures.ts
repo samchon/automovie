@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieFormationPlacement,
   validateAutoMovieFormationGround,
   validateAutoMovieFormationSlotMotions,
 } from "@automovie/engine";
@@ -7,6 +6,7 @@ import type {
   IAutoMovieCompiledFormation,
   IAutoMovieDiagnostic,
   IAutoMovieFormationMotionState,
+  IAutoMovieFormationPlacement,
   IAutoMovieFormationSlotMotion,
   IAutoMovieFormationSlotState,
   IAutoMovieShotContract,

@@ -1,6 +1,7 @@
-import type { IAutoMovieSimplexAtom } from "@automovie/engine";
-
-import type { IAutoMovieRecoverySqpTightening } from "../structures/internal/IAutoMovieRecoverySqpTightening";
+import type {
+  IAutoMovieRecoverySqpTightening,
+  IAutoMovieSimplexAtom,
+} from "@automovie/interface";
 
 /**
  * Price strict inward margin against the current mixed direction's descent.

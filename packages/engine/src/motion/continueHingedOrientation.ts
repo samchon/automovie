@@ -1,12 +1,16 @@
 import type {
+  IAutoMovieFitChainToTargetProps,
+  IAutoMovieHingedArmSwivel,
+  IAutoMovieHumanLegCrotchRoot,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelNear,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieSwivelNear } from "../kinematics/IAutoMovieSwivelNear";
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
@@ -15,9 +19,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { wrapDegrees } from "../math/wrapDegrees";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
-import type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
 import type { IAutoMovieChainContinuationObserver } from "./IAutoMovieChainContinuationObserver";
-import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { PLANT_RESIDUAL_EPSILON } from "./constants/PLANT_RESIDUAL_EPSILON";
 import { orientChainEffector } from "./orientChainEffector";
 import type { prepareChainFit } from "./prepareChainFit";
@@ -70,7 +72,7 @@ interface IOutputGuard {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One call owns a harmonic family, two transformed coefficients and at most two temporary oriented poses/frames. A qualified unique local-root return weakly owns O(J) original own-data output-slot guards and five scalar facts; no result is retained merely by the registry. Other candidates release on return/throw and no target history, result cache, handle or task is created.
  */
 export function continueHingedOrientation(
-  props: IFitChainToTargetProps,
+  props: IAutoMovieFitChainToTargetProps,
   workspace: prepareChainFit.IWorkspace,
   near: IAutoMovieSwivelNear,
   observe?: IAutoMovieChainContinuationObserver,
@@ -97,10 +99,10 @@ export function continueHingedOrientation(
   const target: hingedArmSwivel.IPreparedTarget | undefined =
     workspace.rig.hingedGeometry()?.target(props.target, range ?? undefined);
   if (target?.harmonic === undefined) return null;
-  const branches: hingedArmSwivel.IStop[] | null = target.branches();
+  const branches: IAutoMovieHingedArmSwivel.IStop[] | null = target.branches();
   if (branches === null) return null;
   const branch: number = Math.min(near.branch, branches.length - 1);
-  const stop: hingedArmSwivel.IStop = branches[branch]!;
+  const stop: IAutoMovieHingedArmSwivel.IStop = branches[branch]!;
   if (stop.shortfall !== 0) return null;
   const harmonic: hingedArmSwivel.IHarmonic = target.harmonic(stop.theta);
   const lower: IAutoMovieJointPose = workspace.clamp({
@@ -211,7 +213,7 @@ export namespace continueHingedOrientation {
   }
 
   /** Return copied facts only for this actual result with unchanged pose and seed. */
-  export function root(result: IAutoMovieSeededChainFit): IRoot | undefined {
+  export function root(result: IAutoMovieSeededChainFit): IAutoMovieHumanLegCrotchRoot.IRoot | undefined {
     const stored: ReturnType<typeof ROOT_RETURNS.get> = ROOT_RETURNS.get(result);
     if (stored === undefined) return undefined;
     try {

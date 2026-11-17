@@ -2,18 +2,20 @@ import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanAuditDifference,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHandToFaceRows,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditDifference,
+  AutoMovieMotionHumanAuditMotion,
   AutoMovieMotionHumanTouchDrink,
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
-  HumanSegment,
-  type IAutoMovieMotionHumanAuditMeasure,
-  IAutoMovieMotionHumanAuditMotion,
-  type IHumanBody,
   handToFace,
 } from "@automovie/motions";
 
@@ -82,13 +84,13 @@ import { motionHumanLaw } from "./motionHumanLaw";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The films are local and released on return.
  */
 export function motionHumanLawHandToFace(
-  task: handToFace.Task,
+  task: IAutoMovieMotionHumanHandToFaceRows.Task,
   name: "m-average" | "f-minus-one" | "f-small" | "m-large" = "m-average",
 ): string[] {
-  const row: handToFace.IRow = handToFace.ROWS[task];
-  const body: IHumanBody = motionHumanBody(name);
+  const row: IAutoMovieMotionHumanHandToFaceRows.IRow = handToFace.ROWS[task];
+  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const perform = (
-    who: IHumanBody,
+    who: IAutoMovieMotionHumanBody,
     side: "left" | "right",
   ): motionHumanLaw.IFilm =>
     motionHumanLaw.perform(
@@ -115,7 +117,7 @@ export function motionHumanLawHandToFace(
 function events(film: motionHumanLaw.IFilm): string {
   return film.performance
     .segments("a")
-    .flatMap((segment: HumanSegment.ISegment): string[] =>
+    .flatMap((segment: IAutoMovieMotionHumanSegment): string[] =>
       segment.plan.events.map(
         (event: { name: string; share: number }): string =>
           `${event.name} ${(segment.start + event.share * segment.plan.duration).toFixed(2)}`,
@@ -145,9 +147,9 @@ function distance(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
  * @returns One complaint per expectation that does not hold.
  */
 function expectations(
-  task: handToFace.Task,
-  row: handToFace.IRow,
-  body: IHumanBody,
+  task: IAutoMovieMotionHumanHandToFaceRows.Task,
+  row: IAutoMovieMotionHumanHandToFaceRows.IRow,
+  body: IAutoMovieMotionHumanBody,
   film: motionHumanLaw.IFilm,
 ): string[] {
   const at = (
@@ -214,7 +216,7 @@ function expectations(
       ),
     );
   }
-  const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
+  const times: number[] = AutoMovieMotionHumanAuditMotion.grid(
     0,
     film.duration,
     24,
@@ -290,14 +292,14 @@ function expectations(
  * @returns The complaint when the mirror does not hold; none for a two-hand task.
  */
 function mirror(
-  task: handToFace.Task,
-  row: handToFace.IRow,
-  body: IHumanBody,
+  task: IAutoMovieMotionHumanHandToFaceRows.Task,
+  row: IAutoMovieMotionHumanHandToFaceRows.IRow,
+  body: IAutoMovieMotionHumanBody,
   film: motionHumanLaw.IFilm,
-  perform: (who: IHumanBody, side: "left" | "right") => motionHumanLaw.IFilm,
+  perform: (who: IAutoMovieMotionHumanBody, side: "left" | "right") => motionHumanLaw.IFilm,
 ): string[] {
   if (row.other !== undefined) return [];
-  const mirrored: AutoMovieMotionHumanAuditDifference.IResult =
+  const mirrored: IAutoMovieMotionHumanAuditDifference.IResult =
     AutoMovieMotionHumanAuditDifference.measure(
     film,
     perform(body, "left"),
@@ -324,12 +326,12 @@ function mirror(
  * @returns One complaint per body whose cup leans wrong; none for a task without a vessel.
  */
 function population(
-  task: handToFace.Task,
-  row: handToFace.IRow,
+  task: IAutoMovieMotionHumanHandToFaceRows.Task,
+  row: IAutoMovieMotionHumanHandToFaceRows.IRow,
   name: string,
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   film: motionHumanLaw.IFilm,
-  perform: (who: IHumanBody, side: "left" | "right") => motionHumanLaw.IFilm,
+  perform: (who: IAutoMovieMotionHumanBody, side: "left" | "right") => motionHumanLaw.IFilm,
 ): string[] {
   const out: string[] = [];
   if (row.upright === true)
@@ -339,7 +341,7 @@ function population(
       "f-small",
       "m-large",
     ] as const) {
-      const subject: IHumanBody = who === name ? body : motionHumanBody(who);
+      const subject: IAutoMovieMotionHumanBody = who === name ? body : motionHumanBody(who);
       const shown: motionHumanLaw.IFilm =
         who === name ? film : perform(subject, "right");
       const seconds: number = motionHumanLaw.event(shown, row.at);

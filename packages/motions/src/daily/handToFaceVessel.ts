@@ -1,14 +1,21 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTouchDrink,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanDrinkingPool } from "../compose/AutoMovieMotionHumanDrinkingPool";
 import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTouchDrink } from "../compose/AutoMovieMotionHumanTouchDrink";
-import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
 import type { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * The side of a held vessel's rim a drink is taken from, found by the
@@ -47,10 +54,10 @@ export namespace handToFaceVessel {
    */
   export interface IVessel {
     /** The effector of the admitted side. */
-    effector: AutoMovieMotionHumanTouchEffector.IEffector;
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector;
 
     /** The facing, lean, tilt and elbow hint its arm was admitted with. */
-    drink: AutoMovieMotionHumanTouchDrink.IDrink;
+    drink: IAutoMovieMotionHumanTouchDrink.IDrink;
   }
 
   /**
@@ -75,11 +82,11 @@ export namespace handToFaceVessel {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The pool lives until return or throw; only the effector and the numeric drink escape.
    */
   export function of(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    sides: readonly AutoMovieMotionHumanTouchEffector.IEffector[],
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    sides: readonly IAutoMovieMotionHumanTouchEffector.IEffector[],
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
     after: AutoMovieMotionHumanTouchDrink.IAfter,
   ): IVessel {
@@ -98,7 +105,7 @@ export namespace handToFaceVessel {
         sides.length,
         Math.min(span, AutoMovieMotionHumanTouchUpright.SPAN),
       );
-    let refusal: HumanRefusal | undefined;
+    let refusal: IAutoMovieMotionHumanRefusal | undefined;
     for (const effector of sides) {
       try {
         return {

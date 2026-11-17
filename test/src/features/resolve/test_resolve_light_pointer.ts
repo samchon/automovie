@@ -1,10 +1,10 @@
 import {
-  type IAutoMovieLightPointer,
   LIGHT_CHANNEL_PROPERTIES,
   formatLightPointer,
   isLightProperty,
   parseLightPointer,
 } from "@automovie/engine";
+import type { IAutoMovieLightPointer } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /** `parse` reduced to a comparable shape: `"<light>|<property>"` or `null`. */

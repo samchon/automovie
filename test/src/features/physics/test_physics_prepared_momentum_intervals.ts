@@ -1,11 +1,16 @@
 import {
+  prepareAutoMovieMassModel as M,
+  resolveAutoMovieMomentum as P,
   type combinePhysicalMassProperties,
   physicalInertiaTensor,
-  prepareAutoMovieMassModel as M,
   type resolveAutoMovieCenterOfMass,
-  resolveAutoMovieMomentum as P,
 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieCombinePhysicalMassProperties,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -41,7 +46,7 @@ import { vclose } from "../internal/vclose";
  */
 export function test_physics_prepared_momentum_intervals(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-  const model: resolveAutoMovieCenterOfMass.IModel = {
+  const model: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 3,
     segments: [{ bone: "hips", mass: 3, point: { x: 0, y: 0, z: 0 },
       inertia: { x: 2, y: 3, z: 5 }, axes: { ...identity } }],
@@ -96,9 +101,9 @@ export function test_physics_prepared_momentum_intervals(): void {
     vclose(slower.angular, { x: 0, y: 0, z: 2.5 * Math.PI }, 1e-12),
   );
 
-  const pair: resolveAutoMovieCenterOfMass.IModel = {
+  const pair: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 2,
-    segments: ["hips", "chest"].map((bone: string): resolveAutoMovieCenterOfMass.ISegment => ({
+    segments: ["hips", "chest"].map((bone: string): IAutoMovieResolveCenterOfMass.ISegment => ({
       bone: bone as "hips" | "chest", mass: 1, point: { x: 0, y: 0, z: 0 },
       inertia: { x: 0, y: 0, z: 0 }, axes: { ...identity },
     })),
@@ -137,13 +142,13 @@ function reentrantReaders(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const moments: IAutoMovieVector3 = { x: 2, y: 3, z: 4 };
-  const model: resolveAutoMovieCenterOfMass.IModel = {
+  const model: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 1,
     segments: [{ bone: "hips", mass: 1, point: origin, inertia: moments, axes: identity }],
   };
   let enter: (() => void) | undefined;
   let momentReads: number = 0;
-  const first: combinePhysicalMassProperties.IPart = {
+  const first: IAutoMovieCombinePhysicalMassProperties.IPart = {
     get mass(): number {
       const callback: (() => void) | undefined = enter;
       enter = undefined;
@@ -228,6 +233,6 @@ function reentrantReaders(): void {
 
 /** Copy owned rigid-part SI data into one posed endpoint. */
 function part(mass: number, centre: IAutoMovieVector3, inertia: IAutoMovieVector3,
-  rotation: IAutoMovieQuaternion): combinePhysicalMassProperties.IPart {
+  rotation: IAutoMovieQuaternion): IAutoMovieCombinePhysicalMassProperties.IPart {
   return { mass, centerOfMass: { ...centre }, inertia: { ...inertia }, inertiaRotation: { ...rotation } };
 }

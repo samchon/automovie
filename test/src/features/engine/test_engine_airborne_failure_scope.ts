@@ -3,6 +3,10 @@ import {
   integrateAirborneRotation,
   integrateMotionTrajectory,
 } from "@automovie/engine";
+import type {
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieIntegrateMotionTrajectory,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -48,9 +52,9 @@ export function test_engine_airborne_failure_scope(): void {
   }
 
   for (const innerScope of [undefined, Symbol("independent inner trajectory")]) {
-  const foreign: unknown = capture((): integrateMotionTrajectory.ITrajectory =>
+  const foreign: unknown = capture((): IAutoMovieIntegrateMotionTrajectory.ITrajectory =>
     integrateMotionTrajectory({
-      f: (): integrateMotionTrajectory.IRate => ({
+      f: (): IAutoMovieIntegrateMotionTrajectory.IRate => ({
         dx: [], w: { x: 0, y: 0, z: 0 },
       }),
       x0: [],
@@ -74,9 +78,9 @@ export function test_engine_airborne_failure_scope(): void {
 
   for (const outerScope of [undefined, Symbol("independent outer flight")]) {
     let reads: number = 0;
-    const observed: unknown = capture((): integrateAirborneRotation.IFlight =>
+    const observed: unknown = capture((): IAutoMovieIntegrateAirborneRotation.IFlight =>
       integrateAirborneRotation({
-        history: (): integrateAirborneRotation.IInstant => {
+        history: (): IAutoMovieIntegrateAirborneRotation.IInstant => {
           reads++;
           throw foreign;
         },

@@ -1,8 +1,10 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { seated } from "./seated";
 
@@ -24,8 +26,8 @@ import { seated } from "./seated";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning action retains its fixed body/heading and at most one private rotated offset until release. Every result is a fresh vector containing no reader, input point, posed map, FK/ROM source or query history.
  */
 export function prepareSeatedRoot(
-  body: IHumanBody,
-  heading: Pick<IHumanPosture, "yaw" | "pitch" | "roll">,
+  body: IAutoMovieMotionHumanBody,
+  heading: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">,
 ): (at: IAutoMovieVector3) => IAutoMovieVector3 {
   let offset: IAutoMovieVector3 | undefined;
   return (at: IAutoMovieVector3): IAutoMovieVector3 => {

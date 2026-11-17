@@ -1,8 +1,8 @@
-import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { IAutoMoviePropBox } from "../harness/IAutoMoviePropBox";
-import { AutoMovieServiceNodeKind } from "./AutoMovieServiceNodeKind";
-import { IAutoMovieServicePort } from "./IAutoMovieServicePort";
-import { IAutoMovieServiceState } from "./IAutoMovieServiceState";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMoviePropBox } from "../harness/IAutoMoviePropBox";
+import type { AutoMovieServiceNodeKind } from "./AutoMovieServiceNodeKind";
+import type { IAutoMovieServicePort } from "./IAutoMovieServicePort";
+import type { IAutoMovieServiceState } from "./IAutoMovieServiceState";
 
 /**
  * One fixture, machine, junction, terminal or inline device on the network.

@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBodyMomentum,
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
 import { resolveAutoMovieBoneRates } from "../kinematics/resolveAutoMovieBoneRates";
@@ -28,7 +35,7 @@ interface IConstant {
 }
 
 /** Only the numerical factory below can register constant-history construction. */
-const CONSTANTS: WeakMap<integrateAirborneRotation.IHistory, IConstant> = new WeakMap();
+const CONSTANTS: WeakMap<IAutoMovieIntegrateAirborneRotation.IHistory, IConstant> = new WeakMap();
 
 /**
  * Construct a genuinely fixed root-frame shape from copied rig/bone values.
@@ -52,7 +59,7 @@ const CONSTANTS: WeakMap<integrateAirborneRotation.IHistory, IConstant> = new We
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Construction releases copied rig/pose, full bone/rate maps and posed parts after transferring the nine tensor numbers to a module-scope reader factory. The reader retains O(N) issued numeric instants until clear, then releases their private factor/statistics state and its lazy factor. No model, rig, pose, callbacks or derivative maps enter playback or the retained history.
  */
 export function AirborneConstantShapeHistory(
-  model: resolveAutoMovieCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
+  model: IAutoMovieResolveCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
   skeleton: IAutoMovieSkeleton,
   source: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   span?: { from: number; to: number },
@@ -89,7 +96,7 @@ export function AirborneConstantShapeHistory(
   let scale: number = Number.NEGATIVE_INFINITY;
   for (const row of matrix) for (const value of row) scale = Math.max(scale, Math.abs(value));
   if (!(scale > 0)) throw new Error("Invalid aggregate inertia tensor");
-  const momentum: resolveAutoMovieMomentum.IMomentum = "segments" in model
+  const momentum: IAutoMovieBodyMomentum = "segments" in model
     ? resolveAutoMovieMomentumRates(model, posed, bones, rates)
     : prepareAutoMovieMassModel.rates(model, posed, bones, rates);
   if (!(momentum.angular.x === 0 && momentum.angular.y === 0 && momentum.angular.z === 0)) return undefined;
@@ -103,10 +110,10 @@ function numericHistory(
   statistics: AirborneShapeStatistics.IStatistics | undefined,
 ): integrateAirborneRotation.ICachedHistory {
   const state: IConstant = { matrix, span: span === undefined ? undefined : { ...span }, active: true, statistics };
-  const issued: Set<integrateAirborneRotation.IInstant> = new Set();
-  const query: integrateAirborneRotation.IHistory = (_seconds: number): integrateAirborneRotation.IInstant => {
+  const issued: Set<IAutoMovieIntegrateAirborneRotation.IInstant> = new Set();
+  const query: IAutoMovieIntegrateAirborneRotation.IHistory = (_seconds: number): IAutoMovieIntegrateAirborneRotation.IInstant => {
     if (state.statistics !== undefined) state.statistics.queries++;
-    const instant: integrateAirborneRotation.IInstant = AirborneShapeInertia(matrix, { x: 0, y: 0, z: 0 }, state.statistics);
+    const instant: IAutoMovieIntegrateAirborneRotation.IInstant = AirborneShapeInertia(matrix, { x: 0, y: 0, z: 0 }, state.statistics);
     issued.add(instant);
     return instant;
   };
@@ -130,10 +137,10 @@ function numericHistory(
  */
 export namespace AirborneConstantShapeHistory {
   /** Native construction alone proves purity, without granting an invariant after clear. */
-  export function owned(history: integrateAirborneRotation.IHistory): boolean { return CONSTANTS.has(history); }
+  export function owned(history: IAutoMovieIntegrateAirborneRotation.IHistory): boolean { return CONSTANTS.has(history); }
 
   /** Borrow the fixed physical operator only during its live, completely covered epoch. */
-  export function constant(history: integrateAirborneRotation.IHistory, from: number, to: number): physicalInertiaFactor.IPrepared | undefined {
+  export function constant(history: IAutoMovieIntegrateAirborneRotation.IHistory, from: number, to: number): physicalInertiaFactor.IPrepared | undefined {
     const state: IConstant | undefined = CONSTANTS.get(history);
     if (state === undefined || !state.active || !(Number.isFinite(from) && Number.isFinite(to) && to > from) ||
       (state.span !== undefined && (from < state.span.from || to > state.span.to))) return undefined;

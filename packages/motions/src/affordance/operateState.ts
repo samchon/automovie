@@ -1,5 +1,10 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanOperate,
+  IAutoMovieMotionHumanOperateDrive,
+  IAutoMovieMotionHumanOperateState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { operate } from "./operate";
 import { operateDrive } from "./operateDrive";
@@ -37,11 +42,11 @@ export namespace operateState {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local reader and scratch release at return or throw; returned point/normal preserve their original fresh-or-borrowed branch ownership and no caller geometry, time history or external handle is retained by this facade.
    */
   export function at(
-    mechanism: operate.Mechanism,
-    place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
-    hinge: operateDrive.IHinge | undefined,
+    mechanism: IAutoMovieMotionHumanOperate.Mechanism,
+    place: IAutoMovieMotionHumanOperateState.IAtPlace,
+    hinge: IAutoMovieMotionHumanOperateDrive.IHinge | undefined,
     progress: number,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3; roll: number } {
+  ): IAutoMovieMotionHumanOperateState.IAtResult {
     return prepare(mechanism, place, hinge)(progress);
   }
 
@@ -62,10 +67,10 @@ export namespace operateState {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader retains constant-size geometry until its operation plan is released; no history of progress or state results is stored.
    */
   export function prepare(
-    mechanism: operate.Mechanism,
-    place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
-    hinge: operateDrive.IHinge | undefined,
-  ): (progress: number) => { point: IAutoMovieVector3; normal: IAutoMovieVector3; roll: number } {
+    mechanism: IAutoMovieMotionHumanOperate.Mechanism,
+    place: IAutoMovieMotionHumanOperateState.IAtPlace,
+    hinge: IAutoMovieMotionHumanOperateDrive.IHinge | undefined,
+  ): (progress: number) => IAutoMovieMotionHumanOperateState.IAtResult {
     const n: IAutoMovieVector3 = Vector3.normalize(place.normal);
     switch (mechanism.kind) {
       case "button":

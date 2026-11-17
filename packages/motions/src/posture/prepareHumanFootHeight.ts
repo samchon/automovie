@@ -1,7 +1,10 @@
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "./HumanFoot";
 
 /**
@@ -22,13 +25,13 @@ import { HumanFoot } from "./HumanFoot";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One caller-owned reader retains one local offset until its swing/action releases it. articulated retains only fixed body/socket geometry, and each actual toe angle's local offset releases with its synchronous correction read; neither reader stores placement, height, angle or time history.
  */
 export function prepareHumanFootHeight(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   side: "left" | "right",
   point: "heel" | "ball" | "toe" | "sole" | "mtp",
   toes: number = 0,
-): (foot: HumanFoot.IPlacement) => number {
+): (foot: IAutoMovieMotionHumanFoot.IPlacement) => number {
   const local: ReturnType<typeof HumanFoot.offset> = HumanFoot.offset(body, side, point, toes);
-  return (foot: HumanFoot.IPlacement): number => height(local, foot);
+  return (foot: IAutoMovieMotionHumanFoot.IPlacement): number => height(local, foot);
 }
 
 /**
@@ -47,19 +50,19 @@ export namespace prepareHumanFootHeight {
    * with its swing/action. Neither reader retains a queried placement or history.
    */
   export function articulated(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
     point: "heel" | "ball" | "toe" | "sole" | "mtp",
-  ): (toes: number) => (foot: HumanFoot.IPlacement) => number {
+  ): (toes: number) => (foot: IAutoMovieMotionHumanFoot.IPlacement) => number {
     const offset: ReturnType<typeof HumanFoot.prepareOffset> = HumanFoot.prepareOffset(body, side, point);
-    return (toes: number): ((foot: HumanFoot.IPlacement) => number) => {
+    return (toes: number): ((foot: IAutoMovieMotionHumanFoot.IPlacement) => number) => {
       const local: IAutoMovieVector3 = offset(toes);
-      return (foot: HumanFoot.IPlacement): number => height(local, foot);
+      return (foot: IAutoMovieMotionHumanFoot.IPlacement): number => height(local, foot);
     };
   }
 }
 
 /** The exact original rigid point height, omitting only unread X/Z outputs. */
-function height(local: IAutoMovieVector3, foot: HumanFoot.IPlacement): number {
+function height(local: IAutoMovieVector3, foot: IAutoMovieMotionHumanFoot.IPlacement): number {
   return foot.ankle.y + Quaternion.rotateVectorY(foot.rotation, local);
 }

@@ -1,4 +1,8 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { polynomialUnitRoots } from "../math/polynomialUnitRoots";
 import { rotationVectorJacobian } from "../math/rotationVectorJacobian";
@@ -52,15 +56,15 @@ export function MotionTrajectoryDense(props: {
   /** Endpoint algebra vector, absent without orientation. */
   rotation: IAutoMovieVector3 | undefined;
   /** The seven original RHS stages. */
-  stages: readonly integrateMotionTrajectory.IRate[];
+  stages: readonly IAutoMovieIntegrateMotionTrajectory.IRate[];
   /** Their algebra derivatives, absent without orientation. */
   algebra: readonly (IAutoMovieVector3 | undefined)[] | undefined;
   /** Optional shared empty coefficients for a zero-dimensional vector. */
   empty?: number[][];
   /** The admitted pure RHS, used for four paired-extension probes. */
-  rate: integrateMotionTrajectory.IProps["f"];
+  rate: IAutoMovieIntegrateMotionTrajectory.IProps["f"];
   /** Optional caller-owned normalized physical rotation defect. */
-  defect: integrateMotionTrajectory.IProps["rotationDefect"];
+  defect: IAutoMovieIntegrateMotionTrajectory.IProps["rotationDefect"];
 }): {
   /** Numeric continuous extension with no callbacks. */
   step: MotionTrajectoryRead.IDenseStep;
@@ -101,12 +105,12 @@ export function MotionTrajectoryDense(props: {
   const base: MotionTrajectoryRead.IDenseStep = { t, h, x, q, terms, turns };
   if (!finite(base)) return null;
   if (props.defect === undefined) return { step: base, error: 0 };
-  const defect: NonNullable<integrateMotionTrajectory.IProps["rotationDefect"]> = props.defect;
+  const defect: NonNullable<IAutoMovieIntegrateMotionTrajectory.IProps["rotationDefect"]> = props.defect;
 
   /** One fresh RHS reading and its exact algebra derivative at a probe. */
   interface ISample {
     /** Vector/body rate from the actual RHS. */
-    rate: integrateMotionTrajectory.IRate;
+    rate: IAutoMovieIntegrateMotionTrajectory.IRate;
     /** Exact coordinate derivative of the probe's body rate. */
     algebra: IAutoMovieVector3;
   }
@@ -118,7 +122,7 @@ export function MotionTrajectoryDense(props: {
     const state: number[] = x.length === 0 ? x : step.terms.map((c: number[], i: number): number =>
       x[i]! + MotionTrajectoryPolynomial.value(u, c[0]!, c[1]!, c[2]!, c[3]!, c[4]));
     if (!finiteQuaternion(orientation) || !state.every(Number.isFinite)) return null;
-    const rate: integrateMotionTrajectory.IRate = props.rate(t + u * h, state, orientation);
+    const rate: IAutoMovieIntegrateMotionTrajectory.IRate = props.rate(t + u * h, state, orientation);
     const algebra: IAutoMovieVector3 | null = rotationVectorJacobian.inverse(r, rate.w!);
     return algebra === null || !rate.dx.every(Number.isFinite) ? null : { rate, algebra };
   };

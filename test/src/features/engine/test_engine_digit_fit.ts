@@ -1,7 +1,6 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
   Vector3,
   ViolationCollector,
   fitDigitToTarget,
@@ -12,12 +11,17 @@ import {
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieFitDigitToTarget,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
+  IAutoMovieViolationCollector,
 } from "@automovie/interface";
-import { type IHumanBody, poseBones } from "@automovie/motions";
+import { poseBones } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -58,7 +62,7 @@ const digitBones = (
 
 /** A pose with the given digit joints over the rest. */
 const posed = (
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   joints: readonly IAutoMovieJointPose[],
 ): IAutoMoviePose => ({
   skeleton: body.skeleton.id,
@@ -68,11 +72,11 @@ const posed = (
 
 /** A digit region's world point under a pose. */
 const surfaceAt = (
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
   region: AutoMovieHumanoidRegion,
 ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } => {
-  const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+  const frame: IAutoMovieHumanoidSurfaces.IFrame =
     body.surfaces.regions[region];
   const bone: IAutoMovieResolvedBone = poseBones(body, pose).get(frame.bone)!;
   return resolveAutoMovieHumanoidSurfaces.place(frame, bone);
@@ -80,7 +84,7 @@ const surfaceAt = (
 
 /** Random in-range angles of a digit's free axes. */
 const random = (
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   bones: readonly AutoMovieHumanoidBone[],
   draw: () => number,
 ): IAutoMovieJointPose[] =>
@@ -103,14 +107,14 @@ const random = (
 
 /** Fit a digit's tip to a point from the rest. */
 const fit = (
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   side: "left" | "right",
   digit: (typeof DIGITS)[number],
   target: IAutoMovieVector3,
   from: IAutoMoviePose = posed(body, []),
   rate?: number,
-): fitDigitToTarget.IResult => {
-  const region: resolveAutoMovieHumanoidSurfaces.IFrame =
+): IAutoMovieFitDigitToTarget.IResult => {
+  const region: IAutoMovieHumanoidSurfaces.IFrame =
     body.surfaces.regions[
       `${digit.toLowerCase()}Tip${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
     ];
@@ -163,7 +167,7 @@ export function test_engine_digit_fit(): void {
   const check = (label: string, ok: boolean): void => {
     if (!ok) complaints.push(label);
   };
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const draw: () => number = lcg(3444);
 
   // 1. Workspace points.
@@ -178,7 +182,7 @@ export function test_engine_digit_fit(): void {
         goal,
         `${digit.toLowerCase()}TipRight` as AutoMovieHumanoidRegion,
       ).point;
-      const result: fitDigitToTarget.IResult = fit(
+      const result: IAutoMovieFitDigitToTarget.IResult = fit(
         body,
         "right",
         digit,
@@ -195,7 +199,8 @@ export function test_engine_digit_fit(): void {
             null,
         );
         if (constraint === null) continue;
-        const collector: ViolationCollector = new ViolationCollector();
+        const collector: IAutoMovieViolationCollector =
+          new ViolationCollector();
         validateJointRom({ joint: j, constraint, path: j.bone, collector });
         for (const item of collector.items)
           outside.push(JSON.stringify(item).slice(0, 160));
@@ -218,7 +223,12 @@ export function test_engine_digit_fit(): void {
     "indexTipRight",
   ).point;
   const far: IAutoMovieVector3 = Vector3.add(rest, { x: -0.2, y: 0, z: 0 });
-  const beyond: fitDigitToTarget.IResult = fit(body, "right", "Index", far);
+  const beyond: IAutoMovieFitDigitToTarget.IResult = fit(
+    body,
+    "right",
+    "Index",
+    far,
+  );
   let nearest: number = Infinity;
   for (let k: number = 0; k < 200; k++) {
     const pose: IAutoMoviePose = posed(
@@ -271,7 +281,7 @@ export function test_engine_digit_fit(): void {
   let where: string = "";
   let previous: IAutoMovieJointPose[] | undefined;
   for (let mm: number = 0; mm <= 20; mm++) {
-    const result: fitDigitToTarget.IResult = fit(
+    const result: IAutoMovieFitDigitToTarget.IResult = fit(
       body,
       "right",
       "Index",
@@ -347,7 +357,7 @@ export function test_engine_digit_fit(): void {
   // Its residual continues to report the original target's distance.
   let swing: number = 0;
   let at: string = "";
-  let before: fitDigitToTarget.IResult | undefined;
+  let before: IAutoMovieFitDigitToTarget.IResult | undefined;
   let shrinks: boolean = false;
   let radialMiss: number = 0;
   for (let mm: number = 0; mm <= 20; mm++) {
@@ -363,7 +373,7 @@ export function test_engine_digit_fit(): void {
         : chainLength -
           softWidth *
             Math.exp(-(distance - chainLength + softWidth) / softWidth);
-    const result: fitDigitToTarget.IResult = fit(
+    const result: IAutoMovieFitDigitToTarget.IResult = fit(
       body,
       "right",
       "Index",
@@ -408,7 +418,7 @@ export function test_engine_digit_fit(): void {
 
   // 4. Opposition on every body.
   for (const name of motionHumanBody.EXTREMES) {
-    const person: IHumanBody = motionHumanBody(name);
+    const person: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const pinch: IAutoMoviePose = posed(person, [
       { bone: "rightIndexProximal", flexion: 45, abduction: 0, twist: null },
       {
@@ -424,7 +434,7 @@ export function test_engine_digit_fit(): void {
       pinch,
       "indexPadRight",
     ).point;
-    const result: fitDigitToTarget.IResult = fit(
+    const result: IAutoMovieFitDigitToTarget.IResult = fit(
       person,
       "right",
       "Thumb",

@@ -1,11 +1,9 @@
-import {
-  type AutoMovieConstructionRealization,
-  type AutoMovieSolidIntersection,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { realizeAutoMovieConstruction } from "@automovie/engine";
 import type {
-  AutoMovieConstructionNode,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
   IAutoMovieConstructionView,
+  IAutoMovieSolidIntersection,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -34,14 +32,14 @@ export function test_construction_diff(): void {
   const [R, r, d]: [number, number, number] = [0.04, 0.015, 0.04];
   const plane: number = (R * R - r * r + d * d) / (2 * d);
   const ring: number = Math.sqrt(R * R - plane * plane);
-  const ball: AutoMovieConstructionNode = ConstructionShapes.ellipsoid(
+  const ball: IAutoMovieConstructionNode = ConstructionShapes.ellipsoid(
     "ball",
     ConstructionShapes.DOWN,
     R,
     R,
     R,
   );
-  const cutter: AutoMovieConstructionNode = ConstructionShapes.ellipsoid(
+  const cutter: IAutoMovieConstructionNode = ConstructionShapes.ellipsoid(
     "dimple",
     {
       origin: { x: d, y: 0, z: 0 },
@@ -54,7 +52,7 @@ export function test_construction_diff(): void {
   );
 
   // The seam's top point (plane, 0, ring): on the cutter at station -ring (stations run along -z) and phase pi, on the host at station -ring and phase 0.
-  const tree: AutoMovieConstructionNode = ConstructionShapes.join(
+  const tree: IAutoMovieConstructionNode = ConstructionShapes.join(
     "diff",
     "dimple.cut",
     ball,
@@ -76,14 +74,14 @@ export function test_construction_diff(): void {
       reference: { x: 0, y: 0, z: 1 },
     },
   );
-  const real: AutoMovieConstructionRealization.IRealization =
+  const real: IAutoMovieConstructionRealization.IRealization =
     realizeAutoMovieConstruction({ name: "made", root: tree }, { chord: 1e-4 });
   if (real.diagnostics.length !== 0)
     failures.push(`diagnostics: ${ConstructionRead.diagnostics(real)}`);
 
-  const joined: AutoMovieConstructionRealization.IJoin | undefined =
+  const joined: IAutoMovieConstructionRealization.IJoin | undefined =
     real.joins.find(
-      (j: AutoMovieConstructionRealization.IJoin): boolean =>
+      (j: IAutoMovieConstructionRealization.IJoin): boolean =>
         j.blend.chain.name === "dimple.cut",
     );
   if (joined === undefined) failures.push("no join");
@@ -91,17 +89,17 @@ export function test_construction_diff(): void {
     const centre: IAutoMovieVector3 = { x: d, y: 0, z: 0 };
     // The traced curve is in the kernel's millimetres; the spheres' closed forms in metres.
     const points: V3[] = joined.join.curve.points.map(
-      (q: AutoMovieSolidIntersection.IPoint): V3 => [
+      (q: IAutoMovieSolidIntersection.IPoint): V3 => [
         q.point[0] / 1000,
         q.point[1] / 1000,
         q.point[2] / 1000,
       ],
     );
     // Each realized sphere stands off its closed form by its own approximation: the pole spline over its stations and the section spline over its 16 points.
-    const shape: (view: AutoMovieConstructionNode, radius: number) => number = (
-      view: AutoMovieConstructionNode,
+    const shape: (
+      view: IAutoMovieConstructionNode,
       radius: number,
-    ): number =>
+    ) => number = (view: IAutoMovieConstructionNode, radius: number): number =>
       ConstructionChecks.poleSpline(
         radius,
         radius,

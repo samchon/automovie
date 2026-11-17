@@ -2,7 +2,6 @@ import {
   Quaternion,
   clampJointToSkeleton,
   fitHingedRotationError,
-  type IFitChainToTargetProps,
   indexSkeletonTopology,
   jointToQuaternionOnBasis,
   normalizeJointAxes,
@@ -10,6 +9,7 @@ import {
   solveDistalTwist,
 } from "@automovie/engine";
 import type {
+  IAutoMovieFitChainToTargetProps,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieQuaternion,
@@ -178,7 +178,7 @@ function proximalScalars(): void {
       constraint: { flexion: null, abduction: null, twist: null },
       rest: { translation: { x: 0, y: 0, z: 1 }, rotation: { ...identity }, scale: { x: 1, y: 1, z: 1 } } },
   ] };
-  const props: IFitChainToTargetProps = { skeleton,
+  const props: IAutoMovieFitChainToTargetProps = { skeleton,
     pose: { skeleton: skeleton.id, root: null, joints: [] },
     chain: { upper: "leftUpperArm", lower: "leftLowerArm", effector: "leftHand" },
     target: { x: 0, y: 0, z: 2 }, topology: indexSkeletonTopology(skeleton),

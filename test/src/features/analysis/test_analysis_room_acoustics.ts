@@ -1,5 +1,5 @@
-import type { IAutoMovieAcousticRequest } from "@automovie/engine";
 import type {
+  IAutoMovieAcousticRequest,
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisRun,
 } from "@automovie/interface";

@@ -1,6 +1,11 @@
+import type {
+  IAutoMovieHumanBodyFrame,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanLegPrior,
+} from "@automovie/interface";
+
 import { AutoMovieHumanBodyPlaces } from "./AutoMovieHumanBodyPlaces";
 import { AutoMovieHumanLegPrior } from "./AutoMovieHumanLegPrior";
-import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
 
 /**
  * Shared ankle-relative anatomical placement, before local curves or constraints.
@@ -11,15 +16,6 @@ import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures"
  * it is not reconstructed from a completed soft-tissue trunk.
  */
 export namespace AutoMovieHumanBodyFrame {
-  /** Calibration-mm AP datums, with +X forward, +Y up and +Z left. */
-  export interface IOutput {
-    /** Registered C7 skin datum relative to the ankle midpoint. */
-    cervicale: number;
-
-    /** Shared lower-body sagittal datum, at the original perineal pole. */
-    perineum: number;
-  }
-
   /**
    * Retained nominal ankle-joint AP placement in the same world frame.
    * The old ankle regression is not a measured loop-centroid-to-bone map.
@@ -31,7 +27,7 @@ export namespace AutoMovieHumanBodyFrame {
     muscularity: number,
     scale: number,
   ): number {
-    const prior: AutoMovieHumanLegPrior.IAnkle =
+    const prior: IAutoMovieHumanLegPrior.IAnkle =
       AutoMovieHumanLegPrior.PRIOR.ankle;
     return (
       (prior.offset + prior.fat * fat + prior.muscularity * muscularity) * scale
@@ -42,7 +38,7 @@ export namespace AutoMovieHumanBodyFrame {
   export function create(
     measures: IAutoMovieHumanBodyMeasures,
     scale: number,
-  ): IOutput {
+  ): IAutoMovieHumanBodyFrame.IOutput {
     return {
       cervicale: AutoMovieHumanBodyPlaces.cervicale(measures) * scale,
       perineum: AutoMovieHumanBodyPlaces.perineum(measures) * scale,

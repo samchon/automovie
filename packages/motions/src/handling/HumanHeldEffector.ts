@@ -1,10 +1,17 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanHand } from "../posture/HumanHand";
 import type { HumanHeld } from "./HumanHeld";
 
@@ -28,13 +35,13 @@ import type { HumanHeld } from "./HumanHeld";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The detached reader retains constant local vector/scalar geometry and surface/shape values until its synchronous owner releases it. Each output owns fresh tool/facing/along weight records, without body/context/prop readers, FK workspaces, query/time history or handles.
  */
 export function HumanHeldEffector(
-  context: Pick<IHumanActionContext, "body" | "entry" | "prop">,
-  row: HumanHeld.IUse,
-  side: HumanHand.Side,
+  context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
+  row: IAutoMovieMotionHumanHeld.IUse,
+  side: AutoMovieHumanSide,
   subject: string,
   point?: string,
-): (turn?: number) => AutoMovieMotionHumanTouchEffector.IEffector {
-  const held: AutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(context, side, subject);
+): (turn?: number) => IAutoMovieMotionHumanTouchEffector.IEffector {
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(context, side, subject);
   const name: string | undefined = point ?? row.point;
   if (name === undefined)
     throw new HumanRefusal({ kind: "affordance", axis: "point", value: name,
@@ -46,10 +53,10 @@ export function HumanHeldEffector(
   const named: ReturnType<typeof AutoMovieMotionHumanHeld.point> = AutoMovieMotionHumanHeld.point(held, name);
   const socket: IAutoMovieVector3 = HumanHand.offset(context.body, side, "grip").point;
   const normal: IAutoMovieVector3 = named.direction;
-  const own: (direction: AutoMovieMotionHumanTouchEffector.Direction | undefined,
-    otherwise: AutoMovieMotionHumanTouchEffector.Axis) => IAutoMovieVector3 = (
-      direction: AutoMovieMotionHumanTouchEffector.Direction | undefined,
-      otherwise: AutoMovieMotionHumanTouchEffector.Axis): IAutoMovieVector3 =>
+  const own: (direction: IAutoMovieMotionHumanTouchEffector.Direction | undefined,
+    otherwise: IAutoMovieMotionHumanTouchEffector.Axis) => IAutoMovieVector3 = (
+      direction: IAutoMovieMotionHumanTouchEffector.Direction | undefined,
+      otherwise: IAutoMovieMotionHumanTouchEffector.Axis): IAutoMovieVector3 =>
       AutoMovieMotionHumanTouchEffector.direction(side, direction ?? otherwise);
   const at: IAutoMovieVector3 = Vector3.add(socket, named.point);
   const along: IAutoMovieVector3 = across(side, normal, own(row.effector.along, "fingers"));
@@ -75,9 +82,9 @@ export function HumanHeldEffector(
 /** Fixed local data only; no held/body/context ownership crosses into the turn reader. */
 interface IGeometry {
   /** The original skin surface and hand form. */
-  surface: HumanHand.Surface;
+  surface: IAutoMovieMotionHumanHand.Surface;
   /** The original hand form. */
-  shape: HumanHand.Shape;
+  shape: IAutoMovieMotionHumanHand.Shape;
   /** Wrist-relative contact point, metres, before any upright rim turn. */
   at: IAutoMovieVector3;
   /** Actual contact's outward unit direction in hand axes. */
@@ -95,7 +102,7 @@ interface IGeometry {
 }
 
 /** Preserve original projection, 0.3 threshold and stable least-aligned fallback. */
-function across(side: HumanHand.Side, normal: IAutoMovieVector3,
+function across(side: AutoMovieHumanSide, normal: IAutoMovieVector3,
   direction: IAutoMovieVector3): IAutoMovieVector3 {
   const flat: (vector: IAutoMovieVector3) => IAutoMovieVector3 = (vector: IAutoMovieVector3): IAutoMovieVector3 =>
     Vector3.subtract(vector, Vector3.scale(normal, Vector3.dot(vector, normal)));
@@ -109,8 +116,8 @@ function across(side: HumanHand.Side, normal: IAutoMovieVector3,
 }
 
 /** Actual turn arithmetic stays independent of admission/body/prop readers. */
-function turning(fixed: IGeometry): (turn?: number) => AutoMovieMotionHumanTouchEffector.IEffector {
-  return (turn: number = 0): AutoMovieMotionHumanTouchEffector.IEffector => {
+function turning(fixed: IGeometry): (turn?: number) => IAutoMovieMotionHumanTouchEffector.IEffector {
+  return (turn: number = 0): IAutoMovieMotionHumanTouchEffector.IEffector => {
     let at: IAutoMovieVector3 = fixed.at;
     let facing: IAutoMovieVector3 = fixed.normal;
     if (fixed.ring !== undefined) {

@@ -1,18 +1,21 @@
-import { type IAutoMovieResolvedBone, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanDefend,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingStance } from "./StrikingStance";
-import type { defend } from "./defend";
 
 /**
  * Where a defence brings its arms and its checking leg: goals on the
@@ -73,19 +76,19 @@ export namespace defendGoals {
    */
   export interface IProps {
     /** The defender's body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The defender's posture at the instant, before its limb goals. */
-    posture: IHumanPosture;
+    posture: IAutoMovieMotionHumanPosture;
 
     /** The defence. */
-    kind: defend.IParams["kind"];
+    kind: IAutoMovieMotionHumanDefend.IParams["kind"];
 
     /** The struck region. */
     region: AutoMovieHumanoidRegion;
 
     /** The strike's own point within the region, when it declares one. */
-    aimed: IHumanActionPlan["aimed"];
+    aimed: IAutoMovieMotionHumanActionPlan["aimed"];
 
     /** What the defender saw. */
     sight: ISight;
@@ -111,7 +114,7 @@ export namespace defendGoals {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied trunk belongs to this exact synchronous body/posture observation. Original frame-property and bone lookup order remain; only the demanded fixed body-region fields are placed through their canonical owner. The two cover gloves share their one original current region observation, and no world point/pose enters another call or time.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record and retains nothing.
    */
-  export function at(props: IProps): Partial<IHumanPosture["limbs"]> {
+  export function at(props: IProps): Partial<IAutoMovieMotionHumanPosture["limbs"]> {
     if (props.kind === "slip" || props.kind === "roll" || props.kind === "sway")
       return {};
     const { body, sight } = props;
@@ -125,7 +128,7 @@ export namespace defendGoals {
     const regionPoint: () => IAutoMovieVector3 = (): IAutoMovieVector3 => {
       if (centre !== undefined) return centre;
       if (props.frame === undefined) {
-        const frame: resolveAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, props.region, props.aimed);
+        const frame: IAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, props.region, props.aimed);
         centre = resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
       } else centre = resolveAutoMovieHumanoidSurfaces.point(props.frame, bones.get(props.frame.bone)!);
       return centre;
@@ -139,7 +142,7 @@ export namespace defendGoals {
       side: "left" | "right",
       at: IAutoMovieVector3,
       elbow: IAutoMovieVector3,
-    ): IHumanPosture.IGoal => StrikingStance.glove(body, side, at, elbow);
+    ): IAutoMovieHumanLimbGoal => StrikingStance.glove(body, side, at, elbow);
     const shoulder = (side: "left" | "right"): IAutoMovieVector3 =>
       bones.get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
     const toward: IAutoMovieVector3 = Vector3.normalize({
@@ -155,7 +158,7 @@ export namespace defendGoals {
           Vector3.scale(toward, 0.5 * m.upperArm),
         ),
       );
-    const out: Partial<IHumanPosture["limbs"]> = {};
+    const out: Partial<IAutoMovieMotionHumanPosture["limbs"]> = {};
     const arm = (side: "left" | "right"): "leftArm" | "rightArm" =>
       side === "left" ? "leftArm" : "rightArm";
     const cover = (side: "left" | "right"): void => {

@@ -1,9 +1,12 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -26,14 +29,14 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A sample's assembly and completed fit are shared by its later readings; equivalence is decided inside `derive` (exact angles, root and heading) and `fit` (exact goals, root and the very records each leg reads).
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one assembly and one seeded fit a sample until the plan's construction releases the reader.
  */
-export function staggerResolved(body: IHumanBody): staggerResolved.IReader {
+export function staggerResolved(body: IAutoMovieMotionHumanBody): staggerResolved.IReader {
   const knots: (Parameters<typeof resolveHumanPosture.fit>[5])[] = [];
   return {
-    carriage: (index: number, posture: IHumanPosture): Record<"left" | "right", number> => {
+    carriage: (index: number, posture: IAutoMovieMotionHumanPosture): Record<"left" | "right", number> => {
       const assembled: resolveHumanPosture.IAssembled = resolveHumanPosture.assemble(body, posture);
-      const seeded: resolveHumanPosture.ISeeded = resolveHumanPosture.fit(body, assembled);
+      const seeded: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.fit(body, assembled);
       knots[index] = { assembled, seeded };
-      const cleared: IHumanPosture =
+      const cleared: IAutoMovieMotionHumanPosture =
         HumanArmSwing.of(body, posture, ["left", "right"], undefined, undefined, seeded.pose);
 
       // The let-out the swing adds over what the posture writes
@@ -42,10 +45,10 @@ export function staggerResolved(body: IHumanBody): staggerResolved.IReader {
         Math.max(0, (cleared.joints[`${side}UpperArm`]?.[1] ?? 0) - (posture.joints[`${side}UpperArm`]?.[1] ?? 0));
       return { left: added("left"), right: added("right") };
     },
-    centre: (index: number, posture: IHumanPosture): IAutoMovieVector3 => {
+    centre: (index: number, posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => {
       const knot: Parameters<typeof resolveHumanPosture.fit>[5] = knots[index];
       if (knot === undefined) return HumanBalance.centre(body, posture);
-      const pose: resolveHumanPosture.ISeeded["pose"] = resolveHumanPosture.fit(
+      const pose: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["pose"] = resolveHumanPosture.fit(
         body, resolveHumanPosture.derive(body, knot.assembled, posture), undefined, {}, undefined, knot,
       ).pose;
       return HumanBalance.centre(body, posture, undefined, undefined, pose);
@@ -65,9 +68,9 @@ export namespace staggerResolved {
   /** A stagger plan's sample readers. */
   export interface IReader {
     /** Each arm's added abduction that keeps it clear in the sample's posture, degrees (`HumanArmSwing.carriage` at one instant); resolves the posture and keeps its assembly and fit for the sample. */
-    carriage(index: number, posture: IHumanPosture): Record<"left" | "right", number>;
+    carriage(index: number, posture: IAutoMovieMotionHumanPosture): Record<"left" | "right", number>;
 
     /** The whole-body centre of mass of a posture of the sample, world metres (`HumanBalance.centre`), resolved on the sample's kept assembly; resolved plainly when the sample has none. */
-    centre(index: number, posture: IHumanPosture): IAutoMovieVector3;
+    centre(index: number, posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3;
   }
 }

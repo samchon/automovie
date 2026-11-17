@@ -1,8 +1,11 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -43,7 +46,7 @@ export function jumpPushEnd(
   >,
   root: IAutoMovieVector3,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-): Pick<IHumanPosture, "joints" | "limbs"> {
+): Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> {
   const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
   const hip: IAutoMovieVector3 = hipJoints(
     props.body,
@@ -61,7 +64,7 @@ export function jumpPushEnd(
     Math.min(props.supportPitch, 0, -40),
     walkLeg.ROCKER,
   );
-  const foot: HumanFoot.IPlacement = HumanFoot.pivot(
+  const foot: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
     props.body,
     props.takeoff,
     "mtp",

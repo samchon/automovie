@@ -1,10 +1,10 @@
 import type {
   IAutoMovieRecoveryInput,
+  IAutoMovieRecoveryMeshSections,
+  IAutoMovieRecoveryOpenContinuation,
   IAutoMovieRecoveryRegistration,
 } from "@automovie/interface";
 import {
-  type IAutoMovieRecoveryMeshSections,
-  type IAutoMovieRecoveryOpenContinuation,
   AutoMovieRecoveryOpenContinuation as O,
   reconstructRecoveryOpen,
   restoreRecoveryCurveBasis,

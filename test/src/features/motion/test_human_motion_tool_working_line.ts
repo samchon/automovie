@@ -1,12 +1,12 @@
 import { createBow } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import {
-  type AutoMovieMotionHumanHeld,
-  HumanRefusal,
-  type IHumanProp,
-  StrikingHeld,
-} from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { HumanRefusal, StrikingHeld } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../internal/vclose";
@@ -31,10 +31,10 @@ import { vclose } from "../internal/vclose";
 export function test_human_motion_tool_working_line(): void {
   const bow: ReturnType<typeof createBow> = createBow({ kind: "longbow" });
   const read = (
-    frame: IHumanProp.IFrame,
+    frame: IAutoMovieRigidTransform,
     from: string = "nock",
-  ): StrikingHeld.ITool => {
-    const held: AutoMovieMotionHumanHeld.IHeld = {
+  ): IAutoMovieMotionHumanStrikingHeld.ITool => {
+    const held: IAutoMovieMotionHumanHeld.IHeld = {
       prop: "bow",
       side: "left",
       frame,
@@ -42,11 +42,11 @@ export function test_human_motion_tool_working_line(): void {
     };
     return StrikingHeld.read(held, { from, tip: "rest" });
   };
-  const identity: IHumanProp.IFrame = {
+  const identity: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: Quaternion.identity(),
   };
-  const initial: StrikingHeld.ITool = read(identity);
+  const initial: IAutoMovieMotionHumanStrikingHeld.ITool = read(identity);
   const line: IAutoMovieVector3 = Vector3.subtract(
     bow.affordance("rest").frame.translation,
     bow.affordance("nock").frame.translation,
@@ -67,14 +67,14 @@ export function test_human_motion_tool_working_line(): void {
     "the rest's contact normal is transverse to the arrow line",
     Math.abs(Vector3.dot(normal, initial.axis)) < 0.2,
   );
-  const moved: IHumanProp.IFrame = {
+  const moved: IAutoMovieRigidTransform = {
     position: { x: 0.4, y: -0.2, z: 0.3 },
     rotation: Quaternion.multiply(
       Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 73),
       Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -31),
     ),
   };
-  const turned: StrikingHeld.ITool = read(moved);
+  const turned: IAutoMovieMotionHumanStrikingHeld.ITool = read(moved);
   TestValidator.predicate(
     "the tip follows its rigid offset",
     vclose(

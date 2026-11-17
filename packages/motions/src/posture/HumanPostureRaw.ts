@@ -1,7 +1,9 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { IHumanPosture } from "./IHumanPosture";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Raw translation and the original observable serialization/admission policy.
@@ -24,7 +26,7 @@ export namespace HumanPostureRaw {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the same supported raw-domain predicate is shared by preparation/transport consumers; each call repeats its actual current reads and no prior query supplies admission.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The predicate retains no input, result, callback or resource.
    */
-  export function eligible(posture: IHumanPosture): boolean {
+  export function eligible(posture: IAutoMovieMotionHumanPosture): boolean {
     try {
       if (Object.keys(posture).some((key: string): boolean => !POSTURE_KEYS.has(key)) ||
         !vector(posture.root) || ![posture.yaw, posture.pitch, posture.roll].every(Number.isFinite)) return false;
@@ -53,7 +55,7 @@ export namespace HumanPostureRaw {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The serialization implementation is shared, while every invocation executes its original raw observations independently and retains no previous verdict.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one string or undefined and retains no authoring object or callback.
    */
-  export function signature(posture: IHumanPosture): string | undefined {
+  export function signature(posture: IAutoMovieMotionHumanPosture): string | undefined {
     try {
       return JSON.stringify(posture, (_key: string, value: unknown): unknown =>
         typeof value === "number" && Object.is(value, -0) ? "number:-0" : value);
@@ -71,8 +73,8 @@ export namespace HumanPostureRaw {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses original source values only to construct this fresh output; the shifted set coalesces only actual aliased goal identity within this translation, never distinct query results.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Output belongs to the caller; the temporary goal set ends on return/throw and no source, target, reader or previous translation is retained.
    */
-  export function translated(source: IHumanPosture, root: IAutoMovieVector3): IHumanPosture {
-    const out: IHumanPosture = structuredClone(source);
+  export function translated(source: IAutoMovieMotionHumanPosture, root: IAutoMovieVector3): IAutoMovieMotionHumanPosture {
+    const out: IAutoMovieMotionHumanPosture = structuredClone(source);
     const delta: IAutoMovieVector3 = Vector3.subtract(root, source.root);
     out.root = { ...root };
     const shifted: Set<object> = new Set();
@@ -117,7 +119,7 @@ export namespace HumanPostureRaw {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads every current goal independently, retaining no callback or predicate result.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds only the fixed immutable-domain key set and no input/resource.
    */
-  export function goalFields(goal: IHumanPosture.IGoal): boolean {
+  export function goalFields(goal: IAutoMovieHumanLimbGoal): boolean {
     return !Object.keys(goal).some((key: string): boolean => !GOAL_KEYS.has(key));
   }
 }

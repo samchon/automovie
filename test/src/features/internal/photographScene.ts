@@ -1,10 +1,13 @@
 import { createDevice } from "@automovie/archetypes";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanHabit,
   HumanObject,
   HumanPerformance,
-  type IHumanBody,
 } from "@automovie/motions";
 
 /**
@@ -24,7 +27,9 @@ import {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each spec builds its own film.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the performance.
  */
-export function photographScene(body: IHumanBody): HumanPerformance {
+export function photographScene(
+  body: IAutoMovieMotionHumanBody,
+): IAutoMovieMotionHumanPerformance {
   return new HumanPerformance({
     seed: "verdict",
     laws: [HumanHabit.photograph],

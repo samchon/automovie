@@ -1,5 +1,8 @@
 import { Vector3, resolveAutoMovieContactEvents } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";
@@ -38,14 +41,14 @@ export function test_motion_striking_contact_events(): void {
     (id: string, path: Path) =>
     (
       t: number,
-      stops: resolveAutoMovieContactEvents.IStops,
+      stops: IAutoMovieResolveContactEvents.IStops,
     ): IAutoMovieVector3 =>
       path(Math.min(t, stops.get(id) ?? Infinity));
   const weapon = (
     id: string,
     owner: string,
     path: Path,
-  ): resolveAutoMovieContactEvents.IWeapon => ({
+  ): IAutoMovieResolveContactEvents.IWeapon => ({
     id,
     owner,
     radius: 0.1,
@@ -55,12 +58,12 @@ export function test_motion_striking_contact_events(): void {
     id: string,
     weaponId: string,
     path: Path,
-  ): resolveAutoMovieContactEvents.IBody => ({
+  ): IAutoMovieResolveContactEvents.IBody => ({
     id,
     distance: (
       p: IAutoMovieVector3,
       t: number,
-      stops: resolveAutoMovieContactEvents.IStops,
+      stops: IAutoMovieResolveContactEvents.IStops,
     ): number =>
       Vector3.length(Vector3.subtract(p, held(weaponId, path)(t, stops))) - 0.1,
   });
@@ -143,7 +146,7 @@ export function test_motion_striking_contact_events(): void {
     y: Math.max(0, 0.5 - 2 * t),
     z: 0,
   });
-  const headBody: resolveAutoMovieContactEvents.IBody = {
+  const headBody: IAutoMovieResolveContactEvents.IBody = {
     id: "H",
     distance: (p: IAutoMovieVector3): number =>
       Vector3.length(Vector3.subtract(p, head)) - 0.1,

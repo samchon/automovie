@@ -4,12 +4,12 @@ import type {
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMoviePose,
+  IAutoMovieRecoilPush,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
 import { clampJointRom } from "../rom/clampJointRom";
 import { getConstraint } from "../rom/getConstraint";
-import { IAutoMovieRecoilPush } from "./IAutoMovieRecoilPush";
 
 /**
  * Scale one input deflection down the recoil chain. An absent or zero push is

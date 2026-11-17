@@ -1,6 +1,7 @@
 import type {
+  IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { physicalShapeQuery } from "./physicalShapeQuery";
@@ -33,8 +34,8 @@ import { physicalShapeQuery } from "./physicalShapeQuery";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing between calls; its temporaries die with the call.
  */
 export function physicalShapeSegmentDistance(
-  pose: P.ITransform,
-  shape: P.IShape,
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   taper?: readonly [number, number],
@@ -60,8 +61,8 @@ export namespace physicalShapeSegmentDistance {
    * taper or result and exposes no private frame.
    */
   export function prepare(
-    pose: P.ITransform,
-    shape: P.IShape,
+    pose: IAutoMovieRigidTransform,
+    shape: IAutoMoviePhysicalShape,
   ): ReturnType<typeof physicalShapeQuery.prepare> {
     return physicalShapeQuery.prepare(pose, shape);
   }

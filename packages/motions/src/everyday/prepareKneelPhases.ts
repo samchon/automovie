@@ -1,7 +1,9 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { kneelKeys } from "./kneelKeys";
 import { prepareKneelFoot } from "./prepareKneelFoot";
 
@@ -44,7 +46,7 @@ interface IPhase {
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns N two-foot readers and only demanded fixed line/arc readers until release; no query history, solver workspace or fitted pose is retained here.
  */
 export function prepareKneelPhases(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   keys: readonly kneelKeys.IKey[],
   phases: readonly IPair[],
   clearance: number,

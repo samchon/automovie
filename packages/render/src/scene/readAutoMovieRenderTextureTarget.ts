@@ -1,4 +1,4 @@
-import type { IAutoMovieRenderTextureTarget } from "@automovie/engine";
+import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 import * as THREE from "three";
 
 import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFormat.js";

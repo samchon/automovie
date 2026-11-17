@@ -1,10 +1,11 @@
 import {
   AutoMovieHumanoidBone,
-  AutoMoviePrimitiveShape,
   IAutoMovieBone,
   IAutoMovieGeometry,
   IAutoMovieModel,
+  type IAutoMovieModelColumn,
   IAutoMovieModelPart,
+  type IAutoMoviePrimitiveShape,
   IAutoMovieQuaternion,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
@@ -13,7 +14,6 @@ import {
 
 import { PRIMITIVE_RADIAL_SEGMENTS } from "../geometry/constants/PRIMITIVE_RADIAL_SEGMENTS";
 import { PRIMITIVE_SPHERE_RINGS } from "../geometry/constants/PRIMITIVE_SPHERE_RINGS";
-import { IAutoMovieModelColumn } from "./IAutoMovieModelColumn";
 
 /**
  * Measure filled rest-axis cores of the engine's tessellated primitive solids.
@@ -160,7 +160,7 @@ function primitiveOuterExtents(
   geometry: IAutoMovieGeometry,
 ): IAutoMovieVector3 | null {
   if (geometry.type !== "primitive") return null;
-  const shape: AutoMoviePrimitiveShape = geometry.shape;
+  const shape: IAutoMoviePrimitiveShape = geometry.shape;
   switch (shape.type) {
     case "box":
       return { x: shape.width / 2, y: shape.height / 2, z: shape.depth / 2 };
@@ -249,7 +249,7 @@ const columnOfShape: (
   geometry: IAutoMovieModel["parts"][number]["geometry"],
 ): { across: number; deep: number; centre: number; half: number } | null => {
   if (geometry.type !== "primitive") return null;
-  const shape: AutoMoviePrimitiveShape = geometry.shape;
+  const shape: IAutoMoviePrimitiveShape = geometry.shape;
   const radialApothem: number = Math.cos(Math.PI / PRIMITIVE_RADIAL_SEGMENTS);
   if (shape.type === "sphere") {
     // Each latitude-cell plane is sin(mu)*u/cos(delta) + cos(mu)*y =

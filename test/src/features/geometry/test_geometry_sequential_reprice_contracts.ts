@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanSequentialConvex } from "@automovie/interface";
 import { HumanSequentialConvex as SCO } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,16 +42,16 @@ export function test_geometry_sequential_reprice_contracts(): void {
     const traces: ITrace[] = [];
     for (const prepared of [false, true]) {
       const trace: ITrace = { built: [], solved: [], repriced: [], read: [], taken: [] };
-      const problem: SCO.IProblem<number, SCO.IEvaluation> = {
+      const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<number, IAutoMovieMotionHumanSequentialConvex.IEvaluation> = {
         evaluate,
-        feasible: (reading: SCO.IEvaluation): boolean => reading.violation === 0,
-        convexify: (x: number, _current: SCO.IEvaluation, mu: number,
-          _radius: number, objective: boolean): SCO.IModel<number> => {
+        feasible: (reading: IAutoMovieMotionHumanSequentialConvex.IEvaluation): boolean => reading.violation === 0,
+        convexify: (x: number, _current: IAutoMovieMotionHumanSequentialConvex.IEvaluation, mu: number,
+          _radius: number, objective: boolean): IAutoMovieMotionHumanSequentialConvex.IModel<number> => {
           trace.built.push({ x, mu, objective });
           return model(x, mu, objective, prepared, trace);
         },
       };
-      const result: SCO.IResult<number, SCO.IEvaluation> = SCO.minimise(problem, 0, {
+      const result: IAutoMovieMotionHumanSequentialConvex.IResult<number, IAutoMovieMotionHumanSequentialConvex.IEvaluation> = SCO.minimise(problem, 0, {
         schedule: {
           eta: 0.1, low: 0.25, high: 0.75, shrink: 0.5, expand: 2,
           boundary: true, widest: radius, trust: radius,
@@ -122,21 +123,21 @@ interface ITrace {
 }
 
 /** Read the original objective and equality violation, without a model oracle. */
-function evaluate(x: number): SCO.IEvaluation {
+function evaluate(x: number): IAutoMovieMotionHumanSequentialConvex.IEvaluation {
   return { objective: x * x / 2, violation: Math.abs(1 - x) };
 }
 
 /** Construct an exact rational scalar model; changing its price never retains a step. */
 function model(x: number, mu: number, objective: boolean, prepared: boolean,
-  trace: ITrace): SCO.IModel<number> {
+  trace: ITrace): IAutoMovieMotionHumanSequentialConvex.IModel<number> {
   const point: IPoint = { x, mu, objective };
   return {
-    solve: (radius: number): SCO.IStep<number> => {
+    solve: (radius: number): IAutoMovieMotionHumanSequentialConvex.IStep<number> => {
       trace.solved.push(point);
       const wanted: number = objective ? Math.min(1, mu) : 1;
       const trial: number = Math.max(x - radius, Math.min(x + radius, wanted));
-      const before: SCO.IEvaluation = evaluate(x);
-      const after: SCO.IEvaluation = evaluate(trial);
+      const before: IAutoMovieMotionHumanSequentialConvex.IEvaluation = evaluate(x);
+      const after: IAutoMovieMotionHumanSequentialConvex.IEvaluation = evaluate(trial);
       const predicted: number = (objective ? before.objective - after.objective : 0) +
         mu * (before.violation - after.violation);
       return {
@@ -147,7 +148,7 @@ function model(x: number, mu: number, objective: boolean, prepared: boolean,
     },
     taken: (): void => { trace.taken.push(point); },
     ...(prepared && objective ? {
-      reprice: (penalty: number): SCO.IModel<number> => {
+      reprice: (penalty: number): IAutoMovieMotionHumanSequentialConvex.IModel<number> => {
         trace.repriced.push({ x, mu: penalty, objective });
         return model(x, penalty, objective, prepared, trace);
       },

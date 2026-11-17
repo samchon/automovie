@@ -1,8 +1,11 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { rotationVectorJacobian } from "../math/rotationVectorJacobian";
-import type { MotionTrajectoryInterval } from "./MotionTrajectoryInterval";
+import { MotionTrajectoryInterval } from "./MotionTrajectoryInterval";
 import type { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
 import { samplePoseVelocity } from "./samplePoseVelocity";

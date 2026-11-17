@@ -1,5 +1,4 @@
 import {
-  IAutoMovieWorldBlock,
   assertWorldPlacements,
   worldAlongRoute,
   worldBlock,
@@ -11,6 +10,7 @@ import {
 } from "@automovie/engine";
 import {
   IAutoMovieInstanceSetDesign,
+  type IAutoMovieWorldBlock,
   IAutoMovieWorldSurface,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

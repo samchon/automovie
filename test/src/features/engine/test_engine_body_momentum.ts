@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieCenterOfMass,
@@ -8,11 +7,14 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieBodyMomentum,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { IHumanBody } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -87,7 +89,10 @@ export function test_engine_body_momentum(): void {
         ],
       ),
     );
-  const posed = (body: IHumanBody, joints: IAutoMovieJointPose[]): Bones =>
+  const posed = (
+    body: IAutoMovieMotionHumanBody,
+    joints: IAutoMovieJointPose[],
+  ): Bones =>
     new Map(
       resolvePose(
         { skeleton: body.skeleton.id, root: null, joints },
@@ -108,8 +113,8 @@ export function test_engine_body_momentum(): void {
   const STILL: IAutoMovieQuaternion = Quaternion.identity();
 
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const model: resolveAutoMovieCenterOfMass.IModel =
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const poses: Record<"rest" | "crouch", Bones> = {
       rest: posed(body, []),
@@ -141,7 +146,7 @@ export function test_engine_body_momentum(): void {
           Quaternion.fromAxisAngle(axis, (sign * rate * dt * 90) / Math.PI),
           ZERO,
         );
-      const m: resolveAutoMovieMomentum.IMomentum = resolveAutoMovieMomentum(
+      const m: IAutoMovieBodyMomentum = resolveAutoMovieMomentum(
         model,
         half(-1),
         half(1),
@@ -214,13 +219,12 @@ export function test_engine_body_momentum(): void {
 
       // 5. A uniform translation: p = m v and no angular momentum.
       const v: IAutoMovieVector3 = { x: 0.4, y: -0.3, z: 1.2 };
-      const glide: resolveAutoMovieMomentum.IMomentum =
-        resolveAutoMovieMomentum(
-          model,
-          bones,
-          moved(bones, ZERO, STILL, Vector3.scale(v, 0.01)),
-          0.01,
-        );
+      const glide: IAutoMovieBodyMomentum = resolveAutoMovieMomentum(
+        model,
+        bones,
+        moved(bones, ZERO, STILL, Vector3.scale(v, 0.01)),
+        0.01,
+      );
       const p: IAutoMovieVector3 = Vector3.scale(v, body.profile.mass);
       if (
         !(
@@ -264,7 +268,7 @@ export function test_engine_body_momentum(): void {
     { x: 0, y: 0, z: 1 },
     90,
   );
-  const twoBox: resolveAutoMovieCenterOfMass.IModel = {
+  const twoBox: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 2 * mass,
     segments: [
       {

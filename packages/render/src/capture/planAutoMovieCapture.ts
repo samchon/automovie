@@ -1,14 +1,20 @@
-import type { IAutoMovieInspectionRequest } from "../scene/inspection/IAutoMovieInspectionRequest.js";
-import type { IAutoMovieInspectionView } from "../scene/inspection/IAutoMovieInspectionView.js";
+import type {
+  AutoMovieInspectionShade,
+  IAutoMovieCaptureCell,
+  IAutoMovieCaptureInstant,
+  IAutoMovieCapturePlan,
+  IAutoMovieCapturePlanProps,
+  IAutoMovieCapturePlanRequest,
+  IAutoMovieCaptureSelection,
+  IAutoMovieCaptureSubject,
+  IAutoMovieCaptureTime,
+  IAutoMovieInspectionRequest,
+  IAutoMovieInspectionView,
+} from "@automovie/interface";
+
 import { expandAutoMovieInspectionSweep } from "../scene/inspection/expandAutoMovieInspectionSweep.js";
 import { matchAutoMovieInspectionPath } from "../scene/inspection/matchAutoMovieInspectionPath.js";
 import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
-import type { IAutoMovieCaptureCell } from "./IAutoMovieCaptureCell.js";
-import type { IAutoMovieCapturePlan } from "./IAutoMovieCapturePlan.js";
-import type { IAutoMovieCapturePlanRequest } from "./IAutoMovieCapturePlanRequest.js";
-import type { IAutoMovieCaptureSelection } from "./IAutoMovieCaptureSelection.js";
-import type { IAutoMovieCaptureSubject } from "./IAutoMovieCaptureSubject.js";
-import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
 import { planAutoMovieCaptureFrames } from "./planAutoMovieCaptureFrames.js";
 import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
 
@@ -29,16 +35,9 @@ import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the request and the subject.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the cells it returns and one set of their names.
  */
-export function planAutoMovieCapture(props: {
-  /** What the capture asks for. */
-  request: IAutoMovieCapturePlanRequest;
-
-  /** What the host learned of the subject. */
-  subject: IAutoMovieCaptureSubject;
-
-  /** Seconds of the scene cuts detected in a video file, whose surrounding frames are drawn like an event's; empty for a drawn scene. */
-  cuts: readonly number[];
-}): IAutoMovieCapturePlan {
+export function planAutoMovieCapture(
+  props: IAutoMovieCapturePlanProps,
+): IAutoMovieCapturePlan {
   const { request, subject } = props;
   if (subject.name.trim() === "")
     throw new Error("A capture subject has no name");
@@ -94,7 +93,7 @@ export function planAutoMovieCapture(props: {
   // Named instants by their second to the millisecond, the resolution a cell is named at.
   const labels: Map<string, string> = new Map(
     (subject.instants ?? []).map(
-      (instant: IAutoMovieCaptureSubject.IInstant): [string, string] => [
+      (instant: IAutoMovieCaptureInstant): [string, string] => [
         instant.seconds.toFixed(3),
         instant.label,
       ],
@@ -196,7 +195,7 @@ function sweep(
 /** The plan's inspection with a cell's pass and selection. */
 function inspect(
   inspection: IAutoMovieInspectionRequest,
-  pass: IAutoMovieInspectionRequest.Shade,
+  pass: AutoMovieInspectionShade,
   selection: IAutoMovieCaptureSelection,
 ): IAutoMovieInspectionRequest {
   return { ...inspection, shade: pass, parts: [...selection.parts] };
@@ -214,7 +213,7 @@ function caption(
   time: IAutoMovieCaptureTime,
   label: string | null,
   view: string,
-  pass: IAutoMovieInspectionRequest.Shade,
+  pass: AutoMovieInspectionShade,
   selection: IAutoMovieCaptureSelection,
 ): string {
   return [

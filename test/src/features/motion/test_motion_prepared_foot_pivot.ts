@@ -1,6 +1,10 @@
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanFoot, type IHumanBody } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { HumanFoot } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -33,7 +37,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable in-memory unit borrows an unchanged canonical Human and owns contacts/results. It starts no viewer, renderer, process or compiler, changes no physical bound and replaces no foreign function or global.
  */
 export function test_motion_prepared_foot_pivot(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const contact: IAutoMovieVector3 = { x: 1, y: 0, z: 2 };
   const heading: number = 37;
   const roll: number = -12;
@@ -45,9 +49,9 @@ export function test_motion_prepared_foot_pivot(): void {
         body, side, socket, contact, heading, toes, roll,
       );
       const point: ReturnType<typeof HumanFoot.preparePoint> = HumanFoot.preparePoint(body, side, socket, toes);
-      const previous: HumanFoot.IPlacement[] = [];
+      const previous: IAutoMovieMotionHumanFoot.IPlacement[] = [];
       for (const pitch of [25, 0, -15, 10, 25]) {
-        const actual: HumanFoot.IPlacement = read(pitch);
+        const actual: IAutoMovieMotionHumanFoot.IPlacement = read(pitch);
         const rotated: IAutoMovieVector3 = rotate(local, heading, pitch, roll);
         TestValidator.predicate("prepared rocker ankle follows the independent rigid pivot law",
           vclose(actual.ankle, { x: contact.x - rotated.x, y: contact.y - rotated.y, z: contact.z - rotated.z }, 1e-12),
@@ -67,7 +71,7 @@ export function test_motion_prepared_foot_pivot(): void {
       }
       previous[0]!.ankle.x = 123;
       previous[0]!.rotation.w = 456;
-      const replay: HumanFoot.IPlacement = read(25);
+      const replay: IAutoMovieMotionHumanFoot.IPlacement = read(25);
       const expected: IAutoMovieVector3 = rotate(local, heading, 25, roll);
       TestValidator.predicate("returned rocker mutation cannot poison replay",
         vclose(replay.ankle, { x: contact.x - expected.x, y: contact.y - expected.y, z: contact.z - expected.z }, 1e-12) &&
@@ -78,7 +82,7 @@ export function test_motion_prepared_foot_pivot(): void {
 }
 
 /** Each fixed toe-angle reader retains its own offset while current placements remain live. */
-function articulated(body: IHumanBody, heading: number, roll: number): void {
+function articulated(body: IAutoMovieMotionHumanBody, heading: number, roll: number): void {
   for (const side of ["left", "right"] as const)
     for (const socket of ["heel", "ball", "toe", "sole", "mtp"] as const) {
       const read: ReturnType<typeof HumanFoot.prepareOffset> = HumanFoot.prepareOffset(body, side, socket);
@@ -89,12 +93,12 @@ function articulated(body: IHumanBody, heading: number, roll: number): void {
         TestValidator.predicate("fixed socket preparation retains each current toe articulation", vclose(read(toes), expected, 1e-12));
         const height: ReturnType<typeof heights> = heights(toes);
         for (const pitch of [25, 0, -15, 25]) {
-          const placement: HumanFoot.IPlacement = placed(heading, pitch, roll);
+          const placement: IAutoMovieMotionHumanFoot.IPlacement = placed(heading, pitch, roll);
           TestValidator.predicate("scalar socket height keeps the full independently rotated Y coordinate",
             nclose(height(placement), placement.ankle.y + rotate(expected, heading, pitch, roll).y, 1e-12));
         }
       }
-      const current: HumanFoot.IPlacement = placed(heading, 25, roll);
+      const current: IAutoMovieMotionHumanFoot.IPlacement = placed(heading, 25, roll);
       const local: IAutoMovieVector3 = offset(body, side, socket, 20);
       current.ankle.y = 0.8;
       TestValidator.predicate("retained angle rereads the actual changed ankle after other toe queries",
@@ -119,7 +123,7 @@ function articulated(body: IHumanBody, heading: number, roll: number): void {
 }
 
 /** Author one placement directly from the stated heading/roll/negative-pitch factors. */
-function placed(heading: number, pitch: number, roll: number): HumanFoot.IPlacement {
+function placed(heading: number, pitch: number, roll: number): IAutoMovieMotionHumanFoot.IPlacement {
   return { ankle: { x: -2, y: 0.3, z: 4 }, rotation: Quaternion.multiply(
     Quaternion.multiply(Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
       Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, roll)),
@@ -127,14 +131,14 @@ function placed(heading: number, pitch: number, roll: number): HumanFoot.IPlacem
 }
 
 /** Derive ankle-local geometry directly from the canonical profile's authored frames. */
-function offset(body: IHumanBody, side: "left" | "right",
+function offset(body: IAutoMovieMotionHumanBody, side: "left" | "right",
   name: "heel" | "ball" | "toe" | "sole" | "mtp", toes: number): IAutoMovieVector3 {
   const ankle: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
   if (name === "mtp") {
     const joint: IAutoMovieVector3 = body.rest.get(`${side}Toes`)!;
     return { x: joint.x - ankle.x, y: joint.y - ankle.y, z: joint.z - ankle.z };
   }
-  const socket: IHumanBody["surfaces"]["sockets"]["heelLeft"] = body.surfaces.sockets[
+  const socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["heelLeft"] = body.surfaces.sockets[
     `${name}${side === "left" ? "Left" : "Right"}`
   ];
   if (socket.bone === `${side}Foot`) return { ...socket.point };

@@ -1,7 +1,6 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  IAutoMovieActorContext,
   makeActorSynthesizer,
   resolveBoneTarget,
   resolvePose,
@@ -10,6 +9,7 @@ import {
 import {
   AutoMovieHumanoidBone,
   IAutoMovieActionTarget,
+  type IAutoMovieActorContext,
   IAutoMovieBone,
   IAutoMovieGestureAction,
   IAutoMovieJointPose,

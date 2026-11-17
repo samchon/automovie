@@ -1,13 +1,21 @@
-import {
-  type AutoMovieLoftContract,
-  type AutoMovieSolidVector,
-  type IAutoMovieViewPart,
-} from "@automovie/engine";
-import type { IAutoMovieConstructionView } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionView,
+  IAutoMovieHumanBodyTree,
+  IAutoMovieHumanMassSource,
+  IAutoMovieHumanNamedSource,
+  IAutoMovieHumanSourceDefinition,
+  IAutoMovieHumanSourceRealization,
+  IAutoMovieHumanTrunkBuild,
+  IAutoMovieHumanTrunkMassPlacement,
+  IAutoMovieHumanTrunkSectionFamily,
+  IAutoMovieHumanTrunkTape,
+  IAutoMovieHumanTrunkViews,
+  IAutoMovieLoftContract,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
-import type { AutoMovieHumanBodyTree } from "../AutoMovieHumanBodyTree";
 import { AutoMovieHumanMassPart } from "../limb/AutoMovieHumanMassPart";
-import type { AutoMovieHumanMassSource } from "../limb/AutoMovieHumanMassSource";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanBreastConnection } from "./AutoMovieHumanBreastConnection";
 import { AutoMovieHumanGlutealConnection } from "./AutoMovieHumanGlutealConnection";
@@ -16,9 +24,6 @@ import { AutoMovieHumanTrunkMassPlacement } from "./AutoMovieHumanTrunkMassPlace
 import { AutoMovieHumanTrunkSectionFamily } from "./AutoMovieHumanTrunkSectionFamily";
 import { AutoMovieHumanTrunkTape } from "./AutoMovieHumanTrunkTape";
 import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
-import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
-
-type Vec3 = AutoMovieSolidVector.Vec3;
 
 /**
  * The trunk subtree built and joined (#3047): the base lofted from its views,
@@ -59,77 +64,15 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  * pair that reaches the median plane is reported and left unjoined.
  */
 export namespace AutoMovieHumanTrunkBuild {
-  /** A mass's law on the left side, in calibration mm. */
-  export interface IMassLaw {
-    /** Declared AP skin apex on the left, calibration mm; its height and transverse place must not move during wall placement. */
-    target: Vec3;
-
-    /** The up direction of its footprint. */
-    up: Vec3;
-
-    /** Footprint edges at the base, along up, lateral, down and medial, mm. */
-    footprint: [number, number, number, number];
-
-    /** Profile: shares of the amplitude with the shares of the edges left there, as `AutoMovieHumanMassPart`. */
-    profile: AutoMovieHumanMassPart.IInput["profile"];
-
-    /** Sourced conic shoulder of its sections. */
-    shoulder: number;
-
-    /** Declared geometric join radius, mm; the current interim caller derives operational softness from sampling pitch, not fat thickness. */
-    fold: number;
-  }
-
-  /** What the build reads. */
-  export interface IInput {
-    /** Same original leg definitions consumed by production lofts, before either tape pass builds its parent contact. */
-    legs?: Record<"left" | "right", AutoMovieHumanSiteViewPart.IDefinition>;
-    /** Same regional factory publishes each trial/final leg against that exact parent; no independent hip estimate. */
-    bindLeg?: AutoMovieHumanTrunkLegs.IInput["bindLeg"];
-    /** The base's views (`AutoMovieHumanTrunkViews.of`). */
-    views: IAutoMovieHumanTrunkViews;
-
-    /** Retained upper scalar support on the head axis. The shared-neck part excludes its exterior domain above the regular connection. */
-    top?: AutoMovieHumanTrunkViewPart.ITop;
-
-    /** The tapes that wrap the merged skin, mm: the chest over the breasts, the hip over the gluteal masses. */
-    tapes: { chest: number; hip: number };
-
-    /** The breasts' law, or null where the amplitude leaves none. */
-    breast: IMassLaw | null;
-
-    /** The gluteal masses' law, or null. */
-    gluteal: IMassLaw | null;
-  }
-
-  /** What the build publishes. */
-  export interface IOutput {
-    /** Common original measurement planes consumed by both preparation passes. */
-    sections: ReadonlyMap<string, AutoMovieHumanTrunkSectionFamily.IPlane>;
-    /** The base's view node, or null when it cannot be lofted. */
-    trunk: IAutoMovieConstructionView | null;
-
-    /** Each mass's fold onto the base, for the body's tree. */
-    masses: AutoMovieHumanBodyTree.IFold[];
-
-    /** Every broken premise. */
-    diagnostics: AutoMovieLoftContract.IDiagnostic[];
-
-    /** Actual builder results in production order, including both tape passes and failed admissions. */
-    sources: AutoMovieHumanSiteViewPart.ISource[];
-  }
-
   /** Section controls and ring phases of a mass. */
   const MASS_ORDER: number = 128;
 
   /** Preserve the existing upper scalar support from the canonical head axis; the regular shared connection excludes that support's dome from the loft domain. */
   export function withHead(
-    trunk: IInput,
-    head:
-      | { part: Pick<IAutoMovieViewPart, "axis" | "stations">; crown: Vec3 }
-      | undefined,
-    diagnostics: AutoMovieLoftContract.IDiagnostic[],
-  ): IInput {
+    trunk: IAutoMovieHumanTrunkBuild.IInput,
+    head: IAutoMovieHumanTrunkBuild.IWithHeadHead,
+    diagnostics: IAutoMovieLoftContract.IDiagnostic[],
+  ): IAutoMovieHumanTrunkBuild.IInput {
     const neck: IAutoMovieHumanTrunkViews.ISite | undefined =
       trunk.views.sites.at(-1);
     if (head === undefined || neck === undefined) return trunk;
@@ -156,25 +99,26 @@ export namespace AutoMovieHumanTrunkBuild {
    * @param input The views, the merged tapes and the masses' laws.
    * @returns The chains, the merges and the diagnostics.
    */
-  export function create(input: IInput, prepared?: IOutput): IOutput {
-    const original: IOutput = prepared ?? define(input);
-    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [
+  export function create(
+    input: IAutoMovieHumanTrunkBuild.IInput,
+    prepared?: IAutoMovieHumanTrunkBuild.IOutput,
+  ): IAutoMovieHumanTrunkBuild.IOutput {
+    const original: IAutoMovieHumanTrunkBuild.IOutput =
+      prepared ?? define(input);
+    const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [
       ...original.diagnostics,
     ];
-    const sources: AutoMovieHumanSiteViewPart.ISource[] = [...original.sources];
-    const last: Map<string, AutoMovieHumanSiteViewPart.ISource> = new Map(
+    const sources: IAutoMovieHumanNamedSource[] = [...original.sources];
+    const last: Map<string, IAutoMovieHumanNamedSource> = new Map(
       sources.map(
         (
-          source: AutoMovieHumanSiteViewPart.ISource,
-        ): [string, AutoMovieHumanSiteViewPart.ISource] => [
-          source.name,
-          source,
-        ],
+          source: IAutoMovieHumanNamedSource,
+        ): [string, IAutoMovieHumanNamedSource] => [source.name, source],
       ),
     );
     const failed: Set<string> = new Set();
     for (const source of last.values()) {
-      const result: AutoMovieHumanSiteViewPart.IResult =
+      const result: IAutoMovieHumanSourceRealization =
         source.result.loft === null
           ? AutoMovieHumanSiteViewPart.loft(source.result)
           : source.result;
@@ -195,7 +139,7 @@ export namespace AutoMovieHumanTrunkBuild {
         ? null
         : original.trunk,
       masses: original.masses.filter(
-        (mass: AutoMovieHumanBodyTree.IFold): boolean =>
+        (mass: IAutoMovieHumanBodyTree.IFold): boolean =>
           !failed.has(mass.partFace),
       ),
       diagnostics,
@@ -204,23 +148,31 @@ export namespace AutoMovieHumanTrunkBuild {
   }
 
   /** Prepare the identical two tape passes from original fields, without raw lofts, a mesh or final realization. */
-  export function define(input: IInput): IOutput {
+  export function define(
+    input: IAutoMovieHumanTrunkBuild.IInput,
+  ): IAutoMovieHumanTrunkBuild.IOutput {
     const sections: ReadonlyMap<
       string,
-      AutoMovieHumanTrunkSectionFamily.IPlane
+      IAutoMovieHumanTrunkSectionFamily.IPlane
     > = AutoMovieHumanTrunkSectionFamily.define(input.views);
-    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
-    const sources: AutoMovieHumanSiteViewPart.ISource[] = [];
+    const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
+    const sources: IAutoMovieHumanNamedSource[] = [];
     const out: (
       trunk: IAutoMovieConstructionView | null,
-      masses: AutoMovieHumanBodyTree.IFold[],
-    ) => IOutput = (
+      masses: IAutoMovieHumanBodyTree.IFold[],
+    ) => IAutoMovieHumanTrunkBuild.IOutput = (
       trunk: IAutoMovieConstructionView | null,
-      masses: AutoMovieHumanBodyTree.IFold[],
-    ): IOutput => ({ trunk, masses, diagnostics, sources, sections });
+      masses: IAutoMovieHumanBodyTree.IFold[],
+    ): IAutoMovieHumanTrunkBuild.IOutput => ({
+      trunk,
+      masses,
+      diagnostics,
+      sources,
+      sections,
+    });
 
     // Pass 1: the base with the ellipse's shoulders, the masses on it.
-    const first: AutoMovieHumanSiteViewPart.IResult = {
+    const first: IAutoMovieHumanSourceRealization = {
       ...AutoMovieHumanTrunkViewPart.define(input.views, input.top, sections),
       loft: null,
     };
@@ -229,7 +181,7 @@ export namespace AutoMovieHumanTrunkBuild {
       diagnostics.push(...first.diagnostics);
       return out(null, []);
     }
-    const firstInput: IInput = {
+    const firstInput: IAutoMovieHumanTrunkBuild.IInput = {
       ...input,
       legs: AutoMovieHumanTrunkLegs.pair(input, first),
     };
@@ -250,17 +202,17 @@ export namespace AutoMovieHumanTrunkBuild {
                 ? "gluteal"
                 : null;
           if (kind === null) return s;
-          const plane: AutoMovieHumanTrunkSectionFamily.IPlane = sections.get(
+          const plane: IAutoMovieHumanTrunkSectionFamily.IPlane = sections.get(
             s.site,
           )!;
-          const tape: AutoMovieHumanTrunkTape.IResult =
+          const tape: IAutoMovieHumanTrunkTape.IResult =
             AutoMovieHumanTrunkTape.solve({
               producer: `view.trunk ${s.site}`,
               plane,
               masses: masses1
                 .filter((m: IMass): boolean => m.kind === kind)
                 .map(
-                  (m: IMass): AutoMovieHumanTrunkTape.IMass => ({
+                  (m: IMass): IAutoMovieHumanTrunkTape.IMass => ({
                     part: m.source,
                     view: m.view,
                   }),
@@ -269,7 +221,9 @@ export namespace AutoMovieHumanTrunkBuild {
                 kind === "gluteal"
                   ? (
                       shoulder: number,
-                    ): NonNullable<AutoMovieHumanTrunkTape.IInput["parents"]> =>
+                    ): NonNullable<
+                      IAutoMovieHumanTrunkTape.IInput["parents"]
+                    > =>
                       AutoMovieHumanTrunkLegs.trial(
                         input,
                         s,
@@ -286,7 +240,7 @@ export namespace AutoMovieHumanTrunkBuild {
         },
       ),
     };
-    const base: AutoMovieHumanSiteViewPart.IResult = {
+    const base: IAutoMovieHumanSourceRealization = {
       ...AutoMovieHumanTrunkViewPart.define(solved, input.top, sections),
       loft: null,
     };
@@ -297,13 +251,13 @@ export namespace AutoMovieHumanTrunkBuild {
 
     // Pass 2 publishes originals and fold declarations. The actual lower
     // guide exit/host is resolved only by the later body-tree assembly.
-    const folds: AutoMovieHumanBodyTree.IFold[] = masses(
+    const folds: IAutoMovieHumanBodyTree.IFold[] = masses(
       input,
       base.part,
       diagnostics,
       sources,
     ).map(
-      (m: IMass): AutoMovieHumanBodyTree.IFold => ({
+      (m: IMass): IAutoMovieHumanBodyTree.IFold => ({
         part: m.view,
         partFace: m.source.name,
         hostFace: AutoMovieHumanTrunkViewPart.NAME,
@@ -321,7 +275,7 @@ export namespace AutoMovieHumanTrunkBuild {
     kind: "breast" | "gluteal";
 
     /** Its law, this side's. */
-    law: IMassLaw;
+    law: IAutoMovieHumanTrunkBuild.IMassLaw;
 
     /** Identical original view part, used by source tape cuts. */
     source: IAutoMovieViewPart;
@@ -343,13 +297,16 @@ export namespace AutoMovieHumanTrunkBuild {
    * @returns The masses that built.
    */
   function masses(
-    input: IInput,
+    input: IAutoMovieHumanTrunkBuild.IInput,
     part: IAutoMovieViewPart,
-    diagnostics: AutoMovieLoftContract.IDiagnostic[],
-    sources: AutoMovieHumanSiteViewPart.ISource[],
+    diagnostics: IAutoMovieLoftContract.IDiagnostic[],
+    sources: IAutoMovieHumanNamedSource[],
   ): IMass[] {
     const out: IMass[] = [];
-    const pairs: ["breast" | "gluteal", IMassLaw | null][] = [
+    const pairs: [
+      "breast" | "gluteal",
+      IAutoMovieHumanTrunkBuild.IMassLaw | null,
+    ][] = [
       ["breast", input.breast],
       ["gluteal", input.gluteal],
     ];
@@ -369,16 +326,17 @@ export namespace AutoMovieHumanTrunkBuild {
         continue;
       }
       for (const side of ["left", "right"] as const) {
-        const own: IMassLaw = side === "left" ? law : mirror(law);
+        const own: IAutoMovieHumanTrunkBuild.IMassLaw =
+          side === "left" ? law : mirror(law);
         const name: string = `${kind}.${side}`;
-        const placement: AutoMovieHumanTrunkMassPlacement.IPlacement | string =
+        const placement: IAutoMovieHumanTrunkMassPlacement.IPlacement | string =
           AutoMovieHumanTrunkMassPlacement.of(
             part,
             own.target,
             kind === "breast" ? 1 : -1,
           );
         if (typeof placement === "string") {
-          const failed: AutoMovieHumanSiteViewPart.IResult = {
+          const failed: IAutoMovieHumanSourceRealization = {
             part: null,
             loft: null,
             view: null,
@@ -395,9 +353,9 @@ export namespace AutoMovieHumanTrunkBuild {
           diagnostics.push(...failed.diagnostics);
           continue;
         }
-        const leg: AutoMovieHumanSiteViewPart.IDefinition | undefined =
+        const leg: IAutoMovieHumanSourceDefinition | undefined =
           input.legs?.[side];
-        const connection: AutoMovieHumanMassSource.IConnection | string =
+        const connection: IAutoMovieHumanMassSource.IConnection | string =
           kind === "breast"
             ? AutoMovieHumanBreastConnection.create({
                 trunk: part,
@@ -417,7 +375,7 @@ export namespace AutoMovieHumanTrunkBuild {
                 })
               : "Gluteal contact requires the identical successful same-leg original";
         if (typeof connection === "string") {
-          const failed: AutoMovieHumanSiteViewPart.IResult = {
+          const failed: IAutoMovieHumanSourceRealization = {
             part: null,
             loft: null,
             view: null,
@@ -443,7 +401,7 @@ export namespace AutoMovieHumanTrunkBuild {
           throw new Error(
             "A mass connection lost its identical original trunk field",
           );
-        const built: AutoMovieHumanSiteViewPart.IResult = {
+        const built: IAutoMovieHumanSourceRealization = {
           ...AutoMovieHumanMassPart.define({
             name,
             connection,
@@ -485,8 +443,12 @@ export namespace AutoMovieHumanTrunkBuild {
    * @param law The left side's law.
    * @returns The right side's.
    */
-  function mirror(law: IMassLaw): IMassLaw {
-    const flip: (p: Vec3) => Vec3 = (p: Vec3): Vec3 => [p[0], p[1], -p[2]];
+  function mirror(
+    law: IAutoMovieHumanTrunkBuild.IMassLaw,
+  ): IAutoMovieHumanTrunkBuild.IMassLaw {
+    const flip: (p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
+      p: AutoMovieVector3Tuple,
+    ): AutoMovieVector3Tuple => [p[0], p[1], -p[2]];
     return { ...law, target: flip(law.target), up: flip(law.up) };
   }
 }

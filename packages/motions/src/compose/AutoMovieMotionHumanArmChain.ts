@@ -1,8 +1,14 @@
 import { hingedArmSwivel } from "@automovie/engine";
+import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
@@ -51,59 +57,59 @@ export namespace AutoMovieMotionHumanArmChain {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one seed record per grid instant of the action, released with the plan.
    */
   export function continued(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     duration: number,
-    posture: (seconds: number) => IHumanPosture,
-    sides: readonly HumanHand.Side[] = ["left", "right"],
-  ): (seconds: number, now?: IHumanPosture) => IHumanPosture {
+    posture: (seconds: number) => IAutoMovieMotionHumanPosture,
+    sides: readonly AutoMovieHumanSide[] = ["left", "right"],
+  ): (seconds: number, now?: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanPosture {
     const step: number = AutoMovieMotionHumanArmCourse.STEP;
     const last: number = Math.floor(duration / step + 1e-9);
-    const course: resolveHumanPosture.INear[] = [];
+    const course: IAutoMovieMotionHumanResolveHumanPosture.INear[] = [];
 
     // A second's goals fitted continuing the seeds given, and the seeds the
     // fit chose; a fit that names no seed leaves the one it continued.
     const fit = (
-      at: IHumanPosture,
-      near: resolveHumanPosture.INear,
-    ): { posture: IHumanPosture; near: resolveHumanPosture.INear } => {
-      const solved: resolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
+      at: IAutoMovieMotionHumanPosture,
+      near: IAutoMovieMotionHumanResolveHumanPosture.INear,
+    ): { posture: IAutoMovieMotionHumanPosture; near: IAutoMovieMotionHumanResolveHumanPosture.INear } => {
+      const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
         body,
         at,
         undefined,
         near,
       );
-      const joints: IHumanPosture["joints"] = { ...at.joints };
-      const limbs: IHumanPosture["limbs"] = { ...at.limbs };
+      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...at.joints };
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...at.limbs };
       const next: Partial<
         Record<
-          IHumanPosture.Limb,
-          NonNullable<resolveHumanPosture.INear[IHumanPosture.Limb]>
+          AutoMovieHumanLimb,
+          NonNullable<IAutoMovieMotionHumanResolveHumanPosture.INear[AutoMovieHumanLimb]>
         >
       > = { ...near };
       for (const side of sides) {
         const limb: "leftArm" | "rightArm" = `${side}Arm`;
         if (at.limbs[limb] === undefined) continue;
-        const arm: AutoMovieMotionHumanArmAngles.IAngles =
+        const arm: IAutoMovieMotionHumanArmAngles.IAngles =
           AutoMovieMotionHumanArmAngles.angles(solved.pose, side);
         joints[`${side}UpperArm`] = arm.upper;
         joints[`${side}LowerArm`] = arm.lower;
         joints[`${side}Hand`] = arm.hand;
         delete limbs[limb];
-        const seed: resolveHumanPosture.ISeeded["seeds"][typeof limb] =
+        const seed: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][typeof limb] =
           solved.seeds[limb];
         if (seed !== undefined && seed !== null)
           next[limb] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
       }
       return { posture: { ...at, joints, limbs }, near: next };
     };
-    const seeds = (k: number): resolveHumanPosture.INear => {
+    const seeds = (k: number): IAutoMovieMotionHumanResolveHumanPosture.INear => {
       while (course.length <= k) {
         const j: number = course.length;
         course.push(fit(posture(j * step), j === 0 ? {} : course[j - 1]!).near);
       }
       return course[k]!;
     };
-    return (seconds: number, now?: IHumanPosture): IHumanPosture => {
+    return (seconds: number, now?: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, seconds));
       const k: number = Math.min(last, Math.floor(t / step + 1e-9));
       return fit(now ?? posture(t), seeds(k)).posture;

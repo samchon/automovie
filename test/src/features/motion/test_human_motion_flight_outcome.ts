@@ -2,6 +2,8 @@ import { createProjectile } from "@automovie/archetypes";
 import { Vector3, projectileAt } from "@automovie/engine";
 import type {
   IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -9,7 +11,6 @@ import {
   HumanObject,
   HumanPerformance,
   HumanThrownWeapon,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -42,13 +43,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the five numbered scenarios with their bounds.
  */
 export function test_human_motion_flight_outcome(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const target: IAutoMovieVector3 = { x: 0, y: 0, z: 8 };
   const perform = (
     subject: string,
     projectile: ReturnType<typeof createProjectile>,
     row: "throwGrenade" | "throwSpear",
-  ): HumanPerformance =>
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "flight-outcome",
       laws: [HumanThrownWeapon[row]],
@@ -83,7 +84,7 @@ export function test_human_motion_flight_outcome(): void {
   const grenade: ReturnType<typeof createProjectile> = createProjectile({
     kind: "grenade",
   });
-  let thrown: HumanPerformance | undefined;
+  let thrown: IAutoMovieMotionHumanPerformance | undefined;
   try {
     thrown = perform("grenade", grenade, "throwGrenade");
   } catch (error) {
@@ -149,7 +150,7 @@ export function test_human_motion_flight_outcome(): void {
   const arrow: ReturnType<typeof createProjectile> = createProjectile({
     kind: "arrow",
   });
-  let shot: HumanPerformance | undefined;
+  let shot: IAutoMovieMotionHumanPerformance | undefined;
   try {
     shot = perform("arrow", arrow, "throwSpear");
   } catch (error) {

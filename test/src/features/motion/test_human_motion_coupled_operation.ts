@@ -6,13 +6,18 @@ import {
   createCannon,
 } from "@automovie/archetypes";
 import { AutoMovieComposition, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -72,12 +77,12 @@ function coupled(): Archetype<"drive" | "follower", never> {
  * @evidence contracts/development/testing.md#execution-ownership One discoverable in-memory test using the real average Human body and shipped operate law; starts no viewer or host.
  */
 export function test_human_motion_coupled_operation(): void {
-  const body: IHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const gun: ReturnType<typeof createCannon> = createCannon({
     kind: "fieldGun",
   });
   const screw: IAutoMovieVector3 = gun.affordance("screw").frame.translation;
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "coupled-gun-track",
     props: [
       HumanObject.prop(
@@ -125,13 +130,17 @@ export function test_human_motion_coupled_operation(): void {
       )
       .stand({ seconds: 1 }).node,
   });
-  const operation: ReturnType<HumanPerformance["segments"]>[number] =
-    performance
-      .segments("gunner")
-      .find(
-        (segment: ReturnType<HumanPerformance["segments"]>[number]): boolean =>
-          segment.id === "lay",
-      )!;
+  const operation: ReturnType<
+    IAutoMovieMotionHumanPerformance["segments"]
+  >[number] = performance
+    .segments("gunner")
+    .find(
+      (
+        segment: ReturnType<
+          IAutoMovieMotionHumanPerformance["segments"]
+        >[number],
+      ): boolean => segment.id === "lay",
+    )!;
   const drive: NonNullable<typeof operation.plan.drives>[number] =
     operation.plan.drives![0]!;
   const from: number = operation.start + drive.from * operation.plan.duration;
@@ -190,7 +199,7 @@ export function test_human_motion_coupled_operation(): void {
     who: string,
     point: "drive" | "follower",
     amount: number,
-  ): HumanChain =>
+  ): IAutoMovieMotionHumanChain =>
     HumanChain.subject(who).operate(
       {
         hand: who === "a" ? "right" : "left",
@@ -203,8 +212,8 @@ export function test_human_motion_coupled_operation(): void {
       `${who}-turn`,
     );
   const input = (
-    composition: AutoMovieComposition,
-  ): HumanPerformance.IInput => ({
+    composition: IAutoMovieComposition,
+  ): IAutoMovieMotionHumanPerformance.IInput => ({
     seed: "coupled-writers",
     props: [
       HumanObject.prop("mechanism", model, {
@@ -231,7 +240,7 @@ export function test_human_motion_coupled_operation(): void {
     ],
     composition,
   });
-  const sequence: HumanPerformance = new HumanPerformance(
+  const sequence: IAutoMovieMotionHumanPerformance = new HumanPerformance(
     input(
       AutoMovieComposition.parallel(
         turn("a", "drive", 30).node,

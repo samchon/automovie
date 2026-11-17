@@ -1,4 +1,4 @@
-import { AutoMovieLightProperty } from "./AutoMovieLightProperty";
+import type { AutoMovieLightProperty } from "@automovie/interface";
 
 /** The canonical pointer addressing one light's property.
  *

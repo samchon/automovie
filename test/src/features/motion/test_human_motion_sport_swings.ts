@@ -1,14 +1,17 @@
 import { createBall } from "@automovie/archetypes";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
-  type HumanSegment,
   HumanSportSwing,
   HumanSportThrow,
   HumanWeaponMelee,
-  type IHumanActionLaw,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -44,11 +47,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States what the net catches, what it leaves to other tests and the 2 scenarios.
  */
 export function test_human_motion_sport_swings(): void {
-  const alone: IHumanActionLaw<never>[] = [
+  const alone: IAutoMovieMotionHumanActionLaw<never>[] = [
     ...Object.values(HumanSportSwing),
     ...Object.values(HumanWeaponMelee),
   ];
-  const travel: IHumanActionLaw<never>[] = [
+  const travel: IAutoMovieMotionHumanActionLaw<never>[] = [
     HumanSportThrow.kickRight,
     HumanSportThrow.kickLeft,
     HumanSportThrow.leap,
@@ -58,7 +61,7 @@ export function test_human_motion_sport_swings(): void {
     ball: "ball",
     toward: { kind: "point", at: { x: 0, y: 0, z: 5 }, frame: "world" },
   };
-  const football: HumanPerformance.IInput["props"] = [
+  const football: IAutoMovieMotionHumanPerformance.IInput["props"] = [
     HumanObject.prop("ball", createBall({ kind: "football" }), {
       at: { x: 0, y: 0, z: 0.45 },
       yaw: 0,
@@ -73,10 +76,10 @@ export function test_human_motion_sport_swings(): void {
   };
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const law of [...alone, ...travel])
       try {
-        const film: HumanPerformance = new HumanPerformance({
+        const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
           seed: "swings",
           laws: [...alone, ...travel],
           props: football,
@@ -93,7 +96,8 @@ export function test_human_motion_sport_swings(): void {
             .stand({ seconds: 0.3 })
             .registered(law.name, given[law.name] ?? {}).node,
         });
-        const act: HumanSegment.ISegment | undefined = film.segments("a")[1];
+        const act: IAutoMovieMotionHumanSegment | undefined =
+          film.segments("a")[1];
         if (act === undefined || act.name !== law.name)
           complaints.push(
             `${law.name} on ${name}: placed as ${act?.name}, ${law.name} expected`,

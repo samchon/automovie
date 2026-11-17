@@ -1,14 +1,15 @@
-import { type IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   IAutoMovieBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  type IHumanBody,
-  type IHumanPosture,
   createHumanBody,
   poseBones,
   resolveHumanPosture,
@@ -64,10 +65,10 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable numerical unit uses the repository's canonical Human fixture and independently cloned skeleton/profile through the actual body factory. All changed records belong to the test; no renderer, viewer, foreign method replacement, subprocess or compiler is started.
  */
 export function test_motion_prepared_posture_translation(): void {
-  const shared: IHumanBody = motionHumanBody("m-average");
+  const shared: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const skeleton: IAutoMovieSkeleton = structuredClone(shared.skeleton);
-  const first: IHumanBody = createHumanBody(skeleton, structuredClone(shared.profile));
-  const source: IHumanPosture = {
+  const first: IAutoMovieMotionHumanBody = createHumanBody(skeleton, structuredClone(shared.profile));
+  const source: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0,
     joints: { head: [10, 0, 0] }, limbs: {},
   };
@@ -80,11 +81,11 @@ export function test_motion_prepared_posture_translation(): void {
   });
 
   for (const root of [{ x: 2, y: 3, z: 4 }, { x: -1, y: 0.5, z: 0.25 }]) {
-    const raw: IHumanPosture = resolveHumanPosture.translated(prepared, root);
+    const raw: IAutoMovieMotionHumanPosture = resolveHumanPosture.translated(prepared, root);
     TestValidator.predicate("transport retains its own original authoring demand",
       vclose(raw.root, root, 0) && nclose(raw.joints.head![0], 10, 0),
     );
-    const moved: IHumanPosture = resolveHumanPosture.translated(other, root);
+    const moved: IAutoMovieMotionHumanPosture = resolveHumanPosture.translated(other, root);
     TestValidator.predicate("another preparation's transport carries its own demand",
       vclose(moved.root, root, 0) && nclose(moved.joints.head![0], 20, 0) &&
       nclose(head(resolveHumanPosture(first, moved)), 20, 1e-12),
@@ -103,7 +104,7 @@ export function test_motion_prepared_posture_translation(): void {
     );
   }
 
-  const changed: IHumanPosture = resolveHumanPosture.translated(prepared, { x: 0, y: 0, z: 0 });
+  const changed: IAutoMovieMotionHumanPosture = resolveHumanPosture.translated(prepared, { x: 0, y: 0, z: 0 });
   changed.joints.head = [20, 0, 0];
   TestValidator.predicate("changed current demand cannot reuse canonical angles",
     nclose(head(resolveHumanPosture(first, changed)), 20, 1e-12),
@@ -118,9 +119,9 @@ export function test_motion_prepared_posture_translation(): void {
     (value: IAutoMovieBone): boolean => value.bone === "head",
   )!;
   headBone.constraint = { flexion: { min: 0, max: 5 }, abduction: null, twist: null };
-  const body: IHumanBody = createHumanBody(narrowed, structuredClone(shared.profile));
+  const body: IAutoMovieMotionHumanBody = createHumanBody(narrowed, structuredClone(shared.profile));
   jsonSpoof(body, prepared, 5);
-  const constrained: IHumanPosture = resolveHumanPosture.translated(prepared, { x: 0, y: 0, z: 0 });
+  const constrained: IAutoMovieMotionHumanPosture = resolveHumanPosture.translated(prepared, { x: 0, y: 0, z: 0 });
   TestValidator.predicate("a body made from the constrained rig cannot reuse the earlier body's canonical evidence",
     nclose(head(resolveHumanPosture(body, constrained)), 5, 1e-12),
   );
@@ -145,7 +146,7 @@ export function test_motion_prepared_posture_translation(): void {
   );
   const legPrepared: resolveHumanPosture.IPrepared = resolveHumanPosture.prepare(body, constrained);
   const displacement: IAutoMovieVector3 = { x: 1, y: 2, z: -3 };
-  const carried: IHumanPosture = resolveHumanPosture.translated(legPrepared, displacement);
+  const carried: IAutoMovieMotionHumanPosture = resolveHumanPosture.translated(legPrepared, displacement);
   TestValidator.predicate("goal translation preserves original asked point and bend",
     vclose(carried.limbs.leftLeg!.point,
       { x: point.x + 1, y: point.y + 2, z: point.z - 3 }, 1e-12) &&
@@ -154,22 +155,22 @@ export function test_motion_prepared_posture_translation(): void {
   );
   samePose(resolveHumanPosture(body, carried), resolveHumanPosture(body, structuredClone(carried)));
   TestValidator.predicate("copied wrapper cannot issue transport evidence",
-    throwsError((): IHumanPosture => resolveHumanPosture.translated(
+    throwsError((): IAutoMovieMotionHumanPosture => resolveHumanPosture.translated(
       { ...legPrepared }, displacement,
     ), "Unissued"),
   );
-  const ordinary: IHumanPosture = { ...carried };
+  const ordinary: IAutoMovieMotionHumanPosture = { ...carried };
   samePose(resolveHumanPosture(body, ordinary), resolveHumanPosture(body, structuredClone(carried)));
 
-  const fixed: IHumanPosture = { ...constrained, limbs: {} };
+  const fixed: IAutoMovieMotionHumanPosture = { ...constrained, limbs: {} };
   const workspace: ReturnType<typeof resolveHumanPosture.prepareBase> = resolveHumanPosture.prepareBase(body, fixed);
-  const candidates: IHumanPosture.IGoal[] = [
+  const candidates: IAutoMovieHumanLimbGoal[] = [
     { point: { ...point }, bend: { ...bend } },
     { point: { x: foot.x, y: foot.y + 0.09, z: foot.z - 0.04 }, bend: { ...bend } },
   ];
   let previous: IAutoMoviePose | undefined;
   for (const index of [0, 1, 0]) {
-    const goal: IHumanPosture.IGoal = candidates[index]!;
+    const goal: IAutoMovieHumanLimbGoal = candidates[index]!;
     const current: IAutoMoviePose = workspace.seeded({ leftLeg: goal }).pose;
     const cold: IAutoMoviePose = resolveHumanPosture(body, { ...fixed, limbs: { leftLeg: goal } });
     samePose(current, cold);
@@ -187,15 +188,15 @@ export function test_motion_prepared_posture_translation(): void {
     previous = current;
   }
 
-  const variants: readonly ((posture: IHumanPosture) => void)[] = [
-    (posture: IHumanPosture): void => { posture.joints.head = [2, 0, 0]; },
-    (posture: IHumanPosture): void => { posture.joints.hips = [10, 0, 0]; },
-    (posture: IHumanPosture): void => { posture.limbs.leftLeg!.point.z += 0.02; },
+  const variants: readonly ((posture: IAutoMovieMotionHumanPosture) => void)[] = [
+    (posture: IAutoMovieMotionHumanPosture): void => { posture.joints.head = [2, 0, 0]; },
+    (posture: IAutoMovieMotionHumanPosture): void => { posture.joints.hips = [10, 0, 0]; },
+    (posture: IAutoMovieMotionHumanPosture): void => { posture.limbs.leftLeg!.point.z += 0.02; },
   ];
   for (let i: number = 0; i < variants.length; i++) {
-    const raw: IHumanPosture = structuredClone(carried);
+    const raw: IAutoMovieMotionHumanPosture = structuredClone(carried);
     variants[i]!(raw);
-    const checked: IHumanPosture = resolveHumanPosture.carried(legPrepared, raw);
+    const checked: IAutoMovieMotionHumanPosture = resolveHumanPosture.carried(legPrepared, raw);
     const actual: IAutoMoviePose = resolveHumanPosture(body, checked);
     samePose(actual, resolveHumanPosture(body, structuredClone(raw)));
     const endpoint: IAutoMovieVector3 = poseBones(body, actual).get("leftFoot")!.worldPosition;
@@ -235,14 +236,14 @@ function sameAngle(a: number | null, b: number | null): boolean {
 }
 
 /** Current clinical scalars cannot be certified by a JSON callback concealing their change. */
-function jsonSpoof(body: IHumanBody, prepared: resolveHumanPosture.IPrepared, expected: number): void {
+function jsonSpoof(body: IAutoMovieMotionHumanBody, prepared: resolveHumanPosture.IPrepared, expected: number): void {
   for (const inherited of [false, true]) {
-    const raw: IHumanPosture = resolveHumanPosture.translated(prepared, { x: 0.25, y: 0.5, z: -0.75 });
+    const raw: IAutoMovieMotionHumanPosture = resolveHumanPosture.translated(prepared, { x: 0.25, y: 0.5, z: -0.75 });
     const before: string = JSON.stringify(raw);
     Object.defineProperty(raw.joints.head!, "0", { value: 20 });
     conceal(raw.joints.head!, inherited);
     TestValidator.equals("owned JSON hook really conceals the current clinical change", JSON.stringify(raw), before);
-    const arbitrary: IHumanPosture = structuredClone(raw);
+    const arbitrary: IAutoMovieMotionHumanPosture = structuredClone(raw);
     conceal(arbitrary.joints.head!, inherited);
     TestValidator.equals("arbitrary carried candidate has the same misleading serialized signature", JSON.stringify(arbitrary), before);
     for (const candidate of [raw, resolveHumanPosture.carried(prepared, arbitrary)]) {
@@ -263,15 +264,15 @@ function conceal(tuple: readonly [number, number, number], inherited: boolean): 
 }
 
 /** Preserve shared authoring graphs while applying the independent root displacement exactly once. */
-function aliasedGoals(body: IHumanBody, fixed: IHumanPosture, foot: IAutoMovieVector3, knee: IAutoMovieVector3): void {
-  const goal: IHumanPosture.IGoal = { point: { x: 0, y: foot.y + 0.08, z: foot.z + 0.05 },
+function aliasedGoals(body: IAutoMovieMotionHumanBody, fixed: IAutoMovieMotionHumanPosture, foot: IAutoMovieVector3, knee: IAutoMovieVector3): void {
+  const goal: IAutoMovieHumanLimbGoal = { point: { x: 0, y: foot.y + 0.08, z: foot.z + 0.05 },
     bend: { x: 0, y: knee.y, z: knee.z + 0.3 } };
   const point: IAutoMovieVector3 = { ...goal.point };
   const bend: IAutoMovieVector3 = { ...goal.bend };
-  const source: IHumanPosture = { ...fixed, root: { x: 0, y: 0, z: 0 }, limbs: { leftLeg: goal, rightLeg: goal } };
+  const source: IAutoMovieMotionHumanPosture = { ...fixed, root: { x: 0, y: 0, z: 0 }, limbs: { leftLeg: goal, rightLeg: goal } };
   const prepared: resolveHumanPosture.IPrepared = resolveHumanPosture.prepare(body, source);
   const root: IAutoMovieVector3 = { x: 1, y: 2, z: -3 };
-  const moved: IHumanPosture = resolveHumanPosture.translated(prepared, root);
+  const moved: IAutoMovieMotionHumanPosture = resolveHumanPosture.translated(prepared, root);
   TestValidator.predicate("one shared authoring goal receives exactly one translation and keeps its alias graph",
     moved.limbs.leftLeg === moved.limbs.rightLeg && moved.limbs.leftLeg !== goal &&
     vclose(moved.limbs.leftLeg!.point, { x: point.x + 1, y: point.y + 2, z: point.z - 3 }, 1e-12) &&
@@ -279,7 +280,7 @@ function aliasedGoals(body: IHumanBody, fixed: IHumanPosture, foot: IAutoMovieVe
     source.limbs.leftLeg === source.limbs.rightLeg && vclose(goal.point, point, 0) && vclose(goal.bend, bend, 0));
   samePose(resolveHumanPosture(body, moved), resolveHumanPosture(body, structuredClone(moved)));
   moved.limbs.leftLeg!.point.x = 999;
-  const replay: IHumanPosture = resolveHumanPosture.translated(prepared, root);
+  const replay: IAutoMovieMotionHumanPosture = resolveHumanPosture.translated(prepared, root);
   TestValidator.predicate("a translated shared-goal output cannot poison the source or next issued graph",
     replay.limbs.leftLeg === replay.limbs.rightLeg && replay.limbs.leftLeg !== moved.limbs.leftLeg &&
     vclose(replay.limbs.leftLeg!.point, { x: point.x + 1, y: point.y + 2, z: point.z - 3 }, 1e-12) &&

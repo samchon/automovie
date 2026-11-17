@@ -1,30 +1,32 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  clampJointToSkeleton,
-  type curlChainUntilContact,
-} from "@automovie/engine";
+import { Quaternion, clampJointToSkeleton } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieCurlChainUntilContact,
   IAutoMovieJointPose,
-  IAutoMoviePhysicalProfile,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanGrip,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePhysicalShape,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
-import type { HumanGrasp } from "./HumanGrasp";
+import { poseBones } from "../posture/poseBones";
+import { HumanClaspCandidateFrames } from "./HumanClaspCandidateFrames";
+import { HumanClaspClearance } from "./HumanClaspClearance";
+import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGrip } from "./HumanGrip";
-import { HumanClaspClearance } from "./HumanClaspClearance";
-import { HumanClaspCandidateFrames } from "./HumanClaspCandidateFrames";
 
 /**
  * Two people's hands clasping each other, palm on palm: the open hand each
@@ -87,10 +89,10 @@ export namespace HumanClasp {
     subject: string;
 
     /** The person's body. */
-    body: IHumanBody;
+    body: IAutoMovieMotionHumanBody;
 
     /** The standing posture the arm is fitted in. */
-    posture: IHumanPosture;
+    posture: IAutoMovieMotionHumanPosture;
 
     /** Where the palm faces, world unit vector. */
     palm: IAutoMovieVector3;
@@ -102,10 +104,10 @@ export namespace HumanClasp {
   /** The clasp both partners take. */
   export interface IChoice {
     /** This person's grip: its turn, its wrist goal, its shown hand and its arm. */
-    mine: HumanGrasp.IReach;
+    mine: IAutoMovieMotionHumanGrasp.IReach;
 
     /** The partner's grip, as the partner will take it. */
-    theirs: HumanGrasp.IReach;
+    theirs: IAutoMovieMotionHumanGrasp.IReach;
 
     /** The least gap of either open hand's phalanges to the other's forearm, metres. */
     clearance: number;
@@ -120,10 +122,10 @@ export namespace HumanClasp {
    * @returns Clinical degrees of every digit bone of that hand.
    */
   export function open(
-    body: IHumanBody,
-    side: HumanHand.Side,
-  ): IHumanPosture["joints"] {
-    const joints: IHumanPosture["joints"] = {
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanPosture["joints"] {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
       ...HumanHand.shape(side, "flat"),
     };
     for (const part of ["Metacarpal", "Proximal", "Distal"] as const) {
@@ -193,14 +195,14 @@ export namespace HumanClasp {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Candidate geometry/readers and arrays end with the synchronous search; the returned plain chosen reach records retain no reader or search maps.
    */
   export function choose(
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
     meet: IAutoMovieVector3,
     amplitude: number,
     mine: IHand,
     theirs: IHand,
   ): IChoice {
-    const fits: (hand: IHand) => HumanGrasp.IReach[] = (hand: IHand): HumanGrasp.IReach[] => {
-      const posture: IHumanPosture = {
+    const fits: (hand: IHand) => IAutoMovieMotionHumanGrasp.IReach[] = (hand: IHand): IAutoMovieMotionHumanGrasp.IReach[] => {
+      const posture: IAutoMovieMotionHumanPosture = {
         ...hand.posture,
         joints: { ...hand.posture.joints, ...open(hand.body, side) },
       };
@@ -216,9 +218,9 @@ export namespace HumanClasp {
       });
       const palm: IAutoMovieVector3 = HumanHand.offset(hand.body, side, "palm", "flat").point;
       return TURNS.map(
-        (turn: number): HumanGrasp.IReach =>
+        (turn: number): IAutoMovieMotionHumanGrasp.IReach =>
           search(
-            (angle: number): HumanHand.IWrist =>
+            (angle: number): IAutoMovieMotionHumanHand.IWrist =>
               placeHumanHandSurface(
                 palm,
                 meet,
@@ -230,9 +232,9 @@ export namespace HumanClasp {
                 ),
               ),
             [0],
-            (wrist: HumanHand.IWrist): HumanGrasp.IKey[] =>
+            (wrist: IAutoMovieMotionHumanHand.IWrist): IAutoMovieMotionHumanGrasp.IKey[] =>
               [-amplitude, amplitude].map(
-                (lift: number): HumanGrasp.IKey => ({
+                (lift: number): IAutoMovieMotionHumanGrasp.IKey => ({
                   posture,
                   wrist: {
                     point: { ...wrist.point, y: wrist.point.y + lift },
@@ -251,8 +253,8 @@ export namespace HumanClasp {
     const [one, two]: [IHand, IHand] = swapped
       ? [theirs, mine]
       : [mine, theirs];
-    const a: HumanGrasp.IReach[] = fits(one);
-    const b: HumanGrasp.IReach[] = fits(two);
+    const a: IAutoMovieMotionHumanGrasp.IReach[] = fits(one);
+    const b: IAutoMovieMotionHumanGrasp.IReach[] = fits(two);
     const aFrames: ReturnType<typeof HumanClaspCandidateFrames> = HumanClaspCandidateFrames(one.body, side, a);
     const bFrames: ReturnType<typeof HumanClaspCandidateFrames> = HumanClaspCandidateFrames(two.body, side, b);
     const aAdmitted: number[] = aFrames.indices;
@@ -292,8 +294,8 @@ export namespace HumanClasp {
           (clear < 0 && best.clear < 0 && clear > best.clear);
         if (better) best = { i, j, clear, cost };
       }
-    const first: HumanGrasp.IReach = a[best!.i]!;
-    const second: HumanGrasp.IReach = b[best!.j]!;
+    const first: IAutoMovieMotionHumanGrasp.IReach = a[best!.i]!;
+    const second: IAutoMovieMotionHumanGrasp.IReach = b[best!.j]!;
     return {
       mine: swapped ? second : first,
       theirs: swapped ? first : second,
@@ -323,11 +325,11 @@ export namespace HumanClasp {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and releases its fixed geometry readers and segment records on return or throw.
    */
   export function clearance(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    other: IHumanBody,
+    other: IAutoMovieMotionHumanBody,
     others: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
   ): number {
     const geometry: ReturnType<typeof HumanClaspClearance.forearm> =
       HumanClaspClearance.forearm(other, others, side);
@@ -352,20 +354,20 @@ export namespace HumanClasp {
    * @returns This person's closed digit angles, clinical degrees.
    */
   export function close(
-    side: HumanHand.Side,
+    side: AutoMovieHumanSide,
     choice: IChoice,
     mine: IHand,
     theirs: IHand,
-  ): IHumanPosture["joints"] {
+  ): IAutoMovieMotionHumanPosture["joints"] {
     const swapped: boolean = theirs.subject < mine.subject;
     const [one, two]: [IHand, IHand] = swapped
       ? [theirs, mine]
       : [mine, theirs];
-    const [a, b]: [HumanGrasp.IReach, HumanGrasp.IReach] = swapped
+    const [a, b]: [IAutoMovieMotionHumanGrasp.IReach, IAutoMovieMotionHumanGrasp.IReach] = swapped
       ? [choice.theirs, choice.mine]
       : [choice.mine, choice.theirs];
     const requested: ReadonlySet<AutoMovieHumanoidBone> = HumanClaspClearance.bones(side);
-    const first: IHumanPosture["joints"] = HumanGrip.close(
+    const first: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.close(
       one.body,
       side,
       "power",
@@ -415,28 +417,28 @@ export namespace HumanClasp {
    * @returns The placed colliders.
    */
   export function colliders(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: HumanHand.Side,
-  ): curlChainUntilContact.ICollider[] {
+    side: AutoMovieHumanSide,
+  ): IAutoMovieCurlChainUntilContact.ICollider[] {
     const digits: Set<AutoMovieHumanoidBone> = new Set(
       HumanGrip.CLOSING.power.flatMap(
-        (digit: HumanGrip.Digit): AutoMovieHumanoidBone[] =>
+        (digit: IAutoMovieMotionHumanGrip.Digit): AutoMovieHumanoidBone[] =>
           HumanGrip.bones(side, digit),
       ),
     );
     return HumanColliders.placed(body, bones)
       .filter(
-        (p: HumanColliders.IPlaced): boolean =>
+        (p: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
           p.bone === `${side}Hand` ||
           p.bone === `${side}LowerArm` ||
           digits.has(p.bone),
       )
-      .flatMap((p: HumanColliders.IPlaced): curlChainUntilContact.ICollider[] =>
+      .flatMap((p: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieCurlChainUntilContact.ICollider[] =>
         p.shapes.map(
           (
-            shape: IAutoMoviePhysicalProfile.IShape,
-          ): curlChainUntilContact.ICollider => ({
+            shape: IAutoMoviePhysicalShape,
+          ): IAutoMovieCurlChainUntilContact.ICollider => ({
             shape,
             frame: { position: p.pose.position, rotation: p.pose.rotation },
           }),

@@ -1,7 +1,5 @@
 # Final screenplay discovery statements
 
-Contract: [discovery/screenplay.md](../../discovery/screenplay.md).
-
 ## Screenplay requirements
 
 1. Uncovered positive choices were looked for in:

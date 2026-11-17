@@ -1,8 +1,14 @@
-/** Closed upper underwear choices; serialized values are unchanged. */
-export enum AutoMovieHumanUpperUnderwear {
-  /** none choice. */
-  None = "none",
+import type { AutoMovieHumanUpperUnderwear as AutoMovieHumanUpperUnderwearContract } from "@automovie/interface";
 
-  /** bra choice. */
-  Bra = "bra",
-}
+/** The canonical AutoMovieHumanUpperUnderwear literal vocabulary; runtime named members below preserve value access. */
+export type AutoMovieHumanUpperUnderwear = AutoMovieHumanUpperUnderwearContract;
+
+/** Closed upper underwear choices; serialized values are unchanged. */
+export const AutoMovieHumanUpperUnderwear = {
+  /** No upper undergarment requested. */
+  None: "none",
+  /** Bra covering requested; sizing and material are separate appearance concerns. */
+  Bra: "bra",
+} as const satisfies Readonly<
+  Record<string, AutoMovieHumanUpperUnderwearContract>
+>;

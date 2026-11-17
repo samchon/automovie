@@ -1,7 +1,11 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanSegment,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { poseBones } from "../posture/poseBones";
 import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
@@ -38,7 +42,7 @@ export namespace HumanSegmentShown {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The person owns the FIFO-bounded 4096-entry map and releases it on forget; returned pose references retain their existing borrowed ownership, with no copy or new process-wide cache.
    */
   export function of(
-    person: HumanSegment.IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
@@ -47,7 +51,7 @@ export namespace HumanSegmentShown {
       ? person.planning?.get(seconds)
       : person.cache.get(seconds);
     if (cached !== undefined) return { pose: cached.pose, kept: cached };
-    const active: HumanSegment.ISegment | undefined =
+    const active: IAutoMovieMotionHumanSegment | undefined =
       HumanSegmentSelection.last(person.segments, seconds);
     const pose: IAutoMoviePose = active === undefined
       ? HumanSegmentPose.initial(person, requested, prepared)
@@ -90,13 +94,13 @@ export namespace HumanSegmentShown {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reading lives in the person's kept record and leaves with it, on eviction, `forget` or the planning's end.
    */
   export function bones(
-    person: HumanSegment.IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(person.performer.body),
     bound?: { pose: ReturnType<typeof poseBones.prepare>; reading: ReturnType<typeof poseBones.prepareRead> },
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const body: IHumanBody = person.performer.body;
+    const body: IAutoMovieMotionHumanBody = person.performer.body;
     const entry: { pose: IAutoMoviePose; kept?: HumanSegment.IShown } = of(person, seconds, requested, prepared);
     if (entry.kept === undefined)
       return bound === undefined

@@ -1,5 +1,8 @@
 import { AutoMovieAir, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanReaction,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * What a person reacts to without being touched: a gunshot's or a cannon's
@@ -25,7 +28,7 @@ export namespace HumanReaction {
    * @returns The film second the sound arrives.
    */
   export function report(
-    shot: { point: IAutoMovieVector3; seconds: number },
+    shot: IAutoMovieMotionHumanReaction.IReportShot,
     listener: IAutoMovieVector3,
   ): number {
     return (

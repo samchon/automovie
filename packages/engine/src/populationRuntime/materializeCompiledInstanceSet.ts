@@ -4,17 +4,18 @@ import type {
   IAutoMovieFormationBounds,
   IAutoMovieInstanceSetDesign,
   IAutoMovieInstanceSetLayout,
+  IAutoMovieInstanceSetPlacement,
   IAutoMovieInstanceVariation,
+  IAutoMovieMaterializeCompiledInstanceSet,
   IAutoMovieModel,
   IAutoMovieModelLod,
+  IAutoMovieSummarizeCompiledSlotChunks,
   IAutoMovieVector3,
-  IAutoMovieWorldDesign,
   IAutoMovieWorldRoute,
 } from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
-import { IAutoMovieInstanceSetPlacement } from "./IAutoMovieInstanceSetPlacement";
 import { compiledPopulationRepresentation } from "./compiledPopulationRepresentation";
 import { AUTOMOVIE_INSTANCE_CHUNK_SIZE } from "./constants/AUTOMOVIE_INSTANCE_CHUNK_SIZE";
 import { instanceSlot } from "./instanceSlot";
@@ -46,32 +47,11 @@ import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A single point feeds chunk and global folds in identical ascending order; the default prototype representation is reused in the compiled table and base fields. Mutable inputs prevent cross-call caching.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The compact record and cloned route/laws transfer to the caller; only current accumulators and returned chunks remain during compilation, with no task or native handle.
  */
-export const materializeCompiledInstanceSet: (props: {
-  /** Instance set design to compile. */ instanceSet: IAutoMovieInstanceSetDesign;
-  /** World routes a route layout resolves its route from. */ world: Pick<
-    IAutoMovieWorldDesign,
-    "routes"
-  >;
-  /** Model groups keyed by the id the set, its prototypes and their tiers name, hashed into each tier's digest; empty when none are supplied. */ models?: ReadonlyMap<
-    string,
-    IAutoMovieModel
-  >;
-  /** Supplied root-centered radius estimate in metres keyed by model group id; an id without one borrows its prototype's base group radius and then half a metre. */ projectionRadii?: ReadonlyMap<
-    string,
-    number
-  >;
-}) => IAutoMovieCompiledInstanceSet = (props: {
-  /** Instance set design to compile. */
-  instanceSet: IAutoMovieInstanceSetDesign;
-  /** World routes a route layout resolves its route from. */
-  world: Pick<IAutoMovieWorldDesign, "routes">;
-  /** Model groups keyed by the id the set, its prototypes and their tiers name, hashed into each tier's digest; empty when none are supplied. */
-  models?: ReadonlyMap<string, IAutoMovieModel>;
-  /**
-   * Supplied root-centered radius estimate in metres keyed by model group id; an id without one borrows its prototype's base group radius and then half a metre.
-   */
-  projectionRadii?: ReadonlyMap<string, number>;
-}): IAutoMovieCompiledInstanceSet => {
+export const materializeCompiledInstanceSet: (
+  props: IAutoMovieMaterializeCompiledInstanceSet.IProps,
+) => IAutoMovieCompiledInstanceSet = (
+  props: IAutoMovieMaterializeCompiledInstanceSet.IProps,
+): IAutoMovieCompiledInstanceSet => {
   const instanceSet: IAutoMovieInstanceSetDesign = props.instanceSet;
   const layout: IAutoMovieInstanceSetLayout = instanceSet.layout;
   const models: ReadonlyMap<string, IAutoMovieModel> =
@@ -107,7 +87,7 @@ export const materializeCompiledInstanceSet: (props: {
   const position: (slot: number) => IAutoMovieVector3 = (
     slot: number,
   ): IAutoMovieVector3 => instanceSlot(placement, slot).position;
-  const measured: ReturnType<typeof summarizeCompiledSlotChunks> =
+  const measured: IAutoMovieSummarizeCompiledSlotChunks.IResult =
     summarizeCompiledSlotChunks(
       instanceSet.count,
       AUTOMOVIE_INSTANCE_CHUNK_SIZE,

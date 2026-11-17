@@ -1,12 +1,15 @@
-import { Vector3, type resolveAutoMovieContactEvents } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
 /**
  * The speed bounds a performance states to the engine's contact scan
- * (`resolveAutoMovieContactEvents.IWeapon.speed`, `IBody.speed`), each on
+ * (`IAutoMovieResolveContactEvents.IWeapon.speed`, `IBody.speed`), each on
  * one search's grid, so the scan reads no grid second a clear gap rules out
  * and finds the contact a scan of every second finds.
  *
@@ -42,21 +45,33 @@ export namespace HumanPerformanceContactSpeed {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Two number arrays over the window's steps, released with the search.
    */
   export function weapon(
-    read: (seconds: number) => readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined],
+    read: (
+      seconds: number,
+    ) => readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined],
     from: number,
     to: number,
-    grid: resolveAutoMovieContactEvents.IGrid,
-  ): resolveAutoMovieContactEvents.Speed {
+    grid: IAutoMovieResolveContactEvents.IGrid,
+  ): IAutoMovieResolveContactEvents.Speed {
     // The grid's seconds as the scan computes them, and the index of its end.
-    const second = (k: number): number => Math.min(grid.to, grid.from + k * grid.step);
-    const ends: number = Math.max(0, Math.ceil((grid.to - grid.from) / grid.step));
+    const second = (k: number): number =>
+      Math.min(grid.to, grid.from + k * grid.step);
+    const ends: number = Math.max(
+      0,
+      Math.ceil((grid.to - grid.from) / grid.step),
+    );
     const index = (seconds: number): number | undefined => {
-      const k: number = Math.min(ends, Math.max(0, Math.round((seconds - grid.from) / grid.step)));
+      const k: number = Math.min(
+        ends,
+        Math.max(0, Math.round((seconds - grid.from) / grid.step)),
+      );
       return second(k) === seconds ? k : seconds === grid.to ? ends : undefined;
     };
 
     // The last grid second inside the live window.
-    let last: number = Math.min(ends, Math.max(0, Math.floor((to - grid.from) / grid.step)));
+    let last: number = Math.min(
+      ends,
+      Math.max(0, Math.floor((to - grid.from) / grid.step)),
+    );
     while (last > 0 && second(last) > to) --last;
     if (last < ends && second(last + 1) <= to) ++last;
     let first: number | undefined;
@@ -65,9 +80,13 @@ export namespace HumanPerformanceContactSpeed {
     const build = (start: number): void => {
       first = start;
       rates = [];
-      let before: readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined] = read(second(start));
+      let before: readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined] =
+        read(second(start));
       for (let k: number = start; k < last; ++k) {
-        const after: readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined] = read(second(k + 1));
+        const after: readonly [
+          IAutoMovieVector3,
+          IAutoMovieVector3 | undefined,
+        ] = read(second(k + 1));
         const moved: number = Math.max(
           Vector3.distance(before[0], after[0]),
           Vector3.distance(before[1] ?? before[0], after[1] ?? after[0]),
@@ -77,7 +96,8 @@ export namespace HumanPerformanceContactSpeed {
       }
       suffix = new Array<number>(rates.length + 1);
       suffix[rates.length] = 0;
-      for (let i: number = rates.length - 1; i >= 0; --i) suffix[i] = Math.max(rates[i]!, suffix[i + 1]!);
+      for (let i: number = rates.length - 1; i >= 0; --i)
+        suffix[i] = Math.max(rates[i]!, suffix[i + 1]!);
     };
     return (at: number, until: number): number | undefined => {
       const k: number | undefined = index(at);
@@ -87,7 +107,12 @@ export namespace HumanPerformanceContactSpeed {
       const i: number = k - first!;
       if (until >= second(last)) return suffix[i];
       let bound: number = 0;
-      for (let j: number = i; j < rates.length && second(first! + j + 1) <= until; ++j) bound = Math.max(bound, rates[j]!);
+      for (
+        let j: number = i;
+        j < rates.length && second(first! + j + 1) <= until;
+        ++j
+      )
+        bound = Math.max(bound, rates[j]!);
       return bound;
     };
   }
@@ -108,14 +133,29 @@ export namespace HumanPerformanceContactSpeed {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads the person's current state.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function still(person: HumanSegment.IPerson, from: number, to: number): boolean {
-    if (person.layers.length !== 0 || person.overlays.length !== 0 || person.holds.length !== 0 || person.stops.size !== 0)
+  export function still(
+    person: HumanSegment.IPerson,
+    from: number,
+    to: number,
+  ): boolean {
+    if (
+      person.layers.length !== 0 ||
+      person.overlays.length !== 0 ||
+      person.holds.length !== 0 ||
+      person.stops.size !== 0
+    )
       return false;
-    const active: HumanSegment.ISegment | undefined = HumanSegmentSelection.last(person.segments, from);
-    if (HumanSegmentSelection.last(person.segments, to) !== active) return false;
+    const active: HumanSegment.ISegment | undefined =
+      HumanSegmentSelection.last(person.segments, from);
+    if (HumanSegmentSelection.last(person.segments, to) !== active)
+      return false;
     if (active === undefined) return true;
     const transition: HumanSegment.ISegment["transition"] = active.transition;
-    if (transition !== undefined && transition.kind !== "redirect" && from - transition.cut < transition.blend)
+    if (
+      transition !== undefined &&
+      transition.kind !== "redirect" &&
+      from - transition.cut < transition.blend
+    )
       return false;
     const duration: number = active.plan.duration;
     const lo: number = Math.min(duration, Math.max(0, from - active.start));

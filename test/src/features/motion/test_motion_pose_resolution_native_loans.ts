@@ -1,6 +1,13 @@
 import { preparePoseResolution } from "@automovie/engine";
-import type { IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion } from "@automovie/interface";
-import { type IHumanBody, type IHumanPosture, resolveHumanPosture } from "@automovie/motions";
+import type {
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
+import { resolveHumanPosture } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -55,8 +62,8 @@ export function test_motion_pose_resolution_native_loans(): void {
   TestValidator.predicate("copies and proxy wrappers gain no native identity or metadata inspection",
     !preparePoseResolution.isNative(copy) && !preparePoseResolution.isNative(proxy));
 
-  const body: IHumanBody = { ...motionHumanBody("m-average") };
-  const raw: IHumanPosture = { root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0,
+  const body: IAutoMovieMotionHumanBody = { ...motionHumanBody("m-average") };
+  const raw: IAutoMovieMotionHumanPosture = { root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0,
     joints: { head: [10, 0, 0] }, limbs: {} };
   let calls: number = 0;
   const supplied: () => ReturnType<typeof preparePoseResolution> = (): ReturnType<typeof preparePoseResolution> => { calls++; return reader; };
@@ -69,7 +76,7 @@ export function test_motion_pose_resolution_native_loans(): void {
   for (const source of [supplied, proxyGetter]) {
     const prepared: resolveHumanPosture.IPrepared = resolveHumanPosture.prepare(body, raw, source);
     const initial: IAutoMoviePose = prepared.pose;
-    const transported: IHumanPosture = resolveHumanPosture.translated(prepared, { x: 1, y: 2, z: 3 });
+    const transported: IAutoMovieMotionHumanPosture = resolveHumanPosture.translated(prepared, { x: 1, y: 2, z: 3 });
     transported.joints.head = [20, 0, 0];
     const current: IAutoMoviePose = resolveHumanPosture(body, transported);
     const cold: IAutoMoviePose = resolveHumanPosture(body, structuredClone(transported));

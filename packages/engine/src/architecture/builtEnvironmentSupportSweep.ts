@@ -1,14 +1,15 @@
 import {
-  AutoMovieBuiltPlacementBodyLocator,
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
+  type IAutoMovieBuiltEnvironmentSupportSweep,
   IAutoMovieBuiltFloatingBody,
+  type IAutoMovieBuiltPlacementBody,
+  type IAutoMovieBuiltPlacementBodyLocator,
   IAutoMovieBuiltPopulation,
   IAutoMovieBuiltSupportSweepReport,
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
 
-import { IAutoMovieBuiltPlacementBody } from "./IAutoMovieBuiltPlacementBody";
 import { builtEnvironmentPartBoxes } from "./builtEnvironmentPartBoxes";
 import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
 import { AUTOMOVIE_SUPPORT_TOLERANCE } from "./constants/AUTOMOVIE_SUPPORT_TOLERANCE";
@@ -19,7 +20,7 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  */
 interface IResolvedBody {
   /** Declared identity retained in the report. */
-  locator: AutoMovieBuiltPlacementBodyLocator;
+  locator: IAutoMovieBuiltPlacementBodyLocator;
 
   /** Resolved CPU bounds and part-box proxies. */
   body: IAutoMovieBuiltPlacementBody;
@@ -62,18 +63,11 @@ interface ICandidateSolid {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Within one sweep the single staging and part table are shared by every body's resolution instead of restaging the building per body; across calls nothing is cached because the record is the caller's mutable data.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The part table, resolved bodies and sorted candidates live only for the call and grow linearly with the element, population and part counts; the caller owns the returned report.
  */
-export const builtEnvironmentSupportSweep: (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  groundY?: number;
-  tolerance?: number;
-}) => IAutoMovieBuiltSupportSweepReport = (props: {
-  environment: IAutoMovieBuiltEnvironment;
-  /** World height a body may rest on directly, in metres. Defaults to `0`. */
-  groundY?: number;
-
-  /** Contact slack in metres. Defaults to `AUTOMOVIE_SUPPORT_TOLERANCE`. */
-  tolerance?: number;
-}): IAutoMovieBuiltSupportSweepReport => {
+export const builtEnvironmentSupportSweep: (
+  props: IAutoMovieBuiltEnvironmentSupportSweep.IProps,
+) => IAutoMovieBuiltSupportSweepReport = (
+  props: IAutoMovieBuiltEnvironmentSupportSweep.IProps,
+): IAutoMovieBuiltSupportSweepReport => {
   const tolerance: number = props.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
   if (!Number.isFinite(tolerance) || tolerance < 0)
     throw new RangeError(
@@ -90,7 +84,7 @@ export const builtEnvironmentSupportSweep: (props: {
     unresolved,
   }: {
     resolved: IResolvedBody[];
-    unresolved: AutoMovieBuiltPlacementBodyLocator[];
+    unresolved: IAutoMovieBuiltPlacementBodyLocator[];
   } = resolveBodies(props.environment);
   // Descending top heights make the first footprint hit below the slack-adjusted
   // ceiling the nearest admitted candidate.
@@ -157,20 +151,20 @@ export const builtEnvironmentSupportSweep: (props: {
  */
 const resolveBodies: (environment: IAutoMovieBuiltEnvironment) => {
   resolved: IResolvedBody[];
-  unresolved: AutoMovieBuiltPlacementBodyLocator[];
+  unresolved: IAutoMovieBuiltPlacementBodyLocator[];
 } = (
   environment: IAutoMovieBuiltEnvironment,
 ): {
   resolved: IResolvedBody[];
-  unresolved: AutoMovieBuiltPlacementBodyLocator[];
+  unresolved: IAutoMovieBuiltPlacementBodyLocator[];
 } => {
   const parts: Map<string, IAutoMovieSubjectBox[]> =
     builtEnvironmentPartBoxes(environment);
-  const locators: AutoMovieBuiltPlacementBodyLocator[] = [
+  const locators: IAutoMovieBuiltPlacementBodyLocator[] = [
     ...environment.elements.map(
       (
         element: IAutoMovieBuiltElement,
-      ): AutoMovieBuiltPlacementBodyLocator => ({
+      ): IAutoMovieBuiltPlacementBodyLocator => ({
         kind: "element",
         id: element.id,
       }),
@@ -178,14 +172,14 @@ const resolveBodies: (environment: IAutoMovieBuiltEnvironment) => {
     ...(environment.populations ?? []).map(
       (
         population: IAutoMovieBuiltPopulation,
-      ): AutoMovieBuiltPlacementBodyLocator => ({
+      ): IAutoMovieBuiltPlacementBodyLocator => ({
         kind: "population",
         id: population.set.id,
       }),
     ),
   ];
   const resolved: IResolvedBody[] = [];
-  const unresolved: AutoMovieBuiltPlacementBodyLocator[] = [];
+  const unresolved: IAutoMovieBuiltPlacementBodyLocator[] = [];
   for (const locator of locators) {
     const body: IAutoMovieBuiltPlacementBody | null = resolveBuiltPlacementBody(
       {

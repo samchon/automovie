@@ -1,5 +1,8 @@
-import { IAutoMovieImpactBody, resolveImpact } from "@automovie/engine";
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { resolveImpact } from "@automovie/engine";
+import {
+  type IAutoMovieImpactBodyState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";
@@ -10,7 +13,7 @@ const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
   z: number,
 ): IAutoMovieVector3 => ({ x, y, z });
 
-const BODY: IAutoMovieImpactBody = {
+const BODY: IAutoMovieImpactBodyState = {
   mass: 1,
   velocity: v(0, 0, 0),
   restitution: 0.2,
@@ -44,7 +47,7 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite velocity components on either body throw before impact math.).
  */
 export function test_physics_impact_body_velocity(): void {
-  const moving: IAutoMovieImpactBody = { ...BODY, velocity: v(0, 0, 10) };
+  const moving: IAutoMovieImpactBodyState = { ...BODY, velocity: v(0, 0, 10) };
   const normal: IAutoMovieVector3 = v(0, 0, 1);
 
   TestValidator.predicate(

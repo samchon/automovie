@@ -1,11 +1,11 @@
 import {
   IAutoMovieBuiltElement,
+  type IAutoMovieDrawingDesignIndex,
+  type IAutoMovieDrawingTriangle,
   IAutoMovieModel,
   IAutoMovieModelPart,
 } from "@automovie/interface";
 
-import { IAutoMovieDrawingDesignIndex } from "./IAutoMovieDrawingDesignIndex";
-import { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
 import { transformAutoMovieDrawingTriangles } from "./transformAutoMovieDrawingTriangles";
 
 /**

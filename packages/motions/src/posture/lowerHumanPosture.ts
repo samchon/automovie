@@ -1,10 +1,13 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "./IHumanPosture";
 import { hipJoints } from "./hipJoints";
-import { resolveHumanPosture } from "./resolveHumanPosture";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /** The lowering law always observes its two legs in this original order. */
 const SIDES: readonly ["left", "right"] = Object.freeze(["left", "right"] as const);
@@ -34,27 +37,27 @@ const SIDES: readonly ["left", "right"] = Object.freeze(["left", "right"] as con
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Lowering's local goals/hip frames/getter end on return or throw. prepare retains its unchanged body/knee and at most one private scalar reader until its plan owner releases it; no posture, borrowed operation or result enters that closure. A prepareShort reader retains one reach number without body/points. Neither path stores query history, handles or tasks.
  */
 export function lowerHumanPosture(
-  body: IHumanBody,
-  posture: IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
   knee: number = resolveHumanPosture.KNEE,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-): IHumanPosture {
+): IAutoMovieMotionHumanPosture {
   return lower(body, posture, knee, resolution);
 }
 
 /** One current-goal/hip/drop law; the optional scalar reader belongs only to this producer. */
 function lower(
-  body: IHumanBody,
-  posture: IHumanPosture,
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
   knee: number,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   readShort?: ReturnType<typeof lowerHumanPosture.prepareShort>,
-): IHumanPosture {
+): IAutoMovieMotionHumanPosture {
   // Only world-anchored plants are lowered for: a leg goal attached to a
   // bone moves with that bone, so the root cannot be solved against it here.
   const legs: { side: "left" | "right"; goal: IAutoMovieVector3 }[] = [];
   for (const side of SIDES) {
-    const goal: IHumanPosture.IGoal | undefined = posture.limbs[`${side}Leg`];
+    const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[`${side}Leg`];
     if (goal?.planted === true && goal.on === undefined)
       legs.push({ side, goal: goal.point });
   }
@@ -103,15 +106,15 @@ export namespace lowerHumanPosture {
    * results are never retained, and each query performs its actual geometry.
    */
   export function prepare(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     knee: number = resolveHumanPosture.KNEE,
-  ): (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IHumanPosture {
+  ): (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture {
     let short: ReturnType<typeof prepareShort> | undefined;
     const read: ReturnType<typeof prepareShort> = (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number => {
       short ??= prepareShort(body, knee);
       return short(hip, ankle);
     };
-    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture =>
+    return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanPosture =>
       lower(body, posture, knee, resolution, read);
   }
 
@@ -127,7 +130,7 @@ export namespace lowerHumanPosture {
    * without retaining the body, points or any query-result history.
    */
   export function prepareShort(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     knee: number,
   ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3) => number {
     const limit: number = reachLimit(body, knee);
@@ -156,7 +159,7 @@ export namespace lowerHumanPosture {
    * no cross-query result and retains no body, input or external resource.
    */
   export function short(
-    body: IHumanBody,
+    body: IAutoMovieMotionHumanBody,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
     knee: number,
@@ -166,7 +169,7 @@ export namespace lowerHumanPosture {
 }
 
 /** Compute the original fixed two-segment cosine-law reach in metres. */
-function reachLimit(body: IHumanBody, knee: number): number {
+function reachLimit(body: IAutoMovieMotionHumanBody, knee: number): number {
   const a: number = body.measure.thigh;
   const b: number = body.measure.shank;
   return Math.sqrt(a * a + b * b + 2 * a * b * Math.cos((knee * Math.PI) / 180));

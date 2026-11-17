@@ -1,23 +1,26 @@
 import { ROM_TOLERANCE, getConstraint } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  AutoMovieMotionTarget,
   IAutoMovieAngleRange,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieJointConstraint,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { readHumanBone } from "../body/readHumanBone";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import type { touch } from "./touch";
 import { touchHold } from "./touchHold";
 import { touchRegion } from "./touchRegion";
-import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * Which hand a touch uses when its author names none.
@@ -55,29 +58,29 @@ export namespace touchSide {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only each actual goal and its independent temporary chain/sweep data live through this synchronous selector. They end on return or failure; the returned hand name retains no trunk context, reader, pose, rank or query history.
    */
   export function of(
-    context: IHumanActionContext<touch.IParams>,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-  ): HumanHand.Side {
-    const p: touch.IParams = context.params;
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+  ): AutoMovieHumanSide {
+    const p: IAutoMovieMotionHumanTouch.IParams = context.params;
     if (p.side !== undefined) return p.side;
     if (p.prop !== undefined)
       return context.entry.holds.left === p.prop &&
         context.entry.holds.right !== p.prop
         ? "left"
         : "right";
-    const body: IHumanBody = context.body;
-    const entry: IHumanPosture = context.entry.posture;
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
       context.entry.pose,
     );
-    const other = (side: HumanHand.Side): HumanHand.Side =>
+    const other = (side: AutoMovieHumanSide): AutoMovieHumanSide =>
       side === "right" ? "left" : "right";
 
     // The strain of one hand laid on one region, as the plan lays it.
     const strain = (
-      side: HumanHand.Side,
-      target: AutoMovieMotionTarget,
+      side: AutoMovieHumanSide,
+      target: IAutoMovieMotionTarget,
     ): number => {
       if (target.kind === "self") {
         const bone: string = body.surfaces.regions[target.region].bone;
@@ -101,7 +104,7 @@ export namespace touchSide {
         effector,
         placed,
       )(side, target);
-      const goal: IHumanPosture.IGoal = AutoMovieMotionHumanTouchLaid.rest(
+      const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
         body,
         entry,
         side,
@@ -111,7 +114,7 @@ export namespace touchSide {
         AutoMovieMotionHumanBend.hang(body, entry, side),
         "arm",
       );
-      const solve: AutoMovieMotionHumanBend.ISolve = {
+      const solve: IAutoMovieMotionHumanBend.ISolve = {
         body,
         posture: entry,
         side,
@@ -123,7 +126,7 @@ export namespace touchSide {
         AutoMovieMotionHumanBend.solve({ ...solve, fallback: "hang" }),
       );
     };
-    const cost = (side: HumanHand.Side): number =>
+    const cost = (side: AutoMovieHumanSide): number =>
       strain(side, p.target) +
       (p.other === undefined ? 0 : strain(other(side), p.other));
     const left: number = cost("left");
@@ -152,8 +155,8 @@ export namespace touchSide {
    * @returns The bound, unitless; `Infinity` for an infinite strain.
    */
   function resolution(
-    body: IHumanBody,
-    side: HumanHand.Side,
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
     strain: number,
   ): number {
     if (!Number.isFinite(strain)) return Infinity;

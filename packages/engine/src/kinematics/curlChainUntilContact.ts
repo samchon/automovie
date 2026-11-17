@@ -1,12 +1,11 @@
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieJointAxes,
+  IAutoMovieCurlChainUntilContact,
   IAutoMovieJointPose,
+  IAutoMoviePhysicalShape,
   IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieSkeleton,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -14,11 +13,8 @@ import { Vector3 } from "../math/Vector3";
 import { bracketedCrossing } from "../math/bracketedCrossing";
 import { physicalHullFaces } from "../physics/physicalHullFaces";
 import { physicalShapeSegmentDistance } from "../physics/physicalShapeSegmentDistance";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
-import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
-import { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 import { preparePoseResolution } from "./preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";
@@ -82,13 +78,13 @@ import { resolvePose } from "./resolvePose";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One lazy operation reader and fixed-collider readers live until this closure returns or throws. Each chain releases one fixed-source workspace, demanded set and bounded current-chain order before the next chain; no workspace, FK reader, queried pose/time history or handle escapes in the returned pose/reports.
  */
 export function curlChainUntilContact(
-  input: curlChainUntilContact.IInput,
-): curlChainUntilContact.IResult {
+  input: IAutoMovieCurlChainUntilContact.IInput,
+): IAutoMovieCurlChainUntilContact.IResult {
   const step: number = input.step ?? 1;
   if (!(step > 0)) throw new Error("A curl step must be positive");
   for (const collider of input.colliders) validate(collider.shape);
   const distances: ReturnType<typeof physicalShapeSegmentDistance.prepare>[] =
-    input.colliders.map((collider: curlChainUntilContact.ICollider): ReturnType<typeof physicalShapeSegmentDistance.prepare> =>
+    input.colliders.map((collider: IAutoMovieCurlChainUntilContact.ICollider): ReturnType<typeof physicalShapeSegmentDistance.prepare> =>
       physicalShapeSegmentDistance.prepare(collider.frame, collider.shape));
   let operation: ReturnType<typeof preparePoseResolution> | undefined;
   const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
@@ -102,7 +98,7 @@ export function curlChainUntilContact(
     ...input.pose,
     joints: [...joints.values()],
   });
-  const reports: curlChainUntilContact.IChainResult[] = [];
+  const reports: IAutoMovieCurlChainUntilContact.IChainResult[] = [];
 
   for (const chain of input.chains) {
     if (!(chain.radius > 0))
@@ -270,87 +266,10 @@ export namespace curlChainUntilContact {
   export function resolution(reach: number, lever: number): number {
     return (ROM_TOLERANCE * reach) / lever;
   }
-  /**
-   * The sequential contact-closure request and its optional immutable FK rig.
-   *
-   * The caller keeps an explicit prepared rig's skeleton, axes, rest frames
-   * and topology unchanged through this synchronous curl. Without that rig,
-   * the original full raw FK walk still reads every live input at each probe.
-   */
-  export interface IInput {
-    /** The rig, whose range of motion caps every flexion. */
-    skeleton: IAutoMovieSkeleton;
-
-    /** The pose to curl; only the chains' flexions change. */
-    pose: IAutoMoviePose;
-
-    /** Chains in closing order, each proximal to distal. */
-    chains: readonly IChain[];
-
-    /** The object's colliders, placed in the pose's world frame. */
-    colliders: readonly ICollider[];
-
-    /** Search step, degrees; 1 when absent. */
-    step?: number;
-
-    /** Clinical axes, as `resolvePose` takes them. */
-    jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-
-    /** Clinical rest frames, as `resolvePose` takes them. */
-    restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-
-    /** Topology of the same skeleton, reused across evaluations. */
-    topology?: IAutoMovieSkeletonTopology;
-
-    /** Explicit immutable rig of this same skeleton/axes/frames/topology. The synchronous curl fixes root and non-current-chain records; each chain prepares its actual first trial then admits complete current-chain edits. Absent, raw full-walk resolution preserves live-input behavior. */
-    resolution?: prepareSkeletonPoseResolution.IRig;
-  }
-
-  /** One closing chain, a digit. */
-  export interface IChain {
-    /** Its bones from proximal to distal, each the parent of the next. */
-    bones: readonly AutoMovieHumanoidBone[];
-
-    /** The distal phalanx's end in the last bone's rest frame relative to its joint, metres. */
-    tip: IAutoMovieVector3;
-
-    /** The phalanges' capsule radius, metres; positive. */
-    radius: number;
-  }
-
-  /** One collider of the object, in world metres. */
-  export interface ICollider {
-    /** The shape; its own `transform` is relative to `frame`. */
-    shape: P.IShape;
-
-    /** The shape owner's world frame. */
-    frame: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
-  }
-
-  /** The curl. */
-  export interface IResult {
-    /** The pose with every chain closed. */
-    pose: IAutoMoviePose;
-
-    /** Each chain's outcome, in input order. */
-    chains: IChainResult[];
-  }
-
-  /** One chain's outcome. */
-  export interface IChainResult {
-    /** Its bones. */
-    bones: readonly AutoMovieHumanoidBone[];
-
-    /** Each joint's final flexion, degrees. */
-    flexion: number[];
-
-    /** The least gap of any of its phalanges to the object, metres: about zero when it touches, positive when the range of motion stopped it first. */
-    gap: number;
-  }
 }
 
 /** Refuse a shape whose dimensions cannot give a distance. */
-function validate(shape: P.IShape): void {
+function validate(shape: IAutoMoviePhysicalShape): void {
   let ok: boolean;
   if (shape.kind === "sphere") ok = shape.radius > 0;
   else if (shape.kind === "capsule")

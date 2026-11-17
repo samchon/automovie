@@ -1,6 +1,7 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import type { AutoMoviePhysicalBalance as Balance } from "./AutoMoviePhysicalBalance";
+import type {
+  IAutoMoviePhysicalBalanceBracing,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Capture-point feedback toward the actual support hull under an explicit
@@ -17,14 +18,9 @@ import type { AutoMoviePhysicalBalance as Balance } from "./AutoMoviePhysicalBal
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function physicalBalanceBracing(input: {
-  /** Actual balance prediction and contact hull. */ assessment: Balance.IResult;
-  /** Actual world COM, metres. */ center: IAutoMovieVector3;
-  /** World floor height, metres. */ floor: number;
-  /** Positive COM height below which standing recovery is withdrawn. */ minimumCenterHeight: number;
-  /** Maximum horizontal root-target adjustment, metres. */ maximumRootShift: number;
-  /** Sustained loss/landing failure has exhausted the recovery time budget. */ exhausted: boolean;
-}): { rootStrength: number; shift: IAutoMovieVector3 } {
+export function physicalBalanceBracing(
+  input: IAutoMoviePhysicalBalanceBracing.IInput,
+): IAutoMoviePhysicalBalanceBracing.IResult {
   if (
     !(input.minimumCenterHeight > 0) ||
     !(input.maximumRootShift > 0) ||

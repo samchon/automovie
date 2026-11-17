@@ -60,7 +60,18 @@ export namespace IAutoMovieChromium {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature has no body; Playwright answers.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature has no body; Playwright answers.
      */
-    newPage(): Promise<IAutoMovieDrawPage>;
+    newPage(): Promise<
+      IAutoMovieDrawPage & {
+        /** Optional browser diagnostics; portable draw-only drivers need not emit browser events. */
+        on?: {
+          (event: "pageerror", listener: (error: Error) => void): unknown;
+          (
+            event: "console",
+            listener: (message: { type(): string; text(): string }) => void,
+          ): unknown;
+        };
+      }
+    >;
 
     /**
      * End the browser and every page it holds.

@@ -1,15 +1,19 @@
 import { createKerb, createTap } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
-  type HumanSegment,
   HumanSignature,
   HumanSportGym,
-  type IHumanBody,
-  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,7 +38,7 @@ export function test_archetype_kerb_used(): void {
   const step: ReturnType<typeof createKerb> = createKerb({ kind: "step" });
   const kerb: ReturnType<typeof createKerb> = createKerb({ kind: "kerb" });
   const tap: ReturnType<typeof createTap> = createTap();
-  const places: Readonly<Record<"step" | "kerb", IHumanProp.IFrame>> = {
+  const places: Readonly<Record<"step" | "kerb", IAutoMovieRigidTransform>> = {
     step: {
       position: { x: 0, y: 0, z: -1.2 - step.dimensions.depth! },
       rotation: Quaternion.identity(),
@@ -46,20 +50,21 @@ export function test_archetype_kerb_used(): void {
   };
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const performer: HumanPerformance.IInput["performers"][number] = {
-      subject: "a",
-      body,
-      at: { x: 0, y: 0, z: 0 },
-      yaw: 0,
-      proficiency: { level: "trained" },
-    };
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] =
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      };
     const when = (
-      film: HumanPerformance,
+      film: IAutoMovieMotionHumanPerformance,
       index: number,
       event: string,
     ): number => {
-      const found: HumanSegment.ISegment = film.segments("a")[index]!;
+      const found: IAutoMovieMotionHumanSegment = film.segments("a")[index]!;
       return (
         found.start +
         (found.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -70,7 +75,7 @@ export function test_archetype_kerb_used(): void {
 
     // 1. Up onto the step and the kerb.
     try {
-      const film: HumanPerformance = new HumanPerformance({
+      const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "kerb",
         laws: [HumanSportGym.stepUp],
         performers: [performer],
@@ -90,7 +95,7 @@ export function test_archetype_kerb_used(): void {
             on: { prop: "kerb", affordance: "top" },
           }).node,
       });
-      const reader: HumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         film,
         "a",
         body,
@@ -100,7 +105,7 @@ export function test_archetype_kerb_used(): void {
         ["step", 1, step],
         ["kerb", 3, kerb],
       ] as const) {
-        const frame: IHumanProp.IFrame = places[prop];
+        const frame: IAutoMovieRigidTransform = places[prop];
         const top: IAutoMovieVector3 = Vector3.add(
           frame.position,
           Quaternion.rotateVector(
@@ -133,7 +138,7 @@ export function test_archetype_kerb_used(): void {
         y: 0.9,
         z: 0.45 * (body.measure.upperArm + body.measure.forearm),
       };
-      const film: HumanPerformance = new HumanPerformance({
+      const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
         seed: "tap",
         laws: [],
         performers: [performer],
@@ -149,7 +154,7 @@ export function test_archetype_kerb_used(): void {
           }).node,
       });
       const ready: number = when(film, 1, "ready");
-      const frame: IHumanProp.IFrame = film.prop("tap", ready);
+      const frame: IAutoMovieRigidTransform = film.prop("tap", ready);
       const lever: IAutoMovieVector3 = Vector3.add(
         frame.position,
         Quaternion.rotateVector(

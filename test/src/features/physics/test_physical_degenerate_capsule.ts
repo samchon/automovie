@@ -2,7 +2,12 @@ import {
   AutoMoviePhysicalSimulation as Simulation,
   preparePhysicalGeometry,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalShape,
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -25,7 +30,7 @@ export async function test_physical_degenerate_capsule(): Promise<void> {
     sphere.segments[0]!.neutral.position.x = x;
     sphere.centerOfMass.x = x;
     const capsule: P = structuredClone(sphere);
-    const surface: P.IShape = capsule.segments[0]!.shapes[0]!;
+    const surface: IAutoMoviePhysicalShape = capsule.segments[0]!.shapes[0]!;
     if (surface.kind !== "sphere")
       throw new Error("Analytic primitive fixture changed");
     capsule.segments[0]!.shapes[0] = {
@@ -34,7 +39,7 @@ export async function test_physical_degenerate_capsule(): Promise<void> {
       halfLength: 0,
     };
     const measured: number[] = [];
-    const runs: Simulation[] = [];
+    const runs: IAutoMoviePhysicalSimulation[] = [];
     for (const profile of [sphere, capsule]) {
       const first: Parameters<typeof geometry.contact>[0] = {
         body: "a",
@@ -57,10 +62,8 @@ export async function test_physical_degenerate_capsule(): Promise<void> {
       );
       if (!contact) findings.push(`missing analytic penetration at x=${x}`);
       else measured.push(contact.separation);
-      const input: Simulation.IInput = PhysicalFixtures.input(
-        [PhysicalFixtures.body("probe", profile, 2)],
-        2,
-      );
+      const input: IAutoMoviePhysicalSimulationInput.IInput =
+        PhysicalFixtures.input([PhysicalFixtures.body("probe", profile, 2)], 2);
       Object.assign(input, { floor: 0, gravity: { x: 0, y: -9.81, z: 0 } });
       runs.push(await Simulation.compute(input));
     }

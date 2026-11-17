@@ -1,3 +1,10 @@
+import type {
+  IAutoMovieCaptureCell,
+  IAutoMovieCaptureDrawing,
+  IAutoMovieCapturePlan,
+  IAutoMovieCapturePlanRequest,
+  IAutoMovieCaptureRecord,
+} from "@automovie/interface";
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
@@ -129,11 +136,11 @@ export class AutoMovieCaptureHost {
   /**
    * Open a fresh page of the served draw page with a subject and its props injected before it loads, and describe the subject through it.
    *
-   * The returned session owns the page; the caller closes it. A page that installs no draw function or cannot describe its subject rejects, and the page is closed first.
+   * The returned session owns the page; the caller closes it. An uncaught browser error during initialization rejects immediately with the original cause and logs its stack; console errors are forwarded too. A page that installs no draw function or cannot describe its subject rejects, and the page is closed first.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is opened and injected, who closes it, and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Every picture of a capture or a render comes through one such session, so both hosts draw through the same function.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One page, one session open, one close on failure.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Observe the browser, race opening against a script failure, and close the page on rejection.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A failed open is reported, never retried.
    * @evidence contracts/development/implementation.md#efficient-algorithms One page per call.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call is a fresh page, because props differ between subjects.
@@ -146,15 +153,40 @@ export class AutoMovieCaptureHost {
     /** Data the subject module reads, as JSON, or null. */
     props: unknown;
   }): Promise<Render.AutoMovieDrawSession> {
-    const page: Render.IAutoMovieDrawPage = await this.browser.newPage();
-    try {
-      return await this.render.AutoMovieDrawSession.open({
-        page,
-        url: this.page.url,
-        props: { subject: props.subject, props: props.props },
-        backend: this.backend,
-        timeout: TIMEOUT,
+    const page: Awaited<ReturnType<IAutoMovieChromium.IBrowser["newPage"]>> =
+      await this.browser.newPage();
+
+    // A module can fail before installing the draw port, leaving only a timeout.
+    // Forward its original browser error while the failed page is still alive.
+    const failed: Promise<never> = new Promise((_resolve, reject): void => {
+      page.on?.("pageerror", (error: Error): void => {
+        console.error("Draw page error:", error.stack ?? error.message);
+        reject(
+          new Error(
+            `The draw page at ${this.page.url} failed during initialization`,
+            { cause: error },
+          ),
+        );
       });
+    });
+    page.on?.(
+      "console",
+      (message: { type(): string; text(): string }): void => {
+        if (message.type() === "error")
+          console.error("Draw page console:", message.text());
+      },
+    );
+    try {
+      return await Promise.race([
+        this.render.AutoMovieDrawSession.open({
+          page,
+          url: this.page.url,
+          props: { subject: props.subject, props: props.props },
+          backend: this.backend,
+          timeout: TIMEOUT,
+        }),
+        failed,
+      ]);
     } catch (error) {
       await page.close();
       throw error;
@@ -176,7 +208,7 @@ export class AutoMovieCaptureHost {
    */
   public async capture(props: {
     /** The request, as `parseAutoMovieCapturePlanRequest` read it. */
-    request: Render.IAutoMovieCapturePlanRequest;
+    request: IAutoMovieCapturePlanRequest;
 
     /** Data the subject module reads, as JSON, or null. */
     props: unknown;
@@ -186,14 +218,14 @@ export class AutoMovieCaptureHost {
 
     /** The subject owner's own section of the record, or absent. */
     section?: Readonly<Record<string, unknown>>;
-  }): Promise<Extract<Render.IAutoMovieCaptureRecord, { state: "complete" }>> {
+  }): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
     const { render } = this;
     const session: Render.AutoMovieDrawSession = await this.session({
       subject: props.request.subject,
       props: props.props,
     });
     try {
-      const plan: Render.IAutoMovieCapturePlan = render.planAutoMovieCapture({
+      const plan: IAutoMovieCapturePlan = render.planAutoMovieCapture({
         request: props.request,
         subject: session.subject,
         cuts: [],
@@ -211,9 +243,8 @@ export class AutoMovieCaptureHost {
       return await render.runAutoMovieCapture({
         plan,
         draw: (
-          cell: Render.IAutoMovieCaptureCell,
-        ): Promise<Render.IAutoMovieCaptureDrawing> =>
-          session.drawing(cell, plan),
+          cell: IAutoMovieCaptureCell,
+        ): Promise<IAutoMovieCaptureDrawing> => session.drawing(cell, plan),
         folder,
         revision: readAutoMovieRevision(this.root),
         match: "cell",

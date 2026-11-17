@@ -4,6 +4,7 @@ import {
   IAutoMovieCompiledInstancePrototype,
   IAutoMovieCompiledInstanceSet,
   IAutoMovieModel,
+  type IAutoMovieModelPart,
   IAutoMovieSubjectArtifact,
   IAutoMovieSubjectChange,
   IAutoMovieSubjectDescription,
@@ -133,7 +134,7 @@ interface IRevision {
   artifact: IAutoMovieSubjectArtifact;
   inventory: Map<string, IAutoMovieSubjectDescription>;
   models: Map<string, IAutoMovieModel>;
-  partOf: ReturnType<typeof createAutoMovieSubjectPartIndex>;
+  partOf: (modelId: string, address: string) => IAutoMovieModelPart | undefined;
   sets: Map<string, IAutoMovieCompiledInstanceSet>;
   records: Map<string, IAutoMovieBuildingUnit | IAutoMovieBuiltSpace>;
   usage: Map<string, IModelUsage> | null;

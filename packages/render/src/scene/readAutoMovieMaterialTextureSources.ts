@@ -1,7 +1,7 @@
 import type {
   AutoMovieBuiltinTexturePurpose,
   IAutoMovieRenderTextureResidency,
-} from "@automovie/engine";
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
@@ -27,8 +27,10 @@ export function readAutoMovieMaterialTextureSources(props: {
   scope: string;
   renderer: { extensions: Pick<THREE.WebGLRenderer["extensions"], "has"> };
   scene: THREE.Scene;
-  retained?: readonly RuntimeSource[];
-}): RuntimeSource[] {
+  retained?: readonly NonNullable<
+    IAutoMovieRenderTextureResidency["runtimeTextures"]
+  >[number][];
+}): NonNullable<IAutoMovieRenderTextureResidency["runtimeTextures"]>[number][] {
   const rows: ObservedRuntimeSource[] = (props.retained ?? []).map(
     (row: RuntimeSource): ObservedRuntimeSource => ({
       ...row,

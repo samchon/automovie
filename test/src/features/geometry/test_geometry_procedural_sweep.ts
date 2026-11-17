@@ -1,11 +1,11 @@
 import {
-  type IAutoMovieProfilePoint,
   inspectAutoMovieMeshTopology,
   meshAutoMovieSweep,
 } from "@automovie/engine";
-import {
-  type IAutoMovieMesh,
-  type IAutoMovieVector3,
+import type {
+  IAutoMovieMesh,
+  IAutoMovieProfilePoint,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

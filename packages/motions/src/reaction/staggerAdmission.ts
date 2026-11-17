@@ -1,5 +1,10 @@
 import { Vector3, getConstraint } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanLegChain,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieMotionHumanWalkLegClearance,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -9,7 +14,7 @@ import { walkLeg } from "../actions/walkLeg";
 import { walkLegCapsules } from "../actions/walkLegCapsules";
 import { walkLegClearance } from "../actions/walkLegClearance";
 import { walkReach } from "../actions/walkReach";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
+import { readHumanBone } from "../body/readHumanBone";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanLegChain } from "../posture/HumanLegChain";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -18,7 +23,6 @@ import { staggerBounds } from "./staggerBounds";
 import { staggerKnots } from "./staggerKnots";
 import { staggerLean } from "./staggerLean";
 import type { staggerRecover } from "./staggerRecover";
-import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * Whether a stagger's legs hold its recovery at the given instants
@@ -59,8 +63,8 @@ import { readHumanBone } from "../body/readHumanBone";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past its return.
  */
 export function staggerAdmission(
-  body: IHumanActionContext["body"],
-  entry: IHumanActionContext["entry"],
+  body: IAutoMovieMotionHumanActionContext["body"],
+  entry: IAutoMovieMotionHumanActionContext["entry"],
   walk: {
     steps: readonly staggerRecover.IStep[];
     course: (seconds: number) => IAutoMovieVector3;
@@ -73,7 +77,7 @@ export function staggerAdmission(
   crossing: boolean,
 ): boolean {
   const lean: ReturnType<typeof staggerLean> = staggerLean(body, entry, walk, bend);
-  const entered: Record<"left" | "right", HumanFoot.IPlacement> =
+  const entered: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
     StrikingTarget.feet(entry);
   const thigh: number = body.measure.thigh;
   const shank: number = body.measure.shank;
@@ -160,7 +164,7 @@ export function staggerAdmission(
   for (const t of instants) {
     // The feet as the steps schedule them, a swinging foot read where it
     // left with its share, as the displayed feet are (`StaggerFeet`).
-    const feet: Record<"left" | "right", walkFoot.IScheduled> = {
+    const feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> = {
       left: { placement: entered.left, toes: 0 },
       right: { placement: entered.right, toes: 0 },
     };
@@ -223,7 +227,7 @@ export function staggerAdmission(
     if (crossing && planted.length === 2 && !apart(ground)) {
       const pelvis: IAutoMovieQuaternion =
         ground.pelvis ?? resolveHumanPosture.heading({ yaw: ground.yaw, pitch: 0, roll: 0 });
-      const legs: walkLegClearance.ILeg[] = [];
+      const legs: IAutoMovieMotionHumanWalkLegClearance.ILeg[] = [];
       for (const side of planted) {
         const foot: walkFoot.IEnd = ground.feet[side];
         const bend: IAutoMovieVector3 = staggerKnots.kneePole(
@@ -233,10 +237,10 @@ export function staggerAdmission(
           side,
           HumanFoot.heading(foot.rotation),
         );
-        const swivel: HumanLegChain.ISwivel = HumanLegChain.fit(
+        const swivel: IAutoMovieMotionHumanLegChain.ISwivel = HumanLegChain.fit(
           body, side, pelvis, ground.hips[side], foot.ankle, bend, foot.rotation,
         );
-        const posed: HumanLegChain.IPosed | null = HumanLegChain.pose(
+        const posed: IAutoMovieMotionHumanLegChain.IPosed | null = HumanLegChain.pose(
           body, side, pelvis, ground.hips[side], foot.ankle, swivel,
         );
         if (posed === null) return false;

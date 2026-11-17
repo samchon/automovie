@@ -2,11 +2,13 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMoviePose,
+  IAutoMoviePoseJointCodec,
+  IAutoMoviePoseRig,
+  IAutoMoviePoseState,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMoviePoseRig } from "../kinematics/IAutoMoviePoseRig";
 import { poseJointCodec } from "../kinematics/poseJointCodec";
 import { Quaternion } from "../math/Quaternion";
 import { inertializeOffset } from "./inertializeOffset";
@@ -70,14 +72,14 @@ const AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing returned offset owns captured O(J) offsets, source rate data and one concrete codec with O(B) metadata. No getter, sample callback, per-time pose/result memo, task or global rig cache is added; the caller releases all retained state with the transition offset.
  */
 export function inertializePose(
-  source: samplePoseVelocity.IState,
-  target: samplePoseVelocity.IState,
+  source: IAutoMoviePoseState,
+  target: IAutoMoviePoseState,
   duration: number,
   through: boolean = false,
   rig?: IAutoMoviePoseRig,
-  prepared?: poseJointCodec.ICodec | (() => poseJointCodec.ICodec),
+  prepared?: IAutoMoviePoseJointCodec.ICodec | (() => IAutoMoviePoseJointCodec.ICodec),
 ): (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose {
-  const codec: poseJointCodec.ICodec =
+  const codec: IAutoMoviePoseJointCodec.ICodec =
     prepared === undefined
       ? poseJointCodec(rig)
       : typeof prepared === "function"

@@ -3,7 +3,10 @@ import type {
   AutoMovieExpressionPreset,
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
+  IAutoMovieActionSynthesizer,
   IAutoMovieActionTarget,
+  IAutoMovieActorContext,
+  IAutoMovieActorWorldFrame,
   IAutoMovieBeatEndState,
   IAutoMovieExpression,
   IAutoMovieGait,
@@ -11,6 +14,7 @@ import type {
   IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMoviePose,
+  IAutoMovieRecoilPush,
   IAutoMovieTransform,
   IAutoMovieVector3,
   IAutoMovieYawPitch,
@@ -27,10 +31,6 @@ import { holdMotion } from "../motion/holdMotion";
 import { locomoteMotion } from "../motion/locomoteMotion";
 import { reactMotion } from "../motion/reactMotion";
 import { timeScaleMotion } from "../motion/timeScaleMotion";
-import type { IAutoMovieRecoilPush } from "../physics/IAutoMovieRecoilPush";
-import { IAutoMovieActionSynthesizer } from "./IAutoMovieActionSynthesizer";
-import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
-import { IAutoMovieActorWorldFrame } from "./IAutoMovieActorWorldFrame";
 import { actorAimPoints } from "./actorAimPoints";
 import { actorContextWorldFrame } from "./actorContextWorldFrame";
 import { actorPointInModelSpace } from "./actorPointInModelSpace";

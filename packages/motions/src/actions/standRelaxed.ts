@@ -1,26 +1,25 @@
-import {
-  type IAutoMovieResolvedBone,
-  ROM_TOLERANCE,
-  getConstraint,
-} from "@automovie/engine";
+import { ROM_TOLERANCE, getConstraint } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
+import { readHumanBone } from "../body/readHumanBone";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanDigitFit } from "../posture/HumanDigitFit";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
-import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * The relaxed arm's least shoulder abduction that leaves its digits clear
@@ -42,13 +41,13 @@ import { readHumanBone } from "../body/readHumanBone";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local FK reader, bounded ROM metadata projector and one fixed authored two-foot stance end with this synchronous search and never enter HUNG; hand-angle tuples retained by the final relaxed record keep its weak body ownership, and solved candidates do not escape.
  */
 export function standRelaxed(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
 ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
   const known:
     | Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
     | undefined = HUNG.get(body);
   if (known !== undefined) return known;
-  const fingers: Record<HumanHand.Side, ReturnType<typeof HumanHand.shape>> = {
+  const fingers: Record<AutoMovieHumanSide, ReturnType<typeof HumanHand.shape>> = {
     left: HumanHand.shape("left", "relaxed"),
     right: HumanHand.shape("right", "relaxed"),
   };
@@ -56,7 +55,7 @@ export function standRelaxed(
     prepareHumanPoseResolution();
   const projection: ReturnType<typeof prepareHumanPostureProjection> =
     prepareHumanPostureProjection(body);
-  let standing: IHumanPosture | undefined;
+  let standing: IAutoMovieMotionHumanPosture | undefined;
   const hanging: (
     abduction: number,
   ) => Partial<
@@ -86,7 +85,7 @@ export function standRelaxed(
   const clampJoint: ReturnType<typeof prepareHumanPostureProjection.joints> =
     prepareHumanPostureProjection.joints(body, projection);
   let first:
-    | { pose: IAutoMoviePose; still: readonly HumanColliders.IPlaced[] }
+    | { pose: IAutoMoviePose; still: readonly IAutoMovieMotionHumanColliders.IPlaced[] }
     | undefined;
   let carried: ReadonlySet<AutoMovieHumanoidBone> | undefined;
   let placeCarried:
@@ -141,7 +140,7 @@ export function standRelaxed(
         ]) > 0
       );
     }
-    const posture: IHumanPosture = {
+    const posture: IAutoMovieMotionHumanPosture = {
       ...standing,
       joints: { ...joints, ...standing.joints },
     };
@@ -203,13 +202,13 @@ export function standRelaxed(
 
 /** Each body's relaxed hanging arms, solved once. */
 const HUNG: WeakMap<
-  IHumanBody,
+  IAutoMovieMotionHumanBody,
   Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
 > = new WeakMap();
 
 /** The given bones and every bone the rig hangs below them. */
 function below(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   roots: readonly AutoMovieHumanoidBone[],
 ): Set<AutoMovieHumanoidBone> {
   const parents: Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null> =

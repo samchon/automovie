@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanMetacarpalArch } from "@automovie/interface";
+
 /**
  * The dorsal arch over one metacarpal: the back of the hand's skin over a
  * metacarpal shaft in a section square to the hand, its own piece with the
@@ -24,21 +26,12 @@ export namespace AutoMovieHumanMetacarpalArch {
   /** Dorsal tissue over the bone, mm: a convention (skin, tendon and fascia). */
   export const TISSUE: number = 3;
 
-  /** An arch's fixed inputs. */
-  export interface IInput {
-    /** The metacarpal axis's place in the section, `[b, c]`, mm. */
-    centre: [number, number];
-
-    /** The finger root's skin half width, mm. */
-    root: number;
-  }
-
   /**
    * The arch's circle radius, mm.
    *
    * @param input The arch's inputs.
    */
-  export function radius(input: IInput): number {
+  export function radius(input: IAutoMovieHumanMetacarpalArch.IInput): number {
     return BONE_SHARE * input.root + TISSUE;
   }
 
@@ -52,11 +45,22 @@ export namespace AutoMovieHumanMetacarpalArch {
    * @param to Last angle, radians.
    * @param count Points, at least 2.
    */
-  export function arc(input: IInput, from: number, to: number, count: number): [number, number][] {
+  export function arc(
+    input: IAutoMovieHumanMetacarpalArch.IInput,
+    from: number,
+    to: number,
+    count: number,
+  ): IAutoMovieHumanMetacarpalArch.ArcResult {
     const r: number = radius(input);
-    return Array.from({ length: count }, (_: unknown, k: number): [number, number] => {
-      const a: number = from + ((to - from) * k) / (count - 1);
-      return [input.centre[0] + r * Math.cos(a), input.centre[1] - r * Math.sin(a)];
-    });
+    return Array.from(
+      { length: count },
+      (_: unknown, k: number): [number, number] => {
+        const a: number = from + ((to - from) * k) / (count - 1);
+        return [
+          input.centre[0] + r * Math.cos(a),
+          input.centre[1] - r * Math.sin(a),
+        ];
+      },
+    );
   }
 }

@@ -1,6 +1,6 @@
 # Realized speech expression population obligation
 
-The completed script construction population answers once, from all its actual exchanges.
+The completed script construction population answers once, from all its exchanges.
 
 Statements: [statements/naturalness/obligations/realized.md](../../statements/naturalness/obligations/realized.md).
 

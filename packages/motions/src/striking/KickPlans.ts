@@ -1,16 +1,11 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  type superposeMinimumJerk,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanKickGeometry,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieSuperposeMinimumJerk,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { IKickGeometry } from "./IKickGeometry";
 
 /**
  * A kick following a target that moves: one whole plan per goal, superposed.
@@ -37,10 +32,10 @@ export namespace KickPlans {
     goal: IAutoMovieVector3;
 
     /** The carriage its contact settled on. */
-    carriage: IKickGeometry.ICarriage;
+    carriage: IAutoMovieMotionHumanKickGeometry.ICarriage;
 
     /** Its leg's free path. */
-    leg: IKickGeometry["leg"];
+    leg: IAutoMovieMotionHumanKickGeometry["leg"];
   }
 
   /** What the superposition is built from. */
@@ -63,7 +58,7 @@ export namespace KickPlans {
      * @param seconds Film seconds.
      * @returns The units, start and duration in film seconds.
      */
-    units(seconds: number): readonly superposeMinimumJerk.IUnit[];
+    units(seconds: number): readonly IAutoMovieSuperposeMinimumJerk.IUnit[];
 
     /** Film second of the kick's time zero. */
     t0: number;
@@ -77,7 +72,7 @@ export namespace KickPlans {
      * @param turning Seconds since the kick's start at which the turn is read.
      * @returns The carriage.
      */
-    shown(turning: number): IKickGeometry.ICarriage;
+    shown(turning: number): IAutoMovieMotionHumanKickGeometry.ICarriage;
 
     /**
      * The kicking leg's goal on its free path under a given body.
@@ -90,10 +85,10 @@ export namespace KickPlans {
      */
     leg(
       clock: number,
-      base: IHumanPosture,
+      base: IAutoMovieMotionHumanPosture,
       shift: IAutoMovieVector3,
       hip?: IAutoMovieVector3,
-    ): IKickGeometry.ILeg;
+    ): IAutoMovieMotionHumanKickGeometry.ILeg;
   }
 
   /**
@@ -113,7 +108,7 @@ export namespace KickPlans {
   export function create(props: IProps): IPlans {
     const plans: IPlan[] = [props.first];
     const started = (clock: number): IStarted[] => {
-      const units: readonly superposeMinimumJerk.IUnit[] = props.units(
+      const units: readonly IAutoMovieSuperposeMinimumJerk.IUnit[] = props.units(
         props.t0 + clock,
       );
       for (let k: number = plans.length; k <= units.length; k++) {
@@ -126,7 +121,7 @@ export namespace KickPlans {
         );
       }
       return units.map(
-        (u: superposeMinimumJerk.IUnit, i: number): IStarted => ({
+        (u: IAutoMovieSuperposeMinimumJerk.IUnit, i: number): IStarted => ({
           from: plans[i]!,
           to: plans[i + 1]!,
           weight: minimumJerk.share(
@@ -136,9 +131,9 @@ export namespace KickPlans {
       );
     };
     return {
-      shown: (turning: number): IKickGeometry.ICarriage =>
+      shown: (turning: number): IAutoMovieMotionHumanKickGeometry.ICarriage =>
         started(turning).reduce(
-          (c: IKickGeometry.ICarriage, s: IStarted): IKickGeometry.ICarriage => ({
+          (c: IAutoMovieMotionHumanKickGeometry.ICarriage, s: IStarted): IAutoMovieMotionHumanKickGeometry.ICarriage => ({
             turn: c.turn + s.weight * (s.to.carriage.turn - s.from.carriage.turn),
             lean: c.lean + s.weight * (s.to.carriage.lean - s.from.carriage.lean),
             pitch:
@@ -150,15 +145,15 @@ export namespace KickPlans {
         ),
       leg: (
         clock: number,
-        base: IHumanPosture,
+        base: IAutoMovieMotionHumanPosture,
         shift: IAutoMovieVector3,
         hip?: IAutoMovieVector3,
-      ): IKickGeometry.ILeg => {
-        let out: IKickGeometry.ILeg = props.first.leg(clock, base, shift, hip);
-        let before: IKickGeometry.ILeg = out;
+      ): IAutoMovieMotionHumanKickGeometry.ILeg => {
+        let out: IAutoMovieMotionHumanKickGeometry.ILeg = props.first.leg(clock, base, shift, hip);
+        let before: IAutoMovieMotionHumanKickGeometry.ILeg = out;
         for (const s of started(clock)) {
           if (s.to === s.from) continue;
-          const after: IKickGeometry.ILeg = s.to.leg(clock, base, shift, hip);
+          const after: IAutoMovieMotionHumanKickGeometry.ILeg = s.to.leg(clock, base, shift, hip);
 
           // The foot's rotation moves by the same share of the turn that
           // carries one plan's foot onto the next.

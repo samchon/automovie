@@ -1,4 +1,4 @@
-import { IAutoMovieTrack } from "./IAutoMovieTrack";
+import type { IAutoMovieTrack } from "./IAutoMovieTrack";
 
 /**
  * A named bundle of flat-accessor tracks sharing one local-seconds timeline. Tracks may address node transforms, morph weights or pointer properties; stock shot-field gates restrict cameraMotion and objectMotions to node channels and lightMotions to supported light pointers.

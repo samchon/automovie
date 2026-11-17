@@ -1,11 +1,14 @@
 import { createDrinkware } from "@automovie/archetypes";
 import { AutoMovieGravity, Vector3, projectileAt } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
-  type IHumanBody,
   throwObject,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -47,8 +50,8 @@ export function test_human_motion_prop_throw_flight(): void {
   });
   const aim: IAutoMovieVector3 = { x: 0, y: 0, z: 6 };
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    let performance: HumanPerformance;
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "throw",

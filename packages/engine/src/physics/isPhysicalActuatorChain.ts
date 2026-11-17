@@ -1,4 +1,8 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+} from "@automovie/interface";
 
 /**
  * Relationship fitting must own a real contiguous path with at least one articulated joint.
@@ -12,7 +16,7 @@ import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
  */
 export function isPhysicalActuatorChain(
-  profile: P,
+  profile: IAutoMoviePhysicalProfile,
   chain: readonly string[],
   source: string,
 ): boolean {
@@ -26,16 +30,17 @@ export function isPhysicalActuatorChain(
       (bone: string, index: number): boolean =>
         typeof bone === "string" &&
         profile.segments.some(
-          (segment: P.ISegment): boolean => segment.bone === bone,
+          (segment: IAutoMoviePhysicalSegment): boolean =>
+            segment.bone === bone,
         ) &&
         (index === 0 ||
           profile.joints.some(
-            (joint: P.IJoint): boolean =>
+            (joint: IAutoMoviePhysicalJoint): boolean =>
               joint.parent === chain[index - 1] && joint.child === bone,
           )),
     ) &&
     profile.joints.some(
-      (joint: P.IJoint): boolean =>
+      (joint: IAutoMoviePhysicalJoint): boolean =>
         chain.includes(joint.child) && joint.axes.length > 0,
     )
   );

@@ -1,7 +1,8 @@
-import {
-  AutoMovieSolidMesh,
-  type IAutoMovieSolidSurface,
-} from "@automovie/engine";
+import { AutoMovieSolidMesh } from "@automovie/engine";
+import type {
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { HumanSolidShapes } from "../../internal/HumanSolidShapes";
 
@@ -21,7 +22,7 @@ interface Case {
 
   /** Each polygon's kept side and its prescribed chart points. */
   loops: {
-    kind: AutoMovieSolidMesh.ILoop["kind"];
+    kind: IAutoMovieSolidMesh.ILoop["kind"];
     points: [number, number][];
     exposed?: number[];
   }[];
@@ -286,7 +287,7 @@ function rectangle([x0, y0, x1, y1]: Rectangle): [number, number][] {
 
 /** Inspect all findings of one analytic chart before the caller fails the round. */
 function inspect(input: Case, phases: number[], failures: string[]): void {
-  const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
   const surface: IAutoMovieSolidSurface = input.periodic
     ? HumanSolidShapes.cylinder(
         input.name,
@@ -304,8 +305,8 @@ function inspect(input: Case, phases: number[], failures: string[]): void {
         [0, 0, 1],
       );
   const owner: number = AutoMovieSolidMesh.owner(mesh, surface);
-  const loops: AutoMovieSolidMesh.ILoop[] = input.loops.map(
-    (loop: Case["loops"][number]): AutoMovieSolidMesh.ILoop => ({
+  const loops: IAutoMovieSolidMesh.ILoop[] = input.loops.map(
+    (loop: Case["loops"][number]): IAutoMovieSolidMesh.ILoop => ({
       kind: loop.kind,
       chart: loop.points,
       vertices: loop.points.map(([u, v]: [number, number]): number =>
@@ -407,7 +408,7 @@ function inspect(input: Case, phases: number[], failures: string[]): void {
     report(
       `chart area ${area}, expected ${input.area} within summation allowance ${tolerance}`,
     );
-  loops.forEach((loop: AutoMovieSolidMesh.ILoop, at: number): void => {
+  loops.forEach((loop: IAutoMovieSolidMesh.ILoop, at: number): void => {
     const exposed: number[] =
       input.loops[at]!.exposed ??
       loop.vertices.map((_: number, k: number): number => k);
@@ -436,8 +437,8 @@ function inspect(input: Case, phases: number[], failures: string[]): void {
 function boundary(
   a: number,
   b: number,
-  mesh: AutoMovieSolidMesh.IMesh,
-  loops: AutoMovieSolidMesh.ILoop[],
+  mesh: IAutoMovieSolidMesh.IMesh,
+  loops: IAutoMovieSolidMesh.ILoop[],
   periodic: boolean,
 ): boolean {
   for (const loop of loops)

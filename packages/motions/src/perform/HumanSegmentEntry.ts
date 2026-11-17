@@ -1,20 +1,19 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  samplePoseVelocity,
-} from "@automovie/engine";
+import { Quaternion, samplePoseVelocity } from "@automovie/engine";
 import type {
-  IAutoMoviePose,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMoviePose,
+  IAutoMoviePoseState,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBase } from "../law/HumanBase";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanEntryState } from "../law/IHumanEntryState";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { humanRig } from "../posture/humanRig";
 import { poseBones } from "../posture/poseBones";
 import type { HumanSegment } from "./HumanSegment";
@@ -50,12 +49,12 @@ export namespace HumanSegmentEntry {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One entry-owned preparation holds rig metadata and last successful joint/world scalar snapshots per visited bone name, O(K) for K identities, until return or throw. The four fresh demanded maps are local; returned foot vectors/quaternions retain their original value ownership, while complete pose/posture/from-plan/support references remain as before. No reader or supplier enters the returned entry or a retained plan.
    */
   export function entry(
-    person: HumanSegment.IPerson,
-    previous: HumanSegment.ISegment | undefined,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    previous: IAutoMovieMotionHumanSegment | undefined,
     seconds: number,
     blend?: number,
-  ): IHumanEntryState {
-    const body: IHumanBody = person.performer.body;
+  ): IAutoMovieMotionHumanEntryState {
+    const body: IAutoMovieMotionHumanBody = person.performer.body;
     const prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(body);
 
     // The difference interval of every rate read here, seconds.
@@ -71,8 +70,8 @@ export namespace HumanSegmentEntry {
       previous !== undefined && blend !== undefined
         ? left(person, previous, seconds, blend, prepared)
         : shown(person, previous, seconds, step, prepared);
-    const state: samplePoseVelocity.IState = read.state;
-    const posture: IHumanPosture =
+    const state: IAutoMoviePoseState = read.state;
+    const posture: IAutoMovieMotionHumanPosture =
       previous === undefined
         ? person.initial
         : HumanSegmentPose.layered(
@@ -105,7 +104,7 @@ export namespace HumanSegmentEntry {
         Math.max(0, (seconds - previous.start) / previous.plan.duration),
       );
       return previous.plan.contacts.some(
-        (c: IHumanContactWindow): boolean =>
+        (c: IAutoMovieMotionHumanContactWindow): boolean =>
           c.part === part &&
           (c.kind === "plant" || c.kind === "pivot") &&
           u >= c.from - 1e-9 &&
@@ -133,9 +132,9 @@ export namespace HumanSegmentEntry {
       prepared.resolution(),
       FEET,
     );
-    const foot: (side: "left" | "right") => IHumanEntryState.IFoot = (
+    const foot: (side: "left" | "right") => IAutoMovieMotionHumanEntryState.IFoot = (
       side: "left" | "right",
-    ): IHumanEntryState.IFoot => {
+    ): IAutoMovieMotionHumanEntryState.IFoot => {
       const here: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
       const from: IAutoMovieResolvedBone = instant.get(`${side}Foot`)!;
       const a: IAutoMovieResolvedBone = near.get(`${side}Foot`)!;
@@ -213,11 +212,11 @@ export namespace HumanSegmentEntry {
             y: second(p0.y, p1.y, p2.y),
             z: second(p0.z, p1.z, p2.z),
           };
-    const feet: IHumanEntryState["feet"] = {
+    const feet: IAutoMovieMotionHumanEntryState["feet"] = {
       left: foot("left"),
       right: foot("right"),
     };
-    const bearing: IHumanEntryState.ISupport[] = supports(previous, seconds);
+    const bearing: IAutoMovieMotionHumanEntryState.ISupport[] = supports(previous, seconds);
     return {
       seconds,
       pose: state.pose,
@@ -238,10 +237,10 @@ export namespace HumanSegmentEntry {
       holds: Object.fromEntries(
         person.holds
           .filter(
-            (h: HumanSegment.IHeld): boolean =>
+            (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
               h.from <= seconds && seconds < h.until,
           )
-          .map((h: HumanSegment.IHeld): ["left" | "right", string] => [
+          .map((h: IAutoMovieMotionHumanSegment.IHeld): ["left" | "right", string] => [
             h.side,
             h.prop,
           ]),
@@ -285,12 +284,12 @@ export namespace HumanSegmentEntry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state. The returned array/wrappers are fresh; existing contact support payloads stay borrowed, while initial ground payloads are new.
    */
   export function supports(
-    previous: HumanSegment.ISegment | undefined,
+    previous: IAutoMovieMotionHumanSegment | undefined,
     seconds: number,
-  ): IHumanEntryState.ISupport[] {
+  ): IAutoMovieMotionHumanEntryState.ISupport[] {
     if (previous === undefined)
       return (["leftFoot", "rightFoot"] as const).map(
-        (part: "leftFoot" | "rightFoot"): IHumanEntryState.ISupport => ({
+        (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanEntryState.ISupport => ({
           part,
           kind: "plant",
           support: { kind: "ground" },
@@ -302,14 +301,14 @@ export namespace HumanSegmentEntry {
     );
     return previous.plan.contacts
       .filter(
-        (c: IHumanContactWindow): boolean =>
+        (c: IAutoMovieMotionHumanContactWindow): boolean =>
           c.kind !== "grip" &&
           c.kind !== "strike" &&
           u >= c.from - 1e-9 &&
           u <= c.to + 1e-9,
       )
       .map(
-        (c: IHumanContactWindow): IHumanEntryState.ISupport => ({
+        (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanEntryState.ISupport => ({
           part: c.part,
           kind: c.kind,
           support: c.support,
@@ -329,8 +328,8 @@ export namespace HumanSegmentEntry {
    * @returns The state and the samples it was read from.
    */
   function shown(
-    person: HumanSegment.IPerson,
-    previous: HumanSegment.ISegment | undefined,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    previous: IAutoMovieMotionHumanSegment | undefined,
     seconds: number,
     step: number,
     prepared: prepareHumanSegmentPose.IPrepared,
@@ -347,7 +346,7 @@ export namespace HumanSegmentEntry {
       }
       return pose;
     };
-    const state: samplePoseVelocity.IState = samplePoseVelocity(
+    const state: IAutoMoviePoseState = samplePoseVelocity(
       read,
       seconds,
       step,
@@ -372,8 +371,8 @@ export namespace HumanSegmentEntry {
    * @returns The state and the continued samples it was read from.
    */
   function left(
-    person: HumanSegment.IPerson,
-    previous: HumanSegment.ISegment,
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    previous: IAutoMovieMotionHumanSegment,
     seconds: number,
     blend: number,
     prepared: prepareHumanSegmentPose.IPrepared,

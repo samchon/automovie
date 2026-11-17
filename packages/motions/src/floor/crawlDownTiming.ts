@@ -1,8 +1,10 @@
 import { Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -26,8 +28,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The exact reader, bounded ROM/name metadata and K fresh maps end with this helper; only K scalar key times enter the returned crawl plan.
  */
 export function crawlDownTiming(
-  body: IHumanBody,
-  keys: readonly IHumanPosture[],
+  body: IAutoMovieMotionHumanBody,
+  keys: readonly IAutoMovieMotionHumanPosture[],
   sit: number,
 ): number[] {
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
@@ -39,7 +41,7 @@ export function crawlDownTiming(
     DEMAND,
   );
   const bones: ReturnType<typeof poseBones>[] = keys.map(
-    (key: IHumanPosture): ReturnType<typeof poseBones> =>
+    (key: IAutoMovieMotionHumanPosture): ReturnType<typeof poseBones> =>
       frames(
         resolveHumanPosture.seeded(
           body,

@@ -1,4 +1,8 @@
-import { IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+import {
+  type IAutoMovieCreateDynamicActorJabClip,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 import { ease } from "../motion/ease";
 import { actorWeightedArmPose } from "./actorWeightedArmPose";
@@ -15,26 +19,11 @@ import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The peak is deduplicated before target sampling, and each solved pose feeds one scalar envelope application with no cross-action cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The invocation owns partial samples until success, null or throw; the caller owns a successful clip and no live target callback is retained.
  */
-export const createDynamicActorJabClip: (props: {
-  /** Caller-selected output motion identity. */ id: string;
-  /** Skeleton id shared by every callback pose. */ skeleton: string;
-  /** Finite strictly positive clip span in seconds. */ duration: number;
-  /** Resolve an admitted clinical pose at local seconds; null refuses the complete bake and thrown errors propagate. */ poseAt: (
-    time: number,
-  ) => IAutoMoviePose | null;
-}) => IAutoMovieMotion | null = (props: {
-  /** Caller-selected output motion identity. */
-  id: string;
-
-  /** Skeleton id shared by every callback pose. */
-  skeleton: string;
-
-  /** Finite strictly positive clip span in seconds. */
-  duration: number;
-
-  /** Resolve an admitted clinical pose at local seconds; null refuses the complete bake and thrown errors propagate. */
-  poseAt: (time: number) => IAutoMoviePose | null;
-}): IAutoMovieMotion | null => {
+export const createDynamicActorJabClip: (
+  props: IAutoMovieCreateDynamicActorJabClip.IProps,
+) => IAutoMovieMotion | null = (
+  props: IAutoMovieCreateDynamicActorJabClip.IProps,
+): IAutoMovieMotion | null => {
   const peakAt: number = props.duration * 0.4;
   return createDynamicActorPoseClip({
     ...props,

@@ -1,13 +1,18 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * Prepare hand geometry while running every requested ladder bend solve.
@@ -25,9 +30,9 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns at most 2*(2*rungs+1) fixed-support contexts plus two hand frame/offset readers, released with the plan. An optional bilateral reader/context is borrowed only during this synchronous goal call and never enters those maps or returned goals; its write owns/releases current FK loans. No target/candidate/result/time history or external handle is retained.
  */
 export function climbLadderHands(
-  body: IHumanBody,
+  body: IAutoMovieMotionHumanBody,
   normal: IAutoMovieVector3,
-): (side: "left" | "right", posture: IHumanPosture, point: IAutoMovieVector3, support?: readonly [number, number], paired?: ReturnType<typeof AutoMovieMotionHumanBend.prepareBoth>) => IHumanPosture.IGoal {
+): (side: "left" | "right", posture: IAutoMovieMotionHumanPosture, point: IAutoMovieVector3, support?: readonly [number, number], paired?: ReturnType<typeof AutoMovieMotionHumanBend.prepareBoth>) => IAutoMovieHumanLimbGoal {
   const hands: Record<"left" | "right", ReturnType<typeof AutoMovieMotionHumanTarget.prepareHand>> = {
     left: AutoMovieMotionHumanTarget.prepareHand(body, "left", normal, { surface: "grip", shape: "relaxed", curl: 50 }),
     right: AutoMovieMotionHumanTarget.prepareHand(body, "right", normal, { surface: "grip", shape: "relaxed", curl: 50 }),
@@ -38,17 +43,17 @@ export function climbLadderHands(
   };
   const contexts: Record<"left" | "right", Map<string, ReturnType<typeof AutoMovieMotionHumanBend.prepare>>> = { left: new Map(), right: new Map() };
   const contacts: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
-  return (side: "left" | "right", posture: IHumanPosture, point: IAutoMovieVector3, support?: readonly [number, number], paired?: ReturnType<typeof AutoMovieMotionHumanBend.prepareBoth>): IHumanPosture.IGoal => {
+  return (side: "left" | "right", posture: IAutoMovieMotionHumanPosture, point: IAutoMovieVector3, support?: readonly [number, number], paired?: ReturnType<typeof AutoMovieMotionHumanBend.prepareBoth>): IAutoMovieHumanLimbGoal => {
     if (support === undefined && paired === undefined) return AutoMovieMotionHumanArm.goal(body, side, hands[side](posture, point));
     const frame: ReturnType<ReturnType<typeof HumanHandTarget.prepareFrame>> = frames[side](posture);
-    const wrist: HumanHand.IWrist = frame.place(point);
+    const wrist: IAutoMovieMotionHumanHand.IWrist = frame.place(point);
     let context: ReturnType<typeof AutoMovieMotionHumanBend.prepare>;
     if (support === undefined) context = paired!(side);
     else {
       const key: string = `${support[0]}:${support[1]}`;
       const known: ReturnType<typeof AutoMovieMotionHumanBend.prepare> | undefined = contexts[side].get(key);
       if (known === undefined) {
-        const fixed: AutoMovieMotionHumanBend.ISolve["posture"] = Object.freeze({
+        const fixed: IAutoMovieMotionHumanBend.ISolve["posture"] = Object.freeze({
           root: Object.freeze({ ...posture.root }), yaw: posture.yaw, pitch: posture.pitch, roll: posture.roll,
         });
         context = AutoMovieMotionHumanBend.prepare({ body, posture: fixed, side });

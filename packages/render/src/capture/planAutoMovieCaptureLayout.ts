@@ -1,6 +1,9 @@
+import type {
+  IAutoMovieCaptureLayout,
+  IAutoMovieCaptureLayoutProps,
+} from "@automovie/interface";
+
 import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
-import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
-import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout.js";
 
 /** Slack for the rounding of a pixel size that is a whole number in exact arithmetic, such as 720 × 200 / 720. */
 const EPSILON: number = 1e-9;
@@ -25,25 +28,9 @@ const EPSILON: number = 1e-9;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one small record and keeps nothing.
  */
-export function planAutoMovieCaptureLayout(props: {
-  /** Still width in pixels. */
-  width: number;
-
-  /** Still height in pixels. */
-  height: number;
-
-  /** Number of cells, at least one. */
-  count: number;
-
-  /** Cells that belong together in a row, such as the views and passes of one instant, at least one. */
-  group: number;
-
-  /** The reader the sheets are for. */
-  budget: IAutoMovieCaptureBudget;
-
-  /** Every caption a cell of these sheets may carry, the longest of which sizes the caption strip; empty for one line. */
-  captions: readonly string[];
-}): IAutoMovieCaptureLayout {
+export function planAutoMovieCaptureLayout(
+  props: IAutoMovieCaptureLayoutProps,
+): IAutoMovieCaptureLayout {
   const { width, height, count, budget } = props;
   for (const [key, value] of Object.entries({
     width,
