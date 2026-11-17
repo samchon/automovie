@@ -83,7 +83,7 @@ export namespace prepareHumanLimbSource {
     source: Omit<IFitChainToTargetProps, "target">,
     _readAuthored?: Parameters<typeof fitSeededChainToTarget.prepare>[1],
     resolution?: ReturnType<typeof preparePoseResolution>,
-  ): fitSeededChainToTarget.IWorkspace | undefined {
+  ): IWorkspace | undefined {
     const pool: IPool | undefined = resolution === undefined ? undefined : POOLS.get(resolution);
     if (pool?.body !== body || resolution === undefined || !preparePoseResolution.isNative(resolution) ||
       !CHAINS.has(source.chain.effector) || !supported(source.pose)) return undefined;
@@ -109,6 +109,7 @@ export namespace prepareHumanLimbSource {
       fixed.chain.upper !== source.chain.upper || fixed.chain.lower !== source.chain.lower ||
       fixed.chain.effector !== source.chain.effector || !same(fixed.pose, source.pose)) return undefined;
     const workspace: fitSeededChainToTarget.IWorkspace = entry.bind(source);
+    let records: Map<IAutoMoviePose["joints"][number], IAutoMoviePose["joints"][number]> | undefined;
     return {
       fit: (point: IAutoMovieVector3, near?: Parameters<fitSeededChainToTarget.IWorkspace["fit"]>[1]): ReturnType<fitSeededChainToTarget.IWorkspace["fit"]> => {
         const fitted: ReturnType<fitSeededChainToTarget.IWorkspace["fit"]> = workspace.fit(point, near);
@@ -121,8 +122,37 @@ export namespace prepareHumanLimbSource {
         return fitted;
       },
       rotation: workspace.rotation,
+      lent: (pose: IAutoMoviePose): IAutoMoviePose => {
+        if (pose === fixed.pose) return source.pose;
+        if (records === undefined) {
+          records = new Map();
+          fixed.pose.joints.forEach((joint: IAutoMoviePose["joints"][number], index: number): void => {
+            records!.set(joint, source.pose.joints[index]!);
+          });
+        }
+        return {
+          ...pose,
+          joints: pose.joints.map((joint: IAutoMoviePose["joints"][number]): IAutoMoviePose["joints"][number] =>
+            records!.get(joint) ?? joint),
+        };
+      },
     };
   }
+
+  /**
+   * A bound workspace of a shared first source. Its fits are solved on the
+   * pool's own snapshot of that source, so the records a fit leaves
+   * unchanged come back as the snapshot's; `lent` gives a fitted pose with
+   * each such record replaced by the record of the same place in the
+   * caller's own source (the two poses are equal record for record, which
+   * the match checked), and the caller's source itself for a fit that kept
+   * the snapshot. A caller that writes the fit's records back by the
+   * identity of the ones it lent (`HumanLimbView.merged`) reads through it,
+   * after any reading that needs the engine's own result object.
+   */
+  export type IWorkspace = fitSeededChainToTarget.IWorkspace & {
+    lent(pose: IAutoMoviePose): IAutoMoviePose;
+  };
 }
 
 /** One actual private unchanged-body reader's bounded first-source baselines. */

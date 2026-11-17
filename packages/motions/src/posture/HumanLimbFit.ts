@@ -364,8 +364,14 @@ export namespace HumanLimbFit {
           },
     );
     return fitHumanLimbContact(fitter, goal, side, limb.endsWith("Leg"),
-      (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit =>
-        read(fitter, point, near, body, continued));
+      (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit => {
+        const fitted: IAutoMovieSeededChainFit = read(fitter, point, near, body, continued);
+
+        // A workspace of a shared source solves on its own snapshot; its
+        // unchanged records are handed back as this pose's own, so the
+        // caller that merges the fit recognises the records it lent.
+        return fitter.lent === undefined ? fitted : { ...fitted, pose: fitter.lent(fitted.pose) };
+      });
   }
 
   /**

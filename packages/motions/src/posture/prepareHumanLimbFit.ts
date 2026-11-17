@@ -46,7 +46,7 @@ export function prepareHumanLimbFit(
   readAuthored?: Parameters<typeof fitSeededChainToTarget.prepare>[1],
   resolution?: Parameters<typeof fitSeededChainToTarget.prepare>[2],
   plant?: Parameters<typeof fitSeededChainToTarget.prepare>[4],
-): fitSeededChainToTarget.IWorkspace {
+): fitSeededChainToTarget.IWorkspace & Partial<Pick<prepareHumanLimbSource.IWorkspace, "lent">> {
   // A continued fit keeps its seed's basin. An uncontinued arm may instead
   // rank its own legal swivels by the same joint strain as Bend.solve.
   const strain: ReturnType<typeof AutoMovieMotionHumanBend.strainOf> =
