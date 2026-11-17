@@ -92,6 +92,12 @@ export namespace staggerRecover {
 
     /** The velocity it started from. */
     v: IAutoMovieVector3;
+
+    /** Where a weight shift's centre of pressure runs to on its minimum-jerk course from `p` (`staggerTransfer`); held at `p` when absent. */
+    to?: IAutoMovieVector3;
+
+    /** The weight shift's seconds, with `to`; held at `to` after them. */
+    span?: number;
   }
 
   /** The original prefix state snapshot/restore transfers between foot orders.

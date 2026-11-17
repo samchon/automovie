@@ -1,7 +1,6 @@
 import {
   Vector3,
   convexHull2D,
-  minimumJerk,
   pointInHull,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
@@ -13,6 +12,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
 import { staggerKnots } from "./staggerKnots";
+import { staggerTransfer } from "./staggerTransfer";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerPendulumCourses } from "./staggerPendulumCourses";
 import { staggerNearest } from "./staggerNearest";
@@ -353,15 +353,15 @@ export class StaggerPendulum {
    * the one about to leave, over the measured weight-transfer phase (Cyr,
    * Moglo and Smeesters 2005), on a minimum-jerk course (the model's choice;
    * no source gives the trace of a reactive step's), the pendulum integrated
-   * under it in `STEP`s.
+   * under it exactly in one span (`staggerTransfer`).
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States measured transfer timing, minimum-jerk pressure path and preserved STEP integration.
-   * @evidence contracts/development/implementation.md#principled-implementation Keeps the last pressure and nearest stance-foot endpoint, original rounded interval count and midpoint minimum-jerk interpolation before exact held-pressure advances.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed endpoints and interval factors precede the unchanged pressure-sample loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every interval, sample instant and pressure point; only identical cosh/sinh factors are prepared once.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(c) phases for original count c; fixed interval hyperbolic factors avoid two transcendental calls per repeated step.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work All intervals share the exact same duration and this pendulum's frequency, while each pressure sample and dynamic update is calculated separately.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the original c phase records in the search-owned phase array, with only constant additional factor scratch.
+   * @evidence contracts/development/common.md#meaningful-documentation States measured transfer timing, the minimum-jerk pressure path and its exact integration.
+   * @evidence contracts/development/implementation.md#principled-implementation The last pressure and the nearest stance-foot point are the course's ends; the pendulum under a quintic pressure course has an exact closed form.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The two ends, one span, the state at its end.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No time step: the span's course is the exact solution of the pendulum under the stated pressure course.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One phase and constant work per shift, replacing `TRANSFER / STEP` held spans.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The course readers evaluate the same span through the same closed form.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Appends one phase record to the search-owned phase array.
    */
   public transfer(stance: "left" | "right", seconds: number): void {
     // It leaves from where the centre of pressure stands, so the weight
@@ -374,20 +374,19 @@ export class StaggerPendulum {
       this.bearing([stance]),
       p0,
     );
-    const count: number = Math.max(
-      1,
-      Math.round(seconds / staggerBounds.STEP),
+
+    // One span in closed form over the whole shift (`staggerTransfer`).
+    this.phases.push({ from: this.t, p: p0, s: this.s, v: this.v, to: p1, span: seconds });
+    const end: ReturnType<typeof staggerTransfer> = staggerTransfer(
+      { p: p0, s: this.s, v: this.v },
+      p1,
+      seconds,
+      this.w,
+      seconds,
     );
-    const interval: number = seconds / count;
-    const ch: number = Math.cosh(this.w * interval);
-    const sh: number = Math.sinh(this.w * interval);
-    for (let i: number = 0; i < count; i++)
-      this.advanceAt(
-        Vector3.lerp(p0, p1, minimumJerk.share((i + 0.5) / count)),
-        interval,
-        ch,
-        sh,
-      );
+    this.s = end.s;
+    this.v = end.v;
+    this.t += seconds;
   }
 
   /** The pendulum over a span with its centre of pressure held.
